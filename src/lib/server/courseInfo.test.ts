@@ -4,14 +4,23 @@ import { JSDOM } from 'jsdom';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
 
-import { getName, getConnections } from './courseInfo';
+import { getName, getConnections, getPoints } from './courseInfo';
 
 describe('Course Info', () => {
+	it('Gets the course points', async () => {
+		const doc = new JSDOM(readFileSync(resolve(__dirname, 'course_234218.html'), 'utf-8')).window
+			.document;
+
+		const points = getPoints(doc);
+		expect(points).toBeDefined();
+		expect(points).toStrictEqual(3);
+	});
+
 	it('Gets the course name', async () => {
 		const doc = new JSDOM(readFileSync(resolve(__dirname, 'course_234218.html'), 'utf-8')).window
 			.document;
 
-		const name = await getName('234218', doc);
+		const name = getName('234218', doc);
 
 		expect(name).toBeDefined();
 		expect(name).toStrictEqual('234218 - מבני נתונים 1');
@@ -21,7 +30,7 @@ describe('Course Info', () => {
 		const doc = new JSDOM(readFileSync(resolve(__dirname, 'course_234218.html'), 'utf-8')).window
 			.document;
 
-		const connections = await getConnections(doc);
+		const connections = getConnections(doc);
 
 		expect(connections).toBeDefined();
 		expect(connections?.dependencies).toStrictEqual([

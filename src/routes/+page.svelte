@@ -53,6 +53,7 @@
 			<tr>
 				<th> Code </th>
 				<th> Median </th>
+				<th> Points </th>
 				<th> Name </th>
 				<th> Dependencies </th>
 				<th> Adjacent </th>
@@ -71,6 +72,9 @@
 								{course.info?.median.toFixed(2)}
 							</span>
 						{/if}
+					</td>
+					<td>
+						{course.info?.points}
 					</td>
 					<td>
 						{course.info?.name ?? 'N/A'}

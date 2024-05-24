@@ -12,6 +12,7 @@ declare global {
 	type CourseInfo = {
 		code: string;
 		median: number | undefined;
+		name: string | undefined;
 	};
 }
 

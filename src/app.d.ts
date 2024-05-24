@@ -18,6 +18,7 @@ declare global {
 	type CourseInfo = {
 		median: number | undefined;
 		name: string | undefined;
+		points: number | undefined;
 		connections: CourseConnections | undefined;
 	};
 

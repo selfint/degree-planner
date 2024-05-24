@@ -15,10 +15,28 @@ export async function getStudentsPage(code: string): Promise<Document | undefine
 	}
 }
 
-export async function getName(
-	code: string,
-	doc: Document | undefined
-): Promise<string | undefined> {
+export function getPoints(doc: Document | undefined): number | undefined {
+	const semesterInfo = doc?.querySelector('#semester_information');
+	if (semesterInfo === undefined || semesterInfo === null) {
+		return undefined;
+	}
+
+	const text = semesterInfo.textContent;
+	if (text === null) {
+		return undefined;
+	}
+
+	const match = text.match(/(\d+)\s+נקודות אקדמיות/);
+
+	if (match) {
+		const points = match[1];
+		return Number(points);
+	} else {
+		return undefined;
+	}
+}
+
+export function getName(code: string, doc: Document | undefined): string | undefined {
 	if (doc === undefined) {
 		return undefined;
 	}
@@ -30,9 +48,7 @@ export async function getName(
 	return name?.text;
 }
 
-export async function getConnections(
-	doc: Document | undefined
-): Promise<CourseConnections | undefined> {
+export function getConnections(doc: Document | undefined): CourseConnections | undefined {
 	const generalInformation: HTMLDivElement | null | undefined =
 		doc?.querySelector('#general_information');
 	if (generalInformation === null || generalInformation === undefined) {
@@ -43,7 +59,6 @@ export async function getConnections(
 	const adjacentSeparator = 'מקצועות צמודים';
 	const exclusiveSeparator = 'מקצועות ללא זיכוי נוסף';
 
-	console.dir(generalInformation);
 	const text = generalInformation.textContent ?? '';
 	const dependenciesStart = text.indexOf(dependenciesSeparator);
 	const adjacentStart = text.indexOf(adjacentSeparator);

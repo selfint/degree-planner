@@ -2,7 +2,6 @@
 	import { courses } from '$lib/stores';
 </script>
 
-<h2>Courses</h2>
 <table>
 	<thead>
 		<tr>

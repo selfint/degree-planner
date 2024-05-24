@@ -3,6 +3,7 @@
 	import { getCourseInfo } from '$lib/api';
 	import { courses } from '$lib/stores';
 	import CourseList from '$lib/components/CourseList.svelte';
+	import DAG from '$lib/components/DAG.svelte';
 
 	let textBlob: string | undefined = undefined;
 
@@ -37,6 +38,15 @@
 			);
 		}
 	}
+
+	const nodes = [{ id: 'A' }, { id: 'B' }, { id: 'C' }, { id: 'D' }];
+
+	const edges = [
+		{ source: 'A', target: 'B' },
+		{ source: 'A', target: 'C' },
+		{ source: 'B', target: 'D' },
+		{ source: 'C', target: 'D' }
+	];
 </script>
 
 <h1>Technion Course Plot</h1>
@@ -48,5 +58,9 @@
 		<button type="submit">Submit</button>
 	</form>
 {:else}
+	<h2>Semesters</h2>
+	<DAG {nodes} {edges} />
+
+	<h2>Courses</h2>
 	<CourseList />
 {/if}

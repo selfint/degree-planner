@@ -1,4 +1,4 @@
-export async function getName(course: string): Promise<string | undefined> {
+export async function getCourseInfo(course: string): Promise<CourseInfo | undefined> {
 	const response = await fetch('/api/courseInfo' + '?c=' + course);
 
 	if (response.ok) {

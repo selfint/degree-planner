@@ -10,9 +10,13 @@ declare global {
 	}
 
 	type CourseInfo = {
-		code: string;
 		median: number | undefined;
 		name: string | undefined;
+	};
+
+	type Course = {
+		code: string;
+		info: CourseInfo | undefined;
 	};
 }
 

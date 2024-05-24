@@ -1,30 +1,37 @@
 <script lang="ts">
 	import { parseCatalog } from '$lib/catalogParser';
-	import { getMedian } from '$lib/courseMedian';
-	import { getName } from '$lib/api';
+	import { getCourseInfo } from '$lib/api';
 	import { courses } from '$lib/stores';
 
 	let textBlob: string | undefined = undefined;
+
+	function sortCourses(array: Course[]) {
+		return array.slice().sort((a, b) => {
+			if (a.info?.median === b.info?.median) {
+				return a.code.localeCompare(b.code);
+			}
+
+			if (a.info?.median === undefined) return 1;
+			if (b.info?.median === undefined) return -1;
+
+			return b.info?.median - a.info?.median;
+		});
+	}
 
 	async function handleSubmit(event: Event): Promise<void> {
 		if (textBlob !== undefined) {
 			$courses = parseCatalog(textBlob).map((course) => {
 				return {
 					code: course,
-					median: undefined,
-					name: undefined
+					info: undefined
 				};
 			});
 
 			await Promise.all(
 				$courses.map(async (c) => {
-					const [median, name] = await Promise.all([
-						await getMedian(c.code),
-						await getName(c.code)
-					]);
-					c.median = median;
-					c.name = name;
-					$courses = $courses;
+					c.info = await getCourseInfo(c.code);
+
+					$courses = sortCourses($courses);
 				})
 			);
 		}
@@ -54,19 +61,19 @@
 				<tr>
 					<td>{course.code}</td>
 					<td>
-						{#if course.median === undefined}
+						{#if course.info?.median === undefined}
 							N / A
 						{:else}
 							<span class="median">
-								{course.median.toFixed(2)}
+								{course.info?.median.toFixed(2)}
 							</span>
 						{/if}
 					</td>
 					<td>
-						{#if course.name === undefined}
+						{#if course.info?.name === undefined}
 							N / A
 						{:else}
-							{course.name}
+							{course.info?.name}
 						{/if}
 					</td>
 				</tr>

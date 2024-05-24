@@ -1,5 +1,5 @@
 import { error, json } from '@sveltejs/kit';
-import { getName, getStudentsPage } from '$lib/server/courseInfo.js';
+import { getConnections, getName, getStudentsPage } from '$lib/server/courseInfo.js';
 import { getMedian } from '$lib/server/courseMedian.js';
 
 export const GET = async ({ url }) => {
@@ -11,8 +11,9 @@ export const GET = async ({ url }) => {
 	const studentPage = await getStudentsPage(code);
 
 	const info: CourseInfo = {
+		median: await getMedian(code),
 		name: await getName(code, studentPage),
-		median: await getMedian(code)
+		connections: await getConnections(studentPage)
 	};
 
 	return json(info);

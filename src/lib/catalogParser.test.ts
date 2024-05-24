@@ -3,6 +3,10 @@ import { describe, it, expect } from 'vitest';
 import { parseCatalog } from './catalogParser';
 
 describe('Catalog Parser', () => {
+	it('parses 5 digit courses', () => {
+		expect(parseCatalog('12345')).toStrictEqual(['12345']);
+	});
+
 	it('removes duplicates', () => {
 		const text = '123456 123456';
 		const codes = ['123456'];

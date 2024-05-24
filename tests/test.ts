@@ -53,3 +53,25 @@ test('courses displayed', async ({ page }) => {
 	// Ensure at least one course is displayed (adjust according to your catalog parsing logic)
 	expect(coursesCount).toStrictEqual(codes.length);
 });
+
+test('courses medians displayed', async ({ page }) => {
+	await page.goto('/');
+
+	await page.fill('textarea', '234329');
+
+	// Locate the submit button and click it
+	await page.click('button[type="submit"]');
+
+	// Wait for the parsed courses to be displayed
+	await page.waitForSelector('span.median');
+
+	// Assert that the courses are displayed
+	const coursesList = page.locator('ul');
+	const coursesCount = await coursesList.count();
+
+	// Ensure at least one course is displayed (adjust according to your catalog parsing logic)
+	expect(coursesCount).toStrictEqual(1);
+
+	const courseContent = await coursesList.nth(0).textContent();
+	expect(courseContent).toContain('99.6');
+});

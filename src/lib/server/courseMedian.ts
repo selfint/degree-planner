@@ -11,6 +11,7 @@ export async function getMedian(course: string): Promise<number | undefined> {
 
 	if (!response.ok) {
 		console.error(response);
+		console.error(getHistogramUrl(course));
 		return undefined;
 	}
 

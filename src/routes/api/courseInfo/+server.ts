@@ -1,5 +1,6 @@
 import { error, json } from '@sveltejs/kit';
-import { getName } from '$lib/server/courseName.js';
+import { getName, getStudentsPage } from '$lib/server/courseInfo.js';
+import { getMedian } from '$lib/server/courseMedian.js';
 
 export const GET = async ({ url }) => {
 	const code = url.searchParams.get('c');
@@ -7,5 +8,12 @@ export const GET = async ({ url }) => {
 		return error(422, 'Missing c (code) query parameter');
 	}
 
-	return json(await getName(code));
+	const studentPage = await getStudentsPage(code);
+
+	const info: CourseInfo = {
+		name: await getName(code, studentPage),
+		median: await getMedian(code)
+	};
+
+	return json(info);
 };

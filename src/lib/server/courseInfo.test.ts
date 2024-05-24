@@ -4,15 +4,40 @@ import { JSDOM } from 'jsdom';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
 
-import { getName } from './courseInfo';
+import { getName, getConnections } from './courseInfo';
 
-describe('Course Name', () => {
+describe('Course Info', () => {
 	it('Gets the course name', async () => {
-		const HTML = readFileSync(resolve(__dirname, 'course_234218.html'), 'utf-8');
+		const doc = new JSDOM(readFileSync(resolve(__dirname, 'course_234218.html'), 'utf-8')).window
+			.document;
 
-		const name = await getName('234218', new JSDOM(HTML).window.document);
+		const name = await getName('234218', doc);
 
 		expect(name).toBeDefined();
 		expect(name).toStrictEqual('234218 - מבני נתונים 1');
+	});
+
+	it('Get the course connections', async () => {
+		const doc = new JSDOM(readFileSync(resolve(__dirname, 'course_234218.html'), 'utf-8')).window
+			.document;
+
+		const connections = await getConnections(doc);
+
+		expect(connections).toBeDefined();
+		expect(connections?.dependencies).toStrictEqual([
+			['104286', '234122'],
+			['104286', '234124'],
+			['234122', '234141'],
+			['234124', '234141']
+		]);
+		expect(connections?.adjacent).toStrictEqual(['94412', '104034', '104222']);
+		expect(connections?.exclusive).toStrictEqual([
+			'44268',
+			'94223',
+			'94224',
+			'104918',
+			'234268',
+			'35015'
+		]);
 	});
 });

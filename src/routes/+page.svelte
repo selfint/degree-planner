@@ -54,6 +54,9 @@
 				<th> Code </th>
 				<th> Median </th>
 				<th> Name </th>
+				<th> Dependencies </th>
+				<th> Adjacent </th>
+				<th> Exclusive </th>
 			</tr>
 		</thead>
 		<tbody>
@@ -70,11 +73,16 @@
 						{/if}
 					</td>
 					<td>
-						{#if course.info?.name === undefined}
-							N / A
-						{:else}
-							{course.info?.name}
-						{/if}
+						{course.info?.name ?? 'N/A'}
+					</td>
+					<td>
+						{course.info?.connections?.dependencies}
+					</td>
+					<td>
+						{course.info?.connections?.adjacent}
+					</td>
+					<td>
+						{course.info?.connections?.exclusive}
 					</td>
 				</tr>
 			{/each}

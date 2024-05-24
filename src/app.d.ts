@@ -9,9 +9,16 @@ declare global {
 		// interface Platform {}
 	}
 
+	type CourseConnections = {
+		dependencies: string[][];
+		adjacent: string[];
+		exclusive: string[];
+	};
+
 	type CourseInfo = {
 		median: number | undefined;
 		name: string | undefined;
+		connections: CourseConnections | undefined;
 	};
 
 	type Course = {

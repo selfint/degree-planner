@@ -8,6 +8,11 @@ declare global {
 		// interface PageState {}
 		// interface Platform {}
 	}
+
+	type CourseInfo = {
+		code: string;
+		median: number | undefined;
+	};
 }
 
 export {};

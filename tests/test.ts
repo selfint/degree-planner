@@ -47,11 +47,11 @@ test('courses displayed', async ({ page }) => {
 	await page.waitForSelector('h2:has-text("Courses")');
 
 	// Assert that the courses are displayed
-	const coursesList = page.locator('ul');
+	const coursesList = page.locator('tr');
 	const coursesCount = await coursesList.count();
 
 	// Ensure at least one course is displayed (adjust according to your catalog parsing logic)
-	expect(coursesCount).toStrictEqual(codes.length);
+	expect(coursesCount).toStrictEqual(codes.length + 1);
 });
 
 test('courses medians displayed', async ({ page }) => {
@@ -66,12 +66,12 @@ test('courses medians displayed', async ({ page }) => {
 	await page.waitForSelector('span.median');
 
 	// Assert that the courses are displayed
-	const coursesList = page.locator('ul');
+	const coursesList = page.locator('tr');
 	const coursesCount = await coursesList.count();
 
 	// Ensure at least one course is displayed (adjust according to your catalog parsing logic)
-	expect(coursesCount).toStrictEqual(1);
+	expect(coursesCount).toStrictEqual(1 + 1);
 
-	const courseContent = await coursesList.nth(0).textContent();
+	const courseContent = await coursesList.nth(1).textContent();
 	expect(courseContent).toContain('99.6');
 });

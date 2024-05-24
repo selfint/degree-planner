@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { parseCatalog } from '$lib/catalogParser';
 	import { getMedian } from '$lib/courseMedian';
-	import { getName } from '$lib/courseName';
+	import { getName } from '$lib/api';
 	import { courses } from '$lib/stores';
 
 	let textBlob: string | undefined = undefined;

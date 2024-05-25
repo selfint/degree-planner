@@ -44,7 +44,8 @@ test('courses displayed', async ({ page }) => {
 	await page.click('button[type="submit"]');
 
 	// Wait for the parsed courses to be displayed
-	await page.waitForSelector('h2:has-text("Courses")');
+	await page.waitForSelector('progress');
+	await page.waitForFunction(() => !document.querySelector('progress'));
 
 	// Assert that the courses are displayed
 	const coursesList = page.locator('tr');
@@ -63,7 +64,8 @@ test('courses medians displayed', async ({ page }) => {
 	await page.click('button[type="submit"]');
 
 	// Wait for the parsed courses to be displayed
-	await page.waitForSelector('span.median');
+	await page.waitForSelector('progress');
+	await page.waitForFunction(() => !document.querySelector('progress'));
 
 	// Assert that the courses are displayed
 	const coursesList = page.locator('tr');

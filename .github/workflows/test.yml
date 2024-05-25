@@ -16,6 +16,6 @@ jobs:
           node-version: 20
           cache: npm
       - name: Install dependencies
-        run: npm install
+        run: npm install && npx playwright install
       - name: test
         run: npm run test

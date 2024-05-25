@@ -1,21 +1,28 @@
+<script context="module" lang="ts">
+	export type CourseRow = {
+		course: Course;
+		cssClass: string;
+	};
+</script>
+
 <script lang="ts">
-	export let courses: Course[];
+	export let rows: CourseRow[];
 	export let onClick: (course: Course) => void = () => {};
 	export let enableSearch = false;
 
 	let search = '';
 
-	const filterCourses = (courses: Course[]) => {
-		courses = courses.filter((course) => course.info?.name !== undefined);
+	const filterCourses = (rows: CourseRow[]) => {
+		rows = rows.filter((row) => row.course.info?.name !== undefined);
 
-		if (search.trim() === '') return courses;
+		if (search.trim() === '') return rows;
 
-		return courses.filter((course) => {
-			return course.code.toLowerCase().includes(search.toLowerCase());
+		return rows.filter((row) => {
+			return row.course.code.toLowerCase().includes(search.toLowerCase());
 		});
 	};
 
-	$: filteredCourses = filterCourses(courses);
+	$: filteredRows = filterCourses(rows);
 </script>
 
 {#if enableSearch}
@@ -24,7 +31,7 @@
 		placeholder="Search..."
 		class="m-1 border border-black p-1"
 		bind:value={search}
-		on:input={() => (filteredCourses = filterCourses(courses))}
+		on:input={() => (filteredRows = filterCourses(rows))}
 	/>
 {/if}
 <table>
@@ -37,17 +44,17 @@
 		</tr>
 	</thead>
 	<tbody>
-		{#each filteredCourses as course}
-			<tr class="hover:bg-yellow-200" on:mousedown={() => onClick(course)}>
-				<td>{course.code}</td>
+		{#each filteredRows as row}
+			<tr class="hover:bg-yellow-200" on:mousedown={() => onClick(row.course)}>
+				<td>{row.course.code}</td>
 				<td>
-					{course.info?.median?.toFixed(2) ?? 'N/A'}
+					{row.course.info?.median?.toFixed(2) ?? 'N/A'}
 				</td>
 				<td>
-					{course.info?.points}
+					{row.course.info?.points}
 				</td>
 				<td>
-					{course.info?.name ?? 'N/A'}
+					{row.course.info?.name ?? 'N/A'}
 				</td>
 			</tr>
 		{/each}

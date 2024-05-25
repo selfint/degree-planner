@@ -49,7 +49,30 @@
 	<h3 class="text-xl">
 		Registered Courses ({$semester.reduce((acc, course) => acc + (course.info?.points ?? 0), 0)} points)
 	</h3>
-	<CourseList courses={$semester} onClick={removeCourse} />
-	<h3 class="text-xl">Available Courses</h3>
-	<CourseList courses={availableCourses} onClick={addCourse} />
+	<table>
+		<thead>
+			<tr>
+				<th> Code </th>
+				<th> Median </th>
+				<th> Points </th>
+				<th> Name </th>
+			</tr>
+		</thead>
+		<tbody>
+			{#each $semester as course}
+				<tr class="hover:bg-yellow-200" on:mousedown={() => removeCourse(course)}>
+					<td>{course.code}</td>
+					<td>
+						{course.info?.median?.toFixed(2) ?? 'N/A'}
+					</td>
+					<td>
+						{course.info?.points}
+					</td>
+					<td>
+						{course.info?.name ?? 'N/A'}
+					</td>
+				</tr>
+			{/each}
+		</tbody>
+	</table>
 </div>

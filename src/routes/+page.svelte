@@ -1,13 +1,13 @@
 <script lang="ts">
+	import CourseGroupInput from '$lib/components/CourseGroupInput.svelte';
+	import { courses, groups, totalPoints, loadStores, storeHook } from '$lib/stores';
 	import { writable, get } from 'svelte/store';
+	import { onMount } from 'svelte';
 
-	import { parseCatalog } from '$lib/catalogParser';
-	import { getCourseInfo } from '$lib/api';
-	import { courses, semesters } from '$lib/stores';
-	import CourseList from '$lib/components/CourseList.svelte';
-	import Semester from '$lib/components/Semester.svelte';
-
-	let textBlob: string | undefined = undefined;
+	onMount(() => {
+		loadStores();
+		storeHook();
+	});
 
 	function sortCourses(array: Course[]) {
 		return array.slice().sort((a, b) => {
@@ -22,64 +22,61 @@
 		});
 	}
 
-	let progress = -1;
-	async function handleSubmit(): Promise<void> {
-		if (textBlob !== undefined) {
-			$courses = parseCatalog(textBlob).map((course) => {
-				return {
-					code: course,
-					info: undefined
-				};
-			});
+	let newName: string | undefined = undefined;
+	let newPoints: string | undefined = undefined;
 
-			progress = 0;
-
-			await Promise.all(
-				$courses.map(async (c) => {
-					c.info = await getCourseInfo(c.code);
-
-					progress++;
-					$courses = sortCourses($courses);
-				})
-			);
+	function newGroup(): void {
+		if (newName === undefined || newPoints === undefined) {
+			return;
 		}
+
+		if ($groups.some((group) => get(group).name === newName)) {
+			return;
+		}
+
+		$groups = [...$groups, writable({ name: newName, courses: [], points: parseInt(newPoints) })];
 	}
+
+	for (const group of $groups) {
+		group.subscribe(() => {
+			$courses = sortCourses($groups.flatMap((group) => get(group).courses));
+		});
+	}
+
+	console.dir($groups.map(get));
 </script>
 
-<h1 class="text-center text-3xl font-bold underline">Technion Course Plot</h1>
+<h1 class="border-b-2 border-black text-center text-3xl">Degree catalog</h1>
 
-{#if progress === -1}
-	<h2 class="text-2xl font-bold">Enter catalog text</h2>
-	<form class="m-1" on:submit|preventDefault={handleSubmit}>
-		<textarea class="border border-black" bind:value={textBlob} rows="10" cols="50"></textarea>
-		<button class="border border-black p-1" type="submit">Submit</button>
-	</form>
-{:else}
-	<h2 class="text-2xl font-bold">Semesters</h2>
-	<button
-		class="border border-black p-1"
-		on:click={() => ($semesters = [...$semesters, writable([])])}
-	>
-		Add Semester
-	</button>
-	<div class="flex space-x-4">
-		{#each $semesters as semester, i}
-			<Semester
-				index={i}
-				courses={$courses}
-				prevCourses={$semesters.slice(0, i).flatMap((s) => get(s))}
-				{semester}
-				onRemove={() => ($semesters = $semesters.filter((_, index) => index !== i))}
-			/>
-		{/each}
+<div class="p-1">
+	<label for="total-points">Total points:</label>
+	<input type="text" id="total-points" bind:value={$totalPoints} class="border border-black p-1" />
+</div>
+<div class="flex flex-row flex-wrap">
+	{#each $groups as group}
+		<CourseGroupInput {group} onDelete={() => {}} />
+	{/each}
+	<div class="m-1 rounded border border-black p-1">
+		<h2 class="text-xl font-bold">New group</h2>
+		<form on:submit|preventDefault={newGroup}>
+			<div>
+				<label for="group-name">Group name:</label>
+				<input type="text" id="group-name" bind:value={newName} class="border border-black" />
+			</div>
+			<div>
+				<label for="group-points">Group points:</label>
+				<input
+					type="text"
+					id="group-points"
+					class="border border-black"
+					bind:value={newPoints}
+					on:input={(e) => {
+						// @ts-ignore
+						e.target.value = e.target.value.replace(/\D/g, '');
+					}}
+				/>
+			</div>
+			<button class="border border-black p-1" type="submit">Submit</button>
+		</form>
 	</div>
-
-	<h2 class="text-2xl font-bold">Courses</h2>
-	{#if progress < $courses.length}
-		<div>
-			<p class="text-lg">Loading courses ({progress} / {$courses.length})</p>
-			<progress max={$courses.length} value={progress} />
-		</div>
-	{/if}
-	<CourseList courses={$courses} enableSearch={true} />
-{/if}
+</div>

@@ -1,9 +1,11 @@
 <script lang="ts">
+	import { writable, get } from 'svelte/store';
+
 	import { parseCatalog } from '$lib/catalogParser';
 	import { getCourseInfo } from '$lib/api';
-	import { courses } from '$lib/stores';
+	import { courses, semesters } from '$lib/stores';
 	import CourseList from '$lib/components/CourseList.svelte';
-	import DAG from '$lib/components/DAG.svelte';
+	import Semester from '$lib/components/Semester.svelte';
 
 	let textBlob: string | undefined = undefined;
 
@@ -40,18 +42,34 @@
 	}
 </script>
 
-<h1>Technion Course Plot</h1>
+<h1 class="text-center text-3xl font-bold underline">Technion Course Plot</h1>
 
 {#if $courses.length === 0}
-	<h2>Enter catalog text</h2>
-	<form on:submit|preventDefault={handleSubmit}>
-		<textarea bind:value={textBlob} rows="10" cols="50"></textarea>
-		<button type="submit">Submit</button>
+	<h2 class="text-2xl font-bold">Enter catalog text</h2>
+	<form class="m-1" on:submit|preventDefault={handleSubmit}>
+		<textarea class="border border-black" bind:value={textBlob} rows="10" cols="50"></textarea>
+		<button class="border border-black p-1" type="submit">Submit</button>
 	</form>
 {:else}
-	<h2>Semesters</h2>
-	<DAG />
+	<h2 class="text-2xl font-bold">Semesters</h2>
+	<button
+		class="border border-black p-1"
+		on:click={() => ($semesters = [...$semesters, writable([])])}
+	>
+		Add Semester
+	</button>
+	<div class="flex space-x-4">
+		{#each $semesters as semester, i}
+			<Semester
+				index={i}
+				courses={$courses}
+				prevCourses={$semesters.slice(0, i).flatMap((s) => get(s))}
+				{semester}
+				onRemove={() => ($semesters = $semesters.filter((_, index) => index !== i))}
+			/>
+		{/each}
+	</div>
 
-	<h2>Courses</h2>
-	<CourseList />
+	<h2 class="text-2xl font-bold">Courses</h2>
+	<CourseList courses={$courses} enableSearch={true} />
 {/if}

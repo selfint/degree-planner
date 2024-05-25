@@ -9,9 +9,9 @@
 			<th> Median </th>
 			<th> Points </th>
 			<th> Name </th>
-			<th> Dependencies </th>
+			<!-- <th> Dependencies </th>
 			<th> Adjacent </th>
-			<th> Exclusive </th>
+			<th> Exclusive </th> -->
 		</tr>
 	</thead>
 	<tbody>
@@ -33,7 +33,7 @@
 				<td>
 					{course.info?.name ?? 'N/A'}
 				</td>
-				<td>
+				<!-- <td>
 					{course.info?.connections?.dependencies}
 				</td>
 				<td>
@@ -41,7 +41,7 @@
 				</td>
 				<td>
 					{course.info?.connections?.exclusive}
-				</td>
+				</td> -->
 			</tr>
 		{/each}
 	</tbody>

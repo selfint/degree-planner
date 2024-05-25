@@ -1,87 +1,97 @@
-<script>
+<script lang="ts">
 	import { onMount } from 'svelte';
 	import * as d3 from 'd3';
 
-	export let nodes = [];
-	export let edges = [];
+	import { courses } from '$lib/stores';
+
+	// for each course, get the max depth of its dependencies
+	// if the depth is greater than the current ring, add a new ring
+	const courseDepths = new Map<string, number>();
+	const courseRings = new Map<string, number>();
+	let maxDepth = 0;
+
+	const radius = 200;
+	let ringSpacing = radius;
+	$: {
+		for (const course of $courses) {
+			let depth =
+				Math.max(
+					...(course.info?.connections?.dependencies ?? []).flatMap((deps) =>
+						deps.map((dep) => courseDepths.get(dep) ?? 0)
+					)
+				) + 1;
+			depth = depth === Number.NEGATIVE_INFINITY ? 0 : depth;
+			courseDepths.set(course.code, depth);
+		}
+		maxDepth = Math.max(...Array.from(courseDepths.values()));
+		ringSpacing = radius / (maxDepth + 1);
+
+		for (const course of $courses) {
+			const depth = courseDepths.get(course.code) ?? 0;
+			courseRings.set(course.code, maxDepth - depth);
+		}
+	}
+
+	let svg: d3.Selection<d3.BaseType, unknown, HTMLElement, any>;
+	let nodes: d3.Selection<SVGCircleElement, Course, d3.BaseType, unknown>;
+	let rings: d3.Selection<SVGCircleElement, number, d3.BaseType, unknown>;
 
 	onMount(() => {
-		const svg = d3.select('#dag').attr('width', 800).attr('height', 600);
+		svg = d3.select('#dag').attr('width', 800).attr('height', 600);
+		nodes = svg.selectAll('circle');
+		rings = svg.selectAll('circle.ring');
+	});
 
-		const simulation = d3
-			.forceSimulation(nodes)
-			.force(
-				'link',
-				d3.forceLink(edges).id((d) => d.id)
-			)
-			.force('charge', d3.forceManyBody())
-			.force('center', d3.forceCenter(800 / 2, 600 / 2));
+	$: if (rings) {
+		console.log('debug');
+		const data = Array.from({ length: maxDepth + 1 }, (_, i) => i);
+		console.log([maxDepth, data, courseDepths]);
+		rings = rings.data(data);
+		rings.exit().remove();
 
-		const link = svg
-			.append('g')
-			.attr('class', 'links')
-			.selectAll('line')
-			.data(edges)
-			.enter()
-			.append('line')
-			.attr('stroke-width', 2);
-
-		const node = svg
-			.append('g')
-			.attr('class', 'nodes')
-			.selectAll('circle')
-			.data(nodes)
+		rings = rings
 			.enter()
 			.append('circle')
-			.attr('r', 5)
-			.attr('fill', 'blue')
-			.call(d3.drag().on('start', dragstarted).on('drag', dragged).on('end', dragended));
+			.merge(rings)
+			.attr('cx', 400)
+			.attr('cy', 300)
+			.attr('r', (d, i) => {
+				return ringSpacing * (d + 1);
+			})
+			.attr('fill', 'none')
+			.attr('stroke', 'black')
+			.attr('class', 'ring');
+	}
 
-		node.append('title').text((d) => d.id);
+	$: if (nodes) {
+		nodes = nodes.data($courses);
+		nodes.exit().remove();
 
-		simulation.nodes(nodes).on('tick', ticked);
+		let nodeEnter = nodes.enter().append('circle').attr('r', 5);
 
-		simulation.force('link').links(edges);
+		nodeEnter.append('title').text((d) => 'hello');
 
-		function ticked() {
-			link
-				.attr('x1', (d) => d.source.x)
-				.attr('y1', (d) => d.source.y)
-				.attr('x2', (d) => d.target.x)
-				.attr('y2', (d) => d.target.y);
-
-			node.attr('cx', (d) => d.x).attr('cy', (d) => d.y);
-		}
-
-		function dragstarted(event, d) {
-			if (!event.active) simulation.alphaTarget(0.3).restart();
-			d.fx = d.x;
-			d.fy = d.y;
-		}
-
-		function dragged(event, d) {
-			d.fx = event.x;
-			d.fy = event.y;
-		}
-
-		function dragended(event, d) {
-			if (!event.active) simulation.alphaTarget(0);
-			d.fx = null;
-			d.fy = null;
-		}
-	});
+		nodes = nodeEnter
+			.merge(nodes)
+			.attr('cx', (d) => {
+				const ring = courseRings.get(d.code) ?? 0;
+				const itemsInRing = $courses.filter((c) => courseRings.get(c.code) === ring);
+				const indexInRing = itemsInRing.indexOf(d);
+				return (
+					400 +
+					Math.cos((indexInRing / itemsInRing.length) * 2 * Math.PI) * (ringSpacing * (ring + 0.5))
+				);
+			})
+			.attr('cy', (d) => {
+				const ring = courseRings.get(d.code) ?? 0;
+				const itemsInRing = $courses.filter((c) => courseRings.get(c.code) === ring);
+				const indexInRing = itemsInRing.indexOf(d);
+				return (
+					300 +
+					Math.sin((indexInRing / itemsInRing.length) * 2 * Math.PI) * (ringSpacing * (ring + 0.5))
+				);
+			});
+	}
 </script>
 
 <svg id="dag"></svg>
-
-<style>
-	.nodes circle {
-		stroke: #fff;
-		stroke-width: 1.5px;
-	}
-
-	.links line {
-		stroke: #999;
-		stroke-opacity: 0.6;
-	}
-</style>

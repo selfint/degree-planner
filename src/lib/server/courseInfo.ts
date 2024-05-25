@@ -36,12 +36,8 @@ export function getPoints(doc: Document | undefined): number | undefined {
 	}
 }
 
-export function getName(code: string, doc: Document | undefined): string | undefined {
-	if (doc === undefined) {
-		return undefined;
-	}
-
-	return doc.querySelector('title')?.textContent ?? undefined;
+export function getName(doc: Document | undefined): string | undefined {
+	return doc?.querySelector('title')?.textContent ?? undefined;
 }
 
 export function getConnections(doc: Document | undefined): CourseConnections | undefined {

@@ -58,44 +58,44 @@ export function getConnections(doc: Document | undefined): CourseConnections | u
 	const dependenciesSeparator = 'מקצועות קדם';
 	const adjacentSeparator = 'מקצועות צמודים';
 	const exclusiveSeparator = 'מקצועות ללא זיכוי נוסף';
+	const or = 'או';
 
-	const text = generalInformation.textContent ?? '';
-	const dependenciesStart = text.indexOf(dependenciesSeparator);
-	const adjacentStart = text.indexOf(adjacentSeparator);
-	const exclusiveStart = text.indexOf(exclusiveSeparator);
+	let dependenciesElement: HTMLParagraphElement | undefined = undefined;
+	let adjacentElement: HTMLParagraphElement | undefined = undefined;
+	let exclusiveElements: HTMLParagraphElement[] | undefined = undefined;
 
-	const dependencies = text.slice(
-		dependenciesStart,
-		Math.min(
-			adjacentStart === -1 ? text.length : adjacentStart,
-			exclusiveStart === -1 ? text.length : exclusiveStart
-		)
-	);
-	const adjacent = text.slice(adjacentStart, exclusiveStart);
-	const exclusive = text.slice(exclusiveStart);
+	for (let i = 0; i < generalInformation.children.length; i++) {
+		const child = generalInformation.children[i];
+		if (child.tagName === 'H5') {
+			if (child.textContent?.includes(dependenciesSeparator)) {
+				dependenciesElement = generalInformation.children[i + 1] as HTMLParagraphElement;
+			} else if (child.textContent?.includes(adjacentSeparator)) {
+				adjacentElement = generalInformation.children[i + 1] as HTMLParagraphElement;
+			} else if (child.textContent?.includes(exclusiveSeparator)) {
+				if (exclusiveElements === undefined) {
+					exclusiveElements = [];
+				}
 
-	const extractContentBetweenParentheses = (text: string): string[] => {
-		const regex = /\(([^)]+)\)/g;
-		const matches = [];
-		let match;
-		while ((match = regex.exec(text)) !== null) {
-			matches.push(match[1]);
+				for (let j = i + 1; j < generalInformation.children.length; j++) {
+					if (generalInformation.children[j].tagName === 'P') {
+						exclusiveElements.push(generalInformation.children[j] as HTMLParagraphElement);
+					}
+				}
+			}
 		}
-		const result = [...new Set(matches)];
-		if (result.length === 0) {
-			return [text];
-		} else {
-			return result;
-		}
-	};
+	}
 
-	const dependenciesList = extractContentBetweenParentheses(dependencies).map(parseCatalog);
-	const adjacentList = parseCatalog(adjacent);
-	const exclusiveList = parseCatalog(exclusive);
+	const dependencies =
+		dependenciesElement?.textContent
+			?.split(or)
+			.map(parseCatalog)
+			.map((g) => [...new Set(g)]) ?? [];
+	const adjacent = parseCatalog(adjacentElement?.textContent ?? '');
+	const exclusive = exclusiveElements?.flatMap((e) => parseCatalog(e.textContent ?? '')) ?? [];
 
 	return {
-		dependencies: dependenciesList,
-		adjacent: adjacentList,
-		exclusive: exclusiveList
+		dependencies: [...new Set(dependencies)],
+		adjacent: [...new Set(adjacent)],
+		exclusive: [...new Set(exclusive)]
 	};
 }

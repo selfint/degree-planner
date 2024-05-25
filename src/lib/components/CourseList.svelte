@@ -41,13 +41,7 @@
 			<tr class="hover:bg-yellow-200" on:mousedown={() => onClick(course)}>
 				<td>{course.code}</td>
 				<td>
-					{#if course.info?.median === undefined}
-						N / A
-					{:else}
-						<span class="median">
-							{course.info?.median.toFixed(2)}
-						</span>
-					{/if}
+					{course.info?.median?.toFixed(2) ?? 'N/A'}
 				</td>
 				<td>
 					{course.info?.points}

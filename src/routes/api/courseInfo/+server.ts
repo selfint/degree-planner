@@ -13,7 +13,7 @@ export const GET = async ({ url }) => {
 	const info: CourseInfo = {
 		median: await getMedian(code),
 		points: getPoints(studentPage),
-		name: getName(code, studentPage),
+		name: getName(studentPage),
 		connections: getConnections(studentPage)
 	};
 

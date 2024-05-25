@@ -20,7 +20,7 @@ describe('Course Info', () => {
 		const doc = new JSDOM(readFileSync(resolve(__dirname, 'course_234218.html'), 'utf-8')).window
 			.document;
 
-		const name = getName('234218', doc);
+		const name = getName(doc);
 
 		expect(name).toBeDefined();
 		expect(name).toStrictEqual('234218 - מבני נתונים 1');

@@ -26,6 +26,12 @@ declare global {
 		code: string;
 		info: CourseInfo | undefined;
 	};
+
+	type Group = {
+		name: string;
+		points: number;
+		courses: Course[];
+	};
 }
 
 export {};

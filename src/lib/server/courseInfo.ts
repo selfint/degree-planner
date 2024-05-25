@@ -64,7 +64,13 @@ export function getConnections(doc: Document | undefined): CourseConnections | u
 	const adjacentStart = text.indexOf(adjacentSeparator);
 	const exclusiveStart = text.indexOf(exclusiveSeparator);
 
-	const dependencies = text.slice(dependenciesStart, Math.min(adjacentStart, exclusiveStart));
+	const dependencies = text.slice(
+		dependenciesStart,
+		Math.min(
+			adjacentStart === -1 ? text.length : adjacentStart,
+			exclusiveStart === -1 ? text.length : exclusiveStart
+		)
+	);
 	const adjacent = text.slice(adjacentStart, exclusiveStart);
 	const exclusive = text.slice(exclusiveStart);
 
@@ -75,7 +81,12 @@ export function getConnections(doc: Document | undefined): CourseConnections | u
 		while ((match = regex.exec(text)) !== null) {
 			matches.push(match[1]);
 		}
-		return [...new Set(matches)];
+		const result = [...new Set(matches)];
+		if (result.length === 0) {
+			return [text];
+		} else {
+			return result;
+		}
 	};
 
 	const dependenciesList = extractContentBetweenParentheses(dependencies).map(parseCatalog);

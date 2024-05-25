@@ -1,7 +1,32 @@
 <script lang="ts">
-	import { courses } from '$lib/stores';
+	export let courses: Course[];
+	export let onClick: (course: Course) => void = () => {};
+	export let enableSearch = false;
+
+	let search = '';
+
+	const filterCourses = (courses: Course[]) => {
+		courses = courses.filter((course) => course.info?.name !== undefined);
+
+		if (search.trim() === '') return courses;
+
+		return courses.filter((course) => {
+			return course.code.toLowerCase().includes(search.toLowerCase());
+		});
+	};
+
+	$: filteredCourses = filterCourses(courses);
 </script>
 
+{#if enableSearch}
+	<input
+		type="text"
+		placeholder="Search..."
+		class="m-1 border border-black p-1"
+		bind:value={search}
+		on:input={() => (filteredCourses = filterCourses(courses))}
+	/>
+{/if}
 <table>
 	<thead>
 		<tr>
@@ -9,14 +34,11 @@
 			<th> Median </th>
 			<th> Points </th>
 			<th> Name </th>
-			<!-- <th> Dependencies </th>
-			<th> Adjacent </th>
-			<th> Exclusive </th> -->
 		</tr>
 	</thead>
 	<tbody>
-		{#each $courses as course}
-			<tr>
+		{#each filteredCourses as course}
+			<tr class="hover:bg-yellow-200" on:mousedown={() => onClick(course)}>
 				<td>{course.code}</td>
 				<td>
 					{#if course.info?.median === undefined}
@@ -33,15 +55,6 @@
 				<td>
 					{course.info?.name ?? 'N/A'}
 				</td>
-				<!-- <td>
-					{course.info?.connections?.dependencies}
-				</td>
-				<td>
-					{course.info?.connections?.adjacent}
-				</td>
-				<td>
-					{course.info?.connections?.exclusive}
-				</td> -->
 			</tr>
 		{/each}
 	</tbody>

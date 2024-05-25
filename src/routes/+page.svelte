@@ -22,7 +22,8 @@
 		});
 	}
 
-	async function handleSubmit(event: Event): Promise<void> {
+	let progress = -1;
+	async function handleSubmit(): Promise<void> {
 		if (textBlob !== undefined) {
 			$courses = parseCatalog(textBlob).map((course) => {
 				return {
@@ -31,10 +32,13 @@
 				};
 			});
 
+			progress = 0;
+
 			await Promise.all(
 				$courses.map(async (c) => {
 					c.info = await getCourseInfo(c.code);
 
+					progress++;
 					$courses = sortCourses($courses);
 				})
 			);
@@ -44,7 +48,7 @@
 
 <h1 class="text-center text-3xl font-bold underline">Technion Course Plot</h1>
 
-{#if $courses.length === 0}
+{#if progress === -1}
 	<h2 class="text-2xl font-bold">Enter catalog text</h2>
 	<form class="m-1" on:submit|preventDefault={handleSubmit}>
 		<textarea class="border border-black" bind:value={textBlob} rows="10" cols="50"></textarea>
@@ -71,5 +75,11 @@
 	</div>
 
 	<h2 class="text-2xl font-bold">Courses</h2>
+	{#if progress < $courses.length}
+		<div>
+			<p class="text-lg">Loading courses ({progress} / {$courses.length})</p>
+			<progress max={$courses.length} value={progress} />
+		</div>
+	{/if}
 	<CourseList courses={$courses} enableSearch={true} />
 {/if}

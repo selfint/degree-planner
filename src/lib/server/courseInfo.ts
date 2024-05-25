@@ -41,11 +41,7 @@ export function getName(code: string, doc: Document | undefined): string | undef
 		return undefined;
 	}
 
-	const nameUrl = getNameUrl(code);
-	const links: HTMLAnchorElement[] = Array.from(doc.querySelectorAll('a[aria-current="page"]'));
-	const name = links.find((link) => link.href.includes(nameUrl));
-
-	return name?.text;
+	return doc.querySelector('title')?.textContent ?? undefined;
 }
 
 export function getConnections(doc: Document | undefined): CourseConnections | undefined {

@@ -53,8 +53,11 @@
 	<input type="text" id="total-points" bind:value={$totalPoints} class="border border-black p-1" />
 </div>
 <div class="flex flex-row flex-wrap">
-	{#each $groups as group}
-		<CourseGroupInput {group} onDelete={() => {}} />
+	{#each $groups as group, i}
+		<CourseGroupInput
+			{group}
+			onDelete={() => ($groups = $groups.filter((_, index) => index !== i))}
+		/>
 	{/each}
 	<div class="m-1 rounded border border-black p-1">
 		<h2 class="text-xl font-bold">New group</h2>

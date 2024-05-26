@@ -31,7 +31,7 @@ export function saveStores() {
 	};
 
 	const data = JSON.stringify(state);
-	console.log(['Saving', data.length, state]);
+	console.log(['Saving', data.length]);
 
 	localStorage.setItem('state', data);
 }
@@ -43,7 +43,7 @@ export function loadStores() {
 	}
 
 	const state = JSON.parse(data) as State;
-	console.log(['Loading', data.length, state]);
+	console.log(['Loading', data.length]);
 
 	courses.set(state.courses);
 	const fullCourses = new Map(state.courses.map((course) => [course.code, course]));

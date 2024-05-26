@@ -1,10 +1,40 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 
-	import { courses, years } from '$lib/stores';
+	import { courses, groups, years, wishlist } from '$lib/stores';
 	import { get, writable } from 'svelte/store';
 
+	$: fullCourses = new Map($courses.map((course) => [course.code, course]));
+	function getFullCourse(code: string): Course {
+		return fullCourses.get(code) as Course;
+	}
+
+	$: wishlistCourses = $wishlist.map(getFullCourse).filter((c) => c !== undefined);
+
+	let catalogCourses: Course[] = [];
+
+	$: {
+		const wish = $wishlist;
+		const c = $courses;
+
+		catalogCourses = c.filter((course) => !wish.some((w) => course.code === w));
+	}
+
+	function addToWishlist(course: Course): void {
+		$wishlist = [...new Set([...$wishlist, course.code])];
+	}
+
+	function onWishlistClick(course: Course): void {
+		if (toYears) {
+			return;
+		} else {
+			$wishlist = $wishlist.filter((w) => w !== course.code);
+		}
+	}
+
 	let newYearName: string | undefined = undefined;
+
+	let toYears = true;
 
 	function deleteYear(i: number): void {
 		$years = $years.filter((_, index) => index !== i);
@@ -29,20 +59,31 @@
 	<div class="flex-grow"></div>
 	<button
 		on:mousedown={() => goto('/')}
-		class="h-12 border-2 border-black bg-teal-200 p-2.5 font-bold hover:shadow">Settings</button
+		class="h-12 border-2 border-black bg-teal-200 p-2.5 font-bold hover:shadow"
+	>
+		Settings</button
 	>
 </div>
 
 <div class="flex flex-row flex-wrap">
 	<div class="p-2.5">
 		<h2 class="text-2xl font-bold">Requirements</h2>
+		{#each $groups as group}
+			<div class="mb-2.5 border-2 border-black bg-white p-2.5 shadow hover:shadow-md">
+				<h3 class="text-xl font-bold">{get(group).name}</h3>
+				{$years
+					.map(get)
+					.flatMap((y) => y.winter.concat(y.spring).concat(y.summer))
+					.filter((c) => get(group).courses.some((course) => course.code === c))}
+			</div>
+		{/each}
 	</div>
 	<div class="flex-grow p-2.5">
 		<h2 class="text-2xl font-bold">Years</h2>
 
 		{#each $years as year, i}
 			<div
-				class="mt-2.5 w-full rounded-md border-2 border-black bg-white p-2.5 shadow hover:shadow-lg"
+				class="mb-2.5 w-full rounded-md border-2 border-black bg-white p-2.5 shadow hover:shadow-lg"
 			>
 				<div class="flex flex-row">
 					<h3 class="text-xl font-bold">{get(year).name}</h3>
@@ -89,18 +130,47 @@
 		</div>
 	</div>
 	<div class="p-2.5">
-		<h2 class="text-2xl font-bold">Wishlist</h2>
-		{#each $courses as course}
+		<div class="flex flex-row items-center">
+			{#if !toYears}
+				<h2 class="text-2xl font-bold">Wishlist</h2>
+				<div class="min-w-1 flex-grow"></div>
+			{/if}
+			<button
+				class="h-7 border-2 border-black bg-yellow-300 pb-1 pl-1 pr-1 font-bold hover:shadow"
+				on:mousedown|preventDefault={() => (toYears = !toYears)}
+			>
+				{toYears ? '<--' : '-->'}
+			</button>
+			{#if toYears}
+				<div class="min-w-1 flex-grow"></div>
+				<h2 class="text-2xl font-bold">Wishlist</h2>
+			{/if}
+		</div>
+		{#each wishlistCourses as course, i}
 			{#if course.info !== undefined}
-				<p>{course.info?.name}</p>
+				<div
+					class="mb-1.5 border-2 border-black bg-white p-1.5 shadow hover:shadow-md"
+					role="button"
+					tabindex={i}
+					on:mousedown={() => onWishlistClick(course)}
+				>
+					<p>{course.info?.name}</p>
+				</div>
 			{/if}
 		{/each}
 	</div>
 	<div class="p-2.5">
 		<h2 class="text-2xl font-bold">Catalog</h2>
-		{#each $courses as course}
+		{#each catalogCourses as course, i}
 			{#if course.info !== undefined}
-				<p>{course.info?.name}</p>
+				<div
+					class="mb-1.5 border-2 border-black bg-white p-1.5 shadow hover:shadow-md"
+					role="button"
+					tabindex={i}
+					on:mousedown={() => addToWishlist(course)}
+				>
+					<p>{course.info?.name}</p>
+				</div>
 			{/if}
 		{/each}
 	</div>

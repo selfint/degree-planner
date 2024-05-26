@@ -8,6 +8,7 @@ export default {
     },
     boxShadow: {
       DEFAULT: '2px 2px 0 rgba(0, 0, 0, 1)',
+      md: '4px 4px 0 rgba(0, 0, 0, 1)',
       lg: '8px 8px 0 rgba(0, 0, 0, 1)'
     },
     extend: {},

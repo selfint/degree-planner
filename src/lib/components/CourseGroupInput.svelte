@@ -71,13 +71,13 @@
 		>
 	</div>
 	<div>
-		<div class="m-1">
+		<div class="mb-1 mt-1">
 			<label for="group-name">Points:</label>
 			<input
 				type="text"
 				id="group-name"
 				placeholder="points"
-				class="m-1 border-2 border-black p-2.5 focus:bg-teal-100 focus:shadow focus:outline-none active:shadow"
+				class="border-2 border-black p-2.5 focus:bg-teal-100 focus:shadow focus:outline-none active:shadow"
 				bind:value={points}
 				on:input|preventDefault={(e) => {
 					// @ts-ignore
@@ -87,17 +87,18 @@
 		</div>
 		<form on:submit|preventDefault={handleSubmit}>
 			<textarea
-				class="m-1 border-2 border-black p-2.5 focus:bg-teal-100 focus:shadow focus:outline-none active:shadow"
+				class="w-full resize-none border-2 border-black p-2.5 focus:bg-teal-100 focus:shadow focus:outline-none active:shadow"
 				placeholder="Copy paste group text..."
 				bind:value={textBlob}
 			/>
-			<button class="h-12 border-2 border-black bg-teal-200 p-2.5 hover:shadow" type="submit"
-				>Upload</button
+			<button
+				class="h-12 w-full border-2 border-black bg-teal-200 p-2.5 font-bold hover:shadow"
+				type="submit">Upload!</button
 			>
 		</form>
 	</div>
 
-	<div class="m-1 border-2 border-black bg-teal-100">
+	<div class="mt-1.5 border-2 border-black bg-teal-100">
 		{#if courses.length > 0}
 			{#if progress === -1 || progress === courses.length}
 				<p class="bg-yellow-300 p-2.5 text-lg font-bold">Loaded {courses.length}</p>

@@ -7,6 +7,6 @@
 	<div class="flex-grow"></div>
 	<button
 		on:mousedown={() => goto('/')}
-		class="h-12 border-2 border-black bg-teal-200 p-2.5 hover:shadow">Settings</button
+		class="h-12 border-2 border-black bg-teal-200 p-2.5 font-bold hover:shadow">Settings</button
 	>
 </div>

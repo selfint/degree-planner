@@ -12,8 +12,8 @@ declare global {
 	type Year = {
 		name: string;
 		winter: string[];
-		summer: string[];
 		spring: string[];
+		summer: string[];
 	};
 
 	type CourseConnections = {

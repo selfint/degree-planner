@@ -1,12 +1,14 @@
 import { writable, type Writable, get } from 'svelte/store';
 
 export const courses = writable<Course[]>([]);
+export const wishlist = writable<string[]>([]);
 export const years = writable<Writable<Year>[]>([]);
 export const groups = writable<Writable<Group>[]>([]);
 export const totalPoints = writable<number>(0);
 
 export type State = {
 	courses: Course[];
+	wishlist: string[];
 	years: Year[];
 	groups: { name: string; points: number; courses: string[] }[];
 	totalPoints: number;
@@ -15,6 +17,7 @@ export type State = {
 export function saveStores() {
 	const state: State = {
 		courses: get(courses),
+		wishlist: get(wishlist),
 		years: get(years).map(get),
 		groups: get(groups)
 			.map(get)
@@ -41,16 +44,23 @@ export function loadStores() {
 	}
 
 	const state = JSON.parse(data) as State;
-	if (['courses', 'years', 'groups', 'totalPoints'].some((key) => !Object.hasOwn(state, key))) {
+	if (
+		['courses', 'wishlist', 'years', 'groups', 'totalPoints'].some(
+			(key) => !Object.hasOwn(state, key)
+		)
+	) {
 		return;
 	}
 	console.log(['Loading', data.length, state]);
 
 	courses.set(state.courses);
+	wishlist.set(state.wishlist);
+
 	const fullCourses = new Map(state.courses.map((course) => [course.code, course]));
 	function getFullCourse(code: string): Course {
 		return fullCourses.get(code) as Course;
 	}
+
 	years.set(state.years.map((year) => writable(year)));
 	groups.set(
 		state.groups.map((group) =>
@@ -61,6 +71,7 @@ export function loadStores() {
 			})
 		)
 	);
+
 	totalPoints.set(state.totalPoints);
 }
 
@@ -82,7 +93,7 @@ function sortCourses(array: Course[]) {
 }
 
 export function storeHook(): void {
-	for (const store of [courses, years, groups, totalPoints]) {
+	for (const store of [courses, years, groups, totalPoints, wishlist]) {
 		store.subscribe(saveStores);
 	}
 

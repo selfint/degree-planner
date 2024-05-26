@@ -6,42 +6,6 @@
 	import { goto } from '$app/navigation';
 	import { stringToNum } from '$lib/stringToNum';
 
-	onMount(() => {
-		loadStores();
-		storeHook();
-
-		let unsubscribes = $groups.map((group) =>
-			group.subscribe(
-				() => ($courses = sortCourses($groups.flatMap((group) => get(group).courses)))
-			)
-		);
-
-		groups.subscribe((value) => {
-			for (const unsubscribe of unsubscribes) {
-				unsubscribe();
-			}
-			unsubscribes = $groups.map((group) =>
-				group.subscribe(
-					() => ($courses = sortCourses($groups.flatMap((group) => get(group).courses)))
-				)
-			);
-			$courses = sortCourses(value.flatMap((group) => get(group).courses));
-		});
-	});
-
-	function sortCourses(array: Course[]) {
-		return array.slice().sort((a, b) => {
-			if (a.info?.median === b.info?.median) {
-				return a.code.localeCompare(b.code);
-			}
-
-			if (a.info?.median === undefined) return 1;
-			if (b.info?.median === undefined) return -1;
-
-			return b.info?.median - a.info?.median;
-		});
-	}
-
 	let newName: string | undefined = undefined;
 	let newPoints: string | undefined = undefined;
 
@@ -60,8 +24,8 @@
 	}
 </script>
 
-<div class="flex flex-row items-center space-x-2 border-b-2 border-black bg-yellow-200 p-2.5">
-	<h1 class="text-4xl font-bold">Degree catalog</h1>
+<div class="flex flex-row items-center space-x-2 border-b-2 border-black bg-yellow-200 p-1">
+	<h1 class="text-4xl font-bold">Degree plan</h1>
 	<div class="flex-grow"></div>
 	<button
 		on:mousedown={() => goto('/plan')}

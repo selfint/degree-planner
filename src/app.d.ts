@@ -9,6 +9,13 @@ declare global {
 		// interface Platform {}
 	}
 
+	type Year = {
+		name: string;
+		winter: string[];
+		summer: string[];
+		spring: string[];
+	};
+
 	type CourseConnections = {
 		dependencies: string[][];
 		adjacent: string[];

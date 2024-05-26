@@ -9,6 +9,16 @@
 	onMount(() => {
 		loadStores();
 		storeHook();
+
+		for (const group of $groups) {
+			group.subscribe(() => {
+				$courses = sortCourses($groups.flatMap((group) => get(group).courses));
+			});
+		}
+
+		groups.subscribe((value) => {
+			$courses = sortCourses(value.flatMap((group) => get(group).courses));
+		});
 	});
 
 	function sortCourses(array: Course[]) {
@@ -40,18 +50,6 @@
 		newName = undefined;
 		newPoints = undefined;
 	}
-
-	for (const group of $groups) {
-		group.subscribe(() => {
-			$courses = sortCourses($groups.flatMap((group) => get(group).courses));
-		});
-	}
-
-	groups.subscribe(
-		(value) => ($courses = sortCourses(value.flatMap((group) => get(group).courses)))
-	);
-
-	console.dir($groups.map(get));
 </script>
 
 <div class="flex flex-row items-center space-x-2 border-b-2 border-black bg-yellow-200 p-2.5">

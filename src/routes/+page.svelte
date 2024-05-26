@@ -1,8 +1,7 @@
 <script lang="ts">
 	import CourseGroupInput from '$lib/components/CourseGroupInput.svelte';
-	import { courses, groups, totalPoints, loadStores, storeHook } from '$lib/stores';
+	import { groups, totalPoints } from '$lib/stores';
 	import { writable, get } from 'svelte/store';
-	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { stringToNum } from '$lib/stringToNum';
 

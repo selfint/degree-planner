@@ -61,13 +61,22 @@ export function loadStores() {
 		return fullCourses.get(code) as Course;
 	}
 
-	years.set(state.years.map((year) => writable(year)));
+	years.set(
+		state.years.map((year) =>
+			writable({
+				...year,
+				winter: year.winter.filter((c) => getFullCourse(c) !== undefined),
+				spring: year.spring.filter((c) => getFullCourse(c) !== undefined),
+				summer: year.summer.filter((c) => getFullCourse(c) !== undefined)
+			})
+		)
+	);
 	groups.set(
 		state.groups.map((group) =>
 			writable({
 				name: group.name,
 				points: group.points,
-				courses: group.courses.map(getFullCourse)
+				courses: group.courses.map(getFullCourse).filter((c) => c?.info !== undefined)
 			})
 		)
 	);

@@ -10,6 +10,15 @@
 	}
 
 	$: wishlistCourses = $wishlist.map(getFullCourse).filter((c) => c !== undefined);
+	$: plannedCourses = $years.map(get).flatMap((y) => y.winter.concat(y.spring).concat(y.summer));
+	$: yearCourses = $years.map(get).map((year) => {
+		return {
+			...year,
+			winter: year.winter.map(getFullCourse).filter((c) => c?.info !== undefined),
+			spring: year.spring.map(getFullCourse).filter((c) => c?.info !== undefined),
+			summer: year.summer.map(getFullCourse).filter((c) => c?.info !== undefined)
+		};
+	});
 
 	let catalogCourses: Course[] = [];
 
@@ -17,7 +26,9 @@
 		const wish = $wishlist;
 		const c = $courses;
 
-		catalogCourses = c.filter((course) => !wish.some((w) => course.code === w));
+		catalogCourses = c
+			.filter((course) => !wish.some((w) => course.code === w))
+			.filter((course) => !plannedCourses.some((p) => course.code === p));
 	}
 
 	function addToWishlist(course: Course): void {
@@ -26,7 +37,23 @@
 
 	function onWishlistClick(course: Course): void {
 		if (toYears) {
-			return;
+			if (selectedSemester !== undefined) {
+				const [y, s] = selectedSemester;
+				const yearStore = $years[y];
+				const year = get(yearStore);
+				const semester = [year.winter, year.spring, year.summer][s];
+				semester.push(course.code);
+
+				yearStore.set({
+					...year,
+					winter: [...new Set(year.winter)],
+					spring: [...new Set(year.spring)],
+					summer: [...new Set(year.summer)]
+				});
+				$years = $years;
+
+				$wishlist = $wishlist.filter((w) => w !== course.code);
+			}
 		} else {
 			$wishlist = $wishlist.filter((w) => w !== course.code);
 		}
@@ -54,9 +81,7 @@
 	}
 
 	function getGroupPoints(group: Group): number {
-		return $years
-			.map(get)
-			.flatMap((y) => y.winter.concat(y.spring).concat(y.summer))
+		return plannedCourses
 			.filter((code) => group.courses.some((c) => c.code === code))
 			.map(getFullCourse)
 			.map((c) => c.info?.points ?? 0)
@@ -80,10 +105,20 @@
 		}
 	}
 
-	const foo = (i: number) => {
-		console.log('called');
-		return selectedSemester !== undefined && selectedSemester[0] === i && selectedSemester[1] === 0;
-	};
+	function removeCourse(yearIndex: number, semesterIndex: number, code: string): void {
+		const yearStore = $years[yearIndex];
+		const year = get(yearStore);
+
+		yearStore.set({
+			...year,
+			winter: year.winter.filter((c) => c !== code),
+			spring: year.spring.filter((c) => c !== code),
+			summer: year.summer.filter((c) => c !== code)
+		});
+		$years = $years;
+
+		$wishlist = [...$wishlist, code];
+	}
 </script>
 
 <div class="flex flex-row items-center space-x-2 border-b-2 border-black bg-yellow-200 p-1">
@@ -110,16 +145,16 @@
 	<div class="flex-grow p-2.5">
 		<h2 class="text-2xl font-bold">Years</h2>
 
-		{#each $years as year, i}
+		{#each yearCourses as year, i}
 			<div
 				class="mb-2.5 w-full rounded-md border-2 border-black bg-white p-2.5 shadow hover:shadow-lg"
 			>
 				<div class="flex flex-row">
-					<h3 class="text-xl font-bold">{get(year).name}</h3>
+					<h3 class="text-xl font-bold">{year.name}</h3>
 					<div class="flex-grow" />
 					<button
 						on:mousedown={() => deleteYear(i)}
-						class="bg-blue border-2 border-black bg-teal-200 p-1 font-bold hover:shadow"
+						class="bg-blue border-2 border-black bg-yellow-300 p-1 font-bold hover:shadow"
 					>
 						X
 					</button>
@@ -134,6 +169,16 @@
 						on:mousedown={() => updateSelection(i, 0)}
 					>
 						<h2 class="text-lg font-bold">Winter</h2>
+						{#each year.winter as course, j}
+							<div
+								on:mousedown|preventDefault|stopPropagation={() => removeCourse(i, 0, course.code)}
+								role="button"
+								tabindex={j}
+								class="m-2.5 border-2 border-black bg-white p-1.5 shadow hover:shadow-md"
+							>
+								<p class="text-sm">{course.info?.name}</p>
+							</div>
+						{/each}
 					</div>
 					<div
 						class="m-2.5 flex-1 border-2 border-black {selectionEquals(selectedSemester, i, 1)
@@ -143,7 +188,17 @@
 						tabindex={i}
 						on:mousedown={() => updateSelection(i, 1)}
 					>
-						<h2 class="text-lg font-bold">Summer</h2>
+						<h2 class="text-lg font-bold">Spring</h2>
+						{#each year.spring as course, j}
+							<div
+								on:mousedown|preventDefault|stopPropagation={() => removeCourse(i, 1, course.code)}
+								role="button"
+								tabindex={j}
+								class="m-2.5 border-2 border-black bg-white p-1.5 shadow hover:shadow-md"
+							>
+								<p class="text-sm">{course.info?.name}</p>
+							</div>
+						{/each}
 					</div>
 					<div
 						class="m-2.5 flex-1 border-2 border-black {selectionEquals(selectedSemester, i, 2)
@@ -153,7 +208,17 @@
 						tabindex={i}
 						on:mousedown={() => updateSelection(i, 2)}
 					>
-						<h2 class="text-lg font-bold">Spring</h2>
+						<h2 class="text-lg font-bold">Summer</h2>
+						{#each year.summer as course, j}
+							<div
+								on:mousedown|preventDefault|stopPropagation={() => removeCourse(i, 2, course.code)}
+								role="button"
+								tabindex={j}
+								class="m-2.5 border-2 border-black bg-white p-1.5 shadow hover:shadow-md"
+							>
+								<p class="text-sm">{course.info?.name}</p>
+							</div>
+						{/each}
 					</div>
 				</div>
 			</div>
@@ -204,7 +269,7 @@
 					tabindex={i}
 					on:mousedown={() => onWishlistClick(course)}
 				>
-					<p>{course.info?.name}</p>
+					<p>{course.info.name}</p>
 				</div>
 			{/if}
 		{/each}

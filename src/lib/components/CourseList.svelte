@@ -29,7 +29,7 @@
 	<input
 		type="text"
 		placeholder="Search..."
-		class="m-1 border border-black p-1"
+		class="border-dark-400 m-1 border-2 p-1"
 		bind:value={search}
 		on:input={() => (filteredRows = filterCourses(rows))}
 	/>

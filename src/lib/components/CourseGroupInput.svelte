@@ -59,26 +59,24 @@
 	}
 </script>
 
-<div
-	class="mb-2.5 mr-2.5 h-full w-80 rounded-md border-2 border-black bg-white p-2.5 shadow hover:shadow-lg"
->
+<div class="bg-dark-700 border-dark-400 mb-2 mr-2 h-full w-80 rounded-md border-2 p-2">
 	<div class="flex flex-grow">
-		<h2 class="flex-grow text-3xl font-bold">
+		<h2 class="flex-grow text-xl text-white">
 			{$group.name}
 		</h2>
 		<button
-			class="bg-blue border-2 border-black bg-teal-200 p-1 font-bold hover:shadow"
+			class="border-dark-400 border-2 bg-teal-800 p-1 text-white"
 			on:mousedown|preventDefault={onDelete}>X</button
 		>
 	</div>
 	<div>
 		<div class="mb-1 mt-1">
-			<label for="group-name">Points:</label>
+			<label for="group-name" class="text-white">Points:</label>
 			<input
 				type="text"
 				id="group-name"
 				placeholder="points"
-				class="border-2 border-black p-2.5 focus:bg-teal-100 focus:shadow focus:outline-none active:shadow"
+				class="border-dark-400 bg-dark-50 rounded-md border-2 pl-1 text-white focus:bg-teal-700 focus:outline-none"
 				bind:value={points}
 				on:input|preventDefault={(e) => {
 					// @ts-ignore
@@ -88,24 +86,23 @@
 		</div>
 		<form on:submit|preventDefault={handleSubmit}>
 			<textarea
-				class="w-full resize-none border-2 border-black p-2.5 focus:bg-teal-100 focus:shadow focus:outline-none active:shadow"
+				class="border-dark-400 bg-dark-50 w-full resize-none border-2 p-2 text-white focus:bg-teal-700 focus:outline-none"
 				placeholder="Copy paste group text..."
 				bind:value={textBlob}
 			/>
-			<button
-				class="h-12 w-full border-2 border-black bg-teal-200 p-2.5 font-bold hover:shadow"
-				type="submit">Upload!</button
+			<button class="border-dark-400 h-12 w-full border-2 bg-teal-800 p-2 text-white" type="submit"
+				>Upload</button
 			>
 		</form>
 	</div>
 
-	<div class="mt-1.5 border-2 border-black bg-teal-100">
+	<div class="border-dark-400 mt-1.5 border-2 bg-teal-800">
 		{#if courses.length > 0}
 			{#if progress === -1 || progress === courses.length}
-				<p class="bg-yellow-300 p-2.5 text-lg font-bold">Loaded {courses.length}</p>
+				<p class="p-2 text-lg text-white">Loaded {courses.length}</p>
 			{:else}
 				<div
-					class="h-full bg-teal-200 p-2.5 font-bold"
+					class="h-full bg-teal-900 p-2 text-white"
 					style="width: {Math.floor((progress / courses.length) * 100)}%"
 				>
 					<p class="overflow-x-visible whitespace-nowrap text-lg">

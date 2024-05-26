@@ -23,55 +23,55 @@
 	}
 </script>
 
-<div class="flex flex-row items-center space-x-2 border-b-2 border-black bg-yellow-200 p-1">
-	<h1 class="text-4xl font-bold">Degree catalog</h1>
+<div class="border-dark-400 flex flex-row items-center space-x-2 border-b-2 p-1">
+	<h1 class="text-4xl text-white">Degree catalog</h1>
 	<div class="flex-grow"></div>
 	<button
 		on:mousedown={() => goto('/plan')}
-		class="h-12 border-2 border-black bg-teal-200 p-2.5 font-bold hover:shadow">Plan!</button
+		class="border-dark-400 h-12 rounded-md border-2 bg-teal-800 p-2 text-white"
 	>
+		Plan
+	</button>
 </div>
 
-<div
-	class="ml-2.5 mr-2.5 mt-2.5 h-full rounded-md border-2 border-black bg-white p-2.5 shadow hover:shadow-lg hover:shadow-black/100"
->
-	<label for="total-points" class="text-2xl font-bold">Total points:</label>
+<div class="border-dark-400 bg-dark-700 ml-2 mr-2 mt-2 h-full rounded-md border-2 p-2">
+	<label for="total-points" class="text-2xl text-white">Total points:</label>
 	<input
 		type="text"
 		id="total-points"
 		bind:value={$totalPoints}
-		class="m-1 border-2 border-black p-2.5 focus:bg-teal-100 focus:shadow focus:outline-none active:shadow"
+		class="border-dark-400 bg-dark-50 rounded-md border-2 pl-1 text-white focus:bg-teal-700 focus:outline-none"
 		on:input|preventDefault={(e) => {
 			// @ts-ignore
 			$totalPoints = stringToNum(e.target?.value ?? undefined);
 		}}
 	/>
 </div>
-<div class="flex flex-row flex-wrap p-2.5">
+<div class="flex flex-row flex-wrap p-2">
 	{#each $groups as group, i}
 		<CourseGroupInput
 			{group}
 			onDelete={() => ($groups = $groups.filter((_, index) => index !== i))}
 		/>
 	{/each}
-	<div class="h-full w-80 rounded-md border-2 border-black bg-white p-2.5 shadow hover:shadow-lg">
-		<h2 class="text-3xl font-bold">New group</h2>
+	<div class="border-dark-400 bg-dark-700 h-full w-80 rounded-md border-2 bg-opacity-50 p-2">
+		<h2 class="text-3xl text-white">New group</h2>
 		<form on:submit|preventDefault={newGroup}>
 			<div>
-				<label for="group-name">Name:</label>
+				<label for="group-name" class="text-white">Name:</label>
 				<input
 					type="text"
 					id="group-name"
 					bind:value={newName}
-					class="m-1 border-2 border-black p-2.5 focus:bg-teal-100 focus:shadow focus:outline-none active:shadow"
+					class="border-dark-400 bg-dark-50 m-1 rounded-md border-2 pl-1 text-white focus:bg-teal-700 focus:outline-none"
 				/>
 			</div>
 			<div>
-				<label for="group-points">Points:</label>
+				<label for="group-points" class="text-white">Points:</label>
 				<input
 					type="text"
 					id="group-points"
-					class="m-1 border-2 border-black p-2.5 focus:bg-teal-100 focus:shadow focus:outline-none active:shadow"
+					class="border-dark-400 bg-dark-50 m-1 rounded-md border-2 pl-1 text-white focus:bg-teal-700 focus:outline-none"
 					bind:value={newPoints}
 					on:input|preventDefault={(e) => {
 						// @ts-ignore
@@ -80,7 +80,7 @@
 				/>
 			</div>
 			<button
-				class="bg-teal h-12 w-full border-2 border-black bg-teal-200 p-2.5 font-bold hover:shadow"
+				class="bg-teal border-dark-400 h-12 w-full border-2 bg-teal-800 p-2 text-white"
 				type="submit">Add!</button
 			>
 		</form>

@@ -121,102 +121,109 @@
 	}
 </script>
 
-<div class="flex flex-row items-center space-x-2 border-b-2 border-black bg-yellow-200 p-1">
-	<h1 class="text-4xl font-bold">Degree plan</h1>
+<div class="border-dark-400 flex flex-row items-center space-x-2 border-b-2 p-1">
+	<h1 class="text-4xl text-white">Degree plan</h1>
 	<div class="flex-grow"></div>
 	<button
 		on:mousedown={() => goto('/')}
-		class="h-12 border-2 border-black bg-teal-200 p-2.5 font-bold hover:shadow"
+		class="border-dark-400 h-12 border-2 bg-teal-800 p-2 text-white"
 	>
-		Catalog</button
-	>
+		Catalog
+	</button>
 </div>
 
 <div class="flex flex-row flex-wrap">
-	<div class="p-2.5">
-		<h2 class="text-2xl font-bold">Requirements</h2>
+	<div class="p-2">
+		<h2 class="text-xl text-white">Requirements</h2>
 		{#each $groups as group}
-			<div class="mb-2.5 flex flex-row border-2 border-black bg-white p-2.5 shadow hover:shadow-md">
-				<h3 class="text-xl font-bold">{get(group).name}</h3>
-				{getGroupPoints(get(group))}
+			<div class="border-dark-400 bg-dark-700 mb-2 flex flex-row items-center border-2 p-2">
+				<h3 class="text-xl text-white">{get(group).name}</h3>
+				<div class="min-w-2 flex-grow" />
+				<p class="text-white">
+					{getGroupPoints(get(group))} / {get(group).points}
+				</p>
 			</div>
 		{/each}
 	</div>
-	<div class="flex-grow p-2.5">
-		<h2 class="text-2xl font-bold">Years</h2>
+	<div class="flex-grow p-2">
+		<h2 class="text-xl text-white">Years</h2>
 
 		{#each yearCourses as year, i}
-			<div
-				class="mb-2.5 w-full rounded-md border-2 border-black bg-white p-2.5 shadow hover:shadow-lg"
-			>
-				<div class="flex flex-row">
-					<h3 class="text-xl font-bold">{year.name}</h3>
-					<div class="flex-grow" />
-					<button
-						on:mousedown={() => deleteYear(i)}
-						class="bg-blue border-2 border-black bg-yellow-300 p-1 font-bold hover:shadow"
-					>
-						X
-					</button>
-				</div>
-				<div class="flex flex-row items-start">
+			<div class="border-dark-400 bg-dark-700 mb-2 w-full rounded-md border-2">
+				<div class="grid grid-cols-3">
+					<div class="col-span-1">
+						<h3 class="p-2 text-xl text-white">{year.name}</h3>
+					</div>
+					<div class="col-span-1" />
+					<div class="col-span-1 mb-1 text-right">
+						<button
+							on:mousedown={() => deleteYear(i)}
+							class="border-dark-400 m-2 border-2 bg-teal-800 p-1 text-white"
+						>
+							X
+						</button>
+					</div>
 					<div
-						class="m-2.5 flex-1 border-2 border-black {selectionEquals(selectedSemester, i, 0)
-							? 'bg-teal-200'
-							: 'bg-white'} p-2.5 shadow hover:shadow-md"
+						class="border-dark-400 col-span-1 border-b-2 {selectionEquals(selectedSemester, i, 0)
+							? 'bg-teal-800'
+							: 'bg-opacity-50'}"
 						role="button"
 						tabindex={i}
 						on:mousedown={() => updateSelection(i, 0)}
 					>
-						<h2 class="text-lg font-bold">Winter</h2>
+						<h2 class="border-dark-400 border-b-2 pl-2 text-lg text-white">Winter</h2>
 						{#each year.winter as course, j}
 							<div
 								on:mousedown|preventDefault|stopPropagation={() => removeCourse(i, 0, course.code)}
 								role="button"
 								tabindex={j}
-								class="m-2.5 border-2 border-black bg-white p-1.5 shadow hover:shadow-md"
+								class="{j % 2 === 0 ? 'bg-dark-500' : 'bg-dark-700'} p-1"
 							>
-								<p class="text-sm">{course.info?.name}</p>
+								<p class="text-sm text-white">{course.info?.name}</p>
 							</div>
 						{/each}
 					</div>
 					<div
-						class="m-2.5 flex-1 border-2 border-black {selectionEquals(selectedSemester, i, 1)
-							? 'bg-teal-200'
-							: 'bg-white'} p-2.5 shadow hover:shadow-md"
+						class="border-dark-400 col-span-1 border-l-2 border-r-2 {selectionEquals(
+							selectedSemester,
+							i,
+							1
+						)
+							? 'bg-teal-800'
+							: 'bg-opacity-50'}"
 						role="button"
 						tabindex={i}
 						on:mousedown={() => updateSelection(i, 1)}
 					>
-						<h2 class="text-lg font-bold">Spring</h2>
+						<h2 class="border-dark-400 border-b-2 pl-2 text-lg text-white">Spring</h2>
 						{#each year.spring as course, j}
 							<div
 								on:mousedown|preventDefault|stopPropagation={() => removeCourse(i, 1, course.code)}
 								role="button"
 								tabindex={j}
-								class="m-2.5 border-2 border-black bg-white p-1.5 shadow hover:shadow-md"
+								class="{j % 2 === 0 ? 'bg-dark-500' : 'bg-dark-700'} p-1"
 							>
-								<p class="text-sm">{course.info?.name}</p>
+								<p class="text-sm text-white">{course.info?.name}</p>
 							</div>
 						{/each}
 					</div>
 					<div
-						class="m-2.5 flex-1 border-2 border-black {selectionEquals(selectedSemester, i, 2)
-							? 'bg-teal-200'
-							: 'bg-white'} p-2.5 shadow hover:shadow-md"
+						class="border-dark-400 col-span-1 {selectionEquals(selectedSemester, i, 2)
+							? 'bg-teal-800'
+							: 'bg-opacity-50'}"
 						role="button"
 						tabindex={i}
 						on:mousedown={() => updateSelection(i, 2)}
 					>
-						<h2 class="text-lg font-bold">Summer</h2>
+						<h2 class="border-dark-400 border-b-2 pl-2 text-lg text-white">Summer</h2>
 						{#each year.summer as course, j}
 							<div
 								on:mousedown|preventDefault|stopPropagation={() => removeCourse(i, 2, course.code)}
 								role="button"
 								tabindex={j}
-								class="m-2.5 border-2 border-black bg-white p-1.5 shadow hover:shadow-md"
+								class="{j % 2 === 0 ? 'bg-dark-500' : 'bg-dark-700'} p-1"
 							>
-								<p class="text-sm">{course.info?.name}</p>
+								<p class="text-sm text-white">{course.info?.name}</p>
 							</div>
 						{/each}
 					</div>
@@ -224,67 +231,71 @@
 			</div>
 		{/each}
 
-		<div
-			class="mt-2.5 w-full rounded-md border-2 border-black bg-white p-2.5 shadow hover:shadow-lg"
-		>
+		<div class="border-dark-400 bg-dark-700 mt-2 w-full rounded-md border-2 p-2">
 			<form on:submit|preventDefault={newYear}>
-				<div>
-					<label for="group-name">Name:</label>
-					<input
-						type="text"
-						id="group-name"
-						bind:value={newYearName}
-						class="m-1 border-2 border-black p-2.5 focus:bg-teal-100 focus:shadow focus:outline-none active:shadow"
-					/>
+				<div class="flex flex-row items-center">
+					<div class="flex w-fit flex-row">
+						<label for="group-name" class="text-white">Name:</label>
+						<div class="min-w-1 flex-grow" />
+						<input
+							type="text"
+							id="group-name"
+							bind:value={newYearName}
+							class="border-dark-400 bg-dark-50 rounded-md border-2 pl-1 text-white focus:bg-teal-700 focus:outline-none"
+						/>
+					</div>
+					<div class="flex-grow"></div>
+					<button
+						class="bg-teal border-dark-400 h-12 w-fit border-2 bg-teal-800 p-2 text-white"
+						type="submit"
+					>
+						Add
+					</button>
 				</div>
-				<button
-					class="bg-teal h-12 w-full border-2 border-black bg-teal-200 p-2.5 font-bold hover:shadow"
-					type="submit">Add!</button
-				>
 			</form>
 		</div>
 	</div>
-	<div class="p-2.5">
+	<div class="p-2">
 		<div class="flex flex-row items-center">
 			{#if !toYears}
-				<h2 class="text-2xl font-bold">Wishlist</h2>
+				<h2 class="text-xl text-white">Wishlist</h2>
 				<div class="min-w-1 flex-grow"></div>
 			{/if}
 			<button
-				class="h-7 border-2 border-black bg-yellow-300 pb-1 pl-1 pr-1 font-bold hover:shadow"
+				class="border-dark-400 h-7 border-2 bg-teal-800 pb-1 pl-1 pr-1 text-white"
 				on:mousedown|preventDefault={() => (toYears = !toYears)}
 			>
 				{toYears ? '<--' : '-->'}
 			</button>
 			{#if toYears}
 				<div class="min-w-1 flex-grow"></div>
-				<h2 class="text-2xl font-bold">Wishlist</h2>
+				<h2 class="text-xl text-white">Wishlist</h2>
 			{/if}
 		</div>
 		{#each wishlistCourses as course, i}
 			{#if course.info !== undefined}
 				<div
-					class="mb-1.5 border-2 border-black bg-white p-1.5 text-sm shadow hover:shadow-md"
+					class="{i % 2 === 0 ? 'bg-dark-500' : 'bg-dark-700'} p-1 text-sm"
 					role="button"
 					tabindex={i}
 					on:mousedown={() => onWishlistClick(course)}
 				>
-					<p>{course.info.name}</p>
+					<p class="text-white">{course.info.name}</p>
 				</div>
 			{/if}
 		{/each}
 	</div>
-	<div class="p-2.5">
-		<h2 class="text-2xl font-bold">Catalog</h2>
+	<div class="p-2">
+		<h2 class="text-xl text-white">Catalog</h2>
 		{#each catalogCourses as course, i}
 			{#if course.info !== undefined}
 				<div
-					class="mb-1.5 border-2 border-black bg-white p-1.5 text-sm shadow hover:shadow-md"
+					class="{i % 2 === 0 ? 'bg-dark-500' : 'bg-dark-700'} p-1 text-sm"
 					role="button"
 					tabindex={i}
 					on:mousedown={() => addToWishlist(course)}
 				>
-					<p>{course.info?.name}</p>
+					<p class="text-white">{course.info?.name}</p>
 				</div>
 			{/if}
 		{/each}

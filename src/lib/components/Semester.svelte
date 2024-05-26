@@ -44,7 +44,9 @@
 	<h2 class="text-2xl">
 		Semester {index + 1}
 
-		<button class="border border-black bg-red-500 px-1 py-0" on:mousedown={onRemove}> X </button>
+		<button class="border-dark-400 border-2 bg-red-500 px-1 py-0" on:mousedown={onRemove}>
+			X
+		</button>
 	</h2>
 	<h3 class="text-xl">
 		Registered Courses ({$semester.reduce((acc, course) => acc + (course.info?.points ?? 0), 0)} points)

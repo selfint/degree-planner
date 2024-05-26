@@ -6,12 +6,21 @@ export default {
       sans: ['Graphik', 'sans-serif'],
       serif: ['Merriweather', 'serif'],
     },
-    boxShadow: {
-      DEFAULT: '2px 2px 0 rgba(0, 0, 0, 1)',
-      md: '4px 4px 0 rgba(0, 0, 0, 1)',
-      lg: '8px 8px 0 rgba(0, 0, 0, 1)'
+    extend: {
+      colors: {
+        'dark-950': 'rgb(22, 22, 26)',
+        'dark-900': 'rgb(25, 25, 29)',
+        'dark-800': 'rgb(28, 28, 33)',
+        'dark-700': 'rgb(31, 31, 36)',
+        'dark-600': 'rgb(34, 34, 39)',
+        'dark-500': 'rgb(37, 37, 42)',
+        'dark-400': 'rgb(40, 40, 44)',
+        'dark-300': 'rgb(43, 43, 47)',
+        'dark-200': 'rgb(46, 46, 50)',
+        'dark-100': 'rgb(49, 49, 53)',
+        'dark-50': 'rgb( 51, 51, 55)',
+      },
     },
-    extend: {},
   },
   plugins: [],
 }

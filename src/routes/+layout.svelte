@@ -17,6 +17,6 @@
 
 <style lang="postcss">
 	:global(body) {
-		@apply bg-teal-100 dark:bg-teal-100;
+		@apply bg-dark-900 dark:bg-dark-900;
 	}
 </style>

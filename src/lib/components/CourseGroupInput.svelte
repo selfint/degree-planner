@@ -53,6 +53,7 @@
 
 		group.update((group) => {
 			group.courses = courses;
+			console.log('notify');
 			return group;
 		});
 	}

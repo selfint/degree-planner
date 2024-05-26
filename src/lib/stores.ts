@@ -1,13 +1,13 @@
 import { writable, type Writable, get } from 'svelte/store';
 
 export const courses = writable<Course[]>([]);
-export const semesters = writable<Writable<Course[]>[]>([]);
+export const years = writable<Writable<Year>[]>([]);
 export const groups = writable<Writable<Group>[]>([]);
 export const totalPoints = writable<number>(0);
 
 export type State = {
 	courses: Course[];
-	semesters: string[][];
+	years: Year[];
 	groups: { name: string; points: number; courses: string[] }[];
 	totalPoints: number;
 };
@@ -15,9 +15,7 @@ export type State = {
 export function saveStores() {
 	const state: State = {
 		courses: get(courses),
-		semesters: get(semesters)
-			.map(get)
-			.map((semester) => semester.map((course) => course.code)),
+		years: get(years).map(get),
 		groups: get(groups)
 			.map(get)
 			.map((group) => {
@@ -31,7 +29,7 @@ export function saveStores() {
 	};
 
 	const data = JSON.stringify(state);
-	console.log(['Saving', data.length]);
+	console.log(['Saving', data.length, state]);
 
 	localStorage.setItem('state', data);
 }
@@ -43,14 +41,17 @@ export function loadStores() {
 	}
 
 	const state = JSON.parse(data) as State;
-	console.log(['Loading', data.length]);
+	if (['courses', 'years', 'groups', 'totalPoints'].some((key) => !Object.hasOwn(state, key))) {
+		return;
+	}
+	console.log(['Loading', data.length, state]);
 
 	courses.set(state.courses);
 	const fullCourses = new Map(state.courses.map((course) => [course.code, course]));
 	function getFullCourse(code: string): Course {
 		return fullCourses.get(code) as Course;
 	}
-	semesters.set(state.semesters.map((courses) => writable(courses.map(getFullCourse))));
+	years.set(state.years.map((year) => writable(year)));
 	groups.set(
 		state.groups.map((group) =>
 			writable({
@@ -64,7 +65,7 @@ export function loadStores() {
 }
 
 export function storeHook(): void {
-	for (const store of [courses, semesters, groups, totalPoints]) {
+	for (const store of [courses, years, groups, totalPoints]) {
 		store.subscribe(saveStores);
 	}
 }

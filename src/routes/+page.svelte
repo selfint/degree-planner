@@ -10,13 +10,21 @@
 		loadStores();
 		storeHook();
 
-		for (const group of $groups) {
-			group.subscribe(() => {
-				$courses = sortCourses($groups.flatMap((group) => get(group).courses));
-			});
-		}
+		let unsubscribes = $groups.map((group) =>
+			group.subscribe(
+				() => ($courses = sortCourses($groups.flatMap((group) => get(group).courses)))
+			)
+		);
 
 		groups.subscribe((value) => {
+			for (const unsubscribe of unsubscribes) {
+				unsubscribe();
+			}
+			unsubscribes = $groups.map((group) =>
+				group.subscribe(
+					() => ($courses = sortCourses($groups.flatMap((group) => get(group).courses)))
+				)
+			);
 			$courses = sortCourses(value.flatMap((group) => get(group).courses));
 		});
 	});

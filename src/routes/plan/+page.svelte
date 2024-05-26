@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 
-	import { courses, groups } from '$lib/stores';
+	import { courses, groups, years } from '$lib/stores';
 </script>
 
 <div class="flex flex-row items-center space-x-2 border-b-2 border-black bg-yellow-200 p-1">
@@ -29,5 +29,8 @@
 				<p>{course.info?.name}</p>
 			{/if}
 		{/each}
+	</div>
+	<div class="p-2.5">
+		<h2 class="text-2xl font-bold">Years</h2>
 	</div>
 </div>

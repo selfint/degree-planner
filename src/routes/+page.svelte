@@ -54,7 +54,7 @@
 	console.dir($groups.map(get));
 </script>
 
-<div class="flex flex-row items-center space-x-2 border-b-2 border-black bg-yellow-200 p-1">
+<div class="flex flex-row items-center space-x-2 border-b-2 border-black bg-yellow-200 p-2.5">
 	<h1 class="text-4xl font-bold">Degree catalog</h1>
 	<div class="flex-grow"></div>
 	<button
@@ -85,8 +85,8 @@
 			onDelete={() => ($groups = $groups.filter((_, index) => index !== i))}
 		/>
 	{/each}
-	<div class="h-full w-80 rounded-md border-2 border-black bg-white p-2.5 hover:shadow-lg">
-		<h2 class="text-xl font-bold">New group</h2>
+	<div class="h-full w-80 rounded-md border-2 border-black bg-white p-2.5 shadow hover:shadow-lg">
+		<h2 class="text-3xl font-bold">New group</h2>
 		<form on:submit|preventDefault={newGroup}>
 			<div>
 				<label for="group-name">Name:</label>
@@ -111,7 +111,7 @@
 				/>
 			</div>
 			<button
-				class="bg-teal h-12 border-2 border-black bg-teal-200 p-2.5 font-bold hover:shadow"
+				class="bg-teal h-12 w-full border-2 border-black bg-teal-200 p-2.5 font-bold hover:shadow"
 				type="submit">Add!</button
 			>
 		</form>

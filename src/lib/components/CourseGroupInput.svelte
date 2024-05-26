@@ -1,6 +1,8 @@
 <script lang="ts">
 	import type { Writable } from 'svelte/store';
 
+	import { stringToNum } from '$lib/stringToNum';
+
 	import { parseCatalog } from '$lib/catalogParser';
 	import { getCourseInfo } from '$lib/api';
 
@@ -57,14 +59,14 @@
 </script>
 
 <div
-	class="m-2 h-full w-80 rounded-md border-2 border-black bg-white p-1 hover:shadow-[8px_8px_0px_rgba(0,0,0,1)]"
+	class="mb-2.5 mr-2.5 h-full w-80 rounded-md border-2 border-black bg-white p-2.5 shadow hover:shadow-lg"
 >
 	<div class="flex flex-grow">
 		<h2 class="flex-grow text-3xl font-bold">
 			{$group.name}
 		</h2>
 		<button
-			class="bg-blue h-12 border-2 border-black bg-red-600 p-2.5 hover:bg-red-500 hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] active:bg-[#00E1EF]"
+			class="bg-blue border-2 border-black bg-teal-200 p-1 font-bold hover:shadow"
 			on:mousedown|preventDefault={onDelete}>X</button
 		>
 	</div>
@@ -75,30 +77,33 @@
 				type="text"
 				id="group-name"
 				placeholder="points"
+				class="m-1 border-2 border-black p-2.5 focus:bg-teal-100 focus:shadow focus:outline-none active:shadow"
 				bind:value={points}
-				class="m-1 border-2 border-black p-2.5 focus:bg-[#a6d0ff] focus:shadow-[2px_2px_0px_rgba(0,0,0,1)] focus:outline-none active:shadow-[2px_2px_0px_rgba(0,0,0,1)]"
+				on:input|preventDefault={(e) => {
+					// @ts-ignore
+					points = stringToNum(e.target?.value ?? undefined);
+				}}
 			/>
 		</div>
 		<form on:submit|preventDefault={handleSubmit}>
 			<textarea
-				class="m-1 border-2 border-black p-2.5 focus:bg-[#a6d0ff] focus:shadow-[2px_2px_0px_rgba(0,0,0,1)] focus:outline-none active:shadow-[2px_2px_0px_rgba(0,0,0,1)]"
+				class="m-1 border-2 border-black p-2.5 focus:bg-teal-100 focus:shadow focus:outline-none active:shadow"
 				placeholder="Copy paste group text..."
 				bind:value={textBlob}
 			/>
-			<button
-				class="h-12 border-2 border-black bg-[#A6FAFF] p-2.5 hover:bg-[#79F7FF] hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] active:bg-[#00E1EF]"
-				type="submit">Upload</button
+			<button class="h-12 border-2 border-black bg-teal-200 p-2.5 hover:shadow" type="submit"
+				>Upload</button
 			>
 		</form>
 	</div>
 
-	<div class="m-1 border-2 border-black bg-gray-200 dark:bg-gray-700">
+	<div class="m-1 border-2 border-black bg-teal-100">
 		{#if courses.length > 0}
 			{#if progress === -1 || progress === courses.length}
-				<p class="bg-green-600 p-2.5 text-lg font-bold">Loaded {courses.length}</p>
+				<p class="bg-yellow-300 p-2.5 text-lg font-bold">Loaded {courses.length}</p>
 			{:else}
 				<div
-					class="h-full bg-green-500 p-2.5"
+					class="h-full bg-teal-200 p-2.5 font-bold"
 					style="width: {Math.floor((progress / courses.length) * 100)}%"
 				>
 					<p class="overflow-x-visible whitespace-nowrap text-lg">

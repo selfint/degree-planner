@@ -52,6 +52,38 @@
 		$years = [...$years, writable({ name: newYearName, winter: [], summer: [], spring: [] })];
 		newYearName = undefined;
 	}
+
+	function getGroupPoints(group: Group): number {
+		return $years
+			.map(get)
+			.flatMap((y) => y.winter.concat(y.spring).concat(y.summer))
+			.filter((code) => group.courses.some((c) => c.code === code))
+			.map(getFullCourse)
+			.map((c) => c.info?.points ?? 0)
+			.reduce((a, b) => a + b, 0);
+	}
+
+	let selectedSemester: [number, number] | undefined = undefined;
+	function selectionEquals(
+		selection: [number, number] | undefined,
+		year: number,
+		semester: number
+	): boolean {
+		return !(selection === undefined || selection[0] !== year || selection[1] !== semester);
+	}
+
+	function updateSelection(year: number, semester: number): void {
+		if (selectionEquals(selectedSemester, year, semester)) {
+			selectedSemester = undefined;
+		} else {
+			selectedSemester = [year, semester];
+		}
+	}
+
+	const foo = (i: number) => {
+		console.log('called');
+		return selectedSemester !== undefined && selectedSemester[0] === i && selectedSemester[1] === 0;
+	};
 </script>
 
 <div class="flex flex-row items-center space-x-2 border-b-2 border-black bg-yellow-200 p-1">
@@ -61,7 +93,7 @@
 		on:mousedown={() => goto('/')}
 		class="h-12 border-2 border-black bg-teal-200 p-2.5 font-bold hover:shadow"
 	>
-		Settings</button
+		Catalog</button
 	>
 </div>
 
@@ -69,12 +101,9 @@
 	<div class="p-2.5">
 		<h2 class="text-2xl font-bold">Requirements</h2>
 		{#each $groups as group}
-			<div class="mb-2.5 border-2 border-black bg-white p-2.5 shadow hover:shadow-md">
+			<div class="mb-2.5 flex flex-row border-2 border-black bg-white p-2.5 shadow hover:shadow-md">
 				<h3 class="text-xl font-bold">{get(group).name}</h3>
-				{$years
-					.map(get)
-					.flatMap((y) => y.winter.concat(y.spring).concat(y.summer))
-					.filter((c) => get(group).courses.some((course) => course.code === c))}
+				{getGroupPoints(get(group))}
 			</div>
 		{/each}
 	</div>
@@ -96,13 +125,34 @@
 					</button>
 				</div>
 				<div class="flex flex-row items-start">
-					<div class="flex-1">
+					<div
+						class="m-2.5 flex-1 border-2 border-black {selectionEquals(selectedSemester, i, 0)
+							? 'bg-teal-200'
+							: 'bg-white'} p-2.5 shadow hover:shadow-md"
+						role="button"
+						tabindex={i}
+						on:mousedown={() => updateSelection(i, 0)}
+					>
 						<h2 class="text-lg font-bold">Winter</h2>
 					</div>
-					<div class="flex-1">
+					<div
+						class="m-2.5 flex-1 border-2 border-black {selectionEquals(selectedSemester, i, 1)
+							? 'bg-teal-200'
+							: 'bg-white'} p-2.5 shadow hover:shadow-md"
+						role="button"
+						tabindex={i}
+						on:mousedown={() => updateSelection(i, 1)}
+					>
 						<h2 class="text-lg font-bold">Summer</h2>
 					</div>
-					<div class="flex-1">
+					<div
+						class="m-2.5 flex-1 border-2 border-black {selectionEquals(selectedSemester, i, 2)
+							? 'bg-teal-200'
+							: 'bg-white'} p-2.5 shadow hover:shadow-md"
+						role="button"
+						tabindex={i}
+						on:mousedown={() => updateSelection(i, 2)}
+					>
 						<h2 class="text-lg font-bold">Spring</h2>
 					</div>
 				</div>
@@ -149,7 +199,7 @@
 		{#each wishlistCourses as course, i}
 			{#if course.info !== undefined}
 				<div
-					class="mb-1.5 border-2 border-black bg-white p-1.5 shadow hover:shadow-md"
+					class="mb-1.5 border-2 border-black bg-white p-1.5 text-sm shadow hover:shadow-md"
 					role="button"
 					tabindex={i}
 					on:mousedown={() => onWishlistClick(course)}
@@ -164,7 +214,7 @@
 		{#each catalogCourses as course, i}
 			{#if course.info !== undefined}
 				<div
-					class="mb-1.5 border-2 border-black bg-white p-1.5 shadow hover:shadow-md"
+					class="mb-1.5 border-2 border-black bg-white p-1.5 text-sm shadow hover:shadow-md"
 					role="button"
 					tabindex={i}
 					on:mousedown={() => addToWishlist(course)}

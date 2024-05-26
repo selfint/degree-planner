@@ -25,7 +25,7 @@
 </script>
 
 <div class="flex flex-row items-center space-x-2 border-b-2 border-black bg-yellow-200 p-1">
-	<h1 class="text-4xl font-bold">Degree plan</h1>
+	<h1 class="text-4xl font-bold">Degree catalog</h1>
 	<div class="flex-grow"></div>
 	<button
 		on:mousedown={() => goto('/plan')}

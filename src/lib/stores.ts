@@ -64,8 +64,43 @@ export function loadStores() {
 	totalPoints.set(state.totalPoints);
 }
 
+function sortCourses(array: Course[]) {
+	const uniqueCourses = array.filter(
+		(item, index, self) => index === self.findIndex((t) => t.code === item.code)
+	);
+
+	return uniqueCourses.sort((a, b) => {
+		if (a.info?.median === b.info?.median) {
+			return a.code.localeCompare(b.code);
+		}
+
+		if (a.info?.median === undefined) return 1;
+		if (b.info?.median === undefined) return -1;
+
+		return b.info?.median - a.info?.median;
+	});
+}
+
 export function storeHook(): void {
 	for (const store of [courses, years, groups, totalPoints]) {
 		store.subscribe(saveStores);
 	}
+
+	let groupsUnsubscribe = get(groups).map((group) =>
+		group.subscribe(() =>
+			courses.set(sortCourses(get(groups).flatMap((group) => get(group).courses)))
+		)
+	);
+
+	groups.subscribe((value) => {
+		for (const unsubscribe of groupsUnsubscribe) {
+			unsubscribe();
+		}
+		groupsUnsubscribe = get(groups).map((group) =>
+			group.subscribe(() =>
+				courses.set(sortCourses(get(groups).flatMap((group) => get(group).courses)))
+			)
+		);
+		courses.set(sortCourses(value.flatMap((group) => get(group).courses)));
+	});
 }

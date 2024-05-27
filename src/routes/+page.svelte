@@ -4,6 +4,7 @@
 	import { writable, get } from 'svelte/store';
 	import { goto } from '$app/navigation';
 	import { stringToNum } from '$lib/stringToNum';
+	import Logo from '$lib/assets/logo.png';
 
 	let newName: string | undefined = undefined;
 	let newPoints: string | undefined = undefined;
@@ -23,24 +24,25 @@
 	}
 </script>
 
-<div class="border-dark-400 flex flex-row items-center space-x-2 border-b-2 p-1">
+<div class="flex flex-row items-center space-x-2 border-b-2 border-dark-400 p-1">
+	<img src={Logo} alt="Logo" class="h-12" />
 	<h1 class="text-4xl text-white">Degree catalog</h1>
 	<div class="flex-grow"></div>
 	<button
 		on:mousedown={() => goto('/plan')}
-		class="border-dark-400 h-12 rounded-md border-2 bg-teal-800 p-2 text-white"
+		class="h-12 rounded-md border-2 border-dark-400 bg-teal-800 p-2 text-white"
 	>
 		Plan
 	</button>
 </div>
 
-<div class="border-dark-400 bg-dark-700 ml-2 mr-2 mt-2 h-full rounded-md border-2 p-2">
+<div class="ml-2 mr-2 mt-2 h-full rounded-md border-2 border-dark-400 bg-dark-700 p-2">
 	<label for="total-points" class="text-2xl text-white">Total points:</label>
 	<input
 		type="text"
 		id="total-points"
 		bind:value={$totalPoints}
-		class="border-dark-400 bg-dark-50 rounded-md border-2 pl-1 text-white focus:bg-teal-700 focus:outline-none"
+		class="rounded-md border-2 border-dark-400 bg-dark-50 pl-1 text-white focus:bg-teal-700 focus:outline-none"
 		on:input|preventDefault={(e) => {
 			// @ts-ignore
 			$totalPoints = stringToNum(e.target?.value ?? undefined);
@@ -54,7 +56,7 @@
 			onDelete={() => ($groups = $groups.filter((_, index) => index !== i))}
 		/>
 	{/each}
-	<div class="border-dark-400 bg-dark-700 h-full w-80 rounded-md border-2 bg-opacity-50 p-2">
+	<div class="h-full w-80 rounded-md border-2 border-dark-400 bg-dark-700 bg-opacity-50 p-2">
 		<h2 class="text-3xl text-white">New group</h2>
 		<form on:submit|preventDefault={newGroup}>
 			<div>
@@ -63,7 +65,7 @@
 					type="text"
 					id="group-name"
 					bind:value={newName}
-					class="border-dark-400 bg-dark-50 m-1 rounded-md border-2 pl-1 text-white focus:bg-teal-700 focus:outline-none"
+					class="m-1 rounded-md border-2 border-dark-400 bg-dark-50 pl-1 text-white focus:bg-teal-700 focus:outline-none"
 				/>
 			</div>
 			<div>
@@ -71,7 +73,7 @@
 				<input
 					type="text"
 					id="group-points"
-					class="border-dark-400 bg-dark-50 m-1 rounded-md border-2 pl-1 text-white focus:bg-teal-700 focus:outline-none"
+					class="m-1 rounded-md border-2 border-dark-400 bg-dark-50 pl-1 text-white focus:bg-teal-700 focus:outline-none"
 					bind:value={newPoints}
 					on:input|preventDefault={(e) => {
 						// @ts-ignore
@@ -80,7 +82,7 @@
 				/>
 			</div>
 			<button
-				class="bg-teal border-dark-400 h-12 w-full border-2 bg-teal-800 p-2 text-white"
+				class="bg-teal h-12 w-full border-2 border-dark-400 bg-teal-800 p-2 text-white"
 				type="submit">Add!</button
 			>
 		</form>

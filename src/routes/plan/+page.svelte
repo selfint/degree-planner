@@ -7,11 +7,11 @@
 	import { courses, groups, years, wishlist } from '$lib/stores';
 	import { selectedSemester } from './stores';
 
-	import Year from './YearElement.svelte';
-	import Wishlist from './Wishlist.svelte';
-	import Catalog from './Catalog.svelte';
-	import YearInput from './YearInput.svelte';
-	import Requirements from './Requirements.svelte';
+	import Year from './components/YearElement.svelte';
+	import Wishlist from './components/Wishlist.svelte';
+	import Catalog from './components/Catalog.svelte';
+	import YearInput from './components/YearInput.svelte';
+	import Requirements from './components/Requirements.svelte';
 
 	$: fullCourses = new Map($courses.map((course) => [course.code, course]));
 	function getFullCourse(code: string): Course {

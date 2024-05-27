@@ -8,6 +8,7 @@
 	import { selectedSemester } from './stores';
 	import Wishlist from './Wishlist.svelte';
 	import Catalog from './Catalog.svelte';
+	import YearInput from './YearInput.svelte';
 
 	$: fullCourses = new Map($courses.map((course) => [course.code, course]));
 	function getFullCourse(code: string): Course {
@@ -71,23 +72,17 @@
 		}
 	}
 
-	let newYearName: string | undefined = undefined;
-
 	function deleteYear(i: number): void {
 		$years = $years.filter((_, index) => index !== i);
 	}
 
-	function newYear() {
-		if (newYearName === undefined) {
-			return;
+	function newYear(name: string): boolean {
+		if ($years.some((year) => get(year).name === name)) {
+			return false;
 		}
 
-		if ($years.some((year) => get(year).name === newYearName)) {
-			return;
-		}
-
-		$years = [...$years, writable({ name: newYearName, winter: [], summer: [], spring: [] })];
-		newYearName = undefined;
+		$years = [...$years, writable({ name, winter: [], summer: [], spring: [] })];
+		return true;
 	}
 
 	function onCourseDelete(code: string): void {
@@ -135,27 +130,7 @@
 		{/each}
 
 		<div class="mt-2 w-full rounded-md border-2 border-dark-400 bg-dark-700 p-2">
-			<form on:submit|preventDefault={newYear}>
-				<div class="flex flex-row items-center">
-					<div class="flex w-fit flex-row">
-						<label for="group-name" class="text-white">Name:</label>
-						<div class="min-w-1 flex-grow" />
-						<input
-							type="text"
-							id="group-name"
-							bind:value={newYearName}
-							class="rounded-md border-2 border-dark-400 bg-dark-50 pl-1 text-white focus:bg-teal-700 focus:outline-none"
-						/>
-					</div>
-					<div class="flex-grow"></div>
-					<button
-						class="bg-teal h-12 w-fit border-2 border-dark-400 bg-teal-800 p-2 text-white"
-						type="submit"
-					>
-						Add
-					</button>
-				</div>
-			</form>
+			<YearInput onNewYear={newYear} />
 		</div>
 	</div>
 	<div class="p-2">

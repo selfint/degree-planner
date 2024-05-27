@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Writable } from 'svelte/store';
 
-	import { selectedSemester } from './stores';
+	import { selectedSemester } from '../stores';
 	import Semester from './Semester.svelte';
 
 	export let year: Writable<Year>;

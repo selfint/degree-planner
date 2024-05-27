@@ -7,6 +7,7 @@
 	import Year from './Year.svelte';
 	import { selectedSemester } from './stores';
 	import Wishlist from './Wishlist.svelte';
+	import Catalog from './Catalog.svelte';
 
 	$: fullCourses = new Map($courses.map((course) => [course.code, course]));
 	function getFullCourse(code: string): Course {
@@ -161,18 +162,6 @@
 		<Wishlist wishlist={$wishlist.map(getFullCourse)} {onWishlistClick} />
 	</div>
 	<div class="p-2">
-		<h2 class="text-xl text-white">Catalog</h2>
-		{#each catalogCourses as course, i}
-			{#if course.info !== undefined}
-				<div
-					class="{i % 2 === 0 ? 'bg-dark-500' : 'bg-dark-700'} p-1 text-sm"
-					role="button"
-					tabindex={i}
-					on:mousedown={() => addToWishlist(course)}
-				>
-					<p class="text-white">{course.info?.name}</p>
-				</div>
-			{/if}
-		{/each}
+		<Catalog courses={catalogCourses} onClick={addToWishlist} />
 	</div>
 </div>

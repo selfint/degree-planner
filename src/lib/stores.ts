@@ -107,9 +107,9 @@ export function storeHook(): void {
 	}
 
 	let groupsUnsubscribe = get(groups).map((group) =>
-		group.subscribe(() =>
-			courses.set(sortCourses(get(groups).flatMap((group) => get(group).courses)))
-		)
+		group.subscribe(() => {
+			courses.set(sortCourses(get(groups).flatMap((group) => get(group).courses)));
+		})
 	);
 
 	groups.subscribe((value) => {
@@ -117,9 +117,9 @@ export function storeHook(): void {
 			unsubscribe();
 		}
 		groupsUnsubscribe = get(groups).map((group) =>
-			group.subscribe(() =>
-				courses.set(sortCourses(get(groups).flatMap((group) => get(group).courses)))
-			)
+			group.subscribe(() => {
+				courses.set(sortCourses(get(groups).flatMap((group) => get(group).courses)));
+			})
 		);
 		courses.set(sortCourses(value.flatMap((group) => get(group).courses)));
 	});

@@ -54,12 +54,13 @@ export function loadStores() {
 	console.log(['Loading', data.length, state]);
 
 	courses.set(state.courses);
-	wishlist.set(state.wishlist);
 
 	const fullCourses = new Map(state.courses.map((course) => [course.code, course]));
-	function getFullCourse(code: string): Course {
+	function getFullCourse(code: string): Course | undefined {
 		return fullCourses.get(code) as Course;
 	}
+
+	wishlist.set(state.wishlist.filter((c) => getFullCourse(c) !== undefined));
 
 	years.set(
 		state.years.map((year) =>
@@ -72,13 +73,18 @@ export function loadStores() {
 		)
 	);
 	groups.set(
-		state.groups.map((group) =>
-			writable({
+		state.groups.map((group) => {
+			// @ts-expect-error This is correct
+			const validCourses: Course[] = group.courses
+				.map(getFullCourse)
+				.filter((c) => c?.info !== undefined);
+
+			return writable({
 				name: group.name,
 				points: group.points,
-				courses: group.courses.map(getFullCourse).filter((c) => c?.info !== undefined)
-			})
-		)
+				courses: validCourses
+			});
+		})
 	);
 
 	totalPoints.set(state.totalPoints);

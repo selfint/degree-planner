@@ -5,10 +5,10 @@
 	import Semester from './Semester.svelte';
 
 	export let year: Writable<Year>;
-	export let index: number;
+	export let yearIndex: number;
 	export let onDelete: () => void;
-	export let onCourseDelete: (courseCode: string) => void;
-	export let expandCourse: (courseCode: string) => Course;
+	export let onCourseDelete: (code: string, semester: [number, number]) => void;
+	export let expandCourse: (code: string) => Course;
 
 	function selectionEquals(
 		selection: [number, number] | undefined,
@@ -26,7 +26,7 @@
 		}
 	}
 
-	function removeCourse(code: string): void {
+	function removeCourse(code: string, semester: number): void {
 		$year = {
 			...$year,
 			winter: $year.winter.filter((c) => c !== code),
@@ -34,7 +34,7 @@
 			summer: $year.summer.filter((c) => c !== code)
 		};
 
-		onCourseDelete(code);
+		onCourseDelete(code, [yearIndex, semester]);
 	}
 </script>
 
@@ -53,49 +53,49 @@
 			</button>
 		</div>
 		<div
-			class="col-span-1 border-b-2 border-dark-400 {selectionEquals($selectedSemester, index, 0)
+			class="col-span-1 border-b-2 border-dark-400 {selectionEquals($selectedSemester, yearIndex, 0)
 				? 'bg-teal-800'
 				: 'bg-opacity-50'}"
 			role="button"
-			tabindex={index}
-			on:mousedown={() => updateSelection(index, 0)}
+			tabindex={yearIndex}
+			on:mousedown={() => updateSelection(yearIndex, 0)}
 		>
 			<Semester
 				name="Winter"
 				courses={$year.winter.map(expandCourse)}
-				onCourseClick={removeCourse}
+				onCourseClick={(code) => removeCourse(code, 0)}
 			/>
 		</div>
 		<div
 			class="col-span-1 border-l-2 border-r-2 border-dark-400 {selectionEquals(
 				$selectedSemester,
-				index,
+				yearIndex,
 				1
 			)
 				? 'bg-teal-800'
 				: 'bg-opacity-50'}"
 			role="button"
-			tabindex={index}
-			on:mousedown={() => updateSelection(index, 1)}
+			tabindex={yearIndex}
+			on:mousedown={() => updateSelection(yearIndex, 1)}
 		>
 			<Semester
 				name="Spring"
 				courses={$year.spring.map(expandCourse)}
-				onCourseClick={removeCourse}
+				onCourseClick={(code) => removeCourse(code, 1)}
 			/>
 		</div>
 		<div
-			class="col-span-1 border-dark-400 {selectionEquals($selectedSemester, index, 2)
+			class="col-span-1 border-dark-400 {selectionEquals($selectedSemester, yearIndex, 2)
 				? 'bg-teal-800'
 				: 'bg-opacity-50'}"
 			role="button"
-			tabindex={index}
-			on:mousedown={() => updateSelection(index, 2)}
+			tabindex={yearIndex}
+			on:mousedown={() => updateSelection(yearIndex, 2)}
 		>
 			<Semester
 				name="Summer"
 				courses={$year.summer.map(expandCourse)}
-				onCourseClick={removeCourse}
+				onCourseClick={(code) => removeCourse(code, 2)}
 			/>
 		</div>
 	</div>

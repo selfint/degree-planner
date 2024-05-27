@@ -35,22 +35,26 @@
 		$wishlist = [...new Set([...$wishlist, course.code])];
 	}
 
+	function addCourseToSemester(code: string, yearIndex: number, semesterIndex: number): void {
+		const yearStore = $years[yearIndex];
+		const year = get(yearStore);
+		const semester = [year.winter, year.spring, year.summer][semesterIndex];
+		semester.push(code);
+
+		yearStore.set({
+			...year,
+			winter: [...new Set(year.winter)],
+			spring: [...new Set(year.spring)],
+			summer: [...new Set(year.summer)]
+		});
+		$years = $years;
+	}
+
 	function onWishlistClick(code: string, toYears: boolean): void {
 		if (toYears) {
 			if ($selectedSemester !== undefined) {
 				const [y, s] = $selectedSemester;
-				const yearStore = $years[y];
-				const year = get(yearStore);
-				const semester = [year.winter, year.spring, year.summer][s];
-				semester.push(code);
-
-				yearStore.set({
-					...year,
-					winter: [...new Set(year.winter)],
-					spring: [...new Set(year.spring)],
-					summer: [...new Set(year.summer)]
-				});
-				$years = $years;
+				addCourseToSemester(code, y, s);
 
 				$wishlist = $wishlist.filter((w) => w !== code);
 			}
@@ -72,9 +76,21 @@
 		return true;
 	}
 
-	function onCourseDelete(code: string): void {
-		$years = $years;
-		$wishlist = [...$wishlist, code];
+	function onCourseDelete(code: string, selection: [number, number]): void {
+		console.log(
+			[code, selection],
+			$selectedSemester !== undefined &&
+				!($selectedSemester[0] === selection[0] && $selectedSemester[1] === selection[1])
+		);
+		if (
+			$selectedSemester !== undefined &&
+			!($selectedSemester[0] === selection[0] && $selectedSemester[1] === selection[1])
+		) {
+			const [y, s] = $selectedSemester;
+			addCourseToSemester(code, y, s);
+		} else {
+			$wishlist = [...$wishlist, code];
+		}
 	}
 </script>
 
@@ -100,7 +116,7 @@
 		{#each $years as year, i}
 			<Year
 				{year}
-				index={i}
+				yearIndex={i}
 				onDelete={() => deleteYear(i)}
 				{onCourseDelete}
 				expandCourse={getFullCourse}

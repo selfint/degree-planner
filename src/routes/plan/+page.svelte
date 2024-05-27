@@ -1,11 +1,13 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { get, writable } from 'svelte/store';
+
 	import Logo from '$lib/assets/logo.png';
 
 	import { courses, groups, years, wishlist } from '$lib/stores';
-	import { get, writable } from 'svelte/store';
-	import Year from './YearElement.svelte';
 	import { selectedSemester } from './stores';
+
+	import Year from './YearElement.svelte';
 	import Wishlist from './Wishlist.svelte';
 	import Catalog from './Catalog.svelte';
 	import YearInput from './YearInput.svelte';
@@ -16,23 +18,7 @@
 		return fullCourses.get(code) as Course;
 	}
 
-	$: wishlistCourses = $wishlist.map(getFullCourse).filter((c) => c !== undefined);
 	$: plannedCourses = $years.map(get).flatMap((y) => y.winter.concat(y.spring).concat(y.summer));
-	$: yearCourses = $years.map(get).map((year) => {
-		return {
-			...year,
-			winter: year.winter.map(getFullCourse).filter((c) => c?.info !== undefined),
-			spring: year.spring.map(getFullCourse).filter((c) => c?.info !== undefined),
-			summer: year.summer.map(getFullCourse).filter((c) => c?.info !== undefined)
-		};
-	});
-	$: groupPoints = $groups.map(get).map((group) =>
-		plannedCourses
-			.filter((code) => group.courses.some((c) => c.code === code))
-			.map(getFullCourse)
-			.map((c) => c.info?.points ?? 0)
-			.reduce((a, b) => a + b, 0)
-	);
 
 	let catalogCourses: Course[] = [];
 

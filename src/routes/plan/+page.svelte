@@ -4,6 +4,8 @@
 
 	import { courses, groups, years, wishlist } from '$lib/stores';
 	import { get, writable } from 'svelte/store';
+	import Year from './Year.svelte';
+	import { selectedSemester } from './stores';
 
 	$: fullCourses = new Map($courses.map((course) => [course.code, course]));
 	function getFullCourse(code: string): Course {
@@ -45,8 +47,8 @@
 
 	function onWishlistClick(course: Course): void {
 		if (toYears) {
-			if (selectedSemester !== undefined) {
-				const [y, s] = selectedSemester;
+			if ($selectedSemester !== undefined) {
+				const [y, s] = $selectedSemester;
 				const yearStore = $years[y];
 				const year = get(yearStore);
 				const semester = [year.winter, year.spring, year.summer][s];
@@ -88,35 +90,8 @@
 		newYearName = undefined;
 	}
 
-	let selectedSemester: [number, number] | undefined = undefined;
-	function selectionEquals(
-		selection: [number, number] | undefined,
-		year: number,
-		semester: number
-	): boolean {
-		return !(selection === undefined || selection[0] !== year || selection[1] !== semester);
-	}
-
-	function updateSelection(year: number, semester: number): void {
-		if (selectionEquals(selectedSemester, year, semester)) {
-			selectedSemester = undefined;
-		} else {
-			selectedSemester = [year, semester];
-		}
-	}
-
-	function removeCourse(yearIndex: number, semesterIndex: number, code: string): void {
-		const yearStore = $years[yearIndex];
-		const year = get(yearStore);
-
-		yearStore.set({
-			...year,
-			winter: year.winter.filter((c) => c !== code),
-			spring: year.spring.filter((c) => c !== code),
-			summer: year.summer.filter((c) => c !== code)
-		});
+	function onCourseDelete(code: string): void {
 		$years = $years;
-
 		$wishlist = [...$wishlist, code];
 	}
 </script>
@@ -149,87 +124,14 @@
 	<div class="flex-grow p-2">
 		<h2 class="text-xl text-white">Years</h2>
 
-		{#each yearCourses as year, i}
-			<div class="mb-2 w-full rounded-md border-2 border-dark-400 bg-dark-700">
-				<div class="grid grid-cols-3">
-					<div class="col-span-1">
-						<h3 class="p-2 text-xl text-white">{year.name}</h3>
-					</div>
-					<div class="col-span-1" />
-					<div class="col-span-1 mb-1 text-right">
-						<button
-							on:mousedown={() => deleteYear(i)}
-							class="m-2 border-2 border-dark-400 bg-teal-800 p-1 text-white"
-						>
-							X
-						</button>
-					</div>
-					<div
-						class="col-span-1 border-b-2 border-dark-400 {selectionEquals(selectedSemester, i, 0)
-							? 'bg-teal-800'
-							: 'bg-opacity-50'}"
-						role="button"
-						tabindex={i}
-						on:mousedown={() => updateSelection(i, 0)}
-					>
-						<h2 class="border-b-2 border-dark-400 pl-2 text-lg text-white">Winter</h2>
-						{#each year.winter as course, j}
-							<div
-								on:mousedown|preventDefault|stopPropagation={() => removeCourse(i, 0, course.code)}
-								role="button"
-								tabindex={j}
-								class="{j % 2 === 0 ? 'bg-dark-500' : 'bg-dark-700'} p-1"
-							>
-								<p class="text-sm text-white">{course.info?.name}</p>
-							</div>
-						{/each}
-					</div>
-					<div
-						class="col-span-1 border-l-2 border-r-2 border-dark-400 {selectionEquals(
-							selectedSemester,
-							i,
-							1
-						)
-							? 'bg-teal-800'
-							: 'bg-opacity-50'}"
-						role="button"
-						tabindex={i}
-						on:mousedown={() => updateSelection(i, 1)}
-					>
-						<h2 class="border-b-2 border-dark-400 pl-2 text-lg text-white">Spring</h2>
-						{#each year.spring as course, j}
-							<div
-								on:mousedown|preventDefault|stopPropagation={() => removeCourse(i, 1, course.code)}
-								role="button"
-								tabindex={j}
-								class="{j % 2 === 0 ? 'bg-dark-500' : 'bg-dark-700'} p-1"
-							>
-								<p class="text-sm text-white">{course.info?.name}</p>
-							</div>
-						{/each}
-					</div>
-					<div
-						class="col-span-1 border-dark-400 {selectionEquals(selectedSemester, i, 2)
-							? 'bg-teal-800'
-							: 'bg-opacity-50'}"
-						role="button"
-						tabindex={i}
-						on:mousedown={() => updateSelection(i, 2)}
-					>
-						<h2 class="border-b-2 border-dark-400 pl-2 text-lg text-white">Summer</h2>
-						{#each year.summer as course, j}
-							<div
-								on:mousedown|preventDefault|stopPropagation={() => removeCourse(i, 2, course.code)}
-								role="button"
-								tabindex={j}
-								class="{j % 2 === 0 ? 'bg-dark-500' : 'bg-dark-700'} p-1"
-							>
-								<p class="text-sm text-white">{course.info?.name}</p>
-							</div>
-						{/each}
-					</div>
-				</div>
-			</div>
+		{#each $years as year, i}
+			<Year
+				{year}
+				index={i}
+				onDelete={() => deleteYear(i)}
+				{onCourseDelete}
+				expandCourse={getFullCourse}
+			/>
 		{/each}
 
 		<div class="mt-2 w-full rounded-md border-2 border-dark-400 bg-dark-700 p-2">

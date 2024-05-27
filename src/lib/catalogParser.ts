@@ -2,5 +2,6 @@ export function parseCatalog(text: string): string[] {
 	const regex = /\b\d{5,6}\b/g;
 	const matches = text.match(regex);
 
-	return [...new Set(matches ? matches : [])];
+	const codes = [...new Set(matches ? matches : [])];
+	return codes.map((code) => code.replace(/^0+/, ''));
 }

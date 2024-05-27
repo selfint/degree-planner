@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import Logo from '$lib/assets/logo.png';
 
 	import { courses, groups, years, wishlist } from '$lib/stores';
 	import { get, writable } from 'svelte/store';
@@ -121,6 +122,7 @@
 </script>
 
 <div class="flex flex-row items-center space-x-2 border-b-2 border-dark-400 p-1">
+	<img src={Logo} alt="Logo" class="h-12" />
 	<h1 class="text-4xl text-white">Degree plan</h1>
 	<div class="flex-grow"></div>
 	<button

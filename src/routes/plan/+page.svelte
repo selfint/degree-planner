@@ -4,11 +4,12 @@
 
 	import { courses, groups, years, wishlist } from '$lib/stores';
 	import { get, writable } from 'svelte/store';
-	import Year from './Year.svelte';
+	import Year from './YearElement.svelte';
 	import { selectedSemester } from './stores';
 	import Wishlist from './Wishlist.svelte';
 	import Catalog from './Catalog.svelte';
 	import YearInput from './YearInput.svelte';
+	import Requirements from './Requirements.svelte';
 
 	$: fullCourses = new Map($courses.map((course) => [course.code, course]));
 	function getFullCourse(code: string): Course {
@@ -105,16 +106,7 @@
 
 <div class="flex flex-row flex-wrap">
 	<div class="p-2">
-		<h2 class="text-xl text-white">Requirements</h2>
-		{#each $groups as group, i}
-			<div class="mb-2 flex flex-row items-center border-2 border-dark-400 bg-dark-700 p-2">
-				<h3 class="text-xl text-white">{get(group).name}</h3>
-				<div class="min-w-2 flex-grow" />
-				<p class="text-white">
-					{groupPoints[i]} / {get(group).points}
-				</p>
-			</div>
-		{/each}
+		<Requirements groups={$groups.map(get)} years={$years.map(get)} />
 	</div>
 	<div class="flex-grow p-2">
 		<h2 class="text-xl text-white">Years</h2>

@@ -1,8 +1,18 @@
 <script lang="ts">
+	import { selectedGroup } from '../stores';
+
 	export let wishlist: Course[];
 	export let onWishlistClick: (code: string, toYears: boolean) => void;
 
 	let toYears = true;
+
+	function getCourseBg(code: string, index: number, group: Group | undefined) {
+		if (group?.courses.some((course) => course.code === code)) {
+			return 'bg-indigo-900';
+		}
+
+		return index % 2 === 0 ? 'bg-dark-500' : 'bg-dark-700';
+	}
 </script>
 
 <div class="flex flex-row items-center">
@@ -24,7 +34,7 @@
 {#each wishlist as course, i}
 	{#if course.info !== undefined}
 		<div
-			class="{i % 2 === 0 ? 'bg-dark-500' : 'bg-dark-700'} p-1 text-sm"
+			class="{getCourseBg(course.code, i, $selectedGroup)} p-1 text-sm"
 			role="button"
 			tabindex={i}
 			on:mousedown={() => onWishlistClick(course.code, toYears)}

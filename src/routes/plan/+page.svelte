@@ -19,6 +19,13 @@
 			summer: year.summer.map(getFullCourse).filter((c) => c?.info !== undefined)
 		};
 	});
+	$: groupPoints = $groups.map(get).map((group) =>
+		plannedCourses
+			.filter((code) => group.courses.some((c) => c.code === code))
+			.map(getFullCourse)
+			.map((c) => c.info?.points ?? 0)
+			.reduce((a, b) => a + b, 0)
+	);
 
 	let catalogCourses: Course[] = [];
 
@@ -80,14 +87,6 @@
 		newYearName = undefined;
 	}
 
-	function getGroupPoints(group: Group): number {
-		return plannedCourses
-			.filter((code) => group.courses.some((c) => c.code === code))
-			.map(getFullCourse)
-			.map((c) => c.info?.points ?? 0)
-			.reduce((a, b) => a + b, 0);
-	}
-
 	let selectedSemester: [number, number] | undefined = undefined;
 	function selectionEquals(
 		selection: [number, number] | undefined,
@@ -121,12 +120,12 @@
 	}
 </script>
 
-<div class="border-dark-400 flex flex-row items-center space-x-2 border-b-2 p-1">
+<div class="flex flex-row items-center space-x-2 border-b-2 border-dark-400 p-1">
 	<h1 class="text-4xl text-white">Degree plan</h1>
 	<div class="flex-grow"></div>
 	<button
 		on:mousedown={() => goto('/')}
-		class="border-dark-400 h-12 border-2 bg-teal-800 p-2 text-white"
+		class="h-12 border-2 border-dark-400 bg-teal-800 p-2 text-white"
 	>
 		Catalog
 	</button>
@@ -135,12 +134,12 @@
 <div class="flex flex-row flex-wrap">
 	<div class="p-2">
 		<h2 class="text-xl text-white">Requirements</h2>
-		{#each $groups as group}
-			<div class="border-dark-400 bg-dark-700 mb-2 flex flex-row items-center border-2 p-2">
+		{#each $groups as group, i}
+			<div class="mb-2 flex flex-row items-center border-2 border-dark-400 bg-dark-700 p-2">
 				<h3 class="text-xl text-white">{get(group).name}</h3>
 				<div class="min-w-2 flex-grow" />
 				<p class="text-white">
-					{getGroupPoints(get(group))} / {get(group).points}
+					{groupPoints[i]} / {get(group).points}
 				</p>
 			</div>
 		{/each}
@@ -149,7 +148,7 @@
 		<h2 class="text-xl text-white">Years</h2>
 
 		{#each yearCourses as year, i}
-			<div class="border-dark-400 bg-dark-700 mb-2 w-full rounded-md border-2">
+			<div class="mb-2 w-full rounded-md border-2 border-dark-400 bg-dark-700">
 				<div class="grid grid-cols-3">
 					<div class="col-span-1">
 						<h3 class="p-2 text-xl text-white">{year.name}</h3>
@@ -158,20 +157,20 @@
 					<div class="col-span-1 mb-1 text-right">
 						<button
 							on:mousedown={() => deleteYear(i)}
-							class="border-dark-400 m-2 border-2 bg-teal-800 p-1 text-white"
+							class="m-2 border-2 border-dark-400 bg-teal-800 p-1 text-white"
 						>
 							X
 						</button>
 					</div>
 					<div
-						class="border-dark-400 col-span-1 border-b-2 {selectionEquals(selectedSemester, i, 0)
+						class="col-span-1 border-b-2 border-dark-400 {selectionEquals(selectedSemester, i, 0)
 							? 'bg-teal-800'
 							: 'bg-opacity-50'}"
 						role="button"
 						tabindex={i}
 						on:mousedown={() => updateSelection(i, 0)}
 					>
-						<h2 class="border-dark-400 border-b-2 pl-2 text-lg text-white">Winter</h2>
+						<h2 class="border-b-2 border-dark-400 pl-2 text-lg text-white">Winter</h2>
 						{#each year.winter as course, j}
 							<div
 								on:mousedown|preventDefault|stopPropagation={() => removeCourse(i, 0, course.code)}
@@ -184,7 +183,7 @@
 						{/each}
 					</div>
 					<div
-						class="border-dark-400 col-span-1 border-l-2 border-r-2 {selectionEquals(
+						class="col-span-1 border-l-2 border-r-2 border-dark-400 {selectionEquals(
 							selectedSemester,
 							i,
 							1
@@ -195,7 +194,7 @@
 						tabindex={i}
 						on:mousedown={() => updateSelection(i, 1)}
 					>
-						<h2 class="border-dark-400 border-b-2 pl-2 text-lg text-white">Spring</h2>
+						<h2 class="border-b-2 border-dark-400 pl-2 text-lg text-white">Spring</h2>
 						{#each year.spring as course, j}
 							<div
 								on:mousedown|preventDefault|stopPropagation={() => removeCourse(i, 1, course.code)}
@@ -208,14 +207,14 @@
 						{/each}
 					</div>
 					<div
-						class="border-dark-400 col-span-1 {selectionEquals(selectedSemester, i, 2)
+						class="col-span-1 border-dark-400 {selectionEquals(selectedSemester, i, 2)
 							? 'bg-teal-800'
 							: 'bg-opacity-50'}"
 						role="button"
 						tabindex={i}
 						on:mousedown={() => updateSelection(i, 2)}
 					>
-						<h2 class="border-dark-400 border-b-2 pl-2 text-lg text-white">Summer</h2>
+						<h2 class="border-b-2 border-dark-400 pl-2 text-lg text-white">Summer</h2>
 						{#each year.summer as course, j}
 							<div
 								on:mousedown|preventDefault|stopPropagation={() => removeCourse(i, 2, course.code)}
@@ -231,7 +230,7 @@
 			</div>
 		{/each}
 
-		<div class="border-dark-400 bg-dark-700 mt-2 w-full rounded-md border-2 p-2">
+		<div class="mt-2 w-full rounded-md border-2 border-dark-400 bg-dark-700 p-2">
 			<form on:submit|preventDefault={newYear}>
 				<div class="flex flex-row items-center">
 					<div class="flex w-fit flex-row">
@@ -241,12 +240,12 @@
 							type="text"
 							id="group-name"
 							bind:value={newYearName}
-							class="border-dark-400 bg-dark-50 rounded-md border-2 pl-1 text-white focus:bg-teal-700 focus:outline-none"
+							class="rounded-md border-2 border-dark-400 bg-dark-50 pl-1 text-white focus:bg-teal-700 focus:outline-none"
 						/>
 					</div>
 					<div class="flex-grow"></div>
 					<button
-						class="bg-teal border-dark-400 h-12 w-fit border-2 bg-teal-800 p-2 text-white"
+						class="bg-teal h-12 w-fit border-2 border-dark-400 bg-teal-800 p-2 text-white"
 						type="submit"
 					>
 						Add
@@ -262,7 +261,7 @@
 				<div class="min-w-1 flex-grow"></div>
 			{/if}
 			<button
-				class="border-dark-400 h-7 border-2 bg-teal-800 pb-1 pl-1 pr-1 text-white"
+				class="h-7 border-2 border-dark-400 bg-teal-800 pb-1 pl-1 pr-1 text-white"
 				on:mousedown|preventDefault={() => (toYears = !toYears)}
 			>
 				{toYears ? '<--' : '-->'}

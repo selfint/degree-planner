@@ -2,7 +2,6 @@
 	import CourseElement from './CourseElement.svelte';
 	import CourseErrorElement, { type CourseError } from './CourseErrorElement.svelte';
 
-	export let name: 'Winter' | 'Spring' | 'Summer';
 	export let courses: Course[];
 	export let onCourseClick: (code: string) => void;
 	export let previousCourses: string[];
@@ -55,7 +54,6 @@
 	}
 </script>
 
-<h2 class="border-b-2 border-dark-400 pl-2 text-lg text-white">{name}</h2>
 {#each courses as course, i}
 	<CourseElement
 		{course}

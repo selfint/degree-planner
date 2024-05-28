@@ -96,50 +96,52 @@
 					X
 				</button>
 			</div>
-			<div
-				class="col-span-1 border-b-2 border-dark-400 {selectionEquals($selectedSemester, i, 0)
-					? 'bg-teal-800'
-					: 'bg-opacity-50'}"
-				role="button"
-				tabindex={i}
-				on:mousedown={() => updateSelection(i, 0)}
-			>
+			<div class="col-span-1 border-b-2 border-dark-400">
+				<div
+					class="border-b-2 border-dark-400 {selectionEquals($selectedSemester, i, 0)
+						? 'bg-teal-800'
+						: 'bg-opacity-50'} pl-2"
+					on:mousedown={() => updateSelection(i, 0)}
+					role="button"
+					tabindex={i}
+				>
+					<h2 class="text-lg text-white">Winter</h2>
+				</div>
 				<Semester
-					name="Winter"
 					courses={year.winter.map(expandCourse)}
 					onCourseClick={(code) => ($years = removeCourse($years, code, i, 0, $selectedSemester))}
 					previousCourses={previousCourses[i]}
 				/>
 			</div>
-			<div
-				class="col-span-1 border-l-2 border-r-2 border-dark-400 {selectionEquals(
-					$selectedSemester,
-					i,
-					1
-				)
-					? 'bg-teal-800'
-					: 'bg-opacity-50'}"
-				role="button"
-				tabindex={i}
-				on:mousedown={() => updateSelection(i, 1)}
-			>
+			<div class="col-span-1 border-l-2 border-r-2 border-dark-400">
+				<div
+					class="border-b-2 border-dark-400 {selectionEquals($selectedSemester, i, 1)
+						? 'bg-teal-800'
+						: 'bg-opacity-50'} pl-2"
+					on:mousedown={() => updateSelection(i, 1)}
+					role="button"
+					tabindex={i}
+				>
+					<h2 class="text-lg text-white">Spring</h2>
+				</div>
 				<Semester
-					name="Winter"
 					courses={year.spring.map(expandCourse)}
 					onCourseClick={(code) => ($years = removeCourse($years, code, i, 1, $selectedSemester))}
 					previousCourses={previousCourses[i].concat(year.winter)}
 				/>
 			</div>
-			<div
-				class="col-span-1 border-dark-400 {selectionEquals($selectedSemester, i, 2)
-					? 'bg-teal-800'
-					: 'bg-opacity-50'}"
-				role="button"
-				tabindex={i}
-				on:mousedown={() => updateSelection(i, 2)}
-			>
+			<div class="col-span-1 border-dark-400">
+				<div
+					class="border-b-2 border-dark-400 {selectionEquals($selectedSemester, i, 2)
+						? 'bg-teal-800'
+						: 'bg-opacity-50'} pl-2"
+					on:mousedown={() => updateSelection(i, 2)}
+					role="button"
+					tabindex={i}
+				>
+					<h2 class="text-lg text-white">Summer</h2>
+				</div>
 				<Semester
-					name="Winter"
 					courses={year.summer.map(expandCourse)}
 					onCourseClick={(code) => ($years = removeCourse($years, code, i, 2, $selectedSemester))}
 					previousCourses={previousCourses[i].concat(year.winter).concat(year.spring)}

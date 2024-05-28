@@ -13,54 +13,53 @@
 </script>
 
 <li class="flex flex-col">
-	<p class="text-sm text-white">{course.code}:</p>
-	{#if courseError.generic !== undefined}
-		<p class="pl-1 text-sm text-white">{courseError.generic}</p>
-	{/if}
-	{#if courseError.dependencies.some((deps) => deps.length > 0)}
-		<p class="pl-1 text-sm text-white">
-			Missing dependencies:
-			{#each courseError.dependencies.filter((d) => d.length > 0) as missingDependencies, i}
-				{#if i > 0}
-					or
-				{/if}
-				<span>
-					{#each missingDependencies as dependency, j}
-						{#if j > 0}
-							,
-						{/if}
+	<p class="text-sm text-white">{course.info?.name ?? course.code}:</p>
+	<ol>
+		{#if courseError.generic !== undefined}
+			<li class="pl-1 text-sm text-white">{courseError.generic}</li>
+		{/if}
+		{#if courseError.dependencies.some((deps) => deps.length > 0)}
+			<li class="pl-1 text-sm text-white">
+				<p>Missing dependencies:</p>
+				<ul>
+					{#each courseError.dependencies.filter((d) => d.length > 0) as missingDependencies}
+						<li class="pl-1">
+							<span>
+								{#each missingDependencies as dependency, j}
+									{#if j > 0}
+										,
+									{/if}
+									<span>{dependency}</span>
+								{/each}
+							</span>
+						</li>
+					{/each}
+				</ul>
+			</li>
+		{/if}
+		{#if courseError.adjacencies.length > 0}
+			<li class="pl-1 text-sm text-white">
+				<p>Missing adjacencies:</p>
+				<ul>
+					{#each courseError.adjacencies as missingAdjacency}
+						<li class="pl-1">
+							{missingAdjacency}
+						</li>
+					{/each}
+				</ul>
+			</li>
+		{/if}
+		{#if courseError.exclusives.length > 0}
+			<li class="pl-1 text-sm text-white">
+				Present exclusives:
+				<ul>
+					{#each courseError.exclusives as presentExclusive}
 						<span>
-							{dependency}
+							{presentExclusive}
 						</span>
 					{/each}
-				</span>
-			{/each}
-		</p>
-	{/if}
-	{#if courseError.adjacencies.length > 0}
-		<p class="pl-1 text-sm text-white">
-			Missing adjacencies:
-			{#each courseError.adjacencies as missingAdjacency, i}
-				{#if i > 0}
-					or
-				{/if}
-				<span>
-					{missingAdjacency}
-				</span>
-			{/each}
-		</p>
-	{/if}
-	{#if courseError.exclusives.length > 0}
-		<p class="pl-1 text-sm text-white">
-			Present exclusives:
-			{#each courseError.exclusives as presentExclusive, i}
-				{#if i > 0}
-					or
-				{/if}
-				<span>
-					{presentExclusive}
-				</span>
-			{/each}
-		</p>
-	{/if}
+				</ul>
+			</li>
+		{/if}
+	</ol>
 </li>

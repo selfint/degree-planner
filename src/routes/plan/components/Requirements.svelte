@@ -25,7 +25,7 @@
 <h2 class="text-xl text-white">Requirements</h2>
 {#each groups as group, i}
 	<div
-		class="mb-2 flex flex-row items-center border-2 border-dark-400 {getGroupBg(
+		class="mb-2 w-fit items-center border-2 border-dark-400 {getGroupBg(
 			group,
 			$selectedGroup
 		)}  p-2"
@@ -35,7 +35,6 @@
 			($selectedGroup = group.name === $selectedGroup?.name ? undefined : group)}
 	>
 		<h3 class="text-xl text-white">{group.name}</h3>
-		<div class="min-w-2 flex-grow" />
 		<p class="text-white">
 			{groupPoints[i]} / {group.points}
 		</p>

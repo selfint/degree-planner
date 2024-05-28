@@ -83,7 +83,7 @@
 			</div>
 			<button
 				class="bg-teal h-12 w-full border-2 border-dark-400 bg-teal-800 p-2 text-white"
-				type="submit">Add!</button
+				type="submit">Add</button
 			>
 		</form>
 	</div>

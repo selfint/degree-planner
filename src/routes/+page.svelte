@@ -1,5 +1,5 @@
 <script lang="ts">
-	import CourseGroupInput from '$lib/components/CourseGroupInput.svelte';
+	import CourseGroupInput from './components/CourseGroupInput.svelte';
 	import { groups, totalPoints } from '$lib/stores';
 	import { writable, get } from 'svelte/store';
 	import { goto } from '$app/navigation';

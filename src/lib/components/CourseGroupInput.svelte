@@ -53,19 +53,18 @@
 
 		group.update((group) => {
 			group.courses = courses;
-			console.log('notify');
 			return group;
 		});
 	}
 </script>
 
-<div class="bg-dark-700 border-dark-400 mb-2 mr-2 h-full w-80 rounded-md border-2 p-2">
+<div class="mb-2 mr-2 h-full w-80 rounded-md border-2 border-dark-400 bg-dark-700 p-2">
 	<div class="flex flex-grow">
 		<h2 class="flex-grow text-xl text-white">
 			{$group.name}
 		</h2>
 		<button
-			class="border-dark-400 border-2 bg-teal-800 p-1 text-white"
+			class="border-2 border-dark-400 bg-teal-800 p-1 text-white"
 			on:mousedown|preventDefault={onDelete}>X</button
 		>
 	</div>
@@ -76,7 +75,7 @@
 				type="text"
 				id="group-name"
 				placeholder="points"
-				class="border-dark-400 bg-dark-50 rounded-md border-2 pl-1 text-white focus:bg-teal-700 focus:outline-none"
+				class="rounded-md border-2 border-dark-400 bg-dark-50 pl-1 text-white focus:bg-teal-700 focus:outline-none"
 				bind:value={points}
 				on:input|preventDefault={(e) => {
 					// @ts-ignore
@@ -86,17 +85,17 @@
 		</div>
 		<form on:submit|preventDefault={handleSubmit}>
 			<textarea
-				class="border-dark-400 bg-dark-50 w-full resize-none border-2 p-2 text-white focus:bg-teal-700 focus:outline-none"
+				class="w-full resize-none border-2 border-dark-400 bg-dark-50 p-2 text-white focus:bg-teal-700 focus:outline-none"
 				placeholder="Copy paste group text..."
 				bind:value={textBlob}
 			/>
-			<button class="border-dark-400 h-12 w-full border-2 bg-teal-800 p-2 text-white" type="submit"
+			<button class="h-12 w-full border-2 border-dark-400 bg-teal-800 p-2 text-white" type="submit"
 				>Upload</button
 			>
 		</form>
 	</div>
 
-	<div class="border-dark-400 mt-1.5 border-2 bg-teal-800">
+	<div class="mt-1.5 border-2 border-dark-400 bg-teal-800">
 		{#if courses.length > 0}
 			{#if progress === -1 || progress === courses.length}
 				<p class="p-2 text-lg text-white">Loaded {courses.length}</p>

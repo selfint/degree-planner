@@ -1,24 +1,24 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { get, writable } from 'svelte/store';
+	import { get } from 'svelte/store';
 
 	import Logo from '$lib/assets/logo.png';
 
 	import { courses, groups, years, wishlist } from '$lib/stores';
 	import { selectedSemester } from './stores';
 
-	import Year from './components/YearElement.svelte';
 	import Wishlist from './components/Wishlist.svelte';
 	import Catalog from './components/Catalog.svelte';
 	import YearInput from './components/YearInput.svelte';
 	import Requirements from './components/Requirements.svelte';
+	import Years from './components/Years.svelte';
 
 	$: fullCourses = new Map($courses.map((course) => [course.code, course]));
-	function getFullCourse(code: string): Course {
+	function expandCourse(code: string): Course {
 		return fullCourses.get(code) as Course;
 	}
 
-	$: plannedCourses = $years.map(get).flatMap((y) => y.winter.concat(y.spring).concat(y.summer));
+	$: plannedCourses = $years.flatMap((y) => y.winter.concat(y.spring).concat(y.summer));
 
 	let catalogCourses: Course[] = [];
 
@@ -36,18 +36,20 @@
 	}
 
 	function addCourseToSemester(code: string, yearIndex: number, semesterIndex: number): void {
-		const yearStore = $years[yearIndex];
-		const year = get(yearStore);
-		const semester = [year.winter, year.spring, year.summer][semesterIndex];
-		semester.push(code);
+		years.update((value) => {
+			const year = value[yearIndex];
+			const semester = [year.winter, year.spring, year.summer][semesterIndex];
+			semester.push(code);
 
-		yearStore.set({
-			...year,
-			winter: [...new Set(year.winter)],
-			spring: [...new Set(year.spring)],
-			summer: [...new Set(year.summer)]
+			value[yearIndex] = {
+				...year,
+				winter: [...new Set(year.winter)],
+				spring: [...new Set(year.spring)],
+				summer: [...new Set(year.summer)]
+			};
+
+			return value;
 		});
-		$years = $years;
 	}
 
 	function onWishlistClick(code: string, toYears: boolean): void {
@@ -63,34 +65,17 @@
 		}
 	}
 
-	function deleteYear(i: number): void {
-		$years = $years.filter((_, index) => index !== i);
-	}
-
 	function newYear(name: string): boolean {
-		if ($years.some((year) => get(year).name === name)) {
+		if ($years.some((year) => year.name === name)) {
 			return false;
 		}
 
-		$years = [...$years, writable({ name, winter: [], summer: [], spring: [] })];
+		$years = [...$years, { name, winter: [], summer: [], spring: [] }];
 		return true;
 	}
 
-	function onCourseDelete(code: string, selection: [number, number]): void {
-		console.log(
-			[code, selection],
-			$selectedSemester !== undefined &&
-				!($selectedSemester[0] === selection[0] && $selectedSemester[1] === selection[1])
-		);
-		if (
-			$selectedSemester !== undefined &&
-			!($selectedSemester[0] === selection[0] && $selectedSemester[1] === selection[1])
-		) {
-			const [y, s] = $selectedSemester;
-			addCourseToSemester(code, y, s);
-		} else {
-			$wishlist = [...$wishlist, code];
-		}
+	function onCourseDelete(code: string): void {
+		$wishlist = [...$wishlist, code];
 	}
 </script>
 
@@ -108,27 +93,19 @@
 
 <div class="flex flex-row flex-wrap">
 	<div class="p-2">
-		<Requirements groups={$groups.map(get)} years={$years.map(get)} />
+		<Requirements groups={$groups.map(get)} years={$years} />
 	</div>
 	<div class="flex-grow p-2">
 		<h2 class="text-xl text-white">Years</h2>
 
-		{#each $years as year, i}
-			<Year
-				{year}
-				yearIndex={i}
-				onDelete={() => deleteYear(i)}
-				{onCourseDelete}
-				expandCourse={getFullCourse}
-			/>
-		{/each}
+		<Years {years} {expandCourse} {onCourseDelete} />
 
 		<div class="mt-2 w-full rounded-md border-2 border-dark-400 bg-dark-700 p-2">
 			<YearInput onNewYear={newYear} />
 		</div>
 	</div>
 	<div class="p-2">
-		<Wishlist wishlist={$wishlist.map(getFullCourse)} {onWishlistClick} />
+		<Wishlist wishlist={$wishlist.map(expandCourse)} {onWishlistClick} />
 	</div>
 	<div class="p-2">
 		<Catalog courses={catalogCourses} onClick={addToWishlist} />

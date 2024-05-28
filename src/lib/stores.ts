@@ -2,7 +2,7 @@ import { writable, type Writable, get } from 'svelte/store';
 
 export const courses = writable<Course[]>([]);
 export const wishlist = writable<string[]>([]);
-export const years = writable<Writable<Year>[]>([]);
+export const years = writable<Year[]>([]);
 export const groups = writable<Writable<Group>[]>([]);
 export const totalPoints = writable<number>(0);
 
@@ -18,7 +18,7 @@ export function saveStores() {
 	const state: State = {
 		courses: get(courses),
 		wishlist: get(wishlist),
-		years: get(years).map(get),
+		years: get(years),
 		groups: get(groups)
 			.map(get)
 			.map((group) => {
@@ -63,14 +63,12 @@ export function loadStores() {
 	wishlist.set(state.wishlist.filter((c) => getFullCourse(c) !== undefined));
 
 	years.set(
-		state.years.map((year) =>
-			writable({
-				...year,
-				winter: year.winter.filter((c) => getFullCourse(c) !== undefined),
-				spring: year.spring.filter((c) => getFullCourse(c) !== undefined),
-				summer: year.summer.filter((c) => getFullCourse(c) !== undefined)
-			})
-		)
+		state.years.map((year) => ({
+			...year,
+			winter: year.winter.filter((c) => getFullCourse(c) !== undefined),
+			spring: year.spring.filter((c) => getFullCourse(c) !== undefined),
+			summer: year.summer.filter((c) => getFullCourse(c) !== undefined)
+		}))
 	);
 	groups.set(
 		state.groups.map((group) => {
@@ -112,21 +110,7 @@ export function storeHook(): void {
 		store.subscribe(saveStores);
 	}
 
-	let groupsUnsubscribe = get(groups).map((group) =>
-		group.subscribe(() => {
-			courses.set(sortCourses(get(groups).flatMap((group) => get(group).courses)));
-		})
-	);
-
 	groups.subscribe((value) => {
-		for (const unsubscribe of groupsUnsubscribe) {
-			unsubscribe();
-		}
-		groupsUnsubscribe = get(groups).map((group) =>
-			group.subscribe(() => {
-				courses.set(sortCourses(get(groups).flatMap((group) => get(group).courses)));
-			})
-		);
 		courses.set(sortCourses(value.flatMap((group) => get(group).courses)));
 	});
 }

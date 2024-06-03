@@ -1,22 +1,23 @@
 <script lang="ts">
-	import '../app.css';
 	import { injectSpeedInsights } from '@vercel/speed-insights/sveltekit';
 
-	import { loadStores, storeHook } from '$lib/stores';
-	import { onMount } from 'svelte';
+	import '../app.css';
+
+	import Logo from '$lib/assets/logo.png';
 
 	injectSpeedInsights();
-
-	onMount(() => {
-		loadStores();
-		storeHook();
-	});
 </script>
+
+<header class="flex flex-row items-center space-x-2 border-b-2 border-dark-400 p-1">
+	<img src={Logo} alt="Logo" class="h-12" />
+	<h1 class="text-4xl text-white">Degree catalog</h1>
+	<div class="flex-grow"></div>
+</header>
 
 <slot />
 
 <style lang="postcss">
 	:global(body) {
-		@apply bg-dark-900 dark:bg-dark-900;
+		@apply bg-background;
 	}
 </style>

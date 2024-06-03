@@ -1,10 +1,13 @@
+import * as defaultTheme from "tailwindcss/defaultTheme";
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./src/**/*.{html,js,svelte,ts}'],
   theme: {
     fontFamily: {
-      sans: ['Graphik', 'sans-serif'],
-      serif: ['Merriweather', 'serif'],
+      fontFamily: {
+        sans: ['Inter var', ...defaultTheme.fontFamily.sans],
+      },
     },
     extend: {
       colors: {
@@ -20,12 +23,12 @@ export default {
         'dark-100': 'rgb(49, 49, 53)',
         'dark-50': 'rgb( 51, 51, 55)',
         'background': '#19191D',
-        'card-bg-primary': '#28282C',
-        'text-primary': '#FFFFFF',
-        'text-secondary': '868D8D',
-        'accent-primary': '4CA9A1',
-        'card-bg-secondary': '4E4E55',
-        'border': '252529',
+        'card-primary': '#28282C',
+        'card-secondary': '#4E4E55',
+        'content-primary': '#FFFFFF',
+        'content-secondary': '#868D8D',
+        'accent-primary': '#4CA9A1',
+        'border': '#252529',
       },
     },
   },

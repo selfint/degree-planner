@@ -71,9 +71,162 @@ In the file, place the content of the course list.
 Each degree path has a `recommended` directory, create a file called `semesterX` where
 `X` is the semester number (start at `1`) containing the recommended semester courses.
 
-#### Requirements
+### Requirements
 
 Requirements can be complex, and we probably won't be able to perfectly represent the
 requirements of each degree plan using plaintext files. To solve this, each degree
 path will have its own validator script, so that custom logic for each degree is simple
 to implement.
+
+The one thing plan requirement validators have in common is the
+semester validation protocol:
+
+```typescript
+type SVPRequest = string[][];
+
+type Requirement =
+	| {
+			type: 'points';
+			progress: [number, number];
+			courses: string[];
+	  }
+	| {
+			type: 'count';
+			progress: [number, number];
+			courses: string[];
+	  }
+	| {
+			type: 'choice';
+			choices: Record<string, Requirement[]>;
+	  };
+type SVPResponse = Record<string, Requirement[]>;
+```
+
+The `Request` object represent the courses arranged by semester.
+
+The `Requirement` object represents a condition that must be fulfilled,
+and an array represents multiple requirements that must be fulfilled.
+
+Basically `Requirement` array allows representing `and`, and the `choice` type
+allows representing `or`. Nesting `Requirement` and `choice` allows for arbitrary
+combinations of course `points` and `count` conditions.
+
+Point "transfer" are represented implicitly. For example when taking more
+than 8 points in "science" courses, those points are counted as "list b" courses.
+There won't be any explicit mention that a transfer occurred, but the courses
+listed as "list b" **will** contain the transferred science courses.
+
+#### Example
+
+##### Request
+
+```json
+[
+	["104031", "104166"],
+	["104032", "114071"],
+	["236781", "104174"]
+]
+```
+
+##### Response
+
+```json
+{
+	"core": [
+		{
+			"type": "points",
+			"progress": [19.5, 84],
+			"courses": ["104031", "104166", "104032", "114071", "104174"]
+		}
+	],
+	"math": [
+		{
+			"type": "count",
+			"progress": [1, 1],
+			"courses": ["104174"]
+		}
+	],
+	"science": [
+		{
+			"type": "points",
+			"progress": [10, 8],
+			"courses": ["114052", "114054", "134058"]
+		},
+		{
+			"type": "choice",
+			"options": {
+				"physics chain": [
+					{
+						"type": "count",
+						"progress": [2, 2],
+						"courses": ["114052", "114054"]
+					}
+				],
+				"physics-chemistry chain": [
+					{
+						"type": "count",
+						"progress": [1, 2],
+						"courses": ["114052"]
+					}
+				],
+				"biology chain": [
+					{
+						"type": "count",
+						"progress": [1, 2],
+						"courses": ["134058"]
+					}
+				]
+			}
+		}
+	],
+	"list a": [
+		{
+			"type": "points",
+			"progress": [5, 18],
+			"courses": ["134058", "236781"]
+		}
+	],
+	"faculty choice": [
+		{
+			"type": "points",
+			"progress": [2, 24.5],
+			"courses": ["134058"]
+		}
+	],
+	"project": [
+		{
+			"type": "count",
+			"progress": [0, 1],
+			"courses": []
+		}
+	],
+	"sport": [
+		{
+			"type": "count",
+			"progress": [0, 2],
+			"courses": []
+		}
+	],
+	"english": [
+		{
+			"type": "count",
+			"progress": [0, 2],
+			"courses": []
+		}
+	],
+	"general": [
+		{
+			"type": "points",
+			"progress": [0, 6],
+			"courses": []
+		}
+	],
+	"other": [
+		{
+			"type": "points",
+			"progress": [0, 2],
+			"courses": []
+		}
+	]
+}
+```

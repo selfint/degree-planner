@@ -1,16 +1,14 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 
-	import type { Writable } from 'svelte/store';
-
 	import Button from '$lib/components/Button.svelte';
 	import Select from '$lib/components/Select.svelte';
 
-	export let degree: Writable<Degree | undefined>;
+	export let degree: Degree | undefined;
 
-	let year = $degree?.[0];
-	let faculty = $degree?.[1];
-	let path = $degree?.[2];
+	let year = degree?.[0];
+	let faculty = degree?.[1];
+	let path = degree?.[2];
 
 	let years: Promise<string[]> | undefined = undefined;
 	onMount(async () => {
@@ -39,13 +37,13 @@
 	}
 
 	function save(y: string, f: string, p: string) {
-		$degree = [y, f, p];
+		degree = [y, f, p];
 	}
 
 	function reset() {
-		year = $degree?.[0];
-		faculty = $degree?.[1];
-		path = $degree?.[2];
+		year = degree?.[0];
+		faculty = degree?.[1];
+		path = degree?.[2];
 	}
 </script>
 
@@ -67,7 +65,7 @@
 	</Select>
 	{#if year !== undefined}
 		<Select bind:value={faculty}>
-			{#if $degree === undefined && faculty === undefined}
+			{#if degree === undefined && faculty === undefined}
 				<option value={undefined}>Select a faculty</option>
 			{/if}
 			{#if faculties !== undefined}
@@ -83,7 +81,7 @@
 	{/if}
 	{#if faculty !== undefined}
 		<Select bind:value={path}>
-			{#if $degree === undefined && path === undefined}
+			{#if degree === undefined && path === undefined}
 				<option value={undefined}>Select a path</option>
 			{/if}
 			{#if paths !== undefined}
@@ -97,7 +95,7 @@
 			{/if}
 		</Select>
 	{/if}
-	{#if choiceIsChanged(year, faculty, path, $degree)}
+	{#if choiceIsChanged(year, faculty, path, degree)}
 		{#if choiceIsValid(year, faculty, path)}
 			<Button
 				variant="primary"

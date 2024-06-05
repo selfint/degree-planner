@@ -8,13 +8,6 @@ declare global {
 		// interface PageState {}
 		// interface Platform {}
 	}
-
-	type UserData = {
-		username: string;
-		degree: string;
-		semesters: string[][];
-		currentSemester: number;
-	};
 }
 
 export {};

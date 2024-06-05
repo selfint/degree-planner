@@ -1,19 +1,42 @@
 <script lang="ts">
-	import { userData } from '$lib/stores';
+	import { username, degree } from '$lib/stores';
+
+	import Button from '$lib/components/Button.svelte';
+
+	$username = $username ?? 'guest';
+
+	let degreeChoice = $degree;
+	const degrees = [
+		'Computer Science',
+		'Electrical Engineering',
+		'Biotechnology',
+		'Material Engineering'
+	];
 </script>
 
-{#if $userData === undefined}
-	<a
-		href="/login"
-		class="border-b-2 border-background text-4xl font-semibold tracking-tight text-content-primary"
-	>
-		Login
-	</a>
-{:else}
-	<a
-		href="/user"
-		class="border-b-2 border-background text-4xl font-semibold tracking-tight text-content-primary"
-	>
-		{$userData.username}
-	</a>
-{/if}
+<div class="flex flex-col space-y-8">
+	<h1 class="text-2xl font-medium text-content-primary">
+		Welcome, {$username}
+	</h1>
+
+	<div class="flex flex-col space-y-3">
+		<h2 class="text-xl text-content-primary">Degree</h2>
+		<div>
+			<select
+				bind:value={degreeChoice}
+				class="w-fit rounded-md border border-border bg-background p-2 text-content-secondary outline-none"
+			>
+				{#if $degree === undefined && degreeChoice === undefined}
+					<option value={undefined}>Select a degree</option>
+				{/if}
+				{#each degrees as degree}
+					<option value={degree}>{degree}</option>
+				{/each}
+			</select>
+			{#if degreeChoice !== $degree}
+				<Button variant="primary" onClick={() => ($degree = degreeChoice)}>Save</Button>
+				<Button variant="secondary" onClick={() => (degreeChoice = $degree)}>Cancel</Button>
+			{/if}
+		</div>
+	</div>
+</div>

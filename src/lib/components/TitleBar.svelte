@@ -4,7 +4,7 @@
 	import Auth from '$lib/components/Auth.svelte';
 	import Nav from '$lib/components/Nav.svelte';
 
-	export let userData: UserData | undefined;
+	export let username: string | undefined;
 	export let onGetStarted: () => void;
 	export let onSearch: (query: string) => void;
 </script>
@@ -26,5 +26,7 @@
 		<Search {onSearch} />
 	</nav>
 	<div class="flex-grow" />
-	<Auth {userData} {onGetStarted} />
+	<div class="items-baseline">
+		<Auth {username} {onGetStarted} />
+	</div>
 </header>

@@ -1,19 +1,6 @@
-import { writable, get } from 'svelte/store';
+import { writable } from 'svelte/store';
 
-export const userData = writable<UserData | undefined>(undefined);
-
-export function storeUserData() {
-	const user = get(userData);
-	if (user) {
-		localStorage.setItem('userData', JSON.stringify(user));
-	}
-}
-
-export function loadUserData() {
-	const data = localStorage.getItem('userData');
-	if (data) {
-		userData.set(JSON.parse(data));
-	}
-}
-
-userData.subscribe(storeUserData);
+export const username = writable<string | undefined>(undefined);
+export const degree = writable<string | undefined>(undefined);
+export const plan = writable<string[][] | undefined>(undefined);
+export const currentSemester = writable<number | undefined>(undefined);

@@ -1,16 +1,12 @@
 <script lang="ts">
-	import { page } from '$app/stores';
-
 	import Logo from '$lib/assets/logo.png';
 	import Search from '$lib/components/Search.svelte';
-	import Button from '$lib/components/Button.svelte';
+	import Auth from '$lib/components/Auth.svelte';
+	import Nav from '$lib/components/Nav.svelte';
 
-	$: borders = new Map<string, string>(
-		['catalog', 'overview', 'semester'].map((path) => [
-			path,
-			'/' + path === $page.url.pathname ? 'border-b-2 border-accent-primary' : ''
-		])
-	);
+	export let userData: UserData | undefined;
+	export let onGetStarted: () => void;
+	export let onSearch: (query: string) => void;
 </script>
 
 <header class="flex flex-row items-center border-b-2 border-dark-400 p-2">
@@ -24,19 +20,11 @@
 		>
 			Degree Planner
 		</a>
-		<a href="/catalog" class="{borders.get('catalog')} text-2xl font-thin text-content-primary">
-			Catalog
-		</a>
-		<a href="/overview" class="{borders.get('overview')} text-2xl font-thin text-content-primary">
-			Overview
-		</a>
-		<a href="/semester" class="{borders.get('semester')} text-2xl font-thin text-content-primary">
-			Semester
-		</a>
-		<Search onSearch={() => {}} />
+		<Nav target="catalog">Catalog</Nav>
+		<Nav target="overview">Overview</Nav>
+		<Nav target="semester">Semester</Nav>
+		<Search {onSearch} />
 	</nav>
 	<div class="flex-grow" />
-	<div>
-		<Button variant="primary" onClick={() => {}}>Get started</Button>
-	</div>
+	<Auth {userData} {onGetStarted} />
 </header>

@@ -45,6 +45,13 @@
 		faculty = degree?.[1];
 		path = degree?.[2];
 	}
+
+	function capitalizeWords(str: string) {
+		return str
+			.split(' ')
+			.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+			.join(' ');
+	}
 </script>
 
 <h2 class="text-xl text-content-primary">Degree</h2>
@@ -73,7 +80,7 @@
 					<progress />
 				{:then faculties}
 					{#each faculties as faculty}
-						<option value={faculty}>{faculty.replaceAll('_', ' ')}</option>
+						<option value={faculty}>{capitalizeWords(faculty.replaceAll('_', ' '))}</option>
 					{/each}
 				{/await}
 			{/if}
@@ -89,7 +96,7 @@
 					<progress />
 				{:then paths}
 					{#each paths as path}
-						<option value={path}>{path.replaceAll('_', ' ')}</option>
+						<option value={path}>{capitalizeWords(path.replaceAll('_', ' '))}</option>
 					{/each}
 				{/await}
 			{/if}

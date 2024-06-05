@@ -8,6 +8,8 @@ declare global {
 		// interface PageState {}
 		// interface Platform {}
 	}
+
+	type Plan = [string, string, string];
 }
 
 export {};

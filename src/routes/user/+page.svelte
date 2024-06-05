@@ -12,6 +12,6 @@
 	</h1>
 
 	<div class="flex flex-col space-y-3">
-		<Degree {degree} />
+		<Degree bind:degree={$degree} />
 	</div>
 </div>

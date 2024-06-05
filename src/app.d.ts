@@ -9,7 +9,7 @@ declare global {
 		// interface Platform {}
 	}
 
-	type Plan = [string, string, string];
+	type Degree = [string, string, string];
 }
 
 export {};

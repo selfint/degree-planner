@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { username, plan } from '$lib/stores';
+	import { username, degree } from '$lib/stores';
 
-	import Plan from './components/Plan.svelte';
+	import Degree from './components/Degree.svelte';
 
 	$username = $username ?? 'guest';
 </script>
@@ -12,6 +12,6 @@
 	</h1>
 
 	<div class="flex flex-col space-y-3">
-		<Plan {plan} />
+		<Degree {degree} />
 	</div>
 </div>

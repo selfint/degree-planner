@@ -7,11 +7,16 @@ const DB_PATH = path.resolve(process.cwd(), 'static', '_db');
 
 export const GET = async () => {
 	try {
-		return json(await fs.readdir(DB_PATH));
+		console.log(['GET', 'DB_PATH', DB_PATH]);
+		const years = await fs.readdir(DB_PATH);
+		console.log(['GET', 'years', years]);
+		return json(years);
 	} catch (e) {
+		console.error(e);
+
 		// @ts-expect-error
 		if (e.code === 'ENOENT') {
-			return error(404, 'No years found');
+			return error(404, JSON.stringify(e));
 		}
 
 		return error(500, 'Internal server error');

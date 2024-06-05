@@ -40,9 +40,23 @@ The goal is to represent each degree requirements in a static file format that i
 to create from the catalog (currently manually, in the future automated), and easy to
 parse from code.
 
-Generally, information in these files is unstructured, and parsed at runtime.
+The benefit of this data model is that non-technical users can easily suggest fixes
+to wrong requirements. For example if the `cs/3_year/core/points` requirement is wrong,
+(e.g. it's `84` and should be `84.5`) all that is required to fix it is changing the
+content of the file from `84` to `84.5`.
 
-> TO DO: In the future data will have to be structured.
+Generally, information in these files is unstructured, and parsed at runtime. Again
+the benefit here is that no technical knowledge is required to fix mistakes. If courses
+are missing from a requirement, all the is required is to copy paste text _containing_ the
+course codes, and pasting it in the file.
+
+In the future data this might change, since there are also downsides to unstructured data:
+
+1. A lot of unnecessary data.
+2. Diffing files isn't very informative.
+3. Removing courses from a file is a bit harder (requires an automated find & replace tool).
+4. Technically slower that storing a deduplicated list of course codes, but this isn't a
+   big issue since we are dealing with very small amount of text (entire catalogs are just 10s of `kb`s).
 
 ### Year
 

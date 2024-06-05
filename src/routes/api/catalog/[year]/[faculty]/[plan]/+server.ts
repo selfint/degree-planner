@@ -3,7 +3,7 @@ import path from 'path';
 
 import { json, error } from '@sveltejs/kit';
 
-const DB_PATH = path.resolve(process.cwd(), 'static', '_db');
+const DB_PATH = path.resolve('static', '_db');
 
 export const GET = async ({ params: { year, faculty, plan } }) => {
 	const facultyPath = path.join(DB_PATH, year, faculty, plan);

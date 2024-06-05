@@ -10,7 +10,7 @@ export const GET = async ({ url }) => {
 
 	const studentPage = await getStudentsPage(code);
 
-	const info: CourseInfo = {
+	const info = {
 		median: await getMedian(code),
 		points: getPoints(studentPage),
 		name: getName(studentPage),

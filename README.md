@@ -88,7 +88,8 @@ to plaintext files only.
 Each degree path has a `requirements` directory. This directory contains the subdirectories
 named after requirements to complete the degree. A requirement directory can contain:
 
-1. `courses` file - A list of courses relevant to the requirement.
+1. `courses` file - A list of courses relevant to the requirement. If this file is missing,
+   the courses are taken recursively from `courses` files in subdirectories.
 1. `count` file - A file containing a single number specifying the **amount** of courses
    from the `courses` file that are needed to fulfill the requirement.
 1. `points` file - A file containing a single float specifying the **points** of courses
@@ -110,3 +111,10 @@ named after requirements to complete the degree. A requirement directory can con
    > such as "only points" or "only specific courses". Any of these should
    > be possible by making overflow a directory analogous to a nested
    > requirement.
+
+   Both the source requirement and the overflow requirement must have the same type
+   of requirement (either `points` or `count`), currently there is no support for
+   mixing the two.
+
+   Also, `choice` requirements can't overflow. That is why the `choice` directory
+   has an `amount` file, not a `count` file.

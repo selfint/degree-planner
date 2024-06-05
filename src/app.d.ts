@@ -9,35 +9,11 @@ declare global {
 		// interface Platform {}
 	}
 
-	type Year = {
-		name: string;
-		winter: string[];
-		spring: string[];
-		summer: string[];
-	};
-
-	type CourseConnections = {
-		dependencies: string[][];
-		adjacent: string[];
-		exclusive: string[];
-	};
-
-	type CourseInfo = {
-		median: number | undefined;
-		name: string | undefined;
-		points: number | undefined;
-		connections: CourseConnections | undefined;
-	};
-
-	type Course = {
-		code: string;
-		info: CourseInfo | undefined;
-	};
-
-	type Group = {
-		name: string;
-		points: number;
-		courses: Course[];
+	type UserData = {
+		username: string;
+		degree: string;
+		semesters: string[][];
+		currentSemester: number;
 	};
 }
 

@@ -1,9 +1,14 @@
 import path from 'path';
+import fs from 'fs/promises';
 
-import { json } from '@sveltejs/kit';
+import { json, error } from '@sveltejs/kit';
 
 const DB_PATH = path.join('static', '_db');
 
 export const GET = async () => {
-	return json(DB_PATH);
+	try {
+		return json(await fs.access(DB_PATH));
+	} catch (e) {
+		return error(500, JSON.stringify(e));
+	}
 };

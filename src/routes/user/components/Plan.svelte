@@ -6,27 +6,35 @@
 	import Button from '$lib/components/Button.svelte';
 	import Select from '$lib/components/Select.svelte';
 
-	export let degree: Writable<[string, string] | undefined>;
+	export let plan: Writable<Plan | undefined>;
+
+	let yearChoice = $plan?.[0];
+	let degreeChoice = $plan?.[1];
+	let pathChoice = $plan?.[2];
 
 	let years: Promise<string[]> | undefined = undefined;
 	onMount(async () => {
 		years = fetch('/api/catalog').then((res) => res.json());
 	});
-	let yearChoice = $degree?.[0];
 
 	$: degrees =
 		yearChoice === undefined
 			? undefined
 			: fetch(`/api/catalog/${yearChoice}`).then((res) => res.json());
-	let degreeChoice = $degree?.[1];
 
-	function save(y: string, d: string) {
-		$degree = [y, d];
+	$: paths =
+		yearChoice === undefined || degreeChoice === undefined
+			? undefined
+			: fetch(`/api/catalog/${yearChoice}/${degreeChoice}`).then((res) => res.json());
+
+	function save(y: string, d: string, p: string) {
+		$plan = [y, d, p];
 	}
 
 	function reset() {
-		yearChoice = $degree?.[0];
-		degreeChoice = $degree?.[1];
+		yearChoice = $plan?.[0];
+		degreeChoice = $plan?.[1];
+		pathChoice = $plan?.[2];
 	}
 </script>
 
@@ -48,7 +56,7 @@
 	</Select>
 	{#if yearChoice !== undefined}
 		<Select bind:value={degreeChoice}>
-			{#if $degree === undefined && degreeChoice === undefined}
+			{#if $plan === undefined && degreeChoice === undefined}
 				<option value={undefined}>Select a degree</option>
 			{/if}
 			{#if degrees !== undefined}
@@ -62,7 +70,23 @@
 			{/if}
 		</Select>
 	{/if}
-	{#if (yearChoice !== $degree?.[0] || degreeChoice !== $degree?.[1]) && yearChoice !== undefined && degreeChoice !== undefined}
+	{#if degreeChoice !== undefined}
+		<Select bind:value={pathChoice}>
+			{#if $plan === undefined && pathChoice === undefined}
+				<option value={undefined}>Select a path</option>
+			{/if}
+			{#if paths !== undefined}
+				{#await paths}
+					<progress />
+				{:then paths}
+					{#each paths as path}
+						<option value={path}>{path.replaceAll('_', ' ')}</option>
+					{/each}
+				{/await}
+			{/if}
+		</Select>
+	{/if}
+	{#if (yearChoice !== $plan?.[0] || degreeChoice !== $plan?.[1]) && yearChoice !== undefined && degreeChoice !== undefined}
 		<Button
 			variant="primary"
 			onClick={() => {
@@ -73,7 +97,7 @@
 			Save
 		</Button>
 	{/if}
-	{#if yearChoice !== $degree?.[0] || degreeChoice !== $degree?.[1]}
+	{#if yearChoice !== $plan?.[0] || degreeChoice !== $plan?.[1]}
 		<Button variant="secondary" onClick={reset}>Cancel</Button>
 	{/if}
 </div>

@@ -2,6 +2,7 @@
 	import { username, degree } from '$lib/stores';
 
 	import Button from '$lib/components/Button.svelte';
+	import Select from '$lib/components/Select.svelte';
 
 	$username = $username ?? 'guest';
 
@@ -22,17 +23,14 @@
 	<div class="flex flex-col space-y-3">
 		<h2 class="text-xl text-content-primary">Degree</h2>
 		<div>
-			<select
-				bind:value={degreeChoice}
-				class="w-fit rounded-md border border-border bg-background p-2 text-content-secondary outline-none"
-			>
+			<Select bind:value={degreeChoice}>
 				{#if $degree === undefined && degreeChoice === undefined}
 					<option value={undefined}>Select a degree</option>
 				{/if}
 				{#each degrees as degree}
 					<option value={degree}>{degree}</option>
 				{/each}
-			</select>
+			</Select>
 			{#if degreeChoice !== $degree}
 				<Button variant="primary" onClick={() => ($degree = degreeChoice)}>Save</Button>
 				<Button variant="secondary" onClick={() => (degreeChoice = $degree)}>Cancel</Button>

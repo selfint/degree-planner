@@ -3,19 +3,19 @@
 
 	import '../app.css';
 
-	import { userData } from '$lib/stores';
+	import { username } from '$lib/stores';
 	import { goto } from '$app/navigation';
 
 	import TitleBar from '$lib/components/TitleBar.svelte';
 
 	injectSpeedInsights();
+
+	function onGetStarted() {
+		goto('/user');
+	}
 </script>
 
-<TitleBar
-	userData={$userData}
-	onGetStarted={() => goto('/user')}
-	onSearch={(query) => goto(`/search?q=${query}`)}
-/>
+<TitleBar username={$username} {onGetStarted} onSearch={(query) => goto(`/search?q=${query}`)} />
 
 <div class="p-3">
 	<slot />

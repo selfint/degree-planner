@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import manifest from '$lib/assets/manifest.json';
 
 	import Button from '$lib/components/Button.svelte';
 	import Select from '$lib/components/Select.svelte';
@@ -10,18 +10,13 @@
 	let faculty = degree?.[1];
 	let path = degree?.[2];
 
-	let years: Promise<string[]> | undefined = undefined;
-	onMount(async () => {
-		years = fetch('/api/catalog').then((res) => res.json());
-	});
+	let years: string[] = Object.keys(manifest);
 
-	$: faculties =
-		year === undefined ? undefined : fetch(`/api/catalog/${year}`).then((res) => res.json());
+	// @ts-expect-error
+	$: faculties = year === undefined ? undefined : Object.keys(manifest[year]);
 
-	$: paths =
-		year === undefined || faculty === undefined
-			? undefined
-			: fetch(`/api/catalog/${year}/${faculty}`).then((res) => res.json());
+	// @ts-expect-error
+	$: paths = faculty === undefined ? undefined : Object.keys(manifest[year][faculty]);
 
 	function choiceIsValid(y: string | undefined, f: string | undefined, p: string | undefined) {
 		return y !== undefined && f !== undefined && p !== undefined;
@@ -109,8 +104,10 @@
 				onClick={() => {
 					// @ts-expect-error We validated the choice in `choiceIsValid`
 					save(year, faculty, path);
-				}}>Save</Button
+				}}
 			>
+				Save
+			</Button>
 		{/if}
 		<Button variant="secondary" onClick={reset}>Cancel</Button>
 	{/if}

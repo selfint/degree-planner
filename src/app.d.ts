@@ -10,6 +10,18 @@ declare global {
 	}
 
 	type Degree = [string, string, string];
+
+	type Requirement = {
+		points: number;
+		courses: string[];
+	};
+
+	type Requirements = Record<string, Requirement[]>;
+
+	type DegreeData = {
+		recommended: string[][];
+		requirements: Requirements;
+	};
 }
 
 export {};

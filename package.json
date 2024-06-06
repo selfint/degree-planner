@@ -5,7 +5,7 @@
 	"scripts": {
 		"dev": "vite dev",
 		"generate-manifest": "node scripts/generateManifest.js",
-		"build": "ls && npm run generate-manifest && vite build",
+		"build": "npm run generate-manifest && vite build",
 		"preview": "vite preview",
 		"test": "npm run test:integration && npm run test:unit",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",

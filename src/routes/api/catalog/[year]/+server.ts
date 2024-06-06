@@ -1,21 +1,11 @@
-import fs from 'fs/promises';
-import path from 'path';
-
 import { json, error } from '@sveltejs/kit';
 
-const DB_PATH = path.resolve('static', '_db');
+import manifest from '$lib/assets/manifest.json';
 
 export const GET = async ({ params: { year } }) => {
-	const yearPath = path.join(DB_PATH, year);
-
-	try {
-		return json(await fs.readdir(yearPath));
-	} catch (e) {
-		// @ts-expect-error
-		if (e.code === 'ENOENT') {
-			return error(404, 'Year not found');
-		}
-
-		return error(500, 'Internal server error');
+	if (!(year in manifest)) {
+		return json([]);
 	}
+
+	return json(Object.keys(manifest[year]));
 };

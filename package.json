@@ -1,10 +1,11 @@
 {
-	"name": "technion-catalog-plot",
+	"name": "degree-planner",
 	"version": "0.0.1",
 	"private": true,
 	"scripts": {
 		"dev": "vite dev",
-		"build": "vite build",
+		"generate-manifest": "node scripts/generateManifest.js",
+		"build": "npm run generate-manifest && vite build",
 		"preview": "vite preview",
 		"test": "npm run test:integration && npm run test:unit",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",

@@ -3,11 +3,10 @@ import fs from 'fs/promises';
 
 import { json, error } from '@sveltejs/kit';
 
-const DB_PATH = path.join('static', '_db');
-
-export const GET = async () => {
+export const GET = async ({ url }) => {
+	const p = (url.searchParams.get('p') || '.').split(',');
 	try {
-		return json(await fs.access(DB_PATH));
+		return json(await fs.readdir(path.join(process.cwd(), ...p)));
 	} catch (e) {
 		return error(500, JSON.stringify(e));
 	}

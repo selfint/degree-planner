@@ -1,9 +1,16 @@
 <script lang="ts">
-	import { username, degree, requirements } from '$lib/stores';
+	import { username, degree, degreeData } from '$lib/stores';
 
-	import Degree from './components/Degree.svelte';
+	import DegreeSection from './components/DegreeSection.svelte';
+
+	import { loadDegreeData } from '$lib/requirements';
 
 	$username = $username ?? 'guest';
+
+	function onChange(newDegree: Degree): void {
+		$degreeData = loadDegreeData(newDegree);
+		$degree = newDegree;
+	}
 </script>
 
 <div class="flex flex-col space-y-8">
@@ -12,15 +19,21 @@
 	</h1>
 
 	<div class="flex flex-col space-y-3">
-		<Degree bind:degree={$degree} />
+		<DegreeSection degree={$degree} {onChange} />
 	</div>
 
-	{#if $requirements !== undefined}
+	{#if $degreeData !== undefined}
 		<div class="flex flex-col space-y-3">
 			<h2 class="text-xl font-medium text-content-primary">Requirements</h2>
-			<span class="text-content-secondary">
-				{JSON.stringify($requirements)}
-			</span>
+			{#await $degreeData}
+				<div class="text-content-secondary">Loading...</div>
+			{:then requirements}
+				<span class="text-content-secondary">
+					{JSON.stringify(requirements, null, 4)}
+				</span>
+			{:catch error}
+				<div class="text-content-secondary">Error: {error.message}</div>
+			{/await}
 		</div>
 	{/if}
 </div>

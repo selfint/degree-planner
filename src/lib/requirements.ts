@@ -1,9 +1,9 @@
-import { parseCatalog } from './server/catalogParser';
+import manifest from '$lib/assets/manifest.json';
+
+import { parseCatalog } from './catalogParser';
 
 async function get(degree: Degree, ...path: string[]): Promise<string> {
-	const response = await fetch(
-		`/_db/${degree.join('/')}/requirements/${path.join('/')}`
-	);
+	const response = await fetch(`/_db/${degree.join('/')}/${path.join('/')}`);
 
 	if (!response.ok) {
 		throw new Error(response.statusText);
@@ -50,7 +50,6 @@ async function loadRequirementHeader(
 	header: RequirementHeader,
 	...path: string[]
 ): Promise<Requirement> {
-	console.log('Loading ', path.join('/'), ' for header ', header);
 	let requirements = {
 		courses:
 			header.courses === null
@@ -81,7 +80,7 @@ async function loadRequirementHeader(
 	return requirements;
 }
 
-export async function loadRequirementsHeader(
+export async function loadDegreeRequirements(
 	degree: Degree,
 	header: RequirementsHeader
 ): Promise<DegreeRequirements> {
@@ -91,12 +90,12 @@ export async function loadRequirementsHeader(
 		([name]) => !['points'].includes(name)
 	);
 
-	const points = parseFloat(await get(degree, 'points'));
+	const points = parseFloat(await get(degree, 'requirements', 'points'));
 
 	for (const [name, requirement] of conditions) {
 		requirements.set(
 			name,
-			await loadRequirementHeader(degree, requirement, name)
+			await loadRequirementHeader(degree, requirement, 'requirements', name)
 		);
 	}
 
@@ -107,4 +106,34 @@ export async function loadRequirementsHeader(
 	};
 
 	return degreeRequirements;
+}
+
+export async function loadDegreeRecommendation(
+	degree: Degree,
+	header: Record<string, null>
+): Promise<string[][]> {
+	let recommendation = [];
+	for (const semester of Object.keys(header).sort()) {
+		recommendation.push(
+			parseCatalog(await get(degree, 'recommended', semester))
+		);
+	}
+
+	return recommendation;
+}
+
+export async function loadDegreeData(degree: Degree): Promise<DegreeData> {
+	// @ts-expect-error
+	const header = manifest[degree[0]][degree[1]][degree[2]];
+
+	const recommended = await loadDegreeRecommendation(
+		degree,
+		header.recommended
+	);
+	const requirements = await loadDegreeRequirements(
+		degree,
+		header.requirements
+	);
+
+	return { recommended, requirements };
 }

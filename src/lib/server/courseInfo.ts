@@ -1,5 +1,5 @@
 import { JSDOM } from 'jsdom';
-import { parseCatalog } from './catalogParser';
+import { parseCatalog } from '../catalogParser';
 
 function getNameUrl(code: string): string {
 	return `https://students.technion.ac.il/local/technionsearch/course/${code}`;

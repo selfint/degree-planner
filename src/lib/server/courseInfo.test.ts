@@ -8,8 +8,9 @@ import { getName, getConnections, getPoints } from './courseInfo';
 
 describe('Course Info', () => {
 	it('Gets the course points', async () => {
-		const doc = new JSDOM(readFileSync(resolve(__dirname, 'course_234218.html'), 'utf-8')).window
-			.document;
+		const doc = new JSDOM(
+			readFileSync(resolve(__dirname, 'course_234218.html'), 'utf-8')
+		).window.document;
 
 		const points = getPoints(doc);
 		expect(points).toBeDefined();
@@ -17,8 +18,9 @@ describe('Course Info', () => {
 	});
 
 	it('Gets the course name', async () => {
-		const doc = new JSDOM(readFileSync(resolve(__dirname, 'course_234218.html'), 'utf-8')).window
-			.document;
+		const doc = new JSDOM(
+			readFileSync(resolve(__dirname, 'course_234218.html'), 'utf-8')
+		).window.document;
 
 		const name = getName(doc);
 
@@ -27,8 +29,9 @@ describe('Course Info', () => {
 	});
 
 	it('Get the course connections', async () => {
-		const doc = new JSDOM(readFileSync(resolve(__dirname, 'course_234218.html'), 'utf-8')).window
-			.document;
+		const doc = new JSDOM(
+			readFileSync(resolve(__dirname, 'course_234218.html'), 'utf-8')
+		).window.document;
 
 		const connections = getConnections(doc);
 

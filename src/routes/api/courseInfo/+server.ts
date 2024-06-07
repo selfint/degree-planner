@@ -1,5 +1,10 @@
 import { error, json } from '@sveltejs/kit';
-import { getConnections, getName, getPoints, getStudentsPage } from '$lib/server/courseInfo.js';
+import {
+	getConnections,
+	getName,
+	getPoints,
+	getStudentsPage
+} from '$lib/server/courseInfo.js';
 import { getMedian } from '$lib/server/courseMedian.js';
 
 export const GET = async ({ url }) => {

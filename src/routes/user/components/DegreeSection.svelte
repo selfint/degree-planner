@@ -5,7 +5,7 @@
 	import Select from '$lib/components/Select.svelte';
 
 	export let degree: Degree | undefined;
-	export let onChange: (degree: Degree) => void;
+	export let onChange: (degree: Degree) => boolean;
 
 	let [year, faculty, path] = degree ?? [undefined, undefined, undefined];
 
@@ -95,7 +95,11 @@
 				variant="primary"
 				onClick={() => {
 					// @ts-expect-error We validated the choice in `choiceIsValid`
-					onChange([year, faculty, path]);
+					const didChange = onChange([year, faculty, path]);
+
+					if (!didChange) {
+						reset();
+					}
 				}}
 			>
 				Save

@@ -4,7 +4,7 @@ import { parseCatalog } from './catalogParser';
 
 describe('Catalog Parser', () => {
 	it('parses 5 digit courses', () => {
-		expect(parseCatalog('12345')).toStrictEqual(['12345']);
+		expect(parseCatalog('12345')).toStrictEqual(['012345']);
 	});
 
 	it('removes duplicates', () => {

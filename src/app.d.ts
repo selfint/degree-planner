@@ -11,16 +11,42 @@ declare global {
 
 	type Degree = [string, string, string];
 
-	type Requirement = {
-		points: number;
-		courses: string[];
+	type Choice = {
+		amount: number;
+		[option: string]: Requirement;
 	};
 
-	type Requirements = Record<string, Requirement[]>;
+	type Requirement = {
+		courses?: string[];
+		points?: number;
+		count?: number;
+		overflow?: string;
+		choice?: Choice;
+	};
+
+	type DegreeRequirements = {
+		points: number;
+		[option: string]: Requirement;
+	};
+
+	type ChoiceHeader = {
+		amount: null;
+		[option: string]: RequirementHeader;
+	};
+
+	type RequirementHeader = {
+		courses?: null;
+		points?: null;
+		count?: null;
+		overflow?: null;
+		choice?: ChoiceHeader;
+	};
+
+	type RequirementsHeader = Map<string, RequirementHeader>;
 
 	type DegreeData = {
 		recommended: string[][];
-		requirements: Requirements;
+		requirements: DegreeRequirements;
 	};
 }
 

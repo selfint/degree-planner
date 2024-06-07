@@ -48,6 +48,12 @@ declare global {
 		recommended: string[][];
 		requirements: DegreeRequirements;
 	};
+
+	type Course = {
+		code: string;
+		name: string;
+		points: number;
+	};
 }
 
 export {};

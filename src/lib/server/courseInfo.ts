@@ -5,7 +5,9 @@ function getNameUrl(code: string): string {
 	return `https://students.technion.ac.il/local/technionsearch/course/${code}`;
 }
 
-export async function getStudentsPage(code: string): Promise<Document | undefined> {
+export async function getStudentsPage(
+	code: string
+): Promise<Document | undefined> {
 	const nameUrl = getNameUrl(code);
 	const response = await fetch(nameUrl);
 	if (response.ok) {
@@ -40,7 +42,9 @@ export function getName(doc: Document | undefined): string | undefined {
 	return doc?.querySelector('title')?.textContent ?? undefined;
 }
 
-export function getConnections(doc: Document | undefined): CourseConnections | undefined {
+export function getConnections(
+	doc: Document | undefined
+): CourseConnections | undefined {
 	const generalInformation: HTMLDivElement | null | undefined =
 		doc?.querySelector('#general_information');
 	if (generalInformation === null || generalInformation === undefined) {
@@ -60,9 +64,13 @@ export function getConnections(doc: Document | undefined): CourseConnections | u
 		const child = generalInformation.children[i];
 		if (child.tagName === 'H5') {
 			if (child.textContent?.includes(dependenciesSeparator)) {
-				dependenciesElement = generalInformation.children[i + 1] as HTMLParagraphElement;
+				dependenciesElement = generalInformation.children[
+					i + 1
+				] as HTMLParagraphElement;
 			} else if (child.textContent?.includes(adjacentSeparator)) {
-				adjacentElement = generalInformation.children[i + 1] as HTMLParagraphElement;
+				adjacentElement = generalInformation.children[
+					i + 1
+				] as HTMLParagraphElement;
 			} else if (child.textContent?.includes(exclusiveSeparator)) {
 				if (exclusiveElements === undefined) {
 					exclusiveElements = [];
@@ -70,7 +78,9 @@ export function getConnections(doc: Document | undefined): CourseConnections | u
 
 				for (let j = i + 1; j < generalInformation.children.length; j++) {
 					if (generalInformation.children[j].tagName === 'P') {
-						exclusiveElements.push(generalInformation.children[j] as HTMLParagraphElement);
+						exclusiveElements.push(
+							generalInformation.children[j] as HTMLParagraphElement
+						);
 					}
 				}
 			}
@@ -83,7 +93,8 @@ export function getConnections(doc: Document | undefined): CourseConnections | u
 			.map(parseCatalog)
 			.map((g) => [...new Set(g)]) ?? [];
 	const adjacent = parseCatalog(adjacentElement?.textContent ?? '');
-	const exclusive = exclusiveElements?.flatMap((e) => parseCatalog(e.textContent ?? '')) ?? [];
+	const exclusive =
+		exclusiveElements?.flatMap((e) => parseCatalog(e.textContent ?? '')) ?? [];
 
 	return {
 		dependencies: [...new Set(dependencies)],

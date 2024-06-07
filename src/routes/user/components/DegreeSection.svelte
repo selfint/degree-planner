@@ -6,19 +6,22 @@
 
 	export let degree: Degree | undefined;
 
-	let year = degree?.[0];
-	let faculty = degree?.[1];
-	let path = degree?.[2];
+	let [year, faculty, path] = degree ?? [undefined, undefined, undefined];
 
 	let years: string[] = Object.keys(manifest);
 
 	// @ts-expect-error
 	$: faculties = year === undefined ? undefined : Object.keys(manifest[year]);
 
-	// @ts-expect-error
-	$: paths = faculty === undefined ? undefined : Object.keys(manifest[year][faculty]);
+	$: paths =
+		// @ts-expect-error
+		faculty === undefined ? undefined : Object.keys(manifest[year][faculty]);
 
-	function choiceIsValid(y: string | undefined, f: string | undefined, p: string | undefined) {
+	function choiceIsValid(
+		y: string | undefined,
+		f: string | undefined,
+		p: string | undefined
+	) {
 		return y !== undefined && f !== undefined && p !== undefined;
 	}
 
@@ -32,6 +35,7 @@
 	}
 
 	function save(y: string, f: string, p: string) {
+		console.log('save');
 		degree = [y, f, p];
 	}
 
@@ -56,13 +60,9 @@
 			<option value={undefined}>Select a year</option>
 		{/if}
 		{#if years !== undefined}
-			{#await years}
-				<progress />
-			{:then years}
-				{#each years as year}
-					<option value={year}>{year.replaceAll('_', '/')}</option>
-				{/each}
-			{/await}
+			{#each years as year}
+				<option value={year}>{year.replaceAll('_', '/')}</option>
+			{/each}
 		{/if}
 	</Select>
 	{#if year !== undefined}
@@ -71,13 +71,11 @@
 				<option value={undefined}>Select a faculty</option>
 			{/if}
 			{#if faculties !== undefined}
-				{#await faculties}
-					<progress />
-				{:then faculties}
-					{#each faculties as faculty}
-						<option value={faculty}>{capitalizeWords(faculty.replaceAll('_', ' '))}</option>
-					{/each}
-				{/await}
+				{#each faculties as faculty}
+					<option value={faculty}>
+						{capitalizeWords(faculty.replaceAll('_', ' '))}
+					</option>
+				{/each}
 			{/if}
 		</Select>
 	{/if}
@@ -87,13 +85,11 @@
 				<option value={undefined}>Select a path</option>
 			{/if}
 			{#if paths !== undefined}
-				{#await paths}
-					<progress />
-				{:then paths}
-					{#each paths as path}
-						<option value={path}>{capitalizeWords(path.replaceAll('_', ' '))}</option>
-					{/each}
-				{/await}
+				{#each paths as path}
+					<option value={path}>
+						{capitalizeWords(path.replaceAll('_', ' '))}
+					</option>
+				{/each}
 			{/if}
 		</Select>
 	{/if}

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Progress from '$lib/components/Progress.svelte';
 	import RequirementElement from './RequirementElement.svelte';
 
 	export let degreeProgress: Promise<DegreeProgress>;
@@ -18,7 +19,7 @@
 	{:then degreeProgress}
 		<div class="flex flex-row items-center space-x-2 text-content-secondary">
 			<span>Points</span>
-			<progress
+			<Progress
 				value={degreeProgress.points[0]}
 				max={degreeProgress.points[1]}
 			/>

@@ -16,6 +16,79 @@ const getCourseData = async (code: string): Promise<Course> => {
 };
 
 describe('Progress', () => {
+	it('should return choice progress', async (ctx) => {
+		const semesters = [['1', '2']];
+		const requirements: DegreeRequirements = {
+			points: 0,
+			requirements: new Map([
+				[
+					'core',
+					{
+						choice: {
+							amount: 1,
+							options: new Map([
+								['option 1', { courses: ['1'], count: 1 }],
+								['option 2', { courses: ['2'], count: 1 }]
+							])
+						}
+					}
+				]
+			])
+		};
+
+		const progress = await getProgress(semesters, getCourseData, requirements);
+
+		ctx.expect(progress).toMatchInlineSnapshot(`
+			{
+			  "points": [
+			    3,
+			    0,
+			  ],
+			  "requirements": Map {
+			    "core" => [
+			      {
+			        "choice": {
+			          "amount": 1,
+			          "options": Map {
+			            "option 1" => {
+			              "count": 1,
+			              "courses": [
+			                "1",
+			              ],
+			            },
+			            "option 2" => {
+			              "count": 1,
+			              "courses": [
+			                "2",
+			              ],
+			            },
+			          },
+			        },
+			      },
+			      {
+			        "choice": {
+			          "amount": 2,
+			          "options": Map {
+			            "option 1" => {
+			              "count": 1,
+			              "courses": [
+			                "1",
+			              ],
+			            },
+			            "option 2" => {
+			              "count": 1,
+			              "courses": [
+			                "2",
+			              ],
+			            },
+			          },
+			        },
+			      },
+			    ],
+			  },
+			}
+		`);
+	});
 	it('should return count progress', async (ctx) => {
 		const semesters = [['1', '2']];
 		const requirements: DegreeRequirements = {

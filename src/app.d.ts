@@ -30,7 +30,7 @@ declare global {
 	};
 
 	type RequirementProgress = {
-		courses: string[];
+		courses?: string[];
 		points?: number;
 		count?: number;
 		overflow?: [string, 'points' | 'count', number];

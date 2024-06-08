@@ -36,13 +36,10 @@ async function loadChoiceHeader(
 		);
 	}
 
-	// @ts-expect-error
-	const choice: Choice = {
+	return {
 		amount,
-		...Object.fromEntries(options)
+		options
 	};
-
-	return choice;
 }
 
 async function loadRequirementHeader(

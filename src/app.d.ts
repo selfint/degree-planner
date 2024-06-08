@@ -13,7 +13,12 @@ declare global {
 
 	type Choice = {
 		amount: number;
-		[option: string]: Requirement;
+		options: Map<string, Requirement>;
+	};
+
+	type ChoiceProgress = {
+		amount: [number, number];
+		options: Map<string, [Requirement, RequirementProgress]>;
 	};
 
 	type Requirement = {
@@ -24,9 +29,22 @@ declare global {
 		choice?: Choice;
 	};
 
+	type RequirementProgress = {
+		courses: string[];
+		points?: number;
+		count?: number;
+		overflow?: [string, 'points' | 'count', number];
+		choice?: ChoiceProgress;
+	};
+
 	type DegreeRequirements = {
 		points: number;
-		[option: string]: Requirement;
+		requirements: Map<string, Requirement>;
+	};
+
+	type DegreeProgress = {
+		points: [number, number];
+		requirements: Map<string, [Requirement, RequirementProgress]>;
 	};
 
 	type ChoiceHeader = {
@@ -49,11 +67,21 @@ declare global {
 		requirements: DegreeRequirements;
 	};
 
+	type CourseConnections = {
+		dependencies: string[][];
+		adjacent: string[];
+		exclusive: string[];
+	};
+
 	type Course = {
 		code: string;
-		name: string;
-		points: number;
+		name?: string;
+		points?: number;
+		median?: number;
+		connections?: CourseConnections;
 	};
+
+	type CourseData = Map<string, Promise<Course>>;
 }
 
 export {};

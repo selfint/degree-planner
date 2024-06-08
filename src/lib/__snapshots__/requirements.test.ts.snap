@@ -595,36 +595,40 @@ exports[`Requirements parser > should parse requirements 1`] = `
   "science": {
     "choice": {
       "amount": 1,
-      "biology_chain": {
-        "count": 1,
-        "courses": [
-          "134058",
-          "134020",
-        ],
-      },
-      "physics-chemistry_chain": {
-        "count": 1,
-        "courses": [
-          "124120",
-          "114052",
-        ],
-      },
-      "physics_chain": {
-        "choice": {
-          "1": {
-            "count": 1,
-            "courses": [
-              "114075",
-            ],
+      "options": Map {
+        "biology_chain" => {
+          "count": 1,
+          "courses": [
+            "134058",
+            "134020",
+          ],
+        },
+        "physics-chemistry_chain" => {
+          "count": 1,
+          "courses": [
+            "124120",
+            "114052",
+          ],
+        },
+        "physics_chain" => {
+          "choice": {
+            "amount": 1,
+            "options": Map {
+              "1" => {
+                "count": 1,
+                "courses": [
+                  "114075",
+                ],
+              },
+              "2" => {
+                "count": 2,
+                "courses": [
+                  "114052",
+                  "114054",
+                ],
+              },
+            },
           },
-          "2": {
-            "count": 2,
-            "courses": [
-              "114052",
-              "114054",
-            ],
-          },
-          "amount": 1,
         },
       },
     },

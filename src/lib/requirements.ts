@@ -131,3 +131,41 @@ export async function loadDegreeData(degree: Degree): Promise<DegreeData> {
 
 	return { recommended, requirements };
 }
+
+function courseInRequirement(requirement: Requirement, code: string): boolean {
+	if (requirement.courses?.includes(code)) {
+		return true;
+	}
+
+	if (requirement.choice) {
+		for (const option of requirement.choice.options.values()) {
+			if (courseInRequirement(option, code)) {
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+export function getCourseLists(
+	requirements: DegreeRequirements,
+	code: string
+): string[] {
+	let lists = [];
+	for (const [name, requirement] of requirements.requirements) {
+		if (courseInRequirement(requirement, code)) {
+			lists.push(name);
+		}
+
+		if (requirement.choice) {
+			for (const option of requirement.choice.options.values()) {
+				if (courseInRequirement(option, code)) {
+					lists.push(name);
+				}
+			}
+		}
+	}
+
+	return lists;
+}

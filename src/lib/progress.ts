@@ -11,7 +11,9 @@ export async function getProgress(
 		)
 	];
 	const points = await Promise.all(
-		courses.map(async (course) => (await getCourseData(course))?.points ?? 0)
+		courses
+			.filter((course) => semesters.flat().includes(course))
+			.map(async (course) => (await getCourseData(course))?.points ?? 0)
 	);
 	const sumPoints = points.reduce((a, b) => a + b, 0);
 
@@ -155,7 +157,7 @@ async function getRequirementProgress(
 				subRequirement
 			);
 
-			choiceProgress.set(option, subProgress);
+			choiceProgress.set(option, [subRequirement, subProgress]);
 
 			if (checkRequirementCompleted(subRequirement, subProgress)) {
 				amount++;

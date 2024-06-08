@@ -26,10 +26,64 @@ export async function getProgress(
 			])
 		);
 
+	// @ts-expect-error
+	const overflows: [string, ProgressOverflow][] = progress
+		.map(([name, [requirement, progress]]) => [
+			name,
+			getProgressOverflow(requirement, progress)
+		])
+		.filter(([_, overflow]) => overflow !== undefined);
+
+	const requirementsProgress = new Map(progress);
+
+	// handle overflow
+	for (const [source, [targetName, kind, amount]] of overflows) {
+		console.log(source, targetName, kind, amount);
+		const target = requirementsProgress.get(targetName);
+		if (target === undefined) {
+			continue;
+		}
+
+		const [r, p] = target;
+
+		if (kind === 'points') {
+			p.points = (p.points ?? 0) + amount;
+		} else if (kind === 'count') {
+			p.count = (p.count ?? 0) + amount;
+		}
+
+		requirementsProgress.set(targetName, [r, p]);
+	}
+
 	return {
 		points: [sumPoints, requirements.points],
-		requirements: new Map(progress)
+		requirements: requirementsProgress
 	};
+}
+
+function getProgressOverflow(
+	requirement: Requirement,
+	progress: RequirementProgress
+): ProgressOverflow | undefined {
+	if (requirement.overflow === undefined) {
+		return undefined;
+	}
+
+	if (requirement.points !== undefined) {
+		const overflow = (progress?.points ?? 0) - requirement.points;
+		if (overflow > 0) {
+			return [requirement.overflow, 'points', overflow];
+		}
+	}
+
+	if (requirement.count !== undefined) {
+		const overflow = (progress?.count ?? 0) - requirement.count;
+		if (overflow > 0) {
+			return [requirement.overflow, 'count', overflow];
+		}
+	}
+
+	return undefined;
 }
 
 function checkRequirementCompleted(

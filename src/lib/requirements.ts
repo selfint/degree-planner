@@ -96,13 +96,10 @@ export async function loadDegreeRequirements(
 		);
 	}
 
-	// @ts-expect-error
-	const degreeRequirements: DegreeRequirements = {
+	return {
 		points,
-		...Object.fromEntries(requirements)
+		requirements
 	};
-
-	return degreeRequirements;
 }
 
 export async function loadDegreeRecommendation(

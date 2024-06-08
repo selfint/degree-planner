@@ -38,7 +38,6 @@ export async function getProgress(
 
 	// handle overflow
 	for (const [source, [targetName, kind, amount]] of overflows) {
-		console.log(source, targetName, kind, amount);
 		const target = requirementsProgress.get(targetName);
 		if (target === undefined) {
 			continue;

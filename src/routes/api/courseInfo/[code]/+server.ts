@@ -11,15 +11,8 @@ import {
 import { getMedian } from '$lib/server/courseMedian.js';
 
 const cacheDir = path.resolve('static', '_cache', 'courseData');
-const cacheRoute = '_cache/courseData/';
 
 export const GET = async ({ params: { code } }) => {
-	try {
-		return await fetch(cacheRoute + `${code}.json`);
-	} catch (e) {
-		// ignore
-	}
-
 	const studentPage = await getStudentsPage(code);
 
 	const info: Course = {
@@ -30,15 +23,20 @@ export const GET = async ({ params: { code } }) => {
 		connections: getConnections(studentPage)
 	};
 
-	// create the cache directory if it doesn't exist
-	try {
-		await fs.mkdir(cacheDir, { recursive: true });
-	} catch (e) {
-		// ignore
-	}
+	// update cache only in dev mode
+	if (import.meta.env.MODE === 'development') {
+		try {
+			await fs.mkdir(cacheDir, { recursive: true });
+		} catch (e) {
+			// ignore
+		}
 
-	// cache the course data
-	await fs.writeFile(path.join(cacheDir, `${code}.json`), JSON.stringify(info));
+		// cache the course data
+		await fs.writeFile(
+			path.join(cacheDir, `${code}.json`),
+			JSON.stringify(info)
+		);
+	}
 
 	return json(info);
 };

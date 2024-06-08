@@ -157,18 +157,34 @@ describe('Progress', () => {
 			        "choice": {
 			          "amount": 2,
 			          "options": Map {
-			            "option 1" => {
-			              "count": 1,
-			              "courses": [
-			                "1",
-			              ],
-			            },
-			            "option 2" => {
-			              "count": 1,
-			              "courses": [
-			                "2",
-			              ],
-			            },
+			            "option 1" => [
+			              {
+			                "count": 1,
+			                "courses": [
+			                  "1",
+			                ],
+			              },
+			              {
+			                "count": 1,
+			                "courses": [
+			                  "1",
+			                ],
+			              },
+			            ],
+			            "option 2" => [
+			              {
+			                "count": 1,
+			                "courses": [
+			                  "2",
+			                ],
+			              },
+			              {
+			                "count": 1,
+			                "courses": [
+			                  "2",
+			                ],
+			              },
+			            ],
 			          },
 			        },
 			      },

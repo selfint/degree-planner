@@ -1,5 +1,10 @@
 <script lang="ts">
-	import { semesters, getCourseData, degreeData } from '$lib/stores';
+	import {
+		semesters,
+		getCourseData,
+		degreeData,
+		currentSemester
+	} from '$lib/stores';
 
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import { getCourseLists } from '$lib/requirements';
@@ -21,10 +26,19 @@
 	{#each $semesters as semester, i}
 		<div class="w-56 space-y-2">
 			<div class="flex flex-row items-baseline justify-between">
-				<h1 class="text-2xl font-medium text-content-primary">
-					{['Winter', 'Spring', 'Summer'][i % 3]}
-					{Math.floor(i / 3) + 1}
-				</h1>
+				{#if i === $currentSemester}
+					<h1
+						class="border-b-2 border-b-accent-primary text-2xl font-medium text-content-primary"
+					>
+						{['Winter', 'Spring', 'Summer'][i % 3]}
+						{Math.floor(i / 3) + 1}
+					</h1>
+				{:else}
+					<h1 class="text-2xl font-medium text-content-primary">
+						{['Winter', 'Spring', 'Summer'][i % 3]}
+						{Math.floor(i / 3) + 1}
+					</h1>
+				{/if}
 
 				<div
 					class="flex flex-row items-baseline justify-end space-x-1 text-content-secondary"

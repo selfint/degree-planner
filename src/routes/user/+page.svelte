@@ -51,7 +51,7 @@
 		return true;
 	}
 
-	let semesterChoice = 0;
+	let semesterChoice = $currentSemester;
 </script>
 
 <div class="flex flex-col space-y-8">
@@ -75,7 +75,7 @@
 					{/each}
 				</Select>
 
-				{#if semesterChoice !== 0}
+				{#if semesterChoice !== $currentSemester}
 					<Button
 						variant="primary"
 						onClick={() => {

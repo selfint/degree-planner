@@ -28,7 +28,7 @@
 
 		// if the user has already selected semesters, we should use those
 		if ($semesters.length > 0) {
-			$degreeProgress = $degreeData.then((data) =>
+			$degreeProgress = newDegreeData.then((data) =>
 				getProgress($semesters, getCourseData, data.requirements)
 			);
 		}

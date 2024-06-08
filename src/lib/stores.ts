@@ -14,6 +14,7 @@ const courseData: CourseData = new Map();
 export function getCourseData(code: string): Promise<Course> {
 	const data = courseData.get(code);
 	if (data === undefined) {
+		// Check if the course is in the cache
 		try {
 			const future = fetch(cacheRoute + code + '.json').then((res) =>
 				res.json()

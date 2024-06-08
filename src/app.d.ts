@@ -29,11 +29,13 @@ declare global {
 		choice?: Choice;
 	};
 
+	type ProgressOverflow = [string, 'points' | 'count', number];
+
 	type RequirementProgress = {
 		courses?: string[];
 		points?: number;
 		count?: number;
-		overflow?: [string, 'points' | 'count', number];
+		overflow?: ProgressOverflow;
 		choice?: ChoiceProgress;
 	};
 

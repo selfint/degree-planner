@@ -5,14 +5,17 @@
 		degreeData,
 		semesters,
 		getCourseData,
-		degreeProgress
+		degreeProgress,
+		currentSemester
 	} from '$lib/stores';
 
 	import DegreeSection from './components/DegreeSection.svelte';
 
-	import { loadDegreeData, loadDegreeRecommendation } from '$lib/requirements';
+	import { loadDegreeData } from '$lib/requirements';
 	import { getProgress } from '$lib/progress';
 	import DegreeProgressElement from './components/DegreeProgressElement.svelte';
+	import Select from '$lib/components/Select.svelte';
+	import Button from '$lib/components/Button.svelte';
 
 	if ($username === undefined) {
 		$username = 'guest';
@@ -47,6 +50,8 @@
 
 		return true;
 	}
+
+	let semesterChoice = 0;
 </script>
 
 <div class="flex flex-col space-y-8">
@@ -55,6 +60,42 @@
 	</h1>
 
 	<DegreeSection degree={$degree} {onChange} />
+
+	{#if $semesters.length > 0}
+		<div class="flex flex-col space-y-2">
+			<h2 class="text-xl text-content-primary">Semester</h2>
+			<div class="flex flex-row items-baseline space-x-3">
+				<span class="text-content-secondary"> Current: </span>
+				<Select bind:value={semesterChoice}>
+					{#each Array.from({ length: $semesters.length }) as _, i}
+						<option value={i}>
+							{['Winter', 'Spring', 'Summer'][i % 3]}
+							{Math.floor(i / 3) + 1}
+						</option>
+					{/each}
+				</Select>
+
+				{#if semesterChoice !== 0}
+					<Button
+						variant="primary"
+						onClick={() => {
+							if (semesterChoice !== $currentSemester) {
+								$currentSemester = semesterChoice;
+							}
+						}}
+					>
+						Save
+					</Button>
+					<Button
+						variant="secondary"
+						onClick={() => (semesterChoice = $currentSemester)}
+					>
+						Cancel
+					</Button>
+				{/if}
+			</div>
+		</div>
+	{/if}
 
 	{#if $degreeProgress !== undefined}
 		<DegreeProgressElement degreeProgress={$degreeProgress} />

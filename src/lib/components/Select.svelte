@@ -1,5 +1,5 @@
 <script lang="ts">
-	export let value: string | undefined;
+	export let value: unknown;
 </script>
 
 <select

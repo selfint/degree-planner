@@ -54,6 +54,11 @@ async function getRequirementProgress(
 		}
 	}
 
+	if (requirement.count !== undefined) {
+		// @ts-expect-error
+		progress.count = progress.courses.length;
+	}
+
 	return progress;
 }
 

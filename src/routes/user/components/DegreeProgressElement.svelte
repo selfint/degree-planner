@@ -28,8 +28,7 @@
 
 		{#each degreeProgress.requirements as [name, [requirement, progress]]}
 			<div class="flex flex-col space-y-2 pl-2">
-				<h3 class="text-content-primary">{formatName(name)}</h3>
-				<RequirementElement {requirement} {progress} />
+				<RequirementElement requirementName={name} {requirement} {progress} />
 			</div>
 		{/each}
 	{:catch error}

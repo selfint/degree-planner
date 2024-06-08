@@ -11,13 +11,11 @@ import {
 import { getMedian } from '$lib/server/courseMedian.js';
 
 const cacheDir = path.resolve('static', '_cache', 'courseData');
+const cacheRoute = '_cache/courseData/';
 
 export const GET = async ({ params: { code } }) => {
-	const cached = path.join(cacheDir, `${code}.json`);
-
 	try {
-		const data = await fs.readFile(cached);
-		return json(JSON.parse(data.toString()));
+		return await fetch(cacheRoute + `${code}.json`);
 	} catch (e) {
 		// ignore
 	}

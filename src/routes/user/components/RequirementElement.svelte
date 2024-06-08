@@ -1,4 +1,6 @@
 <script lang="ts">
+	import Progress from '$lib/components/Progress.svelte';
+
 	export let requirement: Requirement;
 	export let progress: RequirementProgress;
 
@@ -14,7 +16,7 @@
 	{#if requirement.points !== undefined}
 		<div class="flex flex-row items-center space-x-2 text-content-secondary">
 			<span>Points</span>
-			<progress value={progress.points} max={requirement.points} />
+			<Progress value={progress.points} max={requirement.points} />
 			<span>{progress.points} / {requirement.points}</span>
 		</div>
 	{/if}
@@ -22,7 +24,7 @@
 	{#if requirement.count !== undefined}
 		<div class="flex flex-row items-center space-x-2 text-content-secondary">
 			<span>Count</span>
-			<progress value={progress.count} max={requirement.count} />
+			<Progress value={progress.count} max={requirement.count} />
 			<span>{progress.count} / {requirement.count}</span>
 		</div>
 	{/if}

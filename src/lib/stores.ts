@@ -9,10 +9,22 @@ export const degreeProgress = writable<Promise<DegreeProgress> | undefined>(
 	undefined
 );
 
+const cacheRoute = '/_cache/courseData/';
 const courseData: CourseData = new Map();
 export function getCourseData(code: string): Promise<Course> {
 	const data = courseData.get(code);
 	if (data === undefined) {
+		try {
+			const future = fetch(cacheRoute + code + '.json').then((res) =>
+				res.json()
+			);
+			courseData.set(code, future);
+
+			return future;
+		} catch (e) {
+			// ignore
+		}
+
 		const future = fetch(`/api/courseInfo/${code}`).then((res) => res.json());
 		courseData.set(code, future);
 

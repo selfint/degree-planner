@@ -16,6 +16,7 @@ exports[`Requirements parser > should parse recommended 1`] = `
     "234125",
     "234141",
   ],
+  [],
   [
     "094412",
     "104134",
@@ -28,6 +29,7 @@ exports[`Requirements parser > should parse recommended 1`] = `
     "234123",
     "234247",
   ],
+  [],
   [
     "236343",
     "236360",

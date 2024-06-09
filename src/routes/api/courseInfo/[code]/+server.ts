@@ -3,6 +3,7 @@ import path from 'path';
 
 import { json } from '@sveltejs/kit';
 import {
+	getAbout,
 	getConnections,
 	getName,
 	getPoints,
@@ -20,7 +21,8 @@ export const GET = async ({ params: { code } }) => {
 		median: await getMedian(code),
 		points: getPoints(studentPage),
 		name: getName(studentPage),
-		connections: getConnections(studentPage)
+		connections: getConnections(studentPage),
+		about: getAbout(studentPage)
 	};
 
 	// update cache only in dev mode

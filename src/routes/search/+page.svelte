@@ -12,13 +12,13 @@
 
 	const data = getAllCourses();
 	const corpus: Promise<[string, Course][]> = data.then((courses) =>
-		courses.map((course) => [course.name ?? course.code, course])
+		courses.map((course) => [(course.name ?? '') + course.code, course])
 	);
 
 	$: searchResults = corpus.then((corpus) => {
 		return corpus
-			.filter(([name, course]) => name.includes(query))
-			.map((a) => a[1])
+			.filter(([name, _]) => name.includes(query))
+			.map(([_, course]) => course)
 			.toSorted((a, b) => {
 				return (b.median ?? 0) - (a.median ?? 0);
 			});

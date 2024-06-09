@@ -16,7 +16,7 @@
 	<nav class="flex flex-grow flex-row items-baseline space-x-8">
 		<a
 			href="/"
-			class="border-b-2 border-background text-4xl font-semibold tracking-tight text-content-primary"
+			class="border-b-2 border-background text-2xl font-semibold tracking-tight text-content-primary"
 		>
 			Degree Planner
 		</a>

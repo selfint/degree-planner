@@ -1,11 +1,10 @@
 <script lang="ts">
 	import { generateColor } from '$lib/colors';
 
-	export let code: string;
-	export let data: Course;
+	export let course: Course;
 	export let requirements: Promise<string[]> | undefined;
 
-	const color = generateColor(code + data.name ?? '');
+	const color = generateColor(course.code + course.name ?? '');
 
 	function formatName(name: string): string {
 		return name
@@ -13,6 +12,9 @@
 			.map((word) => word[0].toUpperCase() + word.slice(1).toLowerCase())
 			.join(' ');
 	}
+
+	const median =
+		course.median === undefined ? 'N/A' : Math.round(course.median * 10) / 10;
 </script>
 
 <div
@@ -21,11 +23,11 @@
 	<div class="flex h-full flex-row items-start justify-between">
 		<div class="min-h-8">
 			<span class="m-0 p-0 text-xs leading-none text-content-primary" dir="rtl">
-				{data.name?.split(' - ')[1] ?? code}
+				{course.name?.split(' - ')[1] ?? course.code}
 			</span>
-			{#if data.name !== undefined}
+			{#if course.name !== undefined}
 				<span class="text-xs leading-none text-content-secondary">
-					{code}
+					{course.code}
 				</span>
 			{/if}
 		</div>
@@ -51,8 +53,8 @@
 		</div>
 		<div class="flex-grow" />
 		<div class="text-xs text-content-secondary">
-			<span class="mr-2">{data.median ?? 'N/A'}</span>
-			<span>{data.points ?? 'N/A'}</span>
+			<span class="mr-2">{median}</span>
+			<span>{course.points ?? 'N/A'}</span>
 		</div>
 	</div>
 </div>

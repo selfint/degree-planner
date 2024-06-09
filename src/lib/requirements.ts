@@ -167,5 +167,5 @@ export function getCourseLists(
 		}
 	}
 
-	return lists;
+	return [...new Set(lists)].toSorted();
 }

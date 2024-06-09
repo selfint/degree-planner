@@ -1,6 +1,10 @@
 const cacheRoute = '/_cache/courseData/';
 const courseData: CourseData = new Map();
 
+export async function getAllCourses(): Promise<Course[]> {
+	return await Promise.all(Array.from(courseData.values()));
+}
+
 export function getCourseData(code: string): Promise<Course> {
 	const data = courseData.get(code);
 	if (data === undefined) {

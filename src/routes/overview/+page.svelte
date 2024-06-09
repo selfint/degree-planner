@@ -34,7 +34,9 @@
 						{Math.floor(i / 3) + 1}
 					</h1>
 				{:else}
-					<h1 class="text-2xl font-medium text-content-primary">
+					<h1
+						class=" border-b-2 border-b-background text-2xl font-medium text-content-primary"
+					>
 						{['Winter', 'Spring', 'Summer'][i % 3]}
 						{Math.floor(i / 3) + 1}
 					</h1>

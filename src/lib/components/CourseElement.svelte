@@ -18,7 +18,7 @@
 <div
 	class="flex h-fit w-56 flex-col justify-between space-y-2 rounded-md bg-card-primary p-2 leading-none"
 >
-	<div class="flex flex-row items-baseline justify-between">
+	<div class="flex flex-row items-center justify-between">
 		<div>
 			<span class="m-0 p-0 text-xs text-content-primary" dir="rtl">
 				{data.name?.split(' - ')[1] ?? code}

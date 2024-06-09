@@ -65,7 +65,7 @@
 						<CourseElement
 							{code}
 							{data}
-							lists={$degreeData?.then((d) =>
+							requirements={$degreeData?.then((d) =>
 								getCourseLists(d.requirements, code)
 							)}
 						/>

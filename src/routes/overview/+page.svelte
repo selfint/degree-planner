@@ -60,10 +60,9 @@
 			</div>
 			<div class="flex flex-col space-y-2">
 				{#each semester as code}
-					{#await getCourseData(code) then data}
+					{#await getCourseData(code) then course}
 						<CourseElement
-							{code}
-							{data}
+							{course}
 							requirements={$degreeData?.then((d) =>
 								getCourseLists(d.requirements, code)
 							)}

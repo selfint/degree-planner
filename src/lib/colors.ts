@@ -10,8 +10,8 @@ function hashString(str: string): number {
 export function generateColor(source: string): string {
 	const hash = hashString(source.repeat(11));
 	const hue = hash % 360;
-	const saturation = 66;
-	const lightness = 26;
+	const saturation = 50;
+	const lightness = 30;
 
 	return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
 }

@@ -14,19 +14,17 @@ const courseData: CourseData = new Map();
 export function getCourseData(code: string): Promise<Course> {
 	const data = courseData.get(code);
 	if (data === undefined) {
-		// Check if the course is in the cache
-		try {
-			const future = fetch(cacheRoute + code + '.json').then((res) =>
-				res.json()
-			);
-			courseData.set(code, future);
+		// Fetch first from cache, then from server if cache fails
+		const future = fetch(cacheRoute + code + '.json')
+			.then((res) => {
+				if (res.ok) {
+					return res.json();
+				} else {
+					throw new Error('failed fetching cached course data for ' + code);
+				}
+			})
+			.catch(() => fetch(`/api/courseInfo/${code}`).then((res) => res.json()));
 
-			return future;
-		} catch (e) {
-			// ignore
-		}
-
-		const future = fetch(`/api/courseInfo/${code}`).then((res) => res.json());
 		courseData.set(code, future);
 
 		return future;

@@ -21,8 +21,8 @@
 
 <div class="flex flex-row space-x-4">
 	{#each $semesters as semester, i}
-		<div class="w-56 space-y-2">
-			<div class="flex flex-row items-baseline justify-between">
+		<div class="w-56 min-w-56 max-w-56 space-y-2">
+			<div class="flex min-w-full flex-row items-baseline justify-between">
 				{#if i === $currentSemester}
 					<h1
 						class="border-b-2 border-b-accent-primary text-2xl font-medium text-content-primary"
@@ -32,7 +32,7 @@
 					</h1>
 				{:else}
 					<h1
-						class=" border-b-2 border-b-background text-2xl font-medium text-content-primary"
+						class="border-b-2 border-b-background text-2xl font-medium text-content-primary"
 					>
 						{['Winter', 'Spring', 'Summer'][i % 3]}
 						{Math.floor(i / 3) + 1}

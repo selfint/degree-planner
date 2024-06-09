@@ -9,13 +9,14 @@
 		currentSemester
 	} from '$lib/stores';
 
+	import Select from '$lib/components/Select.svelte';
+	import Button from '$lib/components/Button.svelte';
+
 	import DegreeSection from './components/DegreeSection.svelte';
+	import DegreeProgressElement from './components/DegreeProgressElement.svelte';
 
 	import { loadDegreeData } from '$lib/requirements';
 	import { getProgress } from '$lib/progress';
-	import DegreeProgressElement from './components/DegreeProgressElement.svelte';
-	import Select from '$lib/components/Select.svelte';
-	import Button from '$lib/components/Button.svelte';
 
 	if ($username === undefined) {
 		$username = 'guest';

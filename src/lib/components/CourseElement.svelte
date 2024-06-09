@@ -3,16 +3,14 @@
 
 	export let code: string;
 	export let data: Course;
-	export let lists: Promise<string[]> | undefined;
+	export let requirements: Promise<string[]> | undefined;
 
 	const color = generateColor(code + data.name ?? '');
 
 	function formatName(name: string): string {
 		return name
 			.split('_')
-			.map((word) => {
-				return word[0].toUpperCase() + word.slice(1).toLowerCase();
-			})
+			.map((word) => word[0].toUpperCase() + word.slice(1).toLowerCase())
 			.join(' ');
 	}
 </script>
@@ -38,14 +36,14 @@
 
 	<div class="flex flex-row items-baseline">
 		<div class="flex flex-row items-baseline space-x-1">
-			{#await lists then list}
-				{#each list ?? [] as item}
+			{#await requirements then requirements}
+				{#each requirements ?? [] as requirement}
 					<div
-						style="background: {generateColor(item)}"
+						style="background: {generateColor(requirement)}"
 						class="rounded-md pb-0.5 pl-2 pr-2 leading-none"
 					>
 						<span class="text-xs leading-none text-content-primary">
-							{formatName(item)}
+							{formatName(requirement)}
 						</span>
 					</div>
 				{/each}

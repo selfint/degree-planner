@@ -1,15 +1,8 @@
 <script lang="ts">
 	import Progress from '$lib/components/Progress.svelte';
-	import RequirementElement from './RequirementElement.svelte';
+	import ProgressElement from './ProgressElement.svelte';
 
 	export let degreeProgress: Promise<DegreeProgress>;
-
-	function formatName(name: string): string {
-		return name
-			.split('_')
-			.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-			.join(' ');
-	}
 </script>
 
 <div class="flex flex-col space-y-3">
@@ -26,9 +19,9 @@
 			<span>{degreeProgress.points[0]} / {degreeProgress.points[1]}</span>
 		</div>
 
-		{#each degreeProgress.requirements as [name, [requirement, progress]]}
+		{#each degreeProgress.requirements as [requirementName, [requirement, progress]]}
 			<div class="flex flex-col space-y-2 pl-2">
-				<RequirementElement requirementName={name} {requirement} {progress} />
+				<ProgressElement {requirementName} {requirement} {progress} />
 			</div>
 		{/each}
 	{:catch error}

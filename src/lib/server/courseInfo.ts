@@ -17,6 +17,17 @@ export async function getStudentsPage(
 	}
 }
 
+export function getAbout(doc: Document | undefined): string | undefined {
+	if (doc === undefined) {
+		return undefined;
+	}
+
+	const generalInformation = doc.querySelector('#general_information');
+	const about = generalInformation?.querySelector('p');
+
+	return about?.textContent?.trim() ?? undefined;
+}
+
 export function getPoints(doc: Document | undefined): number | undefined {
 	const semesterInfo = doc?.querySelector('#semester_information');
 	if (semesterInfo === undefined || semesterInfo === null) {

@@ -4,9 +4,25 @@ import { JSDOM } from 'jsdom';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
 
-import { getName, getConnections, getPoints } from './courseInfo';
+import { getName, getConnections, getPoints, getAbout } from './courseInfo';
 
 describe('Course Info', () => {
+	it('Gets the course about', () => {
+		const doc = new JSDOM(
+			readFileSync(resolve(__dirname, 'course_234218.html'), 'utf-8')
+		).window.document;
+
+		const about = getAbout(doc);
+		expect(about).toMatchInlineSnapshot(`
+			"הקורס יקנה ידע במבני נתונים בסיסיים, באנליזה, ביישומים ובשימושים
+			שונים שלהם. יושם דגש על התאמת מבני הנתונים לצרכי הבעיה הנתונה.
+			סוגי מבנים: חזרה על המבנים הפשוטים (מערכים, רשימות, מחסניות
+			ותורים), רשימות דילוגים, תורי עדיפות, ערמות, עצים דיגיטלים
+			( TRIES ). מיון וחיפוש. עצים וגרפים וייצוגיהם. הקצאת זכרון,
+			ערבול, איסוף אשפה."
+		`);
+	});
+
 	it('Gets the course points', async () => {
 		const doc = new JSDOM(
 			readFileSync(resolve(__dirname, 'course_234218.html'), 'utf-8')

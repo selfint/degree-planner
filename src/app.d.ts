@@ -81,6 +81,7 @@ declare global {
 		points?: number;
 		median?: number;
 		connections?: CourseConnections;
+		about?: string;
 	};
 
 	type CourseData = Map<string, Promise<Course>>;

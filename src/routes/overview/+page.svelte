@@ -17,7 +17,7 @@
 
 		console.log(medians);
 		return medians.length > 0
-			? Math.round(medians.reduce((a, b) => a + b) / medians.length)
+			? Math.round((medians.reduce((a, b) => a + b) / medians.length) * 10) / 10
 			: 0;
 	}
 </script>

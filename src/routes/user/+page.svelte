@@ -4,10 +4,11 @@
 		degree,
 		degreeData,
 		semesters,
-		getCourseData,
 		degreeProgress,
 		currentSemester
 	} from '$lib/stores';
+
+	import { getCourseData, cacheDegreeCourses } from '$lib/courseData';
 
 	import Select from '$lib/components/Select.svelte';
 	import Button from '$lib/components/Button.svelte';
@@ -48,6 +49,9 @@
 				);
 			});
 		}
+
+		// cache the courses for the degree
+		newDegreeData.then((data) => cacheDegreeCourses(data));
 
 		return true;
 	}

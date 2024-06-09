@@ -1,10 +1,7 @@
 <script lang="ts">
-	import {
-		semesters,
-		getCourseData,
-		degreeData,
-		currentSemester
-	} from '$lib/stores';
+	import { semesters, degreeData, currentSemester } from '$lib/stores';
+
+	import { getCourseData } from '$lib/courseData';
 
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import { getCourseLists } from '$lib/requirements';

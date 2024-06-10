@@ -7,7 +7,8 @@ import {
 	getConnections,
 	getName,
 	getPoints,
-	getStudentsPage
+	getStudentsPage,
+	getTests
 } from '$lib/server/courseInfo.js';
 import { getMedian } from '$lib/server/courseMedian.js';
 
@@ -22,7 +23,8 @@ export const GET = async ({ params: { code } }) => {
 		points: getPoints(studentPage),
 		name: getName(studentPage),
 		connections: getConnections(studentPage),
-		about: getAbout(studentPage)
+		about: getAbout(studentPage),
+		tests: getTests(studentPage)
 	};
 
 	// update cache only in dev mode

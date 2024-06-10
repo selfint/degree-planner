@@ -17,6 +17,25 @@ export async function getStudentsPage(
 	}
 }
 
+export function getTests(doc: Document | undefined): [Date, Date] | undefined {
+	const tests = doc?.querySelectorAll('strong');
+	if (tests === undefined) {
+		return undefined;
+	}
+
+	return Array.from(tests)
+		.map((test) => test.textContent ?? '')
+		.filter((test) => test.includes('מועד'))
+		.filter((test) => test.split(':').length === 2)
+		.map((test) => {
+			const date = test.split(':')[1].trim();
+			const [day, month, year] = date.split('-').map(Number);
+
+			return new Date(Date.UTC(year, month - 1, day));
+		})
+		.slice(0, 2) as [Date, Date];
+}
+
 export function getAbout(doc: Document | undefined): string | undefined {
 	if (doc === undefined) {
 		return undefined;

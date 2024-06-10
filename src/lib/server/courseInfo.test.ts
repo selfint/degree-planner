@@ -4,9 +4,29 @@ import { JSDOM } from 'jsdom';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
 
-import { getName, getConnections, getPoints, getAbout } from './courseInfo';
+import {
+	getName,
+	getConnections,
+	getPoints,
+	getAbout,
+	getTests
+} from './courseInfo';
 
 describe('Course Info', () => {
+	it('Gets the course tests', () => {
+		const doc = new JSDOM(
+			readFileSync(resolve(__dirname, 'course_234218.html'), 'utf-8')
+		).window.document;
+
+		const tests = getTests(doc);
+		expect(tests).toMatchInlineSnapshot(`
+			[
+			  2024-08-30T00:00:00.000Z,
+			  2024-10-01T00:00:00.000Z,
+			]
+		`);
+	});
+
 	it('Gets the course about', () => {
 		const doc = new JSDOM(
 			readFileSync(resolve(__dirname, 'course_234218.html'), 'utf-8')

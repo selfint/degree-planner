@@ -21,8 +21,16 @@ describe('Course Info', () => {
 		const tests = getTests(doc);
 		expect(tests).toMatchInlineSnapshot(`
 			[
-			  2024-08-30T00:00:00.000Z,
-			  2024-10-01T00:00:00.000Z,
+			  {
+			    "day": 30,
+			    "monthIndex": 7,
+			    "year": 2024,
+			  },
+			  {
+			    "day": 1,
+			    "monthIndex": 9,
+			    "year": 2024,
+			  },
 			]
 		`);
 	});

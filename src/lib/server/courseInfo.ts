@@ -17,7 +17,7 @@ export async function getStudentsPage(
 	}
 }
 
-export function getTests(doc: Document | undefined): [Date, Date] | undefined {
+export function getTests(doc: Document | undefined): [Test, Test] | undefined {
 	const tests = doc?.querySelectorAll('strong');
 	if (tests === undefined) {
 		return undefined;
@@ -30,10 +30,11 @@ export function getTests(doc: Document | undefined): [Date, Date] | undefined {
 		.map((test) => {
 			const date = test.split(':')[1].trim();
 			const [day, month, year] = date.split('-').map(Number);
+			const monthIndex = month - 1;
 
-			return new Date(Date.UTC(year, month - 1, day));
+			return { year, monthIndex, day } satisfies Test;
 		})
-		.slice(0, 2) as [Date, Date];
+		.slice(0, 2) as [Test, Test];
 }
 
 export function getAbout(doc: Document | undefined): string | undefined {

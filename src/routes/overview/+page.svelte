@@ -109,27 +109,28 @@
 			{#if i === $currentSemester}
 				{#await Promise.all(semester.map(getCourseData))}
 					<div />
-					<div />
 				{:then courses}
-					<div class="flex flex-row text-content-primary">
-						{#each getStudyDays(courses, 0) as [course, days]}
-							<div
-								style="background: {generateCourseColor(course)}"
-								class="mr-1 w-6 p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
-							>
-								{days}
-							</div>
-						{/each}
-					</div>
-					<div class="flex flex-row text-content-primary">
-						{#each getStudyDays(courses, 1) as [course, days]}
-							<div
-								style="background: {generateCourseColor(course)}"
-								class="mr-1 w-6 p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
-							>
-								{days}
-							</div>
-						{/each}
+					<div class="space-y-1">
+						<div class="flex flex-row text-content-primary">
+							{#each getStudyDays(courses, 0) as [course, days]}
+								<div
+									style="background: {generateCourseColor(course)}"
+									class="mr-1 w-6 p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
+								>
+									{days}
+								</div>
+							{/each}
+						</div>
+						<div class="flex flex-row text-content-primary">
+							{#each getStudyDays(courses, 1) as [course, days]}
+								<div
+									style="background: {generateCourseColor(course)}"
+									class="mr-1 w-6 p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
+								>
+									{days}
+								</div>
+							{/each}
+						</div>
 					</div>
 				{/await}
 			{/if}

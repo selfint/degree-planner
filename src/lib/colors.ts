@@ -15,3 +15,11 @@ export function generateColor(source: string): string {
 
 	return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
 }
+
+export function generateCourseColor(course: Course): string {
+	return generateColor(course.code + (course.name ?? ''));
+}
+
+export function generateRequirementColor(requirement: string): string {
+	return generateColor(requirement);
+}

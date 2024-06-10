@@ -75,6 +75,12 @@ declare global {
 		exclusive: string[];
 	};
 
+	type Test = {
+		year: number;
+		monthIndex: number;
+		day: number;
+	};
+
 	type Course = {
 		code: string;
 		name?: string;
@@ -82,7 +88,7 @@ declare global {
 		median?: number;
 		connections?: CourseConnections;
 		about?: string;
-		tests?: [Date, Date];
+		tests?: [Test, Test];
 	};
 
 	type CourseData = Map<string, Promise<Course>>;

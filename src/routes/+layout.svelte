@@ -24,7 +24,7 @@
 </div>
 <div class="pb-16" />
 
-<div class="p-3">
+<div class="w-fit p-3">
 	<slot />
 </div>
 

@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { generateColor } from '$lib/colors';
+	import { generateRequirementColor, generateCourseColor } from '$lib/colors';
 
 	export let course: Course;
 	export let requirements: Promise<string[]> | undefined;
 
-	const color = generateColor(course.code + course.name ?? '');
+	const color = generateCourseColor(course);
 
 	function formatName(name: string): string {
 		return name
@@ -41,7 +41,7 @@
 			{#await requirements then requirements}
 				{#each requirements ?? [] as requirement}
 					<div
-						style="background: {generateColor(requirement)}"
+						style="background: {generateRequirementColor(requirement)}"
 						class="rounded-md pb-0.5 pl-2 pr-2 leading-none"
 					>
 						<span class="text-xs leading-none text-content-primary">

@@ -61,12 +61,6 @@
 
 		return courseStudyDays;
 	}
-
-	function getCourseTests(courses: Course[], test: 0 | 1): Test[] {
-		return courses
-			.map((c) => c.tests?.[test])
-			.filter((t) => t !== undefined) as Test[];
-	}
 </script>
 
 <div class="flex flex-row space-x-4">

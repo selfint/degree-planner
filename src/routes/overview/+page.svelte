@@ -1,5 +1,10 @@
 <script lang="ts">
-	import { semesters, degreeData, currentSemester } from '$lib/stores';
+	import {
+		semesters,
+		degreeData,
+		currentSemester,
+		wishlist
+	} from '$lib/stores';
 
 	import { getCourseData } from '$lib/courseData';
 
@@ -63,6 +68,21 @@
 	}
 </script>
 
+<h1 class="mb-2 text-2xl font-medium text-content-primary">Wish list</h1>
+<div class="mb-4 flex flex-row space-x-2">
+	{#await Promise.all($wishlist.map(getCourseData))}
+		<div />
+	{:then courses}
+		{#each courses as course}
+			<CourseElement
+				{course}
+				requirements={$degreeData?.then((d) =>
+					getCourseLists(d.requirements, course.code)
+				)}
+			/>
+		{/each}
+	{/await}
+</div>
 <div class="flex flex-row space-x-4">
 	{#each $semesters as semester, i}
 		<div class="w-56 min-w-56 max-w-56 space-y-2">

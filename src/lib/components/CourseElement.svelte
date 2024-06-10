@@ -4,6 +4,9 @@
 	export let course: Course;
 	export let requirements: Promise<string[]> | undefined;
 
+	export let onMouseDown: (() => void) | undefined = undefined;
+	export let tabIndex: number = 0;
+
 	const color = generateCourseColor(course);
 
 	function formatName(name: string): string {
@@ -19,6 +22,9 @@
 
 <div
 	class="flex h-fit w-56 flex-col justify-between space-y-3 rounded-md bg-card-primary p-2 leading-none"
+	on:mousedown={onMouseDown}
+	role="button"
+	tabindex={tabIndex}
 >
 	<div class="flex h-full flex-row items-start justify-between">
 		<div class="min-h-8">

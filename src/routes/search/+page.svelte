@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 
+	import { goto } from '$app/navigation';
+
 	import { degreeData } from '$lib/stores';
 
 	import CourseElement from '$lib/components/CourseElement.svelte';
@@ -36,13 +38,15 @@
 			{results.length} results found
 		</p>
 		<ul class="flex flex-row flex-wrap">
-			{#each results as course}
+			{#each results as course, i}
 				<li class="pb-4 pr-2">
 					<CourseElement
 						{course}
 						requirements={$degreeData?.then((d) =>
 							getCourseLists(d.requirements, course.code)
 						)}
+						onMouseDown={() => goto(`/course/${course.code}`)}
+						tabIndex={i}
 					/>
 				</li>
 			{/each}

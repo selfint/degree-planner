@@ -8,3 +8,4 @@ export const degreeData = writable<Promise<DegreeData> | undefined>(undefined);
 export const degreeProgress = writable<Promise<DegreeProgress> | undefined>(
 	undefined
 );
+export const wishlist = writable<string[]>([]);

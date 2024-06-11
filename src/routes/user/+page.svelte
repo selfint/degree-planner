@@ -40,6 +40,9 @@
 
 		// if the user hasn't selected semesters, we should use the recommended ones
 		else {
+			$degreeProgress = newDegreeData.then((data) =>
+				getProgress($semesters, getCourseData, data.requirements)
+			);
 			newDegreeData.then((data) => {
 				$semesters = data.recommended;
 				$degreeProgress = getProgress(

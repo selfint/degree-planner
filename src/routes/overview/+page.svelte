@@ -67,33 +67,98 @@
 
 		return courseStudyDays;
 	}
+
+	function moveCourseToSemester(code: string, semester: number) {
+		$wishlist = $wishlist.filter((c) => c !== code);
+		$semesters = $semesters.map((s, i) =>
+			i === semester ? [...new Set([...s, code])] : s.filter((c) => c !== code)
+		);
+	}
+
+	function moveCourseToWishlist(code: string) {
+		$wishlist = [...new Set([...$wishlist, code])];
+		$semesters = $semesters.map((s) => s.filter((c) => c !== code));
+	}
 </script>
 
-<h1 class="mb-2 text-2xl font-medium text-content-primary">Wish list</h1>
-<div class="mb-4 flex flex-row space-x-2">
-	{#await Promise.all($wishlist.map(getCourseData))}
-		<div class="text-content-secondary">Loading...</div>
-	{:then courses}
-		{#each courses as course, i}
-			<div
-				class="container"
-				tabindex={i}
-				role="button"
-				on:mousedown={() => goto(`/course/${course.code}`)}
-			>
-				<CourseElement
-					{course}
-					requirements={$degreeData?.then((d) =>
-						getCourseLists(d.requirements, course.code)
-					)}
-				/>
-			</div>
-		{/each}
-	{/await}
+<div
+	class="mb-4 min-h-[118px] w-full"
+	on:dragenter={(e) => {
+		if (e.dataTransfer?.types.includes('text/x-course')) {
+			e.preventDefault();
+		}
+	}}
+	on:dragover|preventDefault={(e) => {
+		if (e.dataTransfer !== null) {
+			e.dataTransfer.dropEffect = 'move';
+		}
+	}}
+	on:dragleave|preventDefault
+	on:drop|preventDefault={(e) => {
+		const code = e.dataTransfer?.getData('text/x-course');
+		if (code !== undefined) {
+			moveCourseToWishlist(code);
+		}
+	}}
+	role="button"
+	tabindex={0}
+>
+	<h1 class="mb-2 text-2xl font-medium text-content-primary">Wish list</h1>
+	<div class="flex w-fit flex-row space-x-2">
+		{#await Promise.all($wishlist.map(getCourseData))}
+			<div class="text-content-secondary">Loading...</div>
+		{:then courses}
+			{#each courses as course, i}
+				<div
+					class="container"
+					draggable="true"
+					tabindex={i}
+					role="button"
+					on:dragstart={(e) =>
+						e.dataTransfer?.setData('text/x-course', course.code)}
+					on:click={() => goto(`/course/${course.code}`)}
+					on:keydown={(e) => {
+						if (e.key === 'Enter') {
+							goto(`/course/${course.code}`);
+						}
+					}}
+				>
+					<CourseElement
+						{course}
+						requirements={$degreeData?.then((d) =>
+							getCourseLists(d.requirements, course.code)
+						)}
+					/>
+				</div>
+			{/each}
+		{/await}
+	</div>
 </div>
-<div class="flex flex-row space-x-4">
+<div class="flex flex-row space-x-3">
 	{#each $semesters as semester, i}
-		<div class="w-56 min-w-56 max-w-56 space-y-2">
+		<div
+			class="w-fit space-y-2"
+			on:dragenter={(e) => {
+				if (e.dataTransfer?.types.includes('text/x-course')) {
+					e.preventDefault();
+				}
+			}}
+			on:dragover|preventDefault={(e) => {
+				if (e.dataTransfer !== null) {
+					e.dataTransfer.dropEffect = 'move';
+				}
+			}}
+			on:dragleave|preventDefault
+			on:drop|preventDefault={(e) => {
+				const code = e.dataTransfer?.getData('text/x-course');
+				if (code !== undefined) {
+					moveCourseToSemester(code, i);
+				}
+			}}
+			role="button"
+			tabindex={i}
+		>
+			<div class="w-[220px]" />
 			<div class="flex min-w-full flex-row items-baseline justify-between">
 				{#if i === $currentSemester}
 					<h1
@@ -136,22 +201,22 @@
 				{#await Promise.all(semester.map(getCourseData))}
 					<div />
 				{:then courses}
-					<div class="space-y-1">
-						<div class="flex flex-row text-content-primary">
+					<div class="w-full space-y-1">
+						<div class="flex flex-row flex-wrap text-content-primary">
 							{#each getStudyDays(courses, 0) as [course, days]}
 								<div
 									style="background: {generateCourseColor(course)}"
-									class="mr-1 w-6 p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
+									class="mb-1 mr-0.5 w-6 p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
 								>
 									{days}
 								</div>
 							{/each}
 						</div>
-						<div class="flex flex-row text-content-primary">
+						<div class="flex w-full flex-row flex-wrap text-content-primary">
 							{#each getStudyDays(courses, 1) as [course, days]}
 								<div
 									style="background: {generateCourseColor(course)}"
-									class="mr-1 w-6 p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
+									class="mb-1 mr-0.5 w-6 p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
 								>
 									{days}
 								</div>
@@ -162,13 +227,25 @@
 			{/if}
 
 			<div class="flex flex-col space-y-2">
-				{#each semester as code}
+				{#each semester as code, j}
 					{#await getCourseData(code) then course}
 						<div
 							class="container"
-							tabindex={i}
+							draggable="true"
+							tabindex={j}
 							role="button"
-							on:mousedown={() => goto(`/course/${course.code}`)}
+							on:dragstart={(e) => {
+								if (e.dataTransfer !== null) {
+									e.dataTransfer.setData('text/x-course', code);
+									e.dataTransfer.effectAllowed = 'move';
+								}
+							}}
+							on:click={() => goto(`/course/${course.code}`)}
+							on:keydown={(e) => {
+								if (e.key === 'Enter') {
+									goto(`/course/${course.code}`);
+								}
+							}}
 						>
 							<CourseElement
 								{course}

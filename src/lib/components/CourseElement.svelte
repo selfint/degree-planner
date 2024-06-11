@@ -18,7 +18,7 @@
 </script>
 
 <div
-	class="flex h-fit w-56 flex-col justify-between space-y-3 rounded-md bg-card-primary p-2 leading-none"
+	class="flex h-fit w-[220px] flex-col justify-between space-y-3 rounded-md bg-card-primary p-2 leading-none"
 >
 	<div class="flex h-full flex-row items-start justify-between">
 		<div class="min-h-8">

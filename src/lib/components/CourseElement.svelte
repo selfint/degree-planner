@@ -15,6 +15,8 @@
 
 	const median =
 		course.median === undefined ? 'N/A' : Math.round(course.median * 10) / 10;
+
+	const hasTest = course.tests === undefined || course.tests.length > 0;
 </script>
 
 <div
@@ -32,7 +34,10 @@
 			{/if}
 		</div>
 		<div class="m-0 ml-1 p-0">
-			<div style="background: {color}" class="h-4 w-4 rounded-full" />
+			<div
+				style="background: {color}"
+				class="h-4 w-4 {hasTest ? 'rounded-full' : ''}"
+			/>
 		</div>
 	</div>
 

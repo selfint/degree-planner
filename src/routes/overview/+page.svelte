@@ -185,7 +185,9 @@
 						<span>_</span>
 					{:then data}
 						<span>
-							{data.map((c) => c.tests).filter((t) => t !== undefined).length}
+							{data
+								.map((c) => c.tests)
+								.filter((t) => t !== undefined && t.length > 0).length}
 						</span>
 						<span>
 							{getAvgMedian(data)}

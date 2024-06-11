@@ -11,6 +11,7 @@
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import { getCourseLists } from '$lib/requirements';
 	import { generateCourseColor } from '$lib/colors';
+	import { goto } from '$app/navigation';
 
 	function getAvgMedian(courses: Course[]): number {
 		// @ts-expect-error
@@ -73,13 +74,20 @@
 	{#await Promise.all($wishlist.map(getCourseData))}
 		<div class="text-content-secondary">Loading...</div>
 	{:then courses}
-		{#each courses as course}
-			<CourseElement
-				{course}
-				requirements={$degreeData?.then((d) =>
-					getCourseLists(d.requirements, course.code)
-				)}
-			/>
+		{#each courses as course, i}
+			<div
+				class="container"
+				tabindex={i}
+				role="button"
+				on:mousedown={() => goto(`/course/${course.code}`)}
+			>
+				<CourseElement
+					{course}
+					requirements={$degreeData?.then((d) =>
+						getCourseLists(d.requirements, course.code)
+					)}
+				/>
+			</div>
 		{/each}
 	{/await}
 </div>
@@ -156,12 +164,19 @@
 			<div class="flex flex-col space-y-2">
 				{#each semester as code}
 					{#await getCourseData(code) then course}
-						<CourseElement
-							{course}
-							requirements={$degreeData?.then((d) =>
-								getCourseLists(d.requirements, code)
-							)}
-						/>
+						<div
+							class="container"
+							tabindex={i}
+							role="button"
+							on:mousedown={() => goto(`/course/${course.code}`)}
+						>
+							<CourseElement
+								{course}
+								requirements={$degreeData?.then((d) =>
+									getCourseLists(d.requirements, course.code)
+								)}
+							/>
+						</div>
 					{/await}
 				{/each}
 			</div>

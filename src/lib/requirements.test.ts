@@ -6,10 +6,11 @@ import { describe, it, vi, beforeEach, afterEach } from 'vitest';
 import manifest from '$lib/assets/manifest.json';
 import {
 	loadDegreeRequirements,
-	loadDegreeRecommendation
+	loadDegreeRecommendation,
+	getDegreeRequirementCourses
 } from './requirements';
 
-describe('Requirements parser', () => {
+describe('Requirements', () => {
 	beforeEach(() => {
 		// @ts-expect-error
 		global.fetch = vi.fn(async (url: string) => {
@@ -25,6 +26,25 @@ describe('Requirements parser', () => {
 
 	afterEach(() => {
 		vi.restoreAllMocks();
+	});
+
+	it('should provide a list of requirements and their courses', async (ctx) => {
+		const degree: Degree = ['2023_2024', 'computer_science', '3_year'];
+		const header: RequirementsHeader =
+			// @ts-expect-error
+			manifest[degree[0]][degree[1]][degree[2]].requirements;
+
+		const requirements = await loadDegreeRequirements(degree, header);
+		const requirementsCourses = getDegreeRequirementCourses(requirements);
+
+		ctx
+			.expect(
+				requirementsCourses.map((r) => ({
+					path: r.path,
+					courses: r.courses.length
+				}))
+			)
+			.toMatchSnapshot();
 	});
 
 	it('should parse recommended', async (ctx) => {

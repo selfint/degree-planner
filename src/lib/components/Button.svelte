@@ -1,6 +1,7 @@
 <script lang="ts">
 	export let onClick: () => void;
 	export let variant: 'primary' | 'secondary';
+
 	const bg = variant === 'primary' ? 'bg-accent-primary' : 'bg-card-secondary';
 </script>
 

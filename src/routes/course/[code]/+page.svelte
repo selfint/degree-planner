@@ -2,7 +2,12 @@
 	import { page } from '$app/stores';
 	import { getCourseData } from '$lib/courseData';
 
-	import { degreeData, wishlist } from '$lib/stores';
+	import {
+		currentSemester,
+		degreeData,
+		semesters,
+		wishlist
+	} from '$lib/stores';
 
 	import { getCourseLists } from '$lib/requirements';
 
@@ -25,6 +30,16 @@
 			.split('_')
 			.map((word) => word[0].toUpperCase() + word.slice(1).toLowerCase())
 			.join(' ');
+	}
+
+	function planCourse(code: string): void {
+		$semesters = $semesters.map((s, i) =>
+			i === $currentSemester ? [...new Set([...s, code])] : s
+		);
+
+		if ($wishlist.includes(code)) {
+			$wishlist = $wishlist.filter((c) => c !== code);
+		}
 	}
 </script>
 
@@ -62,26 +77,44 @@
 		{/await}
 	</div>
 
-	<p class="text-content-secondary" dir="rtl">
+	<p class="mb-8 text-content-secondary" dir="rtl">
 		{course.about}
 	</p>
 
 	<div class="space-x-1">
-		<Button variant="primary" onClick={() => {}}>Plan</Button>
-		<Button
-			variant="secondary"
-			onClick={() => ($wishlist = [...new Set([...$wishlist, course.code])])}
-		>
-			Wish list
-		</Button>
-	</div>
-
-	<div>
-		<p class="text-content-primary">
-			{course.points ?? 'N/A'} points
-		</p>
-		<p class="text-content-primary">
-			{course.median ?? 'N/A'} median
-		</p>
+		{#if $semesters.some((s) => s.includes(course.code))}
+			<Button
+				variant="secondary"
+				onClick={() =>
+					($semesters = $semesters.map((s) =>
+						s.filter((c) => c !== course.code)
+					))}
+			>
+				Remove from semester {$semesters.findIndex((s) =>
+					s.includes(course.code)
+				) + 1}
+			</Button>
+		{:else}
+			<Button variant="primary" onClick={() => planCourse(course.code)}>
+				Plan
+			</Button>
+			{#if $wishlist.includes(course.code)}
+				<Button
+					variant="secondary"
+					onClick={() =>
+						($wishlist = $wishlist.filter((c) => c !== course.code))}
+				>
+					Remove from wish list
+				</Button>
+			{:else}
+				<Button
+					variant="secondary"
+					onClick={() =>
+						($wishlist = [...new Set([...$wishlist, course.code])])}
+				>
+					Wish list
+				</Button>
+			{/if}
+		{/if}
 	</div>
 {/await}

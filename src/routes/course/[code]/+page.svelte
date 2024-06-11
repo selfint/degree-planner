@@ -6,10 +6,12 @@
 		currentSemester,
 		degreeData,
 		semesters,
-		wishlist
+		wishlist,
+		degreeProgress
 	} from '$lib/stores';
 
 	import { getCourseLists } from '$lib/requirements';
+	import { getProgress } from '$lib/progress';
 
 	import { generateRequirementColor, generateCourseColor } from '$lib/colors';
 	import Button from '$lib/components/Button.svelte';
@@ -40,6 +42,17 @@
 		if ($wishlist.includes(code)) {
 			$wishlist = $wishlist.filter((c) => c !== code);
 		}
+
+		$degreeProgress = $degreeData?.then((data) =>
+			getProgress($semesters, getCourseData, data.requirements)
+		);
+	}
+
+	function removeCourseFromSemesters(code: string): void {
+		$semesters = $semesters.map((s) => s.filter((c) => c !== code));
+		$degreeProgress = $degreeData?.then((data) =>
+			getProgress($semesters, getCourseData, data.requirements)
+		);
 	}
 </script>
 
@@ -85,10 +98,7 @@
 		{#if $semesters.some((s) => s.includes(course.code))}
 			<Button
 				variant="secondary"
-				onClick={() =>
-					($semesters = $semesters.map((s) =>
-						s.filter((c) => c !== course.code)
-					))}
+				onClick={() => removeCourseFromSemesters(course.code)}
 			>
 				Remove from semester {$semesters.findIndex((s) =>
 					s.includes(course.code)

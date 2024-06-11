@@ -169,3 +169,34 @@ export function getCourseLists(
 
 	return [...new Set(lists)].toSorted();
 }
+
+function getRequirementCourses(
+	requirement: Requirement,
+	path: string[] = []
+): { path: string[]; courses: string[] }[] {
+	const result = [];
+
+	if (requirement.courses) {
+		result.push({ path, courses: requirement.courses });
+	}
+
+	if (requirement.choice) {
+		for (const [option, choice] of requirement.choice.options) {
+			result.push(...getRequirementCourses(choice, [...path, option]));
+		}
+	}
+
+	return result;
+}
+
+export function getDegreeRequirementCourses(
+	requirements: DegreeRequirements
+): { path: string[]; courses: string[] }[] {
+	const result = [];
+
+	for (const [name, requirement] of requirements.requirements) {
+		result.push(...getRequirementCourses(requirement, [name]));
+	}
+
+	return result;
+}

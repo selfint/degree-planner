@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Requirements parser > should parse recommended 1`] = `
+exports[`Requirements > should parse recommended 1`] = `
 [
   [
     "104031",
@@ -37,7 +37,7 @@ exports[`Requirements parser > should parse recommended 1`] = `
 ]
 `;
 
-exports[`Requirements parser > should parse requirements 1`] = `
+exports[`Requirements > should parse requirements 1`] = `
 {
   "points": 118.5,
   "requirements": Map {
@@ -655,4 +655,93 @@ exports[`Requirements parser > should parse requirements 1`] = `
     },
   },
 }
+`;
+
+exports[`Requirements > should provide a list of requirements and their courses 1`] = `
+[
+  {
+    "courses": 40,
+    "path": [
+      "core",
+    ],
+  },
+  {
+    "courses": 109,
+    "path": [
+      "english",
+    ],
+  },
+  {
+    "courses": 208,
+    "path": [
+      "list_a",
+    ],
+  },
+  {
+    "courses": 71,
+    "path": [
+      "list_b",
+    ],
+  },
+  {
+    "courses": 44,
+    "path": [
+      "malag",
+    ],
+  },
+  {
+    "courses": 7,
+    "path": [
+      "math",
+    ],
+  },
+  {
+    "courses": 0,
+    "path": [
+      "other",
+    ],
+  },
+  {
+    "courses": 36,
+    "path": [
+      "project",
+    ],
+  },
+  {
+    "courses": 12,
+    "path": [
+      "science",
+    ],
+  },
+  {
+    "courses": 2,
+    "path": [
+      "science",
+      "biology_chain",
+    ],
+  },
+  {
+    "courses": 2,
+    "path": [
+      "science",
+      "physics-chemistry_chain",
+    ],
+  },
+  {
+    "courses": 1,
+    "path": [
+      "science",
+      "physics_chain",
+      "1",
+    ],
+  },
+  {
+    "courses": 2,
+    "path": [
+      "science",
+      "physics_chain",
+      "2",
+    ],
+  },
+]
 `;

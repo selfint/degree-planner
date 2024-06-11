@@ -4,13 +4,13 @@
 </script>
 
 <div class="mt-32 flex flex-row justify-center">
-	<h1 class="mr-8 w-1/4 text-7xl text-content-primary">
+	<h1 class="mr-8 w-1/3 text-7xl text-content-primary">
 		<span class="w-fit">Plan your courses</span>
 		<br />
 		<span class="gradient w-fit">with confidence.</span>
 	</h1>
 
-	<div class="w-1/3">
+	<div class="w-1/4">
 		<p class="mb-8 text-xl text-content-secondary">
 			Setup a plan for your entire degree that fits your interests and maximizes
 			your potential. Get personalized suggestions each semester for the optimal
@@ -32,7 +32,7 @@
 		position: absolute;
 		top: 400px;
 		left: -1300px;
-		background: radial-gradient(#4ca9a1 10%, rgba(0, 0, 0, 0) 70%);
+		background: radial-gradient(#4ca9a1 1%, rgba(0, 0, 0, 0) 70%);
 		z-index: -1;
 	}
 

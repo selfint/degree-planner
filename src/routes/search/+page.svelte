@@ -45,8 +45,6 @@
 						requirements={$degreeData?.then((d) =>
 							getCourseLists(d.requirements, course.code)
 						)}
-						onMouseDown={() => goto(`/course/${course.code}`)}
-						tabIndex={i}
 					/>
 				</li>
 			{/each}

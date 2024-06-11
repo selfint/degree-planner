@@ -40,12 +40,19 @@
 		<ul class="flex flex-row flex-wrap">
 			{#each results as course, i}
 				<li class="pb-4 pr-2">
-					<CourseElement
-						{course}
-						requirements={$degreeData?.then((d) =>
-							getCourseLists(d.requirements, course.code)
-						)}
-					/>
+					<div
+						class="container"
+						on:mousedown={() => goto(`/course/${course.code}`)}
+						role="button"
+						tabindex={i}
+					>
+						<CourseElement
+							{course}
+							requirements={$degreeData?.then((d) =>
+								getCourseLists(d.requirements, course.code)
+							)}
+						/>
+					</div>
 				</li>
 			{/each}
 		</ul>

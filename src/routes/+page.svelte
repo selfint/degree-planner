@@ -1,2 +1,44 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
+	import Button from '$lib/components/Button.svelte';
 </script>
+
+<div class="mt-32 flex flex-row justify-center">
+	<h1 class="mr-8 w-1/4 text-7xl text-content-primary">
+		<span class="w-fit">Plan your courses</span>
+		<br />
+		<span class="gradient w-fit">with confidence.</span>
+	</h1>
+
+	<div class="w-1/3">
+		<p class="mb-8 text-xl text-content-secondary">
+			Setup a plan for your entire degree that fits your interests and maximizes
+			your potential. Get personalized suggestions each semester for the optimal
+			test schedule. Discover courses, save the ones you like and we will
+			scheduled them for you.
+		</p>
+
+		<Button variant="primary" onClick={() => goto('/user')}>Get started</Button>
+	</div>
+</div>
+
+<div class="circle" />
+
+<style>
+	.circle {
+		width: 2500px;
+		height: 2000px;
+		border-radius: 50%;
+		position: absolute;
+		top: 400px;
+		left: -1300px;
+		background: radial-gradient(#4ca9a1 25%, rgba(0, 0, 0, 0) 70%);
+		z-index: -10000;
+	}
+
+	.gradient {
+		background: linear-gradient(#ffffff 30%, #4ca9a1);
+		background-clip: text;
+		-webkit-text-fill-color: transparent;
+	}
+</style>

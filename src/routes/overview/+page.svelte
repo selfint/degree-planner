@@ -71,7 +71,7 @@
 <h1 class="mb-2 text-2xl font-medium text-content-primary">Wish list</h1>
 <div class="mb-4 flex flex-row space-x-2">
 	{#await Promise.all($wishlist.map(getCourseData))}
-		<div />
+		<div class="text-content-secondary">Loading...</div>
 	{:then courses}
 		{#each courses as course}
 			<CourseElement
@@ -88,12 +88,16 @@
 		<div class="w-56 min-w-56 max-w-56 space-y-2">
 			<div class="flex min-w-full flex-row items-baseline justify-between">
 				{#if i === $currentSemester}
-					<h1 class="text-2xl font-medium text-content-primary">
+					<h1
+						class="border-b-2 border-b-accent-primary text-2xl font-medium text-content-primary"
+					>
 						{['Winter', 'Spring', 'Summer'][i % 3]}
 						{Math.floor(i / 3) + 1}
 					</h1>
 				{:else}
-					<h1 class="text-2xl font-medium text-content-primary">
+					<h1
+						class="border-b-2 border-b-transparent text-2xl font-medium text-content-primary"
+					>
 						{['Winter', 'Spring', 'Summer'][i % 3]}
 						{Math.floor(i / 3) + 1}
 					</h1>

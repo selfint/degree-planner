@@ -24,9 +24,7 @@
 </div>
 <div class="pb-16" />
 
-<div class="w-fit p-3">
-	<slot />
-</div>
+<slot />
 
 <style lang="postcss">
 	:global(body) {

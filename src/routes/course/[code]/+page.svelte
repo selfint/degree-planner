@@ -56,75 +56,77 @@
 	}
 </script>
 
-{#await getCourseData(code)}
-	<p class="text-content-primary">Loading...</p>
-{:then course}
-	<h1 class="mb-2 text-2xl font-medium text-content-primary">
-		<span dir="rtl">
-			{formatCourseName(course.name ?? code)}
-		</span>
+<div class="m-3">
+	{#await getCourseData(code)}
+		<p class="text-content-primary">Loading...</p>
+	{:then course}
+		<h1 class="mb-2 text-2xl font-medium text-content-primary">
+			<span dir="rtl">
+				{formatCourseName(course.name ?? code)}
+			</span>
 
-		<span class="text-content-secondary">
-			{course.code}
-		</span>
-	</h1>
+			<span class="text-content-secondary">
+				{course.code}
+			</span>
+		</h1>
 
-	<div class="mb-4 flex flex-row items-center space-x-1">
-		<div class="m-0 ml-1 p-0">
-			<div
-				style="background: {generateCourseColor(course)}"
-				class="h-8 w-8 rounded-full"
-			/>
-		</div>
-		{#await requirements then requirements}
-			{#each requirements ?? [] as requirement}
+		<div class="mb-4 flex flex-row items-center space-x-1">
+			<div class="m-0 ml-1 p-0">
 				<div
-					style="background: {generateRequirementColor(requirement)}"
-					class="rounded-md pb-0.5 pl-2 pr-2 pt-0.5 leading-none"
-				>
-					<span class="text-base leading-none text-content-primary">
-						{formatRequirementName(requirement)}
-					</span>
-				</div>
-			{/each}
-		{/await}
-	</div>
+					style="background: {generateCourseColor(course)}"
+					class="h-8 w-8 rounded-full"
+				/>
+			</div>
+			{#await requirements then requirements}
+				{#each requirements ?? [] as requirement}
+					<div
+						style="background: {generateRequirementColor(requirement)}"
+						class="rounded-md pb-0.5 pl-2 pr-2 pt-0.5 leading-none"
+					>
+						<span class="text-base leading-none text-content-primary">
+							{formatRequirementName(requirement)}
+						</span>
+					</div>
+				{/each}
+			{/await}
+		</div>
 
-	<p class="mb-8 text-content-secondary" dir="rtl">
-		{course.about}
-	</p>
+		<p class="mb-8 text-content-secondary" dir="rtl">
+			{course.about}
+		</p>
 
-	<div class="space-x-1">
-		{#if $semesters.some((s) => s.includes(course.code))}
-			<Button
-				variant="secondary"
-				onClick={() => removeCourseFromSemesters(course.code)}
-			>
-				Remove from semester {$semesters.findIndex((s) =>
-					s.includes(course.code)
-				) + 1}
-			</Button>
-		{:else}
-			<Button variant="primary" onClick={() => planCourse(course.code)}>
-				Plan
-			</Button>
-			{#if $wishlist.includes(course.code)}
+		<div class="space-x-1">
+			{#if $semesters.some((s) => s.includes(course.code))}
 				<Button
 					variant="secondary"
-					onClick={() =>
-						($wishlist = $wishlist.filter((c) => c !== course.code))}
+					onClick={() => removeCourseFromSemesters(course.code)}
 				>
-					Remove from wish list
+					Remove from semester {$semesters.findIndex((s) =>
+						s.includes(course.code)
+					) + 1}
 				</Button>
 			{:else}
-				<Button
-					variant="secondary"
-					onClick={() =>
-						($wishlist = [...new Set([...$wishlist, course.code])])}
-				>
-					Wish list
+				<Button variant="primary" onClick={() => planCourse(course.code)}>
+					Plan
 				</Button>
+				{#if $wishlist.includes(course.code)}
+					<Button
+						variant="secondary"
+						onClick={() =>
+							($wishlist = $wishlist.filter((c) => c !== course.code))}
+					>
+						Remove from wish list
+					</Button>
+				{:else}
+					<Button
+						variant="secondary"
+						onClick={() =>
+							($wishlist = [...new Set([...$wishlist, course.code])])}
+					>
+						Wish list
+					</Button>
+				{/if}
 			{/if}
-		{/if}
-	</div>
-{/await}
+		</div>
+	{/await}
+</div>

@@ -62,7 +62,7 @@
 	let semesterChoice = $currentSemester;
 </script>
 
-<div class="flex flex-col space-y-8">
+<div class="m-3 flex flex-col space-y-8">
 	<h1 class="text-2xl font-medium text-content-primary">
 		Welcome, {$username}
 	</h1>

@@ -71,10 +71,12 @@
 			>
 				<div class="flex flex-row items-baseline space-x-2">
 					{#each titles as title}
-						<div
-							style="background: {generateRequirementColor(title)}"
-							class="h-4 w-4 rounded-full"
-						/>
+						{#if colorize}
+							<div
+								style="background: {generateRequirementColor(title)}"
+								class="h-4 w-4 rounded-full"
+							/>
+						{/if}
 						<span class="w-fit pr-2">
 							{formatName(title)}
 						</span>

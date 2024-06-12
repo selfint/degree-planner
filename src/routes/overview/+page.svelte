@@ -113,13 +113,13 @@
 		tabindex={0}
 	>
 		<h1 class="mb-2 text-2xl font-medium text-content-primary">Wish list</h1>
-		<div class="flex w-fit flex-row space-x-2">
+		<div class="flex flex-row space-x-2 overflow-x-auto">
 			{#await Promise.all($wishlist.map(getCourseData))}
 				<div class="text-content-secondary">Loading...</div>
 			{:then courses}
 				{#each courses as course, i}
 					<div
-						class="container"
+						class="container w-fit"
 						draggable="true"
 						tabindex={i}
 						role="button"

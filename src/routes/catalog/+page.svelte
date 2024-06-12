@@ -9,12 +9,14 @@
 	);
 </script>
 
-{#await lists}
-	<div class="text-content-secondary">Loading...</div>
-{:then lists}
-	{#each lists ?? [] as list}
-		{#if list.courses.length > 0}
-			<CourseRow titles={list.path} codes={list.courses} />
-		{/if}
-	{/each}
-{/await}
+<div class="m-3">
+	{#await lists}
+		<div class="text-content-secondary">Loading...</div>
+	{:then lists}
+		{#each lists ?? [] as list}
+			{#if list.courses.length > 0}
+				<CourseRow titles={list.path} codes={list.courses} />
+			{/if}
+		{/each}
+	{/await}
+</div>

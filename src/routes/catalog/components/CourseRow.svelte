@@ -67,7 +67,7 @@
 	{:then groups}
 		{#each groups as [name, group]}
 			<h1
-				class="mb-2 flex flex-row items-baseline space-x-4 text-2xl font-semibold text-content-primary"
+				class="mb-2 flex flex-row items-baseline space-x-4 text-2xl font-medium text-content-primary"
 			>
 				<div class="flex flex-row items-baseline space-x-2">
 					{#each titles as title}

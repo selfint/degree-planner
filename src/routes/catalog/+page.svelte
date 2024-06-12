@@ -10,7 +10,7 @@
 </script>
 
 <div class="m-3">
-	<CourseRow colorize={false} titles={['Wishlist']} codes={$wishlist} />
+	<CourseRow colorize={false} titles={['Wish list']} codes={$wishlist} />
 	{#await lists}
 		<div class="text-content-secondary">Loading...</div>
 	{:then lists}

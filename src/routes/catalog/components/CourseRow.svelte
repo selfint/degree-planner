@@ -24,7 +24,16 @@
 		codes: string[]
 	): Promise<[string, Course[]][]> {
 		const courses = await Promise.all(codes.map(getCourseData)).then(
-			(courses) => courses.toSorted((a, b) => (b.median ?? 0) - (a.median ?? 0))
+			(courses) =>
+				courses.toSorted((a, b) => {
+					const medians = (b.median ?? 0) - (a.median ?? 0);
+
+					if (medians !== 0) {
+						return medians;
+					}
+
+					return a.code.localeCompare(b.code);
+				})
 		);
 
 		const maxGroupSize = 30;
@@ -44,6 +53,10 @@
 			groups.push([name, group]);
 		}
 
+		if (groups.length === 0) {
+			groups.push(['', []]);
+		}
+
 		return groups;
 	}
 </script>
@@ -54,26 +67,25 @@
 	{:then groups}
 		{#each groups as [name, group]}
 			<h1
-				class="mb-2 flex w-full max-w-full flex-row items-baseline space-x-1 font-medium text-content-primary"
+				class="mb-2 flex flex-row items-baseline space-x-4 text-2xl font-semibold text-content-primary"
 			>
-				{#each titles as title}
-					<div
-						style={colorize
-							? 'background: ' + generateRequirementColor(title)
-							: ''}
-						class="h-fit rounded-md pb-0.5 pl-2 pr-2 leading-none"
-					>
-						<span class="w-fit leading-none">
+				<div class="flex flex-row items-baseline space-x-2">
+					{#each titles as title}
+						<div
+							style="background: {generateRequirementColor(title)}"
+							class="h-4 w-4 rounded-full"
+						/>
+						<span class="w-fit pr-2">
 							{formatName(title)}
 						</span>
-					</div>
-				{/each}
-
-				<div>
-					<span class="text-content-secondary">{name}</span>
+					{/each}
 				</div>
+
+				<span class="ml-2 font-normal text-content-secondary">
+					{name}
+				</span>
 			</h1>
-			<div class="mb-2 flex w-full flex-row space-x-2 overflow-x-auto">
+			<div class="mb-4 flex w-full flex-row space-x-2 overflow-x-auto">
 				{#each group as course, i}
 					<div
 						class="container w-fit"

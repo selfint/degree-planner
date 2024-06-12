@@ -1,7 +1,7 @@
 <script lang="ts">
 	import CourseRow from './components/CourseRow.svelte';
 
-	import { degreeData } from '$lib/stores';
+	import { degreeData, wishlist } from '$lib/stores';
 	import { getDegreeRequirementCourses } from '$lib/requirements';
 
 	const lists = $degreeData?.then((d) =>
@@ -10,6 +10,7 @@
 </script>
 
 <div class="m-3">
+	<CourseRow colorize={false} titles={['Wishlist']} codes={$wishlist} />
 	{#await lists}
 		<div class="text-content-secondary">Loading...</div>
 	{:then lists}

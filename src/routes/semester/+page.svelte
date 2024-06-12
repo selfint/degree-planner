@@ -68,7 +68,9 @@
 		return courseStudyDays;
 	}
 
-	const semester = Promise.all($semesters[$currentSemester].map(getCourseData));
+	const semester = Promise.all(
+		$semesters.at($currentSemester)?.map(getCourseData) ?? []
+	);
 </script>
 
 <div class="m-3">
@@ -76,6 +78,7 @@
 		<p>Loading...</p>
 	{:then semester}
 		<div class="w-fit">
+			<div class="w-[220px]" />
 			<div class="mb-2 flex flex-row items-baseline justify-between">
 				<h1
 					class="border-b-2 border-b-transparent text-2xl font-medium text-content-primary"

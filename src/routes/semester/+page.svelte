@@ -193,8 +193,8 @@
 	}
 </script>
 
-<div class="m-3 w-full">
-	<div class="flex w-full flex-row space-x-4">
+<div class="m-3 flex flex-row items-start">
+	<div class="sticky top-[75px]">
 		<Semester index={$currentSemester} courses={semester}>
 			<div slot="header" let:data>
 				<div class="flex flex-row items-baseline justify-between">
@@ -242,6 +242,8 @@
 				/>
 			</div>
 		</Semester>
+	</div>
+	<div class="m-3 w-full">
 		{#await getLoLoCo()}
 			Loading...
 		{:then loloco}
@@ -301,3 +303,9 @@
 		{/await}
 	</div>
 </div>
+
+<style>
+	:global(body) {
+		overscroll-behavior: none;
+	}
+</style>

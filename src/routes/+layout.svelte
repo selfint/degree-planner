@@ -15,14 +15,13 @@
 	}
 </script>
 
-<div class="fixed left-0 top-0 z-50 h-16 w-full bg-background">
+<div class="sticky left-0 top-0 z-50 h-16 w-full bg-background">
 	<TitleBar
 		username={$username}
 		{onGetStarted}
 		onSearch={(query) => goto(`/search?q=${query}`)}
 	/>
 </div>
-<div class="pb-16" />
 
 <slot />
 

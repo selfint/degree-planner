@@ -29,5 +29,6 @@
 <style lang="postcss">
 	:global(body) {
 		@apply bg-background;
+		overscroll-behavior: none;
 	}
 </style>

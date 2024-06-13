@@ -193,8 +193,8 @@
 	}
 </script>
 
-<div class="m-3 flex flex-row items-start">
-	<div class="sticky top-[75px]">
+<div class="m-3 flex flex-row items-start space-x-4">
+	<div class="sticky top-[76px]">
 		<Semester index={$currentSemester} courses={semester}>
 			<div slot="header" let:data>
 				<div class="flex flex-row items-baseline justify-between">
@@ -243,11 +243,11 @@
 			</div>
 		</Semester>
 	</div>
-	<div class="m-3 w-full">
+	<div class="flex-1 overflow-x-auto">
 		{#await getLoLoCo()}
 			Loading...
 		{:then loloco}
-			<div class="w-full">
+			<div class="">
 				<LoLoCo {loloco}>
 					<h1
 						slot="header"

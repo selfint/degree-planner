@@ -1,28 +1,22 @@
 <script lang="ts">
+	import CourseElement from '$lib/components/CourseElement.svelte';
+	import Semester from './components/Semester.svelte';
+
 	import {
 		semesters,
 		degreeData,
 		currentSemester,
 		wishlist
 	} from '$lib/stores';
-
 	import { getCourseData } from '$lib/courseData';
-
 	import { generateCourseColor } from '$lib/colors';
-
-	import CourseElement from '$lib/components/CourseElement.svelte';
 	import { getCourseLists } from '$lib/requirements';
 
-	function getAvgMedian(courses: Course[]): number {
-		// @ts-expect-error
-		const medians: number[] = courses
-			.map((c) => c.median)
-			.filter((m) => m !== undefined);
+	const semester = Promise.all(
+		$semesters.at($currentSemester)?.map(getCourseData) ?? []
+	);
 
-		return medians.length > 0
-			? Math.round((medians.reduce((a, b) => a + b) / medians.length) * 10) / 10
-			: 0;
-	}
+	const loloco = semester.then((semester) => {});
 
 	function getStudyDays(courses: Course[], test: 0 | 1): [Course, number][] {
 		// TODO: get semester end date and use it to calculate
@@ -68,73 +62,71 @@
 		return courseStudyDays;
 	}
 
-	const semester = Promise.all(
-		$semesters.at($currentSemester)?.map(getCourseData) ?? []
-	);
+	function courseDependenciesSatisfied(course: Course): boolean {
+		const previousCourses = $semesters.slice(0, $currentSemester).flat();
+
+		const dependencies = course.connections?.dependencies ?? [];
+
+		const ok =
+			dependencies.length === 0 ||
+			dependencies.some((dependencyGroup) =>
+				dependencyGroup.every((dependency) =>
+					previousCourses.some((code) => code === dependency)
+				)
+			);
+
+		console.log([course, dependencies, ok]);
+
+		return ok;
+	}
 </script>
 
-<div class="m-3">
-	{#await semester}
-		<p>Loading...</p>
-	{:then semester}
-		<div class="w-fit">
-			<div class="w-[220px]" />
-			<div class="mb-2 flex flex-row items-baseline justify-between">
+<div class="m-3 flex flex-row space-x-4">
+	<Semester index={$currentSemester} courses={semester}>
+		<div slot="header" let:data>
+			<div class="flex flex-row items-baseline justify-between">
 				<h1
 					class="border-b-2 border-b-transparent text-2xl font-medium text-content-primary"
 				>
-					{['Winter', 'Spring', 'Summer'][$currentSemester % 3]}
-					{Math.floor($currentSemester / 3) + 1}
+					{data.title}
 				</h1>
-
 				<div
 					class="flex flex-row items-baseline justify-end space-x-1 text-content-secondary"
 				>
-					<span>
-						{semester
-							.map((c) => c.tests)
-							.filter((t) => t !== undefined && t.length > 0).length}
-					</span>
-					<span>
-						{getAvgMedian(semester)}
-					</span>
-					<span>
-						{semester.reduce((a, b) => a + (b.points ?? 0), 0)}
-					</span>
+					<span>{data.tests}</span>
+					<span>{data.avg}</span>
+					<span>{data.points}</span>
 				</div>
 			</div>
-			<div class="mb-4 w-full space-y-1">
-				<div class="flex flex-row flex-wrap text-content-primary">
-					{#each getStudyDays(semester, 0) as [course, days]}
-						<div
-							style="background: {generateCourseColor(course)}"
-							class="mb-1 mr-0.5 w-6 p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
-						>
-							{days}
-						</div>
-					{/each}
-				</div>
-				<div class="flex w-full flex-row flex-wrap text-content-primary">
-					{#each getStudyDays(semester, 1) as [course, days]}
-						<div
-							style="background: {generateCourseColor(course)}"
-							class="mb-1 mr-0.5 w-6 p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
-						>
-							{days}
-						</div>
-					{/each}
-				</div>
+			<div class="flex flex-row flex-wrap text-content-primary">
+				{#each data.first as [course, days]}
+					<div
+						style="background: {generateCourseColor(course)}"
+						class="mb-1 mr-0.5 w-6 p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
+					>
+						{days}
+					</div>
+				{/each}
 			</div>
-			<div class="flex flex-col space-y-2">
-				{#each semester as course}
-					<CourseElement
-						{course}
-						requirements={$degreeData?.then((d) =>
-							getCourseLists(d.requirements, course.code)
-						)}
-					/>
+			<div class="flex flex-row flex-wrap text-content-primary">
+				{#each data.second as [course, days]}
+					<div
+						style="background: {generateCourseColor(course)}"
+						class="mb-1 mr-0.5 w-6 p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
+					>
+						{days}
+					</div>
 				{/each}
 			</div>
 		</div>
-	{/await}
+
+		<div slot="course" let:course>
+			<CourseElement
+				{course}
+				requirements={$degreeData?.then((d) =>
+					getCourseLists(d.requirements, course.code)
+				)}
+			/>
+		</div>
+	</Semester>
 </div>

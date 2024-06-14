@@ -96,7 +96,7 @@
 
 <div class="m-3">
 	<div
-		class="mb-4 min-h-[118px] w-full"
+		class="mb-4 min-h-[118px]"
 		on:dragenter={(e) => {
 			if (e.dataTransfer?.types.includes('text/x-course')) {
 				e.preventDefault();
@@ -118,7 +118,7 @@
 		tabindex={0}
 	>
 		<h1 class="mb-2 text-2xl font-medium text-content-primary">Wish list</h1>
-		<div class="flex flex-row space-x-2">
+		<div class="flex flex-row space-x-2 overflow-x-auto">
 			{#await Promise.all($wishlist.map(getCourseData)) then courses}
 				{#each courses as course, i}
 					<div

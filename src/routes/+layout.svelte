@@ -3,8 +3,11 @@
 
 	import '../app.css';
 
-	import { username } from '$lib/stores';
+	import { username, storesHook, loadStores } from '$lib/stores';
 	import { goto } from '$app/navigation';
+	import { onMount } from 'svelte';
+
+	import { browser } from '$app/environment';
 
 	import TitleBar from '$lib/components/TitleBar.svelte';
 
@@ -13,6 +16,14 @@
 	function onGetStarted() {
 		goto('/user');
 	}
+
+	onMount(() => {
+		if (browser) {
+			loadStores();
+		}
+
+		storesHook();
+	});
 </script>
 
 <div class="sticky left-0 top-0 z-50 h-16 w-full bg-background">

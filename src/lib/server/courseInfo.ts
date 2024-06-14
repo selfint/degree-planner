@@ -59,7 +59,7 @@ export function getPoints(doc: Document | undefined): number | undefined {
 		return undefined;
 	}
 
-	const match = text.match(/(\d+)\s+נקודות אקדמיות/);
+	const match = text.match(/((?:\d+)(?:\.\d+)?)\s+נקודות אקדמיות/);
 
 	if (match) {
 		const points = match[1];

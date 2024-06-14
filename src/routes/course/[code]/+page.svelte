@@ -2,6 +2,8 @@
 	import { page } from '$app/stores';
 	import { getCourseData } from '$lib/courseData';
 
+	import { goto } from '$app/navigation';
+
 	import {
 		currentSemester,
 		degreeData,
@@ -18,7 +20,7 @@
 	import CourseElement from '$lib/components/CourseElement.svelte';
 
 	// get code from path params
-	const { code } = $page.params;
+	$: code = $page.params.code;
 
 	const requirements = $degreeData?.then((d) =>
 		getCourseLists(d.requirements, code)
@@ -154,13 +156,25 @@
 							{/if}
 							<div class="space-y-1">
 								{#each group as dep}
-									{#await getCourseData(dep) then c}
-										<CourseElement
-											course={c}
-											requirements={$degreeData?.then((d) =>
-												getCourseLists(d.requirements, c.code)
-											)}
-										/>
+									{#await getCourseData(dep) then dep}
+										<div
+											class="container w-fit"
+											tabindex={i}
+											role="button"
+											on:click={() => goto(`/course/${dep.code}`)}
+											on:keydown={(e) => {
+												if (e.key === 'Enter') {
+													goto(`/course/${dep.code}`);
+												}
+											}}
+										>
+											<CourseElement
+												course={dep}
+												requirements={$degreeData?.then((d) =>
+													getCourseLists(d.requirements, dep.code)
+												)}
+											/>
+										</div>
 									{/await}
 								{/each}
 							</div>

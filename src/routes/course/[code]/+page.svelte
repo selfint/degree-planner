@@ -19,7 +19,6 @@
 	import Button from '$lib/components/Button.svelte';
 	import CourseElement from '$lib/components/CourseElement.svelte';
 
-	// get code from path params
 	$: code = $page.params.code;
 
 	const requirements = $degreeData?.then((d) =>

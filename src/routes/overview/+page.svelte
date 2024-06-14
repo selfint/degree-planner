@@ -14,6 +14,11 @@
 	import { getProgress } from '$lib/progress';
 	import { generateCourseColor } from '$lib/colors';
 	import { goto } from '$app/navigation';
+	import ScheduleError from './components/ScheduleError.svelte';
+
+	function formatName(name: string | undefined): string | undefined {
+		return name?.split('-').at(1);
+	}
 
 	function getAvgMedian(courses: Course[]): number {
 		// @ts-expect-error
@@ -113,10 +118,8 @@
 		tabindex={0}
 	>
 		<h1 class="mb-2 text-2xl font-medium text-content-primary">Wish list</h1>
-		<div class="flex flex-row space-x-2 overflow-x-auto">
-			{#await Promise.all($wishlist.map(getCourseData))}
-				<div class="text-content-secondary">Loading...</div>
-			{:then courses}
+		<div class="flex flex-row space-x-2">
+			{#await Promise.all($wishlist.map(getCourseData)) then courses}
 				{#each courses as course, i}
 					<div
 						class="container w-fit"
@@ -144,131 +147,188 @@
 		</div>
 	</div>
 	<div class="flex flex-row space-x-3">
-		{#each $semesters as semester, i}
-			<div
-				class="w-fit space-y-2"
-				on:dragenter={(e) => {
-					if (e.dataTransfer?.types.includes('text/x-course')) {
-						e.preventDefault();
-					}
-				}}
-				on:dragover|preventDefault={(e) => {
-					if (e.dataTransfer !== null) {
-						e.dataTransfer.dropEffect = 'move';
-					}
-				}}
-				on:dragleave|preventDefault
-				on:drop|preventDefault={(e) => {
-					const code = e.dataTransfer?.getData('text/x-course');
-					if (code !== undefined) {
-						moveCourseToSemester(code, i);
-					}
-				}}
-				role="button"
-				tabindex={i}
-			>
-				<div class="w-[220px]" />
-				<div class="flex min-w-full flex-row items-baseline justify-between">
+		{#key $semesters.flat().join(' ')}
+			{#each $semesters as semester, i}
+				<div
+					class="w-fit space-y-2"
+					on:dragenter={(e) => {
+						if (e.dataTransfer?.types.includes('text/x-course')) {
+							e.preventDefault();
+						}
+					}}
+					on:dragover|preventDefault={(e) => {
+						if (e.dataTransfer !== null) {
+							e.dataTransfer.dropEffect = 'move';
+						}
+					}}
+					on:dragleave|preventDefault
+					on:drop|preventDefault={(e) => {
+						const code = e.dataTransfer?.getData('text/x-course');
+						if (code !== undefined) {
+							moveCourseToSemester(code, i);
+						}
+					}}
+					role="button"
+					tabindex={i}
+				>
+					<div class="w-[220px]" />
+					<div class="flex min-w-full flex-row items-baseline justify-between">
+						{#if i === $currentSemester}
+							<h1
+								class="border-b-2 border-b-accent-primary text-2xl font-medium text-content-primary"
+							>
+								{['Winter', 'Spring', 'Summer'][i % 3]}
+								{Math.floor(i / 3) + 1}
+							</h1>
+						{:else}
+							<h1
+								class="border-b-2 border-b-transparent text-2xl font-medium text-content-primary"
+							>
+								{['Winter', 'Spring', 'Summer'][i % 3]}
+								{Math.floor(i / 3) + 1}
+							</h1>
+						{/if}
+
+						<div
+							class="flex flex-row items-baseline justify-end space-x-1 text-content-secondary"
+						>
+							{#await Promise.all(semester.map(getCourseData)) then data}
+								<span>
+									{data
+										.map((c) => c.tests)
+										.filter((t) => t !== undefined && t.length > 0).length}
+								</span>
+								<span>
+									{getAvgMedian(data)}
+								</span>
+								<span>
+									{data.reduce((a, b) => a + (b.points ?? 0), 0)}
+								</span>
+							{/await}
+						</div>
+					</div>
+
 					{#if i === $currentSemester}
-						<h1
-							class="border-b-2 border-b-accent-primary text-2xl font-medium text-content-primary"
-						>
-							{['Winter', 'Spring', 'Summer'][i % 3]}
-							{Math.floor(i / 3) + 1}
-						</h1>
-					{:else}
-						<h1
-							class="border-b-2 border-b-transparent text-2xl font-medium text-content-primary"
-						>
-							{['Winter', 'Spring', 'Summer'][i % 3]}
-							{Math.floor(i / 3) + 1}
-						</h1>
+						{#await Promise.all(semester.map(getCourseData)) then courses}
+							<div class="w-full space-y-1">
+								<div class="flex flex-row flex-wrap text-content-primary">
+									{#each getStudyDays(courses, 0) as [course, days]}
+										<div
+											style="background: {generateCourseColor(course)}"
+											class="mb-1 mr-0.5 w-6 p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
+										>
+											{days}
+										</div>
+									{/each}
+								</div>
+								<div
+									class="flex w-full flex-row flex-wrap text-content-primary"
+								>
+									{#each getStudyDays(courses, 1) as [course, days]}
+										<div
+											style="background: {generateCourseColor(course)}"
+											class="mb-1 mr-0.5 w-6 p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
+										>
+											{days}
+										</div>
+									{/each}
+								</div>
+							</div>
+						{/await}
 					{/if}
 
-					<div
-						class="flex flex-row items-baseline justify-end space-x-1 text-content-secondary"
-					>
-						{#await Promise.all(semester.map(getCourseData))}
-							<span>_</span>
-							<span>_</span>
-							<span>_</span>
-						{:then data}
-							<span>
-								{data
-									.map((c) => c.tests)
-									.filter((t) => t !== undefined && t.length > 0).length}
-							</span>
-							<span>
-								{getAvgMedian(data)}
-							</span>
-							<span>
-								{data.reduce((a, b) => a + (b.points ?? 0), 0)}
-							</span>
-						{/await}
+					<div class="flex w-[220px] flex-col space-y-2">
+						{#each $semesters[i] as code, j}
+							{#await getCourseData(code) then course}
+								<div
+									class="container rounded-md bg-card-secondary"
+									draggable="true"
+									tabindex={j}
+									role="button"
+									on:dragstart={(e) => {
+										if (e.dataTransfer !== null) {
+											e.dataTransfer.setData('text/x-course', code);
+											e.dataTransfer.effectAllowed = 'move';
+										}
+									}}
+									on:click={() => goto(`/course/${course.code}`)}
+									on:keydown={(e) => {
+										if (e.key === 'Enter') {
+											goto(`/course/${course.code}`);
+										}
+									}}
+								>
+									<CourseElement
+										{course}
+										requirements={$degreeData?.then((d) =>
+											getCourseLists(d.requirements, course.code)
+										)}
+									/>
+
+									<div class="text-xs">
+										<ScheduleError {course} index={i} semesters={$semesters}>
+											<div
+												slot="dep"
+												let:course={dep}
+												let:taken
+												class="text-content-primary"
+											>
+												<div class="flex flex-row justify-between">
+													<div>
+														{#if taken}
+															<span dir="rtl" class="line-through">
+																{formatName(dep.name)}
+															</span>
+														{:else}
+															<span dir="rtl">
+																{formatName(dep.name)}
+															</span>
+														{/if}
+														<span class="text-content-secondary">
+															{dep.code}
+														</span>
+													</div>
+													<div
+														style="background: {generateCourseColor(dep)}"
+														class="h-4 w-4 {dep.tests ? 'rounded-full' : ''}"
+													/>
+												</div>
+											</div>
+											<div
+												slot="adj"
+												let:course={adj}
+												let:taken
+												class="text-content-primary"
+											>
+												<div class="flex flex-row justify-between">
+													<div>
+														{#if taken}
+															<span dir="rtl" class="line-through">
+																{formatName(adj.name)}
+															</span>
+														{:else}
+															<span dir="rtl">
+																{formatName(adj.name)}
+															</span>
+														{/if}
+														<span class="text-content-secondary">
+															{adj.code}
+														</span>
+													</div>
+													<div
+														style="background: {generateCourseColor(adj)}"
+														class="h-4 w-4 {adj.tests ? 'rounded-full' : ''}"
+													/>
+												</div>
+											</div>
+										</ScheduleError>
+									</div>
+								</div>
+							{/await}
+						{/each}
 					</div>
 				</div>
-
-				{#if i === $currentSemester}
-					{#await Promise.all(semester.map(getCourseData))}
-						<div />
-					{:then courses}
-						<div class="w-full space-y-1">
-							<div class="flex flex-row flex-wrap text-content-primary">
-								{#each getStudyDays(courses, 0) as [course, days]}
-									<div
-										style="background: {generateCourseColor(course)}"
-										class="mb-1 mr-0.5 w-6 p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
-									>
-										{days}
-									</div>
-								{/each}
-							</div>
-							<div class="flex w-full flex-row flex-wrap text-content-primary">
-								{#each getStudyDays(courses, 1) as [course, days]}
-									<div
-										style="background: {generateCourseColor(course)}"
-										class="mb-1 mr-0.5 w-6 p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
-									>
-										{days}
-									</div>
-								{/each}
-							</div>
-						</div>
-					{/await}
-				{/if}
-
-				<div class="flex flex-col space-y-2">
-					{#each semester as code, j}
-						{#await getCourseData(code) then course}
-							<div
-								class="container"
-								draggable="true"
-								tabindex={j}
-								role="button"
-								on:dragstart={(e) => {
-									if (e.dataTransfer !== null) {
-										e.dataTransfer.setData('text/x-course', code);
-										e.dataTransfer.effectAllowed = 'move';
-									}
-								}}
-								on:click={() => goto(`/course/${course.code}`)}
-								on:keydown={(e) => {
-									if (e.key === 'Enter') {
-										goto(`/course/${course.code}`);
-									}
-								}}
-							>
-								<CourseElement
-									{course}
-									requirements={$degreeData?.then((d) =>
-										getCourseLists(d.requirements, course.code)
-									)}
-								/>
-							</div>
-						{/await}
-					{/each}
-				</div>
-			</div>
-		{/each}
+			{/each}
+		{/key}
 	</div>
 </div>

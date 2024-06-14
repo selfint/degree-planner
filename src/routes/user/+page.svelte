@@ -31,27 +31,17 @@
 		$degree = newDegree;
 		$degreeData = newDegreeData;
 
-		// if the user has already selected semesters, we should use those
-		if ($semesters.length > 0) {
-			$degreeProgress = newDegreeData.then((data) =>
-				getProgress($semesters, getCourseData, data.requirements)
+		$degreeProgress = newDegreeData.then((data) =>
+			getProgress($semesters, getCourseData, data.requirements)
+		);
+		newDegreeData.then((data) => {
+			$semesters = data.recommended;
+			$degreeProgress = getProgress(
+				$semesters,
+				getCourseData,
+				data.requirements
 			);
-		}
-
-		// if the user hasn't selected semesters, we should use the recommended ones
-		else {
-			$degreeProgress = newDegreeData.then((data) =>
-				getProgress($semesters, getCourseData, data.requirements)
-			);
-			newDegreeData.then((data) => {
-				$semesters = data.recommended;
-				$degreeProgress = getProgress(
-					$semesters,
-					getCourseData,
-					data.requirements
-				);
-			});
-		}
+		});
 
 		// cache the courses for the degree
 		newDegreeData.then((data) => cacheDegreeCourses(data));

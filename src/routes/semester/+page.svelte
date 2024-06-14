@@ -85,9 +85,13 @@
 		const currentSemesterCourses = await semester;
 		function sortCourses(courses: Course[]): Course[] {
 			return courses
-				.filter((c) => !currentSemesterCourses.some((cc) => cc.code === c.code))
 				.filter(
 					(c) =>
+						true || !currentSemesterCourses.some((cc) => cc.code === c.code)
+				)
+				.filter(
+					(c) =>
+						true ||
 						Math.min(
 							...getStudyDays(currentSemesterCourses.concat(c), 0).map(
 								([_, d]) => d
@@ -275,9 +279,9 @@
 									{#each getStudyDays(semester.concat(course), 0) as [c, days]}
 										<div
 											style="background: {generateCourseColor(c)}"
-											class="mb-1 mr-0.5 w-6 {c.code === course.code
-												? 'border border-content-primary'
-												: ''} p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
+											class="mb-1 mr-0.5 w-6 border {c.code === course.code
+												? 'border-content-primary'
+												: 'border-transparent'} p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
 										>
 											{days}
 										</div>
@@ -287,9 +291,9 @@
 									{#each getStudyDays(semester.concat(course), 1) as [c, days]}
 										<div
 											style="background: {generateCourseColor(c)}"
-											class="mb-1 mr-0.5 w-6 {c.code === course.code
-												? 'border border-content-primary'
-												: ''} p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
+											class="mb-1 mr-0.5 w-6 border {c.code === course.code
+												? 'border-content-primary'
+												: 'border-transparent'} p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
 										>
 											{days}
 										</div>

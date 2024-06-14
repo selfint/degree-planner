@@ -144,7 +144,7 @@
 					<h1 class="pb-1 text-lg font-medium text-content-primary">
 						Dependencies
 					</h1>
-					<div class="flex flex-row space-x-2">
+					<div class="flex flex-row space-x-2 overflow-x-auto">
 						{#each course.connections?.dependencies ?? [] as group, i}
 							{#if i !== 0 && group.length > 0}
 								<p
@@ -186,7 +186,7 @@
 					<h1 class="pb-1 text-lg font-medium text-content-primary">
 						Adjacencies
 					</h1>
-					<div class="flex flex-row space-x-2">
+					<div class="flex flex-row space-x-2 overflow-x-auto">
 						{#each course.connections?.adjacent ?? [] as adj}
 							{#await getCourseData(adj) then c}
 								<CourseElement

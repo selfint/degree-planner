@@ -145,7 +145,7 @@
 					</h1>
 					<div class="flex flex-row space-x-2">
 						{#each course.connections?.dependencies ?? [] as group, i}
-							{#if i !== 0}
+							{#if i !== 0 && group.length > 0}
 								<p
 									class="flex flex-col justify-center text-sm font-light text-content-secondary"
 								>

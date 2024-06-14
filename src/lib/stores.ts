@@ -1,4 +1,7 @@
 import { writable, get } from 'svelte/store';
+import { loadDegreeData } from './requirements';
+import { getProgress } from './progress';
+import { getCourseData } from './courseData';
 
 export const username = writable<string | undefined>(undefined);
 export const degree = writable<Degree | undefined>(undefined);
@@ -59,6 +62,17 @@ export function loadStores() {
 
 	if (_degree !== null) {
 		degree.set(JSON.parse(_degree));
+		const _degreeData = loadDegreeData(JSON.parse(_degree));
+		degreeData.set(_degreeData);
+		degreeProgress.set(
+			_degreeData.then((data) =>
+				getProgress(
+					JSON.parse(_semesters ?? '[]'),
+					getCourseData,
+					data.requirements
+				)
+			)
+		);
 	}
 
 	if (_semesters !== null) {

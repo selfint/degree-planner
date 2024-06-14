@@ -122,6 +122,7 @@ export function getConnections(
 		dependenciesElement?.textContent
 			?.split(or)
 			.map(parseCatalog)
+			.map((groups) => groups.filter((g) => g.length > 0))
 			.map((g) => [...new Set(g)]) ?? [];
 	const adjacent = parseCatalog(adjacentElement?.textContent ?? '');
 	const exclusive =

@@ -6,17 +6,21 @@
 	export let semesters: string[][];
 
 	const semester = semesters[index];
-	const previous = semesters.slice(0, index);
-
-	let dep: Promise<Course[][]> = (async () => [])();
-	let adjacency: Promise<Course[]> = (async () => [])();
+	const previous = semesters.slice(0, index).flat();
 
 	function dependencyTaken(course: Course): boolean {
-		return previous.flat().includes(course.code);
+		return (
+			previous.includes(course.code) ||
+			(course.connections?.exclusive ?? []).some((c) => previous.includes(c))
+		);
 	}
 
 	function adjacencyTaken(course: Course): boolean {
-		return dependencyTaken(course) || semester.includes(course.code);
+		return (
+			dependencyTaken(course) ||
+			semester.includes(course.code) ||
+			(course.connections?.exclusive ?? []).some((c) => semester.includes(c))
+		);
 	}
 
 	const dependencies = Promise.all(

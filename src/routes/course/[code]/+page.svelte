@@ -15,6 +15,7 @@
 
 	import { generateRequirementColor, generateCourseColor } from '$lib/colors';
 	import Button from '$lib/components/Button.svelte';
+	import CourseElement from '$lib/components/CourseElement.svelte';
 
 	// get code from path params
 	const { code } = $page.params;
@@ -65,9 +66,14 @@
 				{formatCourseName(course.name ?? code)}
 			</span>
 
-			<span class="text-content-secondary">
-				{course.code}
-			</span>
+			<a
+				href={`https://students.technion.ac.il/local/technionsearch/course/${code}`}
+				target="_blank"
+			>
+				<span class="text-content-secondary">
+					{course.code}
+				</span>
+			</a>
 		</h1>
 
 		<div class="mb-4 flex flex-row items-center space-x-1">
@@ -129,4 +135,58 @@
 			{/if}
 		</div>
 	{/await}
+
+	<div class="mt-4">
+		{#await getCourseData(code) then course}
+			{#if (course.connections?.dependencies ?? []).length !== 0}
+				<div class="pb-4">
+					<h1 class="pb-1 text-lg font-medium text-content-primary">
+						Dependencies
+					</h1>
+					<div class="flex flex-row space-x-2">
+						{#each course.connections?.dependencies ?? [] as group, i}
+							{#if i !== 0}
+								<p
+									class="flex flex-col justify-center text-sm font-light text-content-secondary"
+								>
+									OR
+								</p>
+							{/if}
+							<div class="space-y-1">
+								{#each group as dep}
+									{#await getCourseData(dep) then c}
+										<CourseElement
+											course={c}
+											requirements={$degreeData?.then((d) =>
+												getCourseLists(d.requirements, c.code)
+											)}
+										/>
+									{/await}
+								{/each}
+							</div>
+						{/each}
+					</div>
+				</div>
+			{/if}
+			{#if (course.connections?.adjacent ?? []).length !== 0}
+				<div>
+					<h1 class="pb-1 text-lg font-medium text-content-primary">
+						Adjacencies
+					</h1>
+					<div class="flex flex-row space-x-2">
+						{#each course.connections?.adjacent ?? [] as adj}
+							{#await getCourseData(adj) then c}
+								<CourseElement
+									course={c}
+									requirements={$degreeData?.then((d) =>
+										getCourseLists(d.requirements, c.code)
+									)}
+								/>
+							{/await}
+						{/each}
+					</div>
+				</div>
+			{/if}
+		{/await}
+	</div>
 </div>

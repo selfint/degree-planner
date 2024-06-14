@@ -58,7 +58,7 @@ describe('Course Info', () => {
 
 		const points = getPoints(doc);
 		expect(points).toBeDefined();
-		expect(points).toStrictEqual(3);
+		expect(points).toStrictEqual(3.5);
 	});
 
 	it('Gets the course name', async () => {

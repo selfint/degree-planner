@@ -5,7 +5,8 @@
 		degreeData,
 		semesters,
 		degreeProgress,
-		currentSemester
+		currentSemester,
+		wishlist
 	} from '$lib/stores';
 
 	import { getCourseData, cacheDegreeCourses } from '$lib/courseData';
@@ -30,6 +31,9 @@
 		const newDegreeData = loadDegreeData(newDegree);
 		$degree = newDegree;
 		$degreeData = newDegreeData;
+
+		// reset wishlist
+		$wishlist = [];
 
 		$degreeProgress = newDegreeData.then((data) =>
 			getProgress($semesters, getCourseData, data.requirements)

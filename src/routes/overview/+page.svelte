@@ -146,7 +146,7 @@
 			{/await}
 		</div>
 	</div>
-	<div class="flex flex-row space-x-3">
+	<div class="flex flex-row space-x-3 overflow-x-auto">
 		{#key $semesters.flat().join(' ')}
 			{#each $semesters as semester, i}
 				<div

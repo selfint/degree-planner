@@ -28,6 +28,6 @@
 <style lang="postcss">
 	:global(body) {
 		@apply bg-background;
-		overscroll-behavior: none;
+		overscroll-behavior-y: none;
 	}
 </style>

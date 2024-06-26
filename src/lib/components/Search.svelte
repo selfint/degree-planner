@@ -11,9 +11,9 @@
 </script>
 
 <div
-	class="flex h-fit w-fit min-w-64 flex-row items-center justify-start space-x-2 rounded-md bg-card-primary pb-1 pl-3 pr-3 pt-1 {textStyle}"
+	class="flex h-fit flex-row items-center justify-start space-x-2 rounded-md bg-card-primary pb-1 pl-3 pr-3 pt-1 lg:min-w-64 {textStyle}"
 >
-	<SearchIcon class="h-3 w-fit" />
+	<SearchIcon class="h-3" />
 	<form on:submit|preventDefault={() => onSearch(query)}>
 		<input
 			type="text"

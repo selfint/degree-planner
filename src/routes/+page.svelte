@@ -3,8 +3,8 @@
 	import Button from '$lib/components/Button.svelte';
 </script>
 
-<div class="mt-32 flex flex-col justify-center lg:flex-row">
-	<h1 class="mr-8 w-full text-6xl text-content-primary lg:w-1/3 lg:text-6xl">
+<div class="ml-3 mr-3 flex flex-col justify-center lg:mt-32 lg:flex-row">
+	<h1 class="mb-2 mr-8 w-full text-6xl text-content-primary lg:w-1/3">
 		<span class="w-fit">Plan your courses</span>
 		<br class="hidden lg:block" />
 		<span class="gradient w-fit">with confidence.</span>

@@ -3,14 +3,14 @@
 	import Button from '$lib/components/Button.svelte';
 </script>
 
-<div class="mt-32 flex flex-row justify-center">
-	<h1 class="mr-8 w-1/3 text-7xl text-content-primary">
+<div class="mt-32 flex flex-col justify-center lg:flex-row">
+	<h1 class="mr-8 w-full text-6xl text-content-primary lg:w-1/3 lg:text-6xl">
 		<span class="w-fit">Plan your courses</span>
-		<br />
+		<br class="hidden lg:block" />
 		<span class="gradient w-fit">with confidence.</span>
 	</h1>
 
-	<div class="w-1/4">
+	<div class="lg:w-1/4">
 		<p class="mb-8 text-xl text-content-secondary">
 			Setup a plan for your entire degree that fits your interests and maximizes
 			your potential. Get personalized suggestions each semester for the optimal

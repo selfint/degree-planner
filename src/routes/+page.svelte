@@ -26,12 +26,12 @@
 
 <style>
 	.circle {
-		width: 2700px;
+		width: 350%;
 		height: 2000px;
 		border-radius: 50%;
 		position: absolute;
 		top: 400px;
-		left: -1300px;
+		left: -250%;
 		background: radial-gradient(#4ca9a1 1%, rgba(0, 0, 0, 0) 70%);
 		z-index: -1;
 	}

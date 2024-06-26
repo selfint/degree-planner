@@ -198,7 +198,7 @@
 </script>
 
 <div class="m-3 flex flex-row items-start space-x-4">
-	<div class="sticky top-[76px]">
+	<div class="sticky top-0">
 		<Semester index={$currentSemester} courses={semester}>
 			<div slot="header" let:data>
 				<div class="flex flex-row items-baseline justify-between">

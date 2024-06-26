@@ -26,7 +26,7 @@
 	});
 </script>
 
-<div class="sticky left-0 top-0 z-50 h-16 w-full bg-background">
+<div class="w-full bg-background">
 	<TitleBar
 		username={$username}
 		{onGetStarted}

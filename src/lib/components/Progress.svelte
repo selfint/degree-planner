@@ -3,7 +3,7 @@
 	export let max: number;
 	export let color: string | undefined = undefined;
 
-	let p = Math.floor((value / max) * 100);
+	let p = Math.min(100, Math.floor((value / max) * 100));
 </script>
 
 <div class="h-4 w-56 rounded-md bg-card-primary">

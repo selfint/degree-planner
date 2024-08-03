@@ -1,0 +1,1 @@
+{"code":"00460195","median":80.6,"points":3.5,"name":"מערכות לומדות","connections":{"dependencies":[["00440130","01040034"],["01040034","00440131"]],"adjacent":[],"exclusive":[]},"about":"","tests":[{"year":2025,"monthIndex":3,"day":1},{"year":2025,"monthIndex":2,"day":6}]}

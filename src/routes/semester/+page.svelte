@@ -15,6 +15,7 @@
 		getCourseLists,
 		getDegreeRequirementCourses
 	} from '$lib/requirements';
+	import { goto } from '$app/navigation';
 
 	const semester = Promise.all(
 		$semesters.at($currentSemester)?.map(getCourseData) ?? []
@@ -268,6 +269,14 @@
 						slot="course"
 						let:course
 						let:i
+						tabindex={i}
+						role="button"
+						on:click={() => goto(`/course/${course.code}`)}
+						on:keydown={(e) => {
+							if (e.key === 'Enter') {
+								goto(`/course/${course.code}`);
+							}
+						}}
 						class="h-fit rounded-md bg-card-secondary"
 					>
 						<CourseElement

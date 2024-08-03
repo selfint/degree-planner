@@ -17,9 +17,6 @@
 		course.median === undefined ? 'N/A' : Math.round(course.median * 10) / 10;
 
 	const hasTest = course.tests !== undefined && course.tests.length > 0;
-	console.log(
-		`Course ${course.code} has test: ${hasTest} because ${JSON.stringify(course.tests)}`
-	);
 </script>
 
 <div

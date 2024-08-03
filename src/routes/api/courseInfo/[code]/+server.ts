@@ -15,7 +15,6 @@ import { getMedian } from '$lib/server/courseMedian.js';
 const cacheDir = path.resolve('static', '_cache', 'courseData');
 
 export const GET = async ({ params: { code } }) => {
-	console.log('Fetching course info for', code);
 	const studentPage = await getCourseInfo(code);
 
 	if (studentPage === undefined) {

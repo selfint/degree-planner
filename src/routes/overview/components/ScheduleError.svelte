@@ -29,12 +29,12 @@
 		)
 	).then((dep) =>
 		dep
-			.map((g) => g.filter((c) => (c.name ?? '').includes('-')))
+			.map((g) => g.filter((c) => c.name !== undefined))
 			.filter((g) => g.length > 0)
 	);
 	const adjacencies = Promise.all(
 		(course.connections?.adjacent ?? []).map(getCourseData)
-	).then((adj) => adj.filter((c) => (c.name ?? '').includes('-')));
+	).then((adj) => adj.filter((c) => c.name !== undefined));
 
 	const dependenciesSatisfied = (dependencies: Course[][]) =>
 		dependencies.length === 0 ||

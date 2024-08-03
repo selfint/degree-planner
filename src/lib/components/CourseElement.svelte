@@ -25,7 +25,7 @@
 	<div class="flex h-full flex-row items-start justify-between">
 		<div class="min-h-8">
 			<span class="m-0 p-0 text-xs leading-none text-content-primary" dir="rtl">
-				{course.name?.split(' - ')[1] ?? course.code}
+				{course.name ?? course.code}
 			</span>
 			{#if course.name !== undefined}
 				<span class="text-xs leading-none text-content-secondary">

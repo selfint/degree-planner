@@ -1,0 +1,1 @@
+{"code":"00440127","median":81.6,"points":3.5,"name":"יסודות התקני מוליכים למחצה","connections":{"dependencies":[["01040035","01140075"],["01140075","01040220"],["01040220","01140076"]],"adjacent":[],"exclusive":[]},"about":"","tests":[{"year":2025,"monthIndex":2,"day":12},{"year":2025,"monthIndex":1,"day":17}]}

@@ -7,15 +7,22 @@ import {
 	getConnections,
 	getName,
 	getPoints,
-	getStudentsPage,
+	getCourseInfo,
 	getTests
-} from '$lib/server/courseInfo.js';
+} from '$lib/server/courseSAPInfo.js';
 import { getMedian } from '$lib/server/courseMedian.js';
 
 const cacheDir = path.resolve('static', '_cache', 'courseData');
 
 export const GET = async ({ params: { code } }) => {
-	const studentPage = await getStudentsPage(code);
+	console.log('Fetching course info for', code);
+	const studentPage = await getCourseInfo(code);
+
+	if (studentPage === undefined) {
+		return json({
+			code
+		});
+	}
 
 	const info: Course = {
 		code,

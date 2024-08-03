@@ -9,13 +9,12 @@
 		currentSemester,
 		wishlist
 	} from '$lib/stores';
-	import { getCourseData, getAllCourses } from '$lib/courseData';
+	import { getCourseData } from '$lib/courseData';
 	import { generateCourseColor } from '$lib/colors';
 	import {
 		getCourseLists,
 		getDegreeRequirementCourses
 	} from '$lib/requirements';
-	import { stringify } from 'postcss';
 
 	const semester = Promise.all(
 		$semesters.at($currentSemester)?.map(getCourseData) ?? []
@@ -171,6 +170,10 @@
 	}
 
 	function courseCanBeTaken(course: Course): boolean {
+		if (course.name === undefined) {
+			return false;
+		}
+
 		const previousCourses = $semesters.slice(0, $currentSemester).flat();
 
 		if (previousCourses.some((c) => c === course.code)) {

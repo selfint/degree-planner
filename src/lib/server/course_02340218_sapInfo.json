@@ -1,0 +1,947 @@
+{
+	"__metadata": {
+		"id": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM02340218',Peryr='2024',Perid='200',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')",
+		"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM02340218',Peryr='2024',Perid='200',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')",
+		"type": "NVIAS_CDIR_DATA_SRV.SmObject"
+	},
+	"Otjid": "SM02340218",
+	"Points": "3.00000",
+	"Name": "מבני נתונים 1",
+	"OrgText": "הפקולטה למדעי המחשב",
+	"StudyContentDescription": "הקורס יקנה ידע במבני נתונים בסיסיים, באנליזה, ביישומים ובשימושים שונים שלהם. יושם דגש על התאמת מבני הנתונים לצרכי הבעיה הנתונה. סוגי מבנים: חזרה על המבנים הפשוטים (מערכים, רשימות, מחסניות ותורים), רשימות דילוגים, תורי עדיפות, ערמות, עצים דיגיטלים ( SEIRT ). מיון וחיפוש. עצים וגרפים וייצוגיהם. הקצאת זכרון, ערבול, איסוף אשפה.",
+	"ZzAcademicLevelText": "קדם אקדמי/תיכוני",
+	"ZzSemesterNote": "",
+	"Exams": {
+		"results": [
+			{
+				"__metadata": {
+					"id": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/CeObjectSet(Otjid='CE00030371',Peryr='2024',Perid='200',OfferNo='001')",
+					"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/CeObjectSet(Otjid='CE00030371',Peryr='2024',Perid='200',OfferNo='001')",
+					"type": "NVIAS_CDIR_DATA_SRV.CeObject"
+				},
+				"Otjid": "CE00030371",
+				"Peryr": "2024",
+				"Perid": "200",
+				"Category": "מבחן מועד א",
+				"CategoryCode": "FI",
+				"DregDateEnd": "                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              0",
+				"DregDateStart": "0",
+				"ExamBegTime": "PT00H00M00S",
+				"ExamDate": "/Date(1739404800000)/",
+				"ExamEndTime": "PT00H00M00S",
+				"ExamType": "מבחן בכתב",
+				"Name": "מבחן מועד א 02340218",
+				"OfferNo": "001",
+				"Person": "",
+				"PersonOtjid": "",
+				"Points": "3.00000",
+				"PointsMaximum": "3.00000",
+				"PointsMinimum": "3.00000",
+				"RegisDateEnd": "0",
+				"RegisDateStart": "0",
+				"RoomName": "",
+				"RoomOtjid": "",
+				"Seark": "",
+				"Short": "מב1_02340218",
+				"Unit": "CP",
+				"ZzApprovedTools": "",
+				"ZzDName": "",
+				"ZzDOtjid": "",
+				"ZzExamOfferGuid": "005056B8E2331EDF9296DE89F1A919DD",
+				"ZzExamOfferParentGuid": "",
+				"ZzExclusiveExtraTimeSt": "",
+				"ZzExclusiveExtraTimeStT": "לסטודנטים ללא תוספת זמן",
+				"ZzHeldDigital": false,
+				"ZzOnlineRegPossible": false,
+				"ZzSmName": "מבני נתונים 1",
+				"ZzSmOtjid": "SM02340218",
+				"ZzSmShort": "מק-02340218",
+				"Persons": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/CeObjectSet(Otjid='CE00030371',Peryr='2024',Perid='200',OfferNo='001')/Persons"
+					}
+				}
+			},
+			{
+				"__metadata": {
+					"id": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/CeObjectSet(Otjid='CE00050621',Peryr='2024',Perid='200',OfferNo='001')",
+					"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/CeObjectSet(Otjid='CE00050621',Peryr='2024',Perid='200',OfferNo='001')",
+					"type": "NVIAS_CDIR_DATA_SRV.CeObject"
+				},
+				"Otjid": "CE00050621",
+				"Peryr": "2024",
+				"Perid": "200",
+				"Category": "מבחן מועד ב",
+				"CategoryCode": "FB",
+				"DregDateEnd": "                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 20250315000000",
+				"DregDateStart": "0",
+				"ExamBegTime": "PT00H00M00S",
+				"ExamDate": "/Date(1742428800000)/",
+				"ExamEndTime": "PT00H00M00S",
+				"ExamType": "מבחן בכתב",
+				"Name": "מבחן מועד ב 02340218",
+				"OfferNo": "001",
+				"Person": "",
+				"PersonOtjid": "",
+				"Points": "3.00000",
+				"PointsMaximum": "3.00000",
+				"PointsMinimum": "3.00000",
+				"RegisDateEnd": "20250315000000",
+				"RegisDateStart": "0",
+				"RoomName": "",
+				"RoomOtjid": "",
+				"Seark": "",
+				"Short": "מב2_02340218",
+				"Unit": "CP",
+				"ZzApprovedTools": "",
+				"ZzDName": "",
+				"ZzDOtjid": "",
+				"ZzExamOfferGuid": "005056B8E2331EDF92978D2863B4F9DD",
+				"ZzExamOfferParentGuid": "",
+				"ZzExclusiveExtraTimeSt": "",
+				"ZzExclusiveExtraTimeStT": "לסטודנטים ללא תוספת זמן",
+				"ZzHeldDigital": false,
+				"ZzOnlineRegPossible": true,
+				"ZzSmName": "מבני נתונים 1",
+				"ZzSmOtjid": "SM02340218",
+				"ZzSmShort": "מק-02340218",
+				"Persons": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/CeObjectSet(Otjid='CE00050621',Peryr='2024',Perid='200',OfferNo='001')/Persons"
+					}
+				}
+			}
+		]
+	},
+	"Responsible": { "results": [] },
+	"SmRelations": {
+		"results": [
+			{
+				"__metadata": {
+					"id": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00350015',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')",
+					"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00350015',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')",
+					"type": "NVIAS_CDIR_DATA_SRV.SmObject"
+				},
+				"Otjid": "SM00350015",
+				"Points": "0.00000",
+				"Peryr": "0000",
+				"Perid": "000",
+				"Category": "",
+				"CategoryText": "",
+				"CreditsPrereqsDescription": "",
+				"CreditsPrereqsHeadline": "",
+				"Descr": "",
+				"IgnoreFilterFlag": false,
+				"ModuleChoicesDescription": "",
+				"ModuleChoicesHeadline": "",
+				"Name": "שמושים במבני נתונים",
+				"ObjectiveDescription": "",
+				"ObjectiveHeadline": "",
+				"OrgId": "00000000",
+				"OrgText": "",
+				"PointsMaximum": "0.00000",
+				"PointsMinimum": "0.00000",
+				"ScaleDescription": "",
+				"ScaleId": "",
+				"Seark": "",
+				"Short": "מק-00350015",
+				"StudyContentDescription": "",
+				"StudyContentHeadline": "",
+				"Unit": "",
+				"ZzAcademicLevel": "0000",
+				"ZzAcademicLevelText": "",
+				"ZzCgOtjid": "",
+				"ZzMaxRecommendedPerid": "0000",
+				"ZzMinRecommendedPerid": "0000",
+				"ZzOfferpattern": "",
+				"ZzOfferpatternText": "",
+				"ZzPersonalized": false,
+				"ZzPoVersion": "",
+				"ZzRecommendedPeridUnit": "0000",
+				"ZzRelationship": "",
+				"ZzRelationshipKey": "BZCC",
+				"ZzScOtjid": "",
+				"ZzSemesterNote": "",
+				"ZzSemesterNoteLabel": "",
+				"ZzSmLanguage": "",
+				"ZzSmLanguageText": "",
+				"Organizations": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00350015',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/Organizations"
+					}
+				},
+				"Exams": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00350015',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/Exams"
+					}
+				},
+				"Achievements": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00350015',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/Achievements"
+					}
+				},
+				"Events": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00350015',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/Events"
+					}
+				},
+				"Responsible": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00350015',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/Responsible"
+					}
+				},
+				"Partof": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00350015',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/Partof"
+					}
+				},
+				"SmRelations": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00350015',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/SmRelations"
+					}
+				},
+				"SmRelationsReverse": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00350015',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/SmRelationsReverse"
+					}
+				},
+				"SmOfferedPeriodSet": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00350015',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/SmOfferedPeriodSet"
+					}
+				},
+				"SmPrereq": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00350015',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/SmPrereq"
+					}
+				},
+				"SeObjectSet": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00350015',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/SeObjectSet"
+					}
+				}
+			},
+			{
+				"__metadata": {
+					"id": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00440268',Peryr='2024',Perid='200',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')",
+					"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00440268',Peryr='2024',Perid='200',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')",
+					"type": "NVIAS_CDIR_DATA_SRV.SmObject"
+				},
+				"Otjid": "SM00440268",
+				"Points": "0.00000",
+				"Peryr": "2024",
+				"Perid": "200",
+				"Category": "",
+				"CategoryText": "",
+				"CreditsPrereqsDescription": "",
+				"CreditsPrereqsHeadline": "",
+				"Descr": "",
+				"IgnoreFilterFlag": false,
+				"ModuleChoicesDescription": "",
+				"ModuleChoicesHeadline": "",
+				"Name": "מבוא למבני נתונים ואלגוריתמים",
+				"ObjectiveDescription": "",
+				"ObjectiveHeadline": "",
+				"OrgId": "00000000",
+				"OrgText": "",
+				"PointsMaximum": "0.00000",
+				"PointsMinimum": "0.00000",
+				"ScaleDescription": "",
+				"ScaleId": "",
+				"Seark": "",
+				"Short": "מק-00440268",
+				"StudyContentDescription": "",
+				"StudyContentHeadline": "",
+				"Unit": "",
+				"ZzAcademicLevel": "0001",
+				"ZzAcademicLevelText": "",
+				"ZzCgOtjid": "",
+				"ZzMaxRecommendedPerid": "0000",
+				"ZzMinRecommendedPerid": "0000",
+				"ZzOfferpattern": "",
+				"ZzOfferpatternText": "",
+				"ZzPersonalized": false,
+				"ZzPoVersion": "",
+				"ZzRecommendedPeridUnit": "0000",
+				"ZzRelationship": "",
+				"ZzRelationshipKey": "AZEC",
+				"ZzScOtjid": "",
+				"ZzSemesterNote": "",
+				"ZzSemesterNoteLabel": "",
+				"ZzSmLanguage": "",
+				"ZzSmLanguageText": "",
+				"Organizations": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00440268',Peryr='2024',Perid='200',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/Organizations"
+					}
+				},
+				"Exams": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00440268',Peryr='2024',Perid='200',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/Exams"
+					}
+				},
+				"Achievements": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00440268',Peryr='2024',Perid='200',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/Achievements"
+					}
+				},
+				"Events": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00440268',Peryr='2024',Perid='200',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/Events"
+					}
+				},
+				"Responsible": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00440268',Peryr='2024',Perid='200',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/Responsible"
+					}
+				},
+				"Partof": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00440268',Peryr='2024',Perid='200',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/Partof"
+					}
+				},
+				"SmRelations": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00440268',Peryr='2024',Perid='200',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/SmRelations"
+					}
+				},
+				"SmRelationsReverse": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00440268',Peryr='2024',Perid='200',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/SmRelationsReverse"
+					}
+				},
+				"SmOfferedPeriodSet": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00440268',Peryr='2024',Perid='200',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/SmOfferedPeriodSet"
+					}
+				},
+				"SmPrereq": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00440268',Peryr='2024',Perid='200',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/SmPrereq"
+					}
+				},
+				"SeObjectSet": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00440268',Peryr='2024',Perid='200',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/SeObjectSet"
+					}
+				}
+			},
+			{
+				"__metadata": {
+					"id": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00940223',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')",
+					"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00940223',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')",
+					"type": "NVIAS_CDIR_DATA_SRV.SmObject"
+				},
+				"Otjid": "SM00940223",
+				"Points": "0.00000",
+				"Peryr": "0000",
+				"Perid": "000",
+				"Category": "",
+				"CategoryText": "",
+				"CreditsPrereqsDescription": "",
+				"CreditsPrereqsHeadline": "",
+				"Descr": "",
+				"IgnoreFilterFlag": false,
+				"ModuleChoicesDescription": "",
+				"ModuleChoicesHeadline": "",
+				"Name": "מבני נתונים ואלגוריתמים",
+				"ObjectiveDescription": "",
+				"ObjectiveHeadline": "",
+				"OrgId": "00000000",
+				"OrgText": "",
+				"PointsMaximum": "0.00000",
+				"PointsMinimum": "0.00000",
+				"ScaleDescription": "",
+				"ScaleId": "",
+				"Seark": "",
+				"Short": "מק-00940223",
+				"StudyContentDescription": "",
+				"StudyContentHeadline": "",
+				"Unit": "",
+				"ZzAcademicLevel": "0000",
+				"ZzAcademicLevelText": "",
+				"ZzCgOtjid": "",
+				"ZzMaxRecommendedPerid": "0000",
+				"ZzMinRecommendedPerid": "0000",
+				"ZzOfferpattern": "",
+				"ZzOfferpatternText": "",
+				"ZzPersonalized": false,
+				"ZzPoVersion": "",
+				"ZzRecommendedPeridUnit": "0000",
+				"ZzRelationship": "",
+				"ZzRelationshipKey": "AZEC",
+				"ZzScOtjid": "",
+				"ZzSemesterNote": "",
+				"ZzSemesterNoteLabel": "",
+				"ZzSmLanguage": "",
+				"ZzSmLanguageText": "",
+				"Organizations": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00940223',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/Organizations"
+					}
+				},
+				"Exams": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00940223',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/Exams"
+					}
+				},
+				"Achievements": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00940223',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/Achievements"
+					}
+				},
+				"Events": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00940223',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/Events"
+					}
+				},
+				"Responsible": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00940223',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/Responsible"
+					}
+				},
+				"Partof": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00940223',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/Partof"
+					}
+				},
+				"SmRelations": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00940223',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/SmRelations"
+					}
+				},
+				"SmRelationsReverse": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00940223',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/SmRelationsReverse"
+					}
+				},
+				"SmOfferedPeriodSet": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00940223',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/SmOfferedPeriodSet"
+					}
+				},
+				"SmPrereq": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00940223',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/SmPrereq"
+					}
+				},
+				"SeObjectSet": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00940223',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/SeObjectSet"
+					}
+				}
+			},
+			{
+				"__metadata": {
+					"id": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00940224',Peryr='2024',Perid='200',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')",
+					"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00940224',Peryr='2024',Perid='200',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')",
+					"type": "NVIAS_CDIR_DATA_SRV.SmObject"
+				},
+				"Otjid": "SM00940224",
+				"Points": "0.00000",
+				"Peryr": "2024",
+				"Perid": "200",
+				"Category": "",
+				"CategoryText": "",
+				"CreditsPrereqsDescription": "",
+				"CreditsPrereqsHeadline": "",
+				"Descr": "",
+				"IgnoreFilterFlag": false,
+				"ModuleChoicesDescription": "",
+				"ModuleChoicesHeadline": "",
+				"Name": "מבני נתונים ואלגוריתמים",
+				"ObjectiveDescription": "",
+				"ObjectiveHeadline": "",
+				"OrgId": "00000000",
+				"OrgText": "",
+				"PointsMaximum": "0.00000",
+				"PointsMinimum": "0.00000",
+				"ScaleDescription": "",
+				"ScaleId": "",
+				"Seark": "",
+				"Short": "מק-00940224",
+				"StudyContentDescription": "",
+				"StudyContentHeadline": "",
+				"Unit": "",
+				"ZzAcademicLevel": "0001",
+				"ZzAcademicLevelText": "",
+				"ZzCgOtjid": "",
+				"ZzMaxRecommendedPerid": "0000",
+				"ZzMinRecommendedPerid": "0000",
+				"ZzOfferpattern": "",
+				"ZzOfferpatternText": "",
+				"ZzPersonalized": false,
+				"ZzPoVersion": "",
+				"ZzRecommendedPeridUnit": "0000",
+				"ZzRelationship": "",
+				"ZzRelationshipKey": "AZEC",
+				"ZzScOtjid": "",
+				"ZzSemesterNote": "",
+				"ZzSemesterNoteLabel": "",
+				"ZzSmLanguage": "",
+				"ZzSmLanguageText": "",
+				"Organizations": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00940224',Peryr='2024',Perid='200',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/Organizations"
+					}
+				},
+				"Exams": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00940224',Peryr='2024',Perid='200',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/Exams"
+					}
+				},
+				"Achievements": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00940224',Peryr='2024',Perid='200',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/Achievements"
+					}
+				},
+				"Events": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00940224',Peryr='2024',Perid='200',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/Events"
+					}
+				},
+				"Responsible": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00940224',Peryr='2024',Perid='200',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/Responsible"
+					}
+				},
+				"Partof": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00940224',Peryr='2024',Perid='200',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/Partof"
+					}
+				},
+				"SmRelations": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00940224',Peryr='2024',Perid='200',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/SmRelations"
+					}
+				},
+				"SmRelationsReverse": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00940224',Peryr='2024',Perid='200',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/SmRelationsReverse"
+					}
+				},
+				"SmOfferedPeriodSet": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00940224',Peryr='2024',Perid='200',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/SmOfferedPeriodSet"
+					}
+				},
+				"SmPrereq": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00940224',Peryr='2024',Perid='200',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/SmPrereq"
+					}
+				},
+				"SeObjectSet": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00940224',Peryr='2024',Perid='200',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/SeObjectSet"
+					}
+				}
+			},
+			{
+				"__metadata": {
+					"id": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM01040918',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')",
+					"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM01040918',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')",
+					"type": "NVIAS_CDIR_DATA_SRV.SmObject"
+				},
+				"Otjid": "SM01040918",
+				"Points": "0.00000",
+				"Peryr": "0000",
+				"Perid": "000",
+				"Category": "",
+				"CategoryText": "",
+				"CreditsPrereqsDescription": "",
+				"CreditsPrereqsHeadline": "",
+				"Descr": "",
+				"IgnoreFilterFlag": false,
+				"ModuleChoicesDescription": "",
+				"ModuleChoicesHeadline": "",
+				"Name": "מבני נתונים 1",
+				"ObjectiveDescription": "",
+				"ObjectiveHeadline": "",
+				"OrgId": "00000000",
+				"OrgText": "",
+				"PointsMaximum": "0.00000",
+				"PointsMinimum": "0.00000",
+				"ScaleDescription": "",
+				"ScaleId": "",
+				"Seark": "",
+				"Short": "מק-01040918",
+				"StudyContentDescription": "",
+				"StudyContentHeadline": "",
+				"Unit": "",
+				"ZzAcademicLevel": "0000",
+				"ZzAcademicLevelText": "",
+				"ZzCgOtjid": "",
+				"ZzMaxRecommendedPerid": "0000",
+				"ZzMinRecommendedPerid": "0000",
+				"ZzOfferpattern": "",
+				"ZzOfferpatternText": "",
+				"ZzPersonalized": false,
+				"ZzPoVersion": "",
+				"ZzRecommendedPeridUnit": "0000",
+				"ZzRelationship": "",
+				"ZzRelationshipKey": "AZEC",
+				"ZzScOtjid": "",
+				"ZzSemesterNote": "",
+				"ZzSemesterNoteLabel": "",
+				"ZzSmLanguage": "",
+				"ZzSmLanguageText": "",
+				"Organizations": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM01040918',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/Organizations"
+					}
+				},
+				"Exams": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM01040918',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/Exams"
+					}
+				},
+				"Achievements": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM01040918',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/Achievements"
+					}
+				},
+				"Events": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM01040918',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/Events"
+					}
+				},
+				"Responsible": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM01040918',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/Responsible"
+					}
+				},
+				"Partof": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM01040918',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/Partof"
+					}
+				},
+				"SmRelations": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM01040918',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/SmRelations"
+					}
+				},
+				"SmRelationsReverse": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM01040918',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/SmRelationsReverse"
+					}
+				},
+				"SmOfferedPeriodSet": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM01040918',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/SmOfferedPeriodSet"
+					}
+				},
+				"SmPrereq": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM01040918',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/SmPrereq"
+					}
+				},
+				"SeObjectSet": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM01040918',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/SeObjectSet"
+					}
+				}
+			},
+			{
+				"__metadata": {
+					"id": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM02340268',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')",
+					"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM02340268',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')",
+					"type": "NVIAS_CDIR_DATA_SRV.SmObject"
+				},
+				"Otjid": "SM02340268",
+				"Points": "0.00000",
+				"Peryr": "0000",
+				"Perid": "000",
+				"Category": "",
+				"CategoryText": "",
+				"CreditsPrereqsDescription": "",
+				"CreditsPrereqsHeadline": "",
+				"Descr": "",
+				"IgnoreFilterFlag": false,
+				"ModuleChoicesDescription": "",
+				"ModuleChoicesHeadline": "",
+				"Name": "מבני נתונים ואלגוריתמים",
+				"ObjectiveDescription": "",
+				"ObjectiveHeadline": "",
+				"OrgId": "00000000",
+				"OrgText": "",
+				"PointsMaximum": "0.00000",
+				"PointsMinimum": "0.00000",
+				"ScaleDescription": "",
+				"ScaleId": "",
+				"Seark": "",
+				"Short": "מק-02340268",
+				"StudyContentDescription": "",
+				"StudyContentHeadline": "",
+				"Unit": "",
+				"ZzAcademicLevel": "0000",
+				"ZzAcademicLevelText": "",
+				"ZzCgOtjid": "",
+				"ZzMaxRecommendedPerid": "0000",
+				"ZzMinRecommendedPerid": "0000",
+				"ZzOfferpattern": "",
+				"ZzOfferpatternText": "",
+				"ZzPersonalized": false,
+				"ZzPoVersion": "",
+				"ZzRecommendedPeridUnit": "0000",
+				"ZzRelationship": "",
+				"ZzRelationshipKey": "AZEC",
+				"ZzScOtjid": "",
+				"ZzSemesterNote": "",
+				"ZzSemesterNoteLabel": "",
+				"ZzSmLanguage": "",
+				"ZzSmLanguageText": "",
+				"Organizations": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM02340268',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/Organizations"
+					}
+				},
+				"Exams": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM02340268',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/Exams"
+					}
+				},
+				"Achievements": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM02340268',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/Achievements"
+					}
+				},
+				"Events": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM02340268',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/Events"
+					}
+				},
+				"Responsible": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM02340268',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/Responsible"
+					}
+				},
+				"Partof": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM02340268',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/Partof"
+					}
+				},
+				"SmRelations": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM02340268',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/SmRelations"
+					}
+				},
+				"SmRelationsReverse": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM02340268',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/SmRelationsReverse"
+					}
+				},
+				"SmOfferedPeriodSet": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM02340268',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/SmOfferedPeriodSet"
+					}
+				},
+				"SmPrereq": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM02340268',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/SmPrereq"
+					}
+				},
+				"SeObjectSet": {
+					"__deferred": {
+						"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM02340268',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/SeObjectSet"
+					}
+				}
+			}
+		]
+	},
+	"SmPrereq": {
+		"results": [
+			{
+				"__metadata": {
+					"id": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmPrerequisitesSet(DependentModuleId='02340218',LineNumber='001')",
+					"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmPrerequisitesSet(DependentModuleId='02340218',LineNumber='001')",
+					"type": "NVIAS_CDIR_DATA_SRV.SmPrerequisites"
+				},
+				"Peryr": "2024",
+				"DependentModuleId": "02340218",
+				"Perid": "200",
+				"Bracket": "(",
+				"ModuleId": "02340141",
+				"ModuleShort": "מק-02340141",
+				"ModuleName": "קומבינטוריקה למדעי המחשב",
+				"Operator": "AND",
+				"LineNumber": "001"
+			},
+			{
+				"__metadata": {
+					"id": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmPrerequisitesSet(DependentModuleId='02340218',LineNumber='002')",
+					"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmPrerequisitesSet(DependentModuleId='02340218',LineNumber='002')",
+					"type": "NVIAS_CDIR_DATA_SRV.SmPrerequisites"
+				},
+				"Peryr": "2024",
+				"DependentModuleId": "02340218",
+				"Perid": "200",
+				"Bracket": "",
+				"ModuleId": "02340124",
+				"ModuleShort": "מק-02340124",
+				"ModuleName": "מבוא לתכנות מערכות",
+				"Operator": "",
+				"LineNumber": "002"
+			},
+			{
+				"__metadata": {
+					"id": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmPrerequisitesSet(DependentModuleId='02340218',LineNumber='003')",
+					"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmPrerequisitesSet(DependentModuleId='02340218',LineNumber='003')",
+					"type": "NVIAS_CDIR_DATA_SRV.SmPrerequisites"
+				},
+				"Peryr": "0000",
+				"DependentModuleId": "02340218",
+				"Perid": "000",
+				"Bracket": ")",
+				"ModuleId": "00000000",
+				"ModuleShort": "",
+				"ModuleName": "",
+				"Operator": "OR",
+				"LineNumber": "003"
+			},
+			{
+				"__metadata": {
+					"id": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmPrerequisitesSet(DependentModuleId='02340218',LineNumber='004')",
+					"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmPrerequisitesSet(DependentModuleId='02340218',LineNumber='004')",
+					"type": "NVIAS_CDIR_DATA_SRV.SmPrerequisites"
+				},
+				"Peryr": "2024",
+				"DependentModuleId": "02340218",
+				"Perid": "200",
+				"Bracket": "(",
+				"ModuleId": "02340124",
+				"ModuleShort": "מק-02340124",
+				"ModuleName": "מבוא לתכנות מערכות",
+				"Operator": "AND",
+				"LineNumber": "004"
+			},
+			{
+				"__metadata": {
+					"id": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmPrerequisitesSet(DependentModuleId='02340218',LineNumber='005')",
+					"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmPrerequisitesSet(DependentModuleId='02340218',LineNumber='005')",
+					"type": "NVIAS_CDIR_DATA_SRV.SmPrerequisites"
+				},
+				"Peryr": "2024",
+				"DependentModuleId": "02340218",
+				"Perid": "200",
+				"Bracket": "",
+				"ModuleId": "01040286",
+				"ModuleShort": "מק-01040286",
+				"ModuleName": "קומבינטוריקה",
+				"Operator": "",
+				"LineNumber": "005"
+			},
+			{
+				"__metadata": {
+					"id": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmPrerequisitesSet(DependentModuleId='02340218',LineNumber='006')",
+					"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmPrerequisitesSet(DependentModuleId='02340218',LineNumber='006')",
+					"type": "NVIAS_CDIR_DATA_SRV.SmPrerequisites"
+				},
+				"Peryr": "0000",
+				"DependentModuleId": "02340218",
+				"Perid": "000",
+				"Bracket": ")",
+				"ModuleId": "00000000",
+				"ModuleShort": "",
+				"ModuleName": "",
+				"Operator": "OR",
+				"LineNumber": "006"
+			},
+			{
+				"__metadata": {
+					"id": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmPrerequisitesSet(DependentModuleId='02340218',LineNumber='007')",
+					"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmPrerequisitesSet(DependentModuleId='02340218',LineNumber='007')",
+					"type": "NVIAS_CDIR_DATA_SRV.SmPrerequisites"
+				},
+				"Peryr": "2024",
+				"DependentModuleId": "02340218",
+				"Perid": "200",
+				"Bracket": "(",
+				"ModuleId": "01040286",
+				"ModuleShort": "מק-01040286",
+				"ModuleName": "קומבינטוריקה",
+				"Operator": "AND",
+				"LineNumber": "007"
+			},
+			{
+				"__metadata": {
+					"id": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmPrerequisitesSet(DependentModuleId='02340218',LineNumber='008')",
+					"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmPrerequisitesSet(DependentModuleId='02340218',LineNumber='008')",
+					"type": "NVIAS_CDIR_DATA_SRV.SmPrerequisites"
+				},
+				"Peryr": "0000",
+				"DependentModuleId": "02340218",
+				"Perid": "000",
+				"Bracket": "",
+				"ModuleId": "02340122",
+				"ModuleShort": "מק-02340122",
+				"ModuleName": "מבוא לתכנות מערכות",
+				"Operator": "",
+				"LineNumber": "008"
+			},
+			{
+				"__metadata": {
+					"id": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmPrerequisitesSet(DependentModuleId='02340218',LineNumber='009')",
+					"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmPrerequisitesSet(DependentModuleId='02340218',LineNumber='009')",
+					"type": "NVIAS_CDIR_DATA_SRV.SmPrerequisites"
+				},
+				"Peryr": "0000",
+				"DependentModuleId": "02340218",
+				"Perid": "000",
+				"Bracket": ")",
+				"ModuleId": "00000000",
+				"ModuleShort": "",
+				"ModuleName": "",
+				"Operator": "OR",
+				"LineNumber": "009"
+			},
+			{
+				"__metadata": {
+					"id": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmPrerequisitesSet(DependentModuleId='02340218',LineNumber='010')",
+					"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmPrerequisitesSet(DependentModuleId='02340218',LineNumber='010')",
+					"type": "NVIAS_CDIR_DATA_SRV.SmPrerequisites"
+				},
+				"Peryr": "0000",
+				"DependentModuleId": "02340218",
+				"Perid": "000",
+				"Bracket": "(",
+				"ModuleId": "02340122",
+				"ModuleShort": "מק-02340122",
+				"ModuleName": "מבוא לתכנות מערכות",
+				"Operator": "AND",
+				"LineNumber": "010"
+			},
+			{
+				"__metadata": {
+					"id": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmPrerequisitesSet(DependentModuleId='02340218',LineNumber='011')",
+					"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmPrerequisitesSet(DependentModuleId='02340218',LineNumber='011')",
+					"type": "NVIAS_CDIR_DATA_SRV.SmPrerequisites"
+				},
+				"Peryr": "2024",
+				"DependentModuleId": "02340218",
+				"Perid": "200",
+				"Bracket": "",
+				"ModuleId": "02340141",
+				"ModuleShort": "מק-02340141",
+				"ModuleName": "קומבינטוריקה למדעי המחשב",
+				"Operator": "",
+				"LineNumber": "011"
+			},
+			{
+				"__metadata": {
+					"id": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmPrerequisitesSet(DependentModuleId='02340218',LineNumber='012')",
+					"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmPrerequisitesSet(DependentModuleId='02340218',LineNumber='012')",
+					"type": "NVIAS_CDIR_DATA_SRV.SmPrerequisites"
+				},
+				"Peryr": "0000",
+				"DependentModuleId": "02340218",
+				"Perid": "000",
+				"Bracket": ")",
+				"ModuleId": "00000000",
+				"ModuleShort": "",
+				"ModuleName": "",
+				"Operator": "",
+				"LineNumber": "012"
+			}
+		]
+	}
+}

@@ -21,7 +21,6 @@
 	}
 
 	function getAvgMedian(courses: Course[]): number {
-		// @ts-expect-error
 		const medians: number[] = courses
 			.map((c) => c.median)
 			.filter((m) => m !== undefined);

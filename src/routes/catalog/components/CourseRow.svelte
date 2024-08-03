@@ -25,15 +25,17 @@
 	): Promise<[string, Course[]][]> {
 		const courses = await Promise.all(codes.map(getCourseData)).then(
 			(courses) =>
-				courses.toSorted((a, b) => {
-					const medians = (b.median ?? 0) - (a.median ?? 0);
+				courses
+					.toSorted((a, b) => {
+						const medians = (b.median ?? 0) - (a.median ?? 0);
 
-					if (medians !== 0) {
-						return medians;
-					}
+						if (medians !== 0) {
+							return medians;
+						}
 
-					return a.code.localeCompare(b.code);
-				})
+						return a.code.localeCompare(b.code);
+					})
+					.filter((c) => c.name !== undefined)
 		);
 
 		const maxGroupSize = 30;

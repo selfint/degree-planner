@@ -4,12 +4,12 @@ import { parseCatalog } from './catalogParser';
 
 describe('Catalog Parser', () => {
 	it('parses 5 digit courses', () => {
-		expect(parseCatalog('12345')).toStrictEqual(['012345']);
+		expect(parseCatalog('12345')).toStrictEqual(['00120345']);
 	});
 
 	it('removes duplicates', () => {
 		const text = '123456 123456';
-		const codes = ['123456'];
+		const codes = ['01230456'];
 
 		expect(parseCatalog(text)).toStrictEqual(codes);
 	});
@@ -30,19 +30,19 @@ describe('Catalog Parser', () => {
     236521 ק ימתירוגלא י בור 2.0
     236525`;
 		const codes = [
-			'236306',
-			'236309',
-			'236313',
-			'236315',
-			'236318',
-			'236359',
-			'236374',
-			'236377',
-			'236378',
-			'236508',
-			'236518',
-			'236521',
-			'236525'
+			'02360306',
+			'02360309',
+			'02360313',
+			'02360315',
+			'02360318',
+			'02360359',
+			'02360374',
+			'02360377',
+			'02360378',
+			'02360508',
+			'02360518',
+			'02360521',
+			'02360525'
 		];
 		expect(parseCatalog(text)).toStrictEqual(codes);
 	});

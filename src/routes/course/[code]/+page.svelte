@@ -52,6 +52,10 @@
 			getProgress($semesters, getCourseData, data.requirements)
 		);
 	}
+
+	function oldCode(code: string): string {
+		return code.slice(1, 4) + code.slice(5);
+	}
 </script>
 
 <div class="m-3">
@@ -64,7 +68,7 @@
 			</span>
 
 			<a
-				href={`https://students.technion.ac.il/local/technionsearch/course/${code}`}
+				href={`https://students.technion.ac.il/local/technionsearch/course/${oldCode(code)}`}
 				target="_blank"
 			>
 				<span class="text-content-secondary">

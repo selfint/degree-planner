@@ -25,10 +25,6 @@
 		getCourseLists(d.requirements, code)
 	);
 
-	function formatCourseName(name: string): string {
-		return name.split('-').at(1) ?? name;
-	}
-
 	function formatRequirementName(name: string): string {
 		return name
 			.split('_')
@@ -64,7 +60,7 @@
 	{:then course}
 		<h1 class="mb-2 text-2xl font-medium text-content-primary">
 			<span dir="rtl">
-				{formatCourseName(course.name ?? code)}
+				{course.name ?? code}
 			</span>
 
 			<a

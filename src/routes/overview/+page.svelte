@@ -16,10 +16,6 @@
 	import { goto } from '$app/navigation';
 	import ScheduleError from './components/ScheduleError.svelte';
 
-	function formatName(name: string | undefined): string | undefined {
-		return name?.split('-').at(1);
-	}
-
 	function getAvgMedian(courses: Course[]): number {
 		const medians: number[] = courses
 			.map((c) => c.median)
@@ -276,11 +272,11 @@
 													<div>
 														{#if taken}
 															<span dir="rtl" class="line-through">
-																{formatName(dep.name)}
+																{dep.name}
 															</span>
 														{:else}
 															<span dir="rtl">
-																{formatName(dep.name)}
+																{dep.name}
 															</span>
 														{/if}
 														<span class="text-content-secondary">
@@ -303,11 +299,11 @@
 													<div>
 														{#if taken}
 															<span dir="rtl" class="line-through">
-																{formatName(adj.name)}
+																{adj.name}
 															</span>
 														{:else}
 															<span dir="rtl">
-																{formatName(adj.name)}
+																{adj.name}
 															</span>
 														{/if}
 														<span class="text-content-secondary">

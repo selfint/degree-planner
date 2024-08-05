@@ -98,15 +98,25 @@ export function getTests(
 		return undefined;
 	}
 
-	const tests = exams.map((exam) => {
-		const epoch = exam.ExamDate.slice(6, -2);
-		const date = new Date(parseInt(epoch));
-		return {
-			year: date.getFullYear(),
-			monthIndex: date.getMonth(),
-			day: date.getDate()
-		};
-	});
+	const tests = exams
+		.map((exam) => {
+			const epoch = exam.ExamDate.slice(6, -2);
+			const date = new Date(parseInt(epoch));
+			return {
+				year: date.getFullYear(),
+				monthIndex: date.getMonth(),
+				day: date.getDate()
+			};
+		})
+		.toSorted((a, b) => {
+			if (a.year !== b.year) {
+				return a.year - b.year;
+			} else if (a.monthIndex !== b.monthIndex) {
+				return a.monthIndex - b.monthIndex;
+			} else {
+				return a.day - b.day;
+			}
+		});
 
 	return tests.slice(0, 2) as [Test, Test];
 }

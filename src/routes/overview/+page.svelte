@@ -26,11 +26,15 @@
 			: 0;
 	}
 
-	function getStudyDays(courses: Course[], test: 0 | 1): [Course, number][] {
-		// TODO: get semester end date and use it to calculate
-		// the study days for the first test
-		const fakeFirstStudyDays = 7;
-
+	function getStudyDays(
+		courses: Course[],
+		test: 0 | 1
+	):
+		| undefined
+		| {
+				first: [Course, Date];
+				next: [Course, number][];
+		  } {
 		const courseTests = courses
 			.map<[Course, Test | undefined]>(
 				(c) => [c, c.tests?.[test]] as [Course, Test | undefined]
@@ -46,15 +50,13 @@
 			])
 			.toSorted((a, b) => a[1].getTime() - b[1].getTime());
 
-		const firstCourse = courseTests[0]?.[0];
+		const first = courseTests[0];
 		let prevDate = courseTests.shift()?.[1];
 		if (prevDate === undefined) {
-			return [];
+			return undefined;
 		}
 
-		let courseStudyDays: [Course, number][] = [
-			[firstCourse, fakeFirstStudyDays]
-		];
+		let courseStudyDays: [Course, number][] = [];
 
 		// get total count of days between tests
 		// taking into account days, weeks, years
@@ -67,7 +69,10 @@
 			prevDate = test;
 		}
 
-		return courseStudyDays;
+		return {
+			first,
+			next: courseStudyDays
+		};
 	}
 
 	function moveCourseToSemester(code: string, semester: number) {
@@ -205,28 +210,48 @@
 
 					{#if i === $currentSemester}
 						{#await Promise.all(semester.map(getCourseData)) then courses}
+							{@const days0 = getStudyDays(courses, 0)}
+							{@const days1 = getStudyDays(courses, 1)}
 							<div class="w-full space-y-1">
 								<div class="flex flex-row flex-wrap text-content-primary">
-									{#each getStudyDays(courses, 0) as [course, days]}
+									{#if days0 !== undefined}
 										<div
-											style="background: {generateCourseColor(course)}"
-											class="mb-1 mr-0.5 w-6 p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
+											style="background: {generateCourseColor(days0.first[0])}"
+											class="mb-1 mr-0.5 w-fit p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
 										>
-											{days}
+											{days0.first[1].getDay() + 1}/{days0.first[1].getMonth() +
+												1}
 										</div>
-									{/each}
+										{#each days0.next as [c, days]}
+											<div
+												style="background: {generateCourseColor(c)}"
+												class="mb-1 mr-0.5 w-6 p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
+											>
+												{days}
+											</div>
+										{/each}
+									{/if}
 								</div>
 								<div
 									class="flex w-full flex-row flex-wrap text-content-primary"
 								>
-									{#each getStudyDays(courses, 1) as [course, days]}
+									{#if days1 !== undefined}
 										<div
-											style="background: {generateCourseColor(course)}"
-											class="mb-1 mr-0.5 w-6 p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
+											style="background: {generateCourseColor(days1.first[0])}"
+											class="mb-1 mr-0.5 w-fit p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
 										>
-											{days}
+											{days1.first[1].getDay() + 1}/{days1.first[1].getMonth() +
+												1}
 										</div>
-									{/each}
+										{#each days1.next as [c, days]}
+											<div
+												style="background: {generateCourseColor(c)}"
+												class="mb-1 mr-0.5 w-6 p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
+											>
+												{days}
+											</div>
+										{/each}
+									{/if}
 								</div>
 							</div>
 						{/await}

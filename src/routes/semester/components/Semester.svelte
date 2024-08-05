@@ -23,7 +23,6 @@
 	}
 
 	function getAvgMedian(courses: Course[]): number {
-		// @ts-expect-error
 		const medians: number[] = courses
 			.map((c) => c.median)
 			.filter((m) => m !== undefined);
@@ -33,11 +32,15 @@
 			: 0;
 	}
 
-	function getStudyDays(courses: Course[], test: 0 | 1): [Course, number][] {
-		// TODO: get semester end date and use it to calculate
-		// the study days for the first test
-		const fakeFirstStudyDays = 7;
-
+	function getStudyDays(
+		courses: Course[],
+		test: 0 | 1
+	):
+		| undefined
+		| {
+				first: [Course, Date];
+				next: [Course, number][];
+		  } {
 		const courseTests = courses
 			.map<[Course, Test | undefined]>(
 				(c) => [c, c.tests?.[test]] as [Course, Test | undefined]
@@ -53,15 +56,13 @@
 			])
 			.toSorted((a, b) => a[1].getTime() - b[1].getTime());
 
-		const firstCourse = courseTests[0]?.[0];
+		const first = courseTests[0];
 		let prevDate = courseTests.shift()?.[1];
 		if (prevDate === undefined) {
-			return [];
+			return undefined;
 		}
 
-		let courseStudyDays: [Course, number][] = [
-			[firstCourse, fakeFirstStudyDays]
-		];
+		let courseStudyDays: [Course, number][] = [];
 
 		// get total count of days between tests
 		// taking into account days, weeks, years
@@ -74,7 +75,10 @@
 			prevDate = test;
 		}
 
-		return courseStudyDays;
+		return {
+			first,
+			next: courseStudyDays
+		};
 	}
 </script>
 

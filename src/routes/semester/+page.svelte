@@ -93,9 +93,9 @@
 					(c) =>
 						true ||
 						Math.min(
-							...getStudyDays(currentSemesterCourses.concat(c), 0).map(
-								([_, d]) => d
-							)
+							...(
+								getStudyDays(currentSemesterCourses.concat(c), 0)?.next ?? []
+							).map(([_, d]) => d)
 						) > 2
 				)
 				.sort((a, b) => compareCourses(currentSemesterCourses, a, b));
@@ -116,7 +116,7 @@
 	): number {
 		const studyDays = getStudyDays(courses, test);
 
-		const courseDays = studyDays.find(([c]) => c.code === course.code);
+		const courseDays = studyDays?.next.find(([c]) => c.code === course.code);
 
 		// course has no tests
 		if (courseDays === undefined) {
@@ -126,11 +126,15 @@
 		return courseDays?.[1];
 	}
 
-	function getStudyDays(courses: Course[], test: 0 | 1): [Course, number][] {
-		// TODO: get semester end date and use it to calculate
-		// the study days for the first test
-		const fakeFirstStudyDays = 7;
-
+	function getStudyDays(
+		courses: Course[],
+		test: 0 | 1
+	):
+		| undefined
+		| {
+				first: [Course, Date];
+				next: [Course, number][];
+		  } {
 		const courseTests = courses
 			.map<[Course, Test | undefined]>(
 				(c) => [c, c.tests?.[test]] as [Course, Test | undefined]
@@ -146,15 +150,13 @@
 			])
 			.toSorted((a, b) => a[1].getTime() - b[1].getTime());
 
-		const firstCourse = courseTests[0]?.[0];
+		const first = courseTests[0];
 		let prevDate = courseTests.shift()?.[1];
 		if (prevDate === undefined) {
-			return [];
+			return undefined;
 		}
 
-		let courseStudyDays: [Course, number][] = [
-			[firstCourse, fakeFirstStudyDays]
-		];
+		let courseStudyDays: [Course, number][] = [];
 
 		// get total count of days between tests
 		// taking into account days, weeks, years
@@ -167,7 +169,10 @@
 			prevDate = test;
 		}
 
-		return courseStudyDays;
+		return {
+			first,
+			next: courseStudyDays
+		};
 	}
 
 	function courseCanBeTaken(course: Course): boolean {
@@ -220,24 +225,42 @@
 					</div>
 				</div>
 				<div class="flex flex-row flex-wrap text-content-primary">
-					{#each data.first as [course, days]}
+					{#if data.first !== undefined}
+						{@const days0 = data.first}
 						<div
-							style="background: {generateCourseColor(course)}"
-							class="mb-1 mr-0.5 w-6 p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
+							style="background: {generateCourseColor(days0.first[0])}"
+							class="mb-1 mr-0.5 w-fit border p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
 						>
-							{days}
+							{days0.first[1].getDay() + 1}/{days0.first[1].getMonth() + 1}
 						</div>
-					{/each}
+						{#each days0.next as [c, days]}
+							<div
+								style="background: {generateCourseColor(c)}"
+								class="mb-1 mr-0.5 w-6 p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
+							>
+								{days}
+							</div>
+						{/each}
+					{/if}
 				</div>
 				<div class="flex flex-row flex-wrap text-content-primary">
-					{#each data.second as [course, days]}
+					{#if data.second !== undefined}
+						{@const days1 = data.second}
 						<div
-							style="background: {generateCourseColor(course)}"
-							class="mb-1 mr-0.5 w-6 p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
+							style="background: {generateCourseColor(days1.first[0])}"
+							class="mb-1 mr-0.5 w-fit border p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
 						>
-							{days}
+							{days1.first[1].getDay() + 1}/{days1.first[1].getMonth() + 1}
 						</div>
-					{/each}
+						{#each days1.next as [c, days]}
+							<div
+								style="background: {generateCourseColor(c)}"
+								class="mb-1 mr-0.5 w-6 p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
+							>
+								{days}
+							</div>
+						{/each}
+					{/if}
 				</div>
 			</div>
 
@@ -287,29 +310,56 @@
 						/>
 						<div class="h-fit pb-1 pl-2 pt-2">
 							{#await semester then semester}
+								{@const days0 = getStudyDays(semester.concat(course), 0)}
+								{@const days1 = getStudyDays(semester.concat(course), 1)}
+
 								<div class="flex flex-row flex-wrap text-content-primary">
-									{#each getStudyDays(semester.concat(course), 0) as [c, days]}
+									{#if days0 !== undefined}
 										<div
-											style="background: {generateCourseColor(c)}"
-											class="mb-1 mr-0.5 w-6 border {c.code === course.code
+											style="background: {generateCourseColor(days0.first[0])}"
+											class="mb-1 mr-0.5 w-fit border {days0.first[0].code ===
+											course.code
 												? 'border-content-primary'
 												: 'border-transparent'} p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
 										>
-											{days}
+											{days0.first[1].getDay() + 1}/{days0.first[1].getMonth() +
+												1}
 										</div>
-									{/each}
+										{#each days0.next as [c, days]}
+											<div
+												style="background: {generateCourseColor(c)}"
+												class="mb-1 mr-0.5 w-6 border {c.code === course.code
+													? 'border-content-primary'
+													: 'border-transparent'} p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
+											>
+												{days}
+											</div>
+										{/each}
+									{/if}
 								</div>
 								<div class="flex flex-row flex-wrap text-content-primary">
-									{#each getStudyDays(semester.concat(course), 1) as [c, days]}
+									{#if days1 !== undefined}
 										<div
-											style="background: {generateCourseColor(c)}"
-											class="mb-1 mr-0.5 w-6 border {c.code === course.code
+											style="background: {generateCourseColor(days1.first[0])}"
+											class="mb-1 mr-0.5 w-fit border {days1.first[0].code ===
+											course.code
 												? 'border-content-primary'
 												: 'border-transparent'} p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
 										>
-											{days}
+											{days1.first[1].getDay() + 1}/{days1.first[1].getMonth() +
+												1}
 										</div>
-									{/each}
+										{#each days1.next as [c, days]}
+											<div
+												style="background: {generateCourseColor(c)}"
+												class="mb-1 mr-0.5 w-6 border {c.code === course.code
+													? 'border-content-primary'
+													: 'border-transparent'} p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
+											>
+												{days}
+											</div>
+										{/each}
+									{/if}
 								</div>
 							{/await}
 						</div>

@@ -180,7 +180,7 @@
 			return false;
 		}
 
-		const previousCourses = $semesters.slice(0, $currentSemester).flat();
+		const previousCourses = $semesters.slice(0, $currentSemester + 1).flat();
 
 		if (previousCourses.some((c) => c === course.code)) {
 			return false;

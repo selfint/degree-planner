@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { injectSpeedInsights } from '@vercel/speed-insights/sveltekit';
+	import { inject } from '@vercel/analytics';
 
 	import '../app.css';
 
@@ -12,6 +13,7 @@
 	import TitleBar from '$lib/components/TitleBar.svelte';
 
 	injectSpeedInsights();
+	inject();
 
 	function onGetStarted() {
 		goto('/user');

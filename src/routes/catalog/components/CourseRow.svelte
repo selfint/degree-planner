@@ -33,7 +33,7 @@
 							return medians;
 						}
 
-						return a.code.localeCompare(b.code);
+						return (a.code ?? '').localeCompare(b.code ?? '');
 					})
 					.filter((c) => c.name !== undefined)
 		);

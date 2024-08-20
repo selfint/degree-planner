@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { getCourseData } from '$lib/courseData';
+	import { getCourseData, getAllCoursesSync } from '$lib/courseData';
 
 	import { goto } from '$app/navigation';
 
@@ -200,6 +200,37 @@
 					</div>
 				</div>
 			{/if}
+			<div>
+				<h1 class="pb-1 text-lg font-medium text-content-primary">
+					Dependants
+				</h1>
+				<div class="flex flex-row space-x-2 overflow-x-auto">
+					{#each getAllCoursesSync() as c, i}
+						{#await c then c}
+							{#if (c.connections?.dependencies ?? []).some( (group) => group.includes(course.code) )}
+								<div
+									class="container w-fit"
+									tabindex={i}
+									role="button"
+									on:click={() => goto(`/course/${c.code}`)}
+									on:keydown={(e) => {
+										if (e.key === 'Enter') {
+											goto(`/course/${c.code}`);
+										}
+									}}
+								>
+									<CourseElement
+										course={c}
+										requirements={$degreeData?.then((d) =>
+											getCourseLists(d.requirements, c.code)
+										)}
+									/>
+								</div>
+							{/if}
+						{/await}
+					{/each}
+				</div>
+			</div>
 		{/await}
 	</div>
 </div>

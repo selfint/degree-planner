@@ -5,6 +5,10 @@ export async function getAllCourses(): Promise<Course[]> {
 	return await Promise.all(Array.from(courseData.values()));
 }
 
+export function getAllCoursesSync(): Promise<Course>[] {
+	return Array.from(courseData.values());
+}
+
 export function getCourseData(code: string): Promise<Course> {
 	const data = courseData.get(code);
 	if (data === undefined) {

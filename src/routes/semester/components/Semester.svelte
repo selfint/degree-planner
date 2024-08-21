@@ -41,19 +41,37 @@
 				first: [Course, Date];
 				next: [Course, number][];
 		  } {
-		const courseTests = courses
-			.map<[Course, Test | undefined]>(
-				(c) => [c, c.tests?.[test]] as [Course, Test | undefined]
-			)
+		function testToDate(test: Test): Date {
+			return new Date(Date.UTC(test.year, test.monthIndex, test.day));
+		}
 
-			.filter<[Course, Test]>(
+		const courseTests = courses
+			.map<[Course, Date | undefined]>((c) => {
+				const t0 = c.tests?.[0];
+				const t1 = c.tests?.[1];
+
+				if (t0 === undefined || t1 === undefined) {
+					if (test === 0 && t0 !== undefined) {
+						return [c, testToDate(t0)];
+					} else {
+						return [c, undefined];
+					}
+				}
+
+				const d0 = testToDate(t0);
+				const d1 = testToDate(t1);
+
+				if (test === 0) {
+					return [c, d0 < d1 ? d0 : d1];
+				} else {
+					return [c, d0 < d1 ? d1 : d0];
+				}
+			})
+
+			.filter<[Course, Date]>(
 				// @ts-expect-error
 				([_, t]) => t !== undefined
 			)
-			.map<[Course, Date]>(([c, t]) => [
-				c,
-				new Date(Date.UTC(t.year, t.monthIndex, t.day))
-			])
 			.toSorted((a, b) => a[1].getTime() - b[1].getTime());
 
 		const first = courseTests[0];

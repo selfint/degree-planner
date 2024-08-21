@@ -53,18 +53,18 @@
 		return true;
 	}
 
-	let semesterChoice = $currentSemester;
-	let totalSemestersChoice = $semesters.length;
+	const maxTotalSemesters = 15;
 
-	const maxNonEmptySemesterIndex =
+	$: semesterChoice = $currentSemester;
+	$: totalSemestersChoice = $semesters.length;
+	$: maxNonEmptySemesterIndex =
 		$semesters
 			.map((s, i) => [s.length, i])
 			.filter(([s]) => s > 0)
 			.map(([, i]) => i)
 			// get the last non-empty semester
 			.reduce((a, b) => Math.max(a, b), 0) + 1;
-	const maxTotalSemesters = 15;
-	const validTotalValues = Array.from(
+	$: validTotalValues = Array.from(
 		{ length: maxTotalSemesters },
 		(_, i) => i + 1
 	).filter((i) => i >= maxNonEmptySemesterIndex);

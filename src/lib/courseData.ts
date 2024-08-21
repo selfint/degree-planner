@@ -13,25 +13,73 @@ export function courseCodeIsValid(code: string): boolean {
 	return /^\d{8}$/.test(code);
 }
 
-export function getCourseData(code: string): Promise<Course> {
+export function buildGetCourseData() {
+	const abort = new AbortController();
+	const abortSignal = abort.signal;
+
+	return {
+		getCourseData: (code: string) => getCourseData(code, { abortSignal }),
+		abort: () => abort.abort()
+	};
+}
+
+export function getCourseData(
+	code: string,
+	opts?: { abortSignal?: AbortSignal }
+): Promise<Course> {
 	if (!courseCodeIsValid(code)) {
 		return Promise.reject(new Error('Invalid course code ' + code));
 	}
 
 	const data = courseData.get(code);
 	if (data === undefined) {
-		// Fetch first from cache, then from server if cache fails
-		const future = fetch(cacheRoute + code + '.json')
-			.then((res) => {
-				if (res.ok) {
-					return res.json();
-				} else {
-					throw new Error('failed fetching cached course data for ' + code);
+		let done = false;
+		const getData = async () => {
+			// Fetch first from cache, then from server if cache fails
+			try {
+				const cacheRes = await fetch(cacheRoute + code + '.json', {
+					signal: opts?.abortSignal
+				});
+				if (cacheRes.ok) {
+					done = true;
+					return cacheRes.json();
 				}
-			})
-			.catch(() => fetch(`/api/courseInfo/${code}`).then((res) => res.json()));
+			} catch (e) {
+				//
+			}
 
+			let error;
+			try {
+				const serverRes = await fetch(`/api/courseInfo/${code}`, {
+					signal: opts?.abortSignal
+				});
+
+				if (serverRes.ok) {
+					done = true;
+					return serverRes.json();
+				}
+			} catch (e) {
+				error = e;
+			}
+
+			throw new Error(
+				'failed fetching course data for ' +
+					code +
+					' error: ' +
+					JSON.stringify(error)
+			);
+		};
+
+		const future = getData();
 		courseData.set(code, future);
+
+		if (opts?.abortSignal) {
+			opts.abortSignal.addEventListener('abort', () => {
+				if (!done) {
+					courseData.delete(code);
+				}
+			});
+		}
 
 		return future;
 	} else {

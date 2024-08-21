@@ -9,13 +9,19 @@
 		currentSemester,
 		wishlist
 	} from '$lib/stores';
-	import { getCourseData } from '$lib/courseData';
+	import { buildGetCourseData } from '$lib/courseData';
 	import { generateCourseColor } from '$lib/colors';
 	import {
 		getCourseLists,
 		getDegreeRequirementCourses
 	} from '$lib/requirements';
-	import { goto } from '$app/navigation';
+	import { goto, beforeNavigate } from '$app/navigation';
+
+	const { abort, getCourseData } = buildGetCourseData();
+
+	beforeNavigate(() => {
+		abort();
+	});
 
 	const semester = Promise.all(
 		$semesters.at($currentSemester)?.map(getCourseData) ?? []

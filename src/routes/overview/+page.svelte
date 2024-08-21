@@ -7,14 +7,20 @@
 		degreeProgress
 	} from '$lib/stores';
 
-	import { getCourseData } from '$lib/courseData';
+	import { buildGetCourseData } from '$lib/courseData';
 
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import { getCourseLists } from '$lib/requirements';
 	import { getProgress } from '$lib/progress';
 	import { generateCourseColor } from '$lib/colors';
-	import { goto } from '$app/navigation';
+	import { goto, beforeNavigate } from '$app/navigation';
 	import ScheduleError from './components/ScheduleError.svelte';
+
+	const { abort, getCourseData } = buildGetCourseData();
+
+	beforeNavigate(() => {
+		abort();
+	});
 
 	function getAvgMedian(courses: Course[]): number {
 		const medians: number[] = courses

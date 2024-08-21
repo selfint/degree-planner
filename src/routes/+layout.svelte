@@ -5,12 +5,21 @@
 	import '../app.css';
 
 	import { username, storesHook, loadStores } from '$lib/stores';
-	import { goto } from '$app/navigation';
+	import {
+		goto,
+		onNavigate,
+		afterNavigate,
+		beforeNavigate
+	} from '$app/navigation';
 	import { onMount } from 'svelte';
 
 	import { browser } from '$app/environment';
 
 	import TitleBar from '$lib/components/TitleBar.svelte';
+
+	import { degreeData } from '$lib/stores';
+	import { getDegreeRequirementCourses } from '$lib/requirements';
+	import { getCourseData } from '$lib/courseData';
 
 	injectSpeedInsights();
 	inject();
@@ -18,6 +27,37 @@
 	function onGetStarted() {
 		goto('/user');
 	}
+
+	function loadData(): AbortController {
+		const abort = new AbortController();
+		const abortSignal = abort.signal;
+
+		// lazily load all courses from the degree requirements
+		$degreeData
+			?.then((d) => getDegreeRequirementCourses(d.requirements))
+			.catch(() => [])
+			.then((ls) =>
+				ls.map((l) =>
+					l.courses.map((c) =>
+						getCourseData(c, { abortSignal }).catch(() => {})
+					)
+				)
+			)
+			.catch(() => {});
+
+		return abort;
+	}
+
+	let abort: AbortController | undefined = loadData();
+
+	beforeNavigate(() => {
+		abort?.abort('navigating');
+		abort = undefined;
+	});
+
+	afterNavigate(() => {
+		abort = loadData();
+	});
 
 	onMount(() => {
 		if (browser) {

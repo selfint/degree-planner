@@ -9,7 +9,9 @@
 		wishlist
 	} from '$lib/stores';
 
-	import { getCourseData, cacheDegreeCourses } from '$lib/courseData';
+	import { buildGetCourseData, cacheDegreeCourses } from '$lib/courseData';
+
+	import { beforeNavigate } from '$app/navigation';
 
 	import Select from '$lib/components/Select.svelte';
 	import Button from '$lib/components/Button.svelte';
@@ -19,6 +21,12 @@
 
 	import { loadDegreeData } from '$lib/requirements';
 	import { getProgress } from '$lib/progress';
+
+	const { abort, getCourseData } = buildGetCourseData();
+
+	beforeNavigate(() => {
+		abort();
+	});
 
 	if ($username === undefined) {
 		$username = 'guest';

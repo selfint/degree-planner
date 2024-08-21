@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { getCourseData, getAllCoursesSync } from '$lib/courseData';
+	import { buildGetCourseData, getAllCoursesSync } from '$lib/courseData';
 
-	import { goto } from '$app/navigation';
+	import { goto, beforeNavigate } from '$app/navigation';
 
 	import {
 		currentSemester,
@@ -21,6 +21,12 @@
 	import type { PageData } from './$types';
 
 	export let data: PageData;
+
+	const { abort, getCourseData } = buildGetCourseData();
+
+	beforeNavigate(() => {
+		abort();
+	});
 
 	function formatRequirementName(name: string): string {
 		return name

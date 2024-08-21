@@ -1,16 +1,17 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-
 	import { goto } from '$app/navigation';
 
 	import { degreeData } from '$lib/stores';
-
 	import CourseElement from '$lib/components/CourseElement.svelte';
-
 	import { getCourseLists } from '$lib/requirements';
-	import { getAllCourses, getCourseData } from '$lib/courseData';
+	import {
+		getAllCourses,
+		getCourseData,
+		courseCodeIsValid
+	} from '$lib/courseData';
 
-	$: query = $page.url.searchParams.get('q') ?? '';
+	$: query = ($page.url.searchParams.get('q') ?? '').trim();
 
 	const data = getAllCourses();
 	const corpus: Promise<[string, Course][]> = data.then((courses) =>
@@ -28,7 +29,7 @@
 		})
 		// try direct lookup - maybe course is missing
 		.then((results) => {
-			if (results.length === 0) {
+			if (courseCodeIsValid(query) && results.length === 0) {
 				return getCourseData(query).then((c) => [c]);
 			} else {
 				return results;

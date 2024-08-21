@@ -50,15 +50,11 @@
 		);
 	}
 
-	function oldCode(code: string): string {
-		return code.slice(1, 4) + code.slice(5);
-	}
-
 	$: code = $page.params.code;
 	$: requirements = $degreeData?.then((d) =>
 		getCourseLists(d.requirements, code)
 	);
-	$: dependants = Promise.all(getAllCoursesSync()).then((courses) =>
+	$: dependants = getAllCoursesSync().then((courses) =>
 		courses
 			.filter((c) =>
 				(c.connections?.dependencies ?? []).some((group) =>

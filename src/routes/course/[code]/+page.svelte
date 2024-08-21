@@ -18,6 +18,9 @@
 	import { generateRequirementColor, generateCourseColor } from '$lib/colors';
 	import Button from '$lib/components/Button.svelte';
 	import CourseElement from '$lib/components/CourseElement.svelte';
+	import type { PageData } from './$types';
+
+	export let data: PageData;
 
 	$: code = $page.params.code;
 
@@ -59,7 +62,7 @@
 </script>
 
 <div class="m-3">
-	{#await getCourseData(code)}
+	{#await data.course}
 		<p class="text-content-primary">Loading...</p>
 	{:then course}
 		<h1 class="mb-2 text-2xl font-medium text-content-primary">
@@ -135,10 +138,8 @@
 				{/if}
 			{/if}
 		</div>
-	{/await}
 
-	<div class="mt-4">
-		{#await getCourseData(code) then course}
+		<div class="mt-4">
 			{#if (course.connections?.dependencies ?? []).length !== 0}
 				<div class="pb-4">
 					<h1 class="pb-1 text-lg font-medium text-content-primary">
@@ -231,6 +232,6 @@
 					{/each}
 				</div>
 			</div>
-		{/await}
-	</div>
+		</div>
+	{/await}
 </div>

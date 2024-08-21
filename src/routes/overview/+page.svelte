@@ -219,8 +219,7 @@
 											style="background: {generateCourseColor(days0.first[0])}"
 											class="mb-1 mr-0.5 w-fit p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
 										>
-											{days0.first[1].getDay() + 1}/{days0.first[1].getMonth() +
-												1}
+											{days0.first[1].getDate()}/{days0.first[1].getMonth() + 1}
 										</div>
 										{#each days0.next as [c, days]}
 											<div
@@ -240,8 +239,7 @@
 											style="background: {generateCourseColor(days1.first[0])}"
 											class="mb-1 mr-0.5 w-fit p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
 										>
-											{days1.first[1].getDay() + 1}/{days1.first[1].getMonth() +
-												1}
+											{days1.first[1].getDate()}/{days1.first[1].getMonth() + 1}
 										</div>
 										{#each days1.next as [c, days]}
 											<div

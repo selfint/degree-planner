@@ -64,7 +64,10 @@
 	const maxTotalSemesters = 15;
 
 	$: semesterChoice = $currentSemester;
-	$: totalSemestersChoice = $semesters.length;
+	let totalSemestersChoice = $semesters.length;
+
+	semesters.subscribe((s) => (totalSemestersChoice = s.length));
+
 	$: maxNonEmptySemesterIndex =
 		$semesters
 			.map((s, i) => [s.length, i])

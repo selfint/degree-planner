@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
+	import { goto, beforeNavigate } from '$app/navigation';
 
 	import { degreeData } from '$lib/stores';
-	import { getCourseData } from '$lib/courseData';
+	import { buildGetCourseData } from '$lib/courseData';
 	import CourseElement from '$lib/components/CourseElement.svelte';
 
 	import { getCourseLists } from '$lib/requirements';
@@ -12,6 +12,12 @@
 	export let titles: string[];
 	export let colorize: boolean = true;
 	export let codes: string[];
+
+	const { abort, getCourseData } = buildGetCourseData();
+
+	beforeNavigate(() => {
+		abort();
+	});
 
 	function formatName(name: string): string {
 		return name
@@ -23,7 +29,7 @@
 	async function getCourseGroups(
 		codes: string[]
 	): Promise<[string, Course[]][]> {
-		const courses = await Promise.all(codes.map(getCourseData)).then(
+		const courses = await Promise.all(codes.map((c) => getCourseData(c))).then(
 			(courses) =>
 				courses
 					.toSorted((a, b) => {
@@ -61,6 +67,8 @@
 
 		return groups;
 	}
+
+	console.log('Row: ', titles, codes.slice(0, 5));
 </script>
 
 <div class="mb-4 min-h-[118px] max-w-full">

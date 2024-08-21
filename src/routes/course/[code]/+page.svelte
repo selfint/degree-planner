@@ -205,12 +205,12 @@
 				<h1 class="pb-1 text-lg font-medium text-content-primary">
 					Dependants
 				</h1>
-				<div class="flex flex-row space-x-2 overflow-x-auto">
+				<div class="flex flex-row flex-wrap">
 					{#each getAllCoursesSync() as c, i}
 						{#await c then c}
 							{#if (c.connections?.dependencies ?? []).some( (group) => group.includes(course.code) )}
 								<div
-									class="container w-fit"
+									class="container w-fit pb-4 pr-2"
 									tabindex={i}
 									role="button"
 									on:click={() => goto(`/course/${c.code}`)}

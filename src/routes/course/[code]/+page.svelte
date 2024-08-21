@@ -22,8 +22,6 @@
 
 	export let data: PageData;
 
-	$: code = $page.params.code;
-
 	const requirements = $degreeData?.then((d) =>
 		getCourseLists(d.requirements, code)
 	);
@@ -59,6 +57,26 @@
 	function oldCode(code: string): string {
 		return code.slice(1, 4) + code.slice(5);
 	}
+
+	$: code = $page.params.code;
+	$: dependants = Promise.all(getAllCoursesSync()).then((courses) =>
+		courses
+			.filter((c) =>
+				(c.connections?.dependencies ?? []).some((group) =>
+					group.includes(code)
+				)
+			)
+			.filter((c) => c.code !== undefined && c.name !== undefined)
+			.toSorted((a, b) => {
+				const medians = (b.median ?? 0) - (a.median ?? 0);
+
+				if (medians !== 0) {
+					return medians;
+				}
+
+				return a.code.localeCompare(b.code);
+			})
+	);
 </script>
 
 <div class="m-3">
@@ -202,13 +220,13 @@
 				</div>
 			{/if}
 			<div>
-				<h1 class="pb-1 text-lg font-medium text-content-primary">
-					Dependants
-				</h1>
-				<div class="flex flex-row flex-wrap">
-					{#each getAllCoursesSync() as c, i}
-						{#await c then c}
-							{#if (c.connections?.dependencies ?? []).some( (group) => group.includes(course.code) )}
+				{#await dependants then dependants}
+					{#if dependants.length > 0}
+						<h1 class="pb-1 text-lg font-medium text-content-primary">
+							Dependants
+						</h1>
+						<div class="flex flex-row flex-wrap">
+							{#each dependants as c, i}
 								<div
 									class="container w-fit pb-4 pr-2"
 									tabindex={i}
@@ -227,10 +245,10 @@
 										)}
 									/>
 								</div>
-							{/if}
-						{/await}
-					{/each}
-				</div>
+							{/each}
+						</div>
+					{/if}
+				{/await}
 			</div>
 		</div>
 	{/await}

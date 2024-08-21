@@ -67,8 +67,6 @@
 
 		return groups;
 	}
-
-	console.log('Row: ', titles, codes.slice(0, 5));
 </script>
 
 <div class="mb-4 min-h-[118px] max-w-full">

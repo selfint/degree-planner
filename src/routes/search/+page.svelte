@@ -8,7 +8,7 @@
 	import CourseElement from '$lib/components/CourseElement.svelte';
 
 	import { getCourseLists } from '$lib/requirements';
-	import { getAllCourses } from '$lib/courseData';
+	import { getAllCourses, getCourseData } from '$lib/courseData';
 
 	$: query = $page.url.searchParams.get('q') ?? '';
 
@@ -17,14 +17,23 @@
 		courses.map((course) => [(course.name ?? '') + course.code, course])
 	);
 
-	$: searchResults = corpus.then((corpus) => {
-		return corpus
-			.filter(([name, _]) => name.includes(query))
-			.map(([_, course]) => course)
-			.toSorted((a, b) => {
-				return (b.median ?? 0) - (a.median ?? 0);
-			});
-	});
+	$: searchResults = corpus
+		.then((corpus) => {
+			return corpus
+				.filter(([name, _]) => name.includes(query))
+				.map(([_, course]) => course)
+				.toSorted((a, b) => {
+					return (b.median ?? 0) - (a.median ?? 0);
+				});
+		})
+		// try direct lookup - maybe course is missing
+		.then((results) => {
+			if (results.length === 0) {
+				return getCourseData(query).then((c) => [c]);
+			} else {
+				return results;
+			}
+		});
 </script>
 
 <div class="m-3 text-content-primary">

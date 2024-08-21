@@ -9,7 +9,15 @@ export function getAllCoursesSync(): Promise<Course>[] {
 	return Array.from(courseData.values());
 }
 
+export function courseCodeIsValid(code: string): boolean {
+	return /^\d{8}$/.test(code);
+}
+
 export function getCourseData(code: string): Promise<Course> {
+	if (!courseCodeIsValid(code)) {
+		return Promise.reject(new Error('Invalid course code ' + code));
+	}
+
 	const data = courseData.get(code);
 	if (data === undefined) {
 		// Fetch first from cache, then from server if cache fails

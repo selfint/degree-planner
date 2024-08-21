@@ -34,7 +34,7 @@ export function getCourseData(
 	const data = courseData.get(code);
 	if (data === undefined) {
 		let done = false;
-		const getData = async () => {
+		async function getData(): Promise<Course> {
 			// Fetch first from cache, then from server if cache fails
 			try {
 				const cacheRes = await fetch(cacheRoute + code + '.json', {
@@ -68,9 +68,19 @@ export function getCourseData(
 					' error: ' +
 					JSON.stringify(error)
 			);
-		};
+		}
 
-		const future = getData();
+		const future = getData()
+			// start fetching dependencies
+			.then((course) => {
+				course.connections?.dependencies.forEach((dep) => {
+					dep.forEach((code) => {
+						getCourseData(code);
+					});
+				});
+
+				return course;
+			});
 		courseData.set(code, future);
 
 		if (opts?.abortSignal) {

@@ -16,7 +16,7 @@
 		// @ts-expect-error
 		faculty === undefined ? undefined : Object.keys(manifest[year][faculty]);
 
-	let [year, faculty, path] = degree ?? [undefined, undefined, undefined];
+	$: [year, faculty, path] = degree ?? [undefined, undefined, undefined];
 
 	if (year === undefined) {
 		year = years[0];

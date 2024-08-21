@@ -22,10 +22,6 @@
 
 	export let data: PageData;
 
-	const requirements = $degreeData?.then((d) =>
-		getCourseLists(d.requirements, code)
-	);
-
 	function formatRequirementName(name: string): string {
 		return name
 			.split('_')
@@ -59,6 +55,9 @@
 	}
 
 	$: code = $page.params.code;
+	$: requirements = $degreeData?.then((d) =>
+		getCourseLists(d.requirements, code)
+	);
 	$: dependants = Promise.all(getAllCoursesSync()).then((courses) =>
 		courses
 			.filter((c) =>

@@ -27,14 +27,10 @@
 		(course.connections?.dependencies ?? []).map(
 			async (group) => await Promise.all(group.map(getCourseData))
 		)
-	).then((dep) =>
-		dep
-			.map((g) => g.filter((c) => c.name !== undefined))
-			.filter((g) => g.length > 0)
-	);
+	).then((dep) => dep.filter((g) => g.length > 0));
 	const adjacencies = Promise.all(
 		(course.connections?.adjacent ?? []).map(getCourseData)
-	).then((adj) => adj.filter((c) => c.name !== undefined));
+	);
 
 	const dependenciesSatisfied = (dependencies: Course[][]) =>
 		dependencies.length === 0 ||

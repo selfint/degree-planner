@@ -23,12 +23,18 @@ export function buildGetCourseData() {
 	};
 }
 
+/**
+ * Get course data for a course code
+ * @param code Course code
+ * @param opts options - abortSignal: AbortSignal to cancel the request
+ * @returns Course object, will return only the course code if the course is not found
+ */
 export function getCourseData(
 	code: string,
 	opts?: { abortSignal?: AbortSignal }
 ): Promise<Course> {
 	if (!courseCodeIsValid(code)) {
-		return Promise.reject(new Error('Invalid course code ' + code));
+		return Promise.resolve({ code });
 	}
 
 	const data = courseData.get(code);
@@ -48,7 +54,6 @@ export function getCourseData(
 				//
 			}
 
-			let error;
 			try {
 				const serverRes = await fetch(`/api/courseInfo/${code}`, {
 					signal: opts?.abortSignal
@@ -59,15 +64,12 @@ export function getCourseData(
 					return serverRes.json();
 				}
 			} catch (e) {
-				error = e;
+				//
 			}
 
-			throw new Error(
-				'failed fetching course data for ' +
-					code +
-					' error: ' +
-					JSON.stringify(error)
-			);
+			return {
+				code
+			};
 		}
 
 		const future = getData()

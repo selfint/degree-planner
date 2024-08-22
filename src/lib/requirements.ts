@@ -2,6 +2,41 @@ import manifest from '$lib/assets/manifest.json';
 
 import { parseCatalog } from './catalogParser';
 
+function sortObject(obj: any): any {
+	if (Array.isArray(obj)) {
+		return obj.map(sortObject).sort((a, b) => {
+			if (typeof a === 'object' && typeof b === 'object') {
+				return JSON.stringify(a).localeCompare(JSON.stringify(b));
+			}
+			return a > b ? 1 : a < b ? -1 : 0;
+		});
+	} else if (obj !== null && typeof obj === 'object') {
+		if (obj instanceof Map) {
+			// Sort the Map entries by key
+			const sortedMap = new Map(
+				[...obj.entries()]
+					.sort((a, b) => {
+						if (typeof a[0] === 'object' && typeof b[0] === 'object') {
+							return JSON.stringify(a[0]).localeCompare(JSON.stringify(b[0]));
+						}
+						return a[0] > b[0] ? 1 : a[0] < b[0] ? -1 : 0;
+					})
+					.map(([key, value]) => [sortObject(key), sortObject(value)])
+			);
+			return sortedMap;
+		} else {
+			const sortedObj: { [key: string]: any } = {};
+			Object.keys(obj)
+				.sort()
+				.forEach((key) => {
+					sortedObj[key] = sortObject(obj[key]);
+				});
+			return sortedObj;
+		}
+	}
+	return obj;
+}
+
 async function get(degree: Degree, ...path: string[]): Promise<string> {
 	const response = await fetch(`/_db/${degree.join('/')}/${path.join('/')}`);
 
@@ -17,27 +52,29 @@ async function loadChoiceHeader(
 	choiceHeader: ChoiceHeader,
 	...path: string[]
 ): Promise<Choice> {
-	const options = new Map<string, Requirement>();
-
-	const amount = parseInt(await get(degree, ...path, 'choice', 'amount'));
+	const amount = get(degree, ...path, 'choice', 'amount').then(parseInt);
 	const optionHeaders = Object.entries<RequirementHeader>(choiceHeader).filter(
 		([option]) => option !== 'amount'
 	);
-	for (const [option, requirement] of optionHeaders) {
-		options.set(
-			option,
-			await loadRequirementHeader(
-				degree,
-				requirement,
-				...path,
-				'choice',
-				option
-			)
-		);
-	}
+
+	const options = new Map<string, Requirement>();
+	await Promise.all(
+		optionHeaders.map(async ([option, requirement]) => {
+			options.set(
+				option,
+				await loadRequirementHeader(
+					degree,
+					requirement,
+					...path,
+					'choice',
+					option
+				)
+			);
+		})
+	);
 
 	return {
-		amount,
+		amount: await amount,
 		options
 	};
 }
@@ -47,89 +84,98 @@ async function loadRequirementHeader(
 	header: RequirementHeader,
 	...path: string[]
 ): Promise<Requirement> {
+	const coursesF =
+		header.courses === null
+			? get(degree, ...path, 'courses').then(parseCatalog)
+			: undefined;
+	const pointsF =
+		header.points === null
+			? get(degree, ...path, 'points').then(parseFloat)
+			: undefined;
+	const countF =
+		header.count === null
+			? get(degree, ...path, 'count').then(parseInt)
+			: undefined;
+	const overflowF =
+		header.overflow === null ? get(degree, ...path, 'overflow') : undefined;
+	const choiceF =
+		header.choice === undefined
+			? undefined
+			: loadChoiceHeader(degree, header.choice, ...path);
+
+	const [courses, points, count, overflow, choice] = await Promise.all([
+		coursesF,
+		pointsF,
+		countF,
+		overflowF,
+		choiceF
+	]);
+
 	let requirements = {
-		courses:
-			header.courses === null
-				? parseCatalog(await get(degree, ...path, 'courses'))
-				: undefined,
-		points:
-			header.points === null
-				? parseFloat(await get(degree, ...path, 'points'))
-				: undefined,
-		count:
-			header.count === null
-				? parseInt(await get(degree, ...path, 'count'))
-				: undefined,
-		overflow:
-			header.overflow === null
-				? await get(degree, ...path, 'overflow')
-				: undefined,
-		...(header.choice === undefined
-			? {}
-			: { choice: await loadChoiceHeader(degree, header.choice, ...path) })
+		courses,
+		points,
+		count,
+		overflow,
+		choice
 	};
 
+	// remove undefined values
 	// @ts-expect-error
 	requirements = Object.fromEntries(
-		Object.entries(requirements).filter(([_, value]) => value !== undefined)
+		Object.entries(requirements).filter(([, value]) => value !== undefined)
 	);
 
 	return requirements;
 }
 
-export async function loadDegreeRequirements(
+async function loadDegreeRequirements(
 	degree: Degree,
 	header: RequirementsHeader
 ): Promise<DegreeRequirements> {
-	const requirements = new Map<string, Requirement>();
+	const points = get(degree, 'requirements', 'points').then(parseFloat);
 
 	const conditions = Object.entries(header).filter(
 		([name]) => !['points'].includes(name)
 	);
-
-	const points = parseFloat(await get(degree, 'requirements', 'points'));
-
-	for (const [name, requirement] of conditions) {
-		requirements.set(
-			name,
-			await loadRequirementHeader(degree, requirement, 'requirements', name)
-		);
-	}
+	const requirements = new Map<string, Requirement>(
+		(await Promise.all(
+			conditions.map(async ([name, requirement]) => [
+				name,
+				await loadRequirementHeader(degree, requirement, 'requirements', name)
+			])
+		)) as [string, Requirement][]
+	);
 
 	return {
-		points,
+		points: await points,
 		requirements
 	};
 }
 
-export async function loadDegreeRecommendation(
+async function loadDegreeRecommendation(
 	degree: Degree,
 	header: Record<string, null>
 ): Promise<string[][]> {
-	let recommendation = [];
-	for (const semester of Object.keys(header).sort()) {
-		recommendation.push(
+	return await Promise.all(
+		Object.keys(header).map(async (semester) =>
 			parseCatalog(await get(degree, 'recommended', semester))
-		);
-	}
-
-	return recommendation;
+		)
+	);
 }
 
 export async function loadDegreeData(degree: Degree): Promise<DegreeData> {
 	// @ts-expect-error
 	const header = manifest[degree[0]][degree[1]][degree[2]];
 
-	const recommended = await loadDegreeRecommendation(
-		degree,
-		header.recommended
-	);
-	const requirements = await loadDegreeRequirements(
-		degree,
-		header.requirements
-	);
+	const recommendedF = loadDegreeRecommendation(degree, header.recommended);
+	const requirementsF = loadDegreeRequirements(degree, header.requirements);
 
-	return { recommended, requirements };
+	const data = {
+		recommended: await recommendedF,
+		requirements: await requirementsF
+	};
+
+	return sortObject(data);
 }
 
 function courseInRequirement(requirement: Requirement, code: string): boolean {

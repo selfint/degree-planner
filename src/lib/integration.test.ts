@@ -2,13 +2,8 @@ import fs from 'fs/promises';
 import path from 'path';
 import { describe, it, vi, beforeEach, afterEach } from 'vitest';
 
-import manifest from '$lib/assets/manifest.json';
-
 import { getProgress } from './progress';
-import {
-	loadDegreeRequirements,
-	loadDegreeRecommendation
-} from './requirements';
+import { loadDegreeData } from './requirements';
 
 const cacheDir = path.resolve('static', '_cache', 'courseData');
 const cachedCourseData = async (code: string): Promise<Course> => {
@@ -39,27 +34,12 @@ describe('Integration', () => {
 	it('should work with CS degree', async (ctx) => {
 		const degree: Degree = ['2023_2024', 'computer_science', '3_year'];
 
-		const recommendedHeader: Record<string, null> =
-			// @ts-expect-error
-			manifest[degree[0]][degree[1]][degree[2]].recommended;
-
-		const requirementsHeader: RequirementsHeader =
-			// @ts-expect-error
-			manifest[degree[0]][degree[1]][degree[2]].requirements;
-
-		const recommended = await loadDegreeRecommendation(
-			degree,
-			recommendedHeader
-		);
-		const requirements = await loadDegreeRequirements(
-			degree,
-			requirementsHeader
-		);
+		const data = await loadDegreeData(degree);
 
 		const progress = await getProgress(
-			recommended,
+			data.recommended,
 			cachedCourseData,
-			requirements
+			data.requirements
 		);
 
 		ctx.expect(progress).toMatchSnapshot();

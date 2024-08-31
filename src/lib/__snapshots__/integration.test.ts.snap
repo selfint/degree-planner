@@ -639,14 +639,14 @@ exports[`Integration > should work with CS degree 1`] = `
           "amount": 1,
           "options": Map {
             "biology_chain" => {
-              "count": 1,
+              "count": 2,
               "courses": [
                 "01340020",
                 "01340058",
               ],
             },
             "physics-chemistry_chain" => {
-              "count": 1,
+              "count": 2,
               "courses": [
                 "01140052",
                 "01240120",
@@ -697,7 +697,7 @@ exports[`Integration > should work with CS degree 1`] = `
           "options": Map {
             "biology_chain" => [
               {
-                "count": 1,
+                "count": 2,
                 "courses": [
                   "01340020",
                   "01340058",
@@ -710,7 +710,7 @@ exports[`Integration > should work with CS degree 1`] = `
             ],
             "physics-chemistry_chain" => [
               {
-                "count": 1,
+                "count": 2,
                 "courses": [
                   "01140052",
                   "01240120",

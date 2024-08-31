@@ -58,9 +58,7 @@ Accept-Language: he
 	});
 
 	if (!response.ok) {
-		console.error(response);
-		console.error(await response.text());
-		throw new Error('Failed to fetch course info');
+		return undefined;
 	}
 
 	const text = await response.text();

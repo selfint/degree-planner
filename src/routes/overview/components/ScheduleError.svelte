@@ -11,6 +11,16 @@
 {#await scheduleError}
 	<p class="p-2 pb-1 pt-1 text-content-secondary">Loading...</p>
 {:then scheduleError}
+	{#if scheduleError.season !== undefined}
+		<div class="flex flex-row items-baseline p-2 pb-1 pt-1">
+			<h2 class="text-base text-content-primary">Season</h2>
+			<div class="ml-2 flex flex-row space-x-2">
+				{#each scheduleError.season as season, i}
+					<p class="w-full text-center text-content-secondary">{season}</p>
+				{/each}
+			</div>
+		</div>
+	{/if}
 	{#if scheduleError.dependencies.length > 0}
 		<div class="p-2 pb-1 pt-1">
 			<h2 class="text-base text-content-primary">Dependencies</h2>

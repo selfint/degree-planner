@@ -10,6 +10,7 @@
 		wishlist
 	} from '$lib/stores';
 	import { buildGetCourseData } from '$lib/courseData';
+	import { getScheduleError } from '$lib/schedule';
 	import { generateCourseColor } from '$lib/colors';
 	import {
 		getCourseLists,
@@ -64,27 +65,15 @@
 	async function getLoLoCo(): Promise<[string, Course[]][]> {
 		const list: [string, Course[]][] = [];
 
-		// filter wishlist courses
-		const wishlist: Course[] = [];
-		for (const course of await wishlistCourses) {
-			if (courseCanBeTaken(course)) {
-				wishlist.push(course);
-			}
-		}
-
-		list.push(['Wishlist', wishlist]);
+		list.push(['Wishlist', await wishlistCourses]);
 
 		for (const [index, courses] of await futureSemesters) {
-			const semesterCourses = courses.filter(courseCanBeTaken);
-
-			list.push([`Semester ${index + 1}`, semesterCourses]);
+			list.push([`Semester ${index + 1}`, courses]);
 		}
 
 		if (requirementCourses !== undefined) {
 			for (const { path, courses } of await requirementCourses) {
-				const filteredCourses = courses.filter(courseCanBeTaken);
-
-				list.push([path.join(' '), filteredCourses]);
+				list.push([path.join(' '), courses]);
 			}
 		}
 
@@ -107,7 +96,25 @@
 				.sort((a, b) => compareCourses(currentSemesterCourses, a, b));
 		}
 
-		return list
+		return (
+			await Promise.all(
+				list.map(
+					async ([title, courses]) =>
+						[
+							title,
+							(
+								await Promise.all(
+									courses.map(
+										async (c) => [c, await courseCanBeTaken(c)] as const
+									)
+								)
+							)
+								.filter(([, canTake]) => canTake)
+								.map(([c]) => c)
+						] as const
+				)
+			)
+		)
 			.map(
 				([title, courses]) =>
 					[title, sortCourses(courses)] as [string, Course[]]
@@ -199,31 +206,16 @@
 		};
 	}
 
-	function courseCanBeTaken(course: Course): boolean {
-		if (course.name === undefined) {
-			return false;
-		}
+	async function courseCanBeTaken(course: Course): Promise<boolean> {
+		const error = await getScheduleError(course, $semesters, $currentSemester);
 
-		const previousCourses = $semesters.slice(0, $currentSemester).flat();
+		const canTake =
+			error.season === undefined &&
+			error.dependencies.length === 0 &&
+			error.adjacencies.length === 0 &&
+			error.exclusives.length === 0;
 
-		if (previousCourses.some((c) => c === course.code)) {
-			return false;
-		}
-
-		if ($semesters[$currentSemester].some((c) => c === course.code)) {
-			return false;
-		}
-
-		const dependencies = course.connections?.dependencies ?? [];
-
-		return (
-			dependencies.length === 0 ||
-			dependencies.some((dependencyGroup) =>
-				dependencyGroup.every((dependency) =>
-					previousCourses.some((code) => code === dependency)
-				)
-			)
-		);
+		return canTake;
 	}
 
 	function formatName(name: string): string {

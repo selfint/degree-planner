@@ -89,8 +89,17 @@ declare global {
 		connections?: CourseConnections;
 		about?: string;
 		tests?: [Test, Test];
+		seasons?: CourseSeasons;
 	};
 
+	type CourseSeasons =
+		| ['Winter', 'Spring', 'Summer']
+		| ['Winter', 'Spring']
+		| ['Winter', 'Summer']
+		| ['Spring', 'Summer']
+		| ['Winter']
+		| ['Spring']
+		| ['Summer'];
 	type CourseData = Map<string, Promise<Course>>;
 }
 

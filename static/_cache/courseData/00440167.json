@@ -1,1 +1,1 @@
-{"code":"00440167","median":96.7,"points":4,"name":"פרוייקט א'","connections":{"dependencies":[["00440102","00440151"],["00440160","00440102"],["00440102","00440157"]],"adjacent":[],"exclusive":[]},"about":""}
+{"code":"00440167","median":96.7,"points":4,"name":"פרוייקט א'","connections":{"dependencies":[["00440102","00440151"],["00440160","00440102"],["00440102","00440157"]],"adjacent":[],"exclusive":[]},"about":"","seasons":["Winter","Spring","Summer"]}

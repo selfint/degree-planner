@@ -14,6 +14,7 @@ export type CourseSAPInfo = {
 			ModuleId: string;
 		}[];
 	};
+	ZzOfferpattern: 'WSSS' | 'WI' | 'WISP' | 'SP';
 };
 
 export async function getCourseInfo(
@@ -151,4 +152,23 @@ export function getConnections(
 		adjacent: [],
 		exclusive: []
 	};
+}
+
+export function getSeasons(
+	courseSAPInfo: CourseSAPInfo
+): CourseSeasons | undefined {
+	const seasons = courseSAPInfo.ZzOfferpattern;
+
+	switch (seasons) {
+		case 'WSSS':
+			return ['Winter', 'Spring', 'Summer'];
+		case 'WI':
+			return ['Winter'];
+		case 'WISP':
+			return ['Winter', 'Spring'];
+		case 'SP':
+			return ['Spring'];
+		default:
+			return undefined;
+	}
 }

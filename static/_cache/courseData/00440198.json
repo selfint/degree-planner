@@ -1,1 +1,1 @@
-{"code":"00440198","median":80.4,"points":3,"name":"מבוא לעבוד ספרתי של אותות","connections":{"dependencies":[["00440131"],["00440130"]],"adjacent":[],"exclusive":[]},"about":"","tests":[{"year":2025,"monthIndex":2,"day":23},{"year":2025,"monthIndex":1,"day":23}]}
+{"code":"00440198","median":80.6,"points":3,"name":"מבוא לעבוד ספרתי של אותות","connections":{"dependencies":[["00440131"],["00440130"]],"adjacent":[],"exclusive":[]},"about":"","tests":[{"year":2025,"monthIndex":1,"day":23},{"year":2025,"monthIndex":2,"day":23}],"seasons":["Winter","Spring"]}

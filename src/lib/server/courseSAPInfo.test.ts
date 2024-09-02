@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest';
 
-import { JSDOM } from 'jsdom';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
 
@@ -11,6 +10,7 @@ import {
 	getAbout,
 	getTests,
 	getCourseInfo,
+	getSeasons,
 	type CourseSAPInfo
 } from './courseSAPInfo';
 
@@ -23,6 +23,20 @@ function getDoc(): CourseSAPInfo {
 describe('Course Info', () => {
 	it('Gets the course info', async (ctx) => {
 		const info = await getCourseInfo('02340218');
+	});
+
+	it('Gets the course seasons', () => {
+		const doc = getDoc();
+
+		const seasons = getSeasons(doc);
+
+		expect(seasons).toMatchInlineSnapshot(`
+			[
+			  "Winter",
+			  "Spring",
+			  "Summer",
+			]
+		`);
 	});
 
 	it('Gets the course tests', () => {

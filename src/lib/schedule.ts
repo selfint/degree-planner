@@ -4,6 +4,7 @@ type ScheduleError = {
 	dependencies: { course: Course; taken: boolean }[][];
 	adjacencies: { course: Course; taken: boolean }[];
 	exclusives: Course[];
+	season?: string[];
 };
 
 export async function getScheduleError(
@@ -13,6 +14,16 @@ export async function getScheduleError(
 ): Promise<ScheduleError> {
 	const semester = semesters[currentSemester];
 	const previous = semesters.slice(0, currentSemester).flat();
+
+	// type gymnastics for typescript
+	type Season = 'Winter' | 'Spring' | 'Summer';
+	const seasons = ['Winter', 'Spring', 'Summer'] as const;
+
+	const currentSeason = seasons[currentSemester % 3];
+	const courseSeason: Season[] | undefined = course.seasons;
+
+	const seasonError =
+		courseSeason !== undefined && !courseSeason.includes(currentSeason);
 
 	function dependencyTaken(course: Course): boolean {
 		return (
@@ -54,6 +65,7 @@ export async function getScheduleError(
 		adjacencies: adjacenciesSatisfied
 			? []
 			: adjacencies.map((c) => ({ course: c, taken: adjacencyTaken(c) })),
-		exclusives: []
+		exclusives: [],
+		season: seasonError ? courseSeason : undefined
 	};
 }

@@ -6,11 +6,52 @@
 	},
 	"Otjid": "SM02340218",
 	"Points": "3.00000",
+	"Peryr": "2024",
+	"Perid": "200",
+	"Category": "LEC",
+	"CategoryText": "הרצאה",
+	"CreditsPrereqsDescription": "",
+	"CreditsPrereqsHeadline": "",
+	"Descr": "",
+	"IgnoreFilterFlag": false,
+	"ModuleChoicesDescription": "",
+	"ModuleChoicesHeadline": "הערות",
 	"Name": "מבני נתונים 1",
+	"ObjectiveDescription": "",
+	"ObjectiveHeadline": "שם קצר בעברית",
+	"OrgId": "00002120",
 	"OrgText": "הפקולטה למדעי המחשב",
+	"PointsMaximum": "3.00000",
+	"PointsMinimum": "3.00000",
+	"ScaleDescription": "A-F with +/-",
+	"ScaleId": "",
+	"Seark": "",
+	"Short": "מק-02340218",
 	"StudyContentDescription": "הקורס יקנה ידע במבני נתונים בסיסיים, באנליזה, ביישומים ובשימושים שונים שלהם. יושם דגש על התאמת מבני הנתונים לצרכי הבעיה הנתונה. סוגי מבנים: חזרה על המבנים הפשוטים (מערכים, רשימות, מחסניות ותורים), רשימות דילוגים, תורי עדיפות, ערמות, עצים דיגיטלים ( SEIRT ). מיון וחיפוש. עצים וגרפים וייצוגיהם. הקצאת זכרון, ערבול, איסוף אשפה.",
-	"ZzAcademicLevelText": "קדם אקדמי/תיכוני",
+	"StudyContentHeadline": "תוכן המקצוע - סילבוס",
+	"Unit": "CP",
+	"ZzAcademicLevel": "0001",
+	"ZzAcademicLevelText": "לימודי הסמכה",
+	"ZzCgOtjid": "",
+	"ZzMaxRecommendedPerid": "0000",
+	"ZzMinRecommendedPerid": "0000",
+	"ZzOfferpattern": "WSSS",
+	"ZzOfferpatternText": "חורף + אביב + קיץ",
+	"ZzPersonalized": false,
+	"ZzPoVersion": "",
+	"ZzRecommendedPeridUnit": "0000",
+	"ZzRelationship": "",
+	"ZzRelationshipKey": "",
+	"ZzScOtjid": "",
 	"ZzSemesterNote": "",
+	"ZzSemesterNoteLabel": "הערה לסמסטר",
+	"ZzSmLanguage": "B",
+	"ZzSmLanguageText": "עברית",
+	"Organizations": {
+		"__deferred": {
+			"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM02340218',Peryr='2024',Perid='200',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/Organizations"
+		}
+	},
 	"Exams": {
 		"results": [
 			{
@@ -74,7 +115,7 @@
 				"Category": "מבחן מועד ב",
 				"CategoryCode": "FB",
 				"DregDateEnd": "                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 20250315000000",
-				"DregDateStart": "0",
+				"DregDateStart": "20250207000000",
 				"ExamBegTime": "PT00H00M00S",
 				"ExamDate": "/Date(1742428800000)/",
 				"ExamEndTime": "PT00H00M00S",
@@ -87,7 +128,7 @@
 				"PointsMaximum": "3.00000",
 				"PointsMinimum": "3.00000",
 				"RegisDateEnd": "20250315000000",
-				"RegisDateStart": "0",
+				"RegisDateStart": "20250207000000",
 				"RoomName": "",
 				"RoomOtjid": "",
 				"Seark": "",
@@ -113,7 +154,22 @@
 			}
 		]
 	},
+	"Achievements": {
+		"__deferred": {
+			"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM02340218',Peryr='2024',Perid='200',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/Achievements"
+		}
+	},
+	"Events": {
+		"__deferred": {
+			"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM02340218',Peryr='2024',Perid='200',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/Events"
+		}
+	},
 	"Responsible": { "results": [] },
+	"Partof": {
+		"__deferred": {
+			"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM02340218',Peryr='2024',Perid='200',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/Partof"
+		}
+	},
 	"SmRelations": {
 		"results": [
 			{
@@ -158,7 +214,7 @@
 				"ZzPersonalized": false,
 				"ZzPoVersion": "",
 				"ZzRecommendedPeridUnit": "0000",
-				"ZzRelationship": "",
+				"ZzRelationship": "מכיל",
 				"ZzRelationshipKey": "BZCC",
 				"ZzScOtjid": "",
 				"ZzSemesterNote": "",
@@ -263,7 +319,7 @@
 				"ZzPersonalized": false,
 				"ZzPoVersion": "",
 				"ZzRecommendedPeridUnit": "0000",
-				"ZzRelationship": "",
+				"ZzRelationship": "אין קרדיט נוסף",
 				"ZzRelationshipKey": "AZEC",
 				"ZzScOtjid": "",
 				"ZzSemesterNote": "",
@@ -368,7 +424,7 @@
 				"ZzPersonalized": false,
 				"ZzPoVersion": "",
 				"ZzRecommendedPeridUnit": "0000",
-				"ZzRelationship": "",
+				"ZzRelationship": "אין קרדיט נוסף",
 				"ZzRelationshipKey": "AZEC",
 				"ZzScOtjid": "",
 				"ZzSemesterNote": "",
@@ -473,7 +529,7 @@
 				"ZzPersonalized": false,
 				"ZzPoVersion": "",
 				"ZzRecommendedPeridUnit": "0000",
-				"ZzRelationship": "",
+				"ZzRelationship": "אין קרדיט נוסף",
 				"ZzRelationshipKey": "AZEC",
 				"ZzScOtjid": "",
 				"ZzSemesterNote": "",
@@ -578,7 +634,7 @@
 				"ZzPersonalized": false,
 				"ZzPoVersion": "",
 				"ZzRecommendedPeridUnit": "0000",
-				"ZzRelationship": "",
+				"ZzRelationship": "אין קרדיט נוסף",
 				"ZzRelationshipKey": "AZEC",
 				"ZzScOtjid": "",
 				"ZzSemesterNote": "",
@@ -683,7 +739,7 @@
 				"ZzPersonalized": false,
 				"ZzPoVersion": "",
 				"ZzRecommendedPeridUnit": "0000",
-				"ZzRelationship": "",
+				"ZzRelationship": "אין קרדיט נוסף",
 				"ZzRelationshipKey": "AZEC",
 				"ZzScOtjid": "",
 				"ZzSemesterNote": "",
@@ -748,6 +804,16 @@
 			}
 		]
 	},
+	"SmRelationsReverse": {
+		"__deferred": {
+			"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM02340218',Peryr='2024',Perid='200',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/SmRelationsReverse"
+		}
+	},
+	"SmOfferedPeriodSet": {
+		"__deferred": {
+			"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM02340218',Peryr='2024',Perid='200',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/SmOfferedPeriodSet"
+		}
+	},
 	"SmPrereq": {
 		"results": [
 			{
@@ -756,10 +822,10 @@
 					"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmPrerequisitesSet(DependentModuleId='02340218',LineNumber='001')",
 					"type": "NVIAS_CDIR_DATA_SRV.SmPrerequisites"
 				},
-				"Peryr": "2024",
 				"DependentModuleId": "02340218",
-				"Perid": "200",
+				"Peryr": "2024",
 				"Bracket": "(",
+				"Perid": "200",
 				"ModuleId": "02340141",
 				"ModuleShort": "מק-02340141",
 				"ModuleName": "קומבינטוריקה למדעי המחשב",
@@ -772,10 +838,10 @@
 					"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmPrerequisitesSet(DependentModuleId='02340218',LineNumber='002')",
 					"type": "NVIAS_CDIR_DATA_SRV.SmPrerequisites"
 				},
-				"Peryr": "2024",
 				"DependentModuleId": "02340218",
-				"Perid": "200",
+				"Peryr": "2024",
 				"Bracket": "",
+				"Perid": "200",
 				"ModuleId": "02340124",
 				"ModuleShort": "מק-02340124",
 				"ModuleName": "מבוא לתכנות מערכות",
@@ -788,10 +854,10 @@
 					"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmPrerequisitesSet(DependentModuleId='02340218',LineNumber='003')",
 					"type": "NVIAS_CDIR_DATA_SRV.SmPrerequisites"
 				},
-				"Peryr": "0000",
 				"DependentModuleId": "02340218",
-				"Perid": "000",
+				"Peryr": "0000",
 				"Bracket": ")",
+				"Perid": "000",
 				"ModuleId": "00000000",
 				"ModuleShort": "",
 				"ModuleName": "",
@@ -804,10 +870,10 @@
 					"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmPrerequisitesSet(DependentModuleId='02340218',LineNumber='004')",
 					"type": "NVIAS_CDIR_DATA_SRV.SmPrerequisites"
 				},
-				"Peryr": "2024",
 				"DependentModuleId": "02340218",
-				"Perid": "200",
+				"Peryr": "2024",
 				"Bracket": "(",
+				"Perid": "200",
 				"ModuleId": "02340124",
 				"ModuleShort": "מק-02340124",
 				"ModuleName": "מבוא לתכנות מערכות",
@@ -820,10 +886,10 @@
 					"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmPrerequisitesSet(DependentModuleId='02340218',LineNumber='005')",
 					"type": "NVIAS_CDIR_DATA_SRV.SmPrerequisites"
 				},
-				"Peryr": "2024",
 				"DependentModuleId": "02340218",
-				"Perid": "200",
+				"Peryr": "2024",
 				"Bracket": "",
+				"Perid": "200",
 				"ModuleId": "01040286",
 				"ModuleShort": "מק-01040286",
 				"ModuleName": "קומבינטוריקה",
@@ -836,10 +902,10 @@
 					"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmPrerequisitesSet(DependentModuleId='02340218',LineNumber='006')",
 					"type": "NVIAS_CDIR_DATA_SRV.SmPrerequisites"
 				},
-				"Peryr": "0000",
 				"DependentModuleId": "02340218",
-				"Perid": "000",
+				"Peryr": "0000",
 				"Bracket": ")",
+				"Perid": "000",
 				"ModuleId": "00000000",
 				"ModuleShort": "",
 				"ModuleName": "",
@@ -852,10 +918,10 @@
 					"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmPrerequisitesSet(DependentModuleId='02340218',LineNumber='007')",
 					"type": "NVIAS_CDIR_DATA_SRV.SmPrerequisites"
 				},
-				"Peryr": "2024",
 				"DependentModuleId": "02340218",
-				"Perid": "200",
+				"Peryr": "2024",
 				"Bracket": "(",
+				"Perid": "200",
 				"ModuleId": "01040286",
 				"ModuleShort": "מק-01040286",
 				"ModuleName": "קומבינטוריקה",
@@ -868,10 +934,10 @@
 					"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmPrerequisitesSet(DependentModuleId='02340218',LineNumber='008')",
 					"type": "NVIAS_CDIR_DATA_SRV.SmPrerequisites"
 				},
-				"Peryr": "0000",
 				"DependentModuleId": "02340218",
-				"Perid": "000",
+				"Peryr": "0000",
 				"Bracket": "",
+				"Perid": "000",
 				"ModuleId": "02340122",
 				"ModuleShort": "מק-02340122",
 				"ModuleName": "מבוא לתכנות מערכות",
@@ -884,10 +950,10 @@
 					"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmPrerequisitesSet(DependentModuleId='02340218',LineNumber='009')",
 					"type": "NVIAS_CDIR_DATA_SRV.SmPrerequisites"
 				},
-				"Peryr": "0000",
 				"DependentModuleId": "02340218",
-				"Perid": "000",
+				"Peryr": "0000",
 				"Bracket": ")",
+				"Perid": "000",
 				"ModuleId": "00000000",
 				"ModuleShort": "",
 				"ModuleName": "",
@@ -900,10 +966,10 @@
 					"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmPrerequisitesSet(DependentModuleId='02340218',LineNumber='010')",
 					"type": "NVIAS_CDIR_DATA_SRV.SmPrerequisites"
 				},
-				"Peryr": "0000",
 				"DependentModuleId": "02340218",
-				"Perid": "000",
+				"Peryr": "0000",
 				"Bracket": "(",
+				"Perid": "000",
 				"ModuleId": "02340122",
 				"ModuleShort": "מק-02340122",
 				"ModuleName": "מבוא לתכנות מערכות",
@@ -916,10 +982,10 @@
 					"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmPrerequisitesSet(DependentModuleId='02340218',LineNumber='011')",
 					"type": "NVIAS_CDIR_DATA_SRV.SmPrerequisites"
 				},
-				"Peryr": "2024",
 				"DependentModuleId": "02340218",
-				"Perid": "200",
+				"Peryr": "2024",
 				"Bracket": "",
+				"Perid": "200",
 				"ModuleId": "02340141",
 				"ModuleShort": "מק-02340141",
 				"ModuleName": "קומבינטוריקה למדעי המחשב",
@@ -932,10 +998,10 @@
 					"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmPrerequisitesSet(DependentModuleId='02340218',LineNumber='012')",
 					"type": "NVIAS_CDIR_DATA_SRV.SmPrerequisites"
 				},
-				"Peryr": "0000",
 				"DependentModuleId": "02340218",
-				"Perid": "000",
+				"Peryr": "0000",
 				"Bracket": ")",
+				"Perid": "000",
 				"ModuleId": "00000000",
 				"ModuleShort": "",
 				"ModuleName": "",
@@ -943,5 +1009,10 @@
 				"LineNumber": "012"
 			}
 		]
+	},
+	"SeObjectSet": {
+		"__deferred": {
+			"uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM02340218',Peryr='2024',Perid='200',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/SeObjectSet"
+		}
 	}
 }

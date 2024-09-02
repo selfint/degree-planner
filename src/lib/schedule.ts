@@ -31,16 +31,12 @@ export async function getScheduleError(
 
 	const dependencies = await Promise.all(
 		(course.connections?.dependencies ?? []).map(
-			async (group) => await Promise.all(group.map(getCourseData))
+			async (group) => await Promise.all(group.map((c) => getCourseData(c)))
 		)
-	).then((dep) =>
-		dep
-			.map((g) => g.filter((c) => (c.name ?? '').includes('-')))
-			.filter((g) => g.length > 0)
-	);
+	).then((dep) => dep.filter((g) => g.length > 0));
 	const adjacencies = await Promise.all(
-		(course.connections?.adjacent ?? []).map(getCourseData)
-	).then((adj) => adj.filter((c) => (c.name ?? '').includes('-')));
+		(course.connections?.adjacent ?? []).map((c) => getCourseData(c))
+	);
 
 	const dependenciesSatisfied =
 		dependencies.length === 0 ||
@@ -50,6 +46,14 @@ export async function getScheduleError(
 		adjacencies.length === 0 || adjacencies.some(adjacencyTaken);
 
 	return {
-		dependencies: dependenciesSatisfied ? [] : dependencies
+		dependencies: dependenciesSatisfied
+			? []
+			: dependencies.map((g) =>
+					g.map((c) => ({ course: c, taken: dependencyTaken(c) }))
+				),
+		adjacencies: adjacenciesSatisfied
+			? []
+			: adjacencies.map((c) => ({ course: c, taken: adjacencyTaken(c) })),
+		exclusives: []
 	};
 }

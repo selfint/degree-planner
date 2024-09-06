@@ -37,7 +37,7 @@
 		});
 </script>
 
-<div class="m-3 text-content-primary">
+<div class="m-3 mr-0 text-content-primary">
 	{#await searchResults}
 		<p>Loading...</p>
 	{:then results}

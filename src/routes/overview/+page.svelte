@@ -118,7 +118,7 @@
 	}
 </script>
 
-<div class="m-3">
+<div class="m-3 mr-0">
 	<div
 		class="mb-4 min-h-[118px]"
 		on:dragenter={(e) => {

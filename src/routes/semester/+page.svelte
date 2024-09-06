@@ -226,7 +226,7 @@
 	}
 </script>
 
-<div class="m-3 flex flex-row items-start space-x-4">
+<div class="m-3 mr-0 flex flex-row items-start space-x-4">
 	<div class="sticky top-0">
 		<Semester index={$currentSemester} courses={semester}>
 			<div slot="header" let:data>

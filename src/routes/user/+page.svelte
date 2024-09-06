@@ -1,15 +1,17 @@
 <script lang="ts">
+	import { beforeNavigate } from '$app/navigation';
+
 	import {
 		username,
 		degree,
 		degreeData,
 		semesters,
-		degreeProgress,
 		currentSemester,
 		wishlist
 	} from '$lib/stores';
-
-	import { cacheDegreeCourses } from '$lib/courseData';
+	import { cacheDegreeCourses, buildGetCourseData } from '$lib/courseData';
+	import { getProgress } from '$lib/progress';
+	import { loadDegreeData } from '$lib/requirements';
 
 	import Select from '$lib/components/Select.svelte';
 	import Button from '$lib/components/Button.svelte';
@@ -17,11 +19,32 @@
 	import DegreeSection from './components/DegreeSection.svelte';
 	import DegreeProgressElement from './components/DegreeProgressElement.svelte';
 
-	import { loadDegreeData } from '$lib/requirements';
+	const { abort, getCourseData } = buildGetCourseData();
+
+	beforeNavigate(() => {
+		abort();
+	});
 
 	if ($username === undefined) {
 		$username = 'guest';
 	}
+
+	$: degreeProgress = $degreeData?.then(async (data) => {
+		const semesterCourses = await Promise.all(
+			$semesters.map(
+				async (s) =>
+					await Promise.all(s.map(async (c) => await getCourseData(c)))
+			)
+		);
+
+		return {
+			current: getProgress(
+				semesterCourses.slice(0, $currentSemester),
+				data.requirements
+			),
+			planned: getProgress(semesterCourses, data.requirements)
+		};
+	});
 
 	// we can't trust svelte to notify us when the degree value *actually*
 	// changes, so we need to keep track of it ourselves
@@ -144,7 +167,11 @@
 		</div>
 	{/if}
 
-	{#if $degreeProgress !== undefined}
-		<DegreeProgressElement degreeProgress={$degreeProgress} />
+	{#if degreeProgress !== undefined}
+		{#await degreeProgress}
+			<div class="text-content-secondary">Loading...</div>
+		{:then { current, planned }}
+			<DegreeProgressElement {current} {planned} />
+		{/await}
 	{/if}
 </div>

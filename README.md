@@ -8,7 +8,7 @@ For fun, this is an interesting project to work on.
 
 ## Data sources
 
-1. Technion student services: https://students.technion.ac.il/local/technionsearch/course
+1. ~Technion student services: https://students.technion.ac.il/local/technionsearch/course~ (deprecated)
 1. Cheese fork histograms: https://michael-maltsev.github.io/technion-histograms
 1. Technion SAP: https://portalex.technion.ac.il
 

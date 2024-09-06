@@ -1,4 +1,4 @@
-import { writable, get } from 'svelte/store';
+import { writable, get, derived } from 'svelte/store';
 import { loadDegreeData } from './requirements';
 import { getProgress } from './progress';
 import { getCourseData } from './courseData';
@@ -8,10 +8,22 @@ export const degree = writable<Degree | undefined>(undefined);
 export const semesters = writable<string[][]>([]);
 export const currentSemester = writable<number>(0);
 export const degreeData = writable<Promise<DegreeData> | undefined>(undefined);
-export const degreeProgress = writable<Promise<DegreeProgress> | undefined>(
-	undefined
-);
 export const wishlist = writable<string[]>([]);
+
+export const degreeProgress = derived(
+	[semesters, degreeData],
+	([$semesters, $degreeData]) =>
+		$degreeData?.then(async (data) => {
+			const semesterCourses = await Promise.all(
+				$semesters.map(
+					async (s) =>
+						await Promise.all(s.map(async (c) => await getCourseData(c)))
+				)
+			);
+
+			return getProgress(semesterCourses, data.requirements);
+		})
+);
 
 export function storesHook() {
 	username.subscribe(saveStores);
@@ -64,15 +76,6 @@ export function loadStores() {
 		degree.set(JSON.parse(_degree));
 		const _degreeData = loadDegreeData(JSON.parse(_degree));
 		degreeData.set(_degreeData);
-		degreeProgress.set(
-			_degreeData.then((data) =>
-				getProgress(
-					JSON.parse(_semesters ?? '[]'),
-					getCourseData,
-					data.requirements
-				)
-			)
-		);
 	}
 
 	if (_semesters !== null) {

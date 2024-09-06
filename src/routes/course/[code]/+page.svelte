@@ -8,12 +8,10 @@
 		currentSemester,
 		degreeData,
 		semesters,
-		wishlist,
-		degreeProgress
+		wishlist
 	} from '$lib/stores';
 
 	import { getCourseLists } from '$lib/requirements';
-	import { getProgress } from '$lib/progress';
 
 	import { generateRequirementColor, generateCourseColor } from '$lib/colors';
 	import Button from '$lib/components/Button.svelte';
@@ -43,17 +41,10 @@
 		if ($wishlist.includes(code)) {
 			$wishlist = $wishlist.filter((c) => c !== code);
 		}
-
-		$degreeProgress = $degreeData?.then((data) =>
-			getProgress($semesters, getCourseData, data.requirements)
-		);
 	}
 
 	function removeCourseFromSemesters(code: string): void {
 		$semesters = $semesters.map((s) => s.filter((c) => c !== code));
-		$degreeProgress = $degreeData?.then((data) =>
-			getProgress($semesters, getCourseData, data.requirements)
-		);
 	}
 
 	$: code = $page.params.code;

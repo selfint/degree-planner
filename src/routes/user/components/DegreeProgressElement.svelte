@@ -24,7 +24,5 @@
 				<ProgressElement {requirementName} {requirement} {progress} />
 			</div>
 		{/each}
-	{:catch error}
-		<div class="text-content-secondary">Error: {error.message}</div>
 	{/await}
 </div>

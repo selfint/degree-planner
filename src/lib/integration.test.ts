@@ -36,9 +36,13 @@ describe('Integration', () => {
 
 		const data = await loadDegreeData(degree);
 
-		const progress = await getProgress(
-			data.recommended,
-			cachedCourseData,
+		const progress = getProgress(
+			await Promise.all(
+				data.recommended.map(
+					async (s) =>
+						await Promise.all(s.map(async (c) => await cachedCourseData(c)))
+				)
+			),
 			data.requirements
 		);
 

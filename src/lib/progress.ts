@@ -1,32 +1,18 @@
-export async function getProgress(
-	semesters: string[][],
-	getCourseData: (code: string) => Promise<Course>,
+export function getProgress(
+	semesters: Course[][],
 	requirements: DegreeRequirements
-): Promise<DegreeProgress> {
-	const courses = [
-		...new Set(
-			Array.from(requirements.requirements.values()).flatMap(
-				getRequirementCourses
-			)
-		)
-	];
-	const points = await Promise.all(
-		courses
-			.filter((course) => semesters.flat().includes(course))
-			.map(async (course) => (await getCourseData(course))?.points ?? 0)
-	);
-	const sumPoints = points.reduce((a, b) => a + b, 0);
+): DegreeProgress {
+	const sumPoints = semesters
+		.flat()
+		.map((course) => course.points ?? 0)
+		.reduce((a, b) => a + b, 0);
 
-	const progress: [string, [Requirement, RequirementProgress]][] =
-		await Promise.all(
-			Array.from(requirements.requirements).map(async ([name, requirement]) => [
-				name,
-				[
-					requirement,
-					await getRequirementProgress(semesters, getCourseData, requirement)
-				]
-			])
-		);
+	const progress: [string, [Requirement, RequirementProgress]][] = Array.from(
+		requirements.requirements
+	).map(([name, requirement]) => [
+		name,
+		[requirement, getRequirementProgress(semesters, requirement)]
+	]);
 
 	// @ts-expect-error
 	const overflows: [string, ProgressOverflow][] = progress
@@ -112,37 +98,34 @@ function checkRequirementCompleted(
 	return false;
 }
 
-async function getRequirementProgress(
-	semesters: string[][],
-	getCourseData: (code: string) => Promise<Course>,
+function getRequirementProgress(
+	semesters: Course[][],
 	requirement: Requirement
-): Promise<RequirementProgress> {
+): RequirementProgress {
 	const courses = getRequirementCourses(requirement);
 	const relevantCourses = [
-		...new Set(semesters.flat().filter((course) => courses.includes(course)))
+		...new Set(
+			semesters.flat().filter((course) => courses.includes(course.code))
+		)
 	];
 
-	let progress = {};
+	let progress: RequirementProgress = {};
 
 	if (requirement.points !== undefined) {
 		let points = 0;
 		for (const course of relevantCourses) {
-			points += (await getCourseData(course))?.points ?? 0;
+			points += course?.points ?? 0;
 		}
 
-		// @ts-expect-error
 		progress.points = points;
 
-		// @ts-expect-error
-		progress.courses = relevantCourses;
+		progress.courses = relevantCourses.map((c) => c.code);
 	}
 
 	if (requirement.count !== undefined) {
-		// @ts-expect-error
 		progress.count = relevantCourses.length;
 
-		// @ts-expect-error
-		progress.courses = relevantCourses;
+		progress.courses = relevantCourses.map((c) => c.code);
 	}
 
 	if (requirement.choice !== undefined) {
@@ -151,11 +134,7 @@ async function getRequirementProgress(
 		let amount = 0;
 		const options = Array.from(requirement.choice.options);
 		for (const [option, subRequirement] of options) {
-			const subProgress = await getRequirementProgress(
-				semesters,
-				getCourseData,
-				subRequirement
-			);
+			const subProgress = getRequirementProgress(semesters, subRequirement);
 
 			choiceProgress.set(option, [subRequirement, subProgress]);
 
@@ -164,8 +143,9 @@ async function getRequirementProgress(
 			}
 		}
 
-		// @ts-expect-error
 		progress.choice = {
+			// TODO: why is this a single number? should be [number, number]
+			// @ts-expect-error
 			amount,
 			options: choiceProgress
 		};

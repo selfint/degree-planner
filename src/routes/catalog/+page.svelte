@@ -9,7 +9,7 @@
 	);
 </script>
 
-<div class="m-3">
+<div class="m-3 mr-0">
 	<CourseRow colorize={false} titles={['Wish list']} codes={$wishlist} />
 	{#await lists}
 		<div class="text-content-secondary">Loading...</div>

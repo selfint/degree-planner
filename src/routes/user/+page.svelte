@@ -9,9 +9,7 @@
 		wishlist
 	} from '$lib/stores';
 
-	import { buildGetCourseData, cacheDegreeCourses } from '$lib/courseData';
-
-	import { beforeNavigate } from '$app/navigation';
+	import { cacheDegreeCourses } from '$lib/courseData';
 
 	import Select from '$lib/components/Select.svelte';
 	import Button from '$lib/components/Button.svelte';
@@ -20,13 +18,6 @@
 	import DegreeProgressElement from './components/DegreeProgressElement.svelte';
 
 	import { loadDegreeData } from '$lib/requirements';
-	import { getProgress } from '$lib/progress';
-
-	const { abort, getCourseData } = buildGetCourseData();
-
-	beforeNavigate(() => {
-		abort();
-	});
 
 	if ($username === undefined) {
 		$username = 'guest';
@@ -43,16 +34,8 @@
 		// reset wishlist
 		$wishlist = [];
 
-		$degreeProgress = newDegreeData.then((data) =>
-			getProgress($semesters, getCourseData, data.requirements)
-		);
 		newDegreeData.then((data) => {
 			$semesters = data.recommended;
-			$degreeProgress = getProgress(
-				$semesters,
-				getCourseData,
-				data.requirements
-			);
 		});
 
 		// cache the courses for the degree

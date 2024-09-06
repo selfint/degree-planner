@@ -3,15 +3,13 @@
 		semesters,
 		degreeData,
 		currentSemester,
-		wishlist,
-		degreeProgress
+		wishlist
 	} from '$lib/stores';
 
 	import { buildGetCourseData } from '$lib/courseData';
 
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import { getCourseLists } from '$lib/requirements';
-	import { getProgress } from '$lib/progress';
 	import { generateCourseColor } from '$lib/colors';
 	import { goto, beforeNavigate } from '$app/navigation';
 	import ScheduleError from './components/ScheduleError.svelte';
@@ -104,17 +102,11 @@
 		$semesters = $semesters.map((s, i) =>
 			i === semester ? [...new Set([...s, code])] : s.filter((c) => c !== code)
 		);
-		$degreeProgress = $degreeData?.then((data) =>
-			getProgress($semesters, getCourseData, data.requirements)
-		);
 	}
 
 	function moveCourseToWishlist(code: string) {
 		$wishlist = [...new Set([...$wishlist, code])];
 		$semesters = $semesters.map((s) => s.filter((c) => c !== code));
-		$degreeProgress = $degreeData?.then((data) =>
-			getProgress($semesters, getCourseData, data.requirements)
-		);
 	}
 </script>
 

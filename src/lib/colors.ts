@@ -21,7 +21,7 @@ export function generateColor(source: string): string {
 	const hash = cyrb53(source);
 	const hue = hash % 360;
 	const saturation = 50;
-	const lightness = 30;
+	const lightness = 35;
 
 	return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
 }

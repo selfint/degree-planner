@@ -4,7 +4,8 @@
 
 	export let requirementName: string;
 	export let requirement: Requirement;
-	export let progress: RequirementProgress;
+	export let current: RequirementProgress | undefined;
+	export let planned: RequirementProgress;
 
 	function formatName(name: string): string {
 		return name
@@ -23,32 +24,49 @@
 	{formatName(requirementName)}
 </h3>
 <div class="flex flex-col space-y-1 pl-2">
-	{#if requirement.points !== undefined && progress.points !== undefined}
+	{#if requirement.points !== undefined && planned.points !== undefined}
 		<div class="flex flex-row items-center space-x-2 text-content-secondary">
 			<span>Points</span>
-			<Progress {color} value={progress.points} max={requirement.points} />
-			<span>{progress.points} / {requirement.points}</span>
+			<Progress
+				{color}
+				value={current?.points}
+				value2={planned.points}
+				max={requirement.points}
+			/>
+			<span>
+				<span style="color: {color}">{current?.points ?? 0}</span> / {planned.points}
+				/ {requirement.points}
+			</span>
 		</div>
 	{/if}
 
-	{#if requirement.count !== undefined && progress.count !== undefined}
+	{#if requirement.count !== undefined && planned.count !== undefined}
 		<div class="flex flex-row items-center space-x-2 text-content-secondary">
 			<span>Count</span>
-			<Progress {color} value={progress.count} max={requirement.count} />
-			<span>{progress.count} / {requirement.count}</span>
+			<Progress
+				{color}
+				value={current?.count}
+				value2={planned.count}
+				max={requirement.count}
+			/>
+			<span>
+				<span style="color: {color}">{current?.count ?? 0}</span> / {planned.count}
+				/ {requirement.count}</span
+			>
 		</div>
 	{/if}
 
-	{#if progress.choice !== undefined}
+	{#if planned.choice !== undefined}
 		<h3 class="text-content-primary">
-			Choose {progress.choice.amount} / {requirement.choice?.amount}
+			Choose {planned.choice.amount} / {requirement.choice?.amount}
 		</h3>
 		<div class="flex flex-col space-y-1 pl-2">
-			{#each progress.choice.options as [name, [subRequirement, subProgress]]}
+			{#each planned.choice.options as [name, [subRequirement, subProgress]]}
 				<svelte:self
 					requirementName={name}
 					requirement={subRequirement}
-					progress={subProgress}
+					current={current?.choice?.options.get(name)?.[1]}
+					planned={subProgress}
 				/>
 			{/each}
 		</div>

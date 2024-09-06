@@ -162,7 +162,7 @@
 			{/await}
 		</div>
 	</div>
-	<div style="transform: rotateX(180deg)" class="overflow-x-scroll">
+	<div style="transform: rotateX(180deg)" class="overflow-x-auto">
 		<div style="transform: rotateX(180deg)" class="flex flex-row space-x-3">
 			{#key $semesters.flat().join(' ')}
 				{#each $semesters as semester, i}

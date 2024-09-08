@@ -209,7 +209,7 @@
 	async function courseCanBeTaken(course: Course): Promise<boolean> {
 		if (
 			$semesters
-				.slice($currentSemester + 1)
+				.slice(0, $currentSemester + 1)
 				.flat()
 				.some((c) => c === course.code)
 		) {

@@ -1,8 +1,10 @@
 <script lang="ts">
+	import type { PageData } from './$types';
 	import { page } from '$app/stores';
-	import { buildGetCourseData, getAllCoursesSync } from '$lib/courseData';
-
 	import { goto, beforeNavigate } from '$app/navigation';
+
+	import Button from '$lib/components/Button.svelte';
+	import CourseElement from '$lib/components/CourseElement.svelte';
 
 	import {
 		currentSemester,
@@ -11,12 +13,10 @@
 		wishlist
 	} from '$lib/stores';
 
+	import { buildGetCourseData, getAllCoursesSync } from '$lib/courseData';
 	import { getCourseLists } from '$lib/requirements';
-
 	import { generateRequirementColor, generateCourseColor } from '$lib/colors';
-	import Button from '$lib/components/Button.svelte';
-	import CourseElement from '$lib/components/CourseElement.svelte';
-	import type { PageData } from './$types';
+	import { bm25 } from '$lib/bm25';
 
 	export let data: PageData;
 
@@ -69,6 +69,29 @@
 				return a.code.localeCompare(b.code);
 			})
 	);
+
+	$: similar = getAllCoursesSync().then(async (courses) => {
+		const course = await getCourseData(code);
+
+		if (course.about === undefined || course.about.length < 10) {
+			return [];
+		}
+
+		const relevant = courses
+			.filter((c) => c.code !== code)
+			.filter((c) => c.name !== undefined)
+			.filter((c) => c.about !== undefined && c.about.length > 10);
+
+		const corpus = relevant.map((c) => c.name + ' ' + c.about);
+
+		const results = bm25(course.about, corpus)
+			.filter(({ score }) => score > 0.5)
+			.slice(0, 10);
+
+		const hits = results.map(({ index }) => relevant[index]);
+
+		return hits;
+	});
 </script>
 
 <div class="m-3">
@@ -219,6 +242,37 @@
 						</h1>
 						<div class="flex flex-row flex-wrap">
 							{#each dependants as c, i}
+								<div
+									class="container w-fit pb-4 pr-2"
+									tabindex={i}
+									role="button"
+									on:click={() => goto(`/course/${c.code}`)}
+									on:keydown={(e) => {
+										if (e.key === 'Enter') {
+											goto(`/course/${c.code}`);
+										}
+									}}
+								>
+									<CourseElement
+										course={c}
+										requirements={$degreeData?.then((d) =>
+											getCourseLists(d.requirements, c.code)
+										)}
+									/>
+								</div>
+							{/each}
+						</div>
+					{/if}
+				{/await}
+			</div>
+			<div>
+				{#await similar then similar}
+					{#if similar.length > 0}
+						<h1 class="pb-1 text-lg font-medium text-content-primary">
+							Similar
+						</h1>
+						<div class="flex flex-row flex-wrap">
+							{#each similar as c, i}
 								<div
 									class="container w-fit pb-4 pr-2"
 									tabindex={i}

@@ -653,6 +653,22 @@ exports[`Requirements > should parse requirements 1`] = `
       "overflow": "list_b",
       "points": 8,
     },
+    "sport" => {
+      "count": 2,
+      "courses": [
+        "03940800",
+        "03940801",
+        "03940802",
+        "03940803",
+        "03940804",
+        "03940805",
+        "03940806",
+        "03940807",
+        "03940808",
+        "03940820",
+        "03940902",
+      ],
+    },
   },
 }
 `;
@@ -741,6 +757,12 @@ exports[`Requirements > should provide a list of requirements and their courses 
       "science",
       "physics_chain",
       "2",
+    ],
+  },
+  {
+    "courses": 11,
+    "path": [
+      "sport",
     ],
   },
 ]

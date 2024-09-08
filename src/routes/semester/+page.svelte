@@ -207,6 +207,15 @@
 	}
 
 	async function courseCanBeTaken(course: Course): Promise<boolean> {
+		if (
+			$semesters
+				.slice($currentSemester + 1)
+				.flat()
+				.some((c) => c === course.code)
+		) {
+			return false;
+		}
+
 		const error = await getScheduleError(course, $semesters, $currentSemester);
 
 		const canTake =

@@ -21,6 +21,29 @@ function getDoc(): CourseSAPInfo {
 }
 
 describe('Course Info', () => {
+	it('Handles multiple first exams', async (ctx) => {
+		const info = await getCourseInfo('01140052');
+
+		ctx.expect(info).toBeDefined();
+
+		const tests = getTests(info!);
+
+		ctx.expect(tests).toMatchInlineSnapshot(`
+			[
+			  {
+			    "day": 12,
+			    "monthIndex": 1,
+			    "year": 2025,
+			  },
+			  {
+			    "day": 13,
+			    "monthIndex": 1,
+			    "year": 2025,
+			  },
+			]
+		`);
+	});
+
 	it('Gets the course info', async (ctx) => {
 		const info = await getCourseInfo('02340218');
 	});

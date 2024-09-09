@@ -6,6 +6,7 @@ export type CourseSAPInfo = {
 	Exams: {
 		results: {
 			ExamDate: string;
+			CategoryCode: 'FI' | 'FB';
 		}[];
 	};
 	SmPrereq: {
@@ -102,6 +103,7 @@ export function getTests(
 			const epoch = exam.ExamDate.slice(6, -2);
 			const date = new Date(parseInt(epoch));
 			return {
+				category: exam.CategoryCode,
 				year: date.getFullYear(),
 				monthIndex: date.getMonth(),
 				day: date.getDate()
@@ -117,7 +119,23 @@ export function getTests(
 			}
 		});
 
-	return tests.slice(0, 2) as [Test, Test];
+	const first = tests.filter((test) => test.category === 'FI')[0];
+	const second = tests.filter((test) => test.category === 'FB')[0];
+
+	function buildTest(e: {
+		category: string;
+		year: number;
+		monthIndex: number;
+		day: number;
+	}): Test {
+		return {
+			year: e.year,
+			monthIndex: e.monthIndex,
+			day: e.day
+		};
+	}
+
+	return [buildTest(first), buildTest(second)];
 }
 
 export function getConnections(

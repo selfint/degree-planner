@@ -31,7 +31,9 @@
 				.map((c) => ({
 					course: c,
 					query: c.name + ' ' + c.about
-				}));
+				}))
+				.toSorted(() => Math.random() - 0.5)
+				.slice(0, 5);
 
 			const corpusCourses = (await courses)
 				.filter((c) => c.name !== undefined && (c.about?.length ?? 0) > 10)
@@ -39,19 +41,17 @@
 
 			const corpus = corpusCourses.map((c) => c.name + ' ' + c.about);
 
-			const results = queries
+			console.log(queries.map((q) => q.course.name));
+
+			return queries
 				.map(({ course, query }) => ({
 					course,
 					hits: bm25(query, corpus).slice(0, 30)
 				}))
-				.toSorted((a, b) => b.hits[0].score - a.hits[0].score)
-				.slice(0, 5)
 				.map(({ course, hits }) => ({
 					course,
 					hits: hits.map(({ index }) => corpusCourses[index])
 				}));
-
-			return results;
 		}) ?? Promise.resolve([]);
 </script>
 

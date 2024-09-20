@@ -36,8 +36,8 @@ describe('Course Info', () => {
 			    "year": 2025,
 			  },
 			  {
-			    "day": 13,
-			    "monthIndex": 1,
+			    "day": 7,
+			    "monthIndex": 2,
 			    "year": 2025,
 			  },
 			]

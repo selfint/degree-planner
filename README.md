@@ -1,6 +1,6 @@
-# Technion CS degree planner
+# Technion degree planner
 
-Plan your CS degree.
+Plan your degree.
 
 ## Why?
 

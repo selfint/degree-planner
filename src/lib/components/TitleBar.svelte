@@ -1,9 +1,12 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
+
 	import Logo from '$lib/assets/logo.png';
+
 	import Search from '$lib/components/Search.svelte';
 	import Auth from '$lib/components/Auth.svelte';
 	import Nav from '$lib/components/Nav.svelte';
-	import { goto } from '$app/navigation';
 
 	export let username: string | undefined;
 	export let onGetStarted: () => void;
@@ -28,15 +31,15 @@
 			<Nav target="overview">Overview</Nav>
 			<Nav target="semester">Semester</Nav>
 		</div>
-
 		<select
 			class="appearance-none border-b-2 border-accent-primary bg-transparent text-2xl font-thin text-content-primary focus:outline-none lg:hidden"
-			value="catalog"
-			on:change={(e) => goto(`/${e.target.value}`)}
+			value={$page.url.pathname}
+			on:change={(e) => goto(`${e.target.value}`)}
 		>
-			<option value="catalog">Catalog</option>
-			<option value="overview">Overview</option>
-			<option value="semester">Semester</option>
+			<option value="/">Home</option>
+			<option value="/catalog">Catalog</option>
+			<option value="/overview">Overview</option>
+			<option value="/semester">Semester</option>
 		</select>
 
 		<div class="ml-4">

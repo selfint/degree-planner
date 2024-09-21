@@ -1,8 +1,24 @@
 <script lang="ts">
+	import ScheduleErrorComponent from './ScheduleErrorComponent.svelte';
+
 	import { generateRequirementColor, generateCourseColor } from '$lib/colors';
+	import type { ScheduleError } from '$lib/schedule';
+	import CourseWidth from './CourseWidth.svelte';
+	import StudyDaysComponent from './StudyDaysComponent.svelte';
 
 	export let course: Course;
-	export let requirements: Promise<string[]> | undefined;
+	export let lists: Promise<string[]> | undefined;
+
+	export let variant:
+		| undefined
+		| {
+				type: 'schedule';
+				error: Promise<ScheduleError>;
+		  }
+		| {
+				type: 'test';
+				semester: Course[];
+		  } = undefined;
 
 	const color = generateCourseColor(course);
 
@@ -19,47 +35,69 @@
 	const hasTest = course.tests !== undefined && course.tests.length > 0;
 </script>
 
-<div
-	class="flex h-fit w-[220px] flex-col justify-between space-y-3 rounded-md bg-card-primary p-2 leading-none"
->
-	<div class="flex h-full flex-row items-start justify-between">
-		<div class="min-h-8">
-			<span class="m-0 p-0 text-xs leading-none text-content-primary" dir="rtl">
-				{course.name ?? course.code}
-			</span>
-			{#if course.name !== undefined}
-				<span class="text-xs leading-none text-content-secondary">
-					{course.code}
-				</span>
-			{/if}
-		</div>
-		<div class="m-0 ml-1 p-0">
+<div class="h-fit w-fit justify-between rounded-md bg-card-secondary">
+	<CourseWidth>
+		<div class="w-full rounded-md bg-card-primary p-2">
 			<div
-				style="background: {color}"
-				class="h-4 w-4 {hasTest ? 'rounded-full' : ''}"
-			/>
-		</div>
-	</div>
-
-	<div class="flex flex-row items-baseline">
-		<div class="flex flex-row items-baseline space-x-1">
-			{#await requirements then requirements}
-				{#each requirements ?? [] as requirement}
+				class="flex flex-row items-center justify-between pb-1 text-xs text-content-secondary"
+			>
+				<div class="m-0 ml-1 p-0">
 					<div
-						style="background: {generateRequirementColor(requirement)}"
-						class="rounded-md pb-0.5 pl-2 pr-2 leading-none"
-					>
-						<span class="text-xs leading-none text-content-primary">
-							{formatName(requirement)}
+						style="background: {color}"
+						class="h-4 w-4 {hasTest ? 'rounded-full' : ''}"
+					/>
+				</div>
+				<div class="flex flex-row">
+					<span class="mr-2">{median}</span>
+					<span>{course.points ?? 'N/A'}</span>
+				</div>
+			</div>
+
+			<div class="flex min-h-28 flex-col justify-between sm:min-h-14">
+				<div class="pb-2 text-right text-xs leading-none text-content-primary">
+					<span class="hyphens-auto break-words" dir="rtl">
+						{course.name}
+
+						<span class="text-right leading-none text-content-secondary">
+							{course.code}
 						</span>
-					</div>
-				{/each}
-			{/await}
+					</span>
+				</div>
+
+				{#await lists then lists}
+					{#if lists?.length ?? 0 > 0}
+						<div class="flex flex-row items-baseline">
+							<div class="flex flex-row flex-wrap items-baseline space-y-1">
+								{#each lists ?? [] as requirement}
+									<div
+										style="background: {generateRequirementColor(requirement)}"
+										class="mr-1 rounded-md pb-0.5 pl-2 pr-2 leading-none"
+									>
+										<span class="text-xs leading-none text-content-primary">
+											{formatName(requirement)}
+										</span>
+									</div>
+								{/each}
+							</div>
+						</div>
+					{/if}
+				{/await}
+			</div>
+
+			<div class="hidden text-xs text-content-secondary">
+				<span class="mr-2">{median}</span>
+				<span>{course.points ?? 'N/A'}</span>
+			</div>
 		</div>
-		<div class="flex-grow" />
-		<div class="text-xs text-content-secondary">
-			<span class="mr-2">{median}</span>
-			<span>{course.points ?? 'N/A'}</span>
-		</div>
-	</div>
+
+		{#if variant?.type === 'schedule'}
+			<ScheduleErrorComponent scheduleError={variant.error} />
+		{/if}
+
+		{#if variant?.type === 'test'}
+			<div class="p-2 pb-1">
+				<StudyDaysComponent {course} semester={variant.semester} />
+			</div>
+		{/if}
+	</CourseWidth>
 </div>

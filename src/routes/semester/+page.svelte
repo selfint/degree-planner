@@ -1,6 +1,9 @@
 <script lang="ts">
+	import { goto, beforeNavigate } from '$app/navigation';
+
 	import CourseElement from '$lib/components/CourseElement.svelte';
-	import Semester from './components/Semester.svelte';
+	import Semester from '$lib/components/Semester.svelte';
+
 	import LoLoCo from './components/LoLoCo.svelte';
 
 	import {
@@ -11,12 +14,11 @@
 	} from '$lib/stores';
 	import { buildGetCourseData } from '$lib/courseData';
 	import { getScheduleError } from '$lib/schedule';
-	import { generateCourseColor } from '$lib/colors';
 	import {
 		getCourseLists,
 		getDegreeRequirementCourses
 	} from '$lib/requirements';
-	import { goto, beforeNavigate } from '$app/navigation';
+	import StudyDaysComponent from '$lib/components/StudyDaysComponent.svelte';
 
 	const { abort, getCourseData } = buildGetCourseData();
 
@@ -24,9 +26,8 @@
 		abort();
 	});
 
-	const semester = Promise.all(
-		$semesters.at($currentSemester)?.map(getCourseData) ?? []
-	);
+	const courses = $semesters.at($currentSemester)?.map(getCourseData) ?? [];
+	const semester = Promise.all(courses);
 
 	const futureSemesters = Promise.all(
 		$semesters
@@ -51,6 +52,16 @@
 			)
 		)
 	);
+
+	function getAvgMedian(courses: Course[]): number {
+		const medians: number[] = courses
+			.map((c) => c.median)
+			.filter((m) => m !== undefined);
+
+		return medians.length > 0
+			? Math.round((medians.reduce((a, b) => a + b) / medians.length) * 10) / 10
+			: 0;
+	}
 
 	function compareCourses(courses: Course[], a: Course, b: Course): number {
 		const medianDiff = (b.median ?? 0) - (a.median ?? 0);
@@ -235,164 +246,102 @@
 	}
 </script>
 
-<div class="m-3 mr-0 flex flex-row items-start space-x-4">
-	<div class="sticky top-0">
-		<Semester index={$currentSemester} courses={semester}>
-			<div slot="header" let:data>
-				<div class="flex flex-row items-baseline justify-between">
-					<h1
-						class="border-b-2 border-b-transparent text-2xl font-medium text-content-primary"
-					>
-						{data.title}
-					</h1>
-					<div
-						class="flex flex-row items-baseline justify-end space-x-1 text-content-secondary"
-					>
-						<span>{data.tests}</span>
-						<span>{data.avg}</span>
-						<span>{data.points}</span>
-					</div>
-				</div>
-				<div class="flex flex-row flex-wrap text-content-primary">
-					{#if data.first !== undefined}
-						{@const days0 = data.first}
-						<div
-							style="background: {generateCourseColor(days0.first[0])}"
-							class="mb-1 mr-0.5 w-fit p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
-						>
-							{days0.first[1].getDate()}/{days0.first[1].getMonth() + 1}
-						</div>
-						{#each days0.next as [c, days]}
-							<div
-								style="background: {generateCourseColor(c)}"
-								class="mb-1 mr-0.5 w-6 p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
-							>
-								{days}
-							</div>
-						{/each}
-					{/if}
-				</div>
-				<div class="flex flex-row flex-wrap text-content-primary">
-					{#if data.second !== undefined}
-						{@const days1 = data.second}
-						<div
-							style="background: {generateCourseColor(days1.first[0])}"
-							class="mb-1 mr-0.5 w-fit p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
-						>
-							{days1.first[1].getDate()}/{days1.first[1].getMonth() + 1}
-						</div>
-						{#each days1.next as [c, days]}
-							<div
-								style="background: {generateCourseColor(c)}"
-								class="mb-1 mr-0.5 w-6 p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
-							>
-								{days}
-							</div>
-						{/each}
-					{/if}
-				</div>
-			</div>
-
+<div class="m-3 mr-0 mt-0 items-start sm:flex sm:flex-row">
+	<div class="sticky top-0 mr-3 hidden sm:block">
+		<Semester index={$currentSemester} {courses} isCurrent={true}>
 			<div slot="course" let:course>
 				<CourseElement
 					{course}
-					requirements={$degreeData?.then((d) =>
+					lists={$degreeData?.then((d) =>
 						getCourseLists(d.requirements, course.code)
 					)}
 				/>
 			</div>
 		</Semester>
 	</div>
+
+	<div class="sticky top-0 bg-background pb-2 sm:hidden">
+		{#await semester}
+			<div class="text-content-primary">Loading...</div>
+		{:then semester}
+			<div class="mb-2 flex flex-row items-center justify-between pt-2">
+				<div>
+					<h1
+						class="border-b-2 border-accent-primary text-lg font-medium text-content-primary"
+					>
+						{['Winter', 'Spring', 'Summer'][$currentSemester % 3]}
+						{Math.floor($currentSemester / 3) + 1}
+					</h1>
+					<div class="text-content-secondary">
+						<span>
+							{semester
+								.map((c) => c.tests)
+								.filter((t) => t !== undefined && t.length > 0).length}
+						</span>
+						<span>
+							{getAvgMedian(semester)}
+						</span>
+						<span>
+							{semester.reduce((a, b) => a + (b.points ?? 0), 0)}
+						</span>
+					</div>
+				</div>
+				<StudyDaysComponent {semester} />
+			</div>
+			<div class="flew-row flex space-x-2 overflow-x-auto">
+				{#each semester as course}
+					<CourseElement
+						{course}
+						lists={$degreeData?.then((d) =>
+							getCourseLists(d.requirements, course.code)
+						)}
+					/>
+				{/each}
+			</div>
+		{/await}
+	</div>
+
 	<div class="flex-1 overflow-x-auto">
 		{#await getLoLoCo()}
 			<div class="text-content-primary">Loading...</div>
 		{:then loloco}
-			<div class="">
-				<LoLoCo {loloco}>
-					<h1
-						slot="header"
-						let:title
-						class="text-lg font-medium text-content-primary"
-					>
-						{formatName(title)}
-					</h1>
+			<LoLoCo {loloco}>
+				<h1
+					slot="header"
+					let:title
+					class="text-lg font-medium text-content-primary"
+				>
+					{formatName(title)}
+				</h1>
 
-					<div
-						slot="course"
-						let:course
-						let:i
-						tabindex={i}
-						role="button"
-						on:click={() => goto(`/course/${course.code}`)}
-						on:keydown={(e) => {
-							if (e.key === 'Enter') {
-								goto(`/course/${course.code}`);
-							}
-						}}
-						class="h-fit rounded-md bg-card-secondary"
-					>
+				<div
+					slot="course"
+					let:course
+					let:i
+					tabindex={i}
+					role="button"
+					on:click={() => goto(`/course/${course.code}`)}
+					on:keydown={(e) => {
+						if (e.key === 'Enter') {
+							goto(`/course/${course.code}`);
+						}
+					}}
+					class="h-fit rounded-md bg-card-secondary"
+				>
+					{#await semester then semester}
 						<CourseElement
 							{course}
-							requirements={$degreeData?.then((d) =>
+							lists={$degreeData?.then((d) =>
 								getCourseLists(d.requirements, course.code)
 							)}
+							variant={{
+								type: 'test',
+								semester
+							}}
 						/>
-						<div class="h-fit pb-1 pl-2 pt-2">
-							{#await semester then semester}
-								{@const days0 = getStudyDays(semester.concat(course), 0)}
-								{@const days1 = getStudyDays(semester.concat(course), 1)}
-
-								<div class="flex flex-row flex-wrap text-content-primary">
-									{#if days0 !== undefined}
-										<div
-											style="background: {generateCourseColor(days0.first[0])}"
-											class="mb-1 mr-0.5 w-fit border {days0.first[0].code ===
-											course.code
-												? 'border-content-primary'
-												: 'border-transparent'} p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
-										>
-											{days0.first[1].getDate()}/{days0.first[1].getMonth() + 1}
-										</div>
-										{#each days0.next as [c, days]}
-											<div
-												style="background: {generateCourseColor(c)}"
-												class="mb-1 mr-0.5 w-6 border {c.code === course.code
-													? 'border-content-primary'
-													: 'border-transparent'} p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
-											>
-												{days}
-											</div>
-										{/each}
-									{/if}
-								</div>
-								<div class="flex flex-row flex-wrap text-content-primary">
-									{#if days1 !== undefined}
-										<div
-											style="background: {generateCourseColor(days1.first[0])}"
-											class="mb-1 mr-0.5 w-fit border {days1.first[0].code ===
-											course.code
-												? 'border-content-primary'
-												: 'border-transparent'} p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
-										>
-											{days1.first[1].getDate()}/{days1.first[1].getMonth() + 1}
-										</div>
-										{#each days1.next as [c, days]}
-											<div
-												style="background: {generateCourseColor(c)}"
-												class="mb-1 mr-0.5 w-6 border {c.code === course.code
-													? 'border-content-primary'
-													: 'border-transparent'} p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
-											>
-												{days}
-											</div>
-										{/each}
-									{/if}
-								</div>
-							{/await}
-						</div>
-					</div>
-				</LoLoCo>
-			</div>
+					{/await}
+				</div>
+			</LoLoCo>
 		{/await}
 	</div>
 </div>

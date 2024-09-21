@@ -41,8 +41,6 @@
 
 			const corpus = corpusCourses.map((c) => c.name + ' ' + c.about);
 
-			console.log(queries.map((q) => q.course.name));
-
 			return queries
 				.map(({ course, query }) => ({
 					course,
@@ -92,7 +90,7 @@
 						>
 							<CourseElement
 								{course}
-								requirements={$degreeData?.then((d) =>
+								lists={$degreeData?.then((d) =>
 									getCourseLists(d.requirements, course.code)
 								)}
 							/>

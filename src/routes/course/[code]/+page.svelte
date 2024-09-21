@@ -203,7 +203,7 @@
 										>
 											<CourseElement
 												course={dep}
-												requirements={$degreeData?.then((d) =>
+												lists={$degreeData?.then((d) =>
 													getCourseLists(d.requirements, dep.code)
 												)}
 											/>
@@ -225,7 +225,7 @@
 							{#await getCourseData(adj) then c}
 								<CourseElement
 									course={c}
-									requirements={$degreeData?.then((d) =>
+									lists={$degreeData?.then((d) =>
 										getCourseLists(d.requirements, c.code)
 									)}
 								/>
@@ -255,7 +255,7 @@
 								>
 									<CourseElement
 										course={c}
-										requirements={$degreeData?.then((d) =>
+										lists={$degreeData?.then((d) =>
 											getCourseLists(d.requirements, c.code)
 										)}
 									/>
@@ -286,7 +286,7 @@
 								>
 									<CourseElement
 										course={c}
-										requirements={$degreeData?.then((d) =>
+										lists={$degreeData?.then((d) =>
 											getCourseLists(d.requirements, c.code)
 										)}
 									/>

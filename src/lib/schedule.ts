@@ -1,6 +1,6 @@
 import { getCourseData } from './courseData';
 
-type ScheduleError = {
+export type ScheduleError = {
 	dependencies: { course: Course; taken: boolean }[][];
 	adjacencies: { course: Course; taken: boolean }[];
 	exclusives: Course[];

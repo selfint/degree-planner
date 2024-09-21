@@ -81,6 +81,11 @@ declare global {
 		day: number;
 	};
 
+	type StudyDays = {
+		first: [Course, Date];
+		next: [Course, number][];
+	};
+
 	type Course = {
 		code: string;
 		name?: string;

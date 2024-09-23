@@ -5,12 +5,7 @@
 	import '../app.css';
 
 	import { username, storesHook, loadStores } from '$lib/stores';
-	import {
-		goto,
-		onNavigate,
-		afterNavigate,
-		beforeNavigate
-	} from '$app/navigation';
+	import { goto, afterNavigate, beforeNavigate } from '$app/navigation';
 	import { onMount } from 'svelte';
 
 	import { browser } from '$app/environment';

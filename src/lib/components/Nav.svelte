@@ -8,6 +8,9 @@
 			: 'border-b-2 border-transparent';
 </script>
 
-<a href="/{target}" class="{border} text-2xl font-thin text-content-primary">
+<a
+	href="/{target}"
+	class="{border} w-fit text-2xl font-thin text-content-primary"
+>
 	<slot />
 </a>

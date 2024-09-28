@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
+	import { goto, beforeNavigate } from '$app/navigation';
 
 	import CourseRow from './components/CourseRow.svelte';
 	import CourseElement from '$lib/components/CourseElement.svelte';
@@ -9,8 +9,14 @@
 		getDegreeRequirementCourses,
 		getCourseLists
 	} from '$lib/requirements';
-	import { getAllCoursesSync, getCourseData } from '$lib/courseData';
+	import { getAllCoursesSync, buildGetCourseData } from '$lib/courseData';
 	import { bm25 } from '$lib/bm25';
+
+	const { abort, getCourseData } = buildGetCourseData();
+
+	beforeNavigate(() => {
+		abort();
+	});
 
 	$: lists =
 		$degreeData?.then((d) => getDegreeRequirementCourses(d.requirements)) ?? [];

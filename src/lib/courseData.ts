@@ -23,6 +23,41 @@ export function buildGetCourseData() {
 	};
 }
 
+export async function getCourseDataBatch(
+	codes: string[],
+	opts?: { abortSignal?: AbortSignal }
+): Promise<Course[]> {
+	const newCodes = codes.filter((c) => !courseData.has(c));
+	const oldCodes = codes.filter((c) => courseData.has(c));
+
+	const serverRes = await fetch(`/api/courseInfo`, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify(newCodes),
+		signal: opts?.abortSignal
+	});
+
+	const cacheRes = Promise.all(
+		// these codes are all in the courseData map
+		oldCodes.map((c) => courseData.get(c) as Promise<Course>)
+	);
+
+	let courses: Course[];
+	if (serverRes.ok) {
+		courses = await serverRes.json();
+	} else {
+		return await cacheRes;
+	}
+
+	for (const course of courses) {
+		courseData.set(course.code, Promise.resolve(course));
+	}
+
+	return courses.concat(await cacheRes);
+}
+
 /**
  * Get course data for a course code
  * @param code Course code

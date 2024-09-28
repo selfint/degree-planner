@@ -13,7 +13,6 @@
 
 	import { buildGetCourseData } from '$lib/courseData';
 	import { getCourseLists } from '$lib/requirements';
-	import { generateCourseColor } from '$lib/colors';
 	import { getScheduleError } from '$lib/schedule';
 
 	const { abort, getCourseData } = buildGetCourseData();

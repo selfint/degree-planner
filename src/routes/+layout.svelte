@@ -14,7 +14,7 @@
 
 	import { degreeData } from '$lib/stores';
 	import { getDegreeRequirementCourses } from '$lib/requirements';
-	import { getCourseData } from '$lib/courseData';
+	import { getCourseDataBatch } from '$lib/courseData';
 
 	injectSpeedInsights();
 	inject();
@@ -31,13 +31,8 @@
 		$degreeData
 			?.then((d) => getDegreeRequirementCourses(d.requirements))
 			.catch(() => [])
-			.then((ls) =>
-				ls.map((l) =>
-					l.courses.map((c) =>
-						getCourseData(c, { abortSignal }).catch(() => {})
-					)
-				)
-			)
+			.then((ls) => ls.flatMap((l) => l.courses))
+			.then((courses) => getCourseDataBatch(courses))
 			.catch(() => {});
 
 		return abort;

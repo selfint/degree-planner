@@ -103,20 +103,12 @@ async function loadRequirementHeader(
 			? undefined
 			: loadChoiceHeader(degree, header.choice, ...path);
 
-	const [courses, points, count, overflow, choice] = await Promise.all([
-		coursesF,
-		pointsF,
-		countF,
-		overflowF,
-		choiceF
-	]);
-
 	let requirements = {
-		courses,
-		points,
-		count,
-		overflow,
-		choice
+		courses: await coursesF,
+		points: await pointsF,
+		count: await countF,
+		overflow: await overflowF,
+		choice: await choiceF
 	};
 
 	// remove undefined values
@@ -172,10 +164,10 @@ export async function loadDegreeData(degree: Degree): Promise<DegreeData> {
 
 	const data = {
 		recommended: await recommendedF,
-		requirements: await requirementsF
+		requirements: await requirementsF.then(sortObject)
 	};
 
-	return sortObject(data);
+	return data;
 }
 
 function courseInRequirement(requirement: Requirement, code: string): boolean {

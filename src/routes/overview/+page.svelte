@@ -105,7 +105,7 @@
 					>
 						<Semester
 							index={semesterIndex}
-							courses={semester.map(getCourseData)}
+							semester={semester.map(getCourseData)}
 							isCurrent={semesterIndex === $currentSemester}
 						>
 							<div

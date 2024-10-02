@@ -71,10 +71,10 @@
 		};
 	}
 
-	let semesterCourses =
+	$: semesterCourses =
 		course === undefined ? semester : semester.concat(course);
-	let days0 = getStudyDays(semesterCourses, 0);
-	let days1 = getStudyDays(semesterCourses, 1);
+	$: days0 = getStudyDays(semesterCourses, 0);
+	$: days1 = getStudyDays(semesterCourses, 1);
 </script>
 
 <div>

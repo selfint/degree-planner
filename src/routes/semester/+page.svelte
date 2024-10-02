@@ -235,7 +235,7 @@
 
 <div class="m-3 mr-0 mt-0 items-start sm:flex sm:flex-row">
 	<div class="sticky top-0 mr-3 hidden sm:block">
-		<Semester index={$currentSemester} courses={semester} isCurrent={true}>
+		<Semester index={$currentSemester} {semester} isCurrent={true}>
 			<div slot="course" let:course>
 				<CourseElement
 					{course}

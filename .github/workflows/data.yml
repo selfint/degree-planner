@@ -39,29 +39,24 @@ jobs:
             exit 0
           fi
 
-      - name: Configure git
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        # Create a new branch for changes
+      - name: Create branch
+        run: git checkout -b new-branch-name
 
-      - name: Commit changes
+        # Push the new branch to GitHub
+      - name: Push changes to new branch
         run: |
-          git add src/lib/assets/courseData.json
-          git commit -m "Auto-generated src/lib/assets/courseData.json by workflow dispatch"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git push origin new-branch-name
 
-      - name: Create new branch
-        run: |
-          git checkout -b update-course-data
+        # Authenticate with GitHub using GITHUB_TOKEN
+      - name: Authenticate GitHub CLI
+        run: gh auth login --with-token <<< "${{ secrets.GITHUB_TOKEN }}"
 
-      - name: Push branch
-        run: |
-          git push origin update-course-data
-
+        # Create a PR
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v5
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          branch: update-course-data
-          base: main
-          title: 'Update courseData.json'
-          body: 'This pull request updates the src/lib/assets/courseData.json file with new data.'
+        run: |
+          gh pr create --base main --head new-branch-name \
+          --title "Automated PR from GitHub Actions" \
+          --body "This PR was created automatically from the CI process."

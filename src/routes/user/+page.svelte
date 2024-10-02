@@ -72,16 +72,12 @@
 </script>
 
 <div class="m-3 flex flex-col space-y-8">
-	<h1 class="text-2xl font-medium text-content-primary">
-		Welcome, {$username}
-	</h1>
-
 	<DegreeSection degree={$degree} {onChange} />
 
 	{#if $semesters.length > 0}
 		<div class="flex flex-col space-y-2">
-			<h2 class="text-xl text-content-primary">Semester</h2>
-			<div class="flex flex-row items-baseline space-x-3">
+			<h2 class="text-lg text-content-primary">Semester</h2>
+			<div class="flex flex-row items-baseline space-x-3 text-base">
 				<span class="text-content-secondary"> Current: </span>
 				<Select bind:value={semesterChoice}>
 					{#each Array.from({ length: $semesters.length }) as _, i}

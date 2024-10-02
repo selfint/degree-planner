@@ -22,14 +22,14 @@
 		<div class="items-baseline justify-between">
 			{#if isCurrent}
 				<h1
-					class="border-b-2 border-b-accent-primary text-2xl font-medium text-content-primary"
+					class="border-b-2 border-b-accent-primary text-lg font-medium text-content-primary"
 				>
 					{['Winter', 'Spring', 'Summer'][index % 3]}
 					{Math.floor(index / 3) + 1}
 				</h1>
 			{:else}
 				<h1
-					class="border-b-2 border-b-transparent text-2xl font-medium text-content-primary"
+					class="border-b-2 border-b-transparent text-lg font-medium text-content-primary"
 				>
 					{['Winter', 'Spring', 'Summer'][index % 3]}
 					{Math.floor(index / 3) + 1}

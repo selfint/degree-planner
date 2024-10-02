@@ -60,7 +60,7 @@
 </script>
 
 <div class="flex flex-col space-y-3">
-	<h2 class="text-xl text-content-primary">Degree</h2>
+	<h2 class="text-lg text-content-primary">Degree</h2>
 	<div>
 		<Select bind:value={year}>
 			{#if year === undefined}

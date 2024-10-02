@@ -23,6 +23,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          ref: main
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -41,7 +43,9 @@ jobs:
 
         # Create a new branch for changes
       - name: Create branch
-        run: git checkout -b new-branch-name
+        run: |
+          git checkout -b new-branch-name
+          git reset --hard origin/main
 
         # Push the new branch to GitHub
       - name: Push changes to new branch

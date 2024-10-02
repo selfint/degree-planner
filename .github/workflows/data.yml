@@ -32,7 +32,12 @@ jobs:
           node-version: '20'
 
       - name: Run script and save output
-        run: node scripts/generateCourseData.js ${{ github.event.inputs.skip }} ${{ github.event.inputs.start }} | tee src/lib/assets/courseData.json
+        run: |
+          cwd
+          git status
+          node scripts/generateCourseData.js ${{ github.event.inputs.skip }} ${{ github.event.inputs.start }} | tee src/lib/assets/courseData.json
+          git status
+          ls
 
       - name: Check if data has changed
         run: |

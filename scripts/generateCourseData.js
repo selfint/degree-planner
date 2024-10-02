@@ -291,14 +291,29 @@ async function parseCourse(course) {
  */
 async function main(skip, top) {
 	console.error('Fetching course codes');
-	const codes = await requestBatch([
-		{
+	const filters = [
+		['2024', '200'],
+		// ['2024', '201'],
+		['2024', '208'],
+		['2023', '200'],
+		['2023', '201'],
+		['2023', '208'],
+		// ['2022', '200'],
+		['2022', '201'],
+		['2022', '208'],
+		['2021', '200'],
+		['2021', '201'],
+		['2021', '208']
+	];
+
+	let codes = await requestBatch(
+		filters.map(([peryr, perid]) => ({
 			$skip: skip.toString(),
 			$top: top.toString(),
-			$select: 'Otjid'
-		}
-	]).then((results) => results.map((r) => r['Otjid']));
-	console.error(`Got ${codes.length} course codes`);
+			$select: 'Otjid',
+			$filter: `Peryr eq '${peryr}' and Perid eq '${perid}'`
+		}))
+	).then((results) => results.map((r) => r['Otjid']));
 
 	const batchSize = 100;
 

@@ -33,7 +33,7 @@ jobs:
 
       - name: Run script and save output
         run: |
-          cwd
+          pwd
           git status
           node scripts/generateCourseData.js ${{ github.event.inputs.skip }} ${{ github.event.inputs.start }} | tee src/lib/assets/courseData.json
           git status

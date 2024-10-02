@@ -4,10 +4,6 @@ const courseMap = new Map<string, Course>(
 	Object.entries(courseData) as [string, Course][]
 );
 
-export function getCourseEntries(): [string, Course][] {
-	return Array.from(courseMap.entries());
-}
-
 export function getAllCourses(): Course[] {
 	return Array.from(courseMap.values());
 }

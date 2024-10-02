@@ -31,13 +31,14 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Run script and save output
+        # Create a new branch for changes
+      - name: Create branch
         run: |
-          pwd
-          git status
-          node scripts/generateCourseData.js ${{ github.event.inputs.skip }} ${{ github.event.inputs.start }} | tee src/lib/assets/courseData.json
-          git status
-          ls
+          git checkout -b new-branch-name
+          git reset --hard origin/main
+
+      - name: Run script and save output
+        run: node scripts/generateCourseData.js ${{ github.event.inputs.skip }} ${{ github.event.inputs.start }} | tee src/lib/assets/courseData.json
 
       - name: Check if data has changed
         run: |
@@ -45,12 +46,6 @@ jobs:
             echo "No changes to src/lib/assets/courseData.json, stopping the workflow."
             exit 0
           fi
-
-        # Create a new branch for changes
-      - name: Create branch
-        run: |
-          git checkout -b new-branch-name
-          git reset --hard origin/main
 
         # Push the new branch to GitHub
       - name: Push changes to new branch

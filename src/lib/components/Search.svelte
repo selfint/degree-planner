@@ -11,7 +11,7 @@
 </script>
 
 <div
-	class="flex h-fit w-fit min-w-48 flex-row items-center justify-start rounded-md bg-card-primary pb-1 pl-2 pr-1 pt-1 {textStyle}"
+	class="flex h-fit w-fit min-w-40 flex-row items-center justify-start rounded-md bg-card-primary pb-1 pl-2 pr-1 pt-1 {textStyle}"
 >
 	<SearchIcon class="h-3" />
 	<form class="ml-1 w-24" on:submit|preventDefault={() => onSearch(query)}>

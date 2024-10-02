@@ -2,9 +2,6 @@
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 
-	import { writable } from 'svelte/store';
-	import { onMount } from 'svelte';
-
 	import Button from '$lib/components/Button.svelte';
 	import CourseElement from '$lib/components/CourseElement.svelte';
 
@@ -18,7 +15,6 @@
 	import { getCourseData, getAllCourses } from '$lib/courseData';
 	import { getCourseLists } from '$lib/requirements';
 	import { generateRequirementColor, generateCourseColor } from '$lib/colors';
-	import { bm25 } from '$lib/bm25';
 
 	function formatRequirementName(name: string): string {
 		return name

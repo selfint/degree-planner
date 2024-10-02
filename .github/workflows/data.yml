@@ -38,7 +38,7 @@ jobs:
           git reset --hard origin/main
 
       - name: Run script and save output
-        run: node scripts/generateCourseData.js ${{ github.event.inputs.skip }} ${{ github.event.inputs.start }} | tee src/lib/assets/courseData.json
+        run: node scripts/generateCourseData.js ${{ github.event.inputs.skip }} ${{ github.event.inputs.start }} > src/lib/assets/courseData.json
 
       - name: Check if data has changed
         run: |

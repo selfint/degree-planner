@@ -59,7 +59,7 @@
 </script>
 
 <div class="m-3">
-	<h1 class="mb-2 text-2xl font-medium text-content-primary">
+	<h1 class="mb-2 text-lg font-medium text-content-primary">
 		<span dir="rtl">
 			{course.name ?? code}
 		</span>

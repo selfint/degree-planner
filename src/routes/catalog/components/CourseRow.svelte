@@ -67,14 +67,14 @@
 	{:then groups}
 		{#each groups as [name, group]}
 			<h1
-				class="mb-2 flex flex-row items-baseline space-x-4 text-2xl font-medium text-content-primary"
+				class="mb-2 flex flex-row items-baseline space-x-4 text-lg font-medium text-content-primary"
 			>
 				<div class="flex flex-row items-baseline space-x-2">
 					{#each titles as title}
 						{#if colorize}
 							<div
 								style="background: {generateRequirementColor(title)}"
-								class="h-4 w-4 rounded-full"
+								class="h-4 w-4 min-w-4 rounded-full"
 							/>
 						{/if}
 						<span class="w-fit pr-2">

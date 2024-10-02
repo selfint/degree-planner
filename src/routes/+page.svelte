@@ -11,7 +11,7 @@
 	</h1>
 
 	<div class="lg:w-1/4">
-		<p class="mb-8 text-xl text-content-secondary">
+		<p class="mb-8 text-lg text-content-secondary">
 			Setup a plan for your entire degree that fits your interests and maximizes
 			your potential. Get personalized suggestions each semester for the optimal
 			test schedule. Discover courses, save the ones you like and we will

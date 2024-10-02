@@ -51,7 +51,7 @@
 		role="button"
 		tabindex={0}
 	>
-		<h1 class="mb-2 text-2xl font-medium text-content-primary">Wish list</h1>
+		<h1 class="mb-2 text-lg font-medium text-content-primary">Wish list</h1>
 		<div class="flex flex-row space-x-2 overflow-x-auto">
 			{#each $wishlist.map(getCourseData) as course, i}
 				<div

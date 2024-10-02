@@ -355,4 +355,4 @@ if (isNaN(skip) || isNaN(top)) {
 	throw new Error('Invalid arguments');
 }
 
-console.log(JSON.stringify(await main(skip, top)));
+console.log(JSON.stringify(await main(skip, top), null, 1));

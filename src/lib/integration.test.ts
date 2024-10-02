@@ -4,14 +4,7 @@ import { describe, it, vi, beforeEach, afterEach } from 'vitest';
 
 import { getProgress } from './progress';
 import { loadDegreeData } from './requirements';
-
-const cacheDir = path.resolve('static', '_cache', 'courseData');
-const cachedCourseData = async (code: string): Promise<Course> => {
-	const cached = path.join(cacheDir, `${code}.json`);
-	const data = await fs.readFile(cached);
-
-	return JSON.parse(data.toString());
-};
+import { getCourseData } from './courseData';
 
 describe('Integration', () => {
 	beforeEach(() => {
@@ -37,12 +30,7 @@ describe('Integration', () => {
 		const data = await loadDegreeData(degree);
 
 		const progress = getProgress(
-			await Promise.all(
-				data.recommended.map(
-					async (s) =>
-						await Promise.all(s.map(async (c) => await cachedCourseData(c)))
-				)
-			),
+			data.recommended.map((s) => s.map(getCourseData)),
 			data.requirements
 		);
 

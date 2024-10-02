@@ -17,7 +17,7 @@ jobs:
           node-version: '20'
 
       - name: Run script and save output
-        run: node scripts/generateCourseData.js > src/lib/assets/courseData.json
+        run: node scripts/generateCourseData.js 0 10000 > src/lib/assets/courseData.json
 
       - name: Check if data has changed
         run: |

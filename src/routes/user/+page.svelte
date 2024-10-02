@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { beforeNavigate } from '$app/navigation';
-
 	import {
 		username,
 		degree,
@@ -9,7 +7,7 @@
 		currentSemester,
 		wishlist
 	} from '$lib/stores';
-	import { cacheDegreeCourses, buildGetCourseData } from '$lib/courseData';
+	import { getCourseData } from '$lib/courseData';
 	import { getProgress } from '$lib/progress';
 	import { loadDegreeData } from '$lib/requirements';
 
@@ -19,23 +17,12 @@
 	import DegreeSection from './components/DegreeSection.svelte';
 	import DegreeProgressElement from './components/DegreeProgressElement.svelte';
 
-	const { abort, getCourseData } = buildGetCourseData();
-
-	beforeNavigate(() => {
-		abort();
-	});
-
 	if ($username === undefined) {
 		$username = 'guest';
 	}
 
 	$: degreeProgress = $degreeData?.then(async (data) => {
-		const semesterCourses = await Promise.all(
-			$semesters.map(
-				async (s) =>
-					await Promise.all(s.map(async (c) => await getCourseData(c)))
-			)
-		);
+		const semesterCourses = $semesters.map((s) => s.map(getCourseData));
 
 		return {
 			current: getProgress(
@@ -60,9 +47,6 @@
 		newDegreeData.then((data) => {
 			$semesters = data.recommended;
 		});
-
-		// cache the courses for the degree
-		newDegreeData.then((data) => cacheDegreeCourses(data));
 
 		return true;
 	}

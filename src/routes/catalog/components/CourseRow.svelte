@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { goto, beforeNavigate } from '$app/navigation';
+	import { goto } from '$app/navigation';
 
 	import { degreeData } from '$lib/stores';
-	import { buildGetCourseData } from '$lib/courseData';
+	import { getCourseData } from '$lib/courseData';
 	import CourseElement from '$lib/components/CourseElement.svelte';
 
 	import { getCourseLists } from '$lib/requirements';
@@ -12,12 +12,6 @@
 	export let titles: string[];
 	export let colorize: boolean = true;
 	export let codes: string[];
-
-	const { abort, getCourseData } = buildGetCourseData();
-
-	beforeNavigate(() => {
-		abort();
-	});
 
 	function formatName(name: string): string {
 		return name
@@ -29,20 +23,18 @@
 	async function getCourseGroups(
 		codes: string[]
 	): Promise<[string, Course[]][]> {
-		const courses = await Promise.all(codes.map((c) => getCourseData(c))).then(
-			(courses) =>
-				courses
-					.toSorted((a, b) => {
-						const medians = (b.median ?? 0) - (a.median ?? 0);
+		const courses = codes
+			.map((c) => getCourseData(c))
+			.toSorted((a, b) => {
+				const medians = (b.median ?? 0) - (a.median ?? 0);
 
-						if (medians !== 0) {
-							return medians;
-						}
+				if (medians !== 0) {
+					return medians;
+				}
 
-						return (a.code ?? '').localeCompare(b.code ?? '');
-					})
-					.filter((c) => c.name !== undefined)
-		);
+				return (a.code ?? '').localeCompare(b.code ?? '');
+			})
+			.filter((c) => c.name !== undefined);
 
 		const maxGroupSize = 30;
 

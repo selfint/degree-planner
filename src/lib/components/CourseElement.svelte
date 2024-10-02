@@ -13,7 +13,7 @@
 		| undefined
 		| {
 				type: 'schedule';
-				error: Promise<ScheduleError>;
+				error: ScheduleError;
 		  }
 		| {
 				type: 'test';

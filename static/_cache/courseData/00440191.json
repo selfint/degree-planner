@@ -1,1 +1,0 @@
-{"code":"00440191","median":81,"points":4,"name":"מערכות בקרה 1","connections":{"dependencies":[["00440130"],["00440131"]],"adjacent":[],"exclusive":[]},"about":"","tests":[{"year":2025,"monthIndex":1,"day":13},{"year":2025,"monthIndex":2,"day":17}],"seasons":["Winter","Spring"]}

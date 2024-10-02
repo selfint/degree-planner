@@ -1,1 +1,0 @@
-{"code":"00460880","median":88.875,"points":3,"name":"תכן לוגי ממוחשב של שבבים","connections":{"dependencies":[["00440268","00440252"],["00440252","02340247"],["02340247","02340262"]],"adjacent":[],"exclusive":[]},"about":"","tests":[{"year":2025,"monthIndex":1,"day":23},{"year":2025,"monthIndex":2,"day":24}],"seasons":["Winter"]}

@@ -1,17 +1,16 @@
 import type { HandleServerError } from '@sveltejs/kit';
-import fs from 'fs/promises';
-import path from 'path';
-
-const cacheDir = path.resolve('static', '_cache', 'courseData');
 
 export const handleError: HandleServerError = async ({
 	error,
 	event,
-	status,
-	message
+	status
 }) => {
-	// ignore 404 errors for course data cache
-	if (status === 404 && event.request.url.includes('/_cache/courseData/')) {
+	// ignore 404 errors for course data
+	const ignoredRoutes = ['/_cache/courseData/', 'technion-histograms'];
+	if (
+		status === 404 &&
+		ignoredRoutes.some((route) => event.request.url.includes(route))
+	) {
 		return;
 	}
 

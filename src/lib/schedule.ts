@@ -7,11 +7,11 @@ export type ScheduleError = {
 	season?: string[];
 };
 
-export async function getScheduleError(
+export function getScheduleError(
 	course: Course,
 	semesters: string[][],
 	currentSemester: number
-): Promise<ScheduleError> {
+): ScheduleError {
 	const semester = semesters[currentSemester];
 	const previous = semesters.slice(0, currentSemester).flat();
 
@@ -40,18 +40,16 @@ export async function getScheduleError(
 		);
 	}
 
-	const dependencies = await Promise.all(
-		(course.connections?.dependencies ?? []).map(
-			async (group) => await Promise.all(group.map((c) => getCourseData(c)))
-		)
-	).then((dep) => dep.filter((g) => g.length > 0));
-	const adjacencies = await Promise.all(
-		(course.connections?.adjacent ?? []).map((c) => getCourseData(c))
+	const dependencies = (course.connections?.dependencies ?? [])
+		.map((group) => group.map((c) => getCourseData(c)))
+		.filter((g) => g.length > 0);
+	const adjacencies = (course.connections?.adjacent ?? []).map((c) =>
+		getCourseData(c)
 	);
 
 	const dependenciesSatisfied =
 		dependencies.length === 0 ||
-		dependencies.some((group) => group.every(dependencyTaken));
+		dependencies.some((group) => group.every((c) => dependencyTaken(c)));
 
 	const adjacenciesSatisfied =
 		adjacencies.length === 0 || adjacencies.some(adjacencyTaken);

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { goto, beforeNavigate } from '$app/navigation';
+	import { goto } from '$app/navigation';
 
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import Semester from '$lib/components/Semester.svelte';
@@ -12,7 +12,7 @@
 		currentSemester,
 		wishlist
 	} from '$lib/stores';
-	import { buildGetCourseData } from '$lib/courseData';
+	import { getCourseData } from '$lib/courseData';
 	import { getScheduleError } from '$lib/schedule';
 	import {
 		getCourseLists,
@@ -20,37 +20,21 @@
 	} from '$lib/requirements';
 	import StudyDaysComponent from '$lib/components/StudyDaysComponent.svelte';
 
-	const { abort, getCourseData } = buildGetCourseData();
+	const semester = $semesters.at($currentSemester)?.map(getCourseData) ?? [];
 
-	beforeNavigate(() => {
-		abort();
-	});
+	const futureSemesters = $semesters
+		.slice($currentSemester + 1)
+		.map((s, i): [number, Course[]] => [
+			$currentSemester + 1 + i,
+			s.map(getCourseData)
+		]);
 
-	const courses = $semesters.at($currentSemester)?.map(getCourseData) ?? [];
-	const semester = Promise.all(courses);
-
-	const futureSemesters = Promise.all(
-		$semesters
-			.slice($currentSemester + 1)
-			.map(
-				async (s, i): Promise<[number, Course[]]> => [
-					$currentSemester + 1 + i,
-					await Promise.all(s.map(getCourseData))
-				]
-			)
-	);
-	const wishlistCourses = Promise.all($wishlist.map(getCourseData));
+	const wishlistCourses = $wishlist.map(getCourseData);
 	const requirementCourses = $degreeData?.then((d) =>
-		Promise.all(
-			getDegreeRequirementCourses(d.requirements).map(
-				async ({ path, courses }) => {
-					return {
-						path,
-						courses: await Promise.all(courses.map(getCourseData))
-					};
-				}
-			)
-		)
+		getDegreeRequirementCourses(d.requirements).map(({ path, courses }) => ({
+			path,
+			courses: courses.map(getCourseData)
+		}))
 	);
 
 	function getAvgMedian(courses: Course[]): number {
@@ -76,9 +60,9 @@
 	async function getLoLoCo(): Promise<[string, Course[]][]> {
 		const list: [string, Course[]][] = [];
 
-		list.push(['Wishlist', await wishlistCourses]);
+		list.push(['Wishlist', wishlistCourses]);
 
-		for (const [index, courses] of await futureSemesters) {
+		for (const [index, courses] of futureSemesters) {
 			list.push([`Semester ${index + 1}`, courses]);
 		}
 
@@ -88,44 +72,32 @@
 			}
 		}
 
-		const currentSemesterCourses = await semester;
 		function sortCourses(courses: Course[]): Course[] {
 			return courses
-				.filter(
-					(c) =>
-						true || !currentSemesterCourses.some((cc) => cc.code === c.code)
-				)
+				.filter((c) => true || !courses.some((cc) => cc.code === c.code))
 				.filter(
 					(c) =>
 						true ||
 						Math.min(
-							...(
-								getStudyDays(currentSemesterCourses.concat(c), 0)?.next ?? []
-							).map(([_, d]) => d)
+							...(getStudyDays(courses.concat(c), 0)?.next ?? []).map(
+								([_, d]) => d
+							)
 						) > 2
 				)
-				.sort((a, b) => compareCourses(currentSemesterCourses, a, b));
+				.sort((a, b) => compareCourses(courses, a, b));
 		}
 
-		return (
-			await Promise.all(
-				list.map(
-					async ([title, courses]) =>
-						[
-							title,
-							(
-								await Promise.all(
-									courses.map(
-										async (c) => [c, await courseCanBeTaken(c)] as const
-									)
-								)
-							)
-								.filter(([, canTake]) => canTake)
-								.map(([c]) => c)
-						] as const
-				)
+		return list
+			.map(
+				([title, courses]) =>
+					[
+						title,
+						courses
+							.map((c) => [c, courseCanBeTaken(c)] as const)
+							.filter(([, canTake]) => canTake)
+							.map(([c]) => c)
+					] as const
 			)
-		)
 			.map(
 				([title, courses]) =>
 					[title, sortCourses(courses)] as [string, Course[]]
@@ -217,7 +189,7 @@
 		};
 	}
 
-	async function courseCanBeTaken(course: Course): Promise<boolean> {
+	function courseCanBeTaken(course: Course): boolean {
 		if (
 			$semesters
 				.slice(0, $currentSemester + 1)
@@ -227,7 +199,7 @@
 			return false;
 		}
 
-		const error = await getScheduleError(course, $semesters, $currentSemester);
+		const error = getScheduleError(course, $semesters, $currentSemester);
 
 		const canTake =
 			error.season === undefined &&
@@ -248,7 +220,7 @@
 
 <div class="m-3 mr-0 mt-0 items-start sm:flex sm:flex-row">
 	<div class="sticky top-0 mr-3 hidden sm:block">
-		<Semester index={$currentSemester} {courses} isCurrent={true}>
+		<Semester index={$currentSemester} courses={semester} isCurrent={true}>
 			<div slot="course" let:course>
 				<CourseElement
 					{course}
@@ -261,44 +233,40 @@
 	</div>
 
 	<div class="sticky top-0 bg-background pb-2 sm:hidden">
-		{#await semester}
-			<div class="text-content-primary">Loading...</div>
-		{:then semester}
-			<div class="mb-2 flex flex-row items-center justify-between pt-2">
-				<div>
-					<h1
-						class="border-b-2 border-accent-primary text-lg font-medium text-content-primary"
-					>
-						{['Winter', 'Spring', 'Summer'][$currentSemester % 3]}
-						{Math.floor($currentSemester / 3) + 1}
-					</h1>
-					<div class="text-content-secondary">
-						<span>
-							{semester
-								.map((c) => c.tests)
-								.filter((t) => t !== undefined && t.length > 0).length}
-						</span>
-						<span>
-							{getAvgMedian(semester)}
-						</span>
-						<span>
-							{semester.reduce((a, b) => a + (b.points ?? 0), 0)}
-						</span>
-					</div>
+		<div class="mb-2 flex flex-row items-center justify-between pt-2">
+			<div>
+				<h1
+					class="border-b-2 border-accent-primary text-lg font-medium text-content-primary"
+				>
+					{['Winter', 'Spring', 'Summer'][$currentSemester % 3]}
+					{Math.floor($currentSemester / 3) + 1}
+				</h1>
+				<div class="text-content-secondary">
+					<span>
+						{semester
+							.map((c) => c.tests)
+							.filter((t) => t !== undefined && t.length > 0).length}
+					</span>
+					<span>
+						{getAvgMedian(semester)}
+					</span>
+					<span>
+						{semester.reduce((a, b) => a + (b.points ?? 0), 0)}
+					</span>
 				</div>
-				<StudyDaysComponent {semester} />
 			</div>
-			<div class="flew-row flex space-x-2 overflow-x-auto">
-				{#each semester as course}
-					<CourseElement
-						{course}
-						lists={$degreeData?.then((d) =>
-							getCourseLists(d.requirements, course.code)
-						)}
-					/>
-				{/each}
-			</div>
-		{/await}
+			<StudyDaysComponent {semester} />
+		</div>
+		<div class="flew-row flex space-x-2 overflow-x-auto">
+			{#each semester as course}
+				<CourseElement
+					{course}
+					lists={$degreeData?.then((d) =>
+						getCourseLists(d.requirements, course.code)
+					)}
+				/>
+			{/each}
+		</div>
 	</div>
 
 	<div class="flex-1 overflow-x-auto">
@@ -328,18 +296,16 @@
 					}}
 					class="h-fit rounded-md bg-card-secondary"
 				>
-					{#await semester then semester}
-						<CourseElement
-							{course}
-							lists={$degreeData?.then((d) =>
-								getCourseLists(d.requirements, course.code)
-							)}
-							variant={{
-								type: 'test',
-								semester
-							}}
-						/>
-					{/await}
+					<CourseElement
+						{course}
+						lists={$degreeData?.then((d) =>
+							getCourseLists(d.requirements, course.code)
+						)}
+						variant={{
+							type: 'test',
+							semester
+						}}
+					/>
 				</div>
 			</LoLoCo>
 		{/await}

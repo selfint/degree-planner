@@ -20,17 +20,17 @@
 	} from '$lib/requirements';
 	import StudyDaysComponent from '$lib/components/StudyDaysComponent.svelte';
 
-	const semester = $semesters.at($currentSemester)?.map(getCourseData) ?? [];
+	$: semester = $semesters.at($currentSemester)?.map(getCourseData) ?? [];
 
-	const futureSemesters = $semesters
+	$: futureSemesters = $semesters
 		.slice($currentSemester + 1)
 		.map((s, i): [number, Course[]] => [
 			$currentSemester + 1 + i,
 			s.map(getCourseData)
 		]);
 
-	const wishlistCourses = $wishlist.map(getCourseData);
-	const requirementCourses = $degreeData?.then((d) =>
+	$: wishlistCourses = $wishlist.map(getCourseData);
+	$: requirementCourses = $degreeData?.then((d) =>
 		getDegreeRequirementCourses(d.requirements).map(({ path, courses }) => ({
 			path,
 			courses: courses.map(getCourseData)
@@ -57,7 +57,18 @@
 		return 1 * medianDiff + 0.2 * studyDaysDiff0 + 0.01 * studyDaysDiff1;
 	}
 
-	async function getLoLoCo(): Promise<[string, Course[]][]> {
+	async function getLoLoCo(
+		wishlistCourses: Course[],
+		futureSemesters: [number, Course[]][],
+		requirementCourses?:
+			| Promise<
+					{
+						path: string[];
+						courses: Course[];
+					}[]
+			  >
+			| undefined
+	): Promise<[string, Course[]][]> {
 		const list: [string, Course[]][] = [];
 
 		list.push(['Wishlist', wishlistCourses]);
@@ -190,6 +201,10 @@
 	}
 
 	function courseCanBeTaken(course: Course): boolean {
+		if (course.name === undefined) {
+			return false;
+		}
+
 		if (
 			$semesters
 				.slice(0, $currentSemester + 1)
@@ -270,7 +285,7 @@
 	</div>
 
 	<div class="flex-1 overflow-x-auto">
-		{#await getLoLoCo()}
+		{#await getLoLoCo(wishlistCourses, futureSemesters, requirementCourses)}
 			<div class="text-content-primary">Loading...</div>
 		{:then loloco}
 			<LoLoCo {loloco}>

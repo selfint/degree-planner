@@ -1,0 +1,54 @@
+name: Data
+
+on:
+  workflow_dispatch:
+
+jobs:
+  generate-course-data:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Run script and save output
+        run: node scripts/generateCourseData.js > src/lib/assets/courseData.json
+
+      - name: Check if data has changed
+        run: |
+          if git diff --quiet src/lib/assets/courseData.json; then
+            echo "No changes to src/lib/assets/courseData.json, stopping the workflow."
+            exit 0
+          fi
+
+      - name: Configure git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Commit changes
+        run: |
+          git add src/lib/assets/courseData.json
+          git commit -m "Auto-generated src/lib/assets/courseData.json by workflow dispatch"
+
+      - name: Create new branch
+        run: |
+          git checkout -b update-course-data
+
+      - name: Push branch
+        run: |
+          git push origin update-course-data
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: update-course-data
+          base: main
+          title: 'Update courseData.json'
+          body: 'This pull request updates the src/lib/assets/courseData.json file with new data.'

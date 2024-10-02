@@ -5,16 +5,15 @@
 	import { degreeData } from '$lib/stores';
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import { getCourseLists } from '$lib/requirements';
-	import { getCourseEntries } from '$lib/courseData';
+	import { getAllCourses } from '$lib/courseData';
 
 	$: query = ($page.url.searchParams.get('q') ?? '').trim();
 
-	const corpus: [string, Course][] = getCourseEntries();
+	const corpus: Course[] = getAllCourses();
 
 	function search(query: string): Course[] {
 		return corpus
-			.filter(([name, _]) => name.includes(query))
-			.map(([_, course]) => course)
+			.filter(({ name }) => name?.includes(query))
 			.toSorted((a, b) => {
 				return (b.median ?? 0) - (a.median ?? 0);
 			});
@@ -24,10 +23,10 @@
 </script>
 
 <div class="m-3 mr-0 text-content-primary">
-	<h1 class="text-2xl">
+	<h1 class="text-lg">
 		Results for "{query}"
 	</h1>
-	<p class="mb-3 text-base text-content-secondary">
+	<p class="mb-3 text-xs text-content-secondary">
 		{results.length} results found
 	</p>
 	<ul class="flex flex-row flex-wrap">

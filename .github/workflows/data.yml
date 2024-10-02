@@ -2,6 +2,15 @@ name: Data
 
 on:
   workflow_dispatch:
+    inputs:
+      skip:
+        description: 'Number of records to skip'
+        required: true
+        default: '0'
+      start:
+        description: 'Number of records to start'
+        required: true
+        default: '10000'
 
 jobs:
   generate-course-data:
@@ -17,7 +26,7 @@ jobs:
           node-version: '20'
 
       - name: Run script and save output
-        run: node scripts/generateCourseData.js 0 10000 > src/lib/assets/courseData.json
+        run: node scripts/generateCourseData.js ${{ github.event.inputs.skip }} ${{ github.event.inputs.start }} > src/lib/assets/courseData.json
 
       - name: Check if data has changed
         run: |

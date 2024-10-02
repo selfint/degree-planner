@@ -315,6 +315,10 @@ async function main(skip, top) {
 		}))
 	).then((results) => results.map((r) => r['Otjid']));
 
+	codes = [...new Set(codes)];
+
+	console.error(`Got ${codes.length} unique course codes`);
+
 	const batchSize = 100;
 
 	const courseData = [];

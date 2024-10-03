@@ -13,7 +13,7 @@
 
 	function search(query: string): Course[] {
 		return corpus
-			.filter(({ name }) => name?.includes(query))
+			.filter(({ name, code }) => name?.includes(query) || code.includes(query))
 			.toSorted((a, b) => {
 				return (b.median ?? 0) - (a.median ?? 0);
 			});

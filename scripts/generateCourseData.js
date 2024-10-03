@@ -12,7 +12,7 @@ function formatBytes(bytes, decimals = 2) {
 /**
  * Request a batch of queries to the Technion SAP API.
  * @param {unknown[]} queries
- * @returns {Promise<unknown[] | undefined>} The results of the queries.
+ * @returns {Promise<unknown[][] | undefined>} The results of the queries.
  */
 async function requestBatch(queries) {
 	const url =
@@ -65,7 +65,7 @@ async function requestBatch(queries) {
 		throw new Error(text);
 	}
 
-	return blobs.flatMap((blob) => {
+	return blobs.map((blob) => {
 		const lines = blob.trim().split('\r\n');
 		const results = JSON.parse(lines[lines.length - 1]);
 
@@ -279,7 +279,9 @@ async function parseCourse(course) {
 			seasons: getSeasons(course)
 		};
 	} catch (error) {
-		throw new Error(`Failed to parse course ${code}: ${error}`);
+		throw new Error(
+			`Failed to parse course ${code}: ${error}\n${JSON.stringify(course)}`
+		);
 	}
 }
 
@@ -291,6 +293,8 @@ async function parseCourse(course) {
  */
 async function main(skip, top) {
 	console.error('Fetching course codes');
+
+	/** @type {[string, string][]} */
 	const filters = [
 		['2024', '200'],
 		// ['2024', '201'],
@@ -306,16 +310,31 @@ async function main(skip, top) {
 		['2021', '208']
 	];
 
-	let codes = await requestBatch(
+	/** @type {string[][]} */
+	const yearCodes = await requestBatch(
 		filters.map(([peryr, perid]) => ({
 			$skip: skip.toString(),
 			$top: top.toString(),
 			$select: 'Otjid',
 			$filter: `Peryr eq '${peryr}' and Perid eq '${perid}'`
 		}))
-	).then((results) => results.map((r) => r['Otjid']));
+	).then((results) => results.map((r) => r.map((c) => c.Otjid)));
 
-	codes = [...new Set(codes)];
+	/** @type {Map<string, [string, string]>} */
+	const codesMap = new Map();
+	for (let i = 0; i < filters.length; i++) {
+		const filter = filters[i];
+		const courses = yearCodes[i];
+
+		// TODO: Handle multiple filters more elegantly
+		for (const code of courses) {
+			if (!codesMap.has(code)) {
+				codesMap.set(code, filter);
+			}
+		}
+	}
+
+	const codes = Array.from(codesMap.entries());
 
 	console.error(`Got ${codes.length} unique course codes`);
 
@@ -327,14 +346,16 @@ async function main(skip, top) {
 			`Fetching batch ${i / batchSize + 1}/${Math.ceil(codes.length / batchSize)}`
 		);
 
-		const queries = codes.slice(i, i + batchSize).map((code) => ({
-			$expand: 'Responsible,Exams,SmRelations,SmPrereq',
-			$filter: `Otjid eq '${code}'`,
-			$select:
-				'Otjid,Name,Points,StudyContentDescription,ZzOfferpattern,Exams,SmPrereq'
-		}));
+		const queries = codes
+			.slice(i, i + batchSize)
+			.map(([code, [peryr, perid]]) => ({
+				$expand: 'Responsible,Exams,SmRelations,SmPrereq',
+				$filter: `Otjid eq '${code}' and Peryr eq '${peryr}' and Perid eq '${perid}'`,
+				$select:
+					'Otjid,Name,Points,StudyContentDescription,ZzOfferpattern,Exams,SmPrereq'
+			}));
 		const results = await requestBatch(queries);
-		const courses = await Promise.all(results.map(parseCourse));
+		const courses = await Promise.all(results.flat().map(parseCourse));
 
 		courseData.push(...courses);
 	}

@@ -11,6 +11,8 @@ on:
         description: 'Number of records to start'
         required: true
         default: '10000'
+  schedule:
+    - cron: '0 0 */14 * *'
 
 permissions:
   contents: write
@@ -63,6 +65,7 @@ jobs:
         # Create a PR
       - name: Create Pull Request
         run: |
+          DATE=$(date +'%d-%m-%Y')
           gh pr create --base main --head generate-course-data \
-          --title "Automated PR from GitHub Actions" \
-          --body "This PR was created automatically from the CI process."
+          --title "[Automated] Update course data $DATE" \
+          --body "This automated PR updates the `src/lib/assets/courseData.json` file."

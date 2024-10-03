@@ -360,6 +360,13 @@ async function main(skip, top) {
 		courseData.push(...courses);
 	}
 
+	const uniqueCourses = [...new Set(courseData.map((c) => c.code))];
+	uniqueCourses.sort();
+
+	console.error(
+		`Generated data for ${uniqueCourses.length} unique courses:\n${uniqueCourses.join(',')}`
+	);
+
 	const courseDataMap = {};
 	for (const course of courseData) {
 		courseDataMap[course.code] = course;

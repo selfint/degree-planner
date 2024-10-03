@@ -367,12 +367,14 @@ async function main(skip, top) {
 		`Generated data for ${uniqueCourses.length} unique courses:\n${uniqueCourses.join(',')}`
 	);
 
-	const courseDataMap = {};
+	const courseDataMap = [];
 	for (const course of courseData) {
-		courseDataMap[course.code] = course;
+		courseDataMap.push([course.code, course]);
 	}
 
-	return courseDataMap;
+	courseDataMap.sort((a, b) => a[0].localeCompare(b[0]));
+
+	return Object.fromEntries(courseDataMap);
 }
 
 const args = process.argv.slice(2);

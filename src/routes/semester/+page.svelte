@@ -216,6 +216,10 @@
 			return false;
 		}
 
+		if (course.current !== true) {
+			return false;
+		}
+
 		if (
 			$semesters
 				.slice(0, $currentSemester + 1)

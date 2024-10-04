@@ -19,8 +19,8 @@
 
 		const courseTests = courses
 			.map<[Course, Date | undefined]>((c) => {
-				const t0 = c.tests?.[0];
-				const t1 = c.tests?.[1];
+				const t0 = c.tests?.[0] ?? undefined;
+				const t1 = c.tests?.[1] ?? undefined;
 
 				if (t0 === undefined || t1 === undefined) {
 					if (test === 0 && t0 !== undefined) {

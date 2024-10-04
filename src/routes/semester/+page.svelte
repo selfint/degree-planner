@@ -12,7 +12,7 @@
 		currentSemester,
 		wishlist
 	} from '$lib/stores';
-	import { getCourseData } from '$lib/courseData';
+	import { getCourseData, getAllCourses } from '$lib/courseData';
 	import { getScheduleError } from '$lib/schedule';
 	import {
 		getCourseLists,
@@ -69,17 +69,17 @@
 			  >
 			| undefined
 	): Promise<[string, Course[]][]> {
-		const list: [string, Course[]][] = [];
+		let lists: [string, Course[]][] = [];
 
-		list.push(['Wishlist', wishlistCourses]);
+		lists.push(['Wishlist', wishlistCourses]);
 
 		for (const [index, courses] of futureSemesters) {
-			list.push([`Semester ${index + 1}`, courses]);
+			lists.push([`Semester ${index + 1}`, courses]);
 		}
 
 		if (requirementCourses !== undefined) {
 			for (const { path, courses } of await requirementCourses) {
-				list.push([path.join(' '), courses]);
+				lists.push([path.join(' '), courses]);
 			}
 		}
 
@@ -98,22 +98,33 @@
 				.sort((a, b) => compareCourses(courses, a, b));
 		}
 
-		return list
+		lists = lists
 			.map(
 				([title, courses]) =>
-					[
-						title,
-						courses
-							.map((c) => [c, courseCanBeTaken(c)] as const)
-							.filter(([, canTake]) => canTake)
-							.map(([c]) => c)
-					] as const
-			)
-			.map(
-				([title, courses]) =>
-					[title, sortCourses(courses)] as [string, Course[]]
+					[title, sortCourses(courses.filter(courseCanBeTaken))] as [
+						string,
+						Course[]
+					]
 			)
 			.filter(([_, courses]) => courses.length > 0);
+
+		lists.push([
+			'Other',
+			sortCourses(
+				getAllCourses()
+					.filter(courseCanBeTaken)
+					.filter((c) => !wishlistCourses.some((w) => w.code === c.code))
+					.filter(
+						(c) =>
+							!futureSemesters
+								.map(([, courses]) => courses)
+								.flat()
+								.some((f) => f.code === c.code)
+					)
+			).slice(0, 30)
+		]);
+
+		return lists;
 	}
 
 	function getCourseStudyDays(
@@ -148,8 +159,8 @@
 
 		const courseTests = courses
 			.map<[Course, Date | undefined]>((c) => {
-				const t0 = c.tests?.[0];
-				const t1 = c.tests?.[1];
+				const t0 = c.tests?.[0] ?? undefined;
+				const t1 = c.tests?.[1] ?? undefined;
 
 				if (t0 === undefined || t1 === undefined) {
 					if (test === 0 && t0 !== undefined) {

@@ -93,7 +93,7 @@ declare global {
 		median?: number;
 		connections?: CourseConnections;
 		about?: string;
-		tests?: [Test, Test | undefined];
+		tests?: [Test, Test | null];
 		seasons?: CourseSeasons;
 	};
 

@@ -310,6 +310,8 @@ async function main(skip, top) {
 		])
 	);
 
+	console.error(`Got ${filters.length} semesters:\n${filters.join('\n')}`);
+
 	/** @type {string[][]} */
 	const yearCodes = await requestBatch(
 		'SmObjectSet',

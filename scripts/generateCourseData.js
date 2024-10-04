@@ -11,10 +11,11 @@ function formatBytes(bytes, decimals = 2) {
 
 /**
  * Request a batch of queries to the Technion SAP API.
+ * @param {unknown[]} endpoint
  * @param {unknown[]} queries
  * @returns {Promise<unknown[][] | undefined>} The results of the queries.
  */
-async function requestBatch(queries) {
+async function requestBatch(endpoint, queries) {
 	const url =
 		'https://portalex.technion.ac.il/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/$batch';
 
@@ -28,7 +29,7 @@ async function requestBatch(queries) {
 	function buildRequest(query) {
 		return [
 			'Content-Type: application/http\r\n',
-			`GET SmObjectSet?${new URLSearchParams(query).toString()} HTTP/1.1`,
+			`GET ${endpoint}?${new URLSearchParams(query).toString()} HTTP/1.1`,
 			'Accept: application/json',
 			'Accept-Language: he\r\n\r\n\r\n'
 		].join('\r\n');
@@ -264,7 +265,7 @@ export async function getMedian(course) {
 	}
 }
 
-async function parseCourse(course) {
+async function parseCourse(course, current) {
 	const code = course.Otjid;
 
 	try {
@@ -276,7 +277,8 @@ async function parseCourse(course) {
 			name: getName(course),
 			tests: getTests(course),
 			connections: getConnections(course),
-			seasons: getSeasons(course)
+			seasons: getSeasons(course),
+			current
 		};
 	} catch (error) {
 		throw new Error(
@@ -294,24 +296,23 @@ async function parseCourse(course) {
 async function main(skip, top) {
 	console.error('Fetching course codes');
 
-	/** @type {[string, string][]} */
-	const filters = [
-		['2024', '200'],
-		// ['2024', '201'],
-		['2024', '208'],
-		['2023', '200'],
-		['2023', '201'],
-		['2023', '208'],
-		// ['2022', '200'],
-		['2022', '201'],
-		['2022', '208'],
-		['2021', '200'],
-		['2021', '201'],
-		['2021', '208']
-	];
+	/** @type {[string, string, boolean][]} */
+	const filters = await requestBatch('SemesterSet', [
+		{
+			$select: 'PiqYear,PiqSession,IsCurrent'
+		}
+	]).then((results) =>
+		results[0].map((c) => [
+			c.PiqYear,
+			c.PiqSession,
+			// TODO: what is 208?
+			c.IsCurrent !== -1 && c.PiqSession !== '208'
+		])
+	);
 
 	/** @type {string[][]} */
 	const yearCodes = await requestBatch(
+		'SmObjectSet',
 		filters.map(([peryr, perid]) => ({
 			$skip: skip.toString(),
 			$top: top.toString(),
@@ -320,7 +321,7 @@ async function main(skip, top) {
 		}))
 	).then((results) => results.map((r) => r.map((c) => c.Otjid)));
 
-	/** @type {Map<string, [string, string]>} */
+	/** @type {Map<string, [string, string, boolean]>} */
 	const codesMap = new Map();
 	for (let i = 0; i < filters.length; i++) {
 		const filter = filters[i];
@@ -336,7 +337,10 @@ async function main(skip, top) {
 
 	const codes = Array.from(codesMap.entries());
 
-	console.error(`Got ${codes.length} unique course codes`);
+	console.error(
+		`Got ${codes.filter(([, [, , current]]) => current).length} current courses`
+	);
+	console.error(`Got ${codes.length} total courses`);
 
 	const batchSize = 100;
 
@@ -346,16 +350,19 @@ async function main(skip, top) {
 			`Fetching batch ${i / batchSize + 1}/${Math.ceil(codes.length / batchSize)}`
 		);
 
-		const queries = codes
-			.slice(i, i + batchSize)
-			.map(([code, [peryr, perid]]) => ({
-				$expand: 'Responsible,Exams,SmRelations,SmPrereq',
-				$filter: `Otjid eq '${code}' and Peryr eq '${peryr}' and Perid eq '${perid}'`,
-				$select:
-					'Otjid,Name,Points,StudyContentDescription,ZzOfferpattern,Exams,SmPrereq'
-			}));
-		const results = await requestBatch(queries);
-		const courses = await Promise.all(results.flat().map(parseCourse));
+		const batch = codes.slice(i, i + batchSize);
+		const queries = batch.map(([code, [peryr, perid]]) => ({
+			$expand: 'Responsible,Exams,SmRelations,SmPrereq',
+			$filter: `Otjid eq '${code}' and Peryr eq '${peryr}' and Perid eq '${perid}'`,
+			$select:
+				'Otjid,Name,Points,StudyContentDescription,ZzOfferpattern,Exams,SmPrereq'
+		}));
+		const results = await requestBatch('SmObjectSet', queries);
+		const courses = await Promise.all(
+			results
+				.flat()
+				.map((course, index) => parseCourse(course, batch[index][1][2]))
+		);
 
 		courseData.push(...courses);
 	}

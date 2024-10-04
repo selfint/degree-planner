@@ -95,6 +95,7 @@ declare global {
 		about?: string;
 		tests?: [Test, Test | null];
 		seasons?: CourseSeasons;
+		current?: boolean;
 	};
 
 	type CourseSeasons =

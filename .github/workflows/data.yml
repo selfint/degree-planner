@@ -68,4 +68,4 @@ jobs:
           DATE=$(date +'%d-%m-%Y')
           gh pr create --base main --head generate-course-data \
           --title "[Automated] Update course data $DATE" \
-          --body "This automated PR updates the `src/lib/assets/courseData.json` file."
+          --body "This automated PR updates the \`src/lib/assets/courseData.json\` file."

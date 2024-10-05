@@ -294,7 +294,7 @@ async function parseCourse(course, current) {
  * @returns {Promise<string>}
  */
 async function main(skip, top) {
-	console.error('Fetching course codes');
+	console.error('Fetching semesters');
 
 	/** @type {[string, string, boolean][]} */
 	const filters = await requestBatch('SemesterSet', [
@@ -311,6 +311,7 @@ async function main(skip, top) {
 	);
 
 	console.error(`Got ${filters.length} semesters:\n${filters.join('\n')}`);
+	console.error('Fetching course codes');
 
 	/** @type {string[][]} */
 	const yearCodes = await requestBatch(

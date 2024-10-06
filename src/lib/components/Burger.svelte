@@ -2,11 +2,10 @@
 	{...$$props}
 	{...$$restProps}
 	fill="currentColor"
-	viewBox="0 0 1920 1920"
+	viewBox="0 0 24 24"
 	xmlns="http://www.w3.org/2000/svg"
 >
-	<path
-		d="M1920 1411.412v225.882H0v-225.882h1920Zm0-564.706v225.882H0V846.706h1920ZM1920 282v225.882H0V282h1920Z"
-		fill-rule="evenodd"
-	/>
+	<rect width="24" height="1.5" y="4" rx="1" />
+	<rect width="24" height="1.5" y="11" rx="1" />
+	<rect width="24" height="1.5" y="18" rx="1" />
 </svg>

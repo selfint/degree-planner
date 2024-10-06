@@ -14,7 +14,7 @@
 </script>
 
 <header
-	class="touch-manipulation items-center border-b-2 border-dark-400 bg-background"
+	class="touch-manipulation items-center border-b-2 border-border bg-background"
 >
 	<div class="flex flex-row items-center p-2">
 		<a href="/" class="flex h-12 min-w-12 flex-row items-end">
@@ -33,7 +33,9 @@
 				<Nav target="semester">Semester</Nav>
 			</div>
 
-			<Search {onSearch} />
+			<div class="ml-2">
+				<Search {onSearch} />
+			</div>
 		</nav>
 		<div class="flex-grow" />
 		<div class="items-baseline">

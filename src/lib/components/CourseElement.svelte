@@ -35,7 +35,9 @@
 	const hasTest = course.tests !== undefined && course.tests.length > 0;
 </script>
 
-<div class="h-fit w-fit justify-between rounded-md bg-card-secondary">
+<div
+	class="h-fit w-fit select-none justify-between rounded-md bg-card-secondary"
+>
 	<CourseWidth>
 		<div class="w-full rounded-md bg-card-primary p-2">
 			<div

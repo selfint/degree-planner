@@ -108,14 +108,13 @@
 							semester={semester.map(getCourseData)}
 							isCurrent={semesterIndex === $currentSemester}
 						>
-							<div
+							<button
 								slot="course"
 								let:course
 								let:index={j}
 								draggable="true"
 								tabindex={j}
-								role="button"
-								class="text-content-primary"
+								class="touch-manipulation text-content-primary"
 								on:dragstart={(e) => {
 									if (e.dataTransfer !== null) {
 										e.dataTransfer.setData('text/x-course', course.code);
@@ -139,7 +138,7 @@
 										error: getScheduleError(course, $semesters, semesterIndex)
 									}}
 								/>
-							</div>
+							</button>
 						</Semester>
 					</div>
 				{/each}

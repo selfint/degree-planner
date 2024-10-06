@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { afterNavigate } from '$app/navigation';
-
 	import Logo from '$lib/assets/logo.png';
 
 	import Search from '$lib/components/Search.svelte';
@@ -13,48 +11,47 @@
 	export let onSearch: (query: string) => void;
 
 	let expanded = false;
-
-	afterNavigate(() => {
-		expanded = false;
-	});
 </script>
 
-{#if expanded}
-	<div class="mb-0 ml-3 mt-2 flex w-fit flex-col sm:hidden">
-		<Nav target="catalog">Catalog</Nav>
-		<Nav target="overview">Overview</Nav>
-		<Nav target="semester">Semester</Nav>
-	</div>
-{/if}
 <header
-	class="flex flex-row items-center border-b-2 border-dark-400 bg-background p-2"
+	class="touch-manipulation items-center border-b-2 border-dark-400 bg-background"
 >
-	<a href="/" class="flex h-12 min-w-12 flex-row items-end">
-		<img src={Logo} alt="Logo" class="h-12 w-12" />
-	</a>
-	<nav class="flex flex-row items-center">
-		<a
-			href="/"
-			class="mr-4 hidden border-b-2 border-background text-2xl font-semibold tracking-tight text-content-primary lg:block"
-		>
-			Degree Planner
+	<div class="flex flex-row items-center p-2">
+		<a href="/" class="flex h-12 min-w-12 flex-row items-end">
+			<img src={Logo} alt="Logo" class="h-12 w-12" />
 		</a>
-		<div class="hidden flex-row items-baseline space-x-4 p-2 sm:flex">
+		<nav class="flex flex-row items-center">
+			<a
+				href="/"
+				class="mr-4 hidden border-b-2 border-background text-2xl font-semibold tracking-tight text-content-primary lg:block"
+			>
+				Degree Planner
+			</a>
+			<div class="hidden flex-row items-baseline space-x-4 p-2 sm:flex">
+				<Nav target="catalog">Catalog</Nav>
+				<Nav target="overview">Overview</Nav>
+				<Nav target="semester">Semester</Nav>
+			</div>
+
+			<Search {onSearch} />
+		</nav>
+		<div class="flex-grow" />
+		<div class="items-baseline">
+			<Auth {username} {onGetStarted} />
+		</div>
+		<button
+			class="ml-2 w-8 text-card-secondary sm:hidden"
+			on:click={() => (expanded = !expanded)}
+		>
+			<Burger />
+		</button>
+	</div>
+
+	{#if expanded}
+		<div class="m-3 mt-0 flex flex-row justify-between sm:hidden">
 			<Nav target="catalog">Catalog</Nav>
 			<Nav target="overview">Overview</Nav>
 			<Nav target="semester">Semester</Nav>
 		</div>
-
-		<Search {onSearch} />
-	</nav>
-	<div class="flex-grow" />
-	<div class="items-baseline">
-		<Auth {username} {onGetStarted} />
-	</div>
-	<button
-		class="ml-2 w-8 text-card-secondary sm:hidden"
-		on:click={() => (expanded = !expanded)}
-	>
-		<Burger />
-	</button>
+	{/if}
 </header>

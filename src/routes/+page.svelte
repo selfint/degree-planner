@@ -3,15 +3,19 @@
 	import Button from '$lib/components/Button.svelte';
 </script>
 
-<div class="ml-3 mr-3 flex flex-col justify-center lg:mt-32 lg:flex-row">
-	<h1 class="mb-2 mr-8 w-full text-6xl text-content-primary lg:w-1/3">
+<div class="m-3 flex flex-col justify-center lg:mt-32 lg:flex-row lg:space-x-8">
+	<h1 class="mb-6 w-fit text-5xl text-content-primary md:text-6xl">
 		<span class="w-fit">Plan your courses</span>
 		<br class="hidden lg:block" />
-		<span class="gradient w-fit">with confidence.</span>
+		<span
+			class="w-fit bg-gradient-to-b from-white from-30% to-accent-primary bg-clip-text text-transparent"
+		>
+			with confidence.
+		</span>
 	</h1>
 
-	<div class="lg:w-1/4">
-		<p class="mb-8 text-lg text-content-secondary">
+	<div class="lg:w-1/3">
+		<p class="mb-6 text-lg font-medium text-content-secondary">
 			Setup a plan for your entire degree that fits your interests and maximizes
 			your potential. Get personalized suggestions each semester for the optimal
 			test schedule. Discover courses, save the ones you like and we will
@@ -22,23 +26,12 @@
 	</div>
 </div>
 
-<div class="circle" />
+<div
+	class="circle absolute left-[-250%] top-[10vh] -z-10 h-[2000px] w-[350%]"
+/>
 
 <style>
 	.circle {
-		width: 350%;
-		height: 2000px;
-		border-radius: 50%;
-		position: absolute;
-		top: 400px;
-		left: -250%;
 		background: radial-gradient(#4ca9a1 1%, rgba(0, 0, 0, 0) 70%);
-		z-index: -1;
-	}
-
-	.gradient {
-		background: linear-gradient(#ffffff 30%, #4ca9a1);
-		background-clip: text;
-		-webkit-text-fill-color: transparent;
 	}
 </style>

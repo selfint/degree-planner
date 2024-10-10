@@ -21,6 +21,8 @@
 	import StudyDaysComponent from '$lib/components/StudyDaysComponent.svelte';
 
 	$: semester = $semesters.at($currentSemester)?.map(getCourseData) ?? [];
+	$: disabled = [] as string[];
+	$: effectiveSemester = semester.filter((c) => !disabled.includes(c.code));
 
 	$: futureSemesters = $semesters
 		.slice($currentSemester + 1)
@@ -246,19 +248,32 @@
 			.map((word) => word[0].toUpperCase() + word.slice(1))
 			.join(' ');
 	}
+
+	function toggleCourseDisabled(course: Course) {
+		if (disabled.includes(course.code)) {
+			disabled = disabled.filter((c) => c !== course.code);
+		} else {
+			disabled = [...disabled, course.code];
+		}
+	}
 </script>
 
-<div class="m-3 mr-0 mt-0 items-start sm:flex sm:flex-row">
-	<div class="sticky top-0 mr-3 hidden sm:block">
-		<Semester index={$currentSemester} {semester} isCurrent={true}>
-			<div slot="course" let:course>
+<div class="m-3 mr-0 mt-0 items-start sm:mt-3 sm:flex sm:flex-row">
+	<div class="sticky top-2 mr-3 mt-0 hidden sm:block">
+		<Semester index={$currentSemester} {semester} {disabled} isCurrent={true}>
+			<button
+				slot="course"
+				let:course
+				class={disabled.includes(course.code) ? 'opacity-50' : ''}
+				on:mousedown={() => toggleCourseDisabled(course)}
+			>
 				<CourseElement
 					{course}
 					lists={$degreeData?.then((d) =>
 						getCourseLists(d.requirements, course.code)
 					)}
 				/>
-			</div>
+			</button>
 		</Semester>
 	</div>
 
@@ -273,28 +288,33 @@
 				</h1>
 				<div class="text-content-secondary">
 					<span>
-						{semester
+						{effectiveSemester
 							.map((c) => c.tests)
 							.filter((t) => t !== undefined && t.length > 0).length}
 					</span>
 					<span>
-						{getAvgMedian(semester)}
+						{getAvgMedian(effectiveSemester)}
 					</span>
 					<span>
-						{semester.reduce((a, b) => a + (b.points ?? 0), 0)}
+						{effectiveSemester.reduce((a, b) => a + (b.points ?? 0), 0)}
 					</span>
 				</div>
 			</div>
-			<StudyDaysComponent {semester} />
+			<StudyDaysComponent semester={effectiveSemester} />
 		</div>
 		<div class="flew-row flex space-x-2 overflow-x-auto">
 			{#each semester as course}
-				<CourseElement
-					{course}
-					lists={$degreeData?.then((d) =>
-						getCourseLists(d.requirements, course.code)
-					)}
-				/>
+				<button
+					class={disabled.includes(course.code) ? 'opacity-50' : ''}
+					on:mousedown={() => toggleCourseDisabled(course)}
+				>
+					<CourseElement
+						{course}
+						lists={$degreeData?.then((d) =>
+							getCourseLists(d.requirements, course.code)
+						)}
+					/>
+				</button>
 			{/each}
 		</div>
 	</div>
@@ -333,7 +353,7 @@
 						)}
 						variant={{
 							type: 'test',
-							semester
+							semester: effectiveSemester
 						}}
 					/>
 				</div>

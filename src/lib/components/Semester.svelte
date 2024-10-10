@@ -5,6 +5,9 @@
 	export let index: number;
 	export let isCurrent: boolean;
 	export let semester: Course[];
+	export let disabled: string[] | undefined = undefined;
+
+	$: effectiveSemester = semester.filter((c) => !disabled?.includes(c.code));
 
 	function getAvgMedian(courses: Course[]): number {
 		const medians: number[] = courses
@@ -40,22 +43,22 @@
 			class="flex flex-row items-baseline justify-end space-x-1 text-content-secondary"
 		>
 			<span>
-				{semester
+				{effectiveSemester
 					.map((c) => c.tests)
 					.filter((t) => t !== undefined && t.length > 0).length}
 			</span>
 			<span>
-				{getAvgMedian(semester)}
+				{getAvgMedian(effectiveSemester)}
 			</span>
 			<span>
-				{semester.reduce((a, b) => a + (b.points ?? 0), 0)}
+				{effectiveSemester.reduce((a, b) => a + (b.points ?? 0), 0)}
 			</span>
 		</div>
 	</div>
 
 	{#if isCurrent}
 		<div class="mt-2">
-			<StudyDaysComponent {semester} />
+			<StudyDaysComponent semester={effectiveSemester} />
 		</div>
 	{/if}
 

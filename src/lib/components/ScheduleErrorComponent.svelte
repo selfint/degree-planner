@@ -19,8 +19,8 @@
 {/if}
 {#if scheduleError.dependencies.length > 0}
 	<div class="p-2 pb-1 pt-1">
-		<h2 class="text-base text-content-primary">Dependencies</h2>
-		<div class="mb-2 space-y-2 text-xs">
+		<h2 class="text-left text-base text-content-primary">Dependencies</h2>
+		<div class="mb-2 space-y-2 text-left text-xs">
 			{#each scheduleError.dependencies as group, i}
 				{#if i !== 0}
 					<p class="w-full text-center text-content-secondary">OR</p>
@@ -58,8 +58,8 @@
 
 {#if scheduleError.adjacencies.length > 0}
 	<div class="p-2 pb-1 pt-1">
-		<h2 class="text-base text-content-primary">Adjacencies</h2>
-		<div class="space-y-1 text-xs">
+		<h2 class="text-left text-base text-content-primary">Adjacencies</h2>
+		<div class="space-y-1 text-left text-xs">
 			{#each scheduleError.adjacencies as { course: adj, taken }}
 				<div class="text-content-primary">
 					<div class="flex flex-row justify-between">

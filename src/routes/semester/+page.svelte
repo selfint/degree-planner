@@ -263,7 +263,7 @@
 	</div>
 
 	<div class="sticky top-0 bg-background pb-2 sm:hidden">
-		<div class="mb-2 flex flex-row items-center justify-between pt-2">
+		<div class="mb-2 mr-3 mt-1 flex flex-row items-center justify-between pt-2">
 			<div>
 				<h1
 					class="border-b-2 border-accent-primary text-lg font-medium text-content-primary"

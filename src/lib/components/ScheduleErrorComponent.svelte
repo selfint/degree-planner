@@ -7,7 +7,7 @@
 
 {#if scheduleError.season !== undefined}
 	<div class="items-baseline p-2 pb-1 pt-1">
-		<h2 class="text-base text-content-primary">Semester</h2>
+		<h2 class="text-left text-base text-content-primary">Semester</h2>
 		<div class="flex w-full flex-row justify-start">
 			{#each scheduleError.season as season}
 				<p class="mr-2 text-center text-xs text-content-secondary">

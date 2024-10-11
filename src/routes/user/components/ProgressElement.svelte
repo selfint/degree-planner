@@ -18,12 +18,12 @@
 </script>
 
 <h3
-	class="w-fit rounded-md pl-2 pr-2 text-base text-content-primary"
+	class="w-fit rounded-md pl-2 pr-2 text-content-primary"
 	style="background: {color}"
 >
 	{formatName(requirementName)}
 </h3>
-<div class="flex flex-col space-y-1 pl-2 text-base">
+<div class="flex flex-col space-y-1 pl-2">
 	{#if requirement.points !== undefined && planned.points !== undefined}
 		<div class="flex flex-row items-center space-x-2 text-content-secondary">
 			<span>Points</span>

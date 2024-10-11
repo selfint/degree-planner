@@ -64,7 +64,7 @@
 </script>
 
 <div>
-	<h2 class="text-lg text-content-primary">Degree</h2>
+	<h2 class="text-lg font-medium text-content-primary">Degree</h2>
 	<div class="space-y-1">
 		<div>
 			<span class="text-content-secondary"> Year: </span>

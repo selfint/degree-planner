@@ -6,8 +6,8 @@
 	export let planned: DegreeProgress;
 </script>
 
-<div class="flex flex-col space-y-3">
-	<h2 class="text-lg font-medium text-content-primary">Requirements</h2>
+<div class="flex flex-col space-y-2">
+	<h2 class="text-lg text-content-primary">Requirements</h2>
 	<div
 		class="flex flex-row items-center space-x-2 text-base text-content-secondary"
 	>
@@ -17,7 +17,7 @@
 			value2={planned.points[0]}
 			max={planned.points[1]}
 		/>
-		<span>
+		<span class="text-nowrap">
 			<span class="text-accent-primary">{current?.points[0] ?? 0}</span> / {planned
 				.points[0]}
 			/ {planned.points[1]}

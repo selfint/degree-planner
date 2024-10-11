@@ -12,7 +12,7 @@
 	import { loadDegreeData } from '$lib/requirements';
 
 	import DegreeSection from './components/DegreeSection.svelte';
-	import DegreeProgressElement from './components/DegreeProgressElement.svelte';
+	import RequirementsSection from './components/DegreeProgressElement.svelte';
 	import SemesterSection from './components/SemesterSection.svelte';
 
 	if ($username === undefined) {
@@ -89,7 +89,7 @@
 		{#await degreeProgress}
 			<div class="text-content-secondary">Loading...</div>
 		{:then { current, planned }}
-			<DegreeProgressElement {current} {planned} />
+			<RequirementsSection {current} {planned} />
 		{/await}
 	{/if}
 </div>

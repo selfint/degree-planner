@@ -7,7 +7,7 @@
 </script>
 
 <div class="flex flex-col space-y-2">
-	<h2 class="text-lg text-content-primary">Requirements</h2>
+	<h2 class="text-lg font-medium text-content-primary">Requirements</h2>
 	<div
 		class="flex flex-row items-center space-x-2 text-base text-content-secondary"
 	>

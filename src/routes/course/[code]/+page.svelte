@@ -136,9 +136,9 @@
 	<div class="mt-4">
 		{#if (course.connections?.dependencies ?? []).length !== 0}
 			<div class="pb-4">
-				<h1 class="pb-1 text-lg font-medium text-content-primary">
+				<h2 class="pb-1 text-lg font-medium text-content-primary">
 					Dependencies
-				</h1>
+				</h2>
 				<div class="flex flex-row space-x-2 overflow-x-auto">
 					{#each course.connections?.dependencies ?? [] as group, i}
 						{#if i !== 0 && group.length > 0}
@@ -176,9 +176,9 @@
 		{/if}
 		{#if (course.connections?.adjacent ?? []).length !== 0}
 			<div>
-				<h1 class="pb-1 text-lg font-medium text-content-primary">
+				<h2 class="pb-1 text-lg font-medium text-content-primary">
 					Adjacencies
-				</h1>
+				</h2>
 				<div class="flex flex-row space-x-2 overflow-x-auto">
 					{#each course.connections?.adjacent.map(getCourseData) ?? [] as adj}
 						<CourseElement
@@ -193,9 +193,9 @@
 		{/if}
 		<div>
 			{#if dependants.length > 0}
-				<h1 class="pb-1 text-lg font-medium text-content-primary">
+				<h2 class="pb-1 text-lg font-medium text-content-primary">
 					Dependants
-				</h1>
+				</h2>
 				<div class="flex flex-row flex-wrap">
 					{#each dependants as c, i}
 						<div

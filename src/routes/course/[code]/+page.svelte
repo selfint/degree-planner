@@ -15,6 +15,7 @@
 	import { getCourseData, getAllCourses } from '$lib/courseData';
 	import { getCourseLists } from '$lib/requirements';
 	import { generateRequirementColor, generateCourseColor } from '$lib/colors';
+	import Progress from '$lib/components/Progress.svelte';
 
 	function formatRequirementName(name: string): string {
 		return name
@@ -56,6 +57,10 @@
 
 			return a.code.localeCompare(b.code);
 		});
+	$: info = [
+		['Median', course.median, 100],
+		['Points', course.points, 7]
+	] as const;
 </script>
 
 <div class="m-3">
@@ -131,6 +136,25 @@
 				</Button>
 			{/if}
 		{/if}
+	</div>
+
+	<div class="mt-4">
+		<h2 class="pb-1 text-lg font-medium text-content-primary">Grades</h2>
+		<div
+			class="grid w-fit grid-flow-row grid-cols-[auto_auto_auto] items-center gap-x-2 text-content-secondary"
+		>
+			{#each info as [name, value, max]}
+				<span>{name}</span>
+				<div>
+					{#if value === undefined}
+						<span class="w-fit">Unknown</span>
+					{:else}
+						<Progress {value} {max} />
+					{/if}
+				</div>
+				<span>{value}</span>
+			{/each}
+		</div>
 	</div>
 
 	<div class="mt-4">

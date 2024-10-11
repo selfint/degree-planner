@@ -59,64 +59,81 @@
 	}
 </script>
 
-<div class="flex flex-col space-y-3">
+<div>
 	<h2 class="text-lg text-content-primary">Degree</h2>
-	<div>
-		<Select bind:value={year}>
-			{#if year === undefined}
-				<option value={undefined}>Select a year</option>
-			{/if}
-			{#if years !== undefined}
-				{#each years as year}
-					<option value={year}>{year.replaceAll('_', '/')}</option>
-				{/each}
-			{/if}
-		</Select>
+	<div class="space-y-1">
+		<div>
+			<span class="text-content-secondary"> Year: </span>
+			<Select bind:value={year}>
+				{#if year === undefined}
+					<option value={undefined}>Select a year</option>
+				{/if}
+				{#if years !== undefined}
+					{#each years as year}
+						<option value={year}>{year.replaceAll('_', '/')}</option>
+					{/each}
+				{/if}
+			</Select>
+		</div>
+
 		{#if year !== undefined}
-			<Select bind:value={faculty}>
-				{#if degree === undefined && faculty === undefined}
-					<option value={undefined}>Select a faculty</option>
-				{/if}
-				{#if faculties !== undefined}
-					{#each faculties as faculty}
-						<option value={faculty}>
-							{capitalizeWords(faculty.replaceAll('_', ' '))}
-						</option>
-					{/each}
-				{/if}
-			</Select>
+			<div>
+				<span class="text-content-secondary"> Faculty: </span>
+				<Select bind:value={faculty}>
+					{#if degree === undefined && faculty === undefined}
+						<option value={undefined}>Select a faculty</option>
+					{/if}
+					{#if faculties !== undefined}
+						{#each faculties as faculty}
+							<option value={faculty}>
+								{capitalizeWords(faculty.replaceAll('_', ' '))}
+							</option>
+						{/each}
+					{/if}
+				</Select>
+			</div>
 		{/if}
+
 		{#if faculty !== undefined}
-			<Select bind:value={path}>
-				{#if degree === undefined && path === undefined}
-					<option value={undefined}>Select a path</option>
-				{/if}
-				{#if paths !== undefined}
-					{#each paths as path}
-						<option value={path}>
-							{capitalizeWords(path.replaceAll('_', ' '))}
-						</option>
-					{/each}
-				{/if}
-			</Select>
+			<div>
+				<span class="text-content-secondary"> Path: </span>
+				<Select bind:value={path}>
+					{#if degree === undefined && path === undefined}
+						<option value={undefined}>Select a path</option>
+					{/if}
+					{#if paths !== undefined}
+						{#each paths as path}
+							<option value={path}>
+								{capitalizeWords(path.replaceAll('_', ' '))}
+							</option>
+						{/each}
+					{/if}
+				</Select>
+			</div>
 		{/if}
 		{#if choiceIsChanged(year, faculty, path, degree)}
-			{#if choiceIsValid(year, faculty, path)}
-				<Button
-					variant="primary"
-					onClick={() => {
-						// @ts-expect-error We validated the choice in `choiceIsValid`
-						const didChange = onChange([year, faculty, path]);
+			<div class="flex flex-row">
+				{#if choiceIsValid(year, faculty, path)}
+					<div class="mr-2 w-fit">
+						<Button
+							variant="primary"
+							onClick={() => {
+								// @ts-expect-error We validated the choice in `choiceIsValid`
+								const didChange = onChange([year, faculty, path]);
 
-						if (!didChange) {
-							reset();
-						}
-					}}
-				>
-					Save
-				</Button>
-			{/if}
-			<Button variant="secondary" onClick={reset}>Cancel</Button>
+								if (!didChange) {
+									reset();
+								}
+							}}
+						>
+							Save
+						</Button>
+					</div>
+				{/if}
+				<div class="w-fit">
+					<Button variant="secondary" onClick={reset}>Cancel</Button>
+				</div>
+			</div>
 		{/if}
 	</div>
 </div>

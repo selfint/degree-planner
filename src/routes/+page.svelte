@@ -22,7 +22,11 @@
 			scheduled them for you.
 		</p>
 
-		<Button variant="primary" onClick={() => goto('/user')}>Get started</Button>
+		<div class="h-9">
+			<Button variant="primary" onClick={() => goto('/user')}>
+				Get started
+			</Button>
+		</div>
 	</div>
 </div>
 

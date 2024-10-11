@@ -33,8 +33,9 @@
 				value2={planned.points}
 				max={requirement.points}
 			/>
-			<span>
-				<span style="color: {color}">{current?.points ?? 0}</span> / {planned.points}
+			<span class="text-nowrap">
+				<span style="color: {color}">{current?.points ?? 0}</span>
+				/ {planned.points}
 				/ {requirement.points}
 			</span>
 		</div>
@@ -49,7 +50,7 @@
 				value2={planned.count}
 				max={requirement.count}
 			/>
-			<span>
+			<span class="text-nowrap">
 				<span style="color: {color}">{current?.count ?? 0}</span> / {planned.count}
 				/ {requirement.count}</span
 			>

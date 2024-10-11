@@ -6,7 +6,7 @@
 </script>
 
 <button
-	class="rounded-md p-2 pl-3 pr-3 {bg} text-content-primary"
+	class="h-full rounded-md border border-transparent p-0.5 pl-3 pr-3 {bg} text-content-primary"
 	on:click={onClick}
 >
 	<slot />

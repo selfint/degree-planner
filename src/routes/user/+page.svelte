@@ -11,9 +11,6 @@
 	import { getProgress } from '$lib/progress';
 	import { loadDegreeData } from '$lib/requirements';
 
-	import Select from '$lib/components/Select.svelte';
-	import Button from '$lib/components/Button.svelte';
-
 	import DegreeSection from './components/DegreeSection.svelte';
 	import DegreeProgressElement from './components/DegreeProgressElement.svelte';
 	import SemesterSection from './components/SemesterSection.svelte';
@@ -42,8 +39,9 @@
 		$degree = newDegree;
 		$degreeData = newDegreeData;
 
-		// reset wishlist
+		// reset schedule
 		$wishlist = [];
+		$semesters = [];
 
 		newDegreeData.then((data) => {
 			$semesters = data.recommended;

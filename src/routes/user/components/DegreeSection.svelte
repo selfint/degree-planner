@@ -9,14 +9,18 @@
 
 	let years: string[] = Object.keys(manifest);
 
+	$: [_year, _faculty, _path] = degree ?? [undefined, undefined, undefined];
+
+	$: year = _year;
+	$: faculty = _faculty;
+	$: path = _path;
+
 	// @ts-expect-error
 	$: faculties = year === undefined ? undefined : Object.keys(manifest[year]);
 
 	$: paths =
 		// @ts-expect-error
 		faculty === undefined ? undefined : Object.keys(manifest[year][faculty]);
-
-	let [year, faculty, path] = degree ?? [undefined, undefined, undefined];
 
 	$: {
 		if (path !== undefined && !paths?.includes(path)) {

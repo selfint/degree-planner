@@ -29,7 +29,7 @@
 			<span>Points</span>
 			<Progress
 				{color}
-				value={current?.points}
+				value={current?.points ?? 0}
 				value2={planned.points}
 				max={requirement.points}
 			/>
@@ -46,7 +46,7 @@
 			<span>Count</span>
 			<Progress
 				{color}
-				value={current?.count}
+				value={current?.count ?? 0}
 				value2={planned.count}
 				max={requirement.count}
 			/>

@@ -10,7 +10,8 @@ export type ScheduleError = {
 export function getScheduleError(
 	course: Course,
 	semesters: string[][],
-	currentSemester: number
+	currentSemester: number,
+	ignoreUndefined = false
 ): ScheduleError {
 	const semester = semesters[currentSemester];
 	const previous = semesters.slice(0, currentSemester).flat();
@@ -26,6 +27,10 @@ export function getScheduleError(
 		courseSeason !== undefined && !courseSeason.includes(currentSeason);
 
 	function dependencyTaken(course: Course): boolean {
+		if (ignoreUndefined && course.name === undefined) {
+			return true;
+		}
+
 		return (
 			previous.includes(course.code) ||
 			(course.connections?.exclusive ?? []).some((c) => previous.includes(c))
@@ -33,6 +38,10 @@ export function getScheduleError(
 	}
 
 	function adjacencyTaken(course: Course): boolean {
+		if (ignoreUndefined && course.name === undefined) {
+			return true;
+		}
+
 		return (
 			dependencyTaken(course) ||
 			semester.includes(course.code) ||

@@ -87,7 +87,6 @@
 
 		function sortCourses(courses: Course[]): Course[] {
 			return courses
-				.filter((c) => true || !courses.some((cc) => cc.code === c.code))
 				.filter(
 					(c) =>
 						true ||
@@ -231,7 +230,7 @@
 			return false;
 		}
 
-		const error = getScheduleError(course, $semesters, $currentSemester);
+		const error = getScheduleError(course, $semesters, $currentSemester, true);
 
 		const canTake =
 			error.season === undefined &&

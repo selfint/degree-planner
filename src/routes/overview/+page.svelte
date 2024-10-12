@@ -26,6 +26,14 @@
 		$wishlist = [...new Set([...$wishlist, code])];
 		$semesters = $semesters.map((s) => s.filter((c) => c !== code));
 	}
+
+	function scroll(semester: HTMLDivElement) {
+		semester.parentElement?.children[$currentSemester]?.scrollIntoView({
+			behavior: 'instant',
+			inline: 'start',
+			block: 'nearest'
+		});
+	}
 </script>
 
 <div class="m-3 mr-0">
@@ -102,6 +110,7 @@
 						}}
 						role="button"
 						tabindex={semesterIndex}
+						use:scroll
 					>
 						<Semester
 							index={semesterIndex}

@@ -8,6 +8,7 @@
 
 	export let course: Course;
 	export let lists: Promise<string[]> | undefined;
+	export let squeeze = false;
 
 	export let variant:
 		| undefined
@@ -55,7 +56,11 @@
 				</div>
 			</div>
 
-			<div class="flex min-h-28 flex-col justify-between sm:min-h-14">
+			<div
+				class="flex {squeeze
+					? ''
+					: 'min-h-28'} flex-col justify-between sm:min-h-14"
+			>
 				<div class="pb-2 text-right text-xs leading-none text-content-primary">
 					<span class="hyphens-auto break-words" dir="rtl">
 						{course.name}
@@ -68,7 +73,7 @@
 
 				{#await lists then lists}
 					{#if lists?.length ?? 0 > 0}
-						<div class="flex flex-row items-baseline">
+						<div class="flex h-fit flex-row items-baseline">
 							<div class="flex flex-row flex-wrap items-baseline space-y-1">
 								{#each lists ?? [] as requirement}
 									<div

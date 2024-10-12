@@ -14,6 +14,7 @@
 	import { getCourseData } from '$lib/courseData';
 	import { getCourseLists } from '$lib/requirements';
 	import { getScheduleError } from '$lib/schedule';
+	import { onMount } from 'svelte';
 
 	function moveCourseToSemester(code: string, semester: number) {
 		$wishlist = $wishlist.filter((c) => c !== code);
@@ -27,12 +28,19 @@
 		$semesters = $semesters.map((s) => s.filter((c) => c !== code));
 	}
 
-	function scroll(semester: HTMLDivElement) {
-		semester.parentElement?.children[$currentSemester]?.scrollIntoView({
-			behavior: 'instant',
-			inline: 'start',
-			block: 'nearest'
-		});
+	let didMount = false;
+	onMount(() => {
+		didMount = true;
+	});
+
+	function scroll(semester: HTMLDivElement, doScroll: boolean) {
+		if (doScroll && !didMount) {
+			semester.parentElement?.children[$currentSemester]?.scrollIntoView({
+				behavior: 'instant',
+				inline: 'start',
+				block: 'nearest'
+			});
+		}
 	}
 </script>
 
@@ -110,7 +118,7 @@
 						}}
 						role="button"
 						tabindex={semesterIndex}
-						use:scroll
+						use:scroll={semesterIndex === $semesters.length - 1}
 					>
 						<Semester
 							index={semesterIndex}
@@ -142,6 +150,7 @@
 									lists={$degreeData?.then((d) =>
 										getCourseLists(d.requirements, course.code)
 									)}
+									squeeze={true}
 									variant={{
 										type: 'schedule',
 										error: getScheduleError(course, $semesters, semesterIndex)

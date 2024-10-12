@@ -4,7 +4,7 @@
 </script>
 
 <div class="m-3 flex flex-col justify-center lg:mt-32 lg:flex-row lg:space-x-8">
-	<h1 class="mb-6 w-fit text-6xl text-content-primary md:text-6xl">
+	<h1 class="mb-6 w-fit text-5xl text-content-primary md:text-6xl">
 		<span class="w-fit">Plan your courses</span>
 		<br class="hidden lg:block" />
 		<span

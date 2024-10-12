@@ -258,7 +258,7 @@
 </script>
 
 <div class="m-3 mr-0 mt-0 items-start sm:mt-3 sm:flex sm:flex-row">
-	<div class="sticky top-2 mr-3 mt-0 hidden sm:block">
+	<div class="sticky top-2 mr-3 mt-0 hidden touch-manipulation sm:block">
 		<Semester index={$currentSemester} {semester} {disabled} isCurrent={true}>
 			<button
 				slot="course"
@@ -301,7 +301,7 @@
 			</div>
 			<StudyDaysComponent semester={effectiveSemester} />
 		</div>
-		<div class="flew-row flex space-x-2 overflow-x-auto">
+		<div class="flew-row flex touch-manipulation space-x-2 overflow-x-auto">
 			{#each semester as course}
 				<button
 					class={disabled.includes(course.code) ? 'opacity-50' : ''}

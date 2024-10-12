@@ -90,7 +90,7 @@
 			<div class="mb-4 flex w-full flex-row space-x-2 overflow-x-auto">
 				{#each group as course, i}
 					<div
-						class="container w-fit"
+						class="container w-fit touch-manipulation"
 						tabindex={i}
 						role="button"
 						on:click={() => goto(`/course/${course.code}`)}

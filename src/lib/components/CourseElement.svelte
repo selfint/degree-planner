@@ -6,20 +6,23 @@
 	import CourseWidth from './CourseWidth.svelte';
 	import StudyDaysComponent from './StudyDaysComponent.svelte';
 
-	export let course: Course;
-	export let lists: Promise<string[]> | undefined;
-	export let squeeze = false;
+	type Props = {
+		course: Course;
+		lists: Promise<string[]> | undefined;
+		squeeze: boolean;
+		variant:
+			| undefined
+			| {
+					type: 'schedule';
+					error: ScheduleError;
+			  }
+			| {
+					type: 'test';
+					semester: Course[];
+			  };
+	};
 
-	export let variant:
-		| undefined
-		| {
-				type: 'schedule';
-				error: ScheduleError;
-		  }
-		| {
-				type: 'test';
-				semester: Course[];
-		  } = undefined;
+	let { course, lists, squeeze, variant }: Props = $props();
 
 	const color = generateCourseColor(course);
 

@@ -26,7 +26,7 @@
 			{#if semesterChoice !== $currentSemester}
 				<Button
 					variant="primary"
-					onClick={() => {
+					onclick={() => {
 						if (semesterChoice !== $currentSemester) {
 							$currentSemester = semesterChoice;
 						}
@@ -36,7 +36,7 @@
 				</Button>
 				<Button
 					variant="secondary"
-					onClick={() => (semesterChoice = $currentSemester)}
+					onclick={() => (semesterChoice = $currentSemester)}
 				>
 					Cancel
 				</Button>
@@ -58,7 +58,7 @@
 				<div class="inline-block h-full">
 					<Button
 						variant="primary"
-						onClick={() => {
+						onclick={() => {
 							if (totalSemestersChoice < $semesters.length) {
 								$semesters = $semesters.slice(0, totalSemestersChoice);
 							} else if (totalSemestersChoice > $semesters.length) {
@@ -75,7 +75,7 @@
 				</div>
 				<Button
 					variant="secondary"
-					onClick={() => (totalSemestersChoice = $semesters.length)}
+					onclick={() => (totalSemestersChoice = $semesters.length)}
 				>
 					Cancel
 				</Button>

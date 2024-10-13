@@ -23,7 +23,7 @@
 		</p>
 
 		<div class="h-9">
-			<Button variant="primary" onClick={() => goto('/user')}>
+			<Button variant="primary" onclick={() => goto('/user')}>
 				Get started
 			</Button>
 		</div>

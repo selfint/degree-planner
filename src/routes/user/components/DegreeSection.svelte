@@ -121,7 +121,7 @@
 					<div class="mr-2 w-fit">
 						<Button
 							variant="primary"
-							onClick={() => {
+							onclick={() => {
 								// @ts-expect-error We validated the choice in `choiceIsValid`
 								const didChange = onChange([year, faculty, path]);
 
@@ -135,7 +135,7 @@
 					</div>
 				{/if}
 				<div class="w-fit">
-					<Button variant="secondary" onClick={reset}>Cancel</Button>
+					<Button variant="secondary" onclick={reset}>Cancel</Button>
 				</div>
 			</div>
 		{/if}

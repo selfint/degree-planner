@@ -108,20 +108,20 @@
 		{#if $semesters.some((s) => s.includes(course.code))}
 			<Button
 				variant="secondary"
-				onClick={() => removeCourseFromSemesters(course.code)}
+				onclick={() => removeCourseFromSemesters(course.code)}
 			>
 				Remove from semester {$semesters.findIndex((s) =>
 					s.includes(course.code)
 				) + 1}
 			</Button>
 		{:else}
-			<Button variant="primary" onClick={() => planCourse(course.code)}>
+			<Button variant="primary" onclick={() => planCourse(course.code)}>
 				Plan
 			</Button>
 			{#if $wishlist.includes(course.code)}
 				<Button
 					variant="secondary"
-					onClick={() =>
+					onclick={() =>
 						($wishlist = $wishlist.filter((c) => c !== course.code))}
 				>
 					Remove from wish list
@@ -129,7 +129,7 @@
 			{:else}
 				<Button
 					variant="secondary"
-					onClick={() =>
+					onclick={() =>
 						($wishlist = [...new Set([...$wishlist, course.code])])}
 				>
 					Wish list

@@ -84,7 +84,7 @@
 			<div
 				style="background: {generateCourseColor(course)}"
 				class="h-8 w-8 rounded-full"
-			/>
+			></div>
 		</div>
 		{#await requirements then requirements}
 			{#each requirements ?? [] as requirement}

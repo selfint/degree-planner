@@ -41,7 +41,7 @@
 				</div>
 			{/if}
 		</nav>
-		<div class="flex-grow" />
+		<div class="flex-grow"></div>
 		<div class="items-baseline">
 			<Auth {username} {onGetStarted} />
 		</div>

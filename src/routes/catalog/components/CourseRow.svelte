@@ -75,7 +75,7 @@
 							<div
 								style="background: {generateRequirementColor(title)}"
 								class="h-4 w-4 min-w-4 rounded-full"
-							/>
+							></div>
 						{/if}
 						<span class="w-fit pr-2">
 							{formatName(title)}

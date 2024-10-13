@@ -48,7 +48,7 @@
 					<div
 						style="background: {color}"
 						class="h-4 w-4 {hasTest ? 'rounded-full' : ''}"
-					/>
+					></div>
 				</div>
 				<div class="flex flex-row">
 					<span class="mr-2">{median}</span>

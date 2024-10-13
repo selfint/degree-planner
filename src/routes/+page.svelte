@@ -32,7 +32,7 @@
 
 <div
 	class="circle absolute left-[-250%] top-[10vh] -z-10 h-[2000px] w-[350%]"
-/>
+></div>
 
 <style>
 	.circle {

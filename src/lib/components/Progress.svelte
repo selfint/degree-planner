@@ -13,18 +13,18 @@
 
 <div class="h-4 w-56 rounded-md bg-card-primary" style="position: relative;">
 	{#if p2 !== undefined}
-		<div style="width: {p2}%;" class="h-4 rounded-md bg-card-secondary" />
+		<div style="width: {p2}%;" class="h-4 rounded-md bg-card-secondary"></div>
 	{/if}
 
 	{#if color === undefined}
 		<div
 			style="width: {p1}%; position: absolute; top: 0; left: 0;"
 			class="h-4 rounded-md bg-accent-primary"
-		/>
+		></div>
 	{:else}
 		<div
 			style="width: {p1}%; background: {color}; position: absolute; top: 0; left: 0;"
 			class="h-4 rounded-md"
-		/>
+		></div>
 	{/if}
 </div>

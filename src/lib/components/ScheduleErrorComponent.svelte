@@ -46,7 +46,7 @@
 								<div
 									style="background: {generateCourseColor(dep)}"
 									class="h-4 w-4 min-w-4 {dep.tests ? 'rounded-full' : ''}"
-								/>
+								></div>
 							</div>
 						</div>
 					{/each}
@@ -80,7 +80,7 @@
 						<div
 							style="background: {generateCourseColor(adj)}"
 							class="h-4 w-4 {adj.tests ? 'rounded-full' : ''}"
-						/>
+						></div>
 					</div>
 				</div>
 			{/each}

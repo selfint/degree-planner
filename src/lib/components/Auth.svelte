@@ -4,14 +4,14 @@
 
 	type Props = {
 		username?: string;
-		onclick: () => void;
+		onGetStarted: () => void;
 	};
 
-	let { username, onclick }: Props = $props();
+	let { username, onGetStarted }: Props = $props();
 </script>
 
 {#if username === undefined}
-	<Button variant="primary" {onclick}>Get started</Button>
+	<Button variant="primary" onclick={onGetStarted}>Get started</Button>
 {:else}
 	<Nav target="user">
 		{username}

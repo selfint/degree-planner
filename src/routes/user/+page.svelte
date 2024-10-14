@@ -19,7 +19,7 @@
 		$username = 'guest';
 	}
 
-	$: degreeProgress = $degreeData?.then(async (data) => {
+	const degreeProgress = $degreeData?.then(async (data) => {
 		const semesterCourses = $semesters.map((s) => s.map(getCourseData));
 
 		return {
@@ -52,19 +52,19 @@
 
 	const maxTotalSemesters = 15;
 
-	$: semesterChoice = $currentSemester;
+	let semesterChoice = $currentSemester;
 	let totalSemestersChoice = $semesters.length;
 
 	semesters.subscribe((s) => (totalSemestersChoice = s.length));
 
-	$: maxNonEmptySemesterIndex =
+	const maxNonEmptySemesterIndex =
 		$semesters
 			.map((s, i) => [s.length, i])
 			.filter(([s]) => s > 0)
 			.map(([, i]) => i)
 			// get the last non-empty semester
 			.reduce((a, b) => Math.max(a, b), 0) + 1;
-	$: validTotalValues = Array.from(
+	const validTotalValues = Array.from(
 		{ length: maxTotalSemesters },
 		(_, i) => i + 1
 	).filter((i) => i >= maxNonEmptySemesterIndex);

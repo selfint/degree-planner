@@ -154,9 +154,9 @@
 				</div>
 				<span>{value}</span>
 			{/each}
-			<span>Available this semester:</span>
-			<span>{course?.current === true ? 'Yes' : 'No'}</span>
+			<span>Available</span>
 			<div></div>
+			<span>{course?.current === true ? 'Yes' : 'No'}</span>
 		</div>
 	</div>
 

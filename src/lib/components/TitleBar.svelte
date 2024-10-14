@@ -6,11 +6,15 @@
 	import Nav from '$lib/components/Nav.svelte';
 	import Burger from '$lib/components/Burger.svelte';
 
-	export let username: string | undefined;
-	export let onGetStarted: () => void;
-	export let onSearch: (query: string) => void;
+	type Props = {
+		username?: string;
+		onGetStarted: () => void;
+		onSearch: (query: string) => void;
+	};
 
-	let expanded = false;
+	const { username, onGetStarted, onSearch }: Props = $props();
+
+	let expanded = $state(false);
 </script>
 
 <header
@@ -48,7 +52,7 @@
 		{#if username !== undefined}
 			<button
 				class="ml-2 w-8 text-content-secondary sm:hidden"
-				on:click={() => (expanded = !expanded)}
+				onclick={() => (expanded = !expanded)}
 			>
 				<Burger />
 			</button>

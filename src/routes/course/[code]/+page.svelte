@@ -139,7 +139,7 @@
 	</div>
 
 	<div class="mt-4">
-		<h2 class="pb-1 text-lg font-medium text-content-primary">Grades</h2>
+		<h2 class="pb-1 text-lg font-medium text-content-primary">Info</h2>
 		<div
 			class="grid w-fit grid-flow-row grid-cols-[auto_auto_auto] items-center gap-x-2 text-content-secondary"
 		>

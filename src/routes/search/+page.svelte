@@ -7,19 +7,12 @@
 	import { getCourseLists } from '$lib/requirements';
 	import { getAllCourses } from '$lib/courseData';
 
-	$: query = ($page.url.searchParams.get('q') ?? '').trim();
-
-	const corpus: Course[] = getAllCourses();
-
-	function search(query: string): Course[] {
-		return corpus
-			.filter(({ name, code }) => name?.includes(query) || code.includes(query))
-			.toSorted((a, b) => {
-				return (b.median ?? 0) - (a.median ?? 0);
-			});
-	}
-
-	$: results = search(query);
+	const query = ($page.url.searchParams.get('q') ?? '').trim();
+	const results = getAllCourses()
+		.filter(({ name, code }) => name?.includes(query) || code.includes(query))
+		.toSorted((a, b) => {
+			return (b.median ?? 0) - (a.median ?? 0);
+		});
 </script>
 
 <div class="m-3 mr-0 text-content-primary">
@@ -34,7 +27,7 @@
 			<li class="pb-4 pr-2">
 				<div
 					class="container"
-					on:mousedown={() => goto(`/course/${course.code}`)}
+					onmousedown={() => goto(`/course/${course.code}`)}
 					role="button"
 					tabindex={i}
 				>

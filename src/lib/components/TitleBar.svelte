@@ -37,7 +37,7 @@
 				</div>
 
 				<div class="ml-2">
-					<Search {onSearch} />
+					<Search onsubmit={onSearch} />
 				</div>
 			{/if}
 		</nav>

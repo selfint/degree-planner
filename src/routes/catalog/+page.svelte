@@ -4,7 +4,7 @@
 	import { degreeData, wishlist } from '$lib/stores';
 	import { getDegreeRequirementCourses } from '$lib/requirements';
 
-	$: lists =
+	const lists =
 		$degreeData?.then((d) => getDegreeRequirementCourses(d.requirements)) ?? [];
 </script>
 

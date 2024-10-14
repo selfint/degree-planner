@@ -4,6 +4,7 @@
 
 	import Button from '$lib/components/Button.svelte';
 	import CourseElement from '$lib/components/CourseElement.svelte';
+	import Progress from '$lib/components/Progress.svelte';
 
 	import {
 		currentSemester,
@@ -15,7 +16,6 @@
 	import { getCourseData, getAllCourses } from '$lib/courseData';
 	import { getCourseLists } from '$lib/requirements';
 	import { generateRequirementColor, generateCourseColor } from '$lib/colors';
-	import Progress from '$lib/components/Progress.svelte';
 
 	function formatRequirementName(name: string): string {
 		return name
@@ -38,12 +38,12 @@
 		$semesters = $semesters.map((s) => s.filter((c) => c !== code));
 	}
 
-	$: code = $page.params.code;
-	$: course = getCourseData(code);
-	$: requirements = $degreeData?.then((d) =>
+	const code = $page.params.code;
+	const course = getCourseData(code);
+	const requirements = $degreeData?.then((d) =>
 		getCourseLists(d.requirements, code)
 	);
-	$: dependants = getAllCourses()
+	const dependants = getAllCourses()
 		.filter((c) =>
 			(c.connections?.dependencies ?? []).some((group) => group.includes(code))
 		)
@@ -57,7 +57,7 @@
 
 			return a.code.localeCompare(b.code);
 		});
-	$: info = [
+	const info = [
 		['Median', course.median, 100],
 		['Points', course.points, 7]
 	] as const;

@@ -260,19 +260,20 @@
 <div class="m-3 mr-0 mt-0 items-start sm:mt-3 sm:flex sm:flex-row">
 	<div class="sticky top-2 mr-3 mt-0 hidden touch-manipulation sm:block">
 		<Semester index={$currentSemester} {semester} {disabled} isCurrent={true}>
-			<button
-				slot="course"
-				let:course
-				class={disabled.includes(course.code) ? 'opacity-50' : ''}
-				on:mousedown={() => toggleCourseDisabled(course)}
-			>
-				<CourseElement
-					{course}
-					lists={$degreeData?.then((d) =>
-						getCourseLists(d.requirements, course.code)
-					)}
-				/>
-			</button>
+			{#snippet children({ course })}
+				<button
+					slot="course"
+					class={disabled.includes(course.code) ? 'opacity-50' : ''}
+					onmousedown={() => toggleCourseDisabled(course)}
+				>
+					<CourseElement
+						{course}
+						lists={$degreeData?.then((d) =>
+							getCourseLists(d.requirements, course.code)
+						)}
+					/>
+				</button>
+			{/snippet}
 		</Semester>
 	</div>
 
@@ -305,7 +306,7 @@
 			{#each semester as course}
 				<button
 					class={disabled.includes(course.code) ? 'opacity-50' : ''}
-					on:mousedown={() => toggleCourseDisabled(course)}
+					onmousedown={() => toggleCourseDisabled(course)}
 				>
 					<CourseElement
 						{course}
@@ -337,8 +338,8 @@
 					let:i
 					tabindex={i}
 					role="button"
-					on:click={() => goto(`/course/${course.code}`)}
-					on:keydown={(e) => {
+					onclick={() => goto(`/course/${course.code}`)}
+					onkeydown={(e) => {
 						if (e.key === 'Enter') {
 							goto(`/course/${course.code}`);
 						}

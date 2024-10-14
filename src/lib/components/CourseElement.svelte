@@ -9,9 +9,8 @@
 	type Props = {
 		course: Course;
 		lists: Promise<string[]> | undefined;
-		squeeze: boolean;
-		variant:
-			| undefined
+		squeeze?: boolean;
+		variant?:
 			| {
 					type: 'schedule';
 					error: ScheduleError;
@@ -22,7 +21,7 @@
 			  };
 	};
 
-	let { course, lists, squeeze, variant }: Props = $props();
+	let { course, lists, squeeze = false, variant }: Props = $props();
 
 	const color = generateCourseColor(course);
 

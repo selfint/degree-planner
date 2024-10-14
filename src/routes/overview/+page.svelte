@@ -125,38 +125,37 @@
 							semester={semester.map(getCourseData)}
 							isCurrent={semesterIndex === $currentSemester}
 						>
-							<button
-								slot="course"
-								let:course
-								let:index={j}
-								draggable="true"
-								tabindex={j}
-								class="touch-manipulation text-content-primary"
-								on:dragstart={(e) => {
-									if (e.dataTransfer !== null) {
-										e.dataTransfer.setData('text/x-course', course.code);
-										e.dataTransfer.effectAllowed = 'move';
-									}
-								}}
-								on:click={() => goto(`/course/${course.code}`)}
-								on:keydown={(e) => {
-									if (e.key === 'Enter') {
-										goto(`/course/${course.code}`);
-									}
-								}}
-							>
-								<CourseElement
-									{course}
-									lists={$degreeData?.then((d) =>
-										getCourseLists(d.requirements, course.code)
-									)}
-									squeeze={true}
-									variant={{
-										type: 'schedule',
-										error: getScheduleError(course, $semesters, semesterIndex)
+							{#snippet children({ course, index: j })}
+								<button
+									draggable="true"
+									tabindex={j}
+									class="touch-manipulation text-content-primary"
+									on:dragstart={(e) => {
+										if (e.dataTransfer !== null) {
+											e.dataTransfer.setData('text/x-course', course.code);
+											e.dataTransfer.effectAllowed = 'move';
+										}
 									}}
-								/>
-							</button>
+									on:click={() => goto(`/course/${course.code}`)}
+									on:keydown={(e) => {
+										if (e.key === 'Enter') {
+											goto(`/course/${course.code}`);
+										}
+									}}
+								>
+									<CourseElement
+										{course}
+										lists={$degreeData?.then((d) =>
+											getCourseLists(d.requirements, course.code)
+										)}
+										squeeze={true}
+										variant={{
+											type: 'schedule',
+											error: getScheduleError(course, $semesters, semesterIndex)
+										}}
+									/>
+								</button>
+							{/snippet}
 						</Semester>
 					</div>
 				{/each}

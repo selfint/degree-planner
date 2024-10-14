@@ -20,23 +20,29 @@
 	} from '$lib/requirements';
 	import StudyDaysComponent from '$lib/components/StudyDaysComponent.svelte';
 
-	$: semester = $semesters.at($currentSemester)?.map(getCourseData) ?? [];
-	$: disabled = [] as string[];
-	$: effectiveSemester = semester.filter((c) => !disabled.includes(c.code));
-
-	$: futureSemesters = $semesters
-		.slice($currentSemester + 1)
-		.map((s, i): [number, Course[]] => [
-			$currentSemester + 1 + i,
-			s.map(getCourseData)
-		]);
-
-	$: wishlistCourses = $wishlist.map(getCourseData);
-	$: requirementCourses = $degreeData?.then((d) =>
-		getDegreeRequirementCourses(d.requirements).map(({ path, courses }) => ({
-			path,
-			courses: courses.map(getCourseData)
-		}))
+	const semester = $derived(
+		$semesters.at($currentSemester)?.map(getCourseData) ?? []
+	);
+	let disabled: string[] = $state([]);
+	const effectiveSemester = $derived(
+		semester.filter((c) => !disabled.includes(c.code))
+	);
+	const futureSemesters = $derived(
+		$semesters
+			.slice($currentSemester + 1)
+			.map((s, i): [number, Course[]] => [
+				$currentSemester + 1 + i,
+				s.map(getCourseData)
+			])
+	);
+	const wishlistCourses = $derived($wishlist.map(getCourseData));
+	const requirementCourses = $derived(
+		$degreeData?.then((d) =>
+			getDegreeRequirementCourses(d.requirements).map(({ path, courses }) => ({
+				path,
+				courses: courses.map(getCourseData)
+			}))
+		)
 	);
 
 	function getAvgMedian(courses: Course[]): number {
@@ -324,39 +330,37 @@
 			<div class="text-content-primary">Loading...</div>
 		{:then loloco}
 			<LoLoCo {loloco}>
-				<h1
-					slot="header"
-					let:title
-					class="text-lg font-medium text-content-primary"
-				>
-					{formatName(title)}
-				</h1>
+				{#snippet header({ title })}
+					<h1 class="text-lg font-medium text-content-primary">
+						{formatName(title)}
+					</h1>
+				{/snippet}
 
-				<div
-					slot="course"
-					let:course
-					let:i
-					tabindex={i}
-					role="button"
-					onclick={() => goto(`/course/${course.code}`)}
-					onkeydown={(e) => {
-						if (e.key === 'Enter') {
-							goto(`/course/${course.code}`);
-						}
-					}}
-					class="h-fit rounded-md bg-card-secondary"
-				>
-					<CourseElement
-						{course}
-						lists={$degreeData?.then((d) =>
-							getCourseLists(d.requirements, course.code)
-						)}
-						variant={{
-							type: 'test',
-							semester: effectiveSemester
+				{#snippet children({ course, index: i })}
+					<div
+						slot="course"
+						tabindex={i}
+						role="button"
+						onclick={() => goto(`/course/${course.code}`)}
+						onkeydown={(e) => {
+							if (e.key === 'Enter') {
+								goto(`/course/${course.code}`);
+							}
 						}}
-					/>
-				</div>
+						class="h-fit rounded-md bg-card-secondary"
+					>
+						<CourseElement
+							{course}
+							lists={$degreeData?.then((d) =>
+								getCourseLists(d.requirements, course.code)
+							)}
+							variant={{
+								type: 'test',
+								semester: effectiveSemester
+							}}
+						/>
+					</div>
+				{/snippet}
 			</LoLoCo>
 		{/await}
 	</div>

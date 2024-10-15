@@ -10,13 +10,11 @@
 	import { getCourseLists, loadDegreeData } from '$lib/requirements';
 	import { getScheduleError } from '$lib/schedule';
 
-	const degreeRequirements = $derived.by(() => {
-		if (user.degree === undefined) {
-			return undefined;
+	let requirements: DegreeRequirements | undefined = $state(undefined);
+	$effect(() => {
+		if (user.degree !== undefined) {
+			loadDegreeData(user.degree).then((d) => (requirements = d.requirements));
 		}
-
-		const data = loadDegreeData(user.degree);
-		return data.then((d) => d.requirements);
 	});
 
 	function moveCourseToSemester(code: string, semester: number) {
@@ -91,9 +89,7 @@
 				>
 					<CourseElement
 						{course}
-						lists={degreeRequirements?.then((r) =>
-							getCourseLists(r, course.code)
-						)}
+						lists={getCourseLists(requirements, course.code)}
 					/>
 				</div>
 			{/each}
@@ -151,9 +147,7 @@
 								>
 									<CourseElement
 										{course}
-										lists={degreeRequirements?.then((r) =>
-											getCourseLists(r, course.code)
-										)}
+										lists={getCourseLists(requirements, course.code)}
 										squeeze={true}
 										variant={{
 											type: 'schedule',

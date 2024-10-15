@@ -8,22 +8,19 @@
 	import { getAllCourses } from '$lib/courseData';
 
 	const query = $derived(($page.url.searchParams.get('q') ?? '').trim());
-	const corpus = getAllCourses();
 	const results = $derived(
-		corpus
+		getAllCourses()
 			.filter(({ name, code }) => name?.includes(query) || code.includes(query))
 			.toSorted((a, b) => {
 				return (b.median ?? 0) - (a.median ?? 0);
 			})
 	);
 
-	const degreeRequirements = $derived.by(() => {
-		if (user.degree === undefined) {
-			return undefined;
+	let requirements: DegreeRequirements | undefined = $state(undefined);
+	$effect(() => {
+		if (user.degree !== undefined) {
+			loadDegreeData(user.degree).then((d) => (requirements = d.requirements));
 		}
-
-		const data = loadDegreeData(user.degree);
-		return data.then((d) => d.requirements);
 	});
 </script>
 
@@ -45,9 +42,7 @@
 				>
 					<CourseElement
 						{course}
-						lists={degreeRequirements?.then((r) =>
-							getCourseLists(r, course.code)
-						)}
+						lists={getCourseLists(requirements, course.code)}
 					/>
 				</div>
 			</li>

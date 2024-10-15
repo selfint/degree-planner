@@ -8,7 +8,7 @@
 
 	type Props = {
 		course: Course;
-		lists?: Promise<string[]>;
+		lists?: string[];
 		squeeze?: boolean;
 		variant?:
 			| {

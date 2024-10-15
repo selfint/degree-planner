@@ -114,7 +114,6 @@ declare global {
 		| ['Winter']
 		| ['Spring']
 		| ['Summer'];
-	type CourseData = Map<string, Promise<Course>>;
 }
 
 export {};

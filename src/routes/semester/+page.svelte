@@ -32,24 +32,24 @@
 			])
 	);
 	const wishlistCourses = $derived(user.wishlist.map(getCourseData));
-	const degreeRequirements = $derived.by(() => {
-		if (user.degree === undefined) {
-			return undefined;
-		}
 
-		const data = loadDegreeData(user.degree);
-		return data.then((d) => d.requirements);
+	let requirements: DegreeRequirements | undefined = $state(undefined);
+	$effect(() => {
+		if (user.degree !== undefined) {
+			loadDegreeData(user.degree).then((d) => (requirements = d.requirements));
+		}
 	});
+
 	const requirementCourses = $derived.by(() => {
-		if (user.degree === undefined) {
+		if (requirements === undefined) {
 			return undefined;
 		}
 
-		return loadDegreeData(user.degree).then((d) =>
-			getDegreeRequirementCourses(d.requirements).map(({ path, courses }) => ({
+		return getDegreeRequirementCourses(requirements).map(
+			({ path, courses }) => ({
 				path,
 				courses: courses.map(getCourseData)
-			}))
+			})
 		);
 	});
 
@@ -73,18 +73,7 @@
 		return 1 * medianDiff + 0.2 * studyDaysDiff0 + 0.01 * studyDaysDiff1;
 	}
 
-	async function getLoLoCo(
-		wishlistCourses: Course[],
-		futureSemesters: [number, Course[]][],
-		requirementCourses?:
-			| Promise<
-					{
-						path: string[];
-						courses: Course[];
-					}[]
-			  >
-			| undefined
-	): Promise<[string, Course[]][]> {
+	const loloco = $derived.by(() => {
 		let lists: [string, Course[]][] = [];
 
 		lists.push(['Wishlist', wishlistCourses]);
@@ -94,7 +83,7 @@
 		}
 
 		if (requirementCourses !== undefined) {
-			for (const { path, courses } of await requirementCourses) {
+			for (const { path, courses } of requirementCourses) {
 				lists.push([path.join(' '), courses]);
 			}
 		}
@@ -140,7 +129,7 @@
 		]);
 
 		return lists;
-	}
+	});
 
 	function getCourseStudyDays(
 		courses: Course[],
@@ -292,9 +281,7 @@
 				>
 					<CourseElement
 						{course}
-						lists={degreeRequirements?.then((r) =>
-							getCourseLists(r, course.code)
-						)}
+						lists={getCourseLists(requirements, course.code)}
 					/>
 				</button>
 			{/snippet}
@@ -334,9 +321,7 @@
 				>
 					<CourseElement
 						{course}
-						lists={degreeRequirements?.then((r) =>
-							getCourseLists(r, course.code)
-						)}
+						lists={getCourseLists(requirements, course.code)}
 					/>
 				</button>
 			{/each}
@@ -344,43 +329,37 @@
 	</div>
 
 	<div class="flex-1 overflow-x-auto">
-		{#await getLoLoCo(wishlistCourses, futureSemesters, requirementCourses)}
-			<div class="text-content-primary">Loading...</div>
-		{:then loloco}
-			<LoLoCo {loloco}>
-				{#snippet header({ title })}
-					<h1 class="text-lg font-medium text-content-primary">
-						{formatName(title)}
-					</h1>
-				{/snippet}
+		<LoLoCo {loloco}>
+			{#snippet header({ title })}
+				<h1 class="text-lg font-medium text-content-primary">
+					{formatName(title)}
+				</h1>
+			{/snippet}
 
-				{#snippet children({ course, index: i })}
-					<div
-						slot="course"
-						tabindex={i}
-						role="button"
-						onclick={() => goto(`/course/${course.code}`)}
-						onkeydown={(e) => {
-							if (e.key === 'Enter') {
-								goto(`/course/${course.code}`);
-							}
+			{#snippet children({ course, index: i })}
+				<div
+					slot="course"
+					tabindex={i}
+					role="button"
+					onclick={() => goto(`/course/${course.code}`)}
+					onkeydown={(e) => {
+						if (e.key === 'Enter') {
+							goto(`/course/${course.code}`);
+						}
+					}}
+					class="h-fit rounded-md bg-card-secondary"
+				>
+					<CourseElement
+						{course}
+						lists={getCourseLists(requirements, course.code)}
+						variant={{
+							type: 'test',
+							semester: effectiveSemester
 						}}
-						class="h-fit rounded-md bg-card-secondary"
-					>
-						<CourseElement
-							{course}
-							lists={degreeRequirements?.then((r) =>
-								getCourseLists(r, course.code)
-							)}
-							variant={{
-								type: 'test',
-								semester: effectiveSemester
-							}}
-						/>
-					</div>
-				{/snippet}
-			</LoLoCo>
-		{/await}
+					/>
+				</div>
+			{/snippet}
+		</LoLoCo>
 	</div>
 </div>
 

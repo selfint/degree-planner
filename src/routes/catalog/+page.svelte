@@ -7,22 +7,19 @@
 		loadDegreeData
 	} from '$lib/requirements';
 
-	const degreeRequirements = $derived.by(() => {
-		if (user.degree === undefined) {
-			return undefined;
+	let requirements: DegreeRequirements | undefined = $state(undefined);
+	$effect(() => {
+		if (user.degree !== undefined) {
+			loadDegreeData(user.degree).then((d) => (requirements = d.requirements));
 		}
-
-		const data = loadDegreeData(user.degree);
-		return data.then((d) => d.requirements);
 	});
 
-	const lists = $derived.by(async () => {
-		if (user.degree === undefined) {
+	const lists = $derived.by(() => {
+		if (requirements === undefined) {
 			return [];
 		}
 
-		const data = await loadDegreeData(user.degree);
-		return getDegreeRequirementCourses(data.requirements);
+		return getDegreeRequirementCourses(requirements);
 	});
 </script>
 
@@ -31,19 +28,15 @@
 		colorize={false}
 		titles={['Wish list']}
 		codes={user.wishlist}
-		{degreeRequirements}
+		degreeRequirements={requirements}
 	/>
-	{#await lists}
-		<div class="text-content-secondary">Loading...</div>
-	{:then lists}
-		{#each lists as list}
-			{#if list.courses.length > 0}
-				<CourseRow
-					titles={list.path}
-					codes={list.courses}
-					{degreeRequirements}
-				/>
-			{/if}
-		{/each}
-	{/await}
+	{#each lists as list}
+		{#if list.courses.length > 0}
+			<CourseRow
+				titles={list.path}
+				codes={list.courses}
+				degreeRequirements={requirements}
+			/>
+		{/if}
+	{/each}
 </div>

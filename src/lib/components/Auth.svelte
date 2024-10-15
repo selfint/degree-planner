@@ -11,7 +11,7 @@
 </script>
 
 {#if username === undefined}
-	<Button variant="primary" onclick={onGetStarted}>Get started</Button>
+	<Button variant="primary" onmousedown={onGetStarted}>Get started</Button>
 {:else}
 	<Nav target="user">
 		{username}

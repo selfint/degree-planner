@@ -52,7 +52,7 @@
 		{#if username !== undefined}
 			<button
 				class="ml-2 w-8 text-content-secondary sm:hidden"
-				onclick={() => (expanded = !expanded)}
+				onmousedown={() => (expanded = !expanded)}
 			>
 				<Burger />
 			</button>

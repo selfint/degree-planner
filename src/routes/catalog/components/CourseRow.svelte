@@ -108,6 +108,7 @@
 					/>
 				</div>
 			{/each}
+			<div class="min-w-0"></div>
 		</div>
 	{/each}
 </div>

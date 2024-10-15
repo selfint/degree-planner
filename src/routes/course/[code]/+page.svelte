@@ -69,8 +69,8 @@
 	}
 </script>
 
-<div class="m-3">
-	<h1 class="mb-2 text-lg font-medium text-content-primary">
+<div class="mt-3">
+	<h1 class="mb-2 ml-3 text-lg font-medium text-content-primary">
 		<span dir="rtl">
 			{course.name ?? code}
 		</span>
@@ -85,7 +85,7 @@
 		</a>
 	</h1>
 
-	<div class="mb-4 flex flex-row items-center space-x-1">
+	<div class="mb-4 ml-3 flex flex-row items-center space-x-1">
 		<div class="m-0 ml-1 p-0">
 			<div
 				style="background: {generateCourseColor(course)}"
@@ -104,11 +104,11 @@
 		{/each}
 	</div>
 
-	<p class="mb-8 text-content-secondary" dir="rtl">
+	<p class="mb-8 ml-3 mr-3 text-content-secondary" dir="rtl">
 		{course.about}
 	</p>
 
-	<div class="space-x-1">
+	<div class="ml-3 mr-3 space-x-1">
 		{#if user.semesters.some((s) => s.includes(course.code))}
 			<Button
 				variant="secondary"
@@ -142,7 +142,7 @@
 		{/if}
 	</div>
 
-	<div class="mt-4">
+	<div class="ml-3 mt-4">
 		<h2 class="pb-1 text-lg font-medium text-content-primary">Info</h2>
 		<div
 			class="grid w-fit grid-flow-row grid-cols-[auto_auto_auto] items-center gap-x-2 text-content-secondary"
@@ -167,10 +167,11 @@
 	<div class="mt-4">
 		{#if (course.connections?.dependencies ?? []).length !== 0}
 			<div class="pb-4">
-				<h2 class="pb-1 text-lg font-medium text-content-primary">
+				<h2 class="ml-3 pb-1 text-lg font-medium text-content-primary">
 					Dependencies
 				</h2>
 				<div class="flex flex-row space-x-2 overflow-x-auto">
+					<div class="min-w-1"></div>
 					{#each course.connections?.dependencies ?? [] as group, i}
 						{#if i !== 0 && group.length > 0}
 							<p
@@ -200,12 +201,13 @@
 							{/each}
 						</div>
 					{/each}
+					<div class="min-w-1"></div>
 				</div>
 			</div>
 		{/if}
 		{#if (course.connections?.adjacent ?? []).length !== 0}
 			<div>
-				<h2 class="pb-1 text-lg font-medium text-content-primary">
+				<h2 class="ml-3 pb-1 text-lg font-medium text-content-primary">
 					Adjacencies
 				</h2>
 				<div class="flex flex-row space-x-2 overflow-x-auto">
@@ -218,7 +220,7 @@
 				</div>
 			</div>
 		{/if}
-		<div>
+		<div class="ml-3">
 			{#if dependants.length > 0}
 				<h2 class="pb-1 text-lg font-medium text-content-primary">
 					Dependants

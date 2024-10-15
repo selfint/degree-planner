@@ -16,10 +16,12 @@
 			{@render header({ title })}
 
 			<div class="flex flex-row space-x-2 overflow-x-auto pt-1">
-				<div class="min-w-1"></div>
 				{#each courses as course, index}
-					{@render children({ course, index })}
+					<div class="{index > 0 ? 'ml-2' : 'ml-3'} sm:ml-0">
+						{@render children({ course, index })}
+					</div>
 				{/each}
+				<div class="min-w-0"></div>
 			</div>
 		</div>
 	{/each}

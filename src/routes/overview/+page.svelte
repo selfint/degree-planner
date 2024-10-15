@@ -163,6 +163,7 @@
 					</div>
 				{/each}
 			{/key}
+			<div class="min-w-[1px]"></div>
 		</div>
 	</div>
 </div>

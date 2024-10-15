@@ -312,7 +312,7 @@
 	<div class="flex-1 overflow-x-auto">
 		<LoLoCo {loloco}>
 			{#snippet header({ title })}
-				<h1 class="ml-3 text-lg font-medium text-content-primary">
+				<h1 class="ml-3 text-lg font-medium text-content-primary sm:ml-0">
 					{formatName(title)}
 				</h1>
 			{/snippet}

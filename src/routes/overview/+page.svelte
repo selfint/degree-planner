@@ -4,18 +4,13 @@
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import Semester from '$lib/components/Semester.svelte';
 
-	import { user } from '$lib/stores.svelte';
+	import { user, degreeData } from '$lib/stores.svelte';
 
 	import { getCourseData } from '$lib/courseData';
 	import { getCourseLists, loadDegreeData } from '$lib/requirements';
 	import { getScheduleError } from '$lib/schedule';
 
-	let requirements: DegreeRequirements | undefined = $state(undefined);
-	$effect(() => {
-		if (user.degree !== undefined) {
-			loadDegreeData(user.degree).then((d) => (requirements = d.requirements));
-		}
-	});
+	const requirements = $derived(degreeData()?.requirements);
 
 	function moveCourseToSemester(code: string, semester: number) {
 		user.wishlist = user.wishlist.filter((c) => c !== code);

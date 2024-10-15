@@ -1,4 +1,5 @@
 import { browser } from '$app/environment';
+import { loadDegreeData } from './requirements';
 
 const version = 1;
 
@@ -79,10 +80,18 @@ export function loadUser(): UserData {
 }
 
 export const user: UserData = $state(loadUser());
+let _degreeData: DegreeData | undefined = $state(undefined);
+export const degreeData = () => _degreeData;
 
-export function persistUser() {
+$effect.root(() => {
 	$effect(() => {
 		localStorage.setItem('version', version.toString());
 		localStorage.setItem('userData', JSON.stringify(user));
 	});
-}
+
+	$effect(() => {
+		if (user.degree !== undefined) {
+			loadDegreeData(user.degree).then((d) => (_degreeData = d));
+		}
+	});
+});

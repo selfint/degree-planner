@@ -12,7 +12,7 @@
 		titles: string[];
 		colorize?: boolean;
 		codes: string[];
-		degreeRequirements?: DegreeRequirements;
+		requirements?: DegreeRequirements;
 	};
 
 	function formatName(name: string): string {
@@ -22,7 +22,7 @@
 			.join(' ');
 	}
 
-	let { titles, colorize = true, codes, degreeRequirements }: Props = $props();
+	let { titles, colorize = true, codes, requirements }: Props = $props();
 
 	const groups = $derived.by(() => {
 		const courses = codes
@@ -101,7 +101,7 @@
 				>
 					<CourseElement
 						{course}
-						lists={getCourseLists(degreeRequirements, course.code).filter(
+						lists={getCourseLists(requirements, course.code).filter(
 							(list) => !titles.includes(list)
 						)}
 					/>

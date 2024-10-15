@@ -6,21 +6,15 @@
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import Progress from '$lib/components/Progress.svelte';
 
-	import { user } from '$lib/stores.svelte';
+	import { user, degreeData } from '$lib/stores.svelte';
 
 	import { getCourseData, getAllCourses } from '$lib/courseData';
-	import { getCourseLists, loadDegreeData } from '$lib/requirements';
+	import { getCourseLists } from '$lib/requirements';
 	import { generateRequirementColor, generateCourseColor } from '$lib/colors';
 
 	const code = $derived($page.params.code);
 	const course = $derived(getCourseData(code));
-
-	let requirements: DegreeRequirements | undefined = $state(undefined);
-	$effect(() => {
-		if (user.degree !== undefined) {
-			loadDegreeData(user.degree).then((d) => (requirements = d.requirements));
-		}
-	});
+	const requirements = $derived(degreeData()?.requirements);
 
 	const courseMemberRequirements = $derived.by(() => {
 		if (requirements === undefined) {

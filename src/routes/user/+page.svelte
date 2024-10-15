@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { user } from '$lib/stores.svelte';
+	import { user, degreeData } from '$lib/stores.svelte';
 	import { getCourseData } from '$lib/courseData';
 	import { getProgress } from '$lib/progress';
 	import { loadDegreeData } from '$lib/requirements';
@@ -14,13 +14,7 @@
 
 	const planned = $derived(user.semesters.map((s) => s.map(getCourseData)));
 	const current = $derived(planned.slice(0, user.currentSemester));
-
-	let requirements: DegreeRequirements | undefined = $state(undefined);
-	$effect(() => {
-		if (user.degree !== undefined) {
-			loadDegreeData(user.degree).then((d) => (requirements = d.requirements));
-		}
-	});
+	const requirements = $derived(degreeData()?.requirements);
 
 	const degreeProgress = $derived.by(() => {
 		if (requirements === undefined) {

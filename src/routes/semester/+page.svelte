@@ -6,23 +6,27 @@
 
 	import LoLoCo from './components/LoLoCo.svelte';
 
-	import { user } from '$lib/stores.svelte';
-	import { getCourseData, getAllCourses } from '$lib/courseData';
+	import { user, degreeData } from '$lib/stores.svelte';
+	import { getCourseData } from '$lib/courseData';
 	import { getScheduleError } from '$lib/schedule';
 	import {
 		getCourseLists,
-		getDegreeRequirementCourses,
-		loadDegreeData
+		getDegreeRequirementCourses
 	} from '$lib/requirements';
 	import StudyDaysComponent from '$lib/components/StudyDaysComponent.svelte';
 
+	let disabled: string[] = $state([]);
+
+	const wishlistCourses = $derived(user.wishlist.map(getCourseData));
+	const requirements = $derived(degreeData()?.requirements);
 	const semester = $derived(
 		user.semesters.at(user.currentSemester)?.map(getCourseData) ?? []
 	);
-	let disabled: string[] = $state([]);
+
 	const effectiveSemester = $derived(
 		semester.filter((c) => !disabled.includes(c.code))
 	);
+
 	const futureSemesters = $derived(
 		user.semesters
 			.slice(user.currentSemester + 1)
@@ -31,14 +35,6 @@
 				s.map(getCourseData)
 			])
 	);
-	const wishlistCourses = $derived(user.wishlist.map(getCourseData));
-
-	let requirements: DegreeRequirements | undefined = $state(undefined);
-	$effect(() => {
-		if (user.degree !== undefined) {
-			loadDegreeData(user.degree).then((d) => (requirements = d.requirements));
-		}
-	});
 
 	const requirementCourses = $derived.by(() => {
 		if (requirements === undefined) {
@@ -73,6 +69,20 @@
 		return 1 * medianDiff + 0.2 * studyDaysDiff0 + 0.01 * studyDaysDiff1;
 	}
 
+	function sortCourses(courses: Course[]): Course[] {
+		return courses
+			.filter(
+				(c) =>
+					true ||
+					Math.min(
+						...(getStudyDays(courses.concat(c), 0)?.next ?? []).map(
+							([_, d]) => d
+						)
+					) > 2
+			)
+			.sort((a, b) => compareCourses(courses, a, b));
+	}
+
 	const loloco = $derived.by(() => {
 		let lists: [string, Course[]][] = [];
 
@@ -88,20 +98,6 @@
 			}
 		}
 
-		function sortCourses(courses: Course[]): Course[] {
-			return courses
-				.filter(
-					(c) =>
-						true ||
-						Math.min(
-							...(getStudyDays(courses.concat(c), 0)?.next ?? []).map(
-								([_, d]) => d
-							)
-						) > 2
-				)
-				.sort((a, b) => compareCourses(courses, a, b));
-		}
-
 		lists = lists
 			.map(
 				([title, courses]) =>
@@ -111,22 +107,6 @@
 					]
 			)
 			.filter(([_, courses]) => courses.length > 0);
-
-		lists.push([
-			'Other',
-			sortCourses(
-				getAllCourses()
-					.filter(courseCanBeTaken)
-					.filter((c) => !wishlistCourses.some((w) => w.code === c.code))
-					.filter(
-						(c) =>
-							!futureSemesters
-								.map(([, courses]) => courses)
-								.flat()
-								.some((f) => f.code === c.code)
-					)
-			).slice(0, 30)
-		]);
 
 		return lists;
 	});

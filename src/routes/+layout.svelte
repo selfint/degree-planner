@@ -4,7 +4,7 @@
 
 	import '../app.css';
 
-	import { user, persistUser } from '$lib/stores.svelte';
+	import { user } from '$lib/stores.svelte';
 	import { goto } from '$app/navigation';
 
 	import TitleBar from '$lib/components/TitleBar.svelte';
@@ -15,8 +15,6 @@
 	function onGetStarted() {
 		goto('/user');
 	}
-
-	$effect(() => persistUser());
 
 	const { children } = $props();
 </script>

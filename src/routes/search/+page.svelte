@@ -2,9 +2,9 @@
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 
-	import { user } from '$lib/stores.svelte';
+	import { degreeData } from '$lib/stores.svelte';
 	import CourseElement from '$lib/components/CourseElement.svelte';
-	import { getCourseLists, loadDegreeData } from '$lib/requirements';
+	import { getCourseLists } from '$lib/requirements';
 	import { getAllCourses } from '$lib/courseData';
 
 	const query = $derived(($page.url.searchParams.get('q') ?? '').trim());
@@ -16,12 +16,7 @@
 			})
 	);
 
-	let requirements: DegreeRequirements | undefined = $state(undefined);
-	$effect(() => {
-		if (user.degree !== undefined) {
-			loadDegreeData(user.degree).then((d) => (requirements = d.requirements));
-		}
-	});
+	const requirements = $derived(degreeData()?.requirements);
 </script>
 
 <div class="m-3 mr-0 text-content-primary">

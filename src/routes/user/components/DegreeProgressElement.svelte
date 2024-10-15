@@ -2,8 +2,12 @@
 	import Progress from '$lib/components/Progress.svelte';
 	import ProgressElement from './ProgressElement.svelte';
 
-	export let current: DegreeProgress;
-	export let planned: DegreeProgress;
+	type Props = {
+		current: DegreeProgress;
+		planned: DegreeProgress;
+	};
+
+	const { current, planned }: Props = $props();
 </script>
 
 <div class="flex flex-col space-y-2">

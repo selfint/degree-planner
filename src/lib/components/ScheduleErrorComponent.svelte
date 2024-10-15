@@ -2,7 +2,11 @@
 	import { generateCourseColor } from '$lib/colors';
 	import type { ScheduleError } from '$lib/schedule';
 
-	export let scheduleError: ScheduleError;
+	type Props = {
+		scheduleError: ScheduleError;
+	};
+
+	let { scheduleError }: Props = $props();
 </script>
 
 {#if scheduleError.season !== undefined}
@@ -46,7 +50,7 @@
 								<div
 									style="background: {generateCourseColor(dep)}"
 									class="h-4 w-4 min-w-4 {dep.tests ? 'rounded-full' : ''}"
-								/>
+								></div>
 							</div>
 						</div>
 					{/each}
@@ -80,7 +84,7 @@
 						<div
 							style="background: {generateCourseColor(adj)}"
 							class="h-4 w-4 {adj.tests ? 'rounded-full' : ''}"
-						/>
+						></div>
 					</div>
 				</div>
 			{/each}

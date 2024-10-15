@@ -187,9 +187,13 @@ function courseInRequirement(requirement: Requirement, code: string): boolean {
 }
 
 export function getCourseLists(
-	requirements: DegreeRequirements,
+	requirements: DegreeRequirements | undefined,
 	code: string
 ): string[] {
+	if (requirements === undefined) {
+		return [];
+	}
+
 	let lists = [];
 	for (const [name, requirement] of requirements.requirements) {
 		if (courseInRequirement(requirement, code)) {

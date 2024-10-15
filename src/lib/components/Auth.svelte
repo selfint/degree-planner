@@ -2,13 +2,16 @@
 	import Button from '$lib/components/Button.svelte';
 	import Nav from './Nav.svelte';
 
-	export let username: string | undefined;
+	type Props = {
+		username?: string;
+		onGetStarted: () => void;
+	};
 
-	export let onGetStarted: () => void;
+	let { username, onGetStarted }: Props = $props();
 </script>
 
 {#if username === undefined}
-	<Button variant="primary" onClick={onGetStarted}>Get started</Button>
+	<Button variant="primary" onmousedown={onGetStarted}>Get started</Button>
 {:else}
 	<Nav target="user">
 		{username}

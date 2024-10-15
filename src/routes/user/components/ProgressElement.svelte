@@ -1,11 +1,17 @@
 <script lang="ts">
+	import ProgressElement from './ProgressElement.svelte';
+
 	import { generateColor } from '$lib/colors';
 	import Progress from '$lib/components/Progress.svelte';
 
-	export let requirementName: string;
-	export let requirement: Requirement;
-	export let current: RequirementProgress | undefined;
-	export let planned: RequirementProgress;
+	type Props = {
+		requirementName: string;
+		requirement: Requirement;
+		current?: RequirementProgress;
+		planned: RequirementProgress;
+	};
+
+	const { requirementName, requirement, current, planned }: Props = $props();
 
 	function formatName(name: string): string {
 		return name
@@ -63,7 +69,7 @@
 		</h3>
 		<div class="flex flex-col space-y-1 pl-2">
 			{#each planned.choice.options as [name, [subRequirement, subProgress]]}
-				<svelte:self
+				<ProgressElement
 					requirementName={name}
 					requirement={subRequirement}
 					current={current?.choice?.options.get(name)?.[1]}

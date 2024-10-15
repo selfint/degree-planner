@@ -1,15 +1,23 @@
 <script lang="ts">
-	export let loloco: [string, Course[]][];
+	import type { Snippet } from 'svelte';
+
+	type Props = {
+		loloco: [string, Course[]][];
+		header: Snippet<[{ title: string }]>;
+		children: Snippet<[{ course: Course; index: number }]>;
+	};
+
+	const { loloco, header, children }: Props = $props();
 </script>
 
 <div>
 	{#each loloco as [title, courses]}
 		<div class="pb-2">
-			<slot name="header" {title} />
+			{@render header({ title })}
 
 			<div class="flex flex-row space-x-2 overflow-x-auto pt-1">
-				{#each courses as course, i}
-					<slot name="course" {course} {i} />
+				{#each courses as course, index}
+					{@render children({ course, index })}
 				{/each}
 			</div>
 		</div>

@@ -23,7 +23,7 @@
 		</p>
 
 		<div class="h-9">
-			<Button variant="primary" onClick={() => goto('/user')}>
+			<Button variant="primary" onmousedown={() => goto('/user')}>
 				Get started
 			</Button>
 		</div>
@@ -32,7 +32,7 @@
 
 <div
 	class="circle absolute left-[-250%] top-[10vh] -z-10 h-[2000px] w-[350%]"
-/>
+></div>
 
 <style>
 	.circle {

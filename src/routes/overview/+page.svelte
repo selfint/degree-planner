@@ -40,7 +40,7 @@
 	}
 </script>
 
-<div class="m-3 mr-0">
+<div class="mt-3">
 	<div
 		class="mb-4 min-h-[118px]"
 		ondragenter={(e) => {
@@ -65,8 +65,11 @@
 		role="button"
 		tabindex={0}
 	>
-		<h1 class="mb-2 text-lg font-medium text-content-primary">Wish list</h1>
+		<h1 class="mb-2 ml-3 text-lg font-medium text-content-primary">
+			Wish list
+		</h1>
 		<div class="flex flex-row space-x-2 overflow-x-auto">
+			<div class="min-w-1"></div>
 			{#each user.wishlist.map(getCourseData) as course, i}
 				<div
 					class="container w-fit"
@@ -92,6 +95,7 @@
 	</div>
 	<div style="transform: rotateX(180deg)" class="overflow-x-auto">
 		<div style="transform: rotateX(180deg)" class="flex flex-row space-x-3">
+			<div></div>
 			{#key user.semesters.flat().join(' ')}
 				{#each user.semesters as semester, semesterIndex}
 					<div

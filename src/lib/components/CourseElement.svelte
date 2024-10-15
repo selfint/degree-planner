@@ -73,24 +73,22 @@
 					</span>
 				</div>
 
-				{#await lists then lists}
-					{#if lists?.length ?? 0 > 0}
-						<div class="flex h-fit flex-row items-baseline">
-							<div class="flex flex-row flex-wrap items-baseline space-y-1">
-								{#each lists ?? [] as requirement}
-									<div
-										style="background: {generateRequirementColor(requirement)}"
-										class="mr-1 rounded-md pb-0.5 pl-2 pr-2 leading-none"
-									>
-										<span class="text-xs leading-none text-content-primary">
-											{formatName(requirement)}
-										</span>
-									</div>
-								{/each}
-							</div>
+				{#if lists?.length ?? 0 > 0}
+					<div class="flex h-fit flex-row items-baseline">
+						<div class="flex flex-row flex-wrap items-baseline space-y-1">
+							{#each lists ?? [] as requirement}
+								<div
+									style="background: {generateRequirementColor(requirement)}"
+									class="mr-1 rounded-md pb-0.5 pl-2 pr-2 leading-none"
+								>
+									<span class="text-xs leading-none text-content-primary">
+										{formatName(requirement)}
+									</span>
+								</div>
+							{/each}
 						</div>
-					{/if}
-				{/await}
+					</div>
+				{/if}
 			</div>
 
 			<div class="hidden text-xs text-content-secondary">

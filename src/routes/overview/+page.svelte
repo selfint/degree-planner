@@ -68,11 +68,11 @@
 		<h1 class="mb-2 ml-3 text-lg font-medium text-content-primary">
 			Wish list
 		</h1>
-		<div class="flex flex-row space-x-2 overflow-x-auto">
-			<div class="min-w-1"></div>
+		<div class="flex flex-row overflow-x-auto">
+			<div class="mr-3"></div>
 			{#each user.wishlist.map(getCourseData) as course, i}
 				<div
-					class="container w-fit"
+					class="w-fit pr-2"
 					draggable="true"
 					tabindex={i}
 					role="button"

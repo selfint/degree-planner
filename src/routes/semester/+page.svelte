@@ -245,8 +245,8 @@
 	}
 </script>
 
-<div class="m-3 mr-0 mt-0 items-start sm:mt-3 sm:flex sm:flex-row">
-	<div class="sticky top-2 mr-3 mt-0 hidden touch-manipulation sm:block">
+<div class="items-start sm:mt-3 sm:flex sm:flex-row">
+	<div class="sticky top-2 ml-3 mr-3 mt-0 hidden touch-manipulation sm:block">
 		<Semester
 			index={user.currentSemester}
 			{semester}
@@ -270,7 +270,7 @@
 
 	<div class="sticky top-0 bg-background pb-2 sm:hidden">
 		<div class="mb-2 mr-3 mt-1 flex flex-row items-center justify-between pt-2">
-			<div>
+			<div class="ml-3">
 				<h1
 					class="border-b-2 border-accent-primary text-lg font-medium text-content-primary"
 				>
@@ -294,6 +294,7 @@
 			<StudyDaysComponent semester={effectiveSemester} />
 		</div>
 		<div class="flew-row flex touch-manipulation space-x-2 overflow-x-auto">
+			<div class="min-w-1"></div>
 			{#each semester as course}
 				<button
 					class={disabled.includes(course.code) ? 'opacity-50' : ''}
@@ -311,7 +312,7 @@
 	<div class="flex-1 overflow-x-auto">
 		<LoLoCo {loloco}>
 			{#snippet header({ title })}
-				<h1 class="text-lg font-medium text-content-primary">
+				<h1 class="ml-3 text-lg font-medium text-content-primary">
 					{formatName(title)}
 				</h1>
 			{/snippet}

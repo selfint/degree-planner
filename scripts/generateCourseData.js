@@ -261,7 +261,8 @@ export async function getMedian(course) {
 	if (count === 0) {
 		return undefined;
 	} else {
-		return medians / count;
+		// Round to one decimal place
+		return parseFloat((medians / count).toFixed(1));
 	}
 }
 

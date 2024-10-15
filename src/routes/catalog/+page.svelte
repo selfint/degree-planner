@@ -15,7 +15,7 @@
 	});
 </script>
 
-<div class="m-3 mr-0">
+<div class="mt-3">
 	<CourseRow
 		colorize={false}
 		titles={['Wish list']}

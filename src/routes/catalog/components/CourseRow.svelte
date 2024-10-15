@@ -66,7 +66,7 @@
 <div class="mb-4 min-h-[118px] max-w-full">
 	{#each groups as [name, group]}
 		<h1
-			class="mb-2 flex flex-row items-baseline space-x-4 text-lg font-medium text-content-primary"
+			class="mb-2 ml-3 flex flex-row items-baseline space-x-4 text-lg font-medium text-content-primary"
 		>
 			<div class="flex flex-row items-baseline space-x-2">
 				{#each titles as title}
@@ -87,9 +87,10 @@
 			</span>
 		</h1>
 		<div class="mb-4 flex w-full flex-row space-x-2 overflow-x-auto">
+			<div class="min-w-1"></div>
 			{#each group as course, i}
 				<div
-					class="container w-fit touch-manipulation"
+					class="w-fit touch-manipulation"
 					tabindex={i}
 					role="button"
 					onmousedown={() => goto(`/course/${course.code}`)}

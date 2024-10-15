@@ -11,7 +11,7 @@
 		degreeData,
 		semesters,
 		wishlist
-	} from '$lib/stores';
+	} from '$lib/stores.svelte';
 
 	import { getCourseData, getAllCourses } from '$lib/courseData';
 	import { getCourseLists } from '$lib/requirements';
@@ -108,20 +108,20 @@
 		{#if $semesters.some((s) => s.includes(course.code))}
 			<Button
 				variant="secondary"
-				onclick={() => removeCourseFromSemesters(course.code)}
+				onmousedown={() => removeCourseFromSemesters(course.code)}
 			>
 				Remove from semester {$semesters.findIndex((s) =>
 					s.includes(course.code)
 				) + 1}
 			</Button>
 		{:else}
-			<Button variant="primary" onclick={() => planCourse(course.code)}>
+			<Button variant="primary" onmousedown={() => planCourse(course.code)}>
 				Plan
 			</Button>
 			{#if $wishlist.includes(course.code)}
 				<Button
 					variant="secondary"
-					onclick={() =>
+					onmousedown={() =>
 						($wishlist = $wishlist.filter((c) => c !== course.code))}
 				>
 					Remove from wish list
@@ -129,7 +129,7 @@
 			{:else}
 				<Button
 					variant="secondary"
-					onclick={() =>
+					onmousedown={() =>
 						($wishlist = [...new Set([...$wishlist, course.code])])}
 				>
 					Wish list

@@ -1,12 +1,35 @@
 <script lang="ts">
-	import { semesters, currentSemester } from '$lib/stores';
+	import { user } from '$lib/stores.svelte';
 
 	import Select from '$lib/components/Select.svelte';
 	import Button from '$lib/components/Button.svelte';
 
-	export let semesterChoice: number;
-	export let totalSemestersChoice: number;
-	export let validTotalValues: number[];
+	type Props = {
+		semesterChoice: number;
+		totalSemestersChoice: number;
+		validTotalValues: number[];
+	};
+
+	let { semesterChoice, totalSemestersChoice, validTotalValues }: Props =
+		$props();
+
+	function onUpdateCurrentSemester() {
+		if (semesterChoice !== user.currentSemester) {
+			user.currentSemester = semesterChoice;
+		}
+	}
+
+	function onUpdateTotalSemesters() {
+		if (totalSemestersChoice < user.semesters.length) {
+			user.semesters = user.semesters.slice(0, totalSemestersChoice);
+		} else if (totalSemestersChoice > user.semesters.length) {
+			user.semesters = user.semesters.concat(
+				Array.from({
+					length: totalSemestersChoice - user.semesters.length
+				}).map(() => [])
+			);
+		}
+	}
 </script>
 
 <div>
@@ -15,7 +38,7 @@
 		<div>
 			<span class="text-content-secondary"> Current: </span>
 			<Select bind:value={semesterChoice}>
-				{#each Array.from({ length: $semesters.length }) as _, i}
+				{#each Array.from({ length: user.semesters.length }) as _, i}
 					<option value={i}>
 						{['Winter', 'Spring', 'Summer'][i % 3]}
 						{Math.floor(i / 3) + 1}
@@ -23,20 +46,13 @@
 				{/each}
 			</Select>
 
-			{#if semesterChoice !== $currentSemester}
-				<Button
-					variant="primary"
-					onclick={() => {
-						if (semesterChoice !== $currentSemester) {
-							$currentSemester = semesterChoice;
-						}
-					}}
-				>
+			{#if semesterChoice !== user.currentSemester}
+				<Button variant="primary" onmousedown={onUpdateCurrentSemester}>
 					Save
 				</Button>
 				<Button
 					variant="secondary"
-					onclick={() => (semesterChoice = $currentSemester)}
+					onmousedown={() => (semesterChoice = user.currentSemester)}
 				>
 					Cancel
 				</Button>
@@ -54,28 +70,13 @@
 				{/each}
 			</Select>
 
-			{#if totalSemestersChoice !== $semesters.length}
-				<div class="inline-block h-full">
-					<Button
-						variant="primary"
-						onclick={() => {
-							if (totalSemestersChoice < $semesters.length) {
-								$semesters = $semesters.slice(0, totalSemestersChoice);
-							} else if (totalSemestersChoice > $semesters.length) {
-								$semesters = $semesters.concat(
-									Array.from({
-										length: totalSemestersChoice - $semesters.length
-									}).map(() => [])
-								);
-							}
-						}}
-					>
-						Save
-					</Button>
-				</div>
+			{#if totalSemestersChoice !== user.semesters.length}
+				<Button variant="primary" onmousedown={onUpdateTotalSemesters}>
+					Save
+				</Button>
 				<Button
 					variant="secondary"
-					onclick={() => (totalSemestersChoice = $semesters.length)}
+					onmousedown={() => (totalSemestersChoice = user.semesters.length)}
 				>
 					Cancel
 				</Button>

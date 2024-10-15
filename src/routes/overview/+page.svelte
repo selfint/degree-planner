@@ -4,38 +4,41 @@
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import Semester from '$lib/components/Semester.svelte';
 
-	import {
-		semesters,
-		degreeData,
-		currentSemester,
-		wishlist
-	} from '$lib/stores';
+	import { user } from '$lib/stores.svelte';
 
 	import { getCourseData } from '$lib/courseData';
-	import { getCourseLists } from '$lib/requirements';
+	import { getCourseLists, loadDegreeData } from '$lib/requirements';
 	import { getScheduleError } from '$lib/schedule';
-	import { onMount } from 'svelte';
+
+	const degreeRequirements = $derived.by(() => {
+		if (user.degree === undefined) {
+			return undefined;
+		}
+
+		const data = loadDegreeData(user.degree);
+		return data.then((d) => d.requirements);
+	});
 
 	function moveCourseToSemester(code: string, semester: number) {
-		$wishlist = $wishlist.filter((c) => c !== code);
-		$semesters = $semesters.map((s, i) =>
+		user.wishlist = user.wishlist.filter((c) => c !== code);
+		user.semesters = user.semesters.map((s, i) =>
 			i === semester ? [...new Set([...s, code])] : s.filter((c) => c !== code)
 		);
 	}
 
 	function moveCourseToWishlist(code: string) {
-		$wishlist = [...new Set([...$wishlist, code])];
-		$semesters = $semesters.map((s) => s.filter((c) => c !== code));
+		user.wishlist = [...new Set([...user.wishlist, code])];
+		user.semesters = user.semesters.map((s) => s.filter((c) => c !== code));
 	}
 
 	let didMount = false;
-	onMount(() => {
+	$effect(() => {
 		didMount = true;
 	});
 
 	function scroll(semester: HTMLDivElement, doScroll: boolean) {
 		if (doScroll && !didMount) {
-			semester.parentElement?.children[$currentSemester]?.scrollIntoView({
+			semester.parentElement?.children[user.currentSemester]?.scrollIntoView({
 				behavior: 'instant',
 				inline: 'start',
 				block: 'nearest'
@@ -47,18 +50,20 @@
 <div class="m-3 mr-0">
 	<div
 		class="mb-4 min-h-[118px]"
-		on:dragenter={(e) => {
+		ondragenter={(e) => {
 			if (e.dataTransfer?.types.includes('text/x-course')) {
 				e.preventDefault();
 			}
 		}}
-		on:dragover|preventDefault={(e) => {
+		ondragover={(e) => {
+			e.preventDefault();
 			if (e.dataTransfer !== null) {
 				e.dataTransfer.dropEffect = 'move';
 			}
 		}}
-		on:dragleave|preventDefault
-		on:drop|preventDefault={(e) => {
+		ondragleave={(e) => e.preventDefault()}
+		ondrop={(e) => {
+			e.preventDefault();
 			const code = e.dataTransfer?.getData('text/x-course');
 			if (code !== undefined) {
 				moveCourseToWishlist(code);
@@ -69,16 +74,16 @@
 	>
 		<h1 class="mb-2 text-lg font-medium text-content-primary">Wish list</h1>
 		<div class="flex flex-row space-x-2 overflow-x-auto">
-			{#each $wishlist.map(getCourseData) as course, i}
+			{#each user.wishlist.map(getCourseData) as course, i}
 				<div
 					class="container w-fit"
 					draggable="true"
 					tabindex={i}
 					role="button"
-					on:dragstart={(e) =>
+					ondragstart={(e) =>
 						e.dataTransfer?.setData('text/x-course', course.code)}
-					on:click={() => goto(`/course/${course.code}`)}
-					on:keydown={(e) => {
+					onclick={() => goto(`/course/${course.code}`)}
+					onkeydown={(e) => {
 						if (e.key === 'Enter') {
 							goto(`/course/${course.code}`);
 						}
@@ -86,8 +91,8 @@
 				>
 					<CourseElement
 						{course}
-						lists={$degreeData?.then((d) =>
-							getCourseLists(d.requirements, course.code)
+						lists={degreeRequirements?.then((r) =>
+							getCourseLists(r, course.code)
 						)}
 					/>
 				</div>
@@ -96,21 +101,23 @@
 	</div>
 	<div style="transform: rotateX(180deg)" class="overflow-x-auto">
 		<div style="transform: rotateX(180deg)" class="flex flex-row space-x-3">
-			{#key $semesters.flat().join(' ')}
-				{#each $semesters as semester, semesterIndex}
+			{#key user.semesters.flat().join(' ')}
+				{#each user.semesters as semester, semesterIndex}
 					<div
-						on:dragenter={(e) => {
+						ondragenter={(e) => {
 							if (e.dataTransfer?.types.includes('text/x-course')) {
 								e.preventDefault();
 							}
 						}}
-						on:dragover|preventDefault={(e) => {
+						ondragover={(e) => {
+							e.preventDefault();
 							if (e.dataTransfer !== null) {
 								e.dataTransfer.dropEffect = 'move';
 							}
 						}}
-						on:dragleave|preventDefault
-						on:drop|preventDefault={(e) => {
+						ondragleave={(e) => e.preventDefault()}
+						ondrop={(e) => {
+							e.preventDefault();
 							const code = e.dataTransfer?.getData('text/x-course');
 							if (code !== undefined) {
 								moveCourseToSemester(code, semesterIndex);
@@ -118,26 +125,25 @@
 						}}
 						role="button"
 						tabindex={semesterIndex}
-						use:scroll={semesterIndex === $semesters.length - 1}
+						use:scroll={semesterIndex === user.semesters.length - 1}
 					>
 						<Semester
 							index={semesterIndex}
 							semester={semester.map(getCourseData)}
-							isCurrent={semesterIndex === $currentSemester}
+							isCurrent={semesterIndex === user.currentSemester}
 						>
-							{#snippet children({ course, index: j })}
+							{#snippet children({ course })}
 								<button
 									draggable="true"
-									tabindex={j}
 									class="touch-manipulation text-content-primary"
-									on:dragstart={(e) => {
+									ondragstart={(e) => {
 										if (e.dataTransfer !== null) {
 											e.dataTransfer.setData('text/x-course', course.code);
 											e.dataTransfer.effectAllowed = 'move';
 										}
 									}}
-									on:click={() => goto(`/course/${course.code}`)}
-									on:keydown={(e) => {
+									onclick={() => goto(`/course/${course.code}`)}
+									onkeydown={(e) => {
 										if (e.key === 'Enter') {
 											goto(`/course/${course.code}`);
 										}
@@ -145,13 +151,17 @@
 								>
 									<CourseElement
 										{course}
-										lists={$degreeData?.then((d) =>
-											getCourseLists(d.requirements, course.code)
+										lists={degreeRequirements?.then((r) =>
+											getCourseLists(r, course.code)
 										)}
 										squeeze={true}
 										variant={{
 											type: 'schedule',
-											error: getScheduleError(course, $semesters, semesterIndex)
+											error: getScheduleError(
+												course,
+												user.semesters,
+												semesterIndex
+											)
 										}}
 									/>
 								</button>

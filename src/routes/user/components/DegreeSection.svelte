@@ -4,33 +4,46 @@
 	import Button from '$lib/components/Button.svelte';
 	import Select from '$lib/components/Select.svelte';
 
-	export let degree: Degree | undefined;
-	export let onChange: (degree: Degree) => boolean;
+	type Props = {
+		degree?: Degree;
+		onChange: (degree: Degree) => boolean;
+	};
+
+	let { degree, onChange }: Props = $props();
 
 	let years: string[] = Object.keys(manifest);
 
-	$: [_year, _faculty, _path] = degree ?? [undefined, undefined, undefined];
+	type PartialDegree =
+		| [undefined, undefined, undefined]
+		| [string, undefined, undefined]
+		| [string, string, undefined]
+		| [string, string, string];
 
-	$: year = _year;
-	$: faculty = _faculty;
-	$: path = _path;
+	let [year, faculty, path]: PartialDegree = $state(
+		degree ?? [undefined, undefined, undefined]
+	);
 
-	// @ts-expect-error
-	$: faculties = year === undefined ? undefined : Object.keys(manifest[year]);
+	const faculties = $derived(
+		year === undefined
+			? undefined
+			: // @ts-expect-error
+				Object.keys(manifest[year])
+	);
 
-	$: paths =
+	const paths = $derived(
 		// @ts-expect-error
-		faculty === undefined ? undefined : Object.keys(manifest[year][faculty]);
+		faculty === undefined ? undefined : Object.keys(manifest[year][faculty])
+	);
 
-	$: {
+	$effect(() => {
 		if (path !== undefined && !paths?.includes(path)) {
 			path = undefined;
 		}
-	}
 
-	if (year === undefined) {
-		year = years[0];
-	}
+		if (year === undefined) {
+			year = years[0];
+		}
+	});
 
 	function choiceIsValid(
 		y: string | undefined,
@@ -121,7 +134,7 @@
 					<div class="mr-2 w-fit">
 						<Button
 							variant="primary"
-							onclick={() => {
+							onmousedown={() => {
 								// @ts-expect-error We validated the choice in `choiceIsValid`
 								const didChange = onChange([year, faculty, path]);
 
@@ -135,7 +148,7 @@
 					</div>
 				{/if}
 				<div class="w-fit">
-					<Button variant="secondary" onclick={reset}>Cancel</Button>
+					<Button variant="secondary" onmousedown={reset}>Cancel</Button>
 				</div>
 			</div>
 		{/if}

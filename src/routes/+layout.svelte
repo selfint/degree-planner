@@ -4,11 +4,8 @@
 
 	import '../app.css';
 
-	import { username, storesHook, loadStores } from '$lib/stores';
+	import { user, persistUser } from '$lib/stores.svelte';
 	import { goto } from '$app/navigation';
-	import { onMount } from 'svelte';
-
-	import { browser } from '$app/environment';
 
 	import TitleBar from '$lib/components/TitleBar.svelte';
 
@@ -19,24 +16,20 @@
 		goto('/user');
 	}
 
-	onMount(() => {
-		if (browser) {
-			loadStores();
-		}
+	$effect(() => persistUser());
 
-		storesHook();
-	});
+	const { children } = $props();
 </script>
 
 <div class="w-full bg-background">
 	<TitleBar
-		username={$username}
+		username={user.username}
 		{onGetStarted}
 		onSearch={(query) => goto(`/search?q=${query}`)}
 	/>
 </div>
 
-<slot />
+{@render children()}
 
 <style lang="postcss">
 	:global(body) {

@@ -1,12 +1,5 @@
 <script lang="ts">
-	import {
-		username,
-		degree,
-		degreeData,
-		semesters,
-		currentSemester,
-		wishlist
-	} from '$lib/stores';
+	import { user } from '$lib/stores.svelte';
 	import { getCourseData } from '$lib/courseData';
 	import { getProgress } from '$lib/progress';
 	import { loadDegreeData } from '$lib/requirements';
@@ -15,19 +8,28 @@
 	import RequirementsSection from './components/DegreeProgressElement.svelte';
 	import SemesterSection from './components/SemesterSection.svelte';
 
-	if ($username === undefined) {
-		$username = 'guest';
+	if (user.username === undefined) {
+		user.username = 'guest';
 	}
 
-	const degreeProgress = $degreeData?.then(async (data) => {
-		const semesterCourses = $semesters.map((s) => s.map(getCourseData));
+	const planned = $derived(user.semesters.map((s) => s.map(getCourseData)));
+	const current = $derived(planned.slice(0, user.currentSemester));
+
+	let requirements: DegreeRequirements | undefined = $state(undefined);
+	$effect(() => {
+		if (user.degree !== undefined) {
+			loadDegreeData(user.degree).then((d) => (requirements = d.requirements));
+		}
+	});
+
+	const degreeProgress = $derived.by(() => {
+		if (requirements === undefined) {
+			return undefined;
+		}
 
 		return {
-			current: getProgress(
-				semesterCourses.slice(0, $currentSemester),
-				data.requirements
-			),
-			planned: getProgress(semesterCourses, data.requirements)
+			current: getProgress(current, requirements),
+			planned: getProgress(planned, requirements)
 		};
 	});
 
@@ -35,16 +37,14 @@
 	// changes, so we need to keep track of it ourselves
 	// this is *the only* place where we should be setting the degree value
 	function onChange(newDegree: Degree): boolean {
-		const newDegreeData = loadDegreeData(newDegree);
-		$degree = newDegree;
-		$degreeData = newDegreeData;
+		user.degree = newDegree;
 
 		// reset schedule
-		$wishlist = [];
-		$semesters = [];
+		user.wishlist = [];
+		user.semesters = [];
 
-		newDegreeData.then((data) => {
-			$semesters = data.recommended;
+		loadDegreeData(newDegree).then((data) => {
+			user.semesters = data.recommended;
 		});
 
 		return true;
@@ -52,30 +52,31 @@
 
 	const maxTotalSemesters = 15;
 
-	let semesterChoice = $currentSemester;
-	let totalSemestersChoice = $semesters.length;
+	const semesterChoice = $derived(user.currentSemester);
+	const totalSemestersChoice = $derived(user.semesters.length);
 
-	semesters.subscribe((s) => (totalSemestersChoice = s.length));
-
-	const maxNonEmptySemesterIndex =
-		$semesters
+	const maxNonEmptySemesterIndex = $derived(
+		user.semesters
 			.map((s, i) => [s.length, i])
 			.filter(([s]) => s > 0)
 			.map(([, i]) => i)
 			// get the last non-empty semester
-			.reduce((a, b) => Math.max(a, b), 0) + 1;
-	const validTotalValues = Array.from(
-		{ length: maxTotalSemesters },
-		(_, i) => i + 1
-	).filter((i) => i >= maxNonEmptySemesterIndex);
+			.reduce((a, b) => Math.max(a, b), 0) + 1
+	);
+
+	const validTotalValues = $derived(
+		Array.from({ length: maxTotalSemesters }, (_, i) => i + 1).filter(
+			(i) => i >= maxNonEmptySemesterIndex
+		)
+	);
 </script>
 
 <div class="m-3">
 	<div class="mb-4">
-		<DegreeSection degree={$degree} {onChange} />
+		<DegreeSection degree={user.degree} {onChange} />
 	</div>
 
-	{#if $semesters.length > 0}
+	{#if user.semesters.length > 0}
 		<div class="mb-4">
 			<SemesterSection
 				{semesterChoice}

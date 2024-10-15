@@ -72,7 +72,6 @@
 
 	<div class="mt-2 flex flex-col space-y-2">
 		{#each semester as course, index}
-			<!-- <slot name="course" {course} {index} /> -->
 			{@render children({ course, index })}
 		{/each}
 	</div>

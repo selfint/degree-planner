@@ -6,44 +6,52 @@
 
 	import LoLoCo from './components/LoLoCo.svelte';
 
-	import {
-		semesters,
-		degreeData,
-		currentSemester,
-		wishlist
-	} from '$lib/stores';
+	import { user } from '$lib/stores.svelte';
 	import { getCourseData, getAllCourses } from '$lib/courseData';
 	import { getScheduleError } from '$lib/schedule';
 	import {
 		getCourseLists,
-		getDegreeRequirementCourses
+		getDegreeRequirementCourses,
+		loadDegreeData
 	} from '$lib/requirements';
 	import StudyDaysComponent from '$lib/components/StudyDaysComponent.svelte';
 
 	const semester = $derived(
-		$semesters.at($currentSemester)?.map(getCourseData) ?? []
+		user.semesters.at(user.currentSemester)?.map(getCourseData) ?? []
 	);
 	let disabled: string[] = $state([]);
 	const effectiveSemester = $derived(
 		semester.filter((c) => !disabled.includes(c.code))
 	);
 	const futureSemesters = $derived(
-		$semesters
-			.slice($currentSemester + 1)
+		user.semesters
+			.slice(user.currentSemester + 1)
 			.map((s, i): [number, Course[]] => [
-				$currentSemester + 1 + i,
+				user.currentSemester + 1 + i,
 				s.map(getCourseData)
 			])
 	);
-	const wishlistCourses = $derived($wishlist.map(getCourseData));
-	const requirementCourses = $derived(
-		$degreeData?.then((d) =>
+	const wishlistCourses = $derived(user.wishlist.map(getCourseData));
+	const degreeRequirements = $derived.by(() => {
+		if (user.degree === undefined) {
+			return undefined;
+		}
+
+		const data = loadDegreeData(user.degree);
+		return data.then((d) => d.requirements);
+	});
+	const requirementCourses = $derived.by(() => {
+		if (user.degree === undefined) {
+			return undefined;
+		}
+
+		return loadDegreeData(user.degree).then((d) =>
 			getDegreeRequirementCourses(d.requirements).map(({ path, courses }) => ({
 				path,
 				courses: courses.map(getCourseData)
 			}))
-		)
-	);
+		);
+	});
 
 	function getAvgMedian(courses: Course[]): number {
 		const medians: number[] = courses
@@ -228,15 +236,20 @@
 		}
 
 		if (
-			$semesters
-				.slice(0, $currentSemester + 1)
+			user.semesters
+				.slice(0, user.currentSemester + 1)
 				.flat()
 				.some((c) => c === course.code)
 		) {
 			return false;
 		}
 
-		const error = getScheduleError(course, $semesters, $currentSemester, true);
+		const error = getScheduleError(
+			course,
+			user.semesters,
+			user.currentSemester,
+			true
+		);
 
 		const canTake =
 			error.season === undefined &&
@@ -265,7 +278,12 @@
 
 <div class="m-3 mr-0 mt-0 items-start sm:mt-3 sm:flex sm:flex-row">
 	<div class="sticky top-2 mr-3 mt-0 hidden touch-manipulation sm:block">
-		<Semester index={$currentSemester} {semester} {disabled} isCurrent={true}>
+		<Semester
+			index={user.currentSemester}
+			{semester}
+			{disabled}
+			isCurrent={true}
+		>
 			{#snippet children({ course })}
 				<button
 					slot="course"
@@ -274,8 +292,8 @@
 				>
 					<CourseElement
 						{course}
-						lists={$degreeData?.then((d) =>
-							getCourseLists(d.requirements, course.code)
+						lists={degreeRequirements?.then((r) =>
+							getCourseLists(r, course.code)
 						)}
 					/>
 				</button>
@@ -289,8 +307,8 @@
 				<h1
 					class="border-b-2 border-accent-primary text-lg font-medium text-content-primary"
 				>
-					{['Winter', 'Spring', 'Summer'][$currentSemester % 3]}
-					{Math.floor($currentSemester / 3) + 1}
+					{['Winter', 'Spring', 'Summer'][user.currentSemester % 3]}
+					{Math.floor(user.currentSemester / 3) + 1}
 				</h1>
 				<div class="text-content-secondary">
 					<span>
@@ -316,8 +334,8 @@
 				>
 					<CourseElement
 						{course}
-						lists={$degreeData?.then((d) =>
-							getCourseLists(d.requirements, course.code)
+						lists={degreeRequirements?.then((r) =>
+							getCourseLists(r, course.code)
 						)}
 					/>
 				</button>
@@ -351,8 +369,8 @@
 					>
 						<CourseElement
 							{course}
-							lists={$degreeData?.then((d) =>
-								getCourseLists(d.requirements, course.code)
+							lists={degreeRequirements?.then((r) =>
+								getCourseLists(r, course.code)
 							)}
 							variant={{
 								type: 'test',

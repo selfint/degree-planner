@@ -9,6 +9,14 @@ declare global {
 		// interface Platform {}
 	}
 
+	type UserData = {
+		semesters: string[][];
+		currentSemester: number;
+		wishlist: string[];
+		username?: string;
+		degree?: Degree;
+	};
+
 	type Degree = [string, string, string];
 
 	type Choice = {

@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 
-	import { degreeData } from '$lib/stores';
 	import { getCourseData } from '$lib/courseData';
 	import CourseElement from '$lib/components/CourseElement.svelte';
 
@@ -9,9 +8,14 @@
 
 	import { generateRequirementColor } from '$lib/colors';
 
-	export let titles: string[];
-	export let colorize: boolean = true;
-	export let codes: string[];
+	type Props = {
+		titles: string[];
+		colorize?: boolean;
+		codes: string[];
+		degreeRequirements?: Promise<DegreeRequirements>;
+	};
+
+	let { titles, colorize = true, codes, degreeRequirements }: Props = $props();
 
 	function formatName(name: string): string {
 		return name
@@ -93,8 +97,8 @@
 						class="container w-fit touch-manipulation"
 						tabindex={i}
 						role="button"
-						on:click={() => goto(`/course/${course.code}`)}
-						on:keydown={(e) => {
+						onmousedown={() => goto(`/course/${course.code}`)}
+						onkeydown={(e) => {
 							if (e.key === 'Enter') {
 								goto(`/course/${course.code}`);
 							}
@@ -102,8 +106,8 @@
 					>
 						<CourseElement
 							{course}
-							lists={$degreeData?.then((d) =>
-								getCourseLists(d.requirements, course.code).filter(
+							lists={degreeRequirements?.then((r) =>
+								getCourseLists(r, course.code).filter(
 									(list) => !titles.includes(list)
 								)
 							)}

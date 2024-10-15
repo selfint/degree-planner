@@ -2,17 +2,29 @@
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 
-	import { degreeData } from '$lib/stores';
+	import { user } from '$lib/stores.svelte';
 	import CourseElement from '$lib/components/CourseElement.svelte';
-	import { getCourseLists } from '$lib/requirements';
+	import { getCourseLists, loadDegreeData } from '$lib/requirements';
 	import { getAllCourses } from '$lib/courseData';
 
-	const query = ($page.url.searchParams.get('q') ?? '').trim();
-	const results = getAllCourses()
-		.filter(({ name, code }) => name?.includes(query) || code.includes(query))
-		.toSorted((a, b) => {
-			return (b.median ?? 0) - (a.median ?? 0);
-		});
+	const query = $derived(($page.url.searchParams.get('q') ?? '').trim());
+	const corpus = getAllCourses();
+	const results = $derived(
+		corpus
+			.filter(({ name, code }) => name?.includes(query) || code.includes(query))
+			.toSorted((a, b) => {
+				return (b.median ?? 0) - (a.median ?? 0);
+			})
+	);
+
+	const degreeRequirements = $derived.by(() => {
+		if (user.degree === undefined) {
+			return undefined;
+		}
+
+		const data = loadDegreeData(user.degree);
+		return data.then((d) => d.requirements);
+	});
 </script>
 
 <div class="m-3 mr-0 text-content-primary">
@@ -33,8 +45,8 @@
 				>
 					<CourseElement
 						{course}
-						lists={$degreeData?.then((d) =>
-							getCourseLists(d.requirements, course.code)
+						lists={degreeRequirements?.then((r) =>
+							getCourseLists(r, course.code)
 						)}
 					/>
 				</div>

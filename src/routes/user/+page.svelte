@@ -70,21 +70,18 @@
 		<DegreeSection degree={user.degree} {onChange} />
 	</div>
 
-	{#if user.semesters.length > 0}
-		<div class="mb-4">
-			<SemesterSection
-				{semesterChoice}
-				{totalSemestersChoice}
-				{validTotalValues}
-			/>
-		</div>
-	{/if}
+	<div class="mb-4">
+		<SemesterSection
+			{semesterChoice}
+			{totalSemestersChoice}
+			{validTotalValues}
+		/>
+	</div>
 
 	{#if degreeProgress !== undefined}
-		{#await degreeProgress}
-			<div class="text-content-secondary">Loading...</div>
-		{:then { current, planned }}
-			<RequirementsSection {current} {planned} />
-		{/await}
+		<RequirementsSection
+			current={degreeProgress.current}
+			planned={degreeProgress.planned}
+		/>
 	{/if}
 </div>

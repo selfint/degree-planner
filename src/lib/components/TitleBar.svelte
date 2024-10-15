@@ -6,11 +6,15 @@
 	import Nav from '$lib/components/Nav.svelte';
 	import Burger from '$lib/components/Burger.svelte';
 
-	export let username: string | undefined;
-	export let onGetStarted: () => void;
-	export let onSearch: (query: string) => void;
+	type Props = {
+		username?: string;
+		onGetStarted: () => void;
+		onSearch: (query: string) => void;
+	};
 
-	let expanded = false;
+	const { username, onGetStarted, onSearch }: Props = $props();
+
+	let expanded = $state(false);
 </script>
 
 <header
@@ -37,18 +41,18 @@
 				</div>
 
 				<div class="ml-2">
-					<Search {onSearch} />
+					<Search onsubmit={onSearch} />
 				</div>
 			{/if}
 		</nav>
-		<div class="flex-grow" />
+		<div class="flex-grow"></div>
 		<div class="items-baseline">
 			<Auth {username} {onGetStarted} />
 		</div>
 		{#if username !== undefined}
 			<button
 				class="ml-2 w-8 text-content-secondary sm:hidden"
-				on:click={() => (expanded = !expanded)}
+				onmousedown={() => (expanded = !expanded)}
 			>
 				<Burger />
 			</button>

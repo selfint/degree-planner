@@ -1,16 +1,24 @@
 <script lang="ts">
+	import type { Snippet } from 'svelte';
 	import { page } from '$app/stores';
 
-	export let target: string;
-	$: border =
+	type Props = {
+		target: string;
+		children: Snippet;
+	};
+
+	let { target, children }: Props = $props();
+
+	const border = $derived(
 		'/' + target === $page.url.pathname
 			? 'border-b-2 border-accent-primary'
-			: 'border-b-2 border-transparent';
+			: 'border-b-2 border-transparent'
+	);
 </script>
 
 <a
 	href="/{target}"
 	class="{border} w-fit text-2xl font-thin text-content-primary"
 >
-	<slot />
+	{@render children()}
 </a>

@@ -1,13 +1,21 @@
 <script lang="ts">
+	import type { Snippet } from 'svelte';
 	import CourseWidth from './CourseWidth.svelte';
 	import StudyDaysComponent from './StudyDaysComponent.svelte';
 
-	export let index: number;
-	export let isCurrent: boolean;
-	export let semester: Course[];
-	export let disabled: string[] | undefined = undefined;
+	type Props = {
+		index: number;
+		isCurrent: boolean;
+		semester: Course[];
+		disabled?: string[];
+		children: Snippet<[{ course: Course; index: number }]>;
+	};
 
-	$: effectiveSemester = semester.filter((c) => !disabled?.includes(c.code));
+	let { index, isCurrent, semester, disabled, children }: Props = $props();
+
+	const effectiveSemester = $derived(
+		semester.filter((c) => !disabled?.includes(c.code))
+	);
 
 	function getAvgMedian(courses: Course[]): number {
 		const medians: number[] = courses
@@ -64,7 +72,7 @@
 
 	<div class="mt-2 flex flex-col space-y-2">
 		{#each semester as course, index}
-			<slot name="course" {course} {index} />
+			{@render children({ course, index })}
 		{/each}
 	</div>
 </CourseWidth>

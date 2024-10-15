@@ -1,8 +1,12 @@
 <script lang="ts">
 	import { generateCourseColor } from '$lib/colors';
 
-	export let semester: Course[];
-	export let course: Course | undefined = undefined;
+	type Props = {
+		semester: Course[];
+		course?: Course;
+	};
+
+	let { semester, course }: Props = $props();
 
 	function getStudyDays(
 		courses: Course[],
@@ -71,10 +75,11 @@
 		};
 	}
 
-	$: semesterCourses =
-		course === undefined ? semester : semester.concat(course);
-	$: days0 = getStudyDays(semesterCourses, 0);
-	$: days1 = getStudyDays(semesterCourses, 1);
+	const semesterCourses = $derived(
+		course === undefined ? semester : semester.concat(course)
+	);
+	const days0 = $derived(getStudyDays(semesterCourses, 0));
+	const days1 = $derived(getStudyDays(semesterCourses, 1));
 </script>
 
 <div>

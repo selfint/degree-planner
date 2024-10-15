@@ -6,20 +6,22 @@
 	import CourseWidth from './CourseWidth.svelte';
 	import StudyDaysComponent from './StudyDaysComponent.svelte';
 
-	export let course: Course;
-	export let lists: Promise<string[]> | undefined;
-	export let squeeze = false;
+	type Props = {
+		course: Course;
+		lists?: string[];
+		squeeze?: boolean;
+		variant?:
+			| {
+					type: 'schedule';
+					error: ScheduleError;
+			  }
+			| {
+					type: 'test';
+					semester: Course[];
+			  };
+	};
 
-	export let variant:
-		| undefined
-		| {
-				type: 'schedule';
-				error: ScheduleError;
-		  }
-		| {
-				type: 'test';
-				semester: Course[];
-		  } = undefined;
+	let { course, lists, squeeze = false, variant }: Props = $props();
 
 	const color = generateCourseColor(course);
 
@@ -48,7 +50,7 @@
 					<div
 						style="background: {color}"
 						class="h-4 w-4 {hasTest ? 'rounded-full' : ''}"
-					/>
+					></div>
 				</div>
 				<div class="flex flex-row">
 					<span class="mr-2">{median}</span>

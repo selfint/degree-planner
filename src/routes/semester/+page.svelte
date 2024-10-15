@@ -6,13 +6,8 @@
 
 	import LoLoCo from './components/LoLoCo.svelte';
 
-	import {
-		semesters,
-		degreeData,
-		currentSemester,
-		wishlist
-	} from '$lib/stores';
-	import { getCourseData, getAllCourses } from '$lib/courseData';
+	import { user, degreeData } from '$lib/stores.svelte';
+	import { getCourseData } from '$lib/courseData';
 	import { getScheduleError } from '$lib/schedule';
 	import {
 		getCourseLists,
@@ -20,24 +15,39 @@
 	} from '$lib/requirements';
 	import StudyDaysComponent from '$lib/components/StudyDaysComponent.svelte';
 
-	$: semester = $semesters.at($currentSemester)?.map(getCourseData) ?? [];
-	$: disabled = [] as string[];
-	$: effectiveSemester = semester.filter((c) => !disabled.includes(c.code));
+	let disabled: string[] = $state([]);
 
-	$: futureSemesters = $semesters
-		.slice($currentSemester + 1)
-		.map((s, i): [number, Course[]] => [
-			$currentSemester + 1 + i,
-			s.map(getCourseData)
-		]);
-
-	$: wishlistCourses = $wishlist.map(getCourseData);
-	$: requirementCourses = $degreeData?.then((d) =>
-		getDegreeRequirementCourses(d.requirements).map(({ path, courses }) => ({
-			path,
-			courses: courses.map(getCourseData)
-		}))
+	const wishlistCourses = $derived(user.wishlist.map(getCourseData));
+	const requirements = $derived(degreeData()?.requirements);
+	const semester = $derived(
+		user.semesters.at(user.currentSemester)?.map(getCourseData) ?? []
 	);
+
+	const effectiveSemester = $derived(
+		semester.filter((c) => !disabled.includes(c.code))
+	);
+
+	const futureSemesters = $derived(
+		user.semesters
+			.slice(user.currentSemester + 1)
+			.map((s, i): [number, Course[]] => [
+				user.currentSemester + 1 + i,
+				s.map(getCourseData)
+			])
+	);
+
+	const requirementCourses = $derived.by(() => {
+		if (requirements === undefined) {
+			return undefined;
+		}
+
+		return getDegreeRequirementCourses(requirements).map(
+			({ path, courses }) => ({
+				path,
+				courses: courses.map(getCourseData)
+			})
+		);
+	});
 
 	function getAvgMedian(courses: Course[]): number {
 		const medians: number[] = courses
@@ -59,18 +69,21 @@
 		return 1 * medianDiff + 0.2 * studyDaysDiff0 + 0.01 * studyDaysDiff1;
 	}
 
-	async function getLoLoCo(
-		wishlistCourses: Course[],
-		futureSemesters: [number, Course[]][],
-		requirementCourses?:
-			| Promise<
-					{
-						path: string[];
-						courses: Course[];
-					}[]
-			  >
-			| undefined
-	): Promise<[string, Course[]][]> {
+	function sortCourses(courses: Course[]): Course[] {
+		return courses
+			.filter(
+				(c) =>
+					true ||
+					Math.min(
+						...(getStudyDays(courses.concat(c), 0)?.next ?? []).map(
+							([_, d]) => d
+						)
+					) > 2
+			)
+			.sort((a, b) => compareCourses(courses, a, b));
+	}
+
+	const loloco = $derived.by(() => {
 		let lists: [string, Course[]][] = [];
 
 		lists.push(['Wishlist', wishlistCourses]);
@@ -80,23 +93,9 @@
 		}
 
 		if (requirementCourses !== undefined) {
-			for (const { path, courses } of await requirementCourses) {
+			for (const { path, courses } of requirementCourses) {
 				lists.push([path.join(' '), courses]);
 			}
-		}
-
-		function sortCourses(courses: Course[]): Course[] {
-			return courses
-				.filter(
-					(c) =>
-						true ||
-						Math.min(
-							...(getStudyDays(courses.concat(c), 0)?.next ?? []).map(
-								([_, d]) => d
-							)
-						) > 2
-				)
-				.sort((a, b) => compareCourses(courses, a, b));
 		}
 
 		lists = lists
@@ -109,24 +108,8 @@
 			)
 			.filter(([_, courses]) => courses.length > 0);
 
-		lists.push([
-			'Other',
-			sortCourses(
-				getAllCourses()
-					.filter(courseCanBeTaken)
-					.filter((c) => !wishlistCourses.some((w) => w.code === c.code))
-					.filter(
-						(c) =>
-							!futureSemesters
-								.map(([, courses]) => courses)
-								.flat()
-								.some((f) => f.code === c.code)
-					)
-			).slice(0, 30)
-		]);
-
 		return lists;
-	}
+	});
 
 	function getCourseStudyDays(
 		courses: Course[],
@@ -222,15 +205,20 @@
 		}
 
 		if (
-			$semesters
-				.slice(0, $currentSemester + 1)
+			user.semesters
+				.slice(0, user.currentSemester + 1)
 				.flat()
 				.some((c) => c === course.code)
 		) {
 			return false;
 		}
 
-		const error = getScheduleError(course, $semesters, $currentSemester, true);
+		const error = getScheduleError(
+			course,
+			user.semesters,
+			user.currentSemester,
+			true
+		);
 
 		const canTake =
 			error.season === undefined &&
@@ -259,20 +247,24 @@
 
 <div class="m-3 mr-0 mt-0 items-start sm:mt-3 sm:flex sm:flex-row">
 	<div class="sticky top-2 mr-3 mt-0 hidden touch-manipulation sm:block">
-		<Semester index={$currentSemester} {semester} {disabled} isCurrent={true}>
-			<button
-				slot="course"
-				let:course
-				class={disabled.includes(course.code) ? 'opacity-50' : ''}
-				on:mousedown={() => toggleCourseDisabled(course)}
-			>
-				<CourseElement
-					{course}
-					lists={$degreeData?.then((d) =>
-						getCourseLists(d.requirements, course.code)
-					)}
-				/>
-			</button>
+		<Semester
+			index={user.currentSemester}
+			{semester}
+			{disabled}
+			isCurrent={true}
+		>
+			{#snippet children({ course })}
+				<button
+					slot="course"
+					class={disabled.includes(course.code) ? 'opacity-50' : ''}
+					onmousedown={() => toggleCourseDisabled(course)}
+				>
+					<CourseElement
+						{course}
+						lists={getCourseLists(requirements, course.code)}
+					/>
+				</button>
+			{/snippet}
 		</Semester>
 	</div>
 
@@ -282,8 +274,8 @@
 				<h1
 					class="border-b-2 border-accent-primary text-lg font-medium text-content-primary"
 				>
-					{['Winter', 'Spring', 'Summer'][$currentSemester % 3]}
-					{Math.floor($currentSemester / 3) + 1}
+					{['Winter', 'Spring', 'Summer'][user.currentSemester % 3]}
+					{Math.floor(user.currentSemester / 3) + 1}
 				</h1>
 				<div class="text-content-secondary">
 					<span>
@@ -305,13 +297,11 @@
 			{#each semester as course}
 				<button
 					class={disabled.includes(course.code) ? 'opacity-50' : ''}
-					on:mousedown={() => toggleCourseDisabled(course)}
+					onmousedown={() => toggleCourseDisabled(course)}
 				>
 					<CourseElement
 						{course}
-						lists={$degreeData?.then((d) =>
-							getCourseLists(d.requirements, course.code)
-						)}
+						lists={getCourseLists(requirements, course.code)}
 					/>
 				</button>
 			{/each}
@@ -319,26 +309,20 @@
 	</div>
 
 	<div class="flex-1 overflow-x-auto">
-		{#await getLoLoCo(wishlistCourses, futureSemesters, requirementCourses)}
-			<div class="text-content-primary">Loading...</div>
-		{:then loloco}
-			<LoLoCo {loloco}>
-				<h1
-					slot="header"
-					let:title
-					class="text-lg font-medium text-content-primary"
-				>
+		<LoLoCo {loloco}>
+			{#snippet header({ title })}
+				<h1 class="text-lg font-medium text-content-primary">
 					{formatName(title)}
 				</h1>
+			{/snippet}
 
+			{#snippet children({ course, index: i })}
 				<div
 					slot="course"
-					let:course
-					let:i
 					tabindex={i}
 					role="button"
-					on:click={() => goto(`/course/${course.code}`)}
-					on:keydown={(e) => {
+					onclick={() => goto(`/course/${course.code}`)}
+					onkeydown={(e) => {
 						if (e.key === 'Enter') {
 							goto(`/course/${course.code}`);
 						}
@@ -347,17 +331,15 @@
 				>
 					<CourseElement
 						{course}
-						lists={$degreeData?.then((d) =>
-							getCourseLists(d.requirements, course.code)
-						)}
+						lists={getCourseLists(requirements, course.code)}
 						variant={{
 							type: 'test',
 							semester: effectiveSemester
 						}}
 					/>
 				</div>
-			</LoLoCo>
-		{/await}
+			{/snippet}
+		</LoLoCo>
 	</div>
 </div>
 

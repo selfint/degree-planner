@@ -84,7 +84,7 @@ exports[`Requirements > should parse requirements 1`] = `
         "02360360",
         "03240033",
       ],
-      "points": 84.5,
+      "points": 84,
     },
     "english" => {
       "count": 2,
@@ -360,6 +360,7 @@ exports[`Requirements > should parse requirements 1`] = `
         "02360756",
         "02360757",
         "02360760",
+        "02360766",
         "02360777",
         "02360779",
         "02360780",
@@ -551,10 +552,6 @@ exports[`Requirements > should parse requirements 1`] = `
         "01040295",
       ],
     },
-    "other" => {
-      "courses": [],
-      "points": 2,
-    },
     "project" => {
       "count": 1,
       "courses": [
@@ -688,7 +685,7 @@ exports[`Requirements > should provide a list of requirements and their courses 
     ],
   },
   {
-    "courses": 208,
+    "courses": 209,
     "path": [
       "list_a",
     ],
@@ -709,12 +706,6 @@ exports[`Requirements > should provide a list of requirements and their courses 
     "courses": 7,
     "path": [
       "math",
-    ],
-  },
-  {
-    "courses": 0,
-    "path": [
-      "other",
     ],
   },
   {

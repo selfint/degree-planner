@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 
-	import { degreeData } from '$lib/stores';
 	import { getCourseData } from '$lib/courseData';
 	import CourseElement from '$lib/components/CourseElement.svelte';
 
@@ -9,9 +8,12 @@
 
 	import { generateRequirementColor } from '$lib/colors';
 
-	export let titles: string[];
-	export let colorize: boolean = true;
-	export let codes: string[];
+	type Props = {
+		titles: string[];
+		colorize?: boolean;
+		codes: string[];
+		requirements?: DegreeRequirements;
+	};
 
 	function formatName(name: string): string {
 		return name
@@ -20,9 +22,9 @@
 			.join(' ');
 	}
 
-	async function getCourseGroups(
-		codes: string[]
-	): Promise<[string, Course[]][]> {
+	let { titles, colorize = true, codes, requirements }: Props = $props();
+
+	const groups = $derived.by(() => {
 		const courses = codes
 			.map((c) => getCourseData(c))
 			.toSorted((a, b) => {
@@ -58,59 +60,53 @@
 		}
 
 		return groups;
-	}
+	});
 </script>
 
 <div class="mb-4 min-h-[118px] max-w-full">
-	{#await getCourseGroups(codes)}
-		<div class="text-content-secondary">Loading...</div>
-	{:then groups}
-		{#each groups as [name, group]}
-			<h1
-				class="mb-2 flex flex-row items-baseline space-x-4 text-lg font-medium text-content-primary"
-			>
-				<div class="flex flex-row items-baseline space-x-2">
-					{#each titles as title}
-						{#if colorize}
-							<div
-								style="background: {generateRequirementColor(title)}"
-								class="h-4 w-4 min-w-4 rounded-full"
-							/>
-						{/if}
-						<span class="w-fit pr-2">
-							{formatName(title)}
-						</span>
-					{/each}
-				</div>
-
-				<span class="ml-2 font-normal text-content-secondary">
-					{name}
-				</span>
-			</h1>
-			<div class="mb-4 flex w-full flex-row space-x-2 overflow-x-auto">
-				{#each group as course, i}
-					<div
-						class="container w-fit touch-manipulation"
-						tabindex={i}
-						role="button"
-						on:click={() => goto(`/course/${course.code}`)}
-						on:keydown={(e) => {
-							if (e.key === 'Enter') {
-								goto(`/course/${course.code}`);
-							}
-						}}
-					>
-						<CourseElement
-							{course}
-							lists={$degreeData?.then((d) =>
-								getCourseLists(d.requirements, course.code).filter(
-									(list) => !titles.includes(list)
-								)
-							)}
-						/>
-					</div>
+	{#each groups as [name, group]}
+		<h1
+			class="mb-2 flex flex-row items-baseline space-x-4 text-lg font-medium text-content-primary"
+		>
+			<div class="flex flex-row items-baseline space-x-2">
+				{#each titles as title}
+					{#if colorize}
+						<div
+							style="background: {generateRequirementColor(title)}"
+							class="h-4 w-4 min-w-4 rounded-full"
+						></div>
+					{/if}
+					<span class="w-fit pr-2">
+						{formatName(title)}
+					</span>
 				{/each}
 			</div>
-		{/each}
-	{/await}
+
+			<span class="ml-2 font-normal text-content-secondary">
+				{name}
+			</span>
+		</h1>
+		<div class="mb-4 flex w-full flex-row space-x-2 overflow-x-auto">
+			{#each group as course, i}
+				<div
+					class="container w-fit touch-manipulation"
+					tabindex={i}
+					role="button"
+					onmousedown={() => goto(`/course/${course.code}`)}
+					onkeydown={(e) => {
+						if (e.key === 'Enter') {
+							goto(`/course/${course.code}`);
+						}
+					}}
+				>
+					<CourseElement
+						{course}
+						lists={getCourseLists(requirements, course.code).filter(
+							(list) => !titles.includes(list)
+						)}
+					/>
+				</div>
+			{/each}
+		</div>
+	{/each}
 </div>

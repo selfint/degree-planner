@@ -51,7 +51,7 @@ exports[`Integration > should work with CS degree 1`] = `
           "02360360",
           "03240033",
         ],
-        "points": 84.5,
+        "points": 84,
       },
       {
         "courses": [
@@ -360,6 +360,7 @@ exports[`Integration > should work with CS degree 1`] = `
           "02360756",
           "02360757",
           "02360760",
+          "02360766",
           "02360777",
           "02360779",
           "02360780",
@@ -574,16 +575,6 @@ exports[`Integration > should work with CS degree 1`] = `
       {
         "count": 0,
         "courses": [],
-      },
-    ],
-    "other" => [
-      {
-        "courses": [],
-        "points": 2,
-      },
-      {
-        "courses": [],
-        "points": 0,
       },
     ],
     "project" => [

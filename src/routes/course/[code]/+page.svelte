@@ -4,18 +4,48 @@
 
 	import Button from '$lib/components/Button.svelte';
 	import CourseElement from '$lib/components/CourseElement.svelte';
+	import Progress from '$lib/components/Progress.svelte';
 
-	import {
-		currentSemester,
-		degreeData,
-		semesters,
-		wishlist
-	} from '$lib/stores';
+	import { user, degreeData } from '$lib/stores.svelte';
 
 	import { getCourseData, getAllCourses } from '$lib/courseData';
 	import { getCourseLists } from '$lib/requirements';
 	import { generateRequirementColor, generateCourseColor } from '$lib/colors';
-	import Progress from '$lib/components/Progress.svelte';
+
+	const code = $derived($page.params.code);
+	const course = $derived(getCourseData(code));
+	const requirements = $derived(degreeData()?.requirements);
+
+	const courseMemberRequirements = $derived.by(() => {
+		if (requirements === undefined) {
+			return [];
+		}
+
+		return getCourseLists(requirements, code);
+	});
+
+	const dependants = $derived(
+		getAllCourses()
+			.filter((c) =>
+				(c.connections?.dependencies ?? []).some((group) =>
+					group.includes(code)
+				)
+			)
+			.filter((c) => c.code !== undefined && c.name !== undefined)
+			.toSorted((a, b) => {
+				const medians = (b.median ?? 0) - (a.median ?? 0);
+
+				if (medians !== 0) {
+					return medians;
+				}
+
+				return a.code.localeCompare(b.code);
+			})
+	);
+	const info = $derived([
+		['Median', course.median, 100],
+		['Points', course.points, 7]
+	] as const);
 
 	function formatRequirementName(name: string): string {
 		return name
@@ -25,42 +55,18 @@
 	}
 
 	function planCourse(code: string): void {
-		$semesters = $semesters.map((s, i) =>
-			i === $currentSemester ? [...new Set([...s, code])] : s
+		user.semesters = user.semesters.map((s, i) =>
+			i === user.currentSemester ? [...new Set([...s, code])] : s
 		);
 
-		if ($wishlist.includes(code)) {
-			$wishlist = $wishlist.filter((c) => c !== code);
+		if (user.wishlist.includes(code)) {
+			user.wishlist = user.wishlist.filter((c) => c !== code);
 		}
 	}
 
 	function removeCourseFromSemesters(code: string): void {
-		$semesters = $semesters.map((s) => s.filter((c) => c !== code));
+		user.semesters = user.semesters.map((s) => s.filter((c) => c !== code));
 	}
-
-	$: code = $page.params.code;
-	$: course = getCourseData(code);
-	$: requirements = $degreeData?.then((d) =>
-		getCourseLists(d.requirements, code)
-	);
-	$: dependants = getAllCourses()
-		.filter((c) =>
-			(c.connections?.dependencies ?? []).some((group) => group.includes(code))
-		)
-		.filter((c) => c.code !== undefined && c.name !== undefined)
-		.toSorted((a, b) => {
-			const medians = (b.median ?? 0) - (a.median ?? 0);
-
-			if (medians !== 0) {
-				return medians;
-			}
-
-			return a.code.localeCompare(b.code);
-		});
-	$: info = [
-		['Median', course.median, 100],
-		['Points', course.points, 7]
-	] as const;
 </script>
 
 <div class="m-3">
@@ -84,20 +90,18 @@
 			<div
 				style="background: {generateCourseColor(course)}"
 				class="h-8 w-8 rounded-full"
-			/>
+			></div>
 		</div>
-		{#await requirements then requirements}
-			{#each requirements ?? [] as requirement}
-				<div
-					style="background: {generateRequirementColor(requirement)}"
-					class="rounded-md pb-0.5 pl-2 pr-2 pt-0.5 leading-none"
-				>
-					<span class="text-base leading-none text-content-primary">
-						{formatRequirementName(requirement)}
-					</span>
-				</div>
-			{/each}
-		{/await}
+		{#each courseMemberRequirements as requirement}
+			<div
+				style="background: {generateRequirementColor(requirement)}"
+				class="rounded-md pb-0.5 pl-2 pr-2 pt-0.5 leading-none"
+			>
+				<span class="text-base leading-none text-content-primary">
+					{formatRequirementName(requirement)}
+				</span>
+			</div>
+		{/each}
 	</div>
 
 	<p class="mb-8 text-content-secondary" dir="rtl">
@@ -105,32 +109,32 @@
 	</p>
 
 	<div class="space-x-1">
-		{#if $semesters.some((s) => s.includes(course.code))}
+		{#if user.semesters.some((s) => s.includes(course.code))}
 			<Button
 				variant="secondary"
-				onClick={() => removeCourseFromSemesters(course.code)}
+				onmousedown={() => removeCourseFromSemesters(course.code)}
 			>
-				Remove from semester {$semesters.findIndex((s) =>
+				Remove from semester {user.semesters.findIndex((s) =>
 					s.includes(course.code)
 				) + 1}
 			</Button>
 		{:else}
-			<Button variant="primary" onClick={() => planCourse(course.code)}>
+			<Button variant="primary" onmousedown={() => planCourse(course.code)}>
 				Plan
 			</Button>
-			{#if $wishlist.includes(course.code)}
+			{#if user.wishlist.includes(course.code)}
 				<Button
 					variant="secondary"
-					onClick={() =>
-						($wishlist = $wishlist.filter((c) => c !== course.code))}
+					onmousedown={() =>
+						(user.wishlist = user.wishlist.filter((c) => c !== course.code))}
 				>
 					Remove from wish list
 				</Button>
 			{:else}
 				<Button
 					variant="secondary"
-					onClick={() =>
-						($wishlist = [...new Set([...$wishlist, course.code])])}
+					onmousedown={() =>
+						(user.wishlist = [...new Set([...user.wishlist, course.code])])}
 				>
 					Wish list
 				</Button>
@@ -181,8 +185,8 @@
 									class="container w-fit"
 									tabindex={i}
 									role="button"
-									on:click={() => goto(`/course/${dep.code}`)}
-									on:keydown={(e) => {
+									onclick={() => goto(`/course/${dep.code}`)}
+									onkeydown={(e) => {
 										if (e.key === 'Enter') {
 											goto(`/course/${dep.code}`);
 										}
@@ -190,9 +194,7 @@
 								>
 									<CourseElement
 										course={dep}
-										lists={$degreeData?.then((d) =>
-											getCourseLists(d.requirements, dep.code)
-										)}
+										lists={getCourseLists(requirements, dep.code)}
 									/>
 								</div>
 							{/each}
@@ -210,9 +212,7 @@
 					{#each course.connections?.adjacent.map(getCourseData) ?? [] as adj}
 						<CourseElement
 							course={adj}
-							lists={$degreeData?.then((d) =>
-								getCourseLists(d.requirements, adj.code)
-							)}
+							lists={getCourseLists(requirements, adj.code)}
 						/>
 					{/each}
 				</div>
@@ -229,8 +229,8 @@
 							class="container w-fit pb-4 pr-2"
 							tabindex={i}
 							role="button"
-							on:click={() => goto(`/course/${c.code}`)}
-							on:keydown={(e) => {
+							onclick={() => goto(`/course/${c.code}`)}
+							onkeydown={(e) => {
 								if (e.key === 'Enter') {
 									goto(`/course/${c.code}`);
 								}
@@ -238,9 +238,7 @@
 						>
 							<CourseElement
 								course={c}
-								lists={$degreeData?.then((d) =>
-									getCourseLists(d.requirements, c.code)
-								)}
+								lists={getCourseLists(requirements, c.code)}
 							/>
 						</div>
 					{/each}

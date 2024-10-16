@@ -52,9 +52,13 @@
 		class="mb-1 w-fit rounded-md pl-2 pr-2 text-content-primary"
 		style="background: {color}; margin-left: {ml}"
 	>
-		<a {href}>
+		{#if requirement.choice === undefined}
+			<a {href}>
+				{formatName(requirementName)}
+			</a>
+		{:else}
 			{formatName(requirementName)}
-		</a>
+		{/if}
 	</h3>
 
 	{#if requirement.points !== undefined && planned.points !== undefined}

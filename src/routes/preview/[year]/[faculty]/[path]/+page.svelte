@@ -41,6 +41,7 @@
 		);
 
 		if (userConfirmation) {
+			user.username = 'guest';
 			user.semesters = semesters;
 			user.degree = [year, faculty, path];
 			user.currentSemester = 0;

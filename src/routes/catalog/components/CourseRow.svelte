@@ -16,10 +16,15 @@
 	};
 
 	function formatName(name: string): string {
-		return name
-			.split('_')
-			.map((word) => word[0].toUpperCase() + word.slice(1).toLowerCase())
-			.join(' ');
+		return (
+			name[0].toUpperCase() +
+			name
+				.slice(1)
+				.toLowerCase()
+				.split('_')
+				.map((word) => (word.length > 2 ? word : word.toUpperCase()))
+				.join(' ')
+		);
 	}
 
 	let { titles, colorize = true, codes, requirements }: Props = $props();
@@ -61,9 +66,10 @@
 
 		return groups;
 	});
+	const id = titles.map((t) => t.toLowerCase()).join('_');
 </script>
 
-<div class="mb-4 min-h-[118px] max-w-full">
+<div {id} class="mb-4 min-h-[118px] max-w-full">
 	{#each groups as [name, group]}
 		<h1
 			class="mb-2 ml-3 flex flex-row items-baseline space-x-4 text-lg font-medium text-content-primary"

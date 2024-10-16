@@ -12,6 +12,7 @@
 
 	type Props = {
 		indent?: number;
+		parents?: string[];
 		degreeRequirements: DegreeRequirements;
 		requirementName: string;
 		requirement: Requirement;
@@ -21,6 +22,7 @@
 
 	const {
 		indent = 0,
+		parents = [],
 		degreeRequirements,
 		requirementName,
 		requirement,
@@ -38,14 +40,21 @@
 	const color = generateColor(requirementName);
 	const ml = `${indent * 0.75}rem`;
 	const progressStyle = `margin-left: ${ml}; max-width: calc(30rem - ${ml});`;
+
+	const section = [...parents, requirementName]
+		.map((t) => t.toLowerCase())
+		.join('_');
+	const href = `/catalog#${section}`;
 </script>
 
-<div class="mb-2 w-full">
+<div id={section} class="mb-2 w-full">
 	<h3
 		class="mb-1 w-fit rounded-md pl-2 pr-2 text-content-primary"
 		style="background: {color}; margin-left: {ml}"
 	>
-		{formatName(requirementName)}
+		<a {href}>
+			{formatName(requirementName)}
+		</a>
 	</h3>
 
 	{#if requirement.points !== undefined && planned.points !== undefined}
@@ -103,7 +112,9 @@
 					class="mb-1 w-fit rounded-md pl-2 pr-2 text-content-primary"
 					style="background: {generateRequirementColor(target)};"
 				>
-					{formatName(target)}
+					<a href="#{target.toLowerCase()}">
+						{formatName(target)}
+					</a>
 				</span>
 			</span>
 		</p>
@@ -173,6 +184,7 @@
 			{#each planned.choice.options as [name, [subRequirement, subProgress]]}
 				<ProgressElement
 					indent={indent + 1}
+					parents={[...parents, requirementName]}
 					{degreeRequirements}
 					requirementName={name}
 					requirement={subRequirement}

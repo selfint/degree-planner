@@ -25,7 +25,7 @@ declare global {
 	};
 
 	type ChoiceProgress = {
-		amount: [number, number];
+		amount: number;
 		options: Map<string, [Requirement, RequirementProgress]>;
 	};
 

@@ -16,7 +16,7 @@
 	);
 </script>
 
-<div class="h-4 w-56 rounded-md bg-card-primary" style="position: relative;">
+<div class="h-4 w-full rounded-md bg-card-primary" style="position: relative;">
 	{#if p2 !== undefined}
 		<div style="width: {p2}%;" class="h-4 rounded-md bg-card-secondary"></div>
 	{/if}

@@ -92,11 +92,11 @@
 				{name}
 			</span>
 		</h1>
-		<div class="mb-4 flex w-full flex-row space-x-2 overflow-x-auto">
-			<div class="min-w-1"></div>
+		<div class="mb-4 flex w-full flex-row overflow-x-auto">
+			<div class="min-w-3"></div>
 			{#each group as course, i}
 				<div
-					class="w-fit touch-manipulation"
+					class="w-fit pr-2 touch-manipulation"
 					tabindex={i}
 					role="button"
 					onmousedown={() => goto(`/course/${course.code}`)}
@@ -114,7 +114,6 @@
 					/>
 				</div>
 			{/each}
-			<div class="min-w-0"></div>
 		</div>
 	{/each}
 </div>

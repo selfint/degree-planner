@@ -14,9 +14,7 @@
 
 <h1><p align="center">Technion Degree Planner</p></h1>
 
-## Goal
-
-Build a tool for planning an entire Technion degree.
+A tool for planning an entire Technion degree.
 
 ## Why?
 

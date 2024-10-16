@@ -56,7 +56,15 @@
 					class="text-blue-400 hover:text-white"
 				>
 					Tom Selfin
-				</a> - Apache License 2024
+				</a>
+				-
+				<a
+					target="_blank"
+					href="https://github.com/selfint/degree-planner/blob/main/LICENSE"
+					class="text-content-secondary hover:text-content-primary"
+				>
+					Apache License 2024
+				</a>
 			</p>
 
 			<a

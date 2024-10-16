@@ -11,7 +11,7 @@
 	const { degreeRequirements, current, planned }: Props = $props();
 </script>
 
-<h2 class="ml-3 text-lg font-medium text-content-primary">Requirements</h2>
+<h2 class="mb-1 ml-3 text-lg font-medium text-content-primary">Requirements</h2>
 <ProgressElement
 	indent={1}
 	{degreeRequirements}

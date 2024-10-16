@@ -6,7 +6,7 @@
 
 	import ProgressElement from './ProgressElement.svelte';
 
-	import { generateColor } from '$lib/colors';
+	import { generateColor, generateRequirementColor } from '$lib/colors';
 	import { getCourseData } from '$lib/courseData';
 	import { getCourseLists } from '$lib/requirements';
 
@@ -40,7 +40,7 @@
 	const progressStyle = `margin-left: ${ml}; max-width: calc(30rem - ${ml});`;
 </script>
 
-<div class="w-full pt-2">
+<div class="mb-2 w-full">
 	<h3
 		class="mb-1 w-fit rounded-md pl-2 pr-2 text-content-primary"
 		style="background: {color}; margin-left: {ml}"
@@ -50,7 +50,7 @@
 
 	{#if requirement.points !== undefined && planned.points !== undefined}
 		<div
-			class="mb-1 flex flex-row items-center space-x-2 pr-2 text-content-secondary"
+			class="flex flex-row items-center space-x-2 pr-2 text-content-secondary"
 			style={progressStyle}
 		>
 			<span>Points</span>
@@ -70,7 +70,7 @@
 
 	{#if requirement.count !== undefined && planned.count !== undefined}
 		<div
-			class="mb-1 flex flex-row items-center space-x-2 pr-2 text-content-secondary"
+			class="flex flex-row items-center space-x-2 pr-2 text-content-secondary"
 			style={progressStyle}
 		>
 			<span>Count</span>
@@ -88,65 +88,86 @@
 		</div>
 	{/if}
 
-	<div class="flex flex-row overflow-x-auto">
-		<div style="margin-left: {ml}"></div>
-		{#each current?.courses ?? [] as course, i}
-			<div
-				class="mr-2"
-				tabindex={i}
-				role="button"
-				onmousedown={() => goto(`/course/${course}`)}
-				onkeydown={(e) => {
-					if (e.key === 'Enter') {
-						goto(`/course/${course}`);
-					}
-				}}
-			>
-				<CourseElement
-					course={getCourseData(course)}
-					lists={getCourseLists(degreeRequirements, course)}
-				/>
-			</div>
-		{/each}
-		{#each planned.courses?.filter((c) => !current?.courses?.includes(c)) ?? [] as course, i}
-			<div
-				class="mr-2 opacity-50"
-				tabindex={i}
-				role="button"
-				onmousedown={() => goto(`/course/${course}`)}
-				onkeydown={(e) => {
-					if (e.key === 'Enter') {
-						goto(`/course/${course}`);
-					}
-				}}
-			>
-				<CourseElement
-					course={getCourseData(course)}
-					lists={getCourseLists(degreeRequirements, course)}
-				/>
-			</div>
-		{/each}
-	</div>
+	{#if requirement.overflow !== undefined && planned.overflow !== undefined}
+		{@const [target, type, amount] = planned.overflow}
+		<p
+			class="mb-1 flex flex-row items-center space-x-2 pr-2 text-content-secondary"
+			style={progressStyle}
+		>
+			<span>
+				Overflowed
+				{amount}
+				{type}
+				to
+				<span
+					class="mb-1 w-fit rounded-md pl-2 pr-2 text-content-primary"
+					style="background: {generateRequirementColor(target)};"
+				>
+					{formatName(target)}
+				</span>
+			</span>
+		</p>
+	{/if}
+
+	{#if planned.courses?.length ?? 0 > 0}
+		<div class="mb-1 mt-1 flex flex-row overflow-x-auto">
+			<div style="margin-left: {ml}"></div>
+			{#each current?.courses ?? [] as course, i}
+				<div
+					class="mr-2"
+					tabindex={i}
+					role="button"
+					onmousedown={() => goto(`/course/${course}`)}
+					onkeydown={(e) => {
+						if (e.key === 'Enter') {
+							goto(`/course/${course}`);
+						}
+					}}
+				>
+					<CourseElement
+						course={getCourseData(course)}
+						lists={getCourseLists(degreeRequirements, course)}
+					/>
+				</div>
+			{/each}
+			{#each planned.courses?.filter((c) => !current?.courses?.includes(c)) ?? [] as course, i}
+				<div
+					class="mr-2 opacity-50"
+					tabindex={i}
+					role="button"
+					onmousedown={() => goto(`/course/${course}`)}
+					onkeydown={(e) => {
+						if (e.key === 'Enter') {
+							goto(`/course/${course}`);
+						}
+					}}
+				>
+					<CourseElement
+						course={getCourseData(course)}
+						lists={getCourseLists(degreeRequirements, course)}
+					/>
+				</div>
+			{/each}
+		</div>
+	{/if}
 
 	{#if requirement.choice !== undefined && planned.choice !== undefined}
-		<div>
-			<div
-				class="mt-1 flex flex-row items-center space-x-2 pr-2 text-content-secondary"
-				style={progressStyle}
-			>
-				<span>Choice </span>
-				<Progress
-					{color}
-					value={current?.choice?.amount ?? 0}
-					value2={planned.choice.amount}
-					max={requirement.choice?.amount}
-				/>
-				<span class="text-nowrap">
-					<span style="color: {color}">{current?.choice?.amount ?? 0}</span>
-					/ {planned.choice.amount}
-					/ {requirement.choice?.amount}
-				</span>
-			</div>
+		<div
+			class="mb-1 flex flex-row items-center space-x-2 pr-2 text-content-secondary"
+			style={progressStyle}
+		>
+			<span>Choice </span>
+			<Progress
+				{color}
+				value={current?.choice?.amount ?? 0}
+				value2={planned.choice.amount}
+				max={requirement.choice?.amount}
+			/>
+			<span class="text-nowrap">
+				<span style="color: {color}">{current?.choice?.amount ?? 0}</span>
+				/ {planned.choice.amount}
+				/ {requirement.choice?.amount}
+			</span>
 		</div>
 		<div>
 			{#each planned.choice.options as [name, [subRequirement, subProgress]]}

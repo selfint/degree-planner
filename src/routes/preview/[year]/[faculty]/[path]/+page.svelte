@@ -35,22 +35,23 @@
 	}
 
 	function importPlan() {
-		// get confirmation from user alert
-		const userConfirmation = confirm(
-			'This will overwrite your current plan and is irreversible. Are you sure you want to continue?'
-		);
-
-		if (userConfirmation) {
-			user.username = 'guest';
-			user.semesters = semesters;
-			user.degree = [year, faculty, path];
-			user.currentSemester = 0;
-			user.wishlist = user.wishlist.filter(
-				(c) => !semesters.flat().includes(c)
+		if (user.semesters.length > 0) {
+			const userConfirmation = confirm(
+				'This will overwrite your current plan and is irreversible. Are you sure you want to continue?'
 			);
 
-			goto('/overview');
+			if (!userConfirmation) {
+				return;
+			}
 		}
+
+		user.username = 'guest';
+		user.semesters = semesters;
+		user.degree = [year, faculty, path];
+		user.currentSemester = user.currentSemester ?? 0;
+		user.wishlist = user.wishlist.filter((c) => !semesters.flat().includes(c));
+
+		goto('/overview');
 	}
 </script>
 

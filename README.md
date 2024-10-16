@@ -119,3 +119,18 @@ named after requirements to complete the degree. A requirement directory can con
 
    Also, `choice` requirements can't overflow. That is why the `choice` directory
    has an `amount` file, not a `count` file.
+
+## Acknowledgements
+
+- [Michael Maltsev](https://github.com/michael-maltsev) for data in
+  [technion-histograms](https://github.com/michael-maltsev/technion-histograms),
+  and for help understanding the SAP API from
+  [technion-sap-info-fetcher](https://github.com/michael-maltsev/technion-sap-info-fetcher).
+
+- [Sogrim team](https://github.com/sogrim/technion-sogrim) for inspiration from
+  their degree planner.
+
+- Big thanks to the beta testers for their feedback:
+
+  - [Almog Levy](https://github.com/Almoglevy2k)
+  - [Yotam Freund](https://github.com/freundyotam)

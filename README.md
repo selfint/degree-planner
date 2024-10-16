@@ -2,13 +2,13 @@
   <img src="https://raw.githubusercontent.com/selfint/degree-planner/refs/heads/main/static/favicon.png" alt="Technion degree planner logo" width="150"/>
 </p>
 
-<h1><p align="center">Technion Degree Planner</p></h1>
-
 <p align="center">
   <a href="https://github.com/selfint/degree-planner/actions/workflows/test.yml">
     <img src="https://github.com/selfint/degree-planner/actions/workflows/test.yml/badge.svg" alt="Test Status">
   </a>
 </p>
+
+<h1><p align="center">Technion Degree Planner</p></h1>
 
 ---
 

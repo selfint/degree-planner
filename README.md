@@ -8,7 +8,7 @@
   </a>
 
   <a href="https://github.com/selfint/degree-planner/actions/workflows/data.yml">
-  <img src="https://img.shields.io/badge/dynamic/json?url=https://api.github.com/repos/selfint/degree-planner/actions/workflows/data.yml/runs&label=Data&query=$.workflow_runs[0].created_at&color=blue&style=flat&transform=substring(0,10)" alt="Data">
+  <img src="https://img.shields.io/badge/dynamic/json?url=https://api.github.com/repos/selfint/degree-planner/actions/workflows/data.yml/runs&label=Data&query=$.workflow_runs[0].created_at&color=blue&style=flat" alt="Data">
 </a>
 </p>
 

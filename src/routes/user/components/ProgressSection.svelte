@@ -3,39 +3,31 @@
 	import ProgressElement from './ProgressElement.svelte';
 
 	type Props = {
+		degreeRequirements: DegreeRequirements;
 		current: DegreeProgress;
 		planned: DegreeProgress;
 	};
 
-	const { current, planned }: Props = $props();
+	const { degreeRequirements, current, planned }: Props = $props();
 </script>
 
-<div class="flex flex-col space-y-2">
-	<h2 class="text-lg font-medium text-content-primary">Requirements</h2>
-	<div
-		class="flex flex-row items-center space-x-2 text-base text-content-secondary"
-	>
-		<span>Points</span>
-		<Progress
-			value={current.points[0]}
-			value2={planned.points[0]}
-			max={planned.points[1]}
-		/>
-		<span class="text-nowrap">
-			<span class="text-accent-primary">{current?.points[0] ?? 0}</span> / {planned
-				.points[0]}
-			/ {planned.points[1]}
-		</span>
-	</div>
+<h2 class="ml-3 text-lg font-medium text-content-primary">Requirements</h2>
+<ProgressElement
+	indent={1}
+	{degreeRequirements}
+	requirementName="general"
+	requirement={{ points: planned.points[1] }}
+	current={{ points: current.points[0] }}
+	planned={{ points: planned.points[0] }}
+/>
 
-	{#each planned.requirements as [requirementName, [requirement, progress]]}
-		<div class="flex flex-col space-y-2 pl-2">
-			<ProgressElement
-				{requirementName}
-				{requirement}
-				current={current.requirements.get(requirementName)?.[1]}
-				planned={progress}
-			/>
-		</div>
-	{/each}
-</div>
+{#each planned.requirements as [requirementName, [requirement, progress]]}
+	<ProgressElement
+		indent={1}
+		{degreeRequirements}
+		{requirementName}
+		{requirement}
+		current={current.requirements.get(requirementName)?.[1]}
+		planned={progress}
+	/>
+{/each}

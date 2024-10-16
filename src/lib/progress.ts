@@ -144,8 +144,6 @@ function getRequirementProgress(
 		}
 
 		progress.choice = {
-			// TODO: why is this a single number? should be [number, number]
-			// @ts-expect-error
 			amount,
 			options: choiceProgress
 		};

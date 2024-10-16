@@ -65,12 +65,12 @@
 	);
 </script>
 
-<div class="m-3">
-	<div class="mb-4">
+<div class="mt-3">
+	<div class="mb-4 ml-3">
 		<DegreeSection degree={user.degree} {onChange} />
 	</div>
 
-	<div class="mb-4">
+	<div class="mb-4 ml-3">
 		<SemesterSection
 			{semesterChoice}
 			{totalSemestersChoice}
@@ -78,8 +78,9 @@
 		/>
 	</div>
 
-	{#if degreeProgress !== undefined}
+	{#if degreeProgress !== undefined && requirements !== undefined}
 		<ProgressSection
+			degreeRequirements={requirements}
 			current={degreeProgress.current}
 			planned={degreeProgress.planned}
 		/>

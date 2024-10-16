@@ -66,6 +66,11 @@ describe('Progress', () => {
 			          "1",
 			          "2",
 			        ],
+			        "overflow": [
+			          "overflow_target",
+			          "points",
+			          1,
+			        ],
 			        "points": 3,
 			      },
 			    ],
@@ -83,6 +88,11 @@ describe('Progress', () => {
 			        "courses": [
 			          "1",
 			          "2",
+			        ],
+			        "overflow": [
+			          "overflow_target",
+			          "count",
+			          1,
 			        ],
 			      },
 			    ],

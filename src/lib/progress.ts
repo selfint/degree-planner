@@ -16,16 +16,26 @@ export function getProgress(
 
 	// @ts-expect-error
 	const overflows: [string, ProgressOverflow][] = progress
-		.map(([name, [requirement, progress]]) => [
-			name,
-			getProgressOverflow(requirement, progress)
-		])
+		.map(
+			([name, [requirement, progress]]): [
+				string,
+				ProgressOverflow | undefined
+			] => {
+				const overflow = getProgressOverflow(requirement, progress);
+				if (overflow !== undefined) {
+					progress.overflow = overflow;
+				}
+
+				return [name, overflow];
+			}
+		)
 		.filter(([_, overflow]) => overflow !== undefined);
 
 	const requirementsProgress = new Map(progress);
 
 	// handle overflow
 	for (const [source, [targetName, kind, amount]] of overflows) {
+		// handle target
 		const target = requirementsProgress.get(targetName);
 		if (target === undefined) {
 			continue;

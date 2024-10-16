@@ -34,14 +34,19 @@
 						semester={semester.map(getCourseData)}
 						isCurrent={false}
 					>
-						{#snippet children({ course })}
-							<a class="touch-manipulation" href="/course/{course.code}">
+						{#snippet children({ course, index: i })}
+							<div
+								class="touch-manipulation"
+								onmousedown={() => goto(`/course/${course.code}`)}
+								role="button"
+								tabindex={i}
+							>
 								<CourseElement
 									{course}
 									lists={getCourseLists(requirements, course.code)}
 									squeeze={true}
 								/>
-							</a>
+							</div>
 						{/snippet}
 					</Semester>
 				{/each}

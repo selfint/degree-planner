@@ -37,7 +37,7 @@ function sortObject(obj: any): any {
 	return obj;
 }
 
-async function get(degree: Degree, ...path: string[]): Promise<string> {
+async function _get(degree: Degree, ...path: string[]): Promise<string> {
 	const response = await fetch(`/_db/${degree.join('/')}/${path.join('/')}`);
 
 	if (!response.ok) {
@@ -48,6 +48,7 @@ async function get(degree: Degree, ...path: string[]): Promise<string> {
 }
 
 async function loadChoiceHeader(
+	get: (degree: Degree, ...path: string[]) => Promise<string>,
 	degree: Degree,
 	choiceHeader: ChoiceHeader,
 	...path: string[]
@@ -63,6 +64,7 @@ async function loadChoiceHeader(
 			options.set(
 				option,
 				await loadRequirementHeader(
+					get,
 					degree,
 					requirement,
 					...path,
@@ -80,6 +82,7 @@ async function loadChoiceHeader(
 }
 
 async function loadRequirementHeader(
+	get: (degree: Degree, ...path: string[]) => Promise<string>,
 	degree: Degree,
 	header: RequirementHeader,
 	...path: string[]
@@ -101,7 +104,7 @@ async function loadRequirementHeader(
 	const choiceF =
 		header.choice === undefined
 			? undefined
-			: loadChoiceHeader(degree, header.choice, ...path);
+			: loadChoiceHeader(get, degree, header.choice, ...path);
 
 	let requirements = {
 		courses: await coursesF,
@@ -122,7 +125,8 @@ async function loadRequirementHeader(
 
 async function loadDegreeRequirements(
 	degree: Degree,
-	header: RequirementsHeader
+	header: RequirementsHeader,
+	get: (degree: Degree, ...path: string[]) => Promise<string>
 ): Promise<DegreeRequirements> {
 	const points = get(degree, 'requirements', 'points').then(parseFloat);
 
@@ -133,7 +137,13 @@ async function loadDegreeRequirements(
 		(await Promise.all(
 			conditions.map(async ([name, requirement]) => [
 				name,
-				await loadRequirementHeader(degree, requirement, 'requirements', name)
+				await loadRequirementHeader(
+					get,
+					degree,
+					requirement,
+					'requirements',
+					name
+				)
 			])
 		)) as [string, Requirement][]
 	);
@@ -146,7 +156,8 @@ async function loadDegreeRequirements(
 
 async function loadDegreeRecommendation(
 	degree: Degree,
-	header: Record<string, null>
+	header: Record<string, null>,
+	get: (degree: Degree, ...path: string[]) => Promise<string>
 ): Promise<string[][]> {
 	return await Promise.all(
 		Object.keys(header).map(async (semester) =>
@@ -155,12 +166,23 @@ async function loadDegreeRecommendation(
 	);
 }
 
-export async function loadDegreeData(degree: Degree): Promise<DegreeData> {
+export async function loadDegreeData(
+	degree: Degree,
+	get: (degree: Degree, ...path: string[]) => Promise<string> = _get
+): Promise<DegreeData> {
 	// @ts-expect-error
 	const header = manifest[degree[0]][degree[1]][degree[2]];
 
-	const recommendedF = loadDegreeRecommendation(degree, header.recommended);
-	const requirementsF = loadDegreeRequirements(degree, header.requirements);
+	const recommendedF = loadDegreeRecommendation(
+		degree,
+		header.recommended,
+		get
+	);
+	const requirementsF = loadDegreeRequirements(
+		degree,
+		header.requirements,
+		get
+	);
 
 	const data = {
 		recommended: await recommendedF,

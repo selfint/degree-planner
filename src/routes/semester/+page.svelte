@@ -246,7 +246,9 @@
 </script>
 
 <div class="items-start sm:mt-3 sm:flex sm:flex-row">
-	<div class="sticky top-2 ml-3 mr-3 mt-0 hidden touch-manipulation sm:block">
+	<div
+		class="sticky top-2 mb-3 ml-3 mr-3 mt-0 hidden touch-manipulation sm:block"
+	>
 		<Semester
 			index={user.currentSemester}
 			{semester}

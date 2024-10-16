@@ -32,7 +32,7 @@
 		{@render children()}
 	</main>
 
-	<footer class="mt-12 border-t-2 border-border bg-background p-4 text-white">
+	<footer class="border-t-2 border-border bg-background p-4 text-white">
 		<div
 			class="container mx-auto flex flex-col items-center justify-between sm:flex-row"
 		>

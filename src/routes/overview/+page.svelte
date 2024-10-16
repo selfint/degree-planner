@@ -40,7 +40,7 @@
 	}
 </script>
 
-<div class="mt-3">
+<div class="mb-3 mt-3">
 	<div
 		class="mb-4 min-h-[118px]"
 		ondragenter={(e) => {

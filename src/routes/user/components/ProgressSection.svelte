@@ -1,5 +1,4 @@
 <script lang="ts">
-	import Progress from '$lib/components/Progress.svelte';
 	import ProgressElement from './ProgressElement.svelte';
 
 	type Props = {

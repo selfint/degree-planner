@@ -1,6 +1,20 @@
-# Technion degree planner
+<p align="center">
+  <img src="https://raw.githubusercontent.com/selfint/degree-planner/refs/heads/main/static/favicon.png" alt="Technion degree planner logo" width="150"/>
+</p>
 
-Plan your degree.
+<h1 align="center">Technion CS Degree Planner</h1>
+
+<p align="center">
+  <a href="https://github.com/selfint/degree-planner/actions/workflows/test.yml">
+    <img src="https://github.com/selfint/degree-planner/actions/workflows/test.yml/badge.svg" alt="Test Status">
+  </a>
+</p>
+
+---
+
+## Goal
+
+Build a tool for planning an entire Technion degree.
 
 ## Why?
 

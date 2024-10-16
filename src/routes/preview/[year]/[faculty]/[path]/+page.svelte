@@ -55,7 +55,7 @@
 	}
 </script>
 
-<div class="mt-3">
+<div class="mb-3 mt-3">
 	<div class="mb-4 ml-3">
 		<h1 class="mb-2 text-lg font-medium text-content-primary">
 			{formatName(faculty)}

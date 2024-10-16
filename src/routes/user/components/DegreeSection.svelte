@@ -4,6 +4,8 @@
 	import Button from '$lib/components/Button.svelte';
 	import Select from '$lib/components/Select.svelte';
 
+	import { user } from '$lib/stores.svelte';
+
 	type Props = {
 		degree?: Degree;
 		onChange: (degree: Degree) => boolean;
@@ -74,10 +76,28 @@
 			.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
 			.join(' ');
 	}
+
+	const shareLink = $derived.by(() => {
+		if (year === undefined || faculty === undefined || path === undefined) {
+			return undefined;
+		}
+
+		const semesters = user.semesters.map((s) => s.join(',')).join(';');
+
+		return `/preview/${year}/${faculty}/${path}?semesters=${semesters}`;
+	});
 </script>
 
 <div>
-	<h2 class="text-lg font-medium text-content-primary">Degree</h2>
+	<h2 class="text-lg font-medium text-content-primary">
+		Degree
+
+		{#if shareLink !== undefined}
+			<a href={shareLink} class="text-content-secondary">
+				(click here to export)
+			</a>
+		{/if}
+	</h2>
 	<div class="space-y-1">
 		<div>
 			<span class="text-content-secondary"> Year: </span>

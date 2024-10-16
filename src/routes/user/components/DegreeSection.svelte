@@ -78,9 +78,11 @@
 	}
 
 	const shareLink = $derived.by(() => {
-		if (year === undefined || faculty === undefined || path === undefined) {
+		if (degree === undefined) {
 			return undefined;
 		}
+
+		const [year, faculty, path] = degree;
 
 		const semesters = user.semesters.map((s) => s.join(',')).join(';');
 
@@ -93,8 +95,8 @@
 		Degree
 
 		{#if shareLink !== undefined}
-			<a href={shareLink} class="text-content-secondary">
-				(click here to export)
+			<a href={shareLink} target="_blank" class="text-content-secondary">
+				(share plan)
 			</a>
 		{/if}
 	</h2>

@@ -7,7 +7,7 @@
 	import { user, degreeData } from '$lib/stores.svelte';
 
 	import { getCourseData } from '$lib/courseData';
-	import { getCourseLists, loadDegreeData } from '$lib/requirements';
+	import { getCourseLists } from '$lib/requirements';
 	import { getScheduleError } from '$lib/schedule';
 
 	const requirements = $derived(degreeData()?.requirements);

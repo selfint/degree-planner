@@ -2,28 +2,66 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 
-	import type { PageData } from './$types';
-
+	import Button from '$lib/components/Button.svelte';
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import Semester from '$lib/components/Semester.svelte';
 
 	import { getCourseData } from '$lib/courseData';
 	import { getCourseLists } from '$lib/requirements';
-	import { getScheduleError } from '$lib/schedule';
 
-	// get degreeData from +page.ts
+	import { user } from '$lib/stores.svelte';
+
 	const { data } = $props();
+	const { year, faculty, path } = $derived($page.params);
 	const requirements = $derived(data.degreeData.requirements);
 
 	const semesters: string[][] = $derived(
 		($page.url.searchParams.get('semesters') ?? '')
 			.trim()
 			.split(';')
-			.map((s) => s.split(','))
+			.map((s) => s.split(',').filter((c) => c !== ''))
 	);
+
+	function formatName(name: string): string {
+		return (
+			name[0].toUpperCase() +
+			name
+				.slice(1)
+				.toLowerCase()
+				.split('_')
+				.map((word) => (word.length > 2 ? word : word.toUpperCase()))
+				.join(' ')
+		);
+	}
+
+	function importPlan() {
+		// get confirmation from user alert
+		const userConfirmation = confirm(
+			'This will overwrite your current plan and is irreversible. Are you sure you want to continue?'
+		);
+
+		if (userConfirmation) {
+			user.semesters = semesters;
+			user.degree = [year, faculty, path];
+			user.currentSemester = 0;
+			user.wishlist = user.wishlist.filter(
+				(c) => !semesters.flat().includes(c)
+			);
+
+			goto('/overview');
+		}
+	}
 </script>
 
 <div class="mt-3">
+	<div class="mb-4 ml-3">
+		<h1 class="mb-2 text-lg font-medium text-content-primary">
+			{formatName(faculty)}
+			{formatName(path)}
+			(catalog {formatName(year)})
+		</h1>
+		<Button variant="primary" onmousedown={importPlan}>Copy plan</Button>
+	</div>
 	<div style="transform: rotateX(180deg)" class="overflow-x-auto">
 		<div style="transform: rotateX(180deg)" class="flex flex-row space-x-3">
 			<div></div>

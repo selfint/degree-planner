@@ -31,10 +31,15 @@
 	}: Props = $props();
 
 	function formatName(name: string): string {
-		return name
-			.split('_')
-			.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-			.join(' ');
+		return (
+			name[0].toUpperCase() +
+			name
+				.slice(1)
+				.toLowerCase()
+				.split('_')
+				.map((word) => (word.length > 2 ? word : word.toUpperCase()))
+				.join(' ')
+		);
 	}
 
 	const color = generateColor(requirementName);

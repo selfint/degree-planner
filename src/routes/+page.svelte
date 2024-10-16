@@ -30,9 +30,7 @@
 	</div>
 </div>
 
-<div
-	class="circle absolute left-[-250%] top-[10vh] -z-10 h-[2000px] w-[350%]"
-></div>
+<div class="circle relative left-[-100%] -z-10 h-[2000px] w-[200%]"></div>
 
 <style>
 	.circle {

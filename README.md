@@ -2,7 +2,7 @@
   <img src="https://raw.githubusercontent.com/selfint/degree-planner/refs/heads/main/static/favicon.png" alt="Technion degree planner logo" width="150"/>
 </p>
 
-<h1 align="center">Technion CS Degree Planner</h1>
+<h1 align="center">Technion Degree Planner</h1>
 
 <p align="center">
   <a href="https://github.com/selfint/degree-planner/actions/workflows/test.yml">

@@ -70,13 +70,15 @@
 		<DegreeSection degree={user.degree} {onChange} />
 	</div>
 
-	<div class="mb-4 ml-3">
-		<SemesterSection
-			{semesterChoice}
-			{totalSemestersChoice}
-			{validTotalValues}
-		/>
-	</div>
+	{#if user.semesters.length > 0}
+		<div class="mb-4 ml-3">
+			<SemesterSection
+				{semesterChoice}
+				{totalSemestersChoice}
+				{validTotalValues}
+			/>
+		</div>
+	{/if}
 
 	{#if degreeProgress !== undefined && requirements !== undefined}
 		<ProgressSection

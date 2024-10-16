@@ -55,9 +55,10 @@
 	}
 
 	function planCourse(code: string): void {
-		user.semesters = user.semesters.map((s, i) =>
-			i === user.currentSemester ? [...new Set([...s, code])] : s
-		);
+		const current = user.semesters[user.currentSemester];
+		if (!current.includes(code)) {
+			current.push(code);
+		}
 
 		if (user.wishlist.includes(code)) {
 			user.wishlist = user.wishlist.filter((c) => c !== code);

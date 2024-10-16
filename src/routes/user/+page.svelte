@@ -5,7 +5,7 @@
 	import { loadDegreeData } from '$lib/requirements';
 
 	import DegreeSection from './components/DegreeSection.svelte';
-	import RequirementsSection from './components/DegreeProgressElement.svelte';
+	import ProgressSection from './components/ProgressSection.svelte';
 	import SemesterSection from './components/SemesterSection.svelte';
 
 	if (user.username === undefined) {
@@ -79,7 +79,7 @@
 	</div>
 
 	{#if degreeProgress !== undefined}
-		<RequirementsSection
+		<ProgressSection
 			current={degreeProgress.current}
 			planned={degreeProgress.planned}
 		/>

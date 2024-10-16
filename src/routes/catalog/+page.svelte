@@ -18,7 +18,7 @@
 <div class="mt-3">
 	<CourseRow
 		colorize={false}
-		titles={['Wish list']}
+		titles={['wish_list']}
 		codes={user.wishlist}
 		{requirements}
 	/>

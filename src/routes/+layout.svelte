@@ -4,8 +4,10 @@
 
 	import '../app.css';
 
-	import { user } from '$lib/stores.svelte';
 	import { goto } from '$app/navigation';
+
+	import { user } from '$lib/stores.svelte';
+	import { cms } from '$lib/content';
 
 	import TitleBar from './components/TitleBar.svelte';
 
@@ -13,6 +15,8 @@
 	inject();
 
 	const { children } = $props();
+
+	const lang = cms.en;
 </script>
 
 <div class="flex h-full min-h-screen flex-col">
@@ -31,13 +35,13 @@
 	<footer class="border-t-2 border-border bg-background p-4 text-white">
 		<div class="flex flex-row items-center justify-between">
 			<p class="text-gray-400 sm:flex-row sm:space-x-2">
-				Created by
+				{lang.footer.createdBy}
 				<a
 					href="https://github.com/selfint"
 					target="_blank"
 					class="text-blue-400 hover:text-white"
 				>
-					Tom Selfin
+					{lang.footer.author}
 				</a>
 			</p>
 
@@ -47,7 +51,7 @@
 					href="https://github.com/selfint/degree-planner/issues/new/choose"
 					class="mr-2 text-content-secondary hover:text-content-primary"
 				>
-					Report an issue
+					{lang.footer.reportIssue}
 				</a>
 				<a
 					href="https://github.com/selfint/degree-planner"

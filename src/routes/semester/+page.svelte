@@ -15,6 +15,9 @@
 		getDegreeRequirementCourses
 	} from '$lib/requirements';
 	import StudyDaysComponent from '$lib/components/StudyDaysComponent.svelte';
+	import { cms } from '$lib/content';
+
+	const lang = cms.en;
 
 	let disabled: string[] = $state([]);
 
@@ -97,10 +100,10 @@
 	const loloco = $derived.by(() => {
 		let lists: [string, Course[]][] = [];
 
-		lists.push(['Wishlist', wishlistCourses]);
+		lists.push([lang.semester.wishlist, wishlistCourses]);
 
 		for (const [index, courses] of futureSemesters) {
-			const season = ['Winter', 'Spring', 'Summer'][index % 3];
+			const season = lang.common.seasons[index % 3];
 			lists.push([`${season} ${index + 1}`, courses]);
 		}
 
@@ -286,9 +289,11 @@
 		<div class="mb-2 mr-3 mt-1 flex flex-row items-center justify-between pt-2">
 			<div class="ml-3">
 				<h1
-					class="border-b-2 {currentSemester === user.currentSemester ? 'border-accent-primary' : 'border-transparent'} text-lg font-medium text-content-primary"
+					class="border-b-2 {currentSemester === user.currentSemester
+						? 'border-accent-primary'
+						: 'border-transparent'} text-lg font-medium text-content-primary"
 				>
-					{['Winter', 'Spring', 'Summer'][currentSemester % 3]}
+					{lang.common.seasons[currentSemester % 3]}
 					{Math.floor(currentSemester / 3) + 1}
 				</h1>
 				<div class="text-content-secondary">

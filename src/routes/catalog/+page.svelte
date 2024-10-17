@@ -3,6 +3,9 @@
 
 	import { user, degreeData } from '$lib/stores.svelte';
 	import { getDegreeRequirementCourses } from '$lib/requirements';
+	import { cms } from '$lib/content';
+
+	const lang = cms.en;
 
 	const requirements = $derived(degreeData()?.requirements);
 
@@ -18,7 +21,7 @@
 <div class="mt-3">
 	<CourseRow
 		colorize={false}
-		titles={['wish_list']}
+		titles={[lang.catalog.wishlist]}
 		codes={user.wishlist}
 		{requirements}
 	/>

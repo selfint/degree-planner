@@ -9,6 +9,9 @@
 	import { generateColor, generateRequirementColor } from '$lib/colors';
 	import { getCourseData } from '$lib/courseData';
 	import { getCourseLists } from '$lib/requirements';
+	import { cms } from '$lib/content';
+
+	const lang = cms.en;
 
 	type Props = {
 		indent?: number;
@@ -71,7 +74,7 @@
 			class="flex flex-row items-center space-x-2 pr-2 text-content-secondary"
 			style={progressStyle}
 		>
-			<span>Points</span>
+			<span>{lang.progress.points}</span>
 			<Progress
 				{color}
 				value={current?.points ?? 0}
@@ -91,7 +94,7 @@
 			class="flex flex-row items-center space-x-2 pr-2 text-content-secondary"
 			style={progressStyle}
 		>
-			<span>Count</span>
+			<span>{lang.progress.count}</span>
 			<Progress
 				{color}
 				value={current?.count ?? 0}
@@ -113,10 +116,10 @@
 			style={progressStyle}
 		>
 			<span>
-				Overflowed
+				{lang.progress.overflowed}
 				{amount}
 				{type}
-				to
+				{lang.progress.to}
 				<span
 					class="mb-1 w-fit rounded-md pl-2 pr-2 text-content-primary"
 					style="background: {generateRequirementColor(target)};"
@@ -176,7 +179,7 @@
 			class="mb-1 flex flex-row items-center space-x-2 pr-2 text-content-secondary"
 			style={progressStyle}
 		>
-			<span>Choice </span>
+			<span>{lang.progress.choice}</span>
 			<Progress
 				{color}
 				value={current?.choice?.amount ?? 0}

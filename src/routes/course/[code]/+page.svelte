@@ -4,13 +4,15 @@
 
 	import Button from '$lib/components/Button.svelte';
 	import CourseElement from '$lib/components/CourseElement.svelte';
-	import Progress from '$lib/components/Progress.svelte';
 
 	import { user, degreeData } from '$lib/stores.svelte';
+	import { cms } from '$lib/content';
 
 	import { getCourseData, getAllCourses } from '$lib/courseData';
 	import { getCourseLists } from '$lib/requirements';
 	import { generateRequirementColor, generateCourseColor } from '$lib/colors';
+
+	const lang = cms.en;
 
 	const code = $derived($page.params.code);
 	const course = $derived(getCourseData(code));
@@ -42,10 +44,6 @@
 				return a.code.localeCompare(b.code);
 			})
 	);
-	const info = $derived([
-		['Median', course.median, 100],
-		['Points', course.points, 7]
-	] as const);
 
 	function formatRequirementName(name: string): string {
 		return name
@@ -69,13 +67,11 @@
 		user.semesters = user.semesters.map((s) => s.filter((c) => c !== code));
 	}
 
-const seasons = ["Winter", "Spring", "Summer"];
-  
-  function getSeasonAndIndex(semesterIndex) {
-    const season = seasons[semesterIndex % 3];
-    const modIndex = Math.floor(semesterIndex / 3) + 1;
-    return `${season} ${modIndex}`;
-  }
+	function getSeasonAndIndex(semesterIndex: number): string {
+		const season = lang.common.seasons[semesterIndex % 3];
+		const modIndex = Math.floor(semesterIndex / 3) + 1;
+		return `${season} ${modIndex}`;
+	}
 </script>
 
 <div class="mt-3">
@@ -123,14 +119,14 @@ const seasons = ["Winter", "Spring", "Summer"];
 				variant="secondary"
 				onmousedown={() => removeCourseFromSemesters(course.code)}
 			>
-				Remove from semester
-{getSeasonAndIndex(user.semesters.findIndex((s) =>
-    s.includes(course.code)
-  ))}
+				{lang.course.removeFromSemester}
+				{getSeasonAndIndex(
+					user.semesters.findIndex((s) => s.includes(course.code))
+				)}
 			</Button>
 		{:else}
 			<Button variant="primary" onmousedown={() => planCourse(course.code)}>
-				Plan
+				{lang.course.plan}
 			</Button>
 			{#if user.wishlist.includes(course.code)}
 				<Button
@@ -138,7 +134,7 @@ const seasons = ["Winter", "Spring", "Summer"];
 					onmousedown={() =>
 						(user.wishlist = user.wishlist.filter((c) => c !== course.code))}
 				>
-					Remove from wish list
+					{lang.course.removeFromWishlist}
 				</Button>
 			{:else}
 				<Button
@@ -146,23 +142,25 @@ const seasons = ["Winter", "Spring", "Summer"];
 					onmousedown={() =>
 						(user.wishlist = [...new Set([...user.wishlist, course.code])])}
 				>
-					Wish list
+					{lang.course.wishlist}
 				</Button>
 			{/if}
 		{/if}
 	</div>
 
 	<div class="ml-3 mt-4">
-		<h2 class="pb-1 text-lg font-medium text-content-primary">Info</h2>
+		<h2 class="pb-1 text-lg font-medium text-content-primary">
+			{lang.course.info}
+		</h2>
 		<div
 			class="grid w-fit grid-flow-row grid-cols-[auto_auto] items-center gap-x-2 text-content-secondary"
 		>
-			<span>Median</span>
-			<span>{course.median ?? 'N/A'}</span>
-			<span>Points</span>
-			<span>{course.points ?? 'N/A'}</span>
-			<span>Available</span>
-			<span>{course?.current === true ? 'Yes' : 'No'}</span>
+			<span>{lang.course.median}</span>
+			<span>{course.median ?? lang.common.na}</span>
+			<span>{lang.course.points}</span>
+			<span>{course.points ?? lang.common.na}</span>
+			<span>{lang.course.available}</span>
+			<span>{course?.current ? lang.common.yes : lang.common.no}</span>
 		</div>
 	</div>
 
@@ -170,7 +168,7 @@ const seasons = ["Winter", "Spring", "Summer"];
 		{#if (course.connections?.dependencies ?? []).length !== 0}
 			<div class="pb-4">
 				<h2 class="ml-3 pb-1 text-lg font-medium text-content-primary">
-					Dependencies
+					{lang.common.dependencies}
 				</h2>
 				<div class="flex flex-row space-x-2 overflow-x-auto">
 					<div class="min-w-1"></div>
@@ -179,7 +177,7 @@ const seasons = ["Winter", "Spring", "Summer"];
 							<p
 								class="flex flex-col justify-center text-sm font-light text-content-secondary"
 							>
-								OR
+								{lang.course.or}
 							</p>
 						{/if}
 						<div class="space-y-1">
@@ -210,7 +208,7 @@ const seasons = ["Winter", "Spring", "Summer"];
 		{#if (course.connections?.adjacent ?? []).length !== 0}
 			<div>
 				<h2 class="ml-3 pb-1 text-lg font-medium text-content-primary">
-					Adjacencies
+					{lang.common.adjacencies}
 				</h2>
 				<div class="flex flex-row space-x-2 overflow-x-auto">
 					{#each course.connections?.adjacent.map(getCourseData) ?? [] as adj}
@@ -225,7 +223,7 @@ const seasons = ["Winter", "Spring", "Summer"];
 		<div class="ml-3">
 			{#if dependants.length > 0}
 				<h2 class="pb-1 text-lg font-medium text-content-primary">
-					Dependants
+					{lang.common.dependants}
 				</h2>
 				<div class="flex flex-row flex-wrap">
 					{#each dependants as c, i}

@@ -1,8 +1,11 @@
 <script lang="ts">
-	import { user } from '$lib/stores.svelte';
-
 	import Select from '$lib/components/Select.svelte';
 	import Button from '$lib/components/Button.svelte';
+
+	import { user } from '$lib/stores.svelte';
+	import { cms } from '$lib/content';
+
+	const lang = cms.en;
 
 	type Props = {
 		semesterChoice: number;
@@ -33,14 +36,16 @@
 </script>
 
 <div>
-	<h2 class="text-lg font-medium text-content-primary">Semester</h2>
+	<h2 class="text-lg font-medium text-content-primary">
+		{lang.progress.semester}
+	</h2>
 	<div class="space-y-1">
 		<div>
-			<span class="text-content-secondary"> Current: </span>
+			<span class="text-content-secondary"> {lang.progress.current}: </span>
 			<Select bind:value={semesterChoice}>
 				{#each Array.from({ length: user.semesters.length }) as _, i}
 					<option value={i}>
-						{['Winter', 'Spring', 'Summer'][i % 3]}
+						{lang.common.seasons[i % 3]}
 						{Math.floor(i / 3) + 1}
 					</option>
 				{/each}
@@ -54,17 +59,17 @@
 					variant="secondary"
 					onmousedown={() => (semesterChoice = user.currentSemester)}
 				>
-					Cancel
+					{lang.progress.cancel}
 				</Button>
 			{/if}
 		</div>
 		<div>
-			<span class="text-content-secondary"> Total: </span>
+			<span class="text-content-secondary"> {lang.progress.total}: </span>
 			<Select bind:value={totalSemestersChoice}>
 				{#each validTotalValues as i}
 					<option value={i}>
 						{i}
-						({['Winter', 'Spring', 'Summer'][(i - 1) % 3]}
+						({lang.common.seasons[(i - 1) % 3]}
 						{Math.floor((i - 1) / 3) + 1})
 					</option>
 				{/each}
@@ -72,13 +77,13 @@
 
 			{#if totalSemestersChoice !== user.semesters.length}
 				<Button variant="primary" onmousedown={onUpdateTotalSemesters}>
-					Save
+					{lang.progress.save}
 				</Button>
 				<Button
 					variant="secondary"
 					onmousedown={() => (totalSemestersChoice = user.semesters.length)}
 				>
-					Cancel
+					{lang.progress.cancel}
 				</Button>
 			{/if}
 		</div>

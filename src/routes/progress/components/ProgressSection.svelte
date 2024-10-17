@@ -1,6 +1,10 @@
 <script lang="ts">
 	import ProgressElement from './ProgressElement.svelte';
 
+	import { cms } from '$lib/content';
+
+	const lang = cms.en;
+
 	type Props = {
 		degreeRequirements: DegreeRequirements;
 		current: DegreeProgress;
@@ -10,7 +14,9 @@
 	const { degreeRequirements, current, planned }: Props = $props();
 </script>
 
-<h2 class="mb-1 ml-3 text-lg font-medium text-content-primary">Requirements</h2>
+<h2 class="mb-1 ml-3 text-lg font-medium text-content-primary">
+	{lang.progress.requirements}
+</h2>
 <ProgressElement
 	indent={1}
 	{degreeRequirements}

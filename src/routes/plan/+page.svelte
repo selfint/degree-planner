@@ -9,6 +9,9 @@
 	import { getCourseData } from '$lib/courseData';
 	import { getCourseLists } from '$lib/requirements';
 	import { getScheduleError } from '$lib/schedule';
+	import { cms } from '$lib/content';
+
+	const lang = cms.en;
 
 	const requirements = $derived(degreeData()?.requirements);
 
@@ -66,7 +69,7 @@
 		tabindex={0}
 	>
 		<h1 class="mb-2 ml-3 text-lg font-medium text-content-primary">
-			Wish list
+			{lang.plan.wishlist}
 		</h1>
 		<div class="flex flex-row overflow-x-auto">
 			<div class="mr-3"></div>

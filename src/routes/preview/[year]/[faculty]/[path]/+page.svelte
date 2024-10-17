@@ -10,6 +10,9 @@
 	import { getCourseLists } from '$lib/requirements';
 
 	import { user } from '$lib/stores.svelte';
+	import { cms } from '$lib/content';
+
+	const lang = cms.en;
 
 	const { data } = $props();
 	const { year, faculty, path } = $derived($page.params);
@@ -36,9 +39,7 @@
 
 	function importPlan() {
 		if (user.semesters.length > 0) {
-			const userConfirmation = confirm(
-				'This will overwrite your current plan and is irreversible. Are you sure you want to continue?'
-			);
+			const userConfirmation = confirm(lang.preview.overwriteWarning);
 
 			if (!userConfirmation) {
 				return;
@@ -60,9 +61,12 @@
 		<h1 class="mb-2 text-lg font-medium text-content-primary">
 			{formatName(faculty)}
 			{formatName(path)}
-			(catalog {formatName(year)})
+			({lang.preview.catalog}
+			{formatName(year)})
 		</h1>
-		<Button variant="primary" onmousedown={importPlan}>Copy plan</Button>
+		<Button variant="primary" onmousedown={importPlan}>
+			{lang.preview.copy}
+		</Button>
 	</div>
 	<div style="transform: rotateX(180deg)" class="overflow-x-auto">
 		<div style="transform: rotateX(180deg)" class="flex flex-row space-x-3">

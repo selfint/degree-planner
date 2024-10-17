@@ -3,6 +3,10 @@
 	import CourseWidth from './CourseWidth.svelte';
 	import StudyDaysComponent from './StudyDaysComponent.svelte';
 
+	import { cms } from '$lib/content';
+
+	const lang = cms.en;
+
 	type Props = {
 		index: number;
 		isCurrent: boolean;
@@ -44,7 +48,7 @@
 					? 'border-b-accent-primary'
 					: 'border-b-transparent'} text-lg font-medium text-content-primary"
 			>
-				{['Winter', 'Spring', 'Summer'][index % 3]}
+				{lang.common.seasons[index % 3]}
 				{Math.floor(index / 3) + 1}
 			</h1>
 		</div>

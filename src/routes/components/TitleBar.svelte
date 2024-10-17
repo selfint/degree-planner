@@ -6,6 +6,8 @@
 
 	import Nav from './Nav.svelte';
 
+	import { cms } from '$lib/content';
+
 	type Props = {
 		started: boolean;
 		onGetStarted: () => void;
@@ -14,8 +16,10 @@
 
 	const { started, onGetStarted, onSearch }: Props = $props();
 
+	const lang = cms.en;
+
 	let query = $state('');
-	let placeholder = $state('Search');
+	let placeholder = $state(lang.header.searchPlaceholder);
 
 	let selected = $state(false);
 	const textStyle = $derived(
@@ -37,16 +41,14 @@
 					? 'hidden sm:inline'
 					: ''} border-b-2 border-background text-2xl font-semibold tracking-tight text-content-primary"
 			>
-				Degree Planner
+				{lang.header.name}
 			</span>
 		</a>
 		<div class="flex-grow"></div>
 		{#if !started}
-			<div class="ml-2">
-				<Button variant="primary" onmousedown={onGetStarted}>
-					Get started
-				</Button>
-			</div>
+			<Button variant="primary" onmousedown={onGetStarted}>
+				{lang.common.getStarted}
+			</Button>
 		{:else}
 			<nav
 				class="flex flex-row items-center justify-end space-x-3 md:space-x-8"
@@ -74,9 +76,9 @@
 						/>
 					</form>
 				</div>
-				<Nav target="catalog">Catalog</Nav>
-				<Nav target="plan">Plan</Nav>
-				<Nav target="progress">Progress</Nav>
+				<Nav target="catalog">{lang.header.catalog}</Nav>
+				<Nav target="plan">{lang.header.plan}</Nav>
+				<Nav target="progress">{lang.header.progress}</Nav>
 			</nav>
 		{/if}
 	</div>

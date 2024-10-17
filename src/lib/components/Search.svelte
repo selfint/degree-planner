@@ -22,10 +22,12 @@
 </script>
 
 <div
-	class="flex h-fit w-fit min-w-40 flex-row items-center justify-start rounded-md bg-card-primary pb-1 pl-2 pr-1 pt-1 {textStyle}"
+	class="flex h-fit w-fit flex-row items-center justify-start rounded-md bg-card-primary pb-1 pl-2 pr-1 pt-1 {textStyle}"
 >
-	<SearchIcon class="h-3" />
-	<form class="ml-1 w-24" {onsubmit}>
+	<div class="min-w-3">
+		<SearchIcon class="h-3" />
+	</div>
+	<form class="ml-1" {onsubmit}>
 		<input
 			type="text"
 			{placeholder}
@@ -38,7 +40,7 @@
 				placeholder = 'Search';
 			}}
 			bind:value={query}
-			class="w-full flex-grow border-none bg-transparent font-thin {textStyle} focus:outline-none"
+			class="w-full max-w-28 border-none bg-transparent font-thin {textStyle} focus:outline-none"
 		/>
 	</form>
 </div>

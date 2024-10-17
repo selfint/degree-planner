@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
 
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import Semester from '$lib/components/Semester.svelte';
@@ -17,10 +18,20 @@
 
 	let disabled: string[] = $state([]);
 
+	const currentSemester = $derived.by(() => {
+		const current = $page.url.searchParams.get('c');
+
+		if (current === null) {
+			return user.currentSemester;
+		} else {
+			return parseInt(current.trim());
+		}
+	});
+
 	const wishlistCourses = $derived(user.wishlist.map(getCourseData));
 	const requirements = $derived(degreeData()?.requirements);
 	const semester = $derived(
-		user.semesters.at(user.currentSemester)?.map(getCourseData) ?? []
+		user.semesters.at(currentSemester)?.map(getCourseData) ?? []
 	);
 
 	const effectiveSemester = $derived(
@@ -29,9 +40,9 @@
 
 	const futureSemesters = $derived(
 		user.semesters
-			.slice(user.currentSemester + 1)
+			.slice(currentSemester + 1)
 			.map((s, i): [number, Course[]] => [
-				user.currentSemester + 1 + i,
+				currentSemester + 1 + i,
 				s.map(getCourseData)
 			])
 	);
@@ -206,7 +217,7 @@
 
 		if (
 			user.semesters
-				.slice(0, user.currentSemester + 1)
+				.slice(0, currentSemester + 1)
 				.flat()
 				.some((c) => c === course.code)
 		) {
@@ -216,7 +227,7 @@
 		const error = getScheduleError(
 			course,
 			user.semesters,
-			user.currentSemester,
+			currentSemester,
 			true
 		);
 
@@ -250,10 +261,10 @@
 		class="sticky top-2 mb-3 ml-3 mr-3 mt-0 hidden touch-manipulation sm:block"
 	>
 		<Semester
-			index={user.currentSemester}
+			index={currentSemester}
 			{semester}
 			{disabled}
-			isCurrent={true}
+			isCurrent={currentSemester === user.currentSemester}
 		>
 			{#snippet children({ course })}
 				<button
@@ -276,8 +287,8 @@
 				<h1
 					class="border-b-2 border-accent-primary text-lg font-medium text-content-primary"
 				>
-					{['Winter', 'Spring', 'Summer'][user.currentSemester % 3]}
-					{Math.floor(user.currentSemester / 3) + 1}
+					{['Winter', 'Spring', 'Summer'][currentSemester % 3]}
+					{Math.floor(currentSemester / 3) + 1}
 				</h1>
 				<div class="text-content-secondary">
 					<span>

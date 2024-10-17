@@ -51,7 +51,7 @@
 		user.currentSemester = user.currentSemester ?? 0;
 		user.wishlist = user.wishlist.filter((c) => !semesters.flat().includes(c));
 
-		goto('/overview');
+		goto('/plan');
 	}
 </script>
 

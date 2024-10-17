@@ -18,7 +18,7 @@
 
 <a
 	href="/{target}"
-	class="{border} w-fit text-2xl font-thin text-content-primary"
+	class="{border} w-fit text-lg font-medium text-content-primary"
 >
 	{@render children()}
 </a>

@@ -1,17 +1,18 @@
 <script lang="ts">
 	import Logo from '$lib/assets/logo.webp';
 
-	import Auth from './Auth.svelte';
-	import Nav from './Nav.svelte';
 	import SearchIcon from '$lib/components/SearchIcon.svelte';
+	import Button from '$lib/components/Button.svelte';
+
+	import Nav from './Nav.svelte';
 
 	type Props = {
-		username?: string;
+		started: boolean;
 		onGetStarted: () => void;
 		onSearch: (query: string) => void;
 	};
 
-	const { username, onGetStarted, onSearch }: Props = $props();
+	const { started, onGetStarted, onSearch }: Props = $props();
 
 	let query = $state('');
 	let placeholder = $state('Search');
@@ -28,21 +29,23 @@
 </script>
 
 <header class="touch-manipulation items-center pt-1">
-	<div class="flex flex-row items-center justify-between pl-2 pr-2">
+	<div class="flex flex-row items-center justify-between pl-2 pr-3">
 		<a href="/" class="flex h-12 min-w-12 flex-row items-center">
 			<img src={Logo} alt="Logo" class="h-12 w-12" />
 			<span
-				class="mr-4 {username === undefined
-					? ''
-					: 'hidden sm:inline'} border-b-2 border-background text-2xl font-semibold tracking-tight text-content-primary"
+				class="mr-4 {started
+					? 'hidden sm:inline'
+					: ''} border-b-2 border-background text-2xl font-semibold tracking-tight text-content-primary"
 			>
 				Degree Planner
 			</span>
 		</a>
 		<div class="flex-grow"></div>
-		{#if username === undefined}
+		{#if !started}
 			<div class="ml-2">
-				<Auth {username} {onGetStarted} />
+				<Button variant="primary" onmousedown={onGetStarted}>
+					Get started
+				</Button>
 			</div>
 		{:else}
 			<nav class="flex flex-row items-center justify-end space-x-3">
@@ -71,7 +74,7 @@
 				</div>
 				<Nav target="catalog">Catalog</Nav>
 				<Nav target="plan">Plan</Nav>
-				<Nav target="user">Progress</Nav>
+				<Nav target="progress">Progress</Nav>
 			</nav>
 		{/if}
 	</div>

@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
-	
 	import { user, degreeData } from '$lib/stores.svelte';
 	import { getCourseData } from '$lib/courseData';
 	import { getProgress } from '$lib/progress';
@@ -41,7 +39,6 @@
 
 		loadDegreeData(newDegree).then((data) => {
 			user.semesters = data.recommended;
-		 goto('/overview');
 		});
 
 		return true;

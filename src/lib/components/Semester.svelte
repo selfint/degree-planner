@@ -9,9 +9,17 @@
 		semester: Course[];
 		disabled?: string[];
 		children: Snippet<[{ course: Course; index: number }]>;
+		link?: boolean;
 	};
 
-	let { index, isCurrent, semester, disabled, children }: Props = $props();
+	let {
+		index,
+		isCurrent,
+		semester,
+		disabled,
+		children,
+		link = false
+	}: Props = $props();
 
 	const effectiveSemester = $derived(
 		semester.filter((c) => !disabled?.includes(c.code))
@@ -28,24 +36,17 @@
 	}
 </script>
 
-<CourseWidth>
+{#snippet title()}
 	<div class="flex w-full flex-col items-baseline justify-between sm:flex-row">
 		<div class="items-baseline justify-between">
-			{#if isCurrent}
-				<h1
-					class="border-b-2 border-b-accent-primary text-lg font-medium text-content-primary"
-				>
-					{['Winter', 'Spring', 'Summer'][index % 3]}
-					{Math.floor(index / 3) + 1}
-				</h1>
-			{:else}
-				<h1
-					class="border-b-2 border-b-transparent text-lg font-medium text-content-primary"
-				>
-					{['Winter', 'Spring', 'Summer'][index % 3]}
-					{Math.floor(index / 3) + 1}
-				</h1>
-			{/if}
+			<h1
+				class="border-b-2 {isCurrent
+					? 'border-b-accent-primary'
+					: 'border-b-transparent'} text-lg font-medium text-content-primary"
+			>
+				{['Winter', 'Spring', 'Summer'][index % 3]}
+				{Math.floor(index / 3) + 1}
+			</h1>
 		</div>
 		<div
 			class="flex flex-row items-baseline justify-end space-x-1 text-content-secondary"
@@ -63,6 +64,16 @@
 			</span>
 		</div>
 	</div>
+{/snippet}
+
+<CourseWidth>
+	{#if link}
+		<a href="/semester?c={index}">
+			{@render title()}
+		</a>
+	{:else}
+		{@render title()}
+	{/if}
 
 	{#if isCurrent}
 		<div class="mt-2">

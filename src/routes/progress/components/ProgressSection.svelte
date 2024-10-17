@@ -1,9 +1,9 @@
 <script lang="ts">
 	import ProgressElement from './ProgressElement.svelte';
 
-	import { cms } from '$lib/content';
+	import { getLang } from '$lib/content';
 
-	const lang = cms.en;
+	const lang = getLang();
 
 	type Props = {
 		degreeRequirements: DegreeRequirements;

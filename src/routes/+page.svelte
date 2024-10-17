@@ -2,9 +2,9 @@
 	import { goto } from '$app/navigation';
 	import Button from '$lib/components/Button.svelte';
 
-	import { cms } from '$lib/content';
+	import { getLang } from '$lib/content';
 
-	const lang = cms.en;
+	const lang = getLang();
 </script>
 
 <div class="m-3 flex flex-col justify-center lg:mt-32 lg:flex-row">

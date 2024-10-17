@@ -6,9 +6,9 @@
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import { getCourseLists } from '$lib/requirements';
 	import { getAllCourses } from '$lib/courseData';
-	import { cms } from '$lib/content';
+	import { getLang } from '$lib/content';
 
-	const lang = cms.en;
+	const lang = getLang();
 
 	const query = $derived(($page.url.searchParams.get('q') ?? '').trim());
 	const results = $derived(

@@ -3,9 +3,9 @@
 	import Button from '$lib/components/Button.svelte';
 
 	import { user } from '$lib/stores.svelte';
-	import { cms } from '$lib/content';
+	import { getLang } from '$lib/content';
 
-	const lang = cms.en;
+	const lang = getLang();
 
 	type Props = {
 		semesterChoice: number;

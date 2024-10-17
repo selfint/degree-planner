@@ -7,7 +7,7 @@
 	import { goto } from '$app/navigation';
 
 	import { user } from '$lib/stores.svelte';
-	import { cms } from '$lib/content';
+	import { getLang } from '$lib/content';
 
 	import TitleBar from './components/TitleBar.svelte';
 
@@ -16,7 +16,7 @@
 
 	const { children } = $props();
 
-	const lang = cms.en;
+	const lang = getLang();
 </script>
 
 <div class="flex h-full min-h-screen flex-col">

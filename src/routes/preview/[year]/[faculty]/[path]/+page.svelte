@@ -10,9 +10,9 @@
 	import { getCourseLists } from '$lib/requirements';
 
 	import { user } from '$lib/stores.svelte';
-	import { cms } from '$lib/content';
+	import { getLang } from '$lib/content';
 
-	const lang = cms.en;
+	const lang = getLang();
 
 	const { data } = $props();
 	const { year, faculty, path } = $derived($page.params);

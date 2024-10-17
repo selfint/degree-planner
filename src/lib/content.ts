@@ -1,4 +1,8 @@
-export const cms = {
+export function getLang() {
+	return cms.he;
+}
+
+const cms = {
 	en: {
 		common: {
 			getStarted: 'Get Started',
@@ -81,6 +85,90 @@ export const cms = {
 		},
 		semester: {
 			wishlist: 'Wish list'
+		}
+	},
+	he: {
+		common: {
+			getStarted: 'התחל',
+			seasons: ['חורף', 'אביב', 'קיץ'],
+			na: 'לא זמין',
+			yes: 'כן',
+			no: 'לא',
+			dependencies: 'תלות',
+			dependants: 'תלויים',
+			adjacencies: 'שכנים'
+		},
+		header: {
+			searchPlaceholder: 'חיפוש',
+			catalog: 'קטלוג',
+			plan: 'תוכנית',
+			progress: 'התקדמות',
+			name: 'תוכנית לתואר'
+		},
+		footer: {
+			createdBy: 'נוצר על ידי',
+			author: 'תום סלפין',
+			reportIssue: 'דווח על בעיה'
+		},
+		landing: {
+			catchphrase: ['תכנן את הקורסים שלך', 'בביטחון.'],
+			about: `
+				הגדר תוכנית לכל התואר שלך שמתאימה לתחומי העניין שלך וממקסמת
+				את הפוטנציאל שלך. קבל הצעות מותאמות אישית לכל סמסטר עבור לוח
+				מבחנים אופטימלי. גלה קורסים, שמור את אלה שאתה אוהב ואנחנו
+				נכניס אותם לתוכנית עבורך.
+			`
+		},
+		progress: {
+			degree: 'תואר',
+			share: 'שתף תוכנית',
+			year: 'שנה',
+			selectYear: 'בחר שנה',
+			faculty: 'פקולטה',
+			selectFaculty: 'בחר פקולטה',
+			path: 'מסלול',
+			selectPath: 'בחר מסלול',
+			save: 'שמור',
+			cancel: 'בטל',
+			points: 'נקודות',
+			count: 'ספירה',
+			choice: 'בחירה',
+			overflowed: 'חריגה',
+			to: 'ל',
+			requirements: 'דרישות',
+			semester: 'סמסטר',
+			current: 'נוכחי',
+			total: 'סה"כ'
+		},
+		plan: {
+			wishlist: 'רשימת משאלות'
+		},
+		catalog: {
+			wishlist: 'רשימת משאלות'
+		},
+		course: {
+			median: 'חציון',
+			points: 'נקודות',
+			plan: 'תוכנית',
+			removeFromSemester: 'הסר מהסמסטר',
+			removeFromWishlist: 'הסר מרשימת המשאלות',
+			wishlist: 'רשימת משאלות',
+			available: 'זמין',
+			or: 'או',
+			info: 'מידע'
+		},
+		preview: {
+			overwriteWarning:
+				'זה ידרוס את התוכנית הנוכחית שלך ולא ניתן לביטול. האם אתה בטוח שברצונך להמשיך?',
+			catalog: 'קטלוג',
+			copy: 'העתק תוכנית'
+		},
+		search: {
+			resultsFor: 'תוצאות עבור',
+			resultsFound: 'תוצאות נמצאו'
+		},
+		semester: {
+			wishlist: 'רשימת משאלות'
 		}
 	}
 };

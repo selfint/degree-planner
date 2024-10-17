@@ -3,9 +3,9 @@
 
 	import { user, degreeData } from '$lib/stores.svelte';
 	import { getDegreeRequirementCourses } from '$lib/requirements';
-	import { cms } from '$lib/content';
+	import { getLang } from '$lib/content';
 
-	const lang = cms.en;
+	const lang = getLang();
 
 	const requirements = $derived(degreeData()?.requirements);
 

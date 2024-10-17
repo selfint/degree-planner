@@ -6,13 +6,13 @@
 	import CourseElement from '$lib/components/CourseElement.svelte';
 
 	import { user, degreeData } from '$lib/stores.svelte';
-	import { cms } from '$lib/content';
+	import { getLang } from '$lib/content';
 
 	import { getCourseData, getAllCourses } from '$lib/courseData';
 	import { getCourseLists } from '$lib/requirements';
 	import { generateRequirementColor, generateCourseColor } from '$lib/colors';
 
-	const lang = cms.en;
+	const lang = getLang();
 
 	const code = $derived($page.params.code);
 	const course = $derived(getCourseData(code));

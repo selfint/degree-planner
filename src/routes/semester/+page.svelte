@@ -15,9 +15,9 @@
 		getDegreeRequirementCourses
 	} from '$lib/requirements';
 	import StudyDaysComponent from '$lib/components/StudyDaysComponent.svelte';
-	import { cms } from '$lib/content';
+	import { getLang } from '$lib/content';
 
-	const lang = cms.en;
+	const lang = getLang();
 
 	let disabled: string[] = $state([]);
 

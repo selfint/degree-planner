@@ -3,9 +3,9 @@
 	import CourseWidth from './CourseWidth.svelte';
 	import StudyDaysComponent from './StudyDaysComponent.svelte';
 
-	import { cms } from '$lib/content';
+	import { getLang } from '$lib/content';
 
-	const lang = cms.en;
+	const lang = getLang();
 
 	type Props = {
 		index: number;

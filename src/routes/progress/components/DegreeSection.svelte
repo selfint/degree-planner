@@ -5,9 +5,9 @@
 	import Select from '$lib/components/Select.svelte';
 
 	import { user } from '$lib/stores.svelte';
-	import { cms } from '$lib/content';
+	import { getLang } from '$lib/content';
 
-	const lang = cms.en;
+	const lang = getLang();
 
 	type Props = {
 		degree?: Degree;

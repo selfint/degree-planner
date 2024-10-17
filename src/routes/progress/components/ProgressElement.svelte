@@ -9,9 +9,9 @@
 	import { generateColor, generateRequirementColor } from '$lib/colors';
 	import { getCourseData } from '$lib/courseData';
 	import { getCourseLists } from '$lib/requirements';
-	import { cms } from '$lib/content';
+	import { getLang } from '$lib/content';
 
-	const lang = cms.en;
+	const lang = getLang();
 
 	type Props = {
 		indent?: number;

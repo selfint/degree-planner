@@ -6,7 +6,7 @@
 
 	import Nav from './Nav.svelte';
 
-	import { cms } from '$lib/content';
+	import { getLang } from '$lib/content';
 
 	type Props = {
 		started: boolean;
@@ -16,7 +16,7 @@
 
 	const { started, onGetStarted, onSearch }: Props = $props();
 
-	const lang = cms.en;
+	const lang = getLang();
 
 	let query = $state('');
 	let placeholder = $state(lang.header.searchPlaceholder);

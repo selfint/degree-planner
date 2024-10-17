@@ -18,7 +18,7 @@
 <div class="flex h-full min-h-screen flex-col">
 	<div class="w-full border-b-2 border-border bg-background">
 		<TitleBar
-			started={user.username !== undefined}
+			started={user.semesters.length > 0}
 			onGetStarted={() => goto('/progress')}
 			onSearch={(query) => goto(`/search?q=${query}`)}
 		/>

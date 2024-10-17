@@ -177,7 +177,7 @@
 							<p
 								class="flex flex-col justify-center text-sm font-light text-content-secondary"
 							>
-								{lang.course.or}
+								{lang.common.or}
 							</p>
 						{/if}
 						<div class="space-y-1">

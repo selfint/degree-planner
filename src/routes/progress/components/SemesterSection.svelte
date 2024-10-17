@@ -37,7 +37,7 @@
 
 <div>
 	<h2 class="text-lg font-medium text-content-primary">
-		{lang.progress.semester}
+		{lang.common.semester}
 	</h2>
 	<div class="space-y-1">
 		<div>

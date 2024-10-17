@@ -1,3 +1,4 @@
+import { getLang } from './content';
 import { getCourseData } from './courseData';
 
 export type ScheduleError = {
@@ -63,6 +64,11 @@ export function getScheduleError(
 	const adjacenciesSatisfied =
 		adjacencies.length === 0 || adjacencies.some(adjacencyTaken);
 
+	function i18nSeasons(season: Season[]): string[] {
+		const i18n = getLang().common.seasons;
+		return season.map((s) => i18n[seasons.indexOf(s)]);
+	}
+
 	return {
 		dependencies: dependenciesSatisfied
 			? []
@@ -73,6 +79,6 @@ export function getScheduleError(
 			? []
 			: adjacencies.map((c) => ({ course: c, taken: adjacencyTaken(c) })),
 		exclusives: [],
-		season: seasonError ? courseSeason : undefined
+		season: seasonError ? i18nSeasons(courseSeason) : undefined
 	};
 }

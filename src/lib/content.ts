@@ -4,15 +4,18 @@ export function getLang() {
 
 const cms = {
 	en: {
+		dir: 'ltr',
 		common: {
 			getStarted: 'Get Started',
 			seasons: ['Winter', 'Spring', 'Summer'],
 			na: 'N/A',
 			yes: 'Yes',
 			no: 'No',
+			or: 'OR',
 			dependencies: 'Dependencies',
 			dependants: 'Dependants',
-			adjacencies: 'Adjacencies'
+			adjacencies: 'Adjacencies',
+			semester: 'Semester'
 		},
 		header: {
 			searchPlaceholder: 'Search',
@@ -52,7 +55,6 @@ const cms = {
 			overflowed: 'Overflowed',
 			to: 'to',
 			requirements: 'Requirements',
-			semester: 'Semester',
 			current: 'Current',
 			total: 'Total'
 		},
@@ -70,7 +72,6 @@ const cms = {
 			removeFromWishlist: 'Remove from wish list',
 			wishlist: 'Wish list',
 			available: 'Available',
-			or: 'OR',
 			info: 'Info'
 		},
 		preview: {
@@ -88,15 +89,18 @@ const cms = {
 		}
 	},
 	he: {
+		dir: 'rtl',
 		common: {
 			getStarted: 'התחל',
 			seasons: ['חורף', 'אביב', 'קיץ'],
 			na: 'לא זמין',
 			yes: 'כן',
 			no: 'לא',
+			or: 'או',
 			dependencies: 'תלות',
 			dependants: 'תלויים',
-			adjacencies: 'שכנים'
+			adjacencies: 'שכנים',
+			semester: 'סמסטר'
 		},
 		header: {
 			searchPlaceholder: 'חיפוש',
@@ -136,7 +140,6 @@ const cms = {
 			overflowed: 'חריגה',
 			to: 'ל',
 			requirements: 'דרישות',
-			semester: 'סמסטר',
 			current: 'נוכחי',
 			total: 'סה"כ'
 		},
@@ -171,4 +174,4 @@ const cms = {
 			wishlist: 'רשימת משאלות'
 		}
 	}
-};
+} as const;

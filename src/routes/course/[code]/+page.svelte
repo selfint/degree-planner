@@ -73,7 +73,7 @@ const seasons = ["Winter", "Spring", "Summer"];
   
   function getSeasonAndIndex(semesterIndex) {
     const season = seasons[semesterIndex % 3];
-    const modIndex = semesterIndex % 3;
+    const modIndex = Math.floor(semesterIndex / 3) + 1;
     return `${season} ${modIndex}`;
   }
 </script>

@@ -72,31 +72,28 @@
 <div {id} class="mb-4 min-h-[118px] max-w-full">
 	{#each groups as [name, group]}
 		<h1
-			class="mb-2 ml-3 flex flex-row items-baseline space-x-4 text-lg font-medium text-content-primary"
+			class="mb-2 ml-3 mr-3 flex flex-row items-baseline text-lg font-medium text-content-primary"
 		>
-			<div class="flex flex-row items-baseline space-x-2">
+			<div class="flex flex-row flex-wrap items-baseline">
 				{#each titles as title}
 					{#if colorize}
-						<div
+						<span
+							class="mb-1 mr-1 w-fit rounded-md pl-2 pr-2 text-content-primary"
 							style="background: {generateRequirementColor(title)}"
-							class="h-4 w-4 min-w-4 rounded-full"
-						></div>
+						>
+							{formatName(title)}
+						</span>
+					{:else}
+						<span class="mr-1">{formatName(title)}</span>
 					{/if}
-					<span class="w-fit pr-2">
-						{formatName(title)}
-					</span>
 				{/each}
 			</div>
-
-			<span class="ml-2 font-normal text-content-secondary">
-				{name}
-			</span>
 		</h1>
 		<div class="mb-4 flex w-full flex-row overflow-x-auto">
 			<div class="min-w-3"></div>
 			{#each group as course, i}
 				<div
-					class="w-fit pr-2 touch-manipulation"
+					class="w-fit touch-manipulation pr-2"
 					tabindex={i}
 					role="button"
 					onmousedown={() => goto(`/course/${course.code}`)}

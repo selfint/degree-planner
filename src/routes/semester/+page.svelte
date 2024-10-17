@@ -286,7 +286,7 @@
 		<div class="mb-2 mr-3 mt-1 flex flex-row items-center justify-between pt-2">
 			<div class="ml-3">
 				<h1
-					class="border-b-2 {isCurrent ? 'border-accent-primary' : 'border-transparent'} text-lg font-medium text-content-primary"
+					class="border-b-2 {currentSemester === user.currentSemester ? 'border-accent-primary' : 'border-transparent'} text-lg font-medium text-content-primary"
 				>
 					{['Winter', 'Spring', 'Summer'][currentSemester % 3]}
 					{Math.floor(currentSemester / 3) + 1}

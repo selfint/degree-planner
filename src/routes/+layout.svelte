@@ -7,23 +7,19 @@
 	import { user } from '$lib/stores.svelte';
 	import { goto } from '$app/navigation';
 
-	import TitleBar from '$lib/components/TitleBar.svelte';
+	import TitleBar from './components/TitleBar.svelte';
 
 	// injectSpeedInsights();
 	inject();
-
-	function onGetStarted() {
-		goto('/user');
-	}
 
 	const { children } = $props();
 </script>
 
 <div class="flex h-full min-h-screen flex-col">
-	<div class="w-full bg-background">
+	<div class="w-full border-b-2 border-border bg-background">
 		<TitleBar
 			username={user.username}
-			{onGetStarted}
+			onGetStarted={() => goto('/progress')}
 			onSearch={(query) => goto(`/search?q=${query}`)}
 		/>
 	</div>
@@ -34,23 +30,14 @@
 
 	<footer class="border-t-2 border-border bg-background p-4 text-white">
 		<div class="flex flex-row items-center justify-between">
-			<p class="flex flex-col text-gray-400 sm:flex-row sm:space-x-2">
-				<span>
-					Created by
-					<a
-						href="https://github.com/selfint"
-						target="_blank"
-						class="text-blue-400 hover:text-white"
-					>
-						Tom Selfin
-					</a>
-				</span>
+			<p class="text-gray-400 sm:flex-row sm:space-x-2">
+				Created by
 				<a
+					href="https://github.com/selfint"
 					target="_blank"
-					href="https://github.com/selfint/degree-planner/blob/main/LICENSE"
-					class="text-content-secondary hover:text-content-primary"
+					class="text-blue-400 hover:text-white"
 				>
-					Apache License 2024
+					Tom Selfin
 				</a>
 			</p>
 

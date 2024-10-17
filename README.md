@@ -6,10 +6,9 @@
   <a href="https://github.com/selfint/degree-planner/actions/workflows/test.yml">
     <img src="https://github.com/selfint/degree-planner/actions/workflows/test.yml/badge.svg" alt="Test Status">
   </a>
-
   <a href="https://github.com/selfint/degree-planner/actions/workflows/data.yml">
-  <img src="https://img.shields.io/badge/dynamic/json?url=https://api.github.com/repos/selfint/degree-planner/actions/workflows/data.yml/runs&label=Data&query=$.workflow_runs[0].created_at&color=blue&style=flat" alt="Data">
-</a>
+    <img src="https://img.shields.io/badge/dynamic/json?url=https://api.github.com/repos/selfint/degree-planner/actions/workflows/data.yml/runs&logo=sap&label=Data&query=$.workflow_runs[0].created_at&color=blue&style=flat" alt="Data">
+  </a>
 </p>
 
 <h1><p align="center">Technion Degree Planner</p></h1>

@@ -48,7 +48,9 @@
 				</Button>
 			</div>
 		{:else}
-			<nav class="flex flex-row items-center justify-end space-x-3">
+			<nav
+				class="flex flex-row items-center justify-end space-x-3 md:space-x-8"
+			>
 				<div
 					class="flex h-fit w-fit flex-row items-center justify-start rounded-md bg-card-primary pb-1 pl-2 pr-1 pt-1 {textStyle}"
 				>

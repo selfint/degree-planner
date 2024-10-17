@@ -100,7 +100,8 @@
 		lists.push(['Wishlist', wishlistCourses]);
 
 		for (const [index, courses] of futureSemesters) {
-			lists.push([`Semester ${index + 1}`, courses]);
+			const season = ['Winter', 'Spring', 'Summer'][index % 3];
+			lists.push([`${season} ${index + 1}`, courses]);
 		}
 
 		if (requirementCourses !== undefined) {
@@ -304,7 +305,9 @@
 					</span>
 				</div>
 			</div>
-			<StudyDaysComponent semester={effectiveSemester} />
+			{#if currentSemester === user.currentSemester}
+				<StudyDaysComponent semester={effectiveSemester} />
+			{/if}
 		</div>
 		<div class="flew-row flex touch-manipulation space-x-2 overflow-x-auto">
 			<div class="min-w-1"></div>
@@ -346,10 +349,12 @@
 					<CourseElement
 						{course}
 						lists={getCourseLists(requirements, course.code)}
-						variant={{
-							type: 'test',
-							semester: effectiveSemester
-						}}
+						variant={currentSemester === user.currentSemester
+							? {
+									type: 'test',
+									semester: effectiveSemester
+								}
+							: undefined}
 					/>
 				</div>
 			{/snippet}

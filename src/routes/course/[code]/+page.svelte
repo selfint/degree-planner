@@ -68,6 +68,14 @@
 	function removeCourseFromSemesters(code: string): void {
 		user.semesters = user.semesters.map((s) => s.filter((c) => c !== code));
 	}
+
+const seasons = ["Winter", "Spring", "Summer"];
+  
+  function getSeasonAndIndex(semesterIndex) {
+    const season = seasons[semesterIndex % 3];
+    const modIndex = semesterIndex % 3;
+    return `${season} ${modIndex}`;
+  }
 </script>
 
 <div class="mt-3">
@@ -115,9 +123,10 @@
 				variant="secondary"
 				onmousedown={() => removeCourseFromSemesters(course.code)}
 			>
-				Remove from semester {user.semesters.findIndex((s) =>
-					s.includes(course.code)
-				) + 1}
+				Remove from semester
+{getSeasonAndIndex(user.semesters.findIndex((s) =>
+    s.includes(course.code)
+  ))}
 			</Button>
 		{:else}
 			<Button variant="primary" onmousedown={() => planCourse(course.code)}>

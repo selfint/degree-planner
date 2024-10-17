@@ -23,7 +23,7 @@
 		</p>
 
 		<div class="h-9">
-			<Button variant="primary" onmousedown={() => goto('/user')}>
+			<Button variant="primary" onmousedown={() => goto('/progress')}>
 				Get started
 			</Button>
 		</div>

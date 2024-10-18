@@ -93,16 +93,16 @@ export const cms = {
 			yes: 'כן',
 			no: 'לא',
 			or: 'או',
-			dependencies: 'תלות',
+			dependencies: 'קדמים',
 			dependants: 'תלויים',
-			adjacencies: 'שכנים',
+			adjacencies: 'צמודים',
 			semester: 'סמסטר'
 		},
 		header: {
 			searchPlaceholder: 'חיפוש',
 			catalog: 'קטלוג',
 			plan: 'תוכנית',
-			progress: 'התקדמות',
+			progress: 'דרישות',
 			name: 'PlanIt.'
 		},
 		footer: {
@@ -131,9 +131,9 @@ export const cms = {
 			save: 'שמור',
 			cancel: 'בטל',
 			points: 'נקודות',
-			count: 'ספירה',
+			count: 'קורסים',
 			choice: 'בחירה',
-			overflowed: 'חריגה',
+			overflowed: 'נוספו'
 			to: 'ל',
 			requirements: 'דרישות',
 			current: 'נוכחי',

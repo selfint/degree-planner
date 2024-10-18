@@ -4,8 +4,8 @@
 
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import Semester from '$lib/components/Semester.svelte';
-
-	import LoLoCo from './components/LoLoCo.svelte';
+	import StudyDaysComponent from '$lib/components/StudyDaysComponent.svelte';
+	import CourseRow from '$lib/components/CourseRow.svelte';
 
 	import { user, degreeData, content } from '$lib/stores.svelte';
 	import { getCourseData } from '$lib/courseData';
@@ -14,7 +14,6 @@
 		getCourseLists,
 		getDegreeRequirementCourses
 	} from '$lib/requirements';
-	import StudyDaysComponent from '$lib/components/StudyDaysComponent.svelte';
 
 	let disabled: string[] = $state([]);
 
@@ -259,7 +258,7 @@
 
 <div class="items-start sm:mt-3 sm:flex sm:flex-row">
 	<div
-		class="sticky top-2 mb-3 ml-3 mr-3 mt-0 hidden touch-manipulation sm:block"
+		class="sticky top-2 mb-3 mt-0 hidden touch-manipulation sm:block sm:pl-3 sm:pr-3 ltr:pl-3 rtl:pr-3"
 	>
 		<Semester
 			index={currentSemester}
@@ -269,7 +268,6 @@
 		>
 			{#snippet children({ course })}
 				<button
-					slot="course"
 					class={disabled.includes(course.code) ? 'opacity-50' : ''}
 					onmousedown={() => toggleCourseDisabled(course)}
 				>
@@ -283,10 +281,12 @@
 	</div>
 
 	<div class="sticky top-0 bg-background pb-2 sm:hidden">
-		<div class="mb-2 mr-3 mt-1 flex flex-row items-center justify-between pt-2">
-			<div class="ml-3">
+		<div
+			class="mb-2 mt-1 flex flex-row items-center justify-between pt-2 ltr:mr-3 rtl:ml-3"
+		>
+			<div class="ltr:ml-3 rtl:mr-3">
 				<h1
-					class="border-b-2 {currentSemester === user.currentSemester
+					class="w-fit border-b-2 {currentSemester === user.currentSemester
 						? 'border-accent-primary'
 						: 'border-transparent'} text-lg font-medium text-content-primary"
 				>
@@ -311,9 +311,8 @@
 				<StudyDaysComponent semester={effectiveSemester} />
 			{/if}
 		</div>
-		<div class="flew-row flex touch-manipulation space-x-2 overflow-x-auto">
-			<div class="min-w-1"></div>
-			{#each semester as course}
+		<CourseRow courses={semester}>
+			{#snippet children({ course })}
 				<button
 					class={disabled.includes(course.code) ? 'opacity-50' : ''}
 					onmousedown={() => toggleCourseDisabled(course)}
@@ -323,44 +322,57 @@
 						lists={getCourseLists(requirements, course.code)}
 					/>
 				</button>
-			{/each}
-		</div>
+			{/snippet}
+		</CourseRow>
 	</div>
 
 	<div class="flex-1 overflow-x-auto">
-		<LoLoCo {loloco}>
-			{#snippet header({ title })}
-				<h1 class="ml-3 text-lg font-medium text-content-primary sm:ml-0">
+		{#each loloco as [title, courses]}
+			<div class="pb-1">
+				<h1
+					class="text-lg font-medium text-content-primary ltr:ml-3 sm:ltr:ml-0 rtl:mr-3 sm:rtl:mr-0"
+				>
 					{formatName(title)}
 				</h1>
-			{/snippet}
 
-			{#snippet children({ course, index: i })}
-				<div
-					slot="course"
-					tabindex={i}
-					role="button"
-					onclick={() => goto(`/course/${course.code}`)}
-					onkeydown={(e) => {
-						if (e.key === 'Enter') {
-							goto(`/course/${course.code}`);
-						}
-					}}
-					class="h-fit rounded-md bg-card-secondary"
-				>
-					<CourseElement
-						{course}
-						lists={getCourseLists(requirements, course.code)}
-						variant={currentSemester === user.currentSemester
-							? {
-									type: 'test',
-									semester: effectiveSemester
-								}
-							: undefined}
-					/>
+				<div class="sm:hidden">
+					<CourseRow indent={1} {courses}>
+						{#snippet children({ course })}
+							<button onmousedown={() => goto(`/course/${course.code}`)}>
+								<CourseElement
+									{course}
+									lists={getCourseLists(requirements, course.code)}
+									variant={currentSemester === user.currentSemester
+										? {
+												type: 'test',
+												semester: effectiveSemester
+											}
+										: undefined}
+								/>
+							</button>
+						{/snippet}
+					</CourseRow>
 				</div>
-			{/snippet}
-		</LoLoCo>
+				<div class="hidden sm:block">
+					<CourseRow indent={0} {courses}>
+						{#snippet children({ course })}
+							<button onmousedown={() => goto(`/course/${course.code}`)}>
+								<CourseElement
+									{course}
+									lists={getCourseLists(requirements, course.code)}
+									variant={currentSemester === user.currentSemester
+										? {
+												type: 'test',
+												semester: effectiveSemester
+											}
+										: undefined}
+								/>
+							</button>
+						{/snippet}
+					</CourseRow>
+				</div>
+			</div>
+		{/each}
 	</div>
 </div>
 

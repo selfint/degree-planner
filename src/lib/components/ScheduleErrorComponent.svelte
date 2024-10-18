@@ -17,7 +17,7 @@
 		</h2>
 		<div class="flex w-full flex-row justify-start">
 			{#each scheduleError.season as season}
-				<p class="mr-2 text-center text-xs text-content-secondary">
+				<p class="text-center text-xs text-content-secondary ltr:mr-2 rtl:ml-2">
 					{content.lang.common.seasons[season]}
 				</p>
 			{/each}

@@ -3,6 +3,7 @@
 
 	import Progress from '$lib/components/Progress.svelte';
 	import CourseElement from '$lib/components/CourseElement.svelte';
+	import CourseRow from '$lib/components/CourseRow.svelte';
 
 	import ProgressElement from './ProgressElement.svelte';
 
@@ -130,44 +131,27 @@
 	{/if}
 
 	{#if planned.courses?.length ?? 0 > 0}
-		<div class="mb-1 mt-1 flex flex-row overflow-x-auto">
-			<div style={margin}></div>
-			{#each current?.courses ?? [] as course, i}
-				<div
-					class="ltr:mr-2 rtl:ml-2"
-					tabindex={i}
-					role="button"
-					onmousedown={() => goto(`/course/${course}`)}
-					onkeydown={(e) => {
-						if (e.key === 'Enter') {
-							goto(`/course/${course}`);
-						}
-					}}
-				>
-					<CourseElement
-						course={getCourseData(course)}
-						lists={getCourseLists(degreeRequirements, course)}
-					/>
-				</div>
-			{/each}
-			{#each planned.courses?.filter((c) => !current?.courses?.includes(c)) ?? [] as course, i}
-				<div
-					class="opacity-50 ltr:mr-2 rtl:ml-2"
-					tabindex={i}
-					role="button"
-					onmousedown={() => goto(`/course/${course}`)}
-					onkeydown={(e) => {
-						if (e.key === 'Enter') {
-							goto(`/course/${course}`);
-						}
-					}}
-				>
-					<CourseElement
-						course={getCourseData(course)}
-						lists={getCourseLists(degreeRequirements, course)}
-					/>
-				</div>
-			{/each}
+		<div class="mb-1 mt-1">
+			<CourseRow {indent} courses={planned.courses ?? []}>
+				{#snippet children({ course, index: i })}
+					<div
+						class={current?.courses?.includes(course.code) ? '' : 'opacity-50'}
+						tabindex={i}
+						role="button"
+						onmousedown={() => goto(`/course/${course}`)}
+						onkeydown={(e) => {
+							if (e.key === 'Enter') {
+								goto(`/course/${course}`);
+							}
+						}}
+					>
+						<CourseElement
+							{course}
+							lists={getCourseLists(degreeRequirements, course.code)}
+						/>
+					</div>
+				{/snippet}
+			</CourseRow>
 		</div>
 	{/if}
 

@@ -32,7 +32,9 @@
 		{@render children()}
 	</main>
 
-	<footer class="border-t-2 border-border bg-background p-4 text-white">
+	<footer
+		class="border-t-2 border-border bg-background p-2 pb-4 pt-4 text-white"
+	>
 		<div class="flex flex-row items-center justify-between">
 			<p class="text-gray-400 sm:flex-row sm:space-x-2">
 				{content.lang.footer.createdBy}

@@ -3,6 +3,7 @@
 
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import Semester from '$lib/components/Semester.svelte';
+	import CourseRow from '$lib/components/CourseRow.svelte';
 
 	import { user, degreeData, content } from '$lib/stores.svelte';
 
@@ -65,14 +66,12 @@
 		role="button"
 		tabindex={0}
 	>
-		<h1 class="mb-2 ml-3 text-lg font-medium text-content-primary">
+		<h1 class="mb-2 text-lg font-medium text-content-primary ltr:ml-3 rtl:mr-3">
 			{content.lang.plan.wishlist}
 		</h1>
-		<div class="flex flex-row overflow-x-auto">
-			<div class="mr-3"></div>
-			{#each user.wishlist.map(getCourseData) as course, i}
+		<CourseRow courses={user.wishlist}>
+			{#snippet children({ course, index: i })}
 				<div
-					class="w-fit pr-2"
 					draggable="true"
 					tabindex={i}
 					role="button"
@@ -90,15 +89,16 @@
 						lists={getCourseLists(requirements, course.code)}
 					/>
 				</div>
-			{/each}
-		</div>
+			{/snippet}
+		</CourseRow>
 	</div>
 	<div style="transform: rotateX(180deg)" class="overflow-x-auto">
-		<div style="transform: rotateX(180deg)" class="flex flex-row space-x-3">
-			<div></div>
+		<div style="transform: rotateX(180deg)" class="flex flex-row">
+			<div class="ltr:ml-3 rtl:mr-3"></div>
 			{#key user.semesters.flat().join(' ')}
 				{#each user.semesters as semester, semesterIndex}
 					<div
+						class="ltr:pr-2 rtl:pl-2"
 						ondragenter={(e) => {
 							if (e.dataTransfer?.types.includes('text/x-course')) {
 								e.preventDefault();

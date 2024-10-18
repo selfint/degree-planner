@@ -1,4 +1,5 @@
 const en = {
+	lang: 'en',
 	dir: 'ltr',
 	common: {
 		getStarted: 'Get Started',
@@ -87,6 +88,7 @@ const en = {
 export const cms: Record<string, typeof en> = {
 	en,
 	he: {
+		lang: 'he',
 		dir: 'rtl',
 		common: {
 			getStarted: 'התחל',

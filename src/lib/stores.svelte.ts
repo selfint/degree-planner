@@ -1,5 +1,26 @@
 import { browser } from '$app/environment';
 import { loadDegreeData } from './requirements';
+import { cms } from './content';
+
+function getLangPreference() {
+	if (!browser) {
+		return cms.he;
+	}
+
+	const localLang = localStorage.getItem('lang');
+
+	if (localLang === 'he') {
+		return cms.he;
+	}
+	if (localLang === 'en') {
+		return cms.en;
+	} else {
+		localStorage.setItem('lang', 'he');
+		return cms.he;
+	}
+}
+
+export let content = $state({ lang: getLangPreference() });
 
 const version = 1;
 

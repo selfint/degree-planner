@@ -4,7 +4,7 @@
 	import Button from '$lib/components/Button.svelte';
 	import Select from '$lib/components/Select.svelte';
 
-	import { user } from '$lib/stores.svelte';
+	import { user, content } from '$lib/stores.svelte';
 
 	type Props = {
 		degree?: Degree;
@@ -92,20 +92,22 @@
 
 <div>
 	<h2 class="text-lg font-medium text-content-primary">
-		Degree
+		{content.lang.progress.degree}
 
 		{#if shareLink !== undefined}
 			<a href={shareLink} target="_blank" class="text-content-secondary">
-				(share plan)
+				({content.lang.progress.share})
 			</a>
 		{/if}
 	</h2>
 	<div class="space-y-1">
 		<div>
-			<span class="text-content-secondary"> Year: </span>
+			<span class="text-content-secondary">
+				{content.lang.progress.year}:
+			</span>
 			<Select bind:value={year}>
 				{#if year === undefined}
-					<option value={undefined}>Select a year</option>
+					<option value={undefined}>{content.lang.progress.selectYear}</option>
 				{/if}
 				{#if years !== undefined}
 					{#each years as year}
@@ -117,10 +119,14 @@
 
 		{#if year !== undefined}
 			<div>
-				<span class="text-content-secondary"> Faculty: </span>
+				<span class="text-content-secondary">
+					{content.lang.progress.faculty}:
+				</span>
 				<Select bind:value={faculty}>
 					{#if degree === undefined && faculty === undefined}
-						<option value={undefined}>Select a faculty</option>
+						<option value={undefined}
+							>{content.lang.progress.selectFaculty}</option
+						>
 					{/if}
 					{#if faculties !== undefined}
 						{#each faculties as faculty}
@@ -135,10 +141,13 @@
 
 		{#if faculty !== undefined}
 			<div>
-				<span class="text-content-secondary"> Path: </span>
+				<span class="text-content-secondary">
+					{content.lang.progress.path}:
+				</span>
 				<Select bind:value={path}>
 					{#if degree === undefined && path === undefined}
-						<option value={undefined}>Select a path</option>
+						<option value={undefined}>{content.lang.progress.selectPath}</option
+						>
 					{/if}
 					{#if paths !== undefined}
 						{#each paths as path}
@@ -151,27 +160,25 @@
 			</div>
 		{/if}
 		{#if choiceIsChanged(year, faculty, path, degree)}
-			<div class="flex flex-row">
+			<div>
 				{#if choiceIsValid(year, faculty, path)}
-					<div class="mr-2 w-fit">
-						<Button
-							variant="primary"
-							onmousedown={() => {
-								// @ts-expect-error We validated the choice in `choiceIsValid`
-								const didChange = onChange([year, faculty, path]);
+					<Button
+						variant="primary"
+						onmousedown={() => {
+							// @ts-expect-error We validated the choice in `choiceIsValid`
+							const didChange = onChange([year, faculty, path]);
 
-								if (!didChange) {
-									reset();
-								}
-							}}
-						>
-							Save
-						</Button>
-					</div>
+							if (!didChange) {
+								reset();
+							}
+						}}
+					>
+						{content.lang.progress.save}
+					</Button>
 				{/if}
-				<div class="w-fit">
-					<Button variant="secondary" onmousedown={reset}>Cancel</Button>
-				</div>
+				<Button variant="secondary" onmousedown={reset}>
+					{content.lang.progress.cancel}
+				</Button>
 			</div>
 		{/if}
 	</div>

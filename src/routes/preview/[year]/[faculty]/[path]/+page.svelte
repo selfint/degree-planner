@@ -54,7 +54,7 @@
 </script>
 
 <div class="mb-3 mt-3">
-	<div class="mb-4 ml-3">
+	<div class="mb-4 ms-3">
 		<h1 class="mb-2 text-lg font-medium text-content-primary">
 			{formatName(faculty)}
 			{formatName(path)}
@@ -66,30 +66,31 @@
 		</Button>
 	</div>
 	<div style="transform: rotateX(180deg)" class="overflow-x-auto">
-		<div style="transform: rotateX(180deg)" class="flex flex-row space-x-3">
-			<div></div>
-			{#key semesters.flat().join(' ')}
-				{#each semesters as semester, semesterIndex}
-					<Semester
-						index={semesterIndex}
-						semester={semester.map(getCourseData)}
-						isCurrent={false}
-					>
-						{#snippet children({ course, index: i })}
-							<div
-								class="touch-manipulation"
-								onmousedown={() => goto(`/course/${course.code}`)}
-								role="button"
-								tabindex={i}
-							>
-								<CourseElement
-									{course}
-									lists={getCourseLists(requirements, course.code)}
-									squeeze={true}
-								/>
-							</div>
-						{/snippet}
-					</Semester>
+		<div style="transform: rotateX(180deg)" class="flex flex-row">
+			<div class="ms-3"></div>
+			{#key user.semesters.flat().join(' ')}
+				{#each user.semesters as semester, semesterIndex}
+					<div class="pe-2" role="button" tabindex={semesterIndex}>
+						<Semester
+							index={semesterIndex}
+							semester={semester.map(getCourseData)}
+							isCurrent={false}
+							link={true}
+						>
+							{#snippet children({ course })}
+								<button
+									class="touch-manipulation text-content-primary"
+									onclick={() => goto(`/course/${course.code}`)}
+								>
+									<CourseElement
+										{course}
+										lists={getCourseLists(requirements, course.code)}
+										squeeze={true}
+									/>
+								</button>
+							{/snippet}
+						</Semester>
+					</div>
 				{/each}
 			{/key}
 			<div class="min-w-[1px]"></div>

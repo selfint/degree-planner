@@ -31,13 +31,11 @@
 	</div>
 </div>
 
-<div class="circle relative -z-10 h-[2000px] w-[200%]"></div>
+<div class="circle relative left-[-100%] -z-10 h-[2000px] w-[200%]"></div>
 
 <style>
 	.circle {
 		background: radial-gradient(#4ca9a1 1%, rgba(0, 0, 0, 0) 70%);
-		position: absolute;
-		left: -100%;
 	}
 
 	/* Adjust for RTL layout */

@@ -117,7 +117,9 @@
 		<span class="text-content-secondary ltr:ml-3 rtl:mr-3">
 			{content.lang.progress.overflowed}
 			{amount}
-			{type}
+			{type === 'count'
+				? content.lang.progress.count
+				: content.lang.progress.points}
 			{content.lang.progress.to}
 			<span
 				class="mb-1 w-fit rounded-md pl-2 pr-2 text-content-primary"

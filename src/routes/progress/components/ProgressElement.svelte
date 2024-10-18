@@ -44,8 +44,12 @@
 	}
 
 	const color = generateColor(requirementName);
-	const ml = `${indent * 0.75}rem`;
-	const progressStyle = `margin-left: ${ml}; max-width: calc(30rem - ${ml});`;
+	const offset = `${indent * 0.75}rem`;
+	const dir = $derived(content.lang.dir === 'rtl' ? 'right' : 'left');
+	const margin = $derived(`margin-${dir}: ${offset}`);
+	const progressStyle = $derived(
+		`${margin}; max-width: calc(30rem - ${offset});`
+	);
 
 	const section = [...parents, requirementName]
 		.map((t) => t.toLowerCase())
@@ -56,7 +60,7 @@
 <div id={section} class="mb-2 w-full">
 	<h3
 		class="mb-1 w-fit rounded-md pl-2 pr-2 text-content-primary"
-		style="background: {color}; margin-left: {ml}"
+		style="background: {color}; {margin}"
 	>
 		{#if requirement.choice === undefined}
 			<a {href}>
@@ -69,17 +73,17 @@
 
 	{#if requirement.points !== undefined && planned.points !== undefined}
 		<div
-			class="flex flex-row items-center space-x-2 pr-2 text-content-secondary"
+			class="flex flex-row items-center text-content-secondary ltr:pr-2 rtl:pl-2"
 			style={progressStyle}
 		>
-			<span>{content.lang.progress.points}</span>
+			<span class="ltr:mr-2 rtl:ml-2">{content.lang.progress.points}</span>
 			<Progress
 				{color}
 				value={current?.points ?? 0}
 				value2={planned.points}
 				max={requirement.points}
 			/>
-			<span class="text-nowrap">
+			<span class="text-nowrap ltr:ml-2 rtl:mr-2">
 				<span style="color: {color}">{current?.points ?? 0}</span>
 				/ {planned.points}
 				/ {requirement.points}
@@ -89,17 +93,17 @@
 
 	{#if requirement.count !== undefined && planned.count !== undefined}
 		<div
-			class="flex flex-row items-center space-x-2 pr-2 text-content-secondary"
+			class="flex flex-row items-center text-content-secondary ltr:pr-2 rtl:pl-2"
 			style={progressStyle}
 		>
-			<span>{content.lang.progress.count}</span>
+			<span class="ltr:mr-2 rtl:ml-2">{content.lang.progress.count}</span>
 			<Progress
 				{color}
 				value={current?.count ?? 0}
 				value2={planned.count}
 				max={requirement.count}
 			/>
-			<span class="text-nowrap">
+			<span class="text-nowrap ltr:ml-2 rtl:mr-2">
 				<span style="color: {color}">{current?.count ?? 0}</span>
 				/ {planned.count}
 				/ {requirement.count}
@@ -109,33 +113,28 @@
 
 	{#if requirement.overflow !== undefined && planned.overflow !== undefined}
 		{@const [target, type, amount] = planned.overflow}
-		<p
-			class="mb-1 flex flex-row items-center space-x-2 pr-2 text-content-secondary"
-			style={progressStyle}
-		>
-			<span>
-				{content.lang.progress.overflowed}
-				{amount}
-				{type}
-				{content.lang.progress.to}
-				<span
-					class="mb-1 w-fit rounded-md pl-2 pr-2 text-content-primary"
-					style="background: {generateRequirementColor(target)};"
-				>
-					<a href="#{target.toLowerCase()}">
-						{formatName(target)}
-					</a>
-				</span>
+		<span class="text-content-secondary ltr:ml-3 rtl:mr-3">
+			{content.lang.progress.overflowed}
+			{amount}
+			{type}
+			{content.lang.progress.to}
+			<span
+				class="mb-1 w-fit rounded-md pl-2 pr-2 text-content-primary"
+				style="background: {generateRequirementColor(target)};"
+			>
+				<a href="#{target.toLowerCase()}">
+					{formatName(target)}
+				</a>
 			</span>
-		</p>
+		</span>
 	{/if}
 
 	{#if planned.courses?.length ?? 0 > 0}
 		<div class="mb-1 mt-1 flex flex-row overflow-x-auto">
-			<div style="margin-left: {ml}"></div>
+			<div style={margin}></div>
 			{#each current?.courses ?? [] as course, i}
 				<div
-					class="mr-2"
+					class="ltr:mr-2 rtl:ml-2"
 					tabindex={i}
 					role="button"
 					onmousedown={() => goto(`/course/${course}`)}
@@ -153,7 +152,7 @@
 			{/each}
 			{#each planned.courses?.filter((c) => !current?.courses?.includes(c)) ?? [] as course, i}
 				<div
-					class="mr-2 opacity-50"
+					class="opacity-50 ltr:mr-2 rtl:ml-2"
 					tabindex={i}
 					role="button"
 					onmousedown={() => goto(`/course/${course}`)}
@@ -174,17 +173,17 @@
 
 	{#if requirement.choice !== undefined && planned.choice !== undefined}
 		<div
-			class="mb-1 flex flex-row items-center space-x-2 pr-2 text-content-secondary"
+			class="mb-1 flex flex-row items-center text-content-secondary ltr:pr-2 rtl:pl-2"
 			style={progressStyle}
 		>
-			<span>{content.lang.progress.choice}</span>
+			<span class="ltr:mr-2 rtl:ml-2">{content.lang.progress.choice}</span>
 			<Progress
 				{color}
 				value={current?.choice?.amount ?? 0}
 				value2={planned.choice.amount}
 				max={requirement.choice?.amount}
 			/>
-			<span class="text-nowrap">
+			<span class="text-nowrap ltr:ml-2 rtl:mr-2">
 				<span style="color: {color}">{current?.choice?.amount ?? 0}</span>
 				/ {planned.choice.amount}
 				/ {requirement.choice?.amount}

@@ -49,8 +49,9 @@
 
 			<div>
 				<Select bind:value={content.lang}>
-					<option value={cms.en}>en</option>
-					<option value={cms.he}>he</option>
+					{#each Object.entries(cms) as [key, value]}
+						<option {value}>{key}</option>
+					{/each}
 				</Select>
 			</div>
 

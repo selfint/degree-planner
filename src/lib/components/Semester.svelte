@@ -83,7 +83,7 @@
 		</div>
 	{/if}
 
-	<div class="mt-2 flex flex-col space-y-1">
+	<div class="mt-2 flex flex-col space-y-1.5">
 		{#each semester as course, index}
 			{@render children({ course, index })}
 		{/each}

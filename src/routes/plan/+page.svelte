@@ -30,8 +30,12 @@
 		didMount = true;
 	});
 
-	function scroll(semester: HTMLDivElement, doScroll: boolean) {
-		if (doScroll && !didMount) {
+	function scroll(semester: HTMLDivElement, index: number) {
+		const doScroll =
+			!didMount &&
+			user.currentSemester > 2 &&
+			index === user.semesters.length - 1;
+		if (doScroll) {
 			semester.parentElement?.children[user.currentSemester]?.scrollIntoView({
 				behavior: 'instant',
 				inline: 'start',
@@ -120,7 +124,7 @@
 						}}
 						role="button"
 						tabindex={semesterIndex}
-						use:scroll={semesterIndex === user.semesters.length - 1}
+						use:scroll={semesterIndex}
 					>
 						<Semester
 							index={semesterIndex}

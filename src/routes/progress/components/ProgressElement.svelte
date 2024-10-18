@@ -3,12 +3,14 @@
 
 	import Progress from '$lib/components/Progress.svelte';
 	import CourseElement from '$lib/components/CourseElement.svelte';
+	import CourseRow from '$lib/components/CourseRow.svelte';
 
 	import ProgressElement from './ProgressElement.svelte';
 
 	import { generateColor, generateRequirementColor } from '$lib/colors';
 	import { getCourseData } from '$lib/courseData';
 	import { getCourseLists } from '$lib/requirements';
+	import { content } from '$lib/stores.svelte';
 
 	type Props = {
 		indent?: number;
@@ -43,8 +45,12 @@
 	}
 
 	const color = generateColor(requirementName);
-	const ml = `${indent * 0.75}rem`;
-	const progressStyle = `margin-left: ${ml}; max-width: calc(30rem - ${ml});`;
+	const offset = `${indent * 0.75}rem`;
+	const dir = $derived(content.lang.dir === 'rtl' ? 'right' : 'left');
+	const margin = $derived(`margin-${dir}: ${offset}`);
+	const progressStyle = $derived(
+		`${margin}; max-width: calc(30rem - ${offset});`
+	);
 
 	const section = [...parents, requirementName]
 		.map((t) => t.toLowerCase())
@@ -55,7 +61,7 @@
 <div id={section} class="mb-2 w-full">
 	<h3
 		class="mb-1 w-fit rounded-md pl-2 pr-2 text-content-primary"
-		style="background: {color}; margin-left: {ml}"
+		style="background: {color}; {margin}"
 	>
 		{#if requirement.choice === undefined}
 			<a {href}>
@@ -68,17 +74,17 @@
 
 	{#if requirement.points !== undefined && planned.points !== undefined}
 		<div
-			class="flex flex-row items-center space-x-2 pr-2 text-content-secondary"
+			class="flex flex-row items-center pe-2 text-content-secondary"
 			style={progressStyle}
 		>
-			<span>Points</span>
+			<span class="me-2">{content.lang.progress.points}</span>
 			<Progress
 				{color}
 				value={current?.points ?? 0}
 				value2={planned.points}
 				max={requirement.points}
 			/>
-			<span class="text-nowrap">
+			<span class="ms-2 text-nowrap">
 				<span style="color: {color}">{current?.points ?? 0}</span>
 				/ {planned.points}
 				/ {requirement.points}
@@ -88,17 +94,17 @@
 
 	{#if requirement.count !== undefined && planned.count !== undefined}
 		<div
-			class="flex flex-row items-center space-x-2 pr-2 text-content-secondary"
+			class="flex flex-row items-center pe-2 text-content-secondary"
 			style={progressStyle}
 		>
-			<span>Count</span>
+			<span class="me-2">{content.lang.progress.count}</span>
 			<Progress
 				{color}
 				value={current?.count ?? 0}
 				value2={planned.count}
 				max={requirement.count}
 			/>
-			<span class="text-nowrap">
+			<span class="ms-2 text-nowrap">
 				<span style="color: {color}">{current?.count ?? 0}</span>
 				/ {planned.count}
 				/ {requirement.count}
@@ -108,82 +114,62 @@
 
 	{#if requirement.overflow !== undefined && planned.overflow !== undefined}
 		{@const [target, type, amount] = planned.overflow}
-		<p
-			class="mb-1 flex flex-row items-center space-x-2 pr-2 text-content-secondary"
-			style={progressStyle}
-		>
-			<span>
-				Overflowed
-				{amount}
-				{type}
-				to
-				<span
-					class="mb-1 w-fit rounded-md pl-2 pr-2 text-content-primary"
-					style="background: {generateRequirementColor(target)};"
-				>
-					<a href="#{target.toLowerCase()}">
-						{formatName(target)}
-					</a>
-				</span>
+		<span class="ms-3 text-content-secondary">
+			{content.lang.progress.overflowed}
+			{amount}
+			{type === 'count'
+				? content.lang.progress.count
+				: content.lang.progress.points}
+			{content.lang.progress.to}
+			<span
+				class="mb-1 w-fit rounded-md pl-2 pr-2 text-content-primary"
+				style="background: {generateRequirementColor(target)};"
+			>
+				<a href="#{target.toLowerCase()}">
+					{formatName(target)}
+				</a>
 			</span>
-		</p>
+		</span>
 	{/if}
 
 	{#if planned.courses?.length ?? 0 > 0}
-		<div class="mb-1 mt-1 flex flex-row overflow-x-auto">
-			<div style="margin-left: {ml}"></div>
-			{#each current?.courses ?? [] as course, i}
-				<div
-					class="mr-2"
-					tabindex={i}
-					role="button"
-					onmousedown={() => goto(`/course/${course}`)}
-					onkeydown={(e) => {
-						if (e.key === 'Enter') {
-							goto(`/course/${course}`);
-						}
-					}}
-				>
-					<CourseElement
-						course={getCourseData(course)}
-						lists={getCourseLists(degreeRequirements, course)}
-					/>
-				</div>
-			{/each}
-			{#each planned.courses?.filter((c) => !current?.courses?.includes(c)) ?? [] as course, i}
-				<div
-					class="mr-2 opacity-50"
-					tabindex={i}
-					role="button"
-					onmousedown={() => goto(`/course/${course}`)}
-					onkeydown={(e) => {
-						if (e.key === 'Enter') {
-							goto(`/course/${course}`);
-						}
-					}}
-				>
-					<CourseElement
-						course={getCourseData(course)}
-						lists={getCourseLists(degreeRequirements, course)}
-					/>
-				</div>
-			{/each}
+		<div class="mb-1 mt-1">
+			<CourseRow {indent} courses={planned.courses ?? []}>
+				{#snippet children({ course, index: i })}
+					<div
+						class={current?.courses?.includes(course.code) ? '' : 'opacity-50'}
+						tabindex={i}
+						role="button"
+						onmousedown={() => goto(`/course/${course}`)}
+						onkeydown={(e) => {
+							if (e.key === 'Enter') {
+								goto(`/course/${course}`);
+							}
+						}}
+					>
+						<CourseElement
+							{course}
+							lists={getCourseLists(degreeRequirements, course.code)}
+						/>
+					</div>
+				{/snippet}
+			</CourseRow>
 		</div>
 	{/if}
 
 	{#if requirement.choice !== undefined && planned.choice !== undefined}
 		<div
-			class="mb-1 flex flex-row items-center space-x-2 pr-2 text-content-secondary"
+			class="mb-1 flex flex-row items-center pe-2 text-content-secondary"
 			style={progressStyle}
 		>
-			<span>Choice </span>
+			<span class="me-2">{content.lang.progress.choice}</span>
 			<Progress
 				{color}
 				value={current?.choice?.amount ?? 0}
 				value2={planned.choice.amount}
 				max={requirement.choice?.amount}
 			/>
-			<span class="text-nowrap">
+			<span class="ms-2 text-nowrap">
 				<span style="color: {color}">{current?.choice?.amount ?? 0}</span>
 				/ {planned.choice.amount}
 				/ {requirement.choice?.amount}

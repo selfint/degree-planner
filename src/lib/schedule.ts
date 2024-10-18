@@ -4,7 +4,7 @@ export type ScheduleError = {
 	dependencies: { course: Course; taken: boolean }[][];
 	adjacencies: { course: Course; taken: boolean }[];
 	exclusives: Course[];
-	season?: string[];
+	season?: number[];
 };
 
 export function getScheduleError(
@@ -63,6 +63,10 @@ export function getScheduleError(
 	const adjacenciesSatisfied =
 		adjacencies.length === 0 || adjacencies.some(adjacencyTaken);
 
+	function i18nSeasons(season: Season[]): number[] {
+		return season.map((s) => seasons.indexOf(s));
+	}
+
 	return {
 		dependencies: dependenciesSatisfied
 			? []
@@ -73,6 +77,6 @@ export function getScheduleError(
 			? []
 			: adjacencies.map((c) => ({ course: c, taken: adjacencyTaken(c) })),
 		exclusives: [],
-		season: seasonError ? courseSeason : undefined
+		season: seasonError ? i18nSeasons(courseSeason) : undefined
 	};
 }

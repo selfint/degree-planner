@@ -2,7 +2,7 @@
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 
-	import { degreeData } from '$lib/stores.svelte';
+	import { degreeData, content } from '$lib/stores.svelte';
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import { getCourseLists } from '$lib/requirements';
 	import { getAllCourses } from '$lib/courseData';
@@ -21,16 +21,16 @@
 
 <div class="m-3 mr-0 text-content-primary">
 	<h1 class="text-lg">
-		Results for "{query}"
+		{content.lang.search.resultsFor} "{query}"
 	</h1>
 	<p class="mb-3 text-xs text-content-secondary">
-		{results.length} results found
+		{results.length}
+		{content.lang.search.resultsFound}
 	</p>
 	<ul class="flex flex-row flex-wrap">
 		{#each results as course, i}
 			<li class="pb-4 pr-2">
 				<div
-					class="container"
 					onmousedown={() => goto(`/course/${course.code}`)}
 					role="button"
 					tabindex={i}

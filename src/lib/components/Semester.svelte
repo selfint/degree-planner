@@ -3,6 +3,8 @@
 	import CourseWidth from './CourseWidth.svelte';
 	import StudyDaysComponent from './StudyDaysComponent.svelte';
 
+	import { content } from '$lib/stores.svelte';
+
 	type Props = {
 		index: number;
 		isCurrent: boolean;
@@ -44,7 +46,7 @@
 					? 'border-b-accent-primary'
 					: 'border-b-transparent'} text-lg font-medium text-content-primary"
 			>
-				{['Winter', 'Spring', 'Summer'][index % 3]}
+				{content.lang.common.seasons[index % 3]}
 				{Math.floor(index / 3) + 1}
 			</h1>
 		</div>
@@ -76,12 +78,12 @@
 	{/if}
 
 	{#if isCurrent}
-		<div class="mt-2">
+		<div class="mb-1.5 mt-2">
 			<StudyDaysComponent semester={effectiveSemester} />
 		</div>
 	{/if}
 
-	<div class="mt-2 flex flex-col space-y-2">
+	<div class="mt-0.5 flex flex-col space-y-1.5">
 		{#each semester as course, index}
 			{@render children({ course, index })}
 		{/each}

@@ -53,7 +53,7 @@
 					></div>
 				</div>
 				<div class="flex flex-row">
-					<span class="mr-2">{median}</span>
+					<span class="me-2">{median}</span>
 					<span>{course.points ?? 'N/A'}</span>
 				</div>
 			</div>

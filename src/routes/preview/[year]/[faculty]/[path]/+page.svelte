@@ -9,7 +9,7 @@
 	import { getCourseData } from '$lib/courseData';
 	import { getCourseLists } from '$lib/requirements';
 
-	import { user } from '$lib/stores.svelte';
+	import { user, content } from '$lib/stores.svelte';
 
 	const { data } = $props();
 	const { year, faculty, path } = $derived($page.params);
@@ -36,9 +36,7 @@
 
 	function importPlan() {
 		if (user.semesters.length > 0) {
-			const userConfirmation = confirm(
-				'This will overwrite your current plan and is irreversible. Are you sure you want to continue?'
-			);
+			const userConfirmation = confirm(content.lang.preview.overwriteWarning);
 
 			if (!userConfirmation) {
 				return;
@@ -56,39 +54,43 @@
 </script>
 
 <div class="mb-3 mt-3">
-	<div class="mb-4 ml-3">
+	<div class="mb-4 ms-3">
 		<h1 class="mb-2 text-lg font-medium text-content-primary">
 			{formatName(faculty)}
 			{formatName(path)}
-			(catalog {formatName(year)})
+			({content.lang.preview.catalog}
+			{formatName(year)})
 		</h1>
-		<Button variant="primary" onmousedown={importPlan}>Copy plan</Button>
+		<Button variant="primary" onmousedown={importPlan}>
+			{content.lang.preview.copy}
+		</Button>
 	</div>
 	<div style="transform: rotateX(180deg)" class="overflow-x-auto">
-		<div style="transform: rotateX(180deg)" class="flex flex-row space-x-3">
-			<div></div>
-			{#key semesters.flat().join(' ')}
-				{#each semesters as semester, semesterIndex}
-					<Semester
-						index={semesterIndex}
-						semester={semester.map(getCourseData)}
-						isCurrent={false}
-					>
-						{#snippet children({ course, index: i })}
-							<div
-								class="touch-manipulation"
-								onmousedown={() => goto(`/course/${course.code}`)}
-								role="button"
-								tabindex={i}
-							>
-								<CourseElement
-									{course}
-									lists={getCourseLists(requirements, course.code)}
-									squeeze={true}
-								/>
-							</div>
-						{/snippet}
-					</Semester>
+		<div style="transform: rotateX(180deg)" class="flex flex-row">
+			<div class="ms-3"></div>
+			{#key user.semesters.flat().join(' ')}
+				{#each user.semesters as semester, semesterIndex}
+					<div class="pe-2" role="button" tabindex={semesterIndex}>
+						<Semester
+							index={semesterIndex}
+							semester={semester.map(getCourseData)}
+							isCurrent={false}
+							link={true}
+						>
+							{#snippet children({ course })}
+								<button
+									class="touch-manipulation text-content-primary"
+									onclick={() => goto(`/course/${course.code}`)}
+								>
+									<CourseElement
+										{course}
+										lists={getCourseLists(requirements, course.code)}
+										squeeze={true}
+									/>
+								</button>
+							{/snippet}
+						</Semester>
+					</div>
 				{/each}
 			{/key}
 			<div class="min-w-[1px]"></div>

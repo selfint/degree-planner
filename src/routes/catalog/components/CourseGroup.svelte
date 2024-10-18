@@ -3,6 +3,7 @@
 
 	import { getCourseData } from '$lib/courseData';
 	import CourseElement from '$lib/components/CourseElement.svelte';
+	import CourseRow from '$lib/components/CourseRow.svelte';
 
 	import { getCourseLists } from '$lib/requirements';
 
@@ -60,57 +61,57 @@
 			groups.push([name, group]);
 		}
 
-		if (groups.length === 0) {
-			groups.push(['', []]);
-		}
-
 		return groups;
 	});
 	const id = titles.map((t) => t.toLowerCase()).join('_');
 </script>
 
 <div {id} class="mb-4 min-h-[118px] max-w-full">
-	{#each groups as [name, group]}
-		<h1
-			class="mb-2 ml-3 mr-3 flex flex-row items-baseline text-lg font-medium text-content-primary"
-		>
-			<div class="flex flex-row flex-wrap items-baseline">
-				{#each titles as title}
-					{#if colorize}
-						<span
-							class="mb-1 mr-1 w-fit rounded-md pl-2 pr-2 text-content-primary"
-							style="background: {generateRequirementColor(title)}"
-						>
-							{formatName(title)}
-						</span>
-					{:else}
-						<span class="mr-1">{formatName(title)}</span>
-					{/if}
-				{/each}
-			</div>
-		</h1>
-		<div class="mb-4 flex w-full flex-row overflow-x-auto">
-			<div class="min-w-3"></div>
-			{#each group as course, i}
-				<div
-					class="w-fit touch-manipulation pr-2"
-					tabindex={i}
-					role="button"
-					onmousedown={() => goto(`/course/${course.code}`)}
-					onkeydown={(e) => {
-						if (e.key === 'Enter') {
-							goto(`/course/${course.code}`);
-						}
-					}}
-				>
-					<CourseElement
-						{course}
-						lists={getCourseLists(requirements, course.code).filter(
-							(list) => !titles.includes(list)
-						)}
-					/>
+	{#each groups as [scores, group]}
+		<div class="mb-4">
+			<h1
+				class="mb-1 ms-3 flex flex-row items-baseline text-lg font-medium text-content-primary"
+			>
+				<div class="me-2 flex flex-row flex-wrap items-baseline">
+					{#each titles as title}
+						{#if colorize}
+							<span
+								class="mb-1 me-1 w-fit rounded-md pl-2 pr-2 text-content-primary"
+								style="background: {generateRequirementColor(title)}"
+							>
+								{formatName(title)}
+							</span>
+						{:else}
+							<span class="me-1">{formatName(title)}</span>
+						{/if}
+					{/each}
 				</div>
-			{/each}
+
+				<span dir="ltr" class="font-normal text-content-secondary">
+					{scores}
+				</span>
+			</h1>
+			<CourseRow courses={group}>
+				{#snippet children({ course, index: i })}
+					<div
+						tabindex={i}
+						role="button"
+						onmousedown={() => goto(`/course/${course.code}`)}
+						onkeydown={(e) => {
+							if (e.key === 'Enter') {
+								goto(`/course/${course.code}`);
+							}
+						}}
+					>
+						<CourseElement
+							{course}
+							lists={getCourseLists(requirements, course.code).filter(
+								(list) => !titles.includes(list)
+							)}
+						/>
+					</div>
+				{/snippet}
+			</CourseRow>
 		</div>
 	{/each}
 </div>

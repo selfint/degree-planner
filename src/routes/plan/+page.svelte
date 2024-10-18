@@ -3,8 +3,9 @@
 
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import Semester from '$lib/components/Semester.svelte';
+	import CourseRow from '$lib/components/CourseRow.svelte';
 
-	import { user, degreeData } from '$lib/stores.svelte';
+	import { user, degreeData, content } from '$lib/stores.svelte';
 
 	import { getCourseData } from '$lib/courseData';
 	import { getCourseLists } from '$lib/requirements';
@@ -29,8 +30,13 @@
 		didMount = true;
 	});
 
-	function scroll(semester: HTMLDivElement, doScroll: boolean) {
-		if (doScroll && !didMount) {
+	function scroll(semester: HTMLDivElement, index: number) {
+		const doScroll =
+			!didMount &&
+			user.currentSemester > 2 &&
+			index === user.semesters.length - 1;
+
+		if (doScroll) {
 			semester.parentElement?.children[user.currentSemester]?.scrollIntoView({
 				behavior: 'instant',
 				inline: 'start',
@@ -65,14 +71,12 @@
 		role="button"
 		tabindex={0}
 	>
-		<h1 class="mb-2 ml-3 text-lg font-medium text-content-primary">
-			Wish list
+		<h1 class="mb-1 ms-3 text-lg font-medium text-content-primary">
+			{content.lang.plan.wishlist}
 		</h1>
-		<div class="flex flex-row overflow-x-auto">
-			<div class="mr-3"></div>
-			{#each user.wishlist.map(getCourseData) as course, i}
+		<CourseRow courses={user.wishlist}>
+			{#snippet children({ course, index: i })}
 				<div
-					class="w-fit pr-2"
 					draggable="true"
 					tabindex={i}
 					role="button"
@@ -90,15 +94,16 @@
 						lists={getCourseLists(requirements, course.code)}
 					/>
 				</div>
-			{/each}
-		</div>
+			{/snippet}
+		</CourseRow>
 	</div>
 	<div style="transform: rotateX(180deg)" class="overflow-x-auto">
-		<div style="transform: rotateX(180deg)" class="flex flex-row space-x-3">
-			<div></div>
+		<div style="transform: rotateX(180deg)" class="flex flex-row">
+			<div class="ms-3"></div>
 			{#key user.semesters.flat().join(' ')}
 				{#each user.semesters as semester, semesterIndex}
 					<div
+						class="pe-2"
 						ondragenter={(e) => {
 							if (e.dataTransfer?.types.includes('text/x-course')) {
 								e.preventDefault();
@@ -120,7 +125,7 @@
 						}}
 						role="button"
 						tabindex={semesterIndex}
-						use:scroll={semesterIndex === user.semesters.length - 1}
+						use:scroll={semesterIndex}
 					>
 						<Semester
 							index={semesterIndex}

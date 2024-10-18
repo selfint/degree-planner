@@ -133,7 +133,7 @@ export const cms = {
 			points: 'נקודות',
 			count: 'קורסים',
 			choice: 'בחירה',
-			overflowed: 'נוספו'
+			overflowed: 'נוספו',
 			to: 'ל',
 			requirements: 'דרישות',
 			current: 'נוכחי',

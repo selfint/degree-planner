@@ -35,6 +35,7 @@
 			!didMount &&
 			user.currentSemester > 2 &&
 			index === user.semesters.length - 1;
+
 		if (doScroll) {
 			semester.parentElement?.children[user.currentSemester]?.scrollIntoView({
 				behavior: 'instant',

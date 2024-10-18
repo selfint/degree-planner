@@ -52,7 +52,7 @@
 
 			{#if semesterChoice !== user.currentSemester}
 				<Button variant="primary" onmousedown={onUpdateCurrentSemester}>
-					Save
+					{content.lang.progress.save}
 				</Button>
 				<Button
 					variant="secondary"

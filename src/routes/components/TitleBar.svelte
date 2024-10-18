@@ -6,7 +6,7 @@
 
 	import Nav from './Nav.svelte';
 
-	import { getLang } from '$lib/content';
+	import { content } from '$lib/stores.svelte';
 
 	type Props = {
 		started: boolean;
@@ -16,10 +16,12 @@
 
 	const { started, onGetStarted, onSearch }: Props = $props();
 
-	const lang = getLang();
-
 	let query = $state('');
-	let placeholder = $state(lang.header.searchPlaceholder);
+	let placeholder: string = $state(content.lang.header.searchPlaceholder);
+
+	$effect(() => {
+		placeholder = content.lang.header.searchPlaceholder;
+	});
 
 	let selected = $state(false);
 	const textStyle = $derived(
@@ -32,34 +34,34 @@
 	}
 </script>
 
-<header class="touch-manipulation items-center pt-1">
+<header dir="ltr" class="touch-manipulation items-center pt-1">
 	<div class="flex flex-row items-center justify-between pl-2 pr-3">
 		<a href="/" class="flex h-12 min-w-12 flex-row items-center">
 			<img src={Logo} alt="Logo" class="h-12 w-12" />
 			<span
-				class="mr-4 {started
-					? 'hidden sm:inline'
-					: ''} border-b-2 border-background text-2xl font-semibold tracking-tight text-content-primary"
+				class="hidden border-b-2 border-background text-2xl font-semibold tracking-tight text-content-primary sm:inline"
+				style="font-family: 'Pacifico', cursive;"
 			>
-				{lang.header.name}
+				{content.lang.header.name}
 			</span>
 		</a>
 		<div class="flex-grow"></div>
 		{#if !started}
 			<Button variant="primary" onmousedown={onGetStarted}>
-				{lang.common.getStarted}
+				{content.lang.common.getStarted}
 			</Button>
 		{:else}
 			<nav
 				class="flex flex-row items-center justify-end space-x-3 md:space-x-8"
 			>
 				<div
-					class="flex h-fit w-fit flex-row items-center justify-start rounded-md bg-card-primary pb-1 pl-2 pr-1 pt-1 {textStyle}"
+					dir={content.lang.dir}
+					class="flex h-fit w-fit flex-row items-center justify-start rounded-md bg-card-primary p-1 ltr:pl-2 rtl:pr-2 {textStyle}"
 				>
 					<div class="min-w-3">
 						<SearchIcon class="h-3" />
 					</div>
-					<form class="ml-1" {onsubmit}>
+					<form class="ltr:ml-1 rtl:mr-1" {onsubmit}>
 						<input
 							type="text"
 							{placeholder}
@@ -69,16 +71,16 @@
 							}}
 							onblur={() => {
 								selected = false;
-								placeholder = 'Search';
+								placeholder = content.lang.header.searchPlaceholder;
 							}}
 							bind:value={query}
 							class="w-full max-w-28 border-none bg-transparent font-thin {textStyle} focus:outline-none"
 						/>
 					</form>
 				</div>
-				<Nav target="catalog">{lang.header.catalog}</Nav>
-				<Nav target="plan">{lang.header.plan}</Nav>
-				<Nav target="progress">{lang.header.progress}</Nav>
+				<Nav target="catalog">{content.lang.header.catalog}</Nav>
+				<Nav target="plan">{content.lang.header.plan}</Nav>
+				<Nav target="progress">{content.lang.header.progress}</Nav>
 			</nav>
 		{/if}
 	</div>

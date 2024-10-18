@@ -2,10 +2,7 @@
 	import Select from '$lib/components/Select.svelte';
 	import Button from '$lib/components/Button.svelte';
 
-	import { user } from '$lib/stores.svelte';
-	import { getLang } from '$lib/content';
-
-	const lang = getLang();
+	import { user, content } from '$lib/stores.svelte';
 
 	type Props = {
 		semesterChoice: number;
@@ -37,15 +34,17 @@
 
 <div>
 	<h2 class="text-lg font-medium text-content-primary">
-		{lang.common.semester}
+		{content.lang.common.semester}
 	</h2>
 	<div class="space-y-1">
 		<div>
-			<span class="text-content-secondary"> {lang.progress.current}: </span>
+			<span class="text-content-secondary">
+				{content.lang.progress.current}:
+			</span>
 			<Select bind:value={semesterChoice}>
 				{#each Array.from({ length: user.semesters.length }) as _, i}
 					<option value={i}>
-						{lang.common.seasons[i % 3]}
+						{content.lang.common.seasons[i % 3]}
 						{Math.floor(i / 3) + 1}
 					</option>
 				{/each}
@@ -59,17 +58,19 @@
 					variant="secondary"
 					onmousedown={() => (semesterChoice = user.currentSemester)}
 				>
-					{lang.progress.cancel}
+					{content.lang.progress.cancel}
 				</Button>
 			{/if}
 		</div>
 		<div>
-			<span class="text-content-secondary"> {lang.progress.total}: </span>
+			<span class="text-content-secondary">
+				{content.lang.progress.total}:
+			</span>
 			<Select bind:value={totalSemestersChoice}>
 				{#each validTotalValues as i}
 					<option value={i}>
 						{i}
-						({lang.common.seasons[(i - 1) % 3]}
+						({content.lang.common.seasons[(i - 1) % 3]}
 						{Math.floor((i - 1) / 3) + 1})
 					</option>
 				{/each}
@@ -77,13 +78,13 @@
 
 			{#if totalSemestersChoice !== user.semesters.length}
 				<Button variant="primary" onmousedown={onUpdateTotalSemesters}>
-					{lang.progress.save}
+					{content.lang.progress.save}
 				</Button>
 				<Button
 					variant="secondary"
 					onmousedown={() => (totalSemestersChoice = user.semesters.length)}
 				>
-					{lang.progress.cancel}
+					{content.lang.progress.cancel}
 				</Button>
 			{/if}
 		</div>

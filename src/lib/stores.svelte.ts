@@ -1,5 +1,8 @@
 import { browser } from '$app/environment';
 import { loadDegreeData } from './requirements';
+import { cms } from './content';
+
+export let content = $state({ lang: cms.en });
 
 const version = 1;
 

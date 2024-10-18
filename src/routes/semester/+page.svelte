@@ -7,7 +7,7 @@
 
 	import LoLoCo from './components/LoLoCo.svelte';
 
-	import { user, degreeData } from '$lib/stores.svelte';
+	import { user, degreeData, content } from '$lib/stores.svelte';
 	import { getCourseData } from '$lib/courseData';
 	import { getScheduleError } from '$lib/schedule';
 	import {
@@ -15,9 +15,6 @@
 		getDegreeRequirementCourses
 	} from '$lib/requirements';
 	import StudyDaysComponent from '$lib/components/StudyDaysComponent.svelte';
-	import { getLang } from '$lib/content';
-
-	const lang = getLang();
 
 	let disabled: string[] = $state([]);
 
@@ -100,10 +97,10 @@
 	const loloco = $derived.by(() => {
 		let lists: [string, Course[]][] = [];
 
-		lists.push([lang.semester.wishlist, wishlistCourses]);
+		lists.push([content.lang.semester.wishlist, wishlistCourses]);
 
 		for (const [index, courses] of futureSemesters) {
-			const season = lang.common.seasons[index % 3];
+			const season = content.lang.common.seasons[index % 3];
 			lists.push([`${season} ${index + 1}`, courses]);
 		}
 
@@ -293,7 +290,7 @@
 						? 'border-accent-primary'
 						: 'border-transparent'} text-lg font-medium text-content-primary"
 				>
-					{lang.common.seasons[currentSemester % 3]}
+					{content.lang.common.seasons[currentSemester % 3]}
 					{Math.floor(currentSemester / 3) + 1}
 				</h1>
 				<div class="text-content-secondary">

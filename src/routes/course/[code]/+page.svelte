@@ -5,14 +5,11 @@
 	import Button from '$lib/components/Button.svelte';
 	import CourseElement from '$lib/components/CourseElement.svelte';
 
-	import { user, degreeData } from '$lib/stores.svelte';
-	import { getLang } from '$lib/content';
+	import { user, degreeData, content } from '$lib/stores.svelte';
 
 	import { getCourseData, getAllCourses } from '$lib/courseData';
 	import { getCourseLists } from '$lib/requirements';
 	import { generateRequirementColor, generateCourseColor } from '$lib/colors';
-
-	const lang = getLang();
 
 	const code = $derived($page.params.code);
 	const course = $derived(getCourseData(code));
@@ -68,7 +65,7 @@
 	}
 
 	function getSeasonAndIndex(semesterIndex: number): string {
-		const season = lang.common.seasons[semesterIndex % 3];
+		const season = content.lang.common.seasons[semesterIndex % 3];
 		const modIndex = Math.floor(semesterIndex / 3) + 1;
 		return `${season} ${modIndex}`;
 	}
@@ -119,14 +116,14 @@
 				variant="secondary"
 				onmousedown={() => removeCourseFromSemesters(course.code)}
 			>
-				{lang.course.removeFromSemester}
+				{content.lang.course.removeFromSemester}
 				{getSeasonAndIndex(
 					user.semesters.findIndex((s) => s.includes(course.code))
 				)}
 			</Button>
 		{:else}
 			<Button variant="primary" onmousedown={() => planCourse(course.code)}>
-				{lang.course.plan}
+				{content.lang.course.plan}
 			</Button>
 			{#if user.wishlist.includes(course.code)}
 				<Button
@@ -134,7 +131,7 @@
 					onmousedown={() =>
 						(user.wishlist = user.wishlist.filter((c) => c !== course.code))}
 				>
-					{lang.course.removeFromWishlist}
+					{content.lang.course.removeFromWishlist}
 				</Button>
 			{:else}
 				<Button
@@ -142,7 +139,7 @@
 					onmousedown={() =>
 						(user.wishlist = [...new Set([...user.wishlist, course.code])])}
 				>
-					{lang.course.wishlist}
+					{content.lang.course.wishlist}
 				</Button>
 			{/if}
 		{/if}
@@ -150,17 +147,21 @@
 
 	<div class="ml-3 mt-4">
 		<h2 class="pb-1 text-lg font-medium text-content-primary">
-			{lang.course.info}
+			{content.lang.course.info}
 		</h2>
 		<div
 			class="grid w-fit grid-flow-row grid-cols-[auto_auto] items-center gap-x-2 text-content-secondary"
 		>
-			<span>{lang.course.median}</span>
-			<span>{course.median ?? lang.common.na}</span>
-			<span>{lang.course.points}</span>
-			<span>{course.points ?? lang.common.na}</span>
-			<span>{lang.course.available}</span>
-			<span>{course?.current ? lang.common.yes : lang.common.no}</span>
+			<span>{content.lang.course.median}</span>
+			<span>{course.median ?? content.lang.common.na}</span>
+			<span>{content.lang.course.points}</span>
+			<span>{course.points ?? content.lang.common.na}</span>
+			<span>{content.lang.course.available}</span>
+			<span
+				>{course?.current
+					? content.lang.common.yes
+					: content.lang.common.no}</span
+			>
 		</div>
 	</div>
 
@@ -168,7 +169,7 @@
 		{#if (course.connections?.dependencies ?? []).length !== 0}
 			<div class="pb-4">
 				<h2 class="ml-3 pb-1 text-lg font-medium text-content-primary">
-					{lang.common.dependencies}
+					{content.lang.common.dependencies}
 				</h2>
 				<div class="flex flex-row space-x-2 overflow-x-auto">
 					<div class="min-w-1"></div>
@@ -177,7 +178,7 @@
 							<p
 								class="flex flex-col justify-center text-sm font-light text-content-secondary"
 							>
-								{lang.common.or}
+								{content.lang.common.or}
 							</p>
 						{/if}
 						<div class="space-y-1">
@@ -208,7 +209,7 @@
 		{#if (course.connections?.adjacent ?? []).length !== 0}
 			<div>
 				<h2 class="ml-3 pb-1 text-lg font-medium text-content-primary">
-					{lang.common.adjacencies}
+					{content.lang.common.adjacencies}
 				</h2>
 				<div class="flex flex-row space-x-2 overflow-x-auto">
 					{#each course.connections?.adjacent.map(getCourseData) ?? [] as adj}
@@ -223,7 +224,7 @@
 		<div class="ml-3">
 			{#if dependants.length > 0}
 				<h2 class="pb-1 text-lg font-medium text-content-primary">
-					{lang.common.dependants}
+					{content.lang.common.dependants}
 				</h2>
 				<div class="flex flex-row flex-wrap">
 					{#each dependants as c, i}

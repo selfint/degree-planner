@@ -9,10 +9,7 @@
 	import { getCourseData } from '$lib/courseData';
 	import { getCourseLists } from '$lib/requirements';
 
-	import { user } from '$lib/stores.svelte';
-	import { getLang } from '$lib/content';
-
-	const lang = getLang();
+	import { user, content } from '$lib/stores.svelte';
 
 	const { data } = $props();
 	const { year, faculty, path } = $derived($page.params);
@@ -39,7 +36,7 @@
 
 	function importPlan() {
 		if (user.semesters.length > 0) {
-			const userConfirmation = confirm(lang.preview.overwriteWarning);
+			const userConfirmation = confirm(content.lang.preview.overwriteWarning);
 
 			if (!userConfirmation) {
 				return;
@@ -61,11 +58,11 @@
 		<h1 class="mb-2 text-lg font-medium text-content-primary">
 			{formatName(faculty)}
 			{formatName(path)}
-			({lang.preview.catalog}
+			({content.lang.preview.catalog}
 			{formatName(year)})
 		</h1>
 		<Button variant="primary" onmousedown={importPlan}>
-			{lang.preview.copy}
+			{content.lang.preview.copy}
 		</Button>
 	</div>
 	<div style="transform: rotateX(180deg)" class="overflow-x-auto">

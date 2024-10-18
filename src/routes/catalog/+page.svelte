@@ -1,11 +1,8 @@
 <script lang="ts">
 	import CourseRow from './components/CourseRow.svelte';
 
-	import { user, degreeData } from '$lib/stores.svelte';
+	import { user, degreeData, content } from '$lib/stores.svelte';
 	import { getDegreeRequirementCourses } from '$lib/requirements';
-	import { getLang } from '$lib/content';
-
-	const lang = getLang();
 
 	const requirements = $derived(degreeData()?.requirements);
 
@@ -21,7 +18,7 @@
 <div class="mt-3">
 	<CourseRow
 		colorize={false}
-		titles={[lang.catalog.wishlist]}
+		titles={[content.lang.catalog.wishlist]}
 		codes={user.wishlist}
 		{requirements}
 	/>

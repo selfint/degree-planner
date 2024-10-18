@@ -3,9 +3,7 @@
 	import CourseWidth from './CourseWidth.svelte';
 	import StudyDaysComponent from './StudyDaysComponent.svelte';
 
-	import { getLang } from '$lib/content';
-
-	const lang = getLang();
+	import { content } from '$lib/stores.svelte';
 
 	type Props = {
 		index: number;
@@ -48,7 +46,7 @@
 					? 'border-b-accent-primary'
 					: 'border-b-transparent'} text-lg font-medium text-content-primary"
 			>
-				{lang.common.seasons[index % 3]}
+				{content.lang.common.seasons[index % 3]}
 				{Math.floor(index / 3) + 1}
 			</h1>
 		</div>

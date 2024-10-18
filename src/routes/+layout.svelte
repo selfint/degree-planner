@@ -6,20 +6,20 @@
 
 	import { goto } from '$app/navigation';
 
-	import { user } from '$lib/stores.svelte';
-	import { getLang } from '$lib/content';
+	import { user, content } from '$lib/stores.svelte';
+
+	import { cms } from '$lib/content';
 
 	import TitleBar from './components/TitleBar.svelte';
+	import Select from '$lib/components/Select.svelte';
 
 	// injectSpeedInsights();
 	inject();
 
 	const { children } = $props();
-
-	const lang = getLang();
 </script>
 
-<div dir={lang.dir} class="flex h-full min-h-screen flex-col">
+<div dir={content.lang.dir} class="flex h-full min-h-screen flex-col">
 	<div class="w-full border-b-2 border-border bg-background">
 		<TitleBar
 			started={user.semesters.length > 0}
@@ -35,23 +35,30 @@
 	<footer class="border-t-2 border-border bg-background p-4 text-white">
 		<div class="flex flex-row items-center justify-between">
 			<p class="text-gray-400 sm:flex-row sm:space-x-2">
-				{lang.footer.createdBy}
+				{content.lang.footer.createdBy}
 				<a
 					href="https://github.com/selfint"
 					target="_blank"
 					class="text-blue-400 hover:text-white"
 				>
-					{lang.footer.author}
+					{content.lang.footer.author}
 				</a>
 			</p>
+
+			<div>
+				<Select bind:value={content.lang}>
+					<option value={cms.en}>en</option>
+					<option value={cms.he}>he</option>
+				</Select>
+			</div>
 
 			<div class="flex flex-row">
 				<a
 					target="_blank"
 					href="https://github.com/selfint/degree-planner/issues/new/choose"
-					class="mr-2 text-content-secondary hover:text-content-primary"
+					class="text-content-secondary hover:text-content-primary ltr:mr-2 rtl:ml-2"
 				>
-					{lang.footer.reportIssue}
+					{content.lang.footer.reportIssue}
 				</a>
 				<a
 					href="https://github.com/selfint/degree-planner"

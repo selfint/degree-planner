@@ -1,11 +1,10 @@
-import { getLang } from './content';
 import { getCourseData } from './courseData';
 
 export type ScheduleError = {
 	dependencies: { course: Course; taken: boolean }[][];
 	adjacencies: { course: Course; taken: boolean }[];
 	exclusives: Course[];
-	season?: string[];
+	season?: number[];
 };
 
 export function getScheduleError(
@@ -64,9 +63,8 @@ export function getScheduleError(
 	const adjacenciesSatisfied =
 		adjacencies.length === 0 || adjacencies.some(adjacencyTaken);
 
-	function i18nSeasons(season: Season[]): string[] {
-		const i18n = getLang().common.seasons;
-		return season.map((s) => i18n[seasons.indexOf(s)]);
+	function i18nSeasons(season: Season[]): number[] {
+		return season.map((s) => seasons.indexOf(s));
 	}
 
 	return {

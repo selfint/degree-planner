@@ -4,14 +4,11 @@
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import Semester from '$lib/components/Semester.svelte';
 
-	import { user, degreeData } from '$lib/stores.svelte';
+	import { user, degreeData, content } from '$lib/stores.svelte';
 
 	import { getCourseData } from '$lib/courseData';
 	import { getCourseLists } from '$lib/requirements';
 	import { getScheduleError } from '$lib/schedule';
-	import { getLang } from '$lib/content';
-
-	const lang = getLang();
 
 	const requirements = $derived(degreeData()?.requirements);
 
@@ -69,7 +66,7 @@
 		tabindex={0}
 	>
 		<h1 class="mb-2 ml-3 text-lg font-medium text-content-primary">
-			{lang.plan.wishlist}
+			{content.lang.plan.wishlist}
 		</h1>
 		<div class="flex flex-row overflow-x-auto">
 			<div class="mr-3"></div>

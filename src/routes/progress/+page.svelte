@@ -66,12 +66,12 @@
 </script>
 
 <div class="mt-3">
-	<div class="mb-4 ml-3">
+	<div class="mb-4 ltr:ml-3 rtl:mr-3">
 		<DegreeSection degree={user.degree} {onChange} />
 	</div>
 
 	{#if user.semesters.length > 0}
-		<div class="mb-4 ml-3">
+		<div class="mb-4 ltr:ml-3 rtl:mr-3">
 			<SemesterSection
 				{semesterChoice}
 				{totalSemestersChoice}

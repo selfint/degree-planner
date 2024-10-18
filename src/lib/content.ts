@@ -1,8 +1,4 @@
-export function getLang() {
-	return cms.he;
-}
-
-const cms = {
+export const cms = {
 	en: {
 		dir: 'ltr',
 		common: {
@@ -22,7 +18,7 @@ const cms = {
 			catalog: 'Catalog',
 			plan: 'Plan',
 			progress: 'Progress',
-			name: 'Degree Planner'
+			name: 'PlanIt.'
 		},
 		footer: {
 			createdBy: 'Created by',
@@ -107,7 +103,7 @@ const cms = {
 			catalog: 'קטלוג',
 			plan: 'תוכנית',
 			progress: 'התקדמות',
-			name: 'תוכנית לתואר'
+			name: 'PlanIt.'
 		},
 		footer: {
 			createdBy: 'נוצר על ידי',

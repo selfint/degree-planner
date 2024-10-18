@@ -2,13 +2,10 @@
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 
-	import { degreeData } from '$lib/stores.svelte';
+	import { degreeData, content } from '$lib/stores.svelte';
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import { getCourseLists } from '$lib/requirements';
 	import { getAllCourses } from '$lib/courseData';
-	import { getLang } from '$lib/content';
-
-	const lang = getLang();
 
 	const query = $derived(($page.url.searchParams.get('q') ?? '').trim());
 	const results = $derived(
@@ -24,11 +21,11 @@
 
 <div class="m-3 mr-0 text-content-primary">
 	<h1 class="text-lg">
-		{lang.search.resultsFor} "{query}"
+		{content.lang.search.resultsFor} "{query}"
 	</h1>
 	<p class="mb-3 text-xs text-content-secondary">
 		{results.length}
-		{lang.search.resultsFound}
+		{content.lang.search.resultsFound}
 	</p>
 	<ul class="flex flex-row flex-wrap">
 		{#each results as course, i}

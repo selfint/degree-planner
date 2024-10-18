@@ -9,9 +9,7 @@
 	import { generateColor, generateRequirementColor } from '$lib/colors';
 	import { getCourseData } from '$lib/courseData';
 	import { getCourseLists } from '$lib/requirements';
-	import { getLang } from '$lib/content';
-
-	const lang = getLang();
+	import { content } from '$lib/stores.svelte';
 
 	type Props = {
 		indent?: number;
@@ -74,7 +72,7 @@
 			class="flex flex-row items-center space-x-2 pr-2 text-content-secondary"
 			style={progressStyle}
 		>
-			<span>{lang.progress.points}</span>
+			<span>{content.lang.progress.points}</span>
 			<Progress
 				{color}
 				value={current?.points ?? 0}
@@ -94,7 +92,7 @@
 			class="flex flex-row items-center space-x-2 pr-2 text-content-secondary"
 			style={progressStyle}
 		>
-			<span>{lang.progress.count}</span>
+			<span>{content.lang.progress.count}</span>
 			<Progress
 				{color}
 				value={current?.count ?? 0}
@@ -116,10 +114,10 @@
 			style={progressStyle}
 		>
 			<span>
-				{lang.progress.overflowed}
+				{content.lang.progress.overflowed}
 				{amount}
 				{type}
-				{lang.progress.to}
+				{content.lang.progress.to}
 				<span
 					class="mb-1 w-fit rounded-md pl-2 pr-2 text-content-primary"
 					style="background: {generateRequirementColor(target)};"
@@ -179,7 +177,7 @@
 			class="mb-1 flex flex-row items-center space-x-2 pr-2 text-content-secondary"
 			style={progressStyle}
 		>
-			<span>{lang.progress.choice}</span>
+			<span>{content.lang.progress.choice}</span>
 			<Progress
 				{color}
 				value={current?.choice?.amount ?? 0}

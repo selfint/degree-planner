@@ -61,35 +61,35 @@
 			groups.push([name, group]);
 		}
 
-		if (groups.length === 0) {
-			groups.push(['', []]);
-		}
-
 		return groups;
 	});
 	const id = titles.map((t) => t.toLowerCase()).join('_');
 </script>
 
 <div {id} class="mb-4 min-h-[118px] max-w-full">
-	{#each groups as [name, group]}
+	{#each groups as [scores, group]}
 		<div class="mb-4">
 			<h1
-				class="mb-0.5 ml-3 mr-3 flex flex-row items-baseline text-lg font-medium text-content-primary"
+				class="mb-1 ms-3 flex flex-row items-baseline text-lg font-medium text-content-primary"
 			>
-				<div class="flex flex-row flex-wrap items-baseline">
+				<div class="me-2 flex flex-row flex-wrap items-baseline">
 					{#each titles as title}
 						{#if colorize}
 							<span
-								class="mb-1 mr-1 w-fit rounded-md pl-2 pr-2 text-content-primary"
+								class="mb-1 me-1 w-fit rounded-md pl-2 pr-2 text-content-primary"
 								style="background: {generateRequirementColor(title)}"
 							>
 								{formatName(title)}
 							</span>
 						{:else}
-							<span class="mr-1">{formatName(title)}</span>
+							<span class="me-1">{formatName(title)}</span>
 						{/if}
 					{/each}
 				</div>
+
+				<span dir="ltr" class="font-normal text-content-secondary">
+					{scores}
+				</span>
 			</h1>
 			<CourseRow courses={group}>
 				{#snippet children({ course, index: i })}

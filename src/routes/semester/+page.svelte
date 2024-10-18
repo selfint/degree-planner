@@ -328,9 +328,9 @@
 
 	<div class="flex-1 overflow-x-auto">
 		{#each loloco as [title, courses]}
-			<div class="pb-1">
+			<div class="pb-2">
 				<h1
-					class="text-lg font-medium text-content-primary ltr:ml-3 sm:ltr:ml-0 rtl:mr-3 sm:rtl:mr-0"
+					class="mb-1 text-lg font-medium text-content-primary ltr:ml-3 sm:ltr:ml-0 rtl:mr-3 sm:rtl:mr-0"
 				>
 					{formatName(title)}
 				</h1>

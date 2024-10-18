@@ -71,7 +71,7 @@
 		role="button"
 		tabindex={0}
 	>
-		<h1 class="mb-2 text-lg font-medium text-content-primary ltr:ml-3 rtl:mr-3">
+		<h1 class="mb-1 text-lg font-medium text-content-primary ltr:ml-3 rtl:mr-3">
 			{content.lang.plan.wishlist}
 		</h1>
 		<CourseRow courses={user.wishlist}>

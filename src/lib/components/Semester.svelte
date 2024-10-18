@@ -78,12 +78,12 @@
 	{/if}
 
 	{#if isCurrent}
-		<div class="mt-2">
+		<div class="mb-1.5 mt-2">
 			<StudyDaysComponent semester={effectiveSemester} />
 		</div>
 	{/if}
 
-	<div class="mt-2 flex flex-col space-y-1.5">
+	<div class="mt-0.5 flex flex-col space-y-1.5">
 		{#each semester as course, index}
 			{@render children({ course, index })}
 		{/each}

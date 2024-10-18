@@ -62,7 +62,7 @@
 			<a
 				target="_blank"
 				href="https://github.com/selfint/degree-planner/issues/new/choose"
-				class="text-content-secondary hover:text-content-primary ltr:mr-2 rtl:ml-2"
+				class="me-2 text-content-secondary hover:text-content-primary"
 			>
 				{content.lang.footer.reportIssue}
 			</a>

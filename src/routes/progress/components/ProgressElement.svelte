@@ -74,17 +74,17 @@
 
 	{#if requirement.points !== undefined && planned.points !== undefined}
 		<div
-			class="flex flex-row items-center text-content-secondary ltr:pr-2 rtl:pl-2"
+			class="flex flex-row items-center pe-2 text-content-secondary"
 			style={progressStyle}
 		>
-			<span class="ltr:mr-2 rtl:ml-2">{content.lang.progress.points}</span>
+			<span class="me-2">{content.lang.progress.points}</span>
 			<Progress
 				{color}
 				value={current?.points ?? 0}
 				value2={planned.points}
 				max={requirement.points}
 			/>
-			<span class="text-nowrap ltr:ml-2 rtl:mr-2">
+			<span class="ms-2 text-nowrap">
 				<span style="color: {color}">{current?.points ?? 0}</span>
 				/ {planned.points}
 				/ {requirement.points}
@@ -94,17 +94,17 @@
 
 	{#if requirement.count !== undefined && planned.count !== undefined}
 		<div
-			class="flex flex-row items-center text-content-secondary ltr:pr-2 rtl:pl-2"
+			class="flex flex-row items-center pe-2 text-content-secondary"
 			style={progressStyle}
 		>
-			<span class="ltr:mr-2 rtl:ml-2">{content.lang.progress.count}</span>
+			<span class="me-2">{content.lang.progress.count}</span>
 			<Progress
 				{color}
 				value={current?.count ?? 0}
 				value2={planned.count}
 				max={requirement.count}
 			/>
-			<span class="text-nowrap ltr:ml-2 rtl:mr-2">
+			<span class="ms-2 text-nowrap">
 				<span style="color: {color}">{current?.count ?? 0}</span>
 				/ {planned.count}
 				/ {requirement.count}
@@ -114,7 +114,7 @@
 
 	{#if requirement.overflow !== undefined && planned.overflow !== undefined}
 		{@const [target, type, amount] = planned.overflow}
-		<span class="text-content-secondary ltr:ml-3 rtl:mr-3">
+		<span class="ms-3 text-content-secondary">
 			{content.lang.progress.overflowed}
 			{amount}
 			{type === 'count'
@@ -159,17 +159,17 @@
 
 	{#if requirement.choice !== undefined && planned.choice !== undefined}
 		<div
-			class="mb-1 flex flex-row items-center text-content-secondary ltr:pr-2 rtl:pl-2"
+			class="mb-1 flex flex-row items-center pe-2 text-content-secondary"
 			style={progressStyle}
 		>
-			<span class="ltr:mr-2 rtl:ml-2">{content.lang.progress.choice}</span>
+			<span class="me-2">{content.lang.progress.choice}</span>
 			<Progress
 				{color}
 				value={current?.choice?.amount ?? 0}
 				value2={planned.choice.amount}
 				max={requirement.choice?.amount}
 			/>
-			<span class="text-nowrap ltr:ml-2 rtl:mr-2">
+			<span class="ms-2 text-nowrap">
 				<span style="color: {color}">{current?.choice?.amount ?? 0}</span>
 				/ {planned.choice.amount}
 				/ {requirement.choice?.amount}

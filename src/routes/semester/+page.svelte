@@ -258,7 +258,7 @@
 
 <div class="items-start sm:mt-3 sm:flex sm:flex-row">
 	<div
-		class="sticky top-2 mb-3 mt-0 hidden touch-manipulation sm:block sm:pl-3 sm:pr-3 ltr:pl-3 rtl:pr-3"
+		class="sticky top-2 mb-3 mt-0 hidden touch-manipulation pe-3 ps-3 sm:block"
 	>
 		<Semester
 			index={currentSemester}
@@ -281,10 +281,8 @@
 	</div>
 
 	<div class="sticky top-0 bg-background pb-2 sm:hidden">
-		<div
-			class="mb-2 mt-1 flex flex-row items-center justify-between pt-2 ltr:mr-3 rtl:ml-3"
-		>
-			<div class="ltr:ml-3 rtl:mr-3">
+		<div class="mb-2 me-3 mt-1 flex flex-row items-center justify-between pt-2">
+			<div class="ms-3">
 				<h1
 					class="w-fit border-b-2 {currentSemester === user.currentSemester
 						? 'border-accent-primary'
@@ -329,9 +327,7 @@
 	<div class="flex-1 overflow-x-auto">
 		{#each loloco as [title, courses]}
 			<div class="pb-2">
-				<h1
-					class="mb-1 text-lg font-medium text-content-primary ltr:ml-3 sm:ltr:ml-0 rtl:mr-3 sm:rtl:mr-0"
-				>
+				<h1 class="mb-1 ms-3 text-lg font-medium text-content-primary sm:ms-0">
 					{formatName(title)}
 				</h1>
 

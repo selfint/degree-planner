@@ -7,7 +7,7 @@
 
 <div class="m-3 flex flex-col justify-center lg:mt-32 lg:flex-row">
 	<h1
-		class="mb-6 w-fit text-5xl text-content-primary md:text-6xl lg:text-7xl lg:ltr:mr-20 lg:rtl:ml-20"
+		class="mb-6 w-fit text-5xl text-content-primary md:text-6xl lg:me-20 lg:text-7xl"
 	>
 		<span class="w-fit">{content.lang.landing.catchphrase[0]}</span>
 		<br class="hidden lg:block" />
@@ -31,12 +31,18 @@
 	</div>
 </div>
 
-<div
-	class="circle relative -z-10 h-[2000px] w-[200%] ltr:left-[-100%] rtl:right-[-100%]"
-></div>
+<div class="circle relative -z-10 h-[2000px] w-[200%]"></div>
 
 <style>
 	.circle {
 		background: radial-gradient(#4ca9a1 1%, rgba(0, 0, 0, 0) 70%);
+		position: absolute;
+		left: -100%;
+	}
+
+	/* Adjust for RTL layout */
+	:global([dir='rtl'] .circle) {
+		left: auto;
+		right: -100%;
 	}
 </style>

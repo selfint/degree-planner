@@ -1,5 +1,4 @@
 import * as defaultTheme from 'tailwindcss/defaultTheme';
-import tailwindcssRtl from 'tailwindcss-rtl';
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -33,5 +32,5 @@ export default {
 			}
 		}
 	},
-	plugins: [tailwindcssRtl]
+	plugins: []
 };

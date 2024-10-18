@@ -30,7 +30,7 @@
 <div class="flex flex-row overflow-x-scroll">
 	<div style={margin}></div>
 	{#each _courses as course, index}
-		<div class="ltr:pr-2 rtl:pl-2">
+		<div class="pe-2">
 			{@render children({ course, index })}
 		</div>
 	{/each}

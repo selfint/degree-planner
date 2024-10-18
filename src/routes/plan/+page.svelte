@@ -71,7 +71,7 @@
 		role="button"
 		tabindex={0}
 	>
-		<h1 class="mb-1 text-lg font-medium text-content-primary ltr:ml-3 rtl:mr-3">
+		<h1 class="mb-1 ms-3 text-lg font-medium text-content-primary">
 			{content.lang.plan.wishlist}
 		</h1>
 		<CourseRow courses={user.wishlist}>
@@ -99,11 +99,11 @@
 	</div>
 	<div style="transform: rotateX(180deg)" class="overflow-x-auto">
 		<div style="transform: rotateX(180deg)" class="flex flex-row">
-			<div class="ltr:ml-3 rtl:mr-3"></div>
+			<div class="ms-3"></div>
 			{#key user.semesters.flat().join(' ')}
 				{#each user.semesters as semester, semesterIndex}
 					<div
-						class="ltr:pr-2 rtl:pl-2"
+						class="pe-2"
 						ondragenter={(e) => {
 							if (e.dataTransfer?.types.includes('text/x-course')) {
 								e.preventDefault();

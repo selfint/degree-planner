@@ -12,7 +12,7 @@
 	const { degreeRequirements, current, planned }: Props = $props();
 </script>
 
-<h2 class="mb-1 text-lg font-medium text-content-primary ltr:ml-3 rtl:mr-3">
+<h2 class="mb-1 ms-3 text-lg font-medium text-content-primary">
 	{content.lang.progress.requirements}
 </h2>
 <ProgressElement

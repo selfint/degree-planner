@@ -56,12 +56,12 @@
 			>
 				<div
 					dir={content.lang.dir}
-					class="flex h-fit w-fit flex-row items-center justify-start rounded-md bg-card-primary p-1 ltr:pl-2 rtl:pr-2 {textStyle}"
+					class="flex h-fit w-fit flex-row items-center justify-start rounded-md bg-card-primary p-1 ps-2 {textStyle}"
 				>
 					<div class="min-w-3">
 						<SearchIcon class="h-3" />
 					</div>
-					<form class="ltr:ml-1 rtl:mr-1" {onsubmit}>
+					<form class="ms-1" {onsubmit}>
 						<input
 							type="text"
 							{placeholder}

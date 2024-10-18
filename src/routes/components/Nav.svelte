@@ -16,9 +16,6 @@
 	);
 </script>
 
-<a
-	href="/{target}"
-	class="{border} w-fit text-lg font-medium text-content-primary"
->
+<a href="/{target}" class="{border} w-fit text-lg text-content-primary">
 	{@render children()}
 </a>

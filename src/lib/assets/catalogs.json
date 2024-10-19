@@ -368,7 +368,8 @@
                         {
                           "name": "mandatory",
                           "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/specialization/AI_and_ML/mandatory/courses",
-                          "count": 1
+                          "count": 1,
+                          "he": "חובה"
                         }
                       ]
                     },
@@ -393,7 +394,8 @@
                         {
                           "name": "mandatory",
                           "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/specialization/bioinformatics/mandatory/courses",
-                          "count": 2
+                          "count": 2,
+                          "he": "חובה"
                         }
                       ]
                     },
@@ -406,7 +408,8 @@
                         {
                           "name": "mandatory",
                           "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/specialization/communication/mandatory/courses",
-                          "count": 1
+                          "count": 1,
+                          "he": "חובה"
                         }
                       ]
                     },
@@ -419,7 +422,8 @@
                         {
                           "name": "mandatory",
                           "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/specialization/computation_complexity/mandatory/courses",
-                          "count": 1
+                          "count": 1,
+                          "he": "חובה"
                         }
                       ]
                     },
@@ -432,7 +436,8 @@
                         {
                           "name": "mandatory",
                           "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/specialization/computer_systems/mandatory/courses",
-                          "count": 1
+                          "count": 1,
+                          "he": "חובה"
                         }
                       ]
                     },
@@ -445,7 +450,8 @@
                         {
                           "name": "mandatory",
                           "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/specialization/cryptology/mandatory/courses",
-                          "count": 1
+                          "count": 1,
+                          "he": "חובה"
                         }
                       ]
                     },
@@ -458,7 +464,8 @@
                         {
                           "name": "mandatory",
                           "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/specialization/geometry_&_graphics/mandatory/courses",
-                          "count": 1
+                          "count": 1,
+                          "he": "חובה"
                         }
                       ]
                     },
@@ -471,7 +478,8 @@
                         {
                           "name": "mandatory",
                           "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/specialization/software_development/mandatory/courses",
-                          "count": 1
+                          "count": 1,
+                          "he": "חובה"
                         }
                       ]
                     },
@@ -484,7 +492,8 @@
                         {
                           "name": "mandatory",
                           "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/specialization/vision_&_robotics/mandatory/courses",
-                          "count": 1
+                          "count": 1,
+                          "he": "חובה"
                         }
                       ]
                     }

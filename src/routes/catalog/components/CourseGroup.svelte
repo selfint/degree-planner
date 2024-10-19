@@ -6,7 +6,6 @@
 	import { getCourseLists } from '$lib/requirements';
 	import { content } from '$lib/stores.svelte';
 
-	import { generateRequirementColor } from '$lib/colors';
 	import RequirementsElement from '$lib/components/RequirementsElement.svelte';
 
 	type Props = {
@@ -79,7 +78,7 @@
 	{#each groups as [scores, group]}
 		<div class="mb-4">
 			<h1
-				class="mb-1 me-3 ms-3 flex flex-row items-baseline font-medium text-content-primary"
+				class="mb-1 me-3 ms-3 flex flex-row items-baseline text-lg font-medium text-content-primary"
 			>
 				{#if colorize}
 					<RequirementsElement requirements={[titles]} />

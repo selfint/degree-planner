@@ -6,6 +6,7 @@
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import Semester from '$lib/components/Semester.svelte';
 
+	import catalogs from '$lib/assets/catalogs.json';
 	import { getCourseData } from '$lib/courseData';
 	import { getCourseLists } from '$lib/requirements';
 
@@ -51,15 +52,28 @@
 
 		goto('/plan');
 	}
+
+	function getDegreeName(degree: Degree): string {
+		let year = degree[0];
+		let faculty = degree[1];
+		let path = degree[2];
+
+		if (content.lang.lang === 'he') {
+			// @ts-expect-error
+			path = catalogs[year][faculty][path].he;
+
+			// @ts-expect-error
+			faculty = catalogs[year][faculty].he;
+		}
+
+		return `${formatName(faculty)} ${formatName(path)} (${content.lang.preview.catalog} ${formatName(year)})`;
+	}
 </script>
 
 <div class="mb-3 mt-3">
 	<div class="mb-4 ms-3">
 		<h1 class="mb-2 text-lg font-medium text-content-primary">
-			{formatName(faculty)}
-			{formatName(path)}
-			({content.lang.preview.catalog}
-			{formatName(year)})
+			{getDegreeName(data.degreeData.degree)}
 		</h1>
 		<Button variant="primary" onmousedown={importPlan}>
 			{content.lang.preview.copy}

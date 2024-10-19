@@ -2,6 +2,7 @@
   "2023_2024": {
     "biotech_and_food_engineering": {
       "4_year": {
+        "he": "ארבע שנתי",
         "recommended": [
           [
             "01040041",
@@ -173,10 +174,12 @@
             }
           ]
         }
-      }
+      },
+      "he": "הנדסת ביוטכנולוגיה ומזון"
     },
     "computer_science": {
       "3_year": {
+        "he": "תלת שנתי",
         "recommended": [
           [
             "01040031",
@@ -288,7 +291,8 @@
             }
           ]
         }
-      }
+      },
+      "he": "מדעי המחשב"
     },
     "shared": {
       "name": "shared",

@@ -1,10 +1,10 @@
 <script lang="ts">
 	import CourseGroup from './components/CourseGroup.svelte';
 
-	import { user, degreeData, content } from '$lib/stores.svelte';
+	import { user, catalog, content } from '$lib/stores.svelte';
 	import { getDegreeRequirementCourses } from '$lib/requirements';
 
-	const requirements = $derived(degreeData()?.requirements);
+	const requirements = $derived(catalog()?.requirement);
 
 	const lists = $derived.by(() => {
 		if (requirements === undefined) {
@@ -18,7 +18,7 @@
 <div class="mt-3">
 	<CourseGroup
 		colorize={false}
-		titles={[content.lang.catalog.wishlist]}
+		titles={[{ name: content.lang.catalog.wishlist }]}
 		codes={user.wishlist}
 		{requirements}
 	/>

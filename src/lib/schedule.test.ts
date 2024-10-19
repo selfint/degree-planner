@@ -15,7 +15,7 @@ describe('Schedule', () => {
 			  "dependencies": [],
 			  "exclusives": [],
 			  "season": [
-			    "Spring",
+			    1,
 			  ],
 			}
 		`);

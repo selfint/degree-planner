@@ -1,266 +1,126 @@
-import manifest from '$lib/assets/manifest.json';
+import catalogs from '$lib/assets/catalogs.json';
 
-import { parseCatalog } from './catalogParser';
+export function parseCatalog(text: string): string[] {
+	const regex = /\b\d{5,6}\b/g;
+	const matches = text.match(regex);
 
-function sortObject(obj: any): any {
-	if (Array.isArray(obj)) {
-		return obj.map(sortObject).sort((a, b) => {
-			if (typeof a === 'object' && typeof b === 'object') {
-				return JSON.stringify(a).localeCompare(JSON.stringify(b));
-			}
-			return a > b ? 1 : a < b ? -1 : 0;
-		});
-	} else if (obj !== null && typeof obj === 'object') {
-		if (obj instanceof Map) {
-			// Sort the Map entries by key
-			const sortedMap = new Map(
-				[...obj.entries()]
-					.sort((a, b) => {
-						if (typeof a[0] === 'object' && typeof b[0] === 'object') {
-							return JSON.stringify(a[0]).localeCompare(JSON.stringify(b[0]));
-						}
-						return a[0] > b[0] ? 1 : a[0] < b[0] ? -1 : 0;
-					})
-					.map(([key, value]) => [sortObject(key), sortObject(value)])
-			);
-			return sortedMap;
-		} else {
-			const sortedObj: { [key: string]: any } = {};
-			Object.keys(obj)
-				.sort()
-				.forEach((key) => {
-					sortedObj[key] = sortObject(obj[key]);
-				});
-			return sortedObj;
-		}
-	}
-	return obj;
+	const codes = [...new Set(matches ? matches : [])];
+	return codes
+		.map((code) => code.replace(/^0+/, ''))
+		.map((code) => '0'.repeat(6 - code.length) + code)
+		.map((code) => '0' + code.slice(0, 3) + '0' + code.slice(3));
 }
 
-async function _get(degree: Degree, ...path: string[]): Promise<string> {
-	const response = await fetch(`/_db/${degree.join('/')}/${path.join('/')}`);
-
-	if (!response.ok) {
-		throw new Error(response.statusText);
-	}
-
-	return response.text();
-}
-
-async function loadChoiceHeader(
-	get: (degree: Degree, ...path: string[]) => Promise<string>,
-	degree: Degree,
-	choiceHeader: ChoiceHeader,
-	...path: string[]
-): Promise<Choice> {
-	const amount = get(degree, ...path, 'choice', 'amount').then(parseInt);
-	const optionHeaders = Object.entries<RequirementHeader>(choiceHeader).filter(
-		([option]) => option !== 'amount'
-	);
-
-	const options = new Map<string, Requirement>();
-	await Promise.all(
-		optionHeaders.map(async ([option, requirement]) => {
-			options.set(
-				option,
-				await loadRequirementHeader(
-					get,
-					degree,
-					requirement,
-					...path,
-					'choice',
-					option
-				)
-			);
-		})
-	);
-
-	return {
-		amount: await amount,
-		options
-	};
-}
-
-async function loadRequirementHeader(
-	get: (degree: Degree, ...path: string[]) => Promise<string>,
-	degree: Degree,
-	header: RequirementHeader,
-	...path: string[]
+async function loadCourses(
+	requirementHeader: RequirementHeader,
+	_fetch: (
+		input: string | URL | globalThis.Request,
+		init?: RequestInit
+	) => Promise<Response>
 ): Promise<Requirement> {
-	const coursesF =
-		header.courses === null
-			? get(degree, ...path, 'courses').then(parseCatalog)
-			: undefined;
-	const pointsF =
-		header.points === null
-			? get(degree, ...path, 'points').then(parseFloat)
-			: undefined;
-	const countF =
-		header.count === null
-			? get(degree, ...path, 'count').then(parseInt)
-			: undefined;
-	const overflowF =
-		header.overflow === null ? get(degree, ...path, 'overflow') : undefined;
-	const choiceF =
-		header.choice === undefined
-			? undefined
-			: loadChoiceHeader(get, degree, header.choice, ...path);
+	let courses = undefined;
+	if (requirementHeader.courses !== undefined) {
+		const response = await _fetch(requirementHeader.courses);
+		courses = parseCatalog(await response.text()).sort();
+	}
 
-	let requirements = {
-		courses: await coursesF,
-		points: await pointsF,
-		count: await countF,
-		overflow: await overflowF,
-		choice: await choiceF
-	};
-
-	// remove undefined values
-	// @ts-expect-error
-	requirements = Object.fromEntries(
-		Object.entries(requirements).filter(([, value]) => value !== undefined)
-	);
-
-	return requirements;
-}
-
-async function loadDegreeRequirements(
-	degree: Degree,
-	header: RequirementsHeader,
-	get: (degree: Degree, ...path: string[]) => Promise<string>
-): Promise<DegreeRequirements> {
-	const points = get(degree, 'requirements', 'points').then(parseFloat);
-
-	const conditions = Object.entries(header).filter(
-		([name]) => !['points'].includes(name)
-	);
-	const requirements = new Map<string, Requirement>(
-		(await Promise.all(
-			conditions.map(async ([name, requirement]) => [
-				name,
-				await loadRequirementHeader(
-					get,
-					degree,
-					requirement,
-					'requirements',
-					name
-				)
-			])
-		)) as [string, Requirement][]
-	);
+	let nested = undefined;
+	if (requirementHeader.nested !== undefined) {
+		nested = await Promise.all(
+			requirementHeader.nested.map((header) => loadCourses(header, _fetch))
+		);
+	}
 
 	return {
-		points: await points,
-		requirements
-	};
+		...requirementHeader,
+		...(courses && { courses }),
+		...(nested && { nested })
+	} as Requirement;
 }
 
-async function loadDegreeRecommendation(
+export async function loadCatalog(
 	degree: Degree,
-	header: Record<string, null>,
-	get: (degree: Degree, ...path: string[]) => Promise<string>
-): Promise<string[][]> {
-	return await Promise.all(
-		Object.keys(header).map(async (semester) =>
-			parseCatalog(await get(degree, 'recommended', semester))
-		)
-	);
-}
+	_fetch: (
+		input: string | URL | globalThis.Request,
+		init?: RequestInit
+	) => Promise<Response> = fetch
+): Promise<Catalog> {
+	const [year, faculty, path] = degree;
 
-export async function loadDegreeData(
-	degree: Degree,
-	get: (degree: Degree, ...path: string[]) => Promise<string> = _get
-): Promise<DegreeData> {
+	// TODO why does this not work?
 	// @ts-expect-error
-	const header = manifest[degree[0]][degree[1]][degree[2]];
+	const catalog = catalogs[year][faculty][path];
 
-	const recommendedF = loadDegreeRecommendation(
-		degree,
-		header.recommended,
-		get
-	);
-	const requirementsF = loadDegreeRequirements(
-		degree,
-		header.requirements,
-		get
-	);
+	const requirement = await loadCourses(catalog.requirement, _fetch);
+	const sharedRequirement = await loadCourses(catalogs[year].shared, _fetch);
 
-	const data = {
-		recommended: await recommendedF,
-		requirements: await requirementsF.then(sortObject)
+	requirement.nested?.push(sharedRequirement);
+
+	return {
+		degree,
+		recommended: catalog.recommended,
+		requirement
 	};
-
-	return data;
-}
-
-function courseInRequirement(requirement: Requirement, code: string): boolean {
-	if (requirement.courses?.includes(code)) {
-		return true;
-	}
-
-	if (requirement.choice) {
-		for (const option of requirement.choice.options.values()) {
-			if (courseInRequirement(option, code)) {
-				return true;
-			}
-		}
-	}
-
-	return false;
 }
 
 export function getCourseLists(
-	requirements: DegreeRequirements | undefined,
+	requirement: Requirement | undefined,
 	code: string
-): string[] {
-	if (requirements === undefined) {
+): Requirement[][] {
+	if (requirement === undefined) {
 		return [];
 	}
 
-	let lists = [];
-	for (const [name, requirement] of requirements.requirements) {
-		if (courseInRequirement(requirement, code)) {
-			lists.push(name);
+	function _getLists(r: Requirement, path: Requirement[]): Requirement[][] {
+		const lists: Requirement[][] = [];
+		path = [...path, r];
+
+		for (const nested of r.nested ?? []) {
+			lists.push(..._getLists(nested, path));
 		}
 
-		if (requirement.choice) {
-			for (const option of requirement.choice.options.values()) {
-				if (courseInRequirement(option, code)) {
-					lists.push(name);
-				}
-			}
+		if (lists.length > 0) {
+			console.log([path.map((r) => r.name)].join(' '));
+			return lists;
 		}
-	}
 
-	return [...new Set(lists)].toSorted();
-}
-
-function getRequirementCourses(
-	requirement: Requirement,
-	path: string[] = []
-): { path: string[]; courses: string[] }[] {
-	const result = [];
-
-	if (requirement.courses) {
-		result.push({ path, courses: requirement.courses });
-	}
-
-	if (requirement.choice) {
-		for (const [option, choice] of requirement.choice.options) {
-			result.push(...getRequirementCourses(choice, [...path, option]));
+		if (r.courses?.includes(code)) {
+			lists.push(path);
 		}
+
+		return lists;
 	}
 
-	return result;
+	// const lists = [..._getLists(requirement, [])];
+	const lists = requirement.nested?.flatMap((r) => _getLists(r, [])) ?? [];
+
+	return lists;
 }
 
 export function getDegreeRequirementCourses(
-	requirements: DegreeRequirements
-): { path: string[]; courses: string[] }[] {
-	const result = [];
+	requirement: Requirement
+): { path: Requirement[]; courses: string[] }[] {
+	function _getRequirementCourses(
+		r: Requirement,
+		path: Requirement[]
+	): { path: Requirement[]; courses: string[] }[] {
+		// add the current requirement to the path
+		path = [...path, r];
 
-	for (const [name, requirement] of requirements.requirements) {
-		result.push(...getRequirementCourses(requirement, [name]));
+		const result = [];
+		if (r.courses) {
+			result.push({ path, courses: r.courses });
+		}
+
+		for (const nested of r.nested ?? []) {
+			result.push(..._getRequirementCourses(nested, path));
+		}
+
+		return result;
 	}
 
-	return result;
+	const value =
+		requirement.nested?.flatMap((r) => _getRequirementCourses(r, [])) ?? [];
+
+	return value;
 }

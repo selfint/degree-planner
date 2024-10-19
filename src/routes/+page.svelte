@@ -5,7 +5,7 @@
 	import { content } from '$lib/stores.svelte';
 </script>
 
-<div class="m-3 flex flex-col justify-center lg:mt-32 lg:flex-row">
+<div class="m-3 flex h-fit flex-col justify-center lg:mt-32 lg:flex-row">
 	<h1
 		class="mb-6 w-fit text-5xl text-content-primary md:text-6xl lg:me-20 lg:text-7xl"
 	>
@@ -31,7 +31,9 @@
 	</div>
 </div>
 
-<div class="circle relative left-[-100%] -z-10 h-[2000px] w-[200%]"></div>
+<div class="h-full max-w-[100vw] flex-grow overflow-hidden">
+	<div class="circle relative left-[-100%] -z-10 min-h-screen w-[200%]"></div>
+</div>
 
 <style>
 	.circle {

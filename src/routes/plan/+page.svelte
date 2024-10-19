@@ -5,13 +5,13 @@
 	import Semester from '$lib/components/Semester.svelte';
 	import CourseRow from '$lib/components/CourseRow.svelte';
 
-	import { user, degreeData, content } from '$lib/stores.svelte';
+	import { user, catalog, content } from '$lib/stores.svelte';
 
 	import { getCourseData } from '$lib/courseData';
 	import { getCourseLists } from '$lib/requirements';
 	import { getScheduleError } from '$lib/schedule';
 
-	const requirements = $derived(degreeData()?.requirements);
+	const requirements = $derived(catalog()?.requirement);
 
 	function moveCourseToSemester(code: string, semester: number) {
 		user.wishlist = user.wishlist.filter((c) => c !== code);

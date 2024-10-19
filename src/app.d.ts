@@ -1,3 +1,21 @@
+import catalogs from '$lib/assets/catalogs.json';
+
+// type gymnastics to get catalogs in a type-safe way
+// credit: https://chatgpt.com/share/67137b39-7de8-8002-a4aa-0556e0c86b5a
+type NestedKeys<T, Depth extends number = 3> = Depth extends 0
+	? []
+	: T extends object
+		? {
+				[K in keyof T]: Depth extends 2 | 1 // Exclude "shared" at level 2, "he" at level 2 and 3
+					? K extends 'shared' | 'he'
+						? never
+						: [K, ...NestedKeys<T[K], Decrement<Depth>>]
+					: [K, ...NestedKeys<T[K], Decrement<Depth>>];
+			}[keyof T]
+		: [];
+
+type Decrement<N extends number> = N extends 3 ? 2 : N extends 2 ? 1 : 0;
+
 // See https://kit.svelte.dev/docs/types#app
 // for information about these interfaces
 declare global {
@@ -9,6 +27,132 @@ declare global {
 		// interface Platform {}
 	}
 
+	type Requirement = {
+		name: string;
+
+		/**
+		 * Hebrew translation key for the requirement name.
+		 */
+		he?: string;
+
+		/**
+		 * The courses that satisfy this requirement.
+		 * If empty, courses will be taken from the nested requirements.
+		 */
+		courses?: string[];
+
+		/**
+		 * The points required to satisfy this requirement.
+		 * If empty, requirement does not require points.
+		 */
+		points?: number;
+
+		/**
+		 * The number of courses required to satisfy this requirement.
+		 * If empty, requirement does not require a specific number of courses.
+		 */
+		count?: number;
+
+		/**
+		 * Name of the requirement to overflow to.
+		 * If empty, courses will be taken from the nested requirements.
+		 */
+		overflow?: string;
+
+		/**
+		 * The choices available to satisfy this requirement.
+		 * If empty, requirement does not have choices.
+		 *
+		 * To mark all nested requirements as mandatory, do not specify the amount,
+		 * or set it to the number of requirements.
+		 */
+		nested?: Requirement[];
+
+		/**
+		 * The amount of nested requirements needed to satisfy this requirement.
+		 * If empty, all nested requirements are mandatory.
+		 */
+		amount?: number;
+	};
+
+	type RequirementHeader = Omit<Requirement, 'courses' | 'nested'> & {
+		courses?: string;
+		nested?: RequirementHeader[];
+	};
+
+	type Progress = {
+		name: string;
+
+		/**
+		 * Hebrew translation key for the requirement name.
+		 */
+		he?: string;
+
+		/**
+		 * The courses that satisfy this requirement.
+		 * If empty, courses will be taken from the nested requirements.
+		 */
+		courses: {
+			done: Course[];
+			options: Course[];
+		};
+
+		/**
+		 * The points required to satisfy this requirement.
+		 * If empty, requirement does not require points.
+		 */
+		points: {
+			done: number;
+			required: number;
+		};
+
+		/**
+		 * The number of courses required to satisfy this requirement.
+		 * If empty, requirement does not require a specific number of courses.
+		 */
+		count: {
+			done: number;
+			required: number;
+		};
+
+		/**
+		 * Name of the requirement to overflow to.
+		 * If empty, courses will be taken from the nested requirements.
+		 */
+		overflow?: {
+			target: string;
+			type: 'points' | 'count';
+			value: number;
+		};
+
+		/**
+		 * The choices available to satisfy this requirement.
+		 * If empty, requirement does not have choices.
+		 *
+		 * To mark all nested requirements as mandatory, do not specify the amount,
+		 * or set it to the number of requirements.
+		 */
+		nested: {
+			done: Progress[];
+			options: Progress[];
+		};
+
+		/**
+		 * The amount of nested requirements needed to satisfy this requirement.
+		 * If empty, all nested requirements are mandatory.
+		 */
+		amount: {
+			done: number;
+			required: number;
+		};
+	};
+
+	type Catalog = {
+		degree: Degree;
+		recommended: string[][];
+		requirement: Requirement;
+	};
+
 	type UserData = {
 		semesters: string[][];
 		currentSemester: number;
@@ -17,65 +161,7 @@ declare global {
 		degree?: Degree;
 	};
 
-	type Degree = [string, string, string];
-
-	type Choice = {
-		amount: number;
-		options: Map<string, Requirement>;
-	};
-
-	type ChoiceProgress = {
-		amount: number;
-		options: Map<string, [Requirement, RequirementProgress]>;
-	};
-
-	type Requirement = {
-		courses?: string[];
-		points?: number;
-		count?: number;
-		overflow?: string;
-		choice?: Choice;
-	};
-
-	type ProgressOverflow = [string, 'points' | 'count', number];
-
-	type RequirementProgress = {
-		courses?: string[];
-		points?: number;
-		count?: number;
-		overflow?: ProgressOverflow;
-		choice?: ChoiceProgress;
-	};
-
-	type DegreeRequirements = {
-		points: number;
-		requirements: Map<string, Requirement>;
-	};
-
-	type DegreeProgress = {
-		points: [number, number];
-		requirements: Map<string, [Requirement, RequirementProgress]>;
-	};
-
-	type ChoiceHeader = {
-		amount: null;
-		[option: string]: RequirementHeader;
-	};
-
-	type RequirementHeader = {
-		courses?: null;
-		points?: null;
-		count?: null;
-		overflow?: null;
-		choice?: ChoiceHeader;
-	};
-
-	type RequirementsHeader = Map<string, RequirementHeader>;
-
-	type DegreeData = {
-		recommended: string[][];
-		requirements: DegreeRequirements;
-	};
+	type Degree = NestedKeys<typeof catalogs>;
 
 	type CourseConnections = {
 		dependencies: string[][];

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import manifest from '$lib/assets/manifest.json';
+	import catalogs from '$lib/assets/catalogs.json';
 
 	import Button from '$lib/components/Button.svelte';
 	import Select from '$lib/components/Select.svelte';
@@ -13,35 +13,14 @@
 
 	let { degree, onChange }: Props = $props();
 
-	let years: string[] = Object.keys(manifest);
+	type Year = keyof typeof catalogs;
+	const years = Object.keys(catalogs) as Year[];
 
-	type PartialDegree =
-		| [undefined, undefined, undefined]
-		| [string, undefined, undefined]
-		| [string, string, undefined]
-		| [string, string, string];
-
-	let [year, faculty, path]: PartialDegree = $state(
-		degree ?? [undefined, undefined, undefined]
-	);
-
-	const faculties = $derived(
-		year === undefined
-			? undefined
-			: // @ts-expect-error
-				Object.keys(manifest[year])
-	);
-
-	const paths = $derived(
-		// @ts-expect-error
-		faculty === undefined ? undefined : Object.keys(manifest[year][faculty])
-	);
+	let year: Year | undefined = $state(degree?.[0]);
+	let faculty: string | undefined = $state(degree?.[1]);
+	let path: string | undefined = $state(degree?.[2]);
 
 	$effect(() => {
-		if (path !== undefined && !paths?.includes(path)) {
-			path = undefined;
-		}
-
 		if (year === undefined) {
 			year = years[0];
 		}
@@ -52,7 +31,8 @@
 		f: string | undefined,
 		p: string | undefined
 	) {
-		return y !== undefined && f !== undefined && p !== undefined;
+		// @ts-expect-error
+		return catalogs[y]?.[f]?.[p] !== undefined;
 	}
 
 	function choiceIsChanged(
@@ -88,6 +68,40 @@
 
 		return `/preview/${year}/${faculty}/${path}?semesters=${semesters}`;
 	});
+
+	function getFaculties(
+		year: keyof typeof catalogs
+	): { value: string; display: string }[] {
+		return Object.entries(catalogs[year])
+			.filter(([name]) => !['shared', 'he'].includes(name))
+			.map(([name, faculty]) => ({
+				value: name,
+				display:
+					content.lang.lang === 'he'
+						? faculty.he
+						: capitalizeWords(name.replaceAll('_', ' '))
+			}));
+	}
+
+	function getPaths(
+		year: Year,
+		faculty: string
+	): { value: string; display: string }[] {
+		const entries: [string, { he: string }][] = Object.entries(
+			// @ts-expect-error
+			catalogs[year][faculty]
+		);
+
+		return entries
+			.filter(([name]) => !['shared', 'he'].includes(name))
+			.map(([name, path]) => ({
+				value: name,
+				display:
+					content.lang.lang === 'he'
+						? path.he
+						: capitalizeWords(name.replaceAll('_', ' '))
+			}));
+	}
 </script>
 
 <div>
@@ -124,38 +138,35 @@
 				</span>
 				<Select bind:value={faculty}>
 					{#if degree === undefined && faculty === undefined}
-						<option value={undefined}
-							>{content.lang.progress.selectFaculty}</option
-						>
+						<option value={undefined}>
+							{content.lang.progress.selectFaculty}
+						</option>
 					{/if}
-					{#if faculties !== undefined}
-						{#each faculties as faculty}
-							<option value={faculty}>
-								{capitalizeWords(faculty.replaceAll('_', ' '))}
-							</option>
-						{/each}
-					{/if}
+					{#each getFaculties(year) as { display, value }}
+						<option {value}>
+							{display}
+						</option>
+					{/each}
 				</Select>
 			</div>
 		{/if}
 
-		{#if faculty !== undefined}
+		{#if year !== undefined && faculty !== undefined}
 			<div>
 				<span class="text-content-secondary">
 					{content.lang.progress.path}:
 				</span>
 				<Select bind:value={path}>
 					{#if degree === undefined && path === undefined}
-						<option value={undefined}>{content.lang.progress.selectPath}</option
-						>
+						<option value={undefined}>
+							{content.lang.progress.selectPath}
+						</option>
 					{/if}
-					{#if paths !== undefined}
-						{#each paths as path}
-							<option value={path}>
-								{capitalizeWords(path.replaceAll('_', ' '))}
-							</option>
-						{/each}
-					{/if}
+					{#each getPaths(year, faculty) as { display, value }}
+						<option {value}>
+							{display}
+						</option>
+					{/each}
 				</Select>
 			</div>
 		{/if}

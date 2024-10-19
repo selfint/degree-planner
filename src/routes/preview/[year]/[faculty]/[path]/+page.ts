@@ -1,19 +1,27 @@
-import { loadDegreeData } from '$lib/requirements';
+import catalogs from '$lib/assets/catalogs.json';
+import { loadCatalog } from '$lib/requirements';
 import type { PageLoad } from './$types';
 
 export const load: PageLoad = async ({ params, fetch }) => {
 	const { year, faculty, path } = params;
 
-	async function get(degree: Degree, ...path: string[]): Promise<string> {
-		const response = await fetch(`/_db/${degree.join('/')}/${path.join('/')}`);
-
-		if (!response.ok) {
-			throw new Error(response.statusText);
-		}
-
-		return response.text();
+	// @ts-expect-error
+	if (!catalogs[year]) {
+		throw new Error(`Year not found: ${year}`);
 	}
-	const degreeData = await loadDegreeData([year, faculty, path], get);
+
+	// @ts-expect-error
+	if (!catalogs[year][faculty]) {
+		throw new Error(`Faculty not found: ${year}/${faculty}`);
+	}
+
+	// @ts-expect-error
+	if (!catalogs[year][faculty][path]) {
+		throw new Error(`Degree not found: ${year}/${faculty}/${path}`);
+	}
+
+	const degree = [year, faculty, path] as Degree;
+	const degreeData = await loadCatalog(degree, fetch);
 
 	return {
 		degreeData

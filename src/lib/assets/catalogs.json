@@ -292,6 +292,265 @@
           ]
         }
       },
+      "4_year": {
+        "he": "ארבע שנתי",
+        "recommended": [
+          [
+            "01040031",
+            "01040166",
+            "02340114",
+            "02340129",
+            "03240033"
+          ],
+          [
+            "01040032",
+            "01140071",
+            "02340124",
+            "02340125",
+            "02340141"
+          ],
+          [],
+          [
+            "00940412",
+            "01040134",
+            "02340218",
+            "00440252",
+            "02340252",
+            "02340292"
+          ],
+          [
+            "02340118",
+            "02340123",
+            "02340247"
+          ],
+          [],
+          [
+            "02360267",
+            "02360343",
+            "02360360"
+          ],
+          [],
+          [],
+          [],
+          [],
+          []
+        ],
+        "requirement": {
+          "name": "Computer Science - 4 Year",
+          "points": 155,
+          "he": "מדעי המחשב - ארבע שנתי",
+          "nested": [
+            {
+              "name": "core",
+              "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/core/courses",
+              "points": 87,
+              "he": "חובה"
+            },
+            {
+              "name": "list_a",
+              "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/courses",
+              "points": 71,
+              "he": "רשימה א׳",
+              "overflow": "list_b",
+              "nested": [
+                {
+                  "name": "specialization",
+                  "amount": 3,
+                  "points": 26,
+                  "nested": [
+                    {
+                      "name": "AI_and_ML",
+                      "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/specialization/AI_and_ML/courses",
+                      "count": 3,
+                      "he": "למידה ובינה מלאכותית",
+                      "nested": [
+                        {
+                          "name": "mandatory",
+                          "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/specialization/AI_and_ML/mandatory/courses",
+                          "count": 1
+                        }
+                      ]
+                    },
+                    {
+                      "name": "algorithm_theory",
+                      "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/specialization/algorithm_theory/courses",
+                      "count": 3,
+                      "he": "תורת האלגוריתמים"
+                    },
+                    {
+                      "name": "applied_logic",
+                      "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/specialization/applied_logic/courses",
+                      "count": 3,
+                      "he": "לוגיקה ויישומיה"
+                    },
+                    {
+                      "name": "bioinformatics",
+                      "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/specialization/bioinformatics/courses",
+                      "count": 3,
+                      "he": "ביואינפורמטיקה",
+                      "nested": [
+                        {
+                          "name": "mandatory",
+                          "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/specialization/bioinformatics/mandatory/courses",
+                          "count": 2
+                        }
+                      ]
+                    },
+                    {
+                      "name": "communication",
+                      "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/specialization/communication/courses",
+                      "count": 3,
+                      "he": "תקשורת",
+                      "nested": [
+                        {
+                          "name": "mandatory",
+                          "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/specialization/communication/mandatory/courses",
+                          "count": 1
+                        }
+                      ]
+                    },
+                    {
+                      "name": "computation_complexity",
+                      "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/specialization/computation_complexity/courses",
+                      "count": 3,
+                      "he": "סיבוכיות של חישובים",
+                      "nested": [
+                        {
+                          "name": "mandatory",
+                          "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/specialization/computation_complexity/mandatory/courses",
+                          "count": 1
+                        }
+                      ]
+                    },
+                    {
+                      "name": "computer_systems",
+                      "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/specialization/computer_systems/courses",
+                      "count": 3,
+                      "he": "מערכות מיחשוב",
+                      "nested": [
+                        {
+                          "name": "mandatory",
+                          "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/specialization/computer_systems/mandatory/courses",
+                          "count": 1
+                        }
+                      ]
+                    },
+                    {
+                      "name": "cryptology",
+                      "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/specialization/cryptology/courses",
+                      "count": 3,
+                      "he": "קריפטולוגיה",
+                      "nested": [
+                        {
+                          "name": "mandatory",
+                          "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/specialization/cryptology/mandatory/courses",
+                          "count": 1
+                        }
+                      ]
+                    },
+                    {
+                      "name": "geometry_&_graphics",
+                      "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/specialization/geometry_&_graphics/courses",
+                      "count": 3,
+                      "he": "גאומטריה וגרפיקה",
+                      "nested": [
+                        {
+                          "name": "mandatory",
+                          "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/specialization/geometry_&_graphics/mandatory/courses",
+                          "count": 1
+                        }
+                      ]
+                    },
+                    {
+                      "name": "software_development",
+                      "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/specialization/software_development/courses",
+                      "count": 3,
+                      "he": "פיתוח תוכנה",
+                      "nested": [
+                        {
+                          "name": "mandatory",
+                          "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/specialization/software_development/mandatory/courses",
+                          "count": 1
+                        }
+                      ]
+                    },
+                    {
+                      "name": "vision_&_robotics",
+                      "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/specialization/vision_&_robotics/courses",
+                      "count": 3,
+                      "he": "ראייה ורובוטיקה",
+                      "nested": [
+                        {
+                          "name": "mandatory",
+                          "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/specialization/vision_&_robotics/mandatory/courses",
+                          "count": 1
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "list_b",
+              "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_b/courses",
+              "points": 15,
+              "he": "רשימה ב׳"
+            },
+            {
+              "name": "math",
+              "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/math/courses",
+              "count": 1,
+              "he": "מתמטי"
+            },
+            {
+              "name": "project",
+              "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/project/courses",
+              "count": 2,
+              "he": "פרויקט"
+            },
+            {
+              "name": "science",
+              "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/science/courses",
+              "amount": 1,
+              "points": 8,
+              "he": "מדעי",
+              "overflow": "list_b",
+              "nested": [
+                {
+                  "name": "biology_chain",
+                  "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/science/biology_chain/courses",
+                  "count": 2,
+                  "he": "שרשרת ביולוגיה"
+                },
+                {
+                  "name": "physics-chemistry_chain",
+                  "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/science/physics-chemistry_chain/courses",
+                  "count": 2,
+                  "he": "שרשרת פיזיקה-כימיה"
+                },
+                {
+                  "name": "physics_chain",
+                  "amount": 1,
+                  "he": "שרשרת פיזיקה",
+                  "nested": [
+                    {
+                      "name": "1",
+                      "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/science/physics_chain/1/courses",
+                      "count": 1
+                    },
+                    {
+                      "name": "2",
+                      "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/science/physics_chain/2/courses",
+                      "count": 2
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
       "he": "מדעי המחשב"
     },
     "shared": {

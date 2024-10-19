@@ -23,7 +23,7 @@
 			.join(' ');
 
 		if (maxWidth !== undefined && name.length > maxWidth + 2) {
-			return name.slice(0, 2) + '..' + name.slice(-maxWidth + 2);
+			return name.slice(0, 1) + '..' + name.slice(-maxWidth);
 		} else {
 			return name;
 		}

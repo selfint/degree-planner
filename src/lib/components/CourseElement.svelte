@@ -72,7 +72,7 @@
 						<RequirementsElement requirements={lists} slice={2} maxWidth={6} />
 					</div>
 					<div class="flex flex-row flex-wrap text-xs sm:hidden">
-						<RequirementsElement requirements={lists} slice={2} maxWidth={2} />
+						<RequirementsElement requirements={lists} slice={2} maxWidth={3} />
 					</div>
 				{/if}
 			</div>

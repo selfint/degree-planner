@@ -52,6 +52,7 @@
 	);
 
 	const section = [...parents, requirementName]
+		.slice(1)
 		.map((t) => t.toLowerCase())
 		.join('_');
 	const href = `/catalog#${section}`;
@@ -70,7 +71,7 @@
 			class="mb-1 w-fit rounded-md pl-2 pr-2 text-content-primary"
 			style="background: {color}; {margin}"
 		>
-			{#if planned.nested === undefined}
+			{#if requirementHasConditions}
 				<a {href}>
 					{formatName(name)}
 				</a>

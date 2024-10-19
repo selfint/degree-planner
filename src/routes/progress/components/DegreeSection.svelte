@@ -1,5 +1,5 @@
 <script lang="ts">
-	import manifest from '$lib/assets/manifest.json';
+	import catalogs from '$lib/assets/catalogs.json';
 
 	import Button from '$lib/components/Button.svelte';
 	import Select from '$lib/components/Select.svelte';
@@ -13,7 +13,7 @@
 
 	let { degree, onChange }: Props = $props();
 
-	let years: string[] = Object.keys(manifest);
+	const years = Object.keys(catalogs);
 
 	type PartialDegree =
 		| [undefined, undefined, undefined]
@@ -29,12 +29,12 @@
 		year === undefined
 			? undefined
 			: // @ts-expect-error
-				Object.keys(manifest[year])
+				Object.keys(catalogs[year]).filter((f) => f !== 'shared')
 	);
 
 	const paths = $derived(
 		// @ts-expect-error
-		faculty === undefined ? undefined : Object.keys(manifest[year][faculty])
+		faculty === undefined ? undefined : Object.keys(catalogs[year][faculty])
 	);
 
 	$effect(() => {

@@ -1,0 +1,143 @@
+{
+  "2023_2024": {
+    "computer_science": {
+      "3_year": {
+        "recommended": [
+          [
+            "01040031",
+            "01040166",
+            "02340114",
+            "02340129",
+            "03240033"
+          ],
+          [
+            "01040032",
+            "01140071",
+            "02340124",
+            "02340125",
+            "02340141"
+          ],
+          [],
+          [
+            "00940412",
+            "01040134",
+            "02340218",
+            "00440252",
+            "02340292"
+          ],
+          [
+            "02340118",
+            "02340123",
+            "02340247"
+          ],
+          [],
+          [
+            "02360343",
+            "02360360"
+          ]
+        ],
+        "requirement": {
+          "name": "Computer Science - 3 Year",
+          "points": 118.5,
+          "he": "מדעי המחשב - תלת שנתי",
+          "nested": [
+            {
+              "name": "core",
+              "courses": "/_catalogs/2023_2024/computer_science/3_year/requirement/core/courses",
+              "points": 84,
+              "he": "חובה"
+            },
+            {
+              "name": "list_a",
+              "courses": "/_catalogs/2023_2024/computer_science/3_year/requirement/list_a/courses",
+              "points": 18,
+              "he": "רשימה א׳",
+              "overflow": "list_b"
+            },
+            {
+              "name": "list_b",
+              "courses": "/_catalogs/2023_2024/computer_science/3_year/requirement/list_b/courses",
+              "points": 6.5,
+              "he": "רשימה ב׳"
+            },
+            {
+              "name": "math",
+              "courses": "/_catalogs/2023_2024/computer_science/3_year/requirement/math/courses",
+              "count": 1,
+              "he": "מתמטי"
+            },
+            {
+              "name": "project",
+              "courses": "/_catalogs/2023_2024/computer_science/3_year/requirement/project/courses",
+              "count": 1,
+              "he": "פרויקט"
+            },
+            {
+              "name": "science",
+              "courses": "/_catalogs/2023_2024/computer_science/3_year/requirement/science/courses",
+              "amount": 1,
+              "points": 8,
+              "he": "מדעי",
+              "overflow": "list_b",
+              "nested": [
+                {
+                  "name": "biology_chain",
+                  "courses": "/_catalogs/2023_2024/computer_science/3_year/requirement/science/biology_chain/courses",
+                  "count": 2,
+                  "he": "שרשרת ביולוגיה"
+                },
+                {
+                  "name": "physics-chemistry_chain",
+                  "courses": "/_catalogs/2023_2024/computer_science/3_year/requirement/science/physics-chemistry_chain/courses",
+                  "count": 2,
+                  "he": "שרשרת פיזיקה-כימיה"
+                },
+                {
+                  "name": "physics_chain",
+                  "amount": 1,
+                  "he": "שרשרת פיזיקה",
+                  "nested": [
+                    {
+                      "name": "1",
+                      "courses": "/_catalogs/2023_2024/computer_science/3_year/requirement/science/physics_chain/1/courses",
+                      "count": 1
+                    },
+                    {
+                      "name": "2",
+                      "courses": "/_catalogs/2023_2024/computer_science/3_year/requirement/science/physics_chain/2/courses",
+                      "count": 2
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "shared": {
+      "name": "shared",
+      "he": "כללי",
+      "nested": [
+        {
+          "name": "english",
+          "courses": "/_catalogs/2023_2024/shared/english/courses",
+          "count": 2,
+          "he": "אנגלית"
+        },
+        {
+          "name": "malag",
+          "courses": "/_catalogs/2023_2024/shared/malag/courses",
+          "points": 6,
+          "he": "מל״ג"
+        },
+        {
+          "name": "sport",
+          "courses": "/_catalogs/2023_2024/shared/sport/courses",
+          "count": 2,
+          "he": "ספורט"
+        }
+      ]
+    }
+  }
+}

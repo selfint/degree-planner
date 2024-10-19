@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
-
 	import { getCourseData } from '$lib/courseData';
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import CourseRow from '$lib/components/CourseRow.svelte';
@@ -13,7 +11,7 @@
 		titles: string[];
 		colorize?: boolean;
 		codes: string[];
-		requirements?: DegreeRequirements;
+		requirements?: Requirement;
 	};
 
 	function formatName(name: string): string {
@@ -92,24 +90,13 @@
 				</span>
 			</h1>
 			<CourseRow courses={group}>
-				{#snippet children({ course, index: i })}
-					<div
-						tabindex={i}
-						role="button"
-						onmousedown={() => goto(`/course/${course.code}`)}
-						onkeydown={(e) => {
-							if (e.key === 'Enter') {
-								goto(`/course/${course.code}`);
-							}
-						}}
-					>
+				{#snippet children({ course })}
+					<a href={`/course/${course.code}`}>
 						<CourseElement
 							{course}
-							lists={getCourseLists(requirements, course.code).filter(
-								(list) => !titles.includes(list)
-							)}
+							lists={getCourseLists(requirements, course.code)}
 						/>
-					</div>
+					</a>
 				{/snippet}
 			</CourseRow>
 		</div>

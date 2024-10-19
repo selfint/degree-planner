@@ -3,7 +3,7 @@ import path from 'path';
 import { describe, it, vi, beforeEach, afterEach } from 'vitest';
 
 import { getProgress } from './progress';
-import { loadDegreeData } from './requirements';
+import { loadCatalog } from './requirements';
 import { getCourseData } from './courseData';
 
 describe('Integration', () => {
@@ -27,11 +27,11 @@ describe('Integration', () => {
 	it('should work with CS degree', async (ctx) => {
 		const degree: Degree = ['2023_2024', 'computer_science', '3_year'];
 
-		const data = await loadDegreeData(degree);
+		const data = await loadCatalog(degree);
 
 		const progress = getProgress(
 			data.recommended.map((s) => s.map(getCourseData)),
-			data.requirements
+			data.requirement
 		);
 
 		ctx.expect(progress).toMatchSnapshot();

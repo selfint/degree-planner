@@ -1,0 +1,97 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Progress > should apply overflow 1`] = `
+{
+  "amount": {
+    "done": 0,
+    "required": 0,
+  },
+  "count": {
+    "done": 2,
+    "required": 0,
+  },
+  "courses": {
+    "done": [
+      {
+        "code": "1",
+        "points": 1,
+      },
+      {
+        "code": "2",
+        "points": 2,
+      },
+    ],
+    "options": [
+      {
+        "code": "1",
+        "points": 1,
+      },
+      {
+        "code": "2",
+        "points": 2,
+      },
+    ],
+  },
+  "i18n": undefined,
+  "name": "core",
+  "nested": {
+    "done": [],
+    "options": [],
+  },
+  "overflow": {
+    "target": "overflow_target",
+    "type": "points",
+    "value": 1,
+  },
+  "points": {
+    "done": 3,
+    "required": 2,
+  },
+}
+`;
+
+exports[`Progress > should return count progress 1`] = `
+{
+  "amount": {
+    "done": 0,
+    "required": 0,
+  },
+  "count": {
+    "done": 2,
+    "required": 2,
+  },
+  "courses": {
+    "done": [
+      {
+        "code": "1",
+        "points": 1,
+      },
+      {
+        "code": "2",
+        "points": 2,
+      },
+    ],
+    "options": [
+      {
+        "code": "1",
+        "points": 1,
+      },
+      {
+        "code": "2",
+        "points": 2,
+      },
+    ],
+  },
+  "i18n": undefined,
+  "name": "base",
+  "nested": {
+    "done": [],
+    "options": [],
+  },
+  "overflow": undefined,
+  "points": {
+    "done": 3,
+    "required": 0,
+  },
+}
+`;

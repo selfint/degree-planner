@@ -4,8 +4,8 @@
 	"private": true,
 	"scripts": {
 		"dev": "vite dev",
-		"generate-manifest": "node scripts/generateManifest.js",
-		"build": "npm run generate-manifest && vite build",
+		"generate-catalogs": "node scripts/generateCatalogs.js",
+		"build": "npm run generate-catalogs && vite build",
 		"preview": "vite preview",
 		"test": "npm run test:integration && npm run test:unit",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",

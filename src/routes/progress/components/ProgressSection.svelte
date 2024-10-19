@@ -4,9 +4,9 @@
 	import { content } from '$lib/stores.svelte';
 
 	type Props = {
-		degreeRequirements: DegreeRequirements;
-		current: DegreeProgress;
-		planned: DegreeProgress;
+		degreeRequirements: Requirement;
+		current: Progress;
+		planned: Progress;
 	};
 
 	const { degreeRequirements, current, planned }: Props = $props();
@@ -18,19 +18,7 @@
 <ProgressElement
 	indent={1}
 	{degreeRequirements}
-	requirementName="general"
-	requirement={{ points: planned.points[1] }}
-	current={{ points: current.points[0] }}
-	planned={{ points: planned.points[0] }}
+	requirementName={''}
+	{current}
+	{planned}
 />
-
-{#each planned.requirements as [requirementName, [requirement, progress]]}
-	<ProgressElement
-		indent={1}
-		{degreeRequirements}
-		{requirementName}
-		{requirement}
-		current={current.requirements.get(requirementName)?.[1]}
-		planned={progress}
-	/>
-{/each}

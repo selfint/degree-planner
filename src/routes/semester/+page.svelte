@@ -7,7 +7,7 @@
 	import StudyDaysComponent from '$lib/components/StudyDaysComponent.svelte';
 	import CourseRow from '$lib/components/CourseRow.svelte';
 
-	import { user, degreeData, content } from '$lib/stores.svelte';
+	import { user, catalog, content } from '$lib/stores.svelte';
 	import { getCourseData } from '$lib/courseData';
 	import { getScheduleError } from '$lib/schedule';
 	import {
@@ -28,7 +28,7 @@
 	});
 
 	const wishlistCourses = $derived(user.wishlist.map(getCourseData));
-	const requirements = $derived(degreeData()?.requirements);
+	const requirements = $derived(catalog()?.requirement);
 	const semester = $derived(
 		user.semesters.at(currentSemester)?.map(getCourseData) ?? []
 	);

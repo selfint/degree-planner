@@ -5,10 +5,11 @@
 	import type { ScheduleError } from '$lib/schedule';
 	import CourseWidth from './CourseWidth.svelte';
 	import StudyDaysComponent from './StudyDaysComponent.svelte';
+	import { content } from '$lib/stores.svelte';
 
 	type Props = {
 		course: Course;
-		lists?: string[];
+		lists?: Requirement[];
 		squeeze?: boolean;
 		variant?:
 			| {
@@ -76,24 +77,23 @@
 				{#if lists?.length ?? 0 > 0}
 					<div class="flex h-fit flex-row items-baseline">
 						<div class="flex flex-row flex-wrap items-baseline space-y-1">
-							{#each lists ?? [] as requirement}
+							{#each lists ?? [] as req}
 								<div
-									style="background: {generateRequirementColor(requirement)}"
-									class="mr-1 rounded-md pb-0.5 pl-2 pr-2 leading-none"
+									style="background: {generateRequirementColor(req.name)}"
+									class="me-1 rounded-md pb-0.5 pl-2 pr-2 leading-none"
 								>
 									<span class="text-xs leading-none text-content-primary">
-										{formatName(requirement)}
+										{formatName(
+											content.lang.lang === 'he'
+												? (req.he ?? req.name)
+												: req.name
+										)}
 									</span>
 								</div>
 							{/each}
 						</div>
 					</div>
 				{/if}
-			</div>
-
-			<div class="hidden text-xs text-content-secondary">
-				<span class="mr-2">{median}</span>
-				<span>{course.points ?? 'N/A'}</span>
 			</div>
 		</div>
 

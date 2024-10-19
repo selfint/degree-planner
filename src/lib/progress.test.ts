@@ -1,292 +1,55 @@
 import { describe, it, expect } from 'vitest';
 
-import { getProgress } from './progress';
+import { getProgress, requirementCompleted } from './progress';
 
-const courseData = new Map([
-	['1', { code: '1', points: 1 }],
-	['2', { code: '2', points: 2 }]
-]);
+function getCourseData(code: string): Course {
+	return { code, points: parseInt(code) };
+}
+
 function buildSemesters(semesters: string[][]): Course[][] {
-	return semesters.map((semester) =>
-		semester.map((code) => courseData.get(code)!)
-	);
+	return semesters.map((semester) => semester.map(getCourseData));
 }
 
 describe('Progress', () => {
 	it('should apply overflow', () => {
 		const semesters = buildSemesters([['1', '2']]);
-		const requirements: DegreeRequirements = {
-			points: 0,
-			requirements: new Map([
-				[
-					'core',
-					{
-						courses: ['1', '2'],
-						points: 2,
-						overflow: 'overflow_target'
-					}
-				],
-				[
-					'list a',
-					{
-						courses: ['1', '2'],
-						count: 1,
-						overflow: 'overflow_target'
-					}
-				],
-				[
-					'overflow_target',
-					{
-						points: 1
-					}
-				]
-			])
+		const requirement: Requirement = {
+			name: 'base',
+			nested: [
+				{
+					name: 'overflow_target',
+					points: 1
+				},
+				{
+					name: 'core',
+					points: 2,
+					courses: ['1', '2'],
+					overflow: 'overflow_target'
+				}
+			]
 		};
 
-		const progress = getProgress(semesters, requirements);
+		const progress = getProgress(semesters, requirement, getCourseData);
 
-		expect(progress).toMatchInlineSnapshot(`
-			{
-			  "points": [
-			    3,
-			    0,
-			  ],
-			  "requirements": Map {
-			    "core" => [
-			      {
-			        "courses": [
-			          "1",
-			          "2",
-			        ],
-			        "overflow": "overflow_target",
-			        "points": 2,
-			      },
-			      {
-			        "courses": [
-			          "1",
-			          "2",
-			        ],
-			        "overflow": [
-			          "overflow_target",
-			          "points",
-			          1,
-			        ],
-			        "points": 3,
-			      },
-			    ],
-			    "list a" => [
-			      {
-			        "count": 1,
-			        "courses": [
-			          "1",
-			          "2",
-			        ],
-			        "overflow": "overflow_target",
-			      },
-			      {
-			        "count": 2,
-			        "courses": [
-			          "1",
-			          "2",
-			        ],
-			        "overflow": [
-			          "overflow_target",
-			          "count",
-			          1,
-			        ],
-			      },
-			    ],
-			    "overflow_target" => [
-			      {
-			        "points": 1,
-			      },
-			      {
-			        "count": 1,
-			        "courses": [],
-			        "points": 1,
-			      },
-			    ],
-			  },
-			}
-		`);
+		expect(progress.nested.done.length).toEqual(2);
+		expect(progress.nested.options.length).toEqual(2);
+		expect(progress.nested.done.filter(requirementCompleted).length).toEqual(2);
+		expect(requirementCompleted(progress.nested.options[1])).toBeTruthy();
+		expect(progress.nested.options[1]).toMatchSnapshot();
 	});
 
-	it('should return choice progress', () => {
-		const semesters = buildSemesters([['1', '2']]);
-		const requirements: DegreeRequirements = {
-			points: 0,
-			requirements: new Map([
-				[
-					'core',
-					{
-						choice: {
-							amount: 1,
-							options: new Map([
-								['option 1', { courses: ['1'], count: 1 }],
-								['option 2', { courses: ['2'], count: 1 }]
-							])
-						}
-					}
-				]
-			])
-		};
-
-		const progress = getProgress(semesters, requirements);
-
-		expect(progress).toMatchInlineSnapshot(`
-			{
-			  "points": [
-			    3,
-			    0,
-			  ],
-			  "requirements": Map {
-			    "core" => [
-			      {
-			        "choice": {
-			          "amount": 1,
-			          "options": Map {
-			            "option 1" => {
-			              "count": 1,
-			              "courses": [
-			                "1",
-			              ],
-			            },
-			            "option 2" => {
-			              "count": 1,
-			              "courses": [
-			                "2",
-			              ],
-			            },
-			          },
-			        },
-			      },
-			      {
-			        "choice": {
-			          "amount": 2,
-			          "options": Map {
-			            "option 1" => [
-			              {
-			                "count": 1,
-			                "courses": [
-			                  "1",
-			                ],
-			              },
-			              {
-			                "count": 1,
-			                "courses": [
-			                  "1",
-			                ],
-			              },
-			            ],
-			            "option 2" => [
-			              {
-			                "count": 1,
-			                "courses": [
-			                  "2",
-			                ],
-			              },
-			              {
-			                "count": 1,
-			                "courses": [
-			                  "2",
-			                ],
-			              },
-			            ],
-			          },
-			        },
-			      },
-			    ],
-			  },
-			}
-		`);
-	});
 	it('should return count progress', () => {
 		const semesters = buildSemesters([['1', '2']]);
-		const requirements: DegreeRequirements = {
-			points: 0,
-			requirements: new Map([
-				[
-					'core',
-					{
-						courses: ['1', '2'],
-						count: 1
-					}
-				]
-			])
+		const requirement: Requirement = {
+			name: 'base',
+			count: 2,
+			courses: ['1', '2']
 		};
 
-		const progress = getProgress(semesters, requirements);
+		const progress = getProgress(semesters, requirement, getCourseData);
 
-		expect(progress).toMatchInlineSnapshot(`
-			{
-			  "points": [
-			    3,
-			    0,
-			  ],
-			  "requirements": Map {
-			    "core" => [
-			      {
-			        "count": 1,
-			        "courses": [
-			          "1",
-			          "2",
-			        ],
-			      },
-			      {
-			        "count": 2,
-			        "courses": [
-			          "1",
-			          "2",
-			        ],
-			      },
-			    ],
-			  },
-			}
-		`);
-	});
-
-	it('should return point progress', () => {
-		const semesters = buildSemesters([['1', '2']]);
-		const requirements: DegreeRequirements = {
-			points: 0,
-			requirements: new Map([
-				[
-					'core',
-					{
-						courses: ['1', '2'],
-						points: 3
-					}
-				]
-			])
-		};
-
-		const progress = getProgress(semesters, requirements);
-
-		expect(progress).toMatchInlineSnapshot(`
-			{
-			  "points": [
-			    3,
-			    0,
-			  ],
-			  "requirements": Map {
-			    "core" => [
-			      {
-			        "courses": [
-			          "1",
-			          "2",
-			        ],
-			        "points": 3,
-			      },
-			      {
-			        "courses": [
-			          "1",
-			          "2",
-			        ],
-			        "points": 3,
-			      },
-			    ],
-			  },
-			}
-		`);
+		expect(progress.count.done).toEqual(2);
+		expect(requirementCompleted(progress)).toBeTruthy();
+		expect(progress).toMatchSnapshot();
 	});
 });

@@ -13,7 +13,7 @@
 
 	const { data } = $props();
 	const { year, faculty, path } = $derived($page.params);
-	const requirements = $derived(data.degreeData.requirements);
+	const requirements = $derived(data.degreeData.requirement);
 
 	const semesters: string[][] = $derived(
 		($page.url.searchParams.get('semesters') ?? '')
@@ -45,7 +45,7 @@
 
 		user.username = 'guest';
 		user.semesters = semesters;
-		user.degree = [year, faculty, path];
+		user.degree = data.degreeData.degree;
 		user.currentSemester = user.currentSemester ?? 0;
 		user.wishlist = user.wishlist.filter((c) => !semesters.flat().includes(c));
 

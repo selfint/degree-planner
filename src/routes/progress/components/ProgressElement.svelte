@@ -1,25 +1,21 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
-
-	import Progress from '$lib/components/Progress.svelte';
+	import ProgressBar from '$lib/components/Progress.svelte';
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import CourseRow from '$lib/components/CourseRow.svelte';
 
 	import ProgressElement from './ProgressElement.svelte';
 
 	import { generateColor, generateRequirementColor } from '$lib/colors';
-	import { getCourseData } from '$lib/courseData';
 	import { getCourseLists } from '$lib/requirements';
 	import { content } from '$lib/stores.svelte';
 
 	type Props = {
 		indent?: number;
 		parents?: string[];
-		degreeRequirements: DegreeRequirements;
+		degreeRequirements: Requirement;
 		requirementName: string;
-		requirement: Requirement;
-		current?: RequirementProgress;
-		planned: RequirementProgress;
+		current?: Progress;
+		planned: Progress;
 	};
 
 	const {
@@ -27,7 +23,6 @@
 		parents = [],
 		degreeRequirements,
 		requirementName,
-		requirement,
 		current,
 		planned
 	}: Props = $props();
@@ -59,64 +54,66 @@
 </script>
 
 <div id={section} class="mb-2 w-full">
-	<h3
-		class="mb-1 w-fit rounded-md pl-2 pr-2 text-content-primary"
-		style="background: {color}; {margin}"
-	>
-		{#if requirement.choice === undefined}
-			<a {href}>
+	{#if requirementName.length > 0}
+		<h3
+			class="mb-1 w-fit rounded-md pl-2 pr-2 text-content-primary"
+			style="background: {color}; {margin}"
+		>
+			{#if planned.nested === undefined}
+				<a {href}>
+					{formatName(requirementName)}
+				</a>
+			{:else}
 				{formatName(requirementName)}
-			</a>
-		{:else}
-			{formatName(requirementName)}
-		{/if}
-	</h3>
+			{/if}
+		</h3>
+	{/if}
 
-	{#if requirement.points !== undefined && planned.points !== undefined}
+	{#if planned.points.required > 0}
 		<div
 			class="flex flex-row items-center pe-2 text-content-secondary"
 			style={progressStyle}
 		>
 			<span class="me-2">{content.lang.progress.points}</span>
-			<Progress
+			<ProgressBar
 				{color}
-				value={current?.points ?? 0}
-				value2={planned.points}
-				max={requirement.points}
+				value={current?.points.done ?? 0}
+				value2={planned.points.done}
+				max={planned.points.required}
 			/>
 			<span class="ms-2 text-nowrap">
-				<span style="color: {color}">{current?.points ?? 0}</span>
-				/ {planned.points}
-				/ {requirement.points}
+				<span style="color: {color}">{current?.points.done ?? 0}</span>
+				/ {planned.points.done}
+				/ {planned.points.required}
 			</span>
 		</div>
 	{/if}
 
-	{#if requirement.count !== undefined && planned.count !== undefined}
+	{#if planned.count.required > 0}
 		<div
 			class="flex flex-row items-center pe-2 text-content-secondary"
 			style={progressStyle}
 		>
 			<span class="me-2">{content.lang.progress.count}</span>
-			<Progress
+			<ProgressBar
 				{color}
-				value={current?.count ?? 0}
-				value2={planned.count}
-				max={requirement.count}
+				value={current?.count.done ?? 0}
+				value2={planned.count.done}
+				max={planned.count.required}
 			/>
 			<span class="ms-2 text-nowrap">
-				<span style="color: {color}">{current?.count ?? 0}</span>
-				/ {planned.count}
-				/ {requirement.count}
+				<span style="color: {color}">{current?.count.done ?? 0}</span>
+				/ {planned.count.done}
+				/ {planned.count.required}
 			</span>
 		</div>
 	{/if}
 
-	{#if requirement.overflow !== undefined && planned.overflow !== undefined}
-		{@const [target, type, amount] = planned.overflow}
-		<span class="ms-3 text-content-secondary">
+	{#if planned.overflow !== undefined}
+		{@const { target, type, value } = planned.overflow}
+		<span class="ms-3 text-content-secondary" style={progressStyle}>
 			{content.lang.progress.overflowed}
-			{amount}
+			{value}
 			{type === 'count'
 				? content.lang.progress.count
 				: content.lang.progress.points}
@@ -132,12 +129,16 @@
 		</span>
 	{/if}
 
-	{#if planned.courses?.length ?? 0 > 0}
+	{#if planned.courses.done.length > 0}
 		<div class="mb-1 mt-1">
-			<CourseRow {indent} courses={planned.courses ?? []}>
+			<CourseRow {indent} courses={planned.courses.done ?? []}>
 				{#snippet children({ course })}
 					<a
-						class={current?.courses?.includes(course.code) ? '' : 'opacity-50'}
+						class={current?.courses?.done.some(
+							({ code }) => code === course.code
+						)
+							? ''
+							: 'opacity-50'}
 						href={`/course/${course.code}`}
 					>
 						<CourseElement
@@ -150,34 +151,35 @@
 		</div>
 	{/if}
 
-	{#if requirement.choice !== undefined && planned.choice !== undefined}
-		<div
-			class="mb-1 flex flex-row items-center pe-2 text-content-secondary"
-			style={progressStyle}
-		>
-			<span class="me-2">{content.lang.progress.choice}</span>
-			<Progress
-				{color}
-				value={current?.choice?.amount ?? 0}
-				value2={planned.choice.amount}
-				max={requirement.choice?.amount}
-			/>
-			<span class="ms-2 text-nowrap">
-				<span style="color: {color}">{current?.choice?.amount ?? 0}</span>
-				/ {planned.choice.amount}
-				/ {requirement.choice?.amount}
-			</span>
-		</div>
+	{#if planned.amount.required > 0}
+		{#if planned.amount.required < planned.nested.options.length}
+			<div
+				class="mb-1 flex flex-row items-center pe-2 text-content-secondary"
+				style={progressStyle}
+			>
+				<span class="me-2">{content.lang.progress.choice}</span>
+				<ProgressBar
+					{color}
+					value={current?.amount.done ?? 0}
+					value2={planned.amount.done}
+					max={planned.amount.required}
+				/>
+				<span class="ms-2 text-nowrap">
+					<span style="color: {color}">{current?.amount.done ?? 0}</span>
+					/ {planned.amount.done}
+					/ {planned.amount.required}
+				</span>
+			</div>
+		{/if}
 		<div>
-			{#each planned.choice.options as [name, [subRequirement, subProgress]]}
+			{#each planned.nested.options as nested, i}
 				<ProgressElement
 					indent={indent + 1}
 					parents={[...parents, requirementName]}
 					{degreeRequirements}
-					requirementName={name}
-					requirement={subRequirement}
-					current={current?.choice?.options.get(name)?.[1]}
-					planned={subProgress}
+					requirementName={nested.name}
+					current={current?.nested?.options[i]}
+					planned={nested}
 				/>
 			{/each}
 		</div>

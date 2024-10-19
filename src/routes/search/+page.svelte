@@ -2,7 +2,7 @@
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 
-	import { degreeData, content } from '$lib/stores.svelte';
+	import { catalog, content } from '$lib/stores.svelte';
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import { getCourseLists } from '$lib/requirements';
 	import { getAllCourses } from '$lib/courseData';
@@ -16,7 +16,7 @@
 			})
 	);
 
-	const requirements = $derived(degreeData()?.requirements);
+	const requirements = $derived(catalog()?.requirement);
 </script>
 
 <div class="m-3 mr-0 text-content-primary">

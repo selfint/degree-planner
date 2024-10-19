@@ -5,7 +5,7 @@
 	import Button from '$lib/components/Button.svelte';
 	import CourseElement from '$lib/components/CourseElement.svelte';
 
-	import { user, degreeData, content } from '$lib/stores.svelte';
+	import { user, catalog, content } from '$lib/stores.svelte';
 
 	import { getCourseData, getAllCourses } from '$lib/courseData';
 	import { getCourseLists } from '$lib/requirements';
@@ -13,7 +13,7 @@
 
 	const code = $derived($page.params.code);
 	const course = $derived(getCourseData(code));
-	const requirements = $derived(degreeData()?.requirements);
+	const requirements = $derived(catalog()?.requirement);
 
 	const courseMemberRequirements = $derived.by(() => {
 		if (requirements === undefined) {
@@ -42,7 +42,11 @@
 			})
 	);
 
-	function formatRequirementName(name: string): string {
+	function formatRequirementName(requirement: Requirement): string {
+		let name = requirement.name;
+		if (requirement.he !== undefined && content.lang.lang === 'he') {
+			name = requirement.he;
+		}
 		return name
 			.split('_')
 			.map((word) => word[0].toUpperCase() + word.slice(1).toLowerCase())
@@ -72,7 +76,7 @@
 </script>
 
 <div class="mt-3">
-	<h1 class="mb-2 ml-3 text-lg font-medium text-content-primary">
+	<h1 class="mb-2 ms-3 text-lg font-medium text-content-primary">
 		<span dir="rtl">
 			{course.name ?? code}
 		</span>
@@ -87,8 +91,8 @@
 		</a>
 	</h1>
 
-	<div class="mb-4 ml-3 flex flex-row items-center space-x-1">
-		<div class="m-0 ml-1 p-0">
+	<div class="mb-4 ms-3 flex flex-row items-center space-x-1">
+		<div class="m-0 ms-1 p-0">
 			<div
 				style="background: {generateCourseColor(course)}"
 				class="h-8 w-8 rounded-full"
@@ -96,7 +100,7 @@
 		</div>
 		{#each courseMemberRequirements as requirement}
 			<div
-				style="background: {generateRequirementColor(requirement)}"
+				style="background: {generateRequirementColor(requirement.name)}"
 				class="rounded-md pb-0.5 pl-2 pr-2 pt-0.5 leading-none"
 			>
 				<span class="text-base leading-none text-content-primary">
@@ -145,7 +149,7 @@
 		{/if}
 	</div>
 
-	<div class="ml-3 mt-4">
+	<div class="ms-3 mt-4">
 		<h2 class="pb-1 text-lg font-medium text-content-primary">
 			{content.lang.course.info}
 		</h2>
@@ -168,7 +172,7 @@
 	<div class="mt-4">
 		{#if (course.connections?.dependencies ?? []).length !== 0}
 			<div class="pb-4">
-				<h2 class="ml-3 pb-1 text-lg font-medium text-content-primary">
+				<h2 class="ms-3 pb-1 text-lg font-medium text-content-primary">
 					{content.lang.common.dependencies}
 				</h2>
 				<div class="flex flex-row space-x-2 overflow-x-auto">
@@ -208,7 +212,7 @@
 		{/if}
 		{#if (course.connections?.adjacent ?? []).length !== 0}
 			<div>
-				<h2 class="ml-3 pb-1 text-lg font-medium text-content-primary">
+				<h2 class="ms-3 pb-1 text-lg font-medium text-content-primary">
 					{content.lang.common.adjacencies}
 				</h2>
 				<div class="flex flex-row space-x-2 overflow-x-auto">
@@ -221,7 +225,7 @@
 				</div>
 			</div>
 		{/if}
-		<div class="ml-3">
+		<div class="ms-3">
 			{#if dependants.length > 0}
 				<h2 class="pb-1 text-lg font-medium text-content-primary">
 					{content.lang.common.dependants}
@@ -229,7 +233,7 @@
 				<div class="flex flex-row flex-wrap">
 					{#each dependants as c, i}
 						<div
-							class="container w-fit pb-4 pr-2"
+							class="container w-fit pb-4 pe-2"
 							tabindex={i}
 							role="button"
 							onclick={() => goto(`/course/${c.code}`)}

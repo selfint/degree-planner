@@ -357,6 +357,7 @@
                   "name": "specialization",
                   "amount": 3,
                   "points": 26,
+                  "he": "התמחות",
                   "nested": [
                     {
                       "name": "AI_and_ML",

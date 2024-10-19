@@ -150,7 +150,7 @@ export const cms = {
 		course: {
 			median: 'חציון',
 			points: 'נקודות',
-			plan: 'תוכנית',
+			plan: 'הוספה',
 			removeFromSemester: 'הסר מהסמסטר',
 			removeFromWishlist: 'הסר מרשימת המשאלות',
 			wishlist: 'רשימת משאלות',

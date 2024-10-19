@@ -14,6 +14,7 @@
 		getCourseLists,
 		getDegreeRequirementCourses
 	} from '$lib/requirements';
+	import RequirementsElement from '$lib/components/RequirementsElement.svelte';
 
 	let disabled: string[] = $state([]);
 
@@ -94,18 +95,18 @@
 	}
 
 	const loloco = $derived.by(() => {
-		let lists: [string, Course[]][] = [];
+		let lists: [Requirement[], Course[]][] = [];
 
-		lists.push([content.lang.semester.wishlist, wishlistCourses]);
+		lists.push([[{ name: content.lang.semester.wishlist }], wishlistCourses]);
 
 		for (const [index, courses] of futureSemesters) {
 			const season = content.lang.common.seasons[index % 3];
-			lists.push([`${season} ${index + 1}`, courses]);
+			lists.push([[{ name: `${season} ${index + 1}` }], courses]);
 		}
 
 		if (requirementCourses !== undefined) {
 			for (const { path, courses } of requirementCourses) {
-				lists.push([path.join(' '), courses]);
+				lists.push([path, courses]);
 			}
 		}
 
@@ -113,7 +114,7 @@
 			.map(
 				([title, courses]) =>
 					[title, sortCourses(courses.filter(courseCanBeTaken))] as [
-						string,
+						Requirement[],
 						Course[]
 					]
 			)
@@ -240,7 +241,18 @@
 		return canTake;
 	}
 
-	function formatName(name: string): string {
+	function formatName(requirements: Requirement[]): string {
+		let name = requirements.map((r) => r.name).join(' ');
+
+		if (content.lang.lang === 'he') {
+			name = requirements
+				.map((r) => r.he ?? r.name)
+				.join(' ')
+				.split('_')
+				.map((word) => word[0].toUpperCase() + word.slice(1))
+				.join(' ');
+		}
+
 		return name
 			.split('_')
 			.map((word) => word[0].toUpperCase() + word.slice(1))
@@ -327,8 +339,11 @@
 	<div class="flex-1 overflow-x-auto">
 		{#each loloco as [title, courses]}
 			<div class="pb-2">
-				<h1 class="mb-1 ms-3 text-lg font-medium text-content-primary sm:ms-0">
-					{formatName(title)}
+				<h1
+					class="mb-1.5 ms-3 text-lg font-medium text-content-primary sm:ms-0"
+				>
+					<!-- {formatName(title)} -->
+					<RequirementsElement requirements={[title]} />
 				</h1>
 
 				<div class="sm:hidden">

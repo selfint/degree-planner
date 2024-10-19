@@ -21,11 +21,9 @@
 			.split('_')
 			.map((word) => word[0].toUpperCase() + word.slice(1).toLowerCase())
 			.map((word) => {
-				if (maxWidth !== undefined && word.length > maxWidth) {
+				if (maxWidth !== undefined && word.length > maxWidth * 2 + 3) {
 					return (
-						word.slice(0, maxWidth / 4) +
-						'...' +
-						word.slice((-maxWidth * 3) / 4)
+						word.slice(0, maxWidth / 2) + '..' + word.slice(-maxWidth / 2 - 2)
 					);
 				} else {
 					return word;

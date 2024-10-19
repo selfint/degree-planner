@@ -57,7 +57,7 @@
 					? ''
 					: 'min-h-28'} flex-col justify-between sm:min-h-16"
 			>
-				<div class="pb-2 text-right text-xs leading-none text-content-primary">
+				<div class="text-right text-xs leading-none text-content-primary">
 					<span class="hyphens-auto break-words" dir="rtl">
 						{course.name}
 
@@ -68,8 +68,11 @@
 				</div>
 
 				{#if lists?.length ?? 0 > 0}
-					<div class="flex flex-row flex-wrap text-xs">
-						<RequirementsElement requirements={lists} maxWidth={7} />
+					<div class="hidden flex-row flex-wrap text-xs sm:flex">
+						<RequirementsElement requirements={lists} slice={2} maxWidth={6} />
+					</div>
+					<div class="flex flex-row flex-wrap text-xs sm:hidden">
+						<RequirementsElement requirements={lists} slice={2} maxWidth={2} />
 					</div>
 				{/if}
 			</div>

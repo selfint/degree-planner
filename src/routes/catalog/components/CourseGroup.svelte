@@ -7,6 +7,7 @@
 	import { content } from '$lib/stores.svelte';
 
 	import { generateRequirementColor } from '$lib/colors';
+	import RequirementsElement from '$lib/components/RequirementsElement.svelte';
 
 	type Props = {
 		titles: Requirement[];
@@ -78,24 +79,20 @@
 	{#each groups as [scores, group]}
 		<div class="mb-4">
 			<h1
-				class="mb-1 ms-3 flex flex-row items-baseline text-lg font-medium text-content-primary"
+				class="mb-1 me-3 ms-3 flex flex-row items-baseline font-medium text-content-primary"
 			>
-				<div class="me-2 flex flex-row flex-wrap items-baseline">
-					{#each titles as title}
-						{#if colorize}
-							<span
-								class="mb-1 me-1 w-fit rounded-md pl-2 pr-2 text-content-primary"
-								style="background: {generateRequirementColor(title.name)}"
-							>
-								{formatName(title)}
-							</span>
-						{:else}
+				{#if colorize}
+					<RequirementsElement requirements={[titles]} />
+				{:else}
+					<div class="me-2 flex flex-row flex-wrap items-baseline">
+						{#each titles as title}
 							<span class="me-1">{formatName(title)}</span>
-						{/if}
-					{/each}
-				</div>
+						{/each}
+					</div>
+				{/if}
 
-				<span dir="ltr" class="font-normal text-content-secondary">
+				<div class="flex-grow"></div>
+				<span dir="ltr" class="text-nowrap font-normal text-content-secondary">
 					{scores}
 				</span>
 			</h1>

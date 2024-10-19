@@ -1,5 +1,164 @@
 {
   "2023_2024": {
+    "biotech_and_food_engineering": {
+      "4_year": {
+        "recommended": [
+          [
+            "01040041",
+            "01040019",
+            "01240120",
+            "00640522",
+            "01340058",
+            "03940800"
+          ],
+          [
+            "01040043",
+            "03240033",
+            "01250801",
+            "01250101",
+            "01340019",
+            "01140051",
+            "03940800"
+          ],
+          [],
+          [
+            "01040131",
+            "02340128",
+            "01240510",
+            "00640523",
+            "00640212",
+            "01340113"
+          ],
+          [
+            "01040228",
+            "00640322",
+            "00640325",
+            "00640115",
+            "00640419",
+            "00640413",
+            "01140052"
+          ],
+          [],
+          [
+            "00640117",
+            "00640507",
+            "00640106",
+            "00640420",
+            "00640324",
+            "00640326"
+          ],
+          [
+            "00640118",
+            "00640250",
+            "00640120",
+            "00940481"
+          ],
+          [],
+          [
+            "00640615",
+            "00640239",
+            "00640509"
+          ],
+          [],
+          []
+        ],
+        "requirement": {
+          "name": "Biotech And Food Engineering - 4 Year",
+          "points": 161,
+          "nested": [
+            {
+              "name": "core",
+              "courses": "/_catalogs/2023_2024/biotech_and_food_engineering/4_year/requirement/core/courses",
+              "points": 119,
+              "he": "חובה"
+            },
+            {
+              "name": "list_a",
+              "courses": "/_catalogs/2023_2024/biotech_and_food_engineering/4_year/requirement/list_a/courses",
+              "amount": 2,
+              "he": "רשימה א׳",
+              "nested": [
+                {
+                  "name": "applied_biotech",
+                  "nested": [
+                    {
+                      "name": "applied",
+                      "courses": "/_catalogs/2023_2024/biotech_and_food_engineering/4_year/requirement/list_a/applied_biotech/applied/courses",
+                      "points": 7
+                    },
+                    {
+                      "name": "theory",
+                      "courses": "/_catalogs/2023_2024/biotech_and_food_engineering/4_year/requirement/list_a/applied_biotech/theory/courses",
+                      "count": 3
+                    }
+                  ]
+                },
+                {
+                  "name": "computational_biotech",
+                  "nested": [
+                    {
+                      "name": "applied",
+                      "courses": "/_catalogs/2023_2024/biotech_and_food_engineering/4_year/requirement/list_a/computational_biotech/applied/courses",
+                      "points": 7
+                    },
+                    {
+                      "name": "theory",
+                      "courses": "/_catalogs/2023_2024/biotech_and_food_engineering/4_year/requirement/list_a/computational_biotech/theory/courses",
+                      "count": 3
+                    }
+                  ]
+                },
+                {
+                  "name": "futurism_and_food_engineering",
+                  "nested": [
+                    {
+                      "name": "applied",
+                      "courses": "/_catalogs/2023_2024/biotech_and_food_engineering/4_year/requirement/list_a/futurism_and_food_engineering/applied/courses",
+                      "points": 7
+                    },
+                    {
+                      "name": "theory",
+                      "courses": "/_catalogs/2023_2024/biotech_and_food_engineering/4_year/requirement/list_a/futurism_and_food_engineering/theory/courses",
+                      "count": 3
+                    }
+                  ]
+                },
+                {
+                  "name": "health_and_food_engineering",
+                  "nested": [
+                    {
+                      "name": "applied",
+                      "courses": "/_catalogs/2023_2024/biotech_and_food_engineering/4_year/requirement/list_a/health_and_food_engineering/applied/courses",
+                      "points": 7
+                    },
+                    {
+                      "name": "theory",
+                      "courses": "/_catalogs/2023_2024/biotech_and_food_engineering/4_year/requirement/list_a/health_and_food_engineering/theory/courses",
+                      "count": 3
+                    }
+                  ]
+                },
+                {
+                  "name": "medical_biotech",
+                  "nested": [
+                    {
+                      "name": "applied",
+                      "courses": "/_catalogs/2023_2024/biotech_and_food_engineering/4_year/requirement/list_a/medical_biotech/applied/courses",
+                      "points": 7
+                    },
+                    {
+                      "name": "theory",
+                      "courses": "/_catalogs/2023_2024/biotech_and_food_engineering/4_year/requirement/list_a/medical_biotech/theory/courses",
+                      "count": 3
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
     "computer_science": {
       "3_year": {
         "recommended": [

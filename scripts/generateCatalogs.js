@@ -31,6 +31,13 @@ function parseCatalog(text) {
 
 function nestRequirements(name, requirements) {
 	const keywords = ['courses', 'count', 'amount', 'points', 'he', 'overflow'];
+	const translations = new Map([
+		['core', 'חובה'],
+		['sport', 'ספורט'],
+		['english', 'אנגלית'],
+		['list_a', 'רשימה א׳'],
+		['list_b', 'רשימה ב׳']
+	]);
 
 	const nonKeywords = Object.keys(requirements).filter(
 		(key) => !keywords.includes(key)
@@ -47,7 +54,7 @@ function nestRequirements(name, requirements) {
 		count: requirements.count,
 		amount: requirements.amount,
 		points: requirements.points,
-		he: requirements.he,
+		he: requirements.he ?? translations.get(name),
 		overflow: requirements.overflow,
 		nested: nested.length > 0 ? nested : undefined
 	};
@@ -95,7 +102,6 @@ function readDirectoryRecursively(directory, parents = []) {
 	});
 
 	return result;
-	// return sortObject(result);
 }
 
 const manifest = readDirectoryRecursively(dbPath);

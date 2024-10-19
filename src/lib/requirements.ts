@@ -47,6 +47,8 @@ export async function loadCatalog(
 ): Promise<Catalog> {
 	const [year, faculty, path] = degree;
 
+	// TODO why does this not work?
+	// @ts-expect-error
 	const catalog = catalogs[year][faculty][path];
 
 	const requirement = await loadCourses(catalog.requirement, _fetch);

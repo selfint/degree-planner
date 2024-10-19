@@ -27,6 +27,10 @@
 		planned
 	}: Props = $props();
 
+	const name = $derived(
+		content.lang.lang === 'he' ? (planned.he ?? planned.name) : planned.name
+	);
+
 	function formatName(name: string): string {
 		return (
 			name[0].toUpperCase() +
@@ -61,10 +65,10 @@
 		>
 			{#if planned.nested === undefined}
 				<a {href}>
-					{formatName(requirementName)}
+					{formatName(name)}
 				</a>
 			{:else}
-				{formatName(requirementName)}
+				{formatName(name)}
 			{/if}
 		</h3>
 	{/if}

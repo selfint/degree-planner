@@ -18,7 +18,7 @@
 <div class="mt-3">
 	<CourseGroup
 		colorize={false}
-		titles={[content.lang.catalog.wishlist]}
+		titles={[{ name: content.lang.catalog.wishlist }]}
 		codes={user.wishlist}
 		{requirements}
 	/>

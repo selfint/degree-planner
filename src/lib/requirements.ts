@@ -66,37 +66,46 @@ export async function loadCatalog(
 export function getCourseLists(
 	requirement: Requirement | undefined,
 	code: string
-): Requirement[] {
+): Requirement[][] {
 	if (requirement === undefined) {
 		return [];
 	}
 
-	const lists: Requirement[] = [];
-	function _getLists(r: Requirement): void {
-		if (r.courses?.includes(code)) {
-			lists.push(r);
-		}
+	function _getLists(r: Requirement, path: Requirement[]): Requirement[][] {
+		const lists: Requirement[][] = [];
+		path = [...path, r];
 
 		for (const nested of r.nested ?? []) {
-			_getLists(nested);
+			lists.push(..._getLists(nested, path));
 		}
+
+		if (lists.length > 0) {
+			console.log([path.map((r) => r.name)].join(' '));
+			return lists;
+		}
+
+		if (r.courses?.includes(code)) {
+			lists.push(path);
+		}
+
+		return lists;
 	}
 
-	// _getLists(requirement);
-	requirement.nested?.forEach((r) => _getLists(r));
+	// const lists = [..._getLists(requirement, [])];
+	const lists = requirement.nested?.flatMap((r) => _getLists(r, [])) ?? [];
 
 	return lists;
 }
 
 export function getDegreeRequirementCourses(
 	requirement: Requirement
-): { path: string[]; courses: string[] }[] {
+): { path: Requirement[]; courses: string[] }[] {
 	function _getRequirementCourses(
 		r: Requirement,
-		path: string[]
-	): { path: string[]; courses: string[] }[] {
+		path: Requirement[]
+	): { path: Requirement[]; courses: string[] }[] {
 		// add the current requirement to the path
-		path = [...path, r.name];
+		path = [...path, r];
 
 		const result = [];
 		if (r.courses) {

@@ -1,15 +1,15 @@
 <script lang="ts">
 	import ScheduleErrorComponent from './ScheduleErrorComponent.svelte';
 
-	import { generateRequirementColor, generateCourseColor } from '$lib/colors';
+	import { generateCourseColor } from '$lib/colors';
 	import type { ScheduleError } from '$lib/schedule';
 	import CourseWidth from './CourseWidth.svelte';
 	import StudyDaysComponent from './StudyDaysComponent.svelte';
-	import { content } from '$lib/stores.svelte';
+	import RequirementsElement from './RequirementsElement.svelte';
 
 	type Props = {
 		course: Course;
-		lists?: Requirement[];
+		lists?: Requirement[][];
 		squeeze?: boolean;
 		variant?:
 			| {
@@ -22,16 +22,9 @@
 			  };
 	};
 
-	let { course, lists, squeeze = false, variant }: Props = $props();
+	let { course, lists = [], squeeze = false, variant }: Props = $props();
 
 	const color = generateCourseColor(course);
-
-	function formatName(name: string): string {
-		return name
-			.split('_')
-			.map((word) => word[0].toUpperCase() + word.slice(1).toLowerCase())
-			.join(' ');
-	}
 
 	const median =
 		course.median === undefined ? 'N/A' : Math.round(course.median * 10) / 10;
@@ -62,7 +55,7 @@
 			<div
 				class="flex {squeeze
 					? ''
-					: 'min-h-28'} flex-col justify-between sm:min-h-14"
+					: 'min-h-28'} flex-col justify-between sm:min-h-16"
 			>
 				<div class="pb-2 text-right text-xs leading-none text-content-primary">
 					<span class="hyphens-auto break-words" dir="rtl">
@@ -75,23 +68,8 @@
 				</div>
 
 				{#if lists?.length ?? 0 > 0}
-					<div class="flex h-fit flex-row items-baseline">
-						<div class="flex flex-row flex-wrap items-baseline space-y-1">
-							{#each lists ?? [] as req}
-								<div
-									style="background: {generateRequirementColor(req.name)}"
-									class="me-1 rounded-md pb-0.5 pl-2 pr-2 leading-none"
-								>
-									<span class="text-xs leading-none text-content-primary">
-										{formatName(
-											content.lang.lang === 'he'
-												? (req.he ?? req.name)
-												: req.name
-										)}
-									</span>
-								</div>
-							{/each}
-						</div>
+					<div class="flex flex-row flex-wrap text-xs">
+						<RequirementsElement requirements={lists} maxWidth={7} />
 					</div>
 				{/if}
 			</div>

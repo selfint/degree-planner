@@ -10,6 +10,7 @@
 	import { getCourseData, getAllCourses } from '$lib/courseData';
 	import { getCourseLists } from '$lib/requirements';
 	import { generateRequirementColor, generateCourseColor } from '$lib/colors';
+	import RequirementsElement from '$lib/components/RequirementsElement.svelte';
 
 	const code = $derived($page.params.code);
 	const course = $derived(getCourseData(code));
@@ -76,7 +77,7 @@
 </script>
 
 <div class="mt-3">
-	<h1 class="mb-2 ms-3 text-lg font-medium text-content-primary">
+	<h1 class="ms-3 text-lg font-medium text-content-primary">
 		<span dir="rtl">
 			{course.name ?? code}
 		</span>
@@ -91,23 +92,14 @@
 		</a>
 	</h1>
 
-	<div class="mb-4 ms-3 flex flex-row items-center space-x-1">
-		<div class="m-0 ms-1 p-0">
+	<div class="mb-4 ms-3 flex flex-row flex-wrap items-center space-y-1">
+		<div class="m-0 me-1 mt-1 p-0">
 			<div
 				style="background: {generateCourseColor(course)}"
-				class="h-8 w-8 rounded-full"
+				class="h-6 w-6 rounded-full"
 			></div>
 		</div>
-		{#each courseMemberRequirements as requirement}
-			<div
-				style="background: {generateRequirementColor(requirement.name)}"
-				class="rounded-md pb-0.5 pl-2 pr-2 pt-0.5 leading-none"
-			>
-				<span class="text-base leading-none text-content-primary">
-					{formatRequirementName(requirement)}
-				</span>
-			</div>
-		{/each}
+		<RequirementsElement requirements={courseMemberRequirements} />
 	</div>
 
 	<p class="mb-8 ml-3 mr-3 text-content-secondary" dir="rtl">

@@ -55,6 +55,13 @@
 		.map((t) => t.toLowerCase())
 		.join('_');
 	const href = `/catalog#${section}`;
+
+	const requirementHasConditions = $derived(
+		planned.count.required > 0 ||
+			planned.points.required > 0 ||
+			(planned.amount.required > 0 &&
+				planned.amount.required < planned.nested.options.length)
+	);
 </script>
 
 <div id={section} class="mb-2 w-full">
@@ -133,7 +140,7 @@
 		</span>
 	{/if}
 
-	{#if planned.courses.done.length > 0}
+	{#if requirementHasConditions}
 		<div class="mb-1 mt-1">
 			<CourseRow {indent} courses={planned.courses.done ?? []}>
 				{#snippet children({ course })}

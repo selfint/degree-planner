@@ -4,17 +4,24 @@
 	import CourseRow from '$lib/components/CourseRow.svelte';
 
 	import { getCourseLists } from '$lib/requirements';
+	import { content } from '$lib/stores.svelte';
 
 	import { generateRequirementColor } from '$lib/colors';
 
 	type Props = {
-		titles: string[];
+		titles: Requirement[];
 		colorize?: boolean;
 		codes: string[];
 		requirements?: Requirement;
 	};
+	let { titles, colorize = true, codes, requirements }: Props = $props();
 
-	function formatName(name: string): string {
+	function formatName(requirement: Requirement): string {
+		let name = requirement.name;
+		if (content.lang.lang === 'he' && requirement.he !== undefined) {
+			name = requirement.he;
+		}
+
 		return (
 			name[0].toUpperCase() +
 			name
@@ -25,8 +32,6 @@
 				.join(' ')
 		);
 	}
-
-	let { titles, colorize = true, codes, requirements }: Props = $props();
 
 	const groups = $derived.by(() => {
 		const courses = codes
@@ -59,9 +64,14 @@
 			groups.push([name, group]);
 		}
 
+		// add empty group if no courses, for placeholder rows (like wishlist)
+		if (groups.length === 0) {
+			groups.push(['', []]);
+		}
+
 		return groups;
 	});
-	const id = titles.map((t) => t.toLowerCase()).join('_');
+	const id = titles.map((t) => t.name.toLowerCase()).join('_');
 </script>
 
 <div {id} class="mb-4 min-h-[118px] max-w-full">
@@ -75,7 +85,7 @@
 						{#if colorize}
 							<span
 								class="mb-1 me-1 w-fit rounded-md pl-2 pr-2 text-content-primary"
-								style="background: {generateRequirementColor(title)}"
+								style="background: {generateRequirementColor(title.name)}"
 							>
 								{formatName(title)}
 							</span>
@@ -94,7 +104,9 @@
 					<a href={`/course/${course.code}`}>
 						<CourseElement
 							{course}
-							lists={getCourseLists(requirements, course.code)}
+							lists={getCourseLists(requirements, course.code).filter(
+								(list) => !list.every((req, i) => req.name === titles[i]?.name)
+							)}
 						/>
 					</a>
 				{/snippet}

@@ -31,13 +31,9 @@
 	// changes, so we need to keep track of it ourselves
 	// this is *the only* place where we should be setting the degree value
 	function onChange(newDegree: Degree): boolean {
-		user.degree = newDegree;
-
-		// reset schedule
-		user.wishlist = [];
-		user.semesters = [];
-
 		loadCatalog(newDegree).then((data) => {
+			user.degree = newDegree;
+			user.wishlist = [];
 			user.semesters = data.recommended;
 		});
 

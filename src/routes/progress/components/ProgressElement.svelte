@@ -135,23 +135,16 @@
 	{#if planned.courses?.length ?? 0 > 0}
 		<div class="mb-1 mt-1">
 			<CourseRow {indent} courses={planned.courses ?? []}>
-				{#snippet children({ course, index: i })}
-					<div
+				{#snippet children({ course })}
+					<a
 						class={current?.courses?.includes(course.code) ? '' : 'opacity-50'}
-						tabindex={i}
-						role="button"
-						onmousedown={() => goto(`/course/${course}`)}
-						onkeydown={(e) => {
-							if (e.key === 'Enter') {
-								goto(`/course/${course}`);
-							}
-						}}
+						href={`/course/${course.code}`}
 					>
 						<CourseElement
 							{course}
 							lists={getCourseLists(degreeRequirements, course.code)}
 						/>
-					</div>
+					</a>
 				{/snippet}
 			</CourseRow>
 		</div>

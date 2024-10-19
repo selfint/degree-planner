@@ -339,9 +339,7 @@
 	<div class="flex-1 overflow-x-auto">
 		{#each loloco as [title, courses]}
 			<div class="pb-2">
-				<h1
-					class="mb-1.5 ms-3 text-lg font-medium text-content-primary sm:ms-0"
-				>
+				<h1 class="mb-1.5 ms-3 font-medium text-content-primary sm:ms-0">
 					<!-- {formatName(title)} -->
 					<RequirementsElement requirements={[title]} />
 				</h1>

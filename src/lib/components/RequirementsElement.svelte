@@ -17,19 +17,16 @@
 			name = requirement.he;
 		}
 
-		return name
+		name = name
 			.split('_')
 			.map((word) => word[0].toUpperCase() + word.slice(1).toLowerCase())
-			.map((word) => {
-				if (maxWidth !== undefined && word.length > maxWidth * 2 + 3) {
-					return (
-						word.slice(0, maxWidth / 2) + '..' + word.slice(-maxWidth / 2 - 2)
-					);
-				} else {
-					return word;
-				}
-			})
 			.join(' ');
+
+		if (maxWidth !== undefined && name.length > maxWidth + 2) {
+			return name.slice(0, 2) + '..' + name.slice(-maxWidth + 2);
+		} else {
+			return name;
+		}
 	}
 </script>
 

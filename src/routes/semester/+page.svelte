@@ -95,27 +95,32 @@
 	}
 
 	const loloco = $derived.by(() => {
-		let lists: [Requirement[], Course[]][] = [];
+		let lists: [Requirement[], Course[], boolean][] = [];
 
-		lists.push([[{ name: content.lang.semester.wishlist }], wishlistCourses]);
+		lists.push([
+			[{ name: content.lang.semester.wishlist }],
+			wishlistCourses,
+			false
+		]);
 
 		for (const [index, courses] of futureSemesters) {
 			const season = content.lang.common.seasons[index % 3];
-			lists.push([[{ name: `${season} ${index + 1}` }], courses]);
+			lists.push([[{ name: `${season} ${index + 1}` }], courses, false]);
 		}
 
 		if (requirementCourses !== undefined) {
 			for (const { path, courses } of requirementCourses) {
-				lists.push([path, courses]);
+				lists.push([path, courses, true]);
 			}
 		}
 
 		lists = lists
 			.map(
-				([title, courses]) =>
-					[title, sortCourses(courses.filter(courseCanBeTaken))] as [
+				([title, courses, colorize]) =>
+					[title, sortCourses(courses.filter(courseCanBeTaken)), colorize] as [
 						Requirement[],
-						Course[]
+						Course[],
+						boolean
 					]
 			)
 			.filter(([_, courses]) => courses.length > 0);
@@ -337,11 +342,16 @@
 	</div>
 
 	<div class="flex-1 overflow-x-auto">
-		{#each loloco as [title, courses]}
+		{#each loloco as [titles, courses, colorize]}
 			<div class="pb-2">
 				<h1 class="mb-1.5 ms-3 font-medium text-content-primary sm:ms-0">
-					<!-- {formatName(title)} -->
-					<RequirementsElement requirements={[title]} />
+					{#if colorize}
+						<RequirementsElement requirements={[titles]} />
+					{:else}
+						<div class="me-2 flex flex-row flex-wrap items-baseline">
+							<span class="me-1">{formatName(titles)}</span>
+						</div>
+					{/if}
 				</h1>
 
 				<div class="sm:hidden">

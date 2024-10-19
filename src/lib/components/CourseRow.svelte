@@ -27,7 +27,7 @@
 	);
 </script>
 
-<div class="flex flex-row overflow-x-scroll">
+<div class="flex flex-row overflow-x-auto">
 	<div style={margin}></div>
 	{#each _courses as course, index}
 		<div class="pe-2">

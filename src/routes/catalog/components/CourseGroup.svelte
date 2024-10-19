@@ -1,22 +1,27 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
-
 	import { getCourseData } from '$lib/courseData';
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import CourseRow from '$lib/components/CourseRow.svelte';
 
 	import { getCourseLists } from '$lib/requirements';
+	import { content } from '$lib/stores.svelte';
 
-	import { generateRequirementColor } from '$lib/colors';
+	import RequirementsElement from '$lib/components/RequirementsElement.svelte';
 
 	type Props = {
-		titles: string[];
+		titles: Requirement[];
 		colorize?: boolean;
 		codes: string[];
-		requirements?: DegreeRequirements;
+		requirements?: Requirement;
 	};
+	let { titles, colorize = true, codes, requirements }: Props = $props();
 
-	function formatName(name: string): string {
+	function formatName(requirement: Requirement): string {
+		let name = requirement.name;
+		if (content.lang.lang === 'he' && requirement.he !== undefined) {
+			name = requirement.he;
+		}
+
 		return (
 			name[0].toUpperCase() +
 			name
@@ -27,8 +32,6 @@
 				.join(' ')
 		);
 	}
-
-	let { titles, colorize = true, codes, requirements }: Props = $props();
 
 	const groups = $derived.by(() => {
 		const courses = codes
@@ -61,55 +64,47 @@
 			groups.push([name, group]);
 		}
 
+		// add empty group if no courses, for placeholder rows (like wishlist)
+		if (groups.length === 0) {
+			groups.push(['', []]);
+		}
+
 		return groups;
 	});
-	const id = titles.map((t) => t.toLowerCase()).join('_');
+	const id = titles.map((t) => t.name.toLowerCase()).join('_');
 </script>
 
 <div {id} class="mb-4 min-h-[118px] max-w-full">
 	{#each groups as [scores, group]}
 		<div class="mb-4">
 			<h1
-				class="mb-1 ms-3 flex flex-row items-baseline text-lg font-medium text-content-primary"
+				class="mb-1 me-3 ms-3 flex flex-row items-baseline text-lg font-medium text-content-primary"
 			>
-				<div class="me-2 flex flex-row flex-wrap items-baseline">
-					{#each titles as title}
-						{#if colorize}
-							<span
-								class="mb-1 me-1 w-fit rounded-md pl-2 pr-2 text-content-primary"
-								style="background: {generateRequirementColor(title)}"
-							>
-								{formatName(title)}
-							</span>
-						{:else}
+				{#if colorize}
+					<RequirementsElement requirements={[titles]} />
+				{:else}
+					<div class="me-2 flex flex-row flex-wrap items-baseline">
+						{#each titles as title}
 							<span class="me-1">{formatName(title)}</span>
-						{/if}
-					{/each}
-				</div>
+						{/each}
+					</div>
+				{/if}
 
-				<span dir="ltr" class="font-normal text-content-secondary">
+				<div class="flex-grow"></div>
+				<span dir="ltr" class="text-nowrap font-normal text-content-secondary">
 					{scores}
 				</span>
 			</h1>
 			<CourseRow courses={group}>
-				{#snippet children({ course, index: i })}
-					<div
-						tabindex={i}
-						role="button"
-						onmousedown={() => goto(`/course/${course.code}`)}
-						onkeydown={(e) => {
-							if (e.key === 'Enter') {
-								goto(`/course/${course.code}`);
-							}
-						}}
-					>
+				{#snippet children({ course })}
+					<a href={`/course/${course.code}`}>
 						<CourseElement
 							{course}
 							lists={getCourseLists(requirements, course.code).filter(
-								(list) => !titles.includes(list)
+								(list) => !list.every((req, i) => req.name === titles[i]?.name)
 							)}
 						/>
-					</div>
+					</a>
 				{/snippet}
 			</CourseRow>
 		</div>

@@ -1,0 +1,582 @@
+{
+  "2023_2024": {
+    "biotech_and_food_engineering": {
+      "4_year": {
+        "he": "ארבע שנתי",
+        "recommended": [
+          [
+            "01040041",
+            "01040019",
+            "01240120",
+            "00640522",
+            "01340058",
+            "03940800"
+          ],
+          [
+            "01040043",
+            "03240033",
+            "01250801",
+            "01250101",
+            "01340019",
+            "01140051",
+            "03940800"
+          ],
+          [],
+          [
+            "01040131",
+            "02340128",
+            "01240510",
+            "00640523",
+            "00640212",
+            "01340113"
+          ],
+          [
+            "01040228",
+            "00640322",
+            "00640325",
+            "00640115",
+            "00640419",
+            "00640413",
+            "01140052"
+          ],
+          [],
+          [
+            "00640117",
+            "00640507",
+            "00640106",
+            "00640420",
+            "00640324",
+            "00640326"
+          ],
+          [
+            "00640118",
+            "00640250",
+            "00640120",
+            "00940481"
+          ],
+          [],
+          [
+            "00640615",
+            "00640239",
+            "00640509"
+          ],
+          [],
+          []
+        ],
+        "requirement": {
+          "name": "Biotech And Food Engineering - 4 Year",
+          "points": 161,
+          "he": "הנדסת ביוטכנולוגיה ומזון",
+          "nested": [
+            {
+              "name": "choice",
+              "courses": "/_catalogs/2023_2024/biotech_and_food_engineering/4_year/requirement/choice/courses",
+              "amount": 2,
+              "he": "בחירה",
+              "nested": [
+                {
+                  "name": "applied_biotech",
+                  "he": "ביוטכנולוגיה יישומית",
+                  "nested": [
+                    {
+                      "name": "applied",
+                      "courses": "/_catalogs/2023_2024/biotech_and_food_engineering/4_year/requirement/choice/applied_biotech/applied/courses",
+                      "points": 7,
+                      "he": "יישומי"
+                    },
+                    {
+                      "name": "theory",
+                      "courses": "/_catalogs/2023_2024/biotech_and_food_engineering/4_year/requirement/choice/applied_biotech/theory/courses",
+                      "count": 3,
+                      "he": "התנסות ומחקר"
+                    }
+                  ]
+                },
+                {
+                  "name": "computational_biotech",
+                  "he": "ביוטכנולוגיה חישובית",
+                  "nested": [
+                    {
+                      "name": "applied",
+                      "courses": "/_catalogs/2023_2024/biotech_and_food_engineering/4_year/requirement/choice/computational_biotech/applied/courses",
+                      "points": 7,
+                      "he": "יישומי"
+                    },
+                    {
+                      "name": "theory",
+                      "courses": "/_catalogs/2023_2024/biotech_and_food_engineering/4_year/requirement/choice/computational_biotech/theory/courses",
+                      "count": 3,
+                      "he": "התנסות ומחקר"
+                    }
+                  ]
+                },
+                {
+                  "name": "futurism_and_food_engineering",
+                  "he": "חדשנות וקיימות בהנדסת מזון",
+                  "nested": [
+                    {
+                      "name": "applied",
+                      "courses": "/_catalogs/2023_2024/biotech_and_food_engineering/4_year/requirement/choice/futurism_and_food_engineering/applied/courses",
+                      "points": 7,
+                      "he": "יישומי"
+                    },
+                    {
+                      "name": "theory",
+                      "courses": "/_catalogs/2023_2024/biotech_and_food_engineering/4_year/requirement/choice/futurism_and_food_engineering/theory/courses",
+                      "count": 3,
+                      "he": "התנסות ומחקר"
+                    }
+                  ]
+                },
+                {
+                  "name": "health_and_food_engineering",
+                  "he": "הנדסת מזון ובריאות",
+                  "nested": [
+                    {
+                      "name": "applied",
+                      "courses": "/_catalogs/2023_2024/biotech_and_food_engineering/4_year/requirement/choice/health_and_food_engineering/applied/courses",
+                      "points": 7,
+                      "he": "יישומי"
+                    },
+                    {
+                      "name": "theory",
+                      "courses": "/_catalogs/2023_2024/biotech_and_food_engineering/4_year/requirement/choice/health_and_food_engineering/theory/courses",
+                      "count": 3,
+                      "he": "התנסות ומחקר"
+                    }
+                  ]
+                },
+                {
+                  "name": "medical_biotech",
+                  "he": "ביוטכנולוגיה רפואית",
+                  "nested": [
+                    {
+                      "name": "applied",
+                      "courses": "/_catalogs/2023_2024/biotech_and_food_engineering/4_year/requirement/choice/medical_biotech/applied/courses",
+                      "points": 7,
+                      "he": "יישומי"
+                    },
+                    {
+                      "name": "theory",
+                      "courses": "/_catalogs/2023_2024/biotech_and_food_engineering/4_year/requirement/choice/medical_biotech/theory/courses",
+                      "count": 3,
+                      "he": "התנסות ומחקר"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "core",
+              "courses": "/_catalogs/2023_2024/biotech_and_food_engineering/4_year/requirement/core/courses",
+              "points": 119,
+              "he": "חובה"
+            }
+          ]
+        }
+      },
+      "he": "הנדסת ביוטכנולוגיה ומזון"
+    },
+    "computer_science": {
+      "3_year": {
+        "he": "תלת שנתי",
+        "recommended": [
+          [
+            "01040031",
+            "01040166",
+            "02340114",
+            "02340129",
+            "03240033"
+          ],
+          [
+            "01040032",
+            "01140071",
+            "02340124",
+            "02340125",
+            "02340141"
+          ],
+          [],
+          [
+            "00940412",
+            "01040134",
+            "02340218",
+            "00440252",
+            "02340292"
+          ],
+          [
+            "02340118",
+            "02340123",
+            "02340247"
+          ],
+          [],
+          [
+            "02360343",
+            "02360360"
+          ]
+        ],
+        "requirement": {
+          "name": "Computer Science - 3 Year",
+          "points": 118.5,
+          "he": "מדעי המחשב - תלת שנתי",
+          "nested": [
+            {
+              "name": "core",
+              "courses": "/_catalogs/2023_2024/computer_science/3_year/requirement/core/courses",
+              "points": 84,
+              "he": "חובה"
+            },
+            {
+              "name": "list_a",
+              "courses": "/_catalogs/2023_2024/computer_science/3_year/requirement/list_a/courses",
+              "points": 18,
+              "he": "רשימה א׳",
+              "overflow": "list_b"
+            },
+            {
+              "name": "list_b",
+              "courses": "/_catalogs/2023_2024/computer_science/3_year/requirement/list_b/courses",
+              "points": 6.5,
+              "he": "רשימה ב׳"
+            },
+            {
+              "name": "math",
+              "courses": "/_catalogs/2023_2024/computer_science/3_year/requirement/math/courses",
+              "count": 1,
+              "he": "מתמטי"
+            },
+            {
+              "name": "project",
+              "courses": "/_catalogs/2023_2024/computer_science/3_year/requirement/project/courses",
+              "count": 1,
+              "he": "פרויקט"
+            },
+            {
+              "name": "science",
+              "courses": "/_catalogs/2023_2024/computer_science/3_year/requirement/science/courses",
+              "amount": 1,
+              "points": 8,
+              "he": "מדעי",
+              "overflow": "list_b",
+              "nested": [
+                {
+                  "name": "biology_chain",
+                  "courses": "/_catalogs/2023_2024/computer_science/3_year/requirement/science/biology_chain/courses",
+                  "count": 2,
+                  "he": "שרשרת ביולוגיה"
+                },
+                {
+                  "name": "physics-chemistry_chain",
+                  "courses": "/_catalogs/2023_2024/computer_science/3_year/requirement/science/physics-chemistry_chain/courses",
+                  "count": 2,
+                  "he": "שרשרת פיזיקה-כימיה"
+                },
+                {
+                  "name": "physics_chain",
+                  "amount": 1,
+                  "he": "שרשרת פיזיקה",
+                  "nested": [
+                    {
+                      "name": "1",
+                      "courses": "/_catalogs/2023_2024/computer_science/3_year/requirement/science/physics_chain/1/courses",
+                      "count": 1
+                    },
+                    {
+                      "name": "2",
+                      "courses": "/_catalogs/2023_2024/computer_science/3_year/requirement/science/physics_chain/2/courses",
+                      "count": 2
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "4_year": {
+        "he": "ארבע שנתי",
+        "recommended": [
+          [
+            "01040031",
+            "01040166",
+            "02340114",
+            "02340129",
+            "03240033"
+          ],
+          [
+            "01040032",
+            "01140071",
+            "02340124",
+            "02340125",
+            "02340141"
+          ],
+          [],
+          [
+            "00940412",
+            "01040134",
+            "02340218",
+            "00440252",
+            "02340252",
+            "02340292"
+          ],
+          [
+            "02340118",
+            "02340123",
+            "02340247"
+          ],
+          [],
+          [
+            "02360267",
+            "02360343",
+            "02360360"
+          ],
+          [],
+          [],
+          [],
+          [],
+          []
+        ],
+        "requirement": {
+          "name": "Computer Science - 4 Year",
+          "points": 155,
+          "he": "מדעי המחשב - ארבע שנתי",
+          "nested": [
+            {
+              "name": "core",
+              "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/core/courses",
+              "points": 87,
+              "he": "חובה"
+            },
+            {
+              "name": "list_a",
+              "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/courses",
+              "points": 71,
+              "he": "רשימה א׳",
+              "overflow": "list_b",
+              "nested": [
+                {
+                  "name": "specialization",
+                  "amount": 3,
+                  "points": 26,
+                  "he": "התמחות",
+                  "nested": [
+                    {
+                      "name": "AI_and_ML",
+                      "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/specialization/AI_and_ML/courses",
+                      "count": 3,
+                      "he": "למידה ובינה מלאכותית",
+                      "nested": [
+                        {
+                          "name": "mandatory",
+                          "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/specialization/AI_and_ML/mandatory/courses",
+                          "count": 1
+                        }
+                      ]
+                    },
+                    {
+                      "name": "algorithm_theory",
+                      "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/specialization/algorithm_theory/courses",
+                      "count": 3,
+                      "he": "תורת האלגוריתמים"
+                    },
+                    {
+                      "name": "applied_logic",
+                      "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/specialization/applied_logic/courses",
+                      "count": 3,
+                      "he": "לוגיקה ויישומיה"
+                    },
+                    {
+                      "name": "bioinformatics",
+                      "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/specialization/bioinformatics/courses",
+                      "count": 3,
+                      "he": "ביואינפורמטיקה",
+                      "nested": [
+                        {
+                          "name": "mandatory",
+                          "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/specialization/bioinformatics/mandatory/courses",
+                          "count": 2
+                        }
+                      ]
+                    },
+                    {
+                      "name": "communication",
+                      "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/specialization/communication/courses",
+                      "count": 3,
+                      "he": "תקשורת",
+                      "nested": [
+                        {
+                          "name": "mandatory",
+                          "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/specialization/communication/mandatory/courses",
+                          "count": 1
+                        }
+                      ]
+                    },
+                    {
+                      "name": "computation_complexity",
+                      "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/specialization/computation_complexity/courses",
+                      "count": 3,
+                      "he": "סיבוכיות של חישובים",
+                      "nested": [
+                        {
+                          "name": "mandatory",
+                          "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/specialization/computation_complexity/mandatory/courses",
+                          "count": 1
+                        }
+                      ]
+                    },
+                    {
+                      "name": "computer_systems",
+                      "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/specialization/computer_systems/courses",
+                      "count": 3,
+                      "he": "מערכות מיחשוב",
+                      "nested": [
+                        {
+                          "name": "mandatory",
+                          "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/specialization/computer_systems/mandatory/courses",
+                          "count": 1
+                        }
+                      ]
+                    },
+                    {
+                      "name": "cryptology",
+                      "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/specialization/cryptology/courses",
+                      "count": 3,
+                      "he": "קריפטולוגיה",
+                      "nested": [
+                        {
+                          "name": "mandatory",
+                          "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/specialization/cryptology/mandatory/courses",
+                          "count": 1
+                        }
+                      ]
+                    },
+                    {
+                      "name": "geometry_&_graphics",
+                      "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/specialization/geometry_&_graphics/courses",
+                      "count": 3,
+                      "he": "גאומטריה וגרפיקה",
+                      "nested": [
+                        {
+                          "name": "mandatory",
+                          "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/specialization/geometry_&_graphics/mandatory/courses",
+                          "count": 1
+                        }
+                      ]
+                    },
+                    {
+                      "name": "software_development",
+                      "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/specialization/software_development/courses",
+                      "count": 3,
+                      "he": "פיתוח תוכנה",
+                      "nested": [
+                        {
+                          "name": "mandatory",
+                          "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/specialization/software_development/mandatory/courses",
+                          "count": 1
+                        }
+                      ]
+                    },
+                    {
+                      "name": "vision_&_robotics",
+                      "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/specialization/vision_&_robotics/courses",
+                      "count": 3,
+                      "he": "ראייה ורובוטיקה",
+                      "nested": [
+                        {
+                          "name": "mandatory",
+                          "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/specialization/vision_&_robotics/mandatory/courses",
+                          "count": 1
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "list_b",
+              "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_b/courses",
+              "points": 15,
+              "he": "רשימה ב׳"
+            },
+            {
+              "name": "math",
+              "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/math/courses",
+              "count": 1,
+              "he": "מתמטי"
+            },
+            {
+              "name": "project",
+              "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/project/courses",
+              "count": 2,
+              "he": "פרויקט"
+            },
+            {
+              "name": "science",
+              "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/science/courses",
+              "amount": 1,
+              "points": 8,
+              "he": "מדעי",
+              "overflow": "list_b",
+              "nested": [
+                {
+                  "name": "biology_chain",
+                  "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/science/biology_chain/courses",
+                  "count": 2,
+                  "he": "שרשרת ביולוגיה"
+                },
+                {
+                  "name": "physics-chemistry_chain",
+                  "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/science/physics-chemistry_chain/courses",
+                  "count": 2,
+                  "he": "שרשרת פיזיקה-כימיה"
+                },
+                {
+                  "name": "physics_chain",
+                  "amount": 1,
+                  "he": "שרשרת פיזיקה",
+                  "nested": [
+                    {
+                      "name": "1",
+                      "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/science/physics_chain/1/courses",
+                      "count": 1
+                    },
+                    {
+                      "name": "2",
+                      "courses": "/_catalogs/2023_2024/computer_science/4_year/requirement/science/physics_chain/2/courses",
+                      "count": 2
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "he": "מדעי המחשב"
+    },
+    "shared": {
+      "name": "shared",
+      "he": "כללי",
+      "nested": [
+        {
+          "name": "english",
+          "courses": "/_catalogs/2023_2024/shared/english/courses",
+          "count": 2,
+          "he": "אנגלית"
+        },
+        {
+          "name": "malag",
+          "courses": "/_catalogs/2023_2024/shared/malag/courses",
+          "points": 6,
+          "he": "מל״ג"
+        },
+        {
+          "name": "sport",
+          "courses": "/_catalogs/2023_2024/shared/sport/courses",
+          "count": 2,
+          "he": "ספורט"
+        }
+      ]
+    }
+  }
+}

@@ -1,180 +1,110 @@
-export function getProgress(
-	semesters: Course[][],
-	requirements: DegreeRequirements
-): DegreeProgress {
-	const sumPoints = semesters
-		.flat()
-		.map((course) => course.points ?? 0)
-		.reduce((a, b) => a + b, 0);
+import { getCourseData } from './courseData';
 
-	const progress: [string, [Requirement, RequirementProgress]][] = Array.from(
-		requirements.requirements
-	).map(([name, requirement]) => [
-		name,
-		[requirement, getRequirementProgress(semesters, requirement)]
-	]);
+function applyOverflow(progresses: Progress[]): Progress[] {
+	const nestedProgressMap = new Map<string, Progress>(
+		progresses.map((p) => [p.name, p])
+	);
 
-	// @ts-expect-error
-	const overflows: [string, ProgressOverflow][] = progress
-		.map(
-			([name, [requirement, progress]]): [
-				string,
-				ProgressOverflow | undefined
-			] => {
-				const overflow = getProgressOverflow(requirement, progress);
-				if (overflow !== undefined) {
-					progress.overflow = overflow;
-				}
-
-				return [name, overflow];
-			}
-		)
-		.filter(([_, overflow]) => overflow !== undefined);
-
-	const requirementsProgress = new Map(progress);
-
-	// handle overflow
-	for (const [source, [targetName, kind, amount]] of overflows) {
-		// handle target
-		const target = requirementsProgress.get(targetName);
-		if (target === undefined) {
+	for (const p of progresses) {
+		const overflow = p.overflow;
+		if (overflow === undefined) {
 			continue;
 		}
 
-		const [r, p] = target;
-
-		if (kind === 'points') {
-			p.points = (p.points ?? 0) + amount;
-		} else if (kind === 'count') {
-			p.count = (p.count ?? 0) + amount;
+		const targetProgress = nestedProgressMap.get(overflow.target);
+		if (targetProgress === undefined) {
+			// TODO: throw error or log warning
+			continue;
 		}
 
-		requirementsProgress.set(targetName, [r, p]);
+		if (overflow.type === 'points') {
+			targetProgress.points.done += overflow.value;
+		} else {
+			targetProgress.count.done += overflow.value;
+		}
 	}
 
-	return {
-		points: [sumPoints, requirements.points],
-		requirements: requirementsProgress
-	};
+	return progresses;
 }
 
-function getProgressOverflow(
-	requirement: Requirement,
-	progress: RequirementProgress
-): ProgressOverflow | undefined {
-	if (requirement.overflow === undefined) {
-		return undefined;
-	}
-
-	if (requirement.points !== undefined) {
-		const overflow = (progress?.points ?? 0) - requirement.points;
-		if (overflow > 0) {
-			return [requirement.overflow, 'points', overflow];
-		}
-	}
-
-	if (requirement.count !== undefined) {
-		const overflow = (progress?.count ?? 0) - requirement.count;
-		if (overflow > 0) {
-			return [requirement.overflow, 'count', overflow];
-		}
-	}
-
-	return undefined;
-}
-
-function checkRequirementCompleted(
-	requirement: Requirement,
-	progress: RequirementProgress
-): boolean {
-	if (requirement.points !== undefined) {
-		return (progress.points ?? -1) >= requirement.points;
-	}
-
-	if (requirement.count !== undefined) {
-		return (progress.count ?? -1) >= requirement.count;
-	}
-
-	if (requirement.choice !== undefined) {
-		const completedOptions = Array.from(
-			progress.choice?.options?.values() ?? []
-		).filter(([subRequirement, subProgress]) =>
-			checkRequirementCompleted(subRequirement, subProgress)
-		);
-
-		return completedOptions.length >= requirement.choice.amount;
-	}
-
-	return false;
-}
-
-function getRequirementProgress(
-	semesters: Course[][],
-	requirement: Requirement
-): RequirementProgress {
-	const courses = getRequirementCourses(requirement);
-	const relevantCourses = [
-		...new Set(
-			semesters.flat().filter((course) => courses.includes(course.code))
-		)
-	];
-
-	let progress: RequirementProgress = {};
-
-	if (requirement.points !== undefined) {
-		let points = 0;
-		for (const course of relevantCourses) {
-			points += course?.points ?? 0;
-		}
-
-		progress.points = points;
-
-		progress.courses = relevantCourses.map((c) => c.code);
-	}
-
-	if (requirement.count !== undefined) {
-		progress.count = relevantCourses.length;
-
-		progress.courses = relevantCourses.map((c) => c.code);
-	}
-
-	if (requirement.choice !== undefined) {
-		let choiceProgress = new Map();
-
-		let amount = 0;
-		const options = Array.from(requirement.choice.options);
-		for (const [option, subRequirement] of options) {
-			const subProgress = getRequirementProgress(semesters, subRequirement);
-
-			choiceProgress.set(option, [subRequirement, subProgress]);
-
-			if (checkRequirementCompleted(subRequirement, subProgress)) {
-				amount++;
-			}
-		}
-
-		progress.choice = {
-			amount,
-			options: choiceProgress
-		};
-	}
-
-	return progress;
-}
-
-function getRequirementCourses(requirement: Requirement): string[] {
+export function getRequirementCourses(requirement: Requirement): string[] {
 	if (requirement.courses !== undefined) {
 		return requirement.courses;
+	} else {
+		return requirement.nested?.flatMap(getRequirementCourses) ?? [];
+	}
+}
+
+export function requirementCompleted(progress: Progress): boolean {
+	if (progress.points.required > progress.points.done) {
+		return false;
 	}
 
-	if (requirement.choice !== undefined) {
-		let courses: string[] = [];
-		for (const [_, option] of requirement.choice.options) {
-			courses.push(...getRequirementCourses(option));
+	if (progress.count.required > progress.count.done) {
+		return false;
+	}
+
+	if (progress.amount.required > progress.amount.done) {
+		return false;
+	}
+
+	return true;
+}
+
+export function getProgress(
+	semesters: Course[][],
+	requirement: Requirement,
+	_getCourseData: (code: string) => Course = getCourseData
+): Progress {
+	const requirementCourses = getRequirementCourses(requirement);
+	const relevantCourses = semesters
+		.flat()
+		.filter((course) => requirementCourses.includes(course.code));
+
+	const points = relevantCourses.reduce(
+		(sum, course) => sum + (course.points ?? 0),
+		0
+	);
+
+	const count = relevantCourses.length;
+
+	let overflow = undefined;
+	if (requirement.overflow !== undefined) {
+		const [type, progress, base] =
+			requirement.points !== undefined
+				? (['points', points, requirement.points] as const)
+				: // TODO: is there a more type safe way to do this?
+					(['count', count, requirement.count!] as const);
+
+		const value = progress - base;
+		if (value > 0) {
+			overflow = { target: requirement.overflow, type, value } as const;
 		}
-
-		return courses;
 	}
 
-	return [];
+	const options = applyOverflow(
+		(requirement.nested ?? []).map((nested) =>
+			getProgress(semesters, nested, _getCourseData)
+		)
+	);
+
+	const done = options.filter(requirementCompleted);
+	const amount = done.length;
+
+	return {
+		name: requirement.name,
+		he: requirement.he,
+		courses: {
+			done: relevantCourses,
+			options: requirementCourses.map(_getCourseData)
+		},
+		points: { done: points, required: requirement.points ?? 0 },
+		count: { done: count, required: requirement.count ?? 0 },
+		overflow: overflow,
+		nested: { done, options },
+		amount: {
+			done: amount,
+			required: requirement.amount ?? requirement.nested?.length ?? 0
+		}
+	};
 }

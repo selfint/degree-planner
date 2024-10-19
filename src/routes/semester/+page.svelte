@@ -7,13 +7,14 @@
 	import StudyDaysComponent from '$lib/components/StudyDaysComponent.svelte';
 	import CourseRow from '$lib/components/CourseRow.svelte';
 
-	import { user, degreeData, content } from '$lib/stores.svelte';
+	import { user, catalog, content } from '$lib/stores.svelte';
 	import { getCourseData } from '$lib/courseData';
 	import { getScheduleError } from '$lib/schedule';
 	import {
 		getCourseLists,
 		getDegreeRequirementCourses
 	} from '$lib/requirements';
+	import RequirementsElement from '$lib/components/RequirementsElement.svelte';
 
 	let disabled: string[] = $state([]);
 
@@ -28,7 +29,7 @@
 	});
 
 	const wishlistCourses = $derived(user.wishlist.map(getCourseData));
-	const requirements = $derived(degreeData()?.requirements);
+	const requirements = $derived(catalog()?.requirement);
 	const semester = $derived(
 		user.semesters.at(currentSemester)?.map(getCourseData) ?? []
 	);
@@ -94,27 +95,32 @@
 	}
 
 	const loloco = $derived.by(() => {
-		let lists: [string, Course[]][] = [];
+		let lists: [Requirement[], Course[], boolean][] = [];
 
-		lists.push([content.lang.semester.wishlist, wishlistCourses]);
+		lists.push([
+			[{ name: content.lang.semester.wishlist }],
+			wishlistCourses,
+			false
+		]);
 
 		for (const [index, courses] of futureSemesters) {
 			const season = content.lang.common.seasons[index % 3];
-			lists.push([`${season} ${index + 1}`, courses]);
+			lists.push([[{ name: `${season} ${index + 1}` }], courses, false]);
 		}
 
 		if (requirementCourses !== undefined) {
 			for (const { path, courses } of requirementCourses) {
-				lists.push([path.join(' '), courses]);
+				lists.push([path, courses, true]);
 			}
 		}
 
 		lists = lists
 			.map(
-				([title, courses]) =>
-					[title, sortCourses(courses.filter(courseCanBeTaken))] as [
-						string,
-						Course[]
+				([title, courses, colorize]) =>
+					[title, sortCourses(courses.filter(courseCanBeTaken)), colorize] as [
+						Requirement[],
+						Course[],
+						boolean
 					]
 			)
 			.filter(([_, courses]) => courses.length > 0);
@@ -240,7 +246,18 @@
 		return canTake;
 	}
 
-	function formatName(name: string): string {
+	function formatName(requirements: Requirement[]): string {
+		let name = requirements.map((r) => r.name).join(' ');
+
+		if (content.lang.lang === 'he') {
+			name = requirements
+				.map((r) => r.he ?? r.name)
+				.join(' ')
+				.split('_')
+				.map((word) => word[0].toUpperCase() + word.slice(1))
+				.join(' ');
+		}
+
 		return name
 			.split('_')
 			.map((word) => word[0].toUpperCase() + word.slice(1))
@@ -325,10 +342,16 @@
 	</div>
 
 	<div class="flex-1 overflow-x-auto">
-		{#each loloco as [title, courses]}
+		{#each loloco as [titles, courses, colorize]}
 			<div class="pb-2">
-				<h1 class="mb-1 ms-3 text-lg font-medium text-content-primary sm:ms-0">
-					{formatName(title)}
+				<h1 class="mb-1.5 ms-3 font-medium text-content-primary sm:ms-0">
+					{#if colorize}
+						<RequirementsElement requirements={[titles]} />
+					{:else}
+						<div class="me-2 flex flex-row flex-wrap items-baseline">
+							<span class="me-1">{formatName(titles)}</span>
+						</div>
+					{/if}
 				</h1>
 
 				<div class="sm:hidden">

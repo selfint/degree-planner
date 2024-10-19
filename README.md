@@ -24,6 +24,7 @@ For fun, this is an interesting project to work on.
 1. ~Technion student services: https://students.technion.ac.il/local/technionsearch/course~ (deprecated)
 1. Cheese fork histograms: https://michael-maltsev.github.io/technion-histograms
 1. Technion SAP: https://portalex.technion.ac.il
+1. Technion catalogs: https://ugportal.technion.ac.il/%d7%9e%d7%99%d7%93%d7%a2-%d7%9c%d7%a1%d7%98%d7%95%d7%93%d7%a0%d7%98%d7%99%d7%9d/%d7%a7%d7%98%d7%9c%d7%95%d7%92-%d7%9c%d7%99%d7%9e%d7%95%d7%93%d7%99%d7%9d/
 
 ## Problems to solve
 

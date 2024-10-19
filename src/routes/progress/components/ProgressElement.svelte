@@ -140,7 +140,7 @@
 		</span>
 	{/if}
 
-	{#if requirementHasConditions}
+	{#if requirementHasConditions && planned.courses.done.length > 0}
 		<div class="mb-1 mt-1">
 			<CourseRow {indent} courses={planned.courses.done ?? []}>
 				{#snippet children({ course })}

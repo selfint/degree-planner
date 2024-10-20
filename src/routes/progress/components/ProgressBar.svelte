@@ -4,9 +4,10 @@
 		value2?: number;
 		max: number;
 		color?: string;
+		dir: 'ltr' | 'rtl';
 	};
 
-	let { value, value2, max, color }: Props = $props();
+	let { value, value2, max, color, dir }: Props = $props();
 
 	const p1 = $derived(Math.min(100, Math.floor((value / max) * 100)));
 	const p2 = $derived(
@@ -16,20 +17,24 @@
 	);
 </script>
 
-<div class="h-4 w-full rounded-md bg-card-primary" style="position: relative;">
+<div
+	{dir}
+	class="h-4 w-full rounded-md bg-card-primary"
+	style="position: relative;"
+>
 	{#if p2 !== undefined}
 		<div style="width: {p2}%;" class="h-4 rounded-md bg-card-secondary"></div>
 	{/if}
 
 	{#if color === undefined}
 		<div
-			style="width: {p1}%; position: absolute; top: 0; left: 0;"
-			class="h-4 rounded-md bg-accent-primary"
+			style="width: {p1}%;"
+			class="absolute start-0 top-0 h-4 rounded-md bg-accent-primary"
 		></div>
 	{:else}
 		<div
-			style="width: {p1}%; background: {color}; position: absolute; top: 0; left: 0;"
-			class="h-4 rounded-md"
+			style="width: {p1}%; background: {color}; "
+			class="absolute start-0 top-0 h-4 rounded-md bg-accent-primary"
 		></div>
 	{/if}
 </div>

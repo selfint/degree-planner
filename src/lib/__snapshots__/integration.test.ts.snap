@@ -14806,7 +14806,7 @@ _תוצאות למידה:
       },
     ],
   },
-  "i18n": undefined,
+  "he": "מדעי המחשב - תלת שנתי",
   "name": "Computer Science - 3 Year",
   "nested": {
     "done": [],
@@ -17158,7 +17158,7 @@ _תוצאות למידה:
             },
           ],
         },
-        "i18n": undefined,
+        "he": "חובה",
         "name": "core",
         "nested": {
           "done": [],
@@ -21077,7 +21077,7 @@ _תוצאות למידה:
             },
           ],
         },
-        "i18n": undefined,
+        "he": "רשימה א׳",
         "name": "list_a",
         "nested": {
           "done": [],
@@ -23829,7 +23829,7 @@ _תוצאות למידה:
             },
           ],
         },
-        "i18n": undefined,
+        "he": "רשימה ב׳",
         "name": "list_b",
         "nested": {
           "done": [],
@@ -24215,7 +24215,7 @@ _תוצאות למידה:
             },
           ],
         },
-        "i18n": undefined,
+        "he": "מתמטי",
         "name": "math",
         "nested": {
           "done": [],
@@ -24974,7 +24974,7 @@ _תוצאות למידה:
             },
           ],
         },
-        "i18n": undefined,
+        "he": "פרויקט",
         "name": "project",
         "nested": {
           "done": [],
@@ -24989,7 +24989,7 @@ _תוצאות למידה:
       {
         "amount": {
           "done": 0,
-          "required": 3,
+          "required": 1,
         },
         "count": {
           "done": 0,
@@ -25513,7 +25513,7 @@ _תוצאות למידה:
             },
           ],
         },
-        "i18n": undefined,
+        "he": "מדעי",
         "name": "science",
         "nested": {
           "done": [],
@@ -25599,7 +25599,7 @@ _תוצאות למידה:
                   },
                 ],
               },
-              "i18n": undefined,
+              "he": "שרשרת ביולוגיה",
               "name": "biology_chain",
               "nested": {
                 "done": [],
@@ -25702,7 +25702,7 @@ _תוצאות למידה:
                   },
                 ],
               },
-              "i18n": undefined,
+              "he": "שרשרת פיזיקה-כימיה",
               "name": "physics-chemistry_chain",
               "nested": {
                 "done": [],
@@ -25717,7 +25717,7 @@ _תוצאות למידה:
             {
               "amount": {
                 "done": 0,
-                "required": 2,
+                "required": 1,
               },
               "count": {
                 "done": 0,
@@ -25843,7 +25843,7 @@ _תוצאות למידה:
                   },
                 ],
               },
-              "i18n": undefined,
+              "he": "שרשרת פיזיקה",
               "name": "physics_chain",
               "nested": {
                 "done": [],
@@ -25897,7 +25897,7 @@ _תוצאות למידה:
                         },
                       ],
                     },
-                    "i18n": undefined,
+                    "he": undefined,
                     "name": "1",
                     "nested": {
                       "done": [],
@@ -26003,7 +26003,7 @@ _תוצאות למידה:
                         },
                       ],
                     },
-                    "i18n": undefined,
+                    "he": undefined,
                     "name": "2",
                     "nested": {
                       "done": [],
@@ -30326,7 +30326,7 @@ _תוצאות למידה:
             },
           ],
         },
-        "i18n": undefined,
+        "he": "כללי",
         "name": "shared",
         "nested": {
           "done": [],
@@ -33382,7 +33382,7 @@ _תוצאות למידה:
                   },
                 ],
               },
-              "i18n": undefined,
+              "he": "אנגלית",
               "name": "english",
               "nested": {
                 "done": [],
@@ -34423,7 +34423,7 @@ _תוצאות למידה:
                   },
                 ],
               },
-              "i18n": undefined,
+              "he": "מל״ג",
               "name": "malag",
               "nested": {
                 "done": [],
@@ -34678,7 +34678,7 @@ _תוצאות למידה:
                   },
                 ],
               },
-              "i18n": undefined,
+              "he": "ספורט",
               "name": "sport",
               "nested": {
                 "done": [],

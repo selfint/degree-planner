@@ -705,88 +705,88 @@ exports[`Requirements > should provide a list of requirements and their courses 
   {
     "courses": 40,
     "path": [
-      "Computer Science - 3 Year",
+      "core",
     ],
   },
   {
     "courses": 209,
     "path": [
-      "Computer Science - 3 Year",
+      "list_a",
     ],
   },
   {
     "courses": 71,
     "path": [
-      "Computer Science - 3 Year",
+      "list_b",
     ],
   },
   {
     "courses": 7,
     "path": [
-      "Computer Science - 3 Year",
+      "math",
     ],
   },
   {
     "courses": 36,
     "path": [
-      "Computer Science - 3 Year",
+      "project",
     ],
   },
   {
     "courses": 12,
     "path": [
-      "Computer Science - 3 Year",
-    ],
-  },
-  {
-    "courses": 2,
-    "path": [
-      "Computer Science - 3 Year",
       "science",
     ],
   },
   {
     "courses": 2,
     "path": [
-      "Computer Science - 3 Year",
       "science",
+      "biology_chain",
+    ],
+  },
+  {
+    "courses": 2,
+    "path": [
+      "science",
+      "physics-chemistry_chain",
     ],
   },
   {
     "courses": 1,
     "path": [
-      "Computer Science - 3 Year",
       "science",
       "physics_chain",
+      "1",
     ],
   },
   {
     "courses": 2,
     "path": [
-      "Computer Science - 3 Year",
       "science",
       "physics_chain",
+      "2",
     ],
   },
   {
     "courses": 109,
     "path": [
-      "Computer Science - 3 Year",
       "shared",
+      "english",
     ],
   },
   {
     "courses": 44,
     "path": [
-      "Computer Science - 3 Year",
       "shared",
+      "malag",
     ],
   },
   {
     "courses": 11,
     "path": [
-      "Computer Science - 3 Year",
       "shared",
+      "sport",
     ],
   },
 ]

@@ -84,7 +84,7 @@ describe('Requirements', () => {
 		ctx
 			.expect(
 				requirementsCourses.map((r) => ({
-					path: r.path,
+					path: r.path.map((p) => p.name),
 					courses: r.courses.length
 				}))
 			)

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import ProgressBar from '$lib/components/Progress.svelte';
+	import ProgressBar from './ProgressBar.svelte';
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import CourseRow from '$lib/components/CourseRow.svelte';
 
@@ -92,6 +92,7 @@
 				value={current?.points.done ?? 0}
 				value2={planned.points.done}
 				max={planned.points.required}
+				dir={content.lang.dir}
 			/>
 			<span class="ms-2 text-nowrap">
 				<span style="color: {color}">{current?.points.done ?? 0}</span>
@@ -112,6 +113,7 @@
 				value={current?.count.done ?? 0}
 				value2={planned.count.done}
 				max={planned.count.required}
+				dir={content.lang.dir}
 			/>
 			<span class="ms-2 text-nowrap">
 				<span style="color: {color}">{current?.count.done ?? 0}</span>
@@ -175,6 +177,7 @@
 					value={current?.amount.done ?? 0}
 					value2={planned.amount.done}
 					max={planned.amount.required}
+					dir={content.lang.dir}
 				/>
 				<span class="ms-2 text-nowrap">
 					<span style="color: {color}">{current?.amount.done ?? 0}</span>

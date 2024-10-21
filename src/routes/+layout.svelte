@@ -52,9 +52,8 @@
 
 		<div>
 			<Select bind:value={content.lang} onchange={onchangeLang}>
-				{#each Object.entries(cms) as [key, value]}
-					<option {value}>{key}</option>
-				{/each}
+				<option value={cms.en}>en</option>
+				<option value={cms.he}>עב</option>
 			</Select>
 		</div>
 

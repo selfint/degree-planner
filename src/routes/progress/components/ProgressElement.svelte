@@ -186,7 +186,7 @@
 				</span>
 			</div>
 		{/if}
-		<div>
+		<div class="mt-2">
 			{#each planned.nested.options as nested, i}
 				<ProgressElement
 					indent={indent + 1}

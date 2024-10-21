@@ -562,6 +562,264 @@
           ]
         }
       },
+      "Computer_Engineering": {
+        "he": "הנדסת מחשבים",
+        "recommended": [
+          [
+            "00440102",
+            "01040012",
+            "01040064",
+            "01040016",
+            "02340129",
+            "01140071",
+            "02340114"
+          ],
+          [
+            "01040013",
+            "02340125",
+            "01040136",
+            "01140075",
+            "00440252"
+          ],
+          [],
+          [
+            "02340124",
+            "02340141",
+            "00440105",
+            "01040220",
+            "01040215",
+            "01040214",
+            "03240033"
+          ],
+          [
+            "00440131",
+            "01040034",
+            "00440127",
+            "02340218",
+            "02340118",
+            "01140073"
+          ],
+          [],
+          [
+            "00440137",
+            "00440157",
+            "02340123",
+            "00460209",
+            "00460210",
+            "01040134",
+            "02340247",
+            "00460267",
+            "02360267"
+          ],
+          [
+            "00440167"
+          ],
+          [],
+          [
+            "00440169"
+          ],
+          [],
+          []
+        ],
+        "requirement": {
+          "name": "Computer Science - Computer Engineering",
+          "points": 158.5,
+          "he": "מדעי המחשב - המסלול להנדסת מחשבים",
+          "nested": [
+            {
+              "name": "core",
+              "courses": "/_catalogs/2023_2024/computer_science/Computer_Engineering/requirement/core/courses",
+              "count": 2,
+              "he": "ליבה"
+            },
+            {
+              "name": "specialization",
+              "count": 2,
+              "he": "התמחות",
+              "nested": [
+                {
+                  "name": "Algorithms_&_Cryptography",
+                  "courses": "/_catalogs/2023_2024/computer_science/Computer_Engineering/requirement/specialization/Algorithms_&_Cryptography/courses",
+                  "count": 3,
+                  "he": "אלגוריתמים וקריפטוגרפיה",
+                  "nested": [
+                    {
+                      "name": "mandatory",
+                      "courses": "/_catalogs/2023_2024/computer_science/Computer_Engineering/requirement/specialization/Algorithms_&_Cryptography/mandatory/courses",
+                      "count": 1,
+                      "he": "חובה"
+                    }
+                  ]
+                },
+                {
+                  "name": "Communication",
+                  "courses": "/_catalogs/2023_2024/computer_science/Computer_Engineering/requirement/specialization/Communication/courses",
+                  "count": 3,
+                  "he": "תקשורת",
+                  "nested": [
+                    {
+                      "name": "mandatory_1",
+                      "courses": "/_catalogs/2023_2024/computer_science/Computer_Engineering/requirement/specialization/Communication/mandatory_1/courses",
+                      "count": 1,
+                      "he": "חובה 1"
+                    },
+                    {
+                      "name": "mandatory_2",
+                      "courses": "/_catalogs/2023_2024/computer_science/Computer_Engineering/requirement/specialization/Communication/mandatory_2/courses",
+                      "count": 1,
+                      "he": "חובה 2"
+                    }
+                  ]
+                },
+                {
+                  "name": "Computer_Physics",
+                  "courses": "/_catalogs/2023_2024/computer_science/Computer_Engineering/requirement/specialization/Computer_Physics/courses",
+                  "count": 3,
+                  "he": "פיזיקת מחשבים",
+                  "nested": [
+                    {
+                      "name": "mandatory",
+                      "courses": "/_catalogs/2023_2024/computer_science/Computer_Engineering/requirement/specialization/Computer_Physics/mandatory/courses",
+                      "count": 1,
+                      "he": "חובה"
+                    }
+                  ]
+                },
+                {
+                  "name": "Control_Systems_&_Robotics",
+                  "courses": "/_catalogs/2023_2024/computer_science/Computer_Engineering/requirement/specialization/Control_Systems_&_Robotics/courses",
+                  "count": 3,
+                  "he": "בקרה ורובוטיקה",
+                  "nested": [
+                    {
+                      "name": "mandatory",
+                      "courses": "/_catalogs/2023_2024/computer_science/Computer_Engineering/requirement/specialization/Control_Systems_&_Robotics/mandatory/courses",
+                      "count": 1,
+                      "he": "חובה"
+                    }
+                  ]
+                },
+                {
+                  "name": "Energy_&_Power_Systems",
+                  "courses": "/_catalogs/2023_2024/computer_science/Computer_Engineering/requirement/specialization/Energy_&_Power_Systems/courses",
+                  "count": 3,
+                  "he": "אנרגיה ומערכות הספק",
+                  "nested": [
+                    {
+                      "name": "mandatory_1",
+                      "courses": "/_catalogs/2023_2024/computer_science/Computer_Engineering/requirement/specialization/Energy_&_Power_Systems/mandatory_1/courses",
+                      "count": 1,
+                      "he": "חובה 1"
+                    },
+                    {
+                      "name": "mandatory_2",
+                      "courses": "/_catalogs/2023_2024/computer_science/Computer_Engineering/requirement/specialization/Energy_&_Power_Systems/mandatory_2/courses",
+                      "count": 1,
+                      "he": "חובה 2"
+                    }
+                  ]
+                },
+                {
+                  "name": "Integrated_Electrical_Circuits",
+                  "courses": "/_catalogs/2023_2024/computer_science/Computer_Engineering/requirement/specialization/Integrated_Electrical_Circuits/courses",
+                  "count": 3,
+                  "he": "מעגלים אלקטורניים משולבים",
+                  "nested": [
+                    {
+                      "name": "mandatory",
+                      "courses": "/_catalogs/2023_2024/computer_science/Computer_Engineering/requirement/specialization/Integrated_Electrical_Circuits/mandatory/courses",
+                      "count": 2,
+                      "he": "חובה"
+                    }
+                  ]
+                },
+                {
+                  "name": "Intelligent_Systems",
+                  "courses": "/_catalogs/2023_2024/computer_science/Computer_Engineering/requirement/specialization/Intelligent_Systems/courses",
+                  "count": 3,
+                  "he": "מערכות נבונות",
+                  "nested": [
+                    {
+                      "name": "mandatory",
+                      "courses": "/_catalogs/2023_2024/computer_science/Computer_Engineering/requirement/specialization/Intelligent_Systems/mandatory/courses",
+                      "count": 1,
+                      "he": "חובה"
+                    }
+                  ]
+                },
+                {
+                  "name": "Languages",
+                  "courses": "/_catalogs/2023_2024/computer_science/Computer_Engineering/requirement/specialization/Languages/courses",
+                  "count": 3,
+                  "he": "שפות",
+                  "nested": [
+                    {
+                      "name": "mandatory",
+                      "courses": "/_catalogs/2023_2024/computer_science/Computer_Engineering/requirement/specialization/Languages/mandatory/courses",
+                      "count": 1,
+                      "he": "חובה"
+                    }
+                  ]
+                },
+                {
+                  "name": "Networks_&_Distributed_Systems",
+                  "courses": "/_catalogs/2023_2024/computer_science/Computer_Engineering/requirement/specialization/Networks_&_Distributed_Systems/courses",
+                  "count": 3,
+                  "he": "רשתות ומערכות מבוזרות",
+                  "nested": [
+                    {
+                      "name": "mandatory",
+                      "courses": "/_catalogs/2023_2024/computer_science/Computer_Engineering/requirement/specialization/Networks_&_Distributed_Systems/mandatory/courses",
+                      "count": 1,
+                      "he": "חובה"
+                    }
+                  ]
+                },
+                {
+                  "name": "Quantum",
+                  "courses": "/_catalogs/2023_2024/computer_science/Computer_Engineering/requirement/specialization/Quantum/courses",
+                  "count": 3,
+                  "he": "קוונטי",
+                  "nested": [
+                    {
+                      "name": "mandatory",
+                      "courses": "/_catalogs/2023_2024/computer_science/Computer_Engineering/requirement/specialization/Quantum/mandatory/courses",
+                      "count": 3,
+                      "he": "חובה"
+                    }
+                  ]
+                },
+                {
+                  "name": "Signal_Processing",
+                  "courses": "/_catalogs/2023_2024/computer_science/Computer_Engineering/requirement/specialization/Signal_Processing/courses",
+                  "count": 3,
+                  "he": "עיבוד אותות",
+                  "nested": [
+                    {
+                      "name": "mandatory_1",
+                      "courses": "/_catalogs/2023_2024/computer_science/Computer_Engineering/requirement/specialization/Signal_Processing/mandatory_1/courses",
+                      "count": 1,
+                      "he": "חובה 1"
+                    },
+                    {
+                      "name": "mandatory_2",
+                      "courses": "/_catalogs/2023_2024/computer_science/Computer_Engineering/requirement/specialization/Signal_Processing/mandatory_2/courses",
+                      "count": 1,
+                      "he": "חובה 2"
+                    }
+                  ]
+                },
+                {
+                  "name": "Software_Systems",
+                  "courses": "/_catalogs/2023_2024/computer_science/Computer_Engineering/requirement/specialization/Software_Systems/courses",
+                  "count": 3,
+                  "he": "מערכות תוכנה"
+                }
+              ]
+            }
+          ]
+        }
+      },
       "ML_&_data_analysis": {
         "he": "למידה וניתוח מידע",
         "recommended": [

@@ -81,6 +81,18 @@
 		</h3>
 	{/if}
 
+	{#if planned.hook !== undefined}
+		<div
+			style={progressStyle}
+			class="me-2 rounded-md bg-card-primary p-2 pb-1 pt-1 text-content-secondary"
+		>
+			<span class="text-yellow-400"> ⚠ </span>
+			<span>
+				{content.lang.lang === 'he' ? planned.hook.he : planned.hook.en}
+			</span>
+		</div>
+	{/if}
+
 	{#if planned.points.required > 0}
 		<div
 			class="flex flex-row items-center pe-2 text-content-secondary"

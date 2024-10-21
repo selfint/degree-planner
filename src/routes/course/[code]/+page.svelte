@@ -10,6 +10,7 @@
 	import { getCourseLists } from '$lib/requirements';
 	import { generateCourseColor } from '$lib/colors';
 	import RequirementsElement from '$lib/components/RequirementsElement.svelte';
+	import CourseRow from '$lib/components/CourseRow.svelte';
 
 	const code = $derived($page.params.code);
 	const course = $derived(getCourseData(code));
@@ -200,13 +201,34 @@
 					{content.lang.common.adjacencies}
 				</h2>
 				<div class="flex flex-row space-x-2 overflow-x-auto">
-					{#each course.connections?.adjacent.map(getCourseData) ?? [] as adj}
-						<CourseElement
-							course={adj}
-							lists={getCourseLists(requirements, adj.code)}
-						/>
-					{/each}
+					<CourseRow courses={course.connections?.adjacent ?? []}>
+						{#snippet children({ course })}
+							<a href={`/course/${course.code}`}>
+								<CourseElement
+									{course}
+									lists={getCourseLists(requirements, course.code)}
+								/>
+							</a>
+						{/snippet}
+					</CourseRow>
 				</div>
+			</div>
+		{/if}
+		{#if (course.connections?.exclusive ?? []).length !== 0}
+			<div>
+				<h2 class="ms-3 pb-1 text-lg font-medium text-content-primary">
+					{content.lang.common.exclusives}
+				</h2>
+				<CourseRow courses={course.connections?.exclusive ?? []}>
+					{#snippet children({ course })}
+						<a href={`/course/${course.code}`}>
+							<CourseElement
+								{course}
+								lists={getCourseLists(requirements, course.code)}
+							/>
+						</a>
+					{/snippet}
+				</CourseRow>
 			</div>
 		{/if}
 		<div class="ms-3">

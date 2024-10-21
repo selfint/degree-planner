@@ -1,7 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 
-	import { content } from '$lib/stores.svelte';
 	import { getCourseData } from '$lib/courseData';
 
 	type Props = {
@@ -13,10 +12,9 @@
 	let { courses, indent = 1, children }: Props = $props();
 
 	const offset = `${indent * 0.75}rem`;
-	const dir = $derived(content.lang.dir === 'rtl' ? 'right' : 'left');
-	const margin = $derived(`margin-${dir}: ${offset}`);
+	const margin = $derived(`margin-inline-end: ${offset}`);
 
-	let _courses = $derived(
+	const _courses = $derived(
 		courses.map((c) => {
 			if (typeof c === 'string') {
 				return getCourseData(c);

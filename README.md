@@ -49,14 +49,14 @@ For fun, this is an interesting project to work on.
 
 ## Data model
 
-The `static/_db` directory contains files representing degree and course information.
+The `static/_catalogs` directory contains files representing degree and course information.
 
 The goal is to represent each degree requirements in a static file format that is easy
-to create from the catalog (currently manually, in the future automated), and easy to
+to create from the catalog (currently manually, hopefull in the future automated), and easy to
 parse from code.
 
 The benefit of this data model is that non-technical users can easily suggest fixes
-to wrong requirements. For example if the `cs/3_year/core/points` requirement is wrong,
+to wrong requirements. For example if the `3_year/core/points` requirement is wrong,
 (e.g. it's `84` and should be `84.5`) all that is required to fix it is changing the
 content of the file from `84` to `84.5`.
 
@@ -80,7 +80,7 @@ Create a directory for each year. There are no connections between years.
 ### University-wide courses
 
 For course lists that are relevant for all degrees, like english and malag
-(general) courses, create a file with the list name in the year directory.
+(general) courses, create a file with the list name in the year's `shared` directory.
 
 ### Degree
 
@@ -98,10 +98,10 @@ Each degree path has a `recommended` directory, create a file called `semesterX`
 ### Requirements
 
 Requirements can be complex, as such their representation has to be flexible, while sticking
-to plaintext files only.
+to plaintext files only\*.
 
-Each degree path has a `requirements` directory. This directory contains the subdirectories
-named after requirements to complete the degree. A requirement directory can contain:
+Each degree path has a `requirement` directory. This directory contains the subdirectories
+named after requirements to complete the degree. A requirement directory can also contain:
 
 1. `courses` file - A list of courses relevant to the requirement. If this file is missing,
    the courses are taken recursively from `courses` files in subdirectories.
@@ -109,11 +109,10 @@ named after requirements to complete the degree. A requirement directory can con
    from the `courses` file that are needed to fulfill the requirement.
 1. `points` file - A file containing a single float specifying the **points** of courses
    from the `courses` file that are needed to fulfill the requirement.
-1. `choice` **subdirectory** - A **subdirectory** containing:
-   1. `<subdirectory>` subdirectory - A subdirectory named after a sub-requirement needed
-      to complete the requirement.
-   1. `amount` file - A file containing a single number specifying the **amount** of choices
-      from the subdirectories that are needed to fulfill the requirement.
+1. **subdirectory** - Each named after a sub-requirement needed
+   to complete the requirement, they are also requirements themselves.
+1. `amount` file - A file containing a single number specifying the **amount** of choices
+   from the subdirectories that are needed to fulfill the requirement.
 1. `overflow` file - A file containing a single line specifying the list to transfer
    overflowing `points` **and** `count` requirements to.
 
@@ -131,8 +130,18 @@ named after requirements to complete the degree. A requirement directory can con
    of requirement (either `points` or `count`), currently there is no support for
    mixing the two.
 
-   Also, `choice` requirements can't overflow. That is why the `choice` directory
-   has an `amount` file, not a `count` file.
+1. `hooks.js` file - A file containing JavaScript code that will be executed in the
+   from of `(<content>)(semesters, progress)`, where `semesters` are the courses the
+   student has taken, and `progress` is the progress object for the requirement
+   (see the `src/app.d.ts` file for the structure of the progress object).
+
+   > The hooks file can be used to implement complex requirements that can't be
+   > represented in the current data model. For example, in the 4 year CS degree
+   > the student must take 26 points from 3 specializations, but they can choose
+   > from 11 specializations. Without the hook, the points would be counted from
+   > all specializations the user took courses in. With a hook, we can sort the
+   > specializations by the amount of points taken, and take the points from the
+   > top 3 specializations.
 
 ## Acknowledgements
 

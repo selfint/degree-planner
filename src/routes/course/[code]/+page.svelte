@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { goto } from '$app/navigation';
 
 	import Button from '$lib/components/Button.svelte';
 	import CourseElement from '$lib/components/CourseElement.svelte';
@@ -9,9 +8,8 @@
 
 	import { getCourseData, getAllCourses } from '$lib/courseData';
 	import { getCourseLists } from '$lib/requirements';
-	import { generateRequirementColor, generateCourseColor } from '$lib/colors';
+	import { generateCourseColor } from '$lib/colors';
 	import RequirementsElement from '$lib/components/RequirementsElement.svelte';
-	import CourseRow from '$lib/components/CourseRow.svelte';
 
 	const code = $derived($page.params.code);
 	const course = $derived(getCourseData(code));
@@ -153,16 +151,16 @@
 		<div
 			class="grid w-fit grid-flow-row grid-cols-[auto_auto] items-center gap-x-2 text-content-secondary"
 		>
+			<span>{content.lang.common.faculty}</span>
+			<span>{course.faculty ?? content.lang.common.na}</span>
 			<span>{content.lang.course.median}</span>
 			<span>{course.median ?? content.lang.common.na}</span>
 			<span>{content.lang.course.points}</span>
 			<span>{course.points ?? content.lang.common.na}</span>
 			<span>{content.lang.course.available}</span>
-			<span
-				>{course?.current
-					? content.lang.common.yes
-					: content.lang.common.no}</span
-			>
+			<span>
+				{course?.current ? content.lang.common.yes : content.lang.common.no}
+			</span>
 		</div>
 	</div>
 

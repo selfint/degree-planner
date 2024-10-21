@@ -207,6 +207,7 @@ declare global {
 		tests?: [Test, Test | null];
 		seasons?: CourseSeasons;
 		current?: boolean;
+		faculty?: string;
 	};
 
 	type CourseSeasons =

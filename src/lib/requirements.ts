@@ -89,7 +89,6 @@ export function getCourseLists(
 		}
 
 		if (lists.length > 0) {
-			console.log([path.map((r) => r.name)].join(' '));
 			return lists;
 		}
 

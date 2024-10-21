@@ -7,7 +7,22 @@
 	import { getCourseLists } from '$lib/requirements';
 	import { getAllCourses } from '$lib/courseData';
 
-	const query = $derived(($page.url.searchParams.get('q') ?? '').trim());
+	const query = $derived.by(() => {
+		let q = ($page.url.searchParams.get('q') ?? '').trim();
+
+		// special case for backwards compatibility, convert 6 digit codes to 8 digit codes
+		// first, check if q is all numbers
+		const allNumbers = /^\d+$/.test(q);
+		const isSixDigit = q.length === 6;
+		if (allNumbers && isSixDigit) {
+			const p1 = q.slice(0, 3);
+			const p2 = q.slice(3);
+
+			return `0${p1}0${p2}`;
+		}
+
+		return q;
+	});
 	const results = $derived(
 		getAllCourses()
 			.filter(({ name, code }) => name?.includes(query) || code.includes(query))

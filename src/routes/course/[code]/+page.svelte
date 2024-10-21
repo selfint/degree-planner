@@ -11,6 +11,7 @@
 	import { getCourseLists } from '$lib/requirements';
 	import { generateRequirementColor, generateCourseColor } from '$lib/colors';
 	import RequirementsElement from '$lib/components/RequirementsElement.svelte';
+	import CourseRow from '$lib/components/CourseRow.svelte';
 
 	const code = $derived($page.params.code);
 	const course = $derived(getCourseData(code));
@@ -23,6 +24,10 @@
 
 		return getCourseLists(requirements, code);
 	});
+
+	const dependencies = $derived(
+		course.connections?.dependencies.filter((g) => g.length > 0) ?? []
+	);
 
 	const dependants = $derived(
 		getAllCourses()
@@ -162,43 +167,32 @@
 	</div>
 
 	<div class="mt-4">
-		{#if (course.connections?.dependencies ?? []).length !== 0}
+		{#if dependencies.length !== 0}
 			<div class="pb-4">
 				<h2 class="ms-3 pb-1 text-lg font-medium text-content-primary">
 					{content.lang.common.dependencies}
 				</h2>
-				<div class="flex flex-row space-x-2 overflow-x-auto">
-					<div class="min-w-1"></div>
-					{#each course.connections?.dependencies ?? [] as group, i}
-						{#if i !== 0 && group.length > 0}
+				<div dir={content.lang.dir} class="flex flex-row overflow-x-auto">
+					<div class="me-3"></div>
+					{#each dependencies as group, i}
+						{#if i !== 0}
 							<p
-								class="flex flex-col justify-center text-sm font-light text-content-secondary"
+								class="flex flex-col justify-center pe-2 text-sm font-light text-content-secondary"
 							>
 								{content.lang.common.or}
 							</p>
 						{/if}
-						<div class="space-y-1">
+						<div class="flex flex-col space-y-1">
 							{#each group.map(getCourseData) as dep}
-								<div
-									class="container w-fit"
-									tabindex={i}
-									role="button"
-									onclick={() => goto(`/course/${dep.code}`)}
-									onkeydown={(e) => {
-										if (e.key === 'Enter') {
-											goto(`/course/${dep.code}`);
-										}
-									}}
-								>
+								<a class="pe-2" href={`/course/${dep.code}`}>
 									<CourseElement
 										course={dep}
 										lists={getCourseLists(requirements, dep.code)}
 									/>
-								</div>
+								</a>
 							{/each}
 						</div>
 					{/each}
-					<div class="min-w-1"></div>
 				</div>
 			</div>
 		{/if}
@@ -223,23 +217,13 @@
 					{content.lang.common.dependants}
 				</h2>
 				<div class="flex flex-row flex-wrap">
-					{#each dependants as c, i}
-						<div
-							class="container w-fit pb-4 pe-2"
-							tabindex={i}
-							role="button"
-							onclick={() => goto(`/course/${c.code}`)}
-							onkeydown={(e) => {
-								if (e.key === 'Enter') {
-									goto(`/course/${c.code}`);
-								}
-							}}
-						>
+					{#each dependants as c}
+						<a class="pb-4 pe-2" href={`/course/${c.code}`}>
 							<CourseElement
 								course={c}
 								lists={getCourseLists(requirements, c.code)}
 							/>
-						</div>
+						</a>
 					{/each}
 				</div>
 			{/if}

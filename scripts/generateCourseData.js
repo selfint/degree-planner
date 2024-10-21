@@ -198,10 +198,18 @@ export function getConnections(courseSAPInfo) {
 		dependencies.push(dependencyGroup);
 	}
 
+	const exclusive = [];
+	for (const relation of courseSAPInfo.SmRelations.results) {
+		const relationType = relation.ZzRelationshipKey;
+		if (relationType === 'AZEC') {
+			exclusive.push(relation.Otjid.slice(2));
+		}
+	}
+
 	return {
 		dependencies,
 		adjacent: [],
-		exclusive: []
+		exclusive: exclusive
 	};
 }
 
@@ -279,6 +287,7 @@ async function parseCourse(course, current) {
 			tests: getTests(course),
 			connections: getConnections(course),
 			seasons: getSeasons(course),
+			faculty: course.OrgText,
 			current
 		};
 	} catch (error) {
@@ -321,7 +330,8 @@ async function main(skip, top) {
 			$skip: skip.toString(),
 			$top: top.toString(),
 			$select: 'Otjid',
-			$filter: `Peryr eq '${peryr}' and Perid eq '${perid}'`
+			// $filter: `Peryr eq '${peryr}' and Perid eq '${perid}' and Otjid eq 'SM02340218'`
+			$filter: `Peryr eq '${peryr}' and Perid eq '${perid}' `
 		}))
 	).then((results) => results.map((r) => r.map((c) => c.Otjid)));
 
@@ -358,8 +368,17 @@ async function main(skip, top) {
 		const queries = batch.map(([code, [peryr, perid]]) => ({
 			$expand: 'Responsible,Exams,SmRelations,SmPrereq',
 			$filter: `Otjid eq '${code}' and Peryr eq '${peryr}' and Perid eq '${perid}'`,
-			$select:
-				'Otjid,Name,Points,StudyContentDescription,ZzOfferpattern,Exams,SmPrereq'
+			$select: [
+				'Otjid',
+				'Name',
+				'Points',
+				'StudyContentDescription',
+				'ZzOfferpattern',
+				'Exams',
+				'SmPrereq',
+				'SmRelations',
+				'OrgText'
+			].join(',')
 		}));
 		const results = await requestBatch('SmObjectSet', queries);
 		const courses = await Promise.all(

@@ -56,10 +56,38 @@ export function getProgress(
 	requirement: Requirement,
 	_getCourseData: (code: string) => Course = getCourseData
 ): Progress {
+	const options = applyOverflow(
+		(requirement.nested ?? []).map((nested) =>
+			getProgress(semesters, nested, _getCourseData)
+		)
+	);
+
+	const done = options.filter(requirementCompleted);
+	const amount = done.length;
+
 	const requirementCourses = getRequirementCourses(requirement);
-	const relevantCourses = semesters
+	let relevantCourses = semesters
 		.flat()
 		.filter((course) => requirementCourses.includes(course.code));
+
+	if (requirement.strict !== undefined && requirement.amount !== undefined) {
+		const nested: string[] = done
+			.toSorted((a, b) => {
+				// check if we sort by points or count
+				const byPoints = requirement.strict === 'points';
+				const aSort = (byPoints ? a.points : a.count).done;
+				const bSort = (byPoints ? b.points : b.count).done;
+
+				return bSort - aSort;
+			})
+			// choose best nested options
+			.slice(0, requirement.amount)
+			.flatMap((p) => p.courses.done.map((c) => c.code));
+
+		relevantCourses = relevantCourses.filter((course) =>
+			nested.includes(course.code)
+		);
+	}
 
 	const points = relevantCourses.reduce(
 		(sum, course) => sum + (course.points ?? 0),
@@ -82,29 +110,22 @@ export function getProgress(
 		}
 	}
 
-	const options = applyOverflow(
-		(requirement.nested ?? []).map((nested) =>
-			getProgress(semesters, nested, _getCourseData)
-		)
-	);
-
-	const done = options.filter(requirementCompleted);
-	const amount = done.length;
-
 	return {
 		name: requirement.name,
-		he: requirement.he,
 		courses: {
 			done: relevantCourses,
 			options: requirementCourses.map(_getCourseData)
 		},
 		points: { done: points, required: requirement.points ?? 0 },
 		count: { done: count, required: requirement.count ?? 0 },
-		overflow: overflow,
 		nested: { done, options },
 		amount: {
 			done: amount,
 			required: requirement.amount ?? requirement.nested?.length ?? 0
-		}
+		},
+		// ugly but short way to conditionally add properties
+		...(requirement.he !== undefined ? { he: requirement.he } : {}),
+		...(requirement.strict !== undefined ? { strict: requirement.strict } : {}),
+		...(overflow !== undefined ? { overflow } : {})
 	};
 }

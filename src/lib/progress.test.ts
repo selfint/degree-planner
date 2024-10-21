@@ -52,4 +52,37 @@ describe('Progress', () => {
 		expect(requirementCompleted(progress)).toBeTruthy();
 		expect(progress).toMatchSnapshot();
 	});
+
+	it('should only count values from nested completed requirements', () => {
+		const progress = getProgress(
+			buildSemesters([['1', '2']]),
+			{
+				name: 'base',
+				amount: 1,
+				count: 2,
+				strict: 'count',
+				nested: [
+					{
+						name: 'nested1',
+						count: 1,
+						courses: ['1']
+					},
+					{
+						name: 'nested2',
+						count: 1,
+						courses: ['2']
+					}
+				]
+			},
+			getCourseData
+		);
+
+		expect(progress.count).toMatchInlineSnapshot(`
+			{
+			  "done": 1,
+			  "required": 2,
+			}
+		`);
+		expect(requirementCompleted(progress)).toBeFalsy();
+	});
 });

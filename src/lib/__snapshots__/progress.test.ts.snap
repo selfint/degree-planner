@@ -32,7 +32,6 @@ exports[`Progress > should apply overflow 1`] = `
       },
     ],
   },
-  "he": undefined,
   "name": "core",
   "nested": {
     "done": [],
@@ -82,13 +81,11 @@ exports[`Progress > should return count progress 1`] = `
       },
     ],
   },
-  "he": undefined,
   "name": "base",
   "nested": {
     "done": [],
     "options": [],
   },
-  "overflow": undefined,
   "points": {
     "done": 3,
     "required": 0,

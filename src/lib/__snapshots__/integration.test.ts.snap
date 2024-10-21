@@ -17164,7 +17164,6 @@ _תוצאות למידה:
           "done": [],
           "options": [],
         },
-        "overflow": undefined,
         "points": {
           "done": 73.5,
           "required": 84,
@@ -21083,7 +21082,6 @@ _תוצאות למידה:
           "done": [],
           "options": [],
         },
-        "overflow": undefined,
         "points": {
           "done": 3,
           "required": 18,
@@ -23835,7 +23833,6 @@ _תוצאות למידה:
           "done": [],
           "options": [],
         },
-        "overflow": undefined,
         "points": {
           "done": 0,
           "required": 6.5,
@@ -24221,7 +24218,6 @@ _תוצאות למידה:
           "done": [],
           "options": [],
         },
-        "overflow": undefined,
         "points": {
           "done": 0,
           "required": 0,
@@ -24980,7 +24976,6 @@ _תוצאות למידה:
           "done": [],
           "options": [],
         },
-        "overflow": undefined,
         "points": {
           "done": 0,
           "required": 0,
@@ -25605,7 +25600,6 @@ _תוצאות למידה:
                 "done": [],
                 "options": [],
               },
-              "overflow": undefined,
               "points": {
                 "done": 0,
                 "required": 0,
@@ -25708,7 +25702,6 @@ _תוצאות למידה:
                 "done": [],
                 "options": [],
               },
-              "overflow": undefined,
               "points": {
                 "done": 0,
                 "required": 0,
@@ -25897,13 +25890,11 @@ _תוצאות למידה:
                         },
                       ],
                     },
-                    "he": undefined,
                     "name": "1",
                     "nested": {
                       "done": [],
                       "options": [],
                     },
-                    "overflow": undefined,
                     "points": {
                       "done": 0,
                       "required": 0,
@@ -26003,13 +25994,11 @@ _תוצאות למידה:
                         },
                       ],
                     },
-                    "he": undefined,
                     "name": "2",
                     "nested": {
                       "done": [],
                       "options": [],
                     },
-                    "overflow": undefined,
                     "points": {
                       "done": 0,
                       "required": 0,
@@ -26017,7 +26006,6 @@ _תוצאות למידה:
                   },
                 ],
               },
-              "overflow": undefined,
               "points": {
                 "done": 0,
                 "required": 0,
@@ -26025,7 +26013,6 @@ _תוצאות למידה:
             },
           ],
         },
-        "overflow": undefined,
         "points": {
           "done": 0,
           "required": 8,
@@ -33388,7 +33375,6 @@ _תוצאות למידה:
                 "done": [],
                 "options": [],
               },
-              "overflow": undefined,
               "points": {
                 "done": 0,
                 "required": 0,
@@ -34429,7 +34415,6 @@ _תוצאות למידה:
                 "done": [],
                 "options": [],
               },
-              "overflow": undefined,
               "points": {
                 "done": 0,
                 "required": 6,
@@ -34684,7 +34669,6 @@ _תוצאות למידה:
                 "done": [],
                 "options": [],
               },
-              "overflow": undefined,
               "points": {
                 "done": 0,
                 "required": 0,
@@ -34692,7 +34676,6 @@ _תוצאות למידה:
             },
           ],
         },
-        "overflow": undefined,
         "points": {
           "done": 0,
           "required": 0,
@@ -34700,7 +34683,6 @@ _תוצאות למידה:
       },
     ],
   },
-  "overflow": undefined,
   "points": {
     "done": 73.5,
     "required": 118.5,

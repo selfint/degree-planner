@@ -73,6 +73,14 @@ declare global {
 		 * If empty, all nested requirements are mandatory.
 		 */
 		amount?: number;
+
+		/**
+		 * If present, then points / count from nested requirements
+		 * will only be counted if the nested requirement is completed.
+		 *
+		 * If empty, this has no effect.
+		 */
+		strict?: 'points' | 'count';
 	};
 
 	type RequirementHeader = Omit<Requirement, 'courses' | 'nested'> & {
@@ -145,6 +153,14 @@ declare global {
 			done: number;
 			required: number;
 		};
+
+		/**
+		 * If present, then points / count from nested requirements
+		 * will only be counted if the nested requirement is completed.
+		 *
+		 * If empty, this has no effect.
+		 */
+		strict?: 'points' | 'count';
 	};
 
 	type Catalog = {

@@ -607,26 +607,21 @@
           "he": "מדעי המחשב - המגמה ללמידה וניתוח מידע",
           "nested": [
             {
-              "name": "elective",
+              "name": "list_a",
+              "courses": "/_catalogs/2023_2024/computer_science/ML_&_data_analysis/requirement/list_a/courses",
               "points": 25,
               "he": "בחירה",
               "nested": [
                 {
                   "name": "core",
-                  "courses": "/_catalogs/2023_2024/computer_science/ML_&_data_analysis/requirement/elective/core/courses",
+                  "courses": "/_catalogs/2023_2024/computer_science/ML_&_data_analysis/requirement/list_a/core/courses",
                   "count": 4,
                   "points": 12,
                   "he": "ליבה"
                 },
                 {
-                  "name": "list_a",
-                  "courses": "/_catalogs/2023_2024/computer_science/ML_&_data_analysis/requirement/elective/list_a/courses",
-                  "points": 10,
-                  "he": "רשימה א׳"
-                },
-                {
                   "name": "project",
-                  "courses": "/_catalogs/2023_2024/computer_science/ML_&_data_analysis/requirement/elective/project/courses",
+                  "courses": "/_catalogs/2023_2024/computer_science/ML_&_data_analysis/requirement/list_a/project/courses",
                   "count": 1,
                   "points": 3,
                   "he": "פרויקט"
@@ -645,7 +640,6 @@
               "amount": 1,
               "points": 8,
               "he": "מדעי",
-              "overflow": "list_b",
               "nested": [
                 {
                   "name": "biology_chain",

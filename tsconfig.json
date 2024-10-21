@@ -17,7 +17,18 @@
 	// If you want to overwrite includes/excludes, make sure to copy over the relevant includes/excludes
 	// from the referenced tsconfig.json - TypeScript does not merge them in
 	"include": [
-		"src/**/*.ts",
-		"static/**/hook.js"
+		"static/**/*.js",
+		// If you want to overwrite includes/excludes, make sure to copy over the relevant includes/excludes
+		"./.svelte-kit/ambient.d.ts",
+		"./.svelte-kit/non-ambient.d.ts",
+		"./.svelte-kit/./types/**/$types.d.ts",
+		"./.svelte-kit/../vite.config.js",
+		"./.svelte-kit/../vite.config.ts",
+		"./.svelte-kit/../src/**/*.js",
+		"./.svelte-kit/../src/**/*.ts",
+		"./.svelte-kit/../src/**/*.svelte",
+		"./.svelte-kit/../tests/**/*.js",
+		"./.svelte-kit/../tests/**/*.ts",
+		"./.svelte-kit/../tests/**/*.svelte"
 	]
 }

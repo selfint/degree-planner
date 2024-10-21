@@ -146,7 +146,7 @@
 	</div>
 
 	<div class="ms-3 mt-4">
-		<h2 class="pb-1 text-lg font-medium text-content-primary">
+		<h2 class="text-lg font-medium text-content-primary">
 			{content.lang.course.info}
 		</h2>
 		<div

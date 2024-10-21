@@ -57,7 +57,12 @@ function main(semesters, progress) {
 			.join(', ');
 	}
 
-	if (bestOptions.length === 1) {
+	if (bestOptions.length === 0) {
+		progress.hook = {
+			en: 'No specializations are completed.',
+			he: 'לא הושלמו אף התמחויות.'
+		};
+	} else if (bestOptions.length === 1) {
 		const enOptions = formatValues([bestOptions[0].name]);
 		const heOptions = formatValues([bestOptions[0].he ?? bestOptions[0].name]);
 

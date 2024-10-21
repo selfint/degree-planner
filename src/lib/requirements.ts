@@ -31,10 +31,19 @@ async function loadCourses(
 		);
 	}
 
+	let hook: Requirement['hook'] = undefined;
+	if (requirementHeader.hook !== undefined) {
+		const response = await _fetch(requirementHeader.hook);
+		const src = await response.text();
+
+		hook = new Function('semesters', 'progress', src) as Requirement['hook'];
+	}
+
 	return {
 		...requirementHeader,
-		...(courses && { courses }),
-		...(nested && { nested })
+		...(courses !== undefined && { courses }),
+		...(nested !== undefined && { nested }),
+		...(hook !== undefined && { hook: hook })
 	} as Requirement;
 }
 

@@ -66,28 +66,9 @@ export function getProgress(
 	const amount = done.length;
 
 	const requirementCourses = getRequirementCourses(requirement);
-	let relevantCourses = semesters
+	const relevantCourses = semesters
 		.flat()
 		.filter((course) => requirementCourses.includes(course.code));
-
-	if (requirement.strict !== undefined && requirement.amount !== undefined) {
-		const nested: string[] = done
-			.toSorted((a, b) => {
-				// check if we sort by points or count
-				const byPoints = requirement.strict === 'points';
-				const aSort = (byPoints ? a.points : a.count).done;
-				const bSort = (byPoints ? b.points : b.count).done;
-
-				return bSort - aSort;
-			})
-			// choose best nested options
-			.slice(0, requirement.amount)
-			.flatMap((p) => p.courses.done.map((c) => c.code));
-
-		relevantCourses = relevantCourses.filter((course) =>
-			nested.includes(course.code)
-		);
-	}
 
 	const points = relevantCourses.reduce(
 		(sum, course) => sum + (course.points ?? 0),
@@ -110,7 +91,7 @@ export function getProgress(
 		}
 	}
 
-	return {
+	let progress = {
 		name: requirement.name,
 		courses: {
 			done: relevantCourses,
@@ -125,7 +106,12 @@ export function getProgress(
 		},
 		// ugly but short way to conditionally add properties
 		...(requirement.he !== undefined ? { he: requirement.he } : {}),
-		...(requirement.strict !== undefined ? { strict: requirement.strict } : {}),
 		...(overflow !== undefined ? { overflow } : {})
 	};
+
+	if (requirement.hook !== undefined) {
+		progress = requirement.hook(semesters, progress);
+	}
+
+	return progress;
 }

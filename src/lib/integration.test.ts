@@ -53,8 +53,6 @@ describe('CS 4 year degree', () => {
 			?.find((r) => r.name === 'list_a')
 			?.nested?.find((r) => r.name === 'specialization');
 
-		ctx.expect(specialization?.strict).toEqual('points');
-
 		const chosenSpecializations = parseCatalog(`
 			1 סיבוכיות של חישובים נק'
 			236306 גרפים מקריים 2.0

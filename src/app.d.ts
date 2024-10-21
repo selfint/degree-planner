@@ -75,17 +75,19 @@ declare global {
 		amount?: number;
 
 		/**
-		 * If present, then points / count from nested requirements
-		 * will only be counted if the nested requirement is completed.
+		 * If present, is a hook function that can modify the progress.
+		 * Will return the modified progress, can store a message
+		 * to be displayed in the progress, in the `hook` field.
 		 *
 		 * If empty, this has no effect.
 		 */
-		strict?: 'points' | 'count';
+		hook?: (semesters: Course[][], progress: Progress) => Progress;
 	};
 
-	type RequirementHeader = Omit<Requirement, 'courses' | 'nested'> & {
+	type RequirementHeader = Omit<Requirement, 'courses' | 'nested' | 'hook'> & {
 		courses?: string;
 		nested?: RequirementHeader[];
+		hook?: string;
 	};
 
 	type Progress = {
@@ -155,12 +157,11 @@ declare global {
 		};
 
 		/**
-		 * If present, then points / count from nested requirements
-		 * will only be counted if the nested requirement is completed.
+		 * If present, is the msg returned by the hook function.
 		 *
-		 * If empty, this has no effect.
+		 * If empty, no hook was run.
 		 */
-		strict?: 'points' | 'count';
+		hook?: { he: string; en: string };
 	};
 
 	type Catalog = {

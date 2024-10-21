@@ -37,7 +37,7 @@ function nestRequirements(name, requirements) {
 		'points',
 		'he',
 		'overflow',
-		'strict'
+		'hook'
 	];
 	const translations = new Map([
 		['core', 'חובה'],
@@ -65,7 +65,7 @@ function nestRequirements(name, requirements) {
 		he: requirements.he ?? translations.get(name),
 		overflow: requirements.overflow,
 		nested: nested.length > 0 ? nested : undefined,
-		strict: requirements.strict
+		hook: requirements.hook
 	};
 }
 
@@ -102,6 +102,8 @@ function readDirectoryRecursively(directory, parents = []) {
 				result[file] = parseCatalog(content);
 			} else if (file === 'courses') {
 				result[file] = `/_catalogs/${[...parents, file].join('/')}`;
+			} else if (file === 'hook.js') {
+				result['hook'] = `/_catalogs/${[...parents, file].join('/')}`;
 			} else if (['count', 'amount', 'points'].includes(file)) {
 				result[file] = parseFloat(content);
 			} else {

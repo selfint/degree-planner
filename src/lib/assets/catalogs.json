@@ -498,7 +498,7 @@
                       ]
                     }
                   ],
-                  "strict": "points"
+                  "hook": "/_catalogs/2023_2024/computer_science/4_year/requirement/list_a/specialization/hook.js"
                 }
               ]
             },
@@ -561,6 +561,9 @@
             }
           ]
         }
+      },
+      "computer_engineering": {
+        "he": "הנדסת מחשבים"
       },
       "he": "מדעי המחשב"
     },

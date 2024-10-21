@@ -107,7 +107,7 @@
 	{#if planned.hook !== undefined}
 		<div
 			style={progressStyle}
-			class="me-2 rounded-md bg-card-primary p-2 pb-1 pt-1 text-content-secondary"
+			class="mb-0.5 me-2 mt-1.5 w-fit rounded-md bg-card-primary p-2 pb-1 pe-2 pt-1 text-content-secondary"
 		>
 			<span class="text-yellow-400"> ⚠ </span>
 			<span>

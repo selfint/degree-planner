@@ -67,6 +67,10 @@ export function getScheduleError(
 		return season.map((s) => seasons.indexOf(s));
 	}
 
+	const exclusives = (course.connections?.exclusive ?? []).filter(
+		(c) => previous.some((p) => c === p) || semester.some((s) => c === s)
+	);
+
 	return {
 		dependencies: dependenciesSatisfied
 			? []
@@ -76,7 +80,7 @@ export function getScheduleError(
 		adjacencies: adjacenciesSatisfied
 			? []
 			: adjacencies.map((c) => ({ course: c, taken: adjacencyTaken(c) })),
-		exclusives: [],
+		exclusives: exclusives.map(getCourseData),
 		season: seasonError ? i18nSeasons(courseSeason) : undefined
 	};
 }

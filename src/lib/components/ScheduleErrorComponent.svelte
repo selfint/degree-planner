@@ -12,7 +12,7 @@
 
 {#if scheduleError.season !== undefined}
 	<div class="items-baseline p-2 pb-1 pt-1">
-		<h2 class="text-start text-base text-content-primary">
+		<h2 class="text-start text-sm text-content-primary">
 			{content.lang.common.semester}
 		</h2>
 		<div class="flex w-full flex-row justify-start">
@@ -26,7 +26,7 @@
 {/if}
 {#if scheduleError.dependencies.length > 0}
 	<div class="p-2 pb-1 pt-1">
-		<h2 class="text-start text-base text-content-primary">
+		<h2 class="text-start text-sm text-content-primary">
 			{content.lang.common.dependencies}
 		</h2>
 		<div class="mb-2 space-y-2 text-start text-xs">
@@ -69,7 +69,7 @@
 
 {#if scheduleError.adjacencies.length > 0}
 	<div class="p-2 pb-1 pt-1">
-		<h2 class="text-start text-base text-content-primary">Adjacencies</h2>
+		<h2 class="text-start text-sm text-content-primary">Adjacencies</h2>
 		<div class="space-y-1 text-start text-xs">
 			{#each scheduleError.adjacencies as { course: adj, taken }}
 				<div class="text-content-primary">
@@ -90,7 +90,35 @@
 						</div>
 						<div
 							style="background: {generateCourseColor(adj)}"
-							class="h-4 w-4 {adj.tests ? 'rounded-full' : ''}"
+							class="h-4 w-4 min-w-4 {adj.tests ? 'rounded-full' : ''}"
+						></div>
+					</div>
+				</div>
+			{/each}
+		</div>
+	</div>
+{/if}
+
+{#if scheduleError.exclusives.length > 0}
+	<div class="p-2 pb-1 pt-1">
+		<h2 class="text-start text-sm text-content-primary">
+			{content.lang.common.exclusives}
+		</h2>
+		<div class="space-y-1 text-start text-xs">
+			{#each scheduleError.exclusives as course}
+				<div class="text-content-primary">
+					<div class="flex flex-row justify-between">
+						<div>
+							<span dir="rtl">
+								{course.name}
+							</span>
+							<span class="text-content-secondary">
+								{course.code}
+							</span>
+						</div>
+						<div
+							style="background: {generateCourseColor(course)}"
+							class="h-4 w-4 min-w-4 {course.tests ? 'rounded-full' : ''}"
 						></div>
 					</div>
 				</div>

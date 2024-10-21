@@ -12,6 +12,7 @@ export const cms = {
 			dependencies: 'Dependencies',
 			dependants: 'Dependants',
 			adjacencies: 'Adjacencies',
+			exclusives: 'Exclusives',
 			semester: 'Semester',
 			faculty: 'Faculty'
 		},
@@ -100,6 +101,7 @@ export const cms = {
 			dependencies: 'קדמים',
 			dependants: 'תלויים',
 			adjacencies: 'צמודים',
+			exclusives: 'ללא זיכוי נוסף',
 			semester: 'סמסטר',
 			faculty: 'פקולטה'
 		},

@@ -196,7 +196,7 @@
 			</div>
 		{/if}
 		{#if (course.connections?.adjacent ?? []).length !== 0}
-			<div>
+			<div class="pb-4">
 				<h2 class="ms-3 pb-1 text-lg font-medium text-content-primary">
 					{content.lang.common.adjacencies}
 				</h2>
@@ -215,7 +215,7 @@
 			</div>
 		{/if}
 		{#if (course.connections?.exclusive ?? []).length !== 0}
-			<div>
+			<div class="pb-4">
 				<h2 class="ms-3 pb-1 text-lg font-medium text-content-primary">
 					{content.lang.common.exclusives}
 				</h2>

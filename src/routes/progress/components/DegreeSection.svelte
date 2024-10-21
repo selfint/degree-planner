@@ -9,9 +9,11 @@
 	type Props = {
 		degree?: Degree;
 		onChange: (degree: Degree) => boolean;
+		onReset: () => void;
+		recommended?: string[][];
 	};
 
-	let { degree, onChange }: Props = $props();
+	let { degree, onChange, onReset, recommended }: Props = $props();
 
 	type Year = keyof typeof catalogs;
 	const years = Object.keys(catalogs) as Year[];
@@ -19,6 +21,19 @@
 	let year: Year | undefined = $state(degree?.[0]);
 	let faculty: string | undefined = $state(degree?.[1]);
 	let path: string | undefined = $state(degree?.[2]);
+
+	function arraysEqualIgnoreOrder(a: string[], b: string[]) {
+		if (a.length !== b.length) return false;
+		const sortedA = [...a].sort();
+		const sortedB = [...b].sort();
+		return sortedA.every((value, index) => value === sortedB[index]);
+	}
+
+	const onRecommended = $derived(
+		user.semesters.every((semester, index) =>
+			arraysEqualIgnoreOrder(semester, recommended?.[index] || [])
+		)
+	);
 
 	$effect(() => {
 		if (year === undefined) {
@@ -191,6 +206,10 @@
 					{content.lang.progress.cancel}
 				</Button>
 			</div>
+		{:else if !onRecommended}
+			<Button variant="secondary" onmousedown={onReset}>
+				{content.lang.progress.revert}
+			</Button>
 		{/if}
 	</div>
 </div>

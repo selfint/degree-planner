@@ -54,7 +54,8 @@ export const cms = {
 			to: 'to',
 			requirements: 'Requirements',
 			current: 'Current',
-			total: 'Total'
+			total: 'Total',
+			revert: 'Revert to recommended'
 		},
 		plan: {
 			wishlist: 'Wish list'
@@ -141,7 +142,8 @@ export const cms = {
 			to: 'ל',
 			requirements: 'דרישות',
 			current: 'נוכחי',
-			total: 'סה"כ'
+			total: 'סה"כ',
+			revert: 'חזור למומלצת'
 		},
 		plan: {
 			wishlist: 'רשימת משאלות'

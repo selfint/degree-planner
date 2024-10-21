@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { user, catalog } from '$lib/stores.svelte';
+	import { user, catalog, content } from '$lib/stores.svelte';
 	import { getCourseData } from '$lib/courseData';
 	import { getProgress } from '$lib/progress';
 	import { loadCatalog } from '$lib/requirements';
@@ -15,6 +15,7 @@
 	const planned = $derived(user.semesters.map((s) => s.map(getCourseData)));
 	const current = $derived(planned.slice(0, user.currentSemester));
 	const requirements = $derived(catalog()?.requirement);
+	const recommended = $derived(catalog()?.recommended);
 
 	const degreeProgress = $derived.by(() => {
 		if (requirements === undefined) {
@@ -33,11 +34,29 @@
 	function onChange(newDegree: Degree): boolean {
 		loadCatalog(newDegree).then((data) => {
 			user.degree = newDegree;
-			user.wishlist = [];
-			user.semesters = data.recommended;
+
+			if (user.semesters.length === 0) {
+				user.semesters = data.recommended;
+				user.wishlist = user.wishlist.filter(
+					(c) => !data.recommended.flat().includes(c)
+				);
+			}
 		});
 
 		return true;
+	}
+
+	function onReset() {
+		if (recommended !== undefined) {
+			if (!confirm(content.lang.preview.overwriteWarning)) {
+				return;
+			}
+
+			user.semesters = recommended;
+			user.wishlist = user.wishlist.filter(
+				(c) => !recommended.flat().includes(c)
+			);
+		}
 	}
 
 	const maxTotalSemesters = 15;
@@ -63,7 +82,7 @@
 
 <div class="mt-3">
 	<div class="mb-4 ms-3">
-		<DegreeSection degree={user.degree} {onChange} />
+		<DegreeSection degree={user.degree} {onChange} {onReset} {recommended} />
 	</div>
 
 	{#if user.semesters.length > 0}

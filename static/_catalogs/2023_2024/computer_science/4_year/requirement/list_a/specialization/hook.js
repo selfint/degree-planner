@@ -13,15 +13,70 @@ function main(semesters, progress) {
 		nested.includes(course.code)
 	);
 
-	progress.count.done = relevantCourses.length;
-	progress.points.done = relevantCourses.reduce(
+	/**
+	 * @param {string} name
+	 * @returns {string}
+	 */
+	function formatName(name) {
+		name = name.replace(/_/g, ' ');
+		return (
+			name[0].toUpperCase() +
+			name
+				.slice(1)
+				.split('_')
+				.map((word) => (word.length > 2 ? word : word.toUpperCase()))
+				.join(' ')
+		);
+	}
+
+	const oldCount = progress.count.done;
+	const oldPoints = progress.points.done;
+
+	const newCount = relevantCourses.length;
+	const newPoints = relevantCourses.reduce(
 		(sum, course) => sum + (course.points ?? 0),
 		0
 	);
-	progress.hook = {
-		en: `Only took courses from ${bestOptions.map((o) => o.name).join(', ')}`,
-		he: `נלקחו רק קורסים מ ${bestOptions.map((o) => o.he ?? o.name).join(', ')}`
-	};
+
+	if (oldCount === newCount && oldPoints === newPoints) {
+		return progress;
+	}
+
+	progress.count.done = newCount;
+	progress.points.done = newPoints;
+
+	/**
+	 *
+	 * @param {string[]} values
+	 * @returns {string}
+	 */
+	function formatValues(values) {
+		return values
+			.map(formatName)
+			.map((v) => `'${v}'`)
+			.join(', ');
+	}
+
+	if (bestOptions.length === 1) {
+		const enOptions = formatValues([bestOptions[0].name]);
+		const heOptions = formatValues([bestOptions[0].he ?? bestOptions[0].name]);
+
+		progress.hook = {
+			en: `Only took courses from ${enOptions}`,
+			he: `נלקחו רק קורסים מ${heOptions}`
+		};
+	} else {
+		const firstOptions = bestOptions.slice(0, -1);
+		const lastOption = bestOptions[bestOptions.length - 1];
+
+		const enOptions = formatValues(firstOptions.map((o) => o.name));
+		const heOptions = formatValues(firstOptions.map((o) => o.he ?? o.name));
+
+		progress.hook = {
+			en: `Only took courses from ${enOptions} and '${formatName(lastOption.name)}'.`,
+			he: `נלקחו רק קורסים מ ${heOptions} ו-'${lastOption.he ?? formatName(lastOption.name)}'.`
+		};
+	}
 
 	return progress;
 }

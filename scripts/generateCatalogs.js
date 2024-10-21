@@ -30,7 +30,15 @@ function parseCatalog(text) {
 }
 
 function nestRequirements(name, requirements) {
-	const keywords = ['courses', 'count', 'amount', 'points', 'he', 'overflow'];
+	const keywords = [
+		'courses',
+		'count',
+		'amount',
+		'points',
+		'he',
+		'overflow',
+		'strict'
+	];
 	const translations = new Map([
 		['core', 'חובה'],
 		['sport', 'ספורט'],
@@ -56,7 +64,8 @@ function nestRequirements(name, requirements) {
 		points: requirements.points,
 		he: requirements.he ?? translations.get(name),
 		overflow: requirements.overflow,
-		nested: nested.length > 0 ? nested : undefined
+		nested: nested.length > 0 ? nested : undefined,
+		strict: requirements.strict
 	};
 }
 

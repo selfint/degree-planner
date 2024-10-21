@@ -67,8 +67,8 @@ function main(semesters, progress) {
 		const heOptions = formatValues([bestOptions[0].he ?? bestOptions[0].name]);
 
 		progress.hook = {
-			en: `Only took courses from ${enOptions}`,
-			he: `נלקחו רק קורסים מ${heOptions}`
+			en: `Only took courses from ${enOptions}.`,
+			he: `נלקחו רק קורסים מ${heOptions}.`
 		};
 	} else {
 		const firstOptions = bestOptions.slice(0, -1);

@@ -57,18 +57,41 @@
 		.join('_');
 	const href = `/catalog#${section}`;
 
+	function getRequirement(
+		requirement: Requirement | undefined,
+		name: string | undefined
+	): Requirement | undefined {
+		if (requirement === undefined || name === undefined) {
+			return undefined;
+		}
+
+		if (requirement.name === name) {
+			return requirement;
+		}
+
+		for (const nested of requirement.nested ?? []) {
+			const result = getRequirement(nested, name);
+			if (result !== undefined) {
+				return result;
+			}
+		}
+
+		return undefined;
+	}
+
 	const requirementHasConditions = $derived(
-		planned.count.required > 0 ||
-			planned.points.required > 0 ||
-			(planned.amount.required > 0 &&
-				planned.amount.required < planned.nested.options.length)
+		getRequirement(degreeRequirements, requirementName)?.courses !== undefined
+	);
+
+	const targetRequirement = $derived(
+		getRequirement(degreeRequirements, planned.overflow?.target)
 	);
 </script>
 
 <div id={section} class="mb-2 w-full">
 	{#if requirementName.length > 0}
 		<h3
-			class="mb-1 w-fit rounded-md pl-2 pr-2 text-content-primary"
+			class="mb-0.5 w-fit rounded-md pl-2 pr-2 text-content-primary"
 			style="background: {color}; {margin}"
 		>
 			{#if requirementHasConditions}
@@ -149,7 +172,11 @@
 				style="background: {generateRequirementColor(target)};"
 			>
 				<a href="#{target.toLowerCase()}">
-					{formatName(target)}
+					{formatName(
+						content.lang.lang === 'he'
+							? (targetRequirement?.he ?? targetRequirement?.name ?? target)
+							: (targetRequirement?.name ?? target)
+					)}
 				</a>
 			</span>
 		</span>

@@ -38,12 +38,21 @@
 	<div class="flex flex-row items-center justify-between pl-2 pr-3">
 		<a href="/" class="flex h-12 min-w-12 flex-row items-center">
 			<img src={Logo} alt="Logo" class="h-12 w-12" />
-			<span
-				class="hidden border-b-2 border-background text-2xl font-semibold tracking-tight text-content-primary sm:inline"
-				style="font-family: 'Pacifico', cursive;"
-			>
-				{content.lang.header.name}
-			</span>
+			{#if !started}
+				<span
+					class="border-b-2 border-background text-2xl font-semibold tracking-tight text-content-primary"
+					style="font-family: 'Pacifico', cursive;"
+				>
+					{content.lang.header.name}
+				</span>
+			{:else}
+				<span
+					class="hidden border-b-2 border-background text-2xl font-semibold tracking-tight text-content-primary sm:inline"
+					style="font-family: 'Pacifico', cursive;"
+				>
+					{content.lang.header.name}
+				</span>
+			{/if}
 		</a>
 		<div class="flex-grow"></div>
 		{#if !started}

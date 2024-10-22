@@ -633,8 +633,14 @@
               "he": "ליבה"
             },
             {
+              "name": "list_a",
+              "courses": "/_catalogs/2023_2024/computer_science/Computer_Engineering/requirement/list_a/courses",
+              "points": 32,
+              "he": "רשימה א׳"
+            },
+            {
               "name": "specialization",
-              "count": 2,
+              "amount": 2,
               "he": "התמחות",
               "nested": [
                 {
@@ -815,7 +821,8 @@
                   "count": 3,
                   "he": "מערכות תוכנה"
                 }
-              ]
+              ],
+              "hook": "/_catalogs/2023_2024/computer_science/Computer_Engineering/requirement/specialization/hook.js"
             }
           ]
         }

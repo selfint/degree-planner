@@ -29,13 +29,15 @@ export const cms = {
 			reportIssue: 'Report an issue'
 		},
 		landing: {
-			catchphrase: ['Plan your courses', 'with confidence.'],
+			catchphrase: ['Plan your degree', 'with confidence.'],
 			about: `
-                Setup a plan for your entire degree that fits your interests and maximizes
-                your potential. Get personalized suggestions each semester for the optimal
-                test schedule. Discover courses, save the ones you like and we will
-                scheduled them for you.
-            `
+                Setup a plan for your entire degree, check requirements at a
+				glance. Browse the sorted catalog, and find the best courses for
+				each requirement. Get suggestions each semester for the optimal
+				test schedule. Ensure you have completed all prerequisites for
+				every course. Share your plan with friends.
+            `,
+			progress: 'View your progress and plan your degree'
 		},
 		progress: {
 			degree: 'Degree',
@@ -118,13 +120,14 @@ export const cms = {
 			reportIssue: 'דווח על בעיה'
 		},
 		landing: {
-			catchphrase: ['תכנן את הקורסים שלך', 'בביטחון.'],
+			catchphrase: ['תכנן את התואר', 'בביטחון.'],
 			about: `
-				הגדר תוכנית לכל התואר שלך שמתאימה לתחומי העניין שלך וממקסמת
-				את הפוטנציאל שלך. קבל הצעות מותאמות אישית לכל סמסטר עבור לוח
-				מבחנים אופטימלי. גלה קורסים, שמור את אלה שאתה אוהב ואנחנו
-				נכניס אותם לתוכנית עבורך.
-			`
+				תבנה תוכנית לכל התואר שלך, בדוק דרישות במבט.
+				עיין בקטלוג הממוין, ומצא את הקורסים הטובים ביותר לכל דרישה.
+				קבל המלצות לכל סמסטר לסידור המבחנים האופטימלי.
+				וודא שהשלמת את כל הקדמים לכל קורס. שתף את התוכנית שלך עם חברים.
+			`,
+			progress: 'צפה בהתקדמותך ותכנן את התואר שלך'
 		},
 		progress: {
 			degree: 'תואר',

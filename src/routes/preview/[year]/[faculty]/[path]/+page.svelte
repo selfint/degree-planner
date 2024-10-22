@@ -13,7 +13,6 @@
 	import { user, content } from '$lib/stores.svelte';
 
 	const { data } = $props();
-	const { year, faculty, path } = $derived($page.params);
 	const requirements = $derived(data.degreeData.requirement);
 
 	const semesters: string[][] = $derived(
@@ -82,8 +81,8 @@
 	<div style="transform: rotateX(180deg)" class="overflow-x-auto">
 		<div style="transform: rotateX(180deg)" class="flex flex-row">
 			<div class="ms-3"></div>
-			{#key user.semesters.flat().join(' ')}
-				{#each user.semesters as semester, semesterIndex}
+			{#key semesters.flat().join(' ')}
+				{#each semesters as semester, semesterIndex}
 					<div class="pe-2" role="button" tabindex={semesterIndex}>
 						<Semester
 							index={semesterIndex}

@@ -14,7 +14,8 @@ export const cms = {
 			adjacencies: 'Adjacencies',
 			exclusives: 'Exclusives',
 			semester: 'Semester',
-			faculty: 'Faculty'
+			faculty: 'Faculty',
+			course: 'Course'
 		},
 		header: {
 			searchPlaceholder: 'Search',
@@ -37,7 +38,9 @@ export const cms = {
 				test schedule. Ensure you have completed all prerequisites for
 				every course. Share your plan with friends.
             `,
-			progress: 'View your progress and plan your degree'
+			progress:
+				'Choose a degree. See all requirements for it, and your progress in them.',
+			share: 'Share plan'
 		},
 		progress: {
 			degree: 'Degree',
@@ -105,7 +108,8 @@ export const cms = {
 			adjacencies: 'צמודים',
 			exclusives: 'ללא זיכוי נוסף',
 			semester: 'סמסטר',
-			faculty: 'פקולטה'
+			faculty: 'פקולטה',
+			course: 'קורס'
 		},
 		header: {
 			searchPlaceholder: 'חיפוש',
@@ -127,7 +131,8 @@ export const cms = {
 				קבל המלצות לכל סמסטר לסידור המבחנים האופטימלי.
 				וודא שהשלמת את כל הקדמים לכל קורס. שתף את התוכנית שלך עם חברים.
 			`,
-			progress: 'צפה בהתקדמותך ותכנן את התואר שלך'
+			progress: 'בחר תואר. ראה את כל הדרישות עבורו, ואת התקדמותך בהם.',
+			share: 'שתף תוכנית'
 		},
 		progress: {
 			degree: 'תואר',

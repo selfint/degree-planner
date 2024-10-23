@@ -3,8 +3,10 @@ import { loadCatalog } from './requirements';
 import { cms } from './content';
 
 function getLangPreference() {
+	const defaultLang = cms.he;
+
 	if (!browser) {
-		return cms.he;
+		return defaultLang;
 	}
 
 	const localLang = localStorage.getItem('lang');
@@ -15,8 +17,8 @@ function getLangPreference() {
 	if (localLang === 'en') {
 		return cms.en;
 	} else {
-		localStorage.setItem('lang', 'he');
-		return cms.he;
+		localStorage.setItem('lang', defaultLang.lang);
+		return defaultLang;
 	}
 }
 

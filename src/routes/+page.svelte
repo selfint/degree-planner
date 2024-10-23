@@ -15,7 +15,9 @@
 </script>
 
 <div dir={content.lang.dir} class="circle flex flex-grow flex-col">
-	<div class="m-3 flex h-fit flex-col justify-center lg:mt-40 lg:flex-row">
+	<div
+		class="m-3 flex h-fit flex-col items-start justify-center lg:mt-40 lg:flex-row"
+	>
 		<h1
 			class="mb-6 w-fit text-5xl text-content-primary md:text-6xl lg:me-20 lg:text-7xl"
 		>
@@ -30,7 +32,7 @@
 
 		<div class="lg:w-[520px]">
 			<p class="mb-6 text-lg font-medium text-content-secondary">
-				{content.lang.landing.about}
+				{content.lang.landing.howItWorks.join('\n')}
 			</p>
 
 			<div class="h-9">

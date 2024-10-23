@@ -32,14 +32,13 @@ export const cms = {
 			reportIssue: 'Report an issue'
 		},
 		landing: {
-			catchphrase: ['Plan your degree', 'with confidence.'],
-			about: `
-                Setup a plan for your entire degree, check requirements at a
-				glance. Browse the sorted catalog, and find the best courses for
-				each requirement. Get suggestions each semester for the optimal
-				test schedule. Ensure you have completed all prerequisites for
-				every course. Share your plan with friends.
-            `,
+			catchphrase: ['Plan your degree', 'with ease.'],
+			howItWorks: [
+				'Start from the recommended plan for your degree.',
+				'Browse the catalog for interesting courses to fulfill requirements.',
+				'Plan your courses for each semester, ensuring their requirements are met.',
+				'When test schedules are published, quickly adapt your plan to maximize study time for each test.'
+			],
 			progress:
 				'Choose a degree. See all requirements for it, and your progress in them.',
 			plan: `
@@ -151,13 +150,13 @@ export const cms = {
 			reportIssue: 'דווח על בעיה'
 		},
 		landing: {
-			catchphrase: ['תכנן את התואר', 'בביטחון.'],
-			about: `
-				תבנה תוכנית לכל התואר שלך, בדוק דרישות במבט.
-				עיין בקטלוג הממוין, ומצא את הקורסים הטובים ביותר לכל דרישה.
-				קבל המלצות לכל סמסטר לסידור המבחנים האופטימלי.
-				וודא שהשלמת את כל הקדמים לכל קורס. שתף את התוכנית שלך עם חברים.
-			`,
+			catchphrase: ['תכנן את התואר', 'בקלות.'],
+			howItWorks: [
+				'התחל מהתוכנית המומלצת לתואר שלך.',
+				'עיין בקטלוג למציאת קורסים מעניינים למילוי דרישות.',
+				'תכנן את הקורסים לכל סמסטר, עם וידוי שהדרישות שלהם נענו.',
+				'כאשר לוח המבחנים מתפרסם, התאם את התוכנית שלך במהירות כדי למקסם את זמן הלמידה לכל מבחן.'
+			],
 			progress: `
 				בחר תואר. ראה את כל הדרישות לו, ואת ההתקדמות שלך בהן.
 			`,

@@ -1,11 +1,17 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { content } from '$lib/stores.svelte';
+
+	import progress from '$lib/assets/gifs/progress.mp4';
+	import plan from '$lib/assets/gifs/plan.mp4';
+	import catalog from '$lib/assets/gifs/catalog.mp4';
+	import semester from '$lib/assets/gifs/semester.mp4';
+	import course from '$lib/assets/gifs/course.mp4';
+	import share from '$lib/assets/gifs/share.mp4';
+
 	import Button from '$lib/components/Button.svelte';
 
-	import { content } from '$lib/stores.svelte';
-	import progressDesktop from '$lib/assets/gifs/progress.mp4';
-
-	let progressVideo: HTMLVideoElement;
+	import Video from './components/Video.svelte';
 </script>
 
 <div dir={content.lang.dir} class="circle flex flex-grow flex-col">
@@ -35,176 +41,54 @@
 		</div>
 	</div>
 
-	<div class="mt-8 flex w-full flex-col items-center space-y-8 p-3 sm:mt-32">
-		<div>
-			<div
-				class="w-full rounded-lg border border-white border-opacity-30 bg-white bg-opacity-10 p-2 bg-blend-color-burn backdrop-blur sm:max-w-[720px]"
-			>
-				<video
-					bind:this={progressVideo}
-					onmouseenter={progressVideo.play}
-					onmouseleave={progressVideo.pause}
-					class="pointer-events-auto w-full rounded-none bg-transparent"
-					playsinline
-					muted
-					loop
-					controls
-				>
-					<source src={progressDesktop} type="video/mp4" />
-					Your browser does not support the video tag.
-				</video>
+	<div class="mt-8 flex w-full flex-col items-center space-y-8 p-2 sm:mt-32">
+		{#snippet video(src: string, title: string, description: string)}
+			<div class="sm:max-w-[720px]">
+				<Video {src} />
+				<div class="mt-2">
+					<h2 class="text-2xl font-medium text-content-primary">
+						{title}
+					</h2>
+					<p class="w-full text-wrap break-words text-content-secondary">
+						{description}
+					</p>
+				</div>
 			</div>
-			<div class="mt-3">
-				<h2 class="text-2xl font-medium text-content-primary">
-					{content.lang.header.progress}
-				</h2>
-				<p class="text-content-secondary">
-					{content.lang.landing.progress}
-				</p>
-			</div>
-		</div>
-		<div>
-			<div
-				class="w-full rounded-lg border border-white border-opacity-30 bg-white bg-opacity-10 p-2 bg-blend-color-burn backdrop-blur sm:max-w-[720px]"
-			>
-				<video
-					bind:this={progressVideo}
-					onmouseenter={progressVideo.play}
-					onmouseleave={progressVideo.pause}
-					class="pointer-events-auto w-full rounded-none bg-transparent"
-					playsinline
-					muted
-					loop
-					controls
-				>
-					<source src={progressDesktop} type="video/mp4" />
-					Your browser does not support the video tag.
-				</video>
-			</div>
-			<div class="mt-3">
-				<h2 class="text-2xl font-medium text-content-primary">
-					{content.lang.header.plan}
-				</h2>
-				<p class="text-content-secondary">
-					{content.lang.landing.progress}
-				</p>
-			</div>
-		</div>
-		<div>
-			<div
-				class="w-full rounded-lg border border-white border-opacity-30 bg-white bg-opacity-10 p-2 bg-blend-color-burn backdrop-blur sm:max-w-[720px]"
-			>
-				<video
-					bind:this={progressVideo}
-					onmouseenter={progressVideo.play}
-					onmouseleave={progressVideo.pause}
-					class="pointer-events-auto w-full rounded-none bg-transparent"
-					playsinline
-					muted
-					loop
-					controls
-				>
-					<source src={progressDesktop} type="video/mp4" />
-					Your browser does not support the video tag.
-				</video>
-			</div>
-			<div class="mt-3">
-				<h2 class="text-2xl font-medium text-content-primary">
-					{content.lang.header.catalog}
-				</h2>
-				<p class="text-content-secondary">
-					{content.lang.landing.progress}
-				</p>
-			</div>
-		</div>
-		<div>
-			<div
-				class="w-full rounded-lg border border-white border-opacity-30 bg-white bg-opacity-10 p-2 bg-blend-color-burn backdrop-blur sm:max-w-[720px]"
-			>
-				<video
-					bind:this={progressVideo}
-					onmouseenter={progressVideo.play}
-					onmouseleave={progressVideo.pause}
-					class="pointer-events-auto w-full rounded-none bg-transparent"
-					playsinline
-					muted
-					loop
-					controls
-				>
-					<source src={progressDesktop} type="video/mp4" />
-					Your browser does not support the video tag.
-				</video>
-			</div>
-			<div class="mt-3">
-				<h2 class="text-2xl font-medium text-content-primary">
-					{content.lang.common.course}
-				</h2>
-				<p class="text-content-secondary">
-					{content.lang.landing.progress}
-				</p>
-			</div>
-		</div>
-		<div>
-			<div
-				class="w-full rounded-lg border border-white border-opacity-30 bg-white bg-opacity-10 p-2 bg-blend-color-burn backdrop-blur sm:max-w-[720px]"
-			>
-				<video
-					bind:this={progressVideo}
-					onmouseenter={progressVideo.play}
-					onmouseleave={progressVideo.pause}
-					class="pointer-events-auto w-full rounded-none bg-transparent"
-					playsinline
-					muted
-					loop
-					controls
-				>
-					<source src={progressDesktop} type="video/mp4" />
-					Your browser does not support the video tag.
-				</video>
-			</div>
-			<div class="mt-3">
-				<h2 class="text-2xl font-medium text-content-primary">
-					{content.lang.common.semester}
-				</h2>
-				<p class="text-content-secondary">
-					{content.lang.landing.progress}
-				</p>
-			</div>
-		</div>
-		<div>
-			<div
-				class="w-full rounded-lg border border-white border-opacity-30 bg-white bg-opacity-10 p-2 bg-blend-color-burn backdrop-blur sm:max-w-[720px]"
-			>
-				<video
-					bind:this={progressVideo}
-					onmouseenter={progressVideo.play}
-					onmouseleave={progressVideo.pause}
-					class="pointer-events-auto w-full rounded-none bg-transparent"
-					playsinline
-					muted
-					loop
-					controls
-				>
-					<source src={progressDesktop} type="video/mp4" />
-					Your browser does not support the video tag.
-				</video>
-			</div>
-			<div class="mt-3">
-				<h2 class="text-2xl font-medium text-content-primary">
-					{content.lang.landing.share}
-				</h2>
-				<p class="text-content-secondary">
-					{content.lang.landing.progress}
-				</p>
-			</div>
-		</div>
+		{/snippet}
+
+		{@render video(
+			progress,
+			content.lang.header.progress,
+			content.lang.landing.progress
+		)}
+		{@render video(plan, content.lang.header.plan, content.lang.landing.plan)}
+		{@render video(
+			catalog,
+			content.lang.header.catalog,
+			content.lang.landing.catalog
+		)}
+		{@render video(
+			course,
+			content.lang.common.course,
+			content.lang.landing.course
+		)}
+		{@render video(
+			semester,
+			content.lang.common.semester,
+			content.lang.landing.semester
+		)}
+		{@render video(
+			share,
+			content.lang.landing.shareTitle,
+			content.lang.landing.share
+		)}
 	</div>
 </div>
 
 <style lang="postcss">
 	:global([dir='ltr'] .circle) {
 		background-image: radial-gradient(
-			ellipse 70% 20% at 100% 25%,
+			ellipse 70% 20% at 0% 15%,
 			theme('colors.accent-primary') 1%,
 			transparent 70%
 		);
@@ -212,7 +96,7 @@
 
 	:global([dir='rtl'] .circle) {
 		background-image: radial-gradient(
-			ellipse 70% 20% at 0% 25%,
+			ellipse 70% 20% at 0% 15%,
 			theme('colors.accent-primary') 1%,
 			transparent 70%
 		);

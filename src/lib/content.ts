@@ -1,3 +1,5 @@
+import { catalog } from './stores.svelte';
+
 export const cms = {
 	en: {
 		lang: 'en',
@@ -40,7 +42,32 @@ export const cms = {
             `,
 			progress:
 				'Choose a degree. See all requirements for it, and your progress in them.',
-			share: 'Share plan'
+			plan: `
+				Find a plan that satisfies all course requirements.
+				Save courses for future planning in your wish list.
+			`,
+			catalog: `
+				View courses sorted by requirement and median grade.
+			`,
+			course: `
+				See course info, dependencies, exclusives, and more.
+				Add them to your current semester or wish list.
+				Click the course code to go to the SAP course page.
+			`,
+			semester: `
+				Click on the semester's name to go to its page.
+				View all courses that can be taken in that semester.
+				For the current semester, see the possible test
+				schedules for the courses you have selected.
+			`,
+			shareTitle: 'Share Plan',
+			share: `
+				Share your plan with a unique read-only public link.
+				Anyone with the link can view a copy of your plan,
+				and can copy it to their own account.
+
+				Even shared links do not allow editing the your plan.
+			`
 		},
 		progress: {
 			degree: 'Degree',
@@ -131,8 +158,35 @@ export const cms = {
 				קבל המלצות לכל סמסטר לסידור המבחנים האופטימלי.
 				וודא שהשלמת את כל הקדמים לכל קורס. שתף את התוכנית שלך עם חברים.
 			`,
-			progress: 'בחר תואר. ראה את כל הדרישות עבורו, ואת התקדמותך בהם.',
-			share: 'שתף תוכנית'
+			progress: `
+				בחר תואר. ראה את כל הדרישות לו, ואת ההתקדמות שלך בהן.
+			`,
+			plan: `
+				מצא תוכנית שמקיימת את כל דרישות הקורסים.
+				שמור קורסים לתכנון עתידי ברשימת המשאלות שלך.
+			`,
+			catalog: `
+				צפה בקורסים ממוינים לפי דרישה וציון חציון.
+			`,
+			course: `
+				ראה מידע על הקורס, קדמים, מקצועות ללא זיכוי נוסף, ועוד.
+				הוסף אותם לסמסטר הנוכחי או לרשימת המשאלות שלך.
+				לחץ על קוד הקורס כדי לעבור לדף הקורס ב-SAP.
+			`,
+			semester: `
+				לחץ על שם הסמסטר כדי לעבור לדף שלו.
+				צפה בכל הקורסים שניתן ללמוד בסמסטר זה.
+				לסמסטר הנוכחי, ראה את זמני הלמידה למבחנים
+				עבור הקורסים שבחרת.
+			`,
+			shareTitle: 'שתף תוכנית',
+			share: `
+				שתף את התוכנית שלך עם קישור ציבורי לקריאה בלבד.
+				כל מי שיש לו את הקישור יכול לראות עותק של התוכנית שלך,
+				ויכול להעתיק אותה לחשבון שלו.
+
+				גם קישורים ששותפו לא מאפשרים עריכה של התוכנית שלך.
+			`
 		},
 		progress: {
 			degree: 'תואר',

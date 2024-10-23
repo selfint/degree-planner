@@ -8,8 +8,7 @@
 	let video: HTMLVideoElement;
 
 	$effect(() => {
-		video.play();
-		video.pause();
+		video.play().then(() => video.pause());
 	});
 </script>
 
@@ -25,6 +24,7 @@
 		muted
 		loop
 		controls
+		preload="auto"
 	>
 		<source {src} type="video/mp4" />
 		Your browser does not support the video tag.

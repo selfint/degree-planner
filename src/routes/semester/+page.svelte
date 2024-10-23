@@ -282,6 +282,7 @@
 			{semester}
 			{disabled}
 			isCurrent={currentSemester === user.currentSemester}
+			href={'/plan'}
 		>
 			{#snippet children({ course })}
 				<button

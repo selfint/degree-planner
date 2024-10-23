@@ -56,14 +56,19 @@ export const cms = {
 					will appear with an explanation.
 				</span>`
 			})),
-			plan: `
-				Find a plan that satisfies all course requirements.
-				Save courses for future planning in your wish list.
-				View the test schedule for the current semester.
-				The first value is the date of the first test,
-				and each following value is the amount of days
-				to the next test.
-			`,
+			plan: createRawSnippet(() => ({
+				render: () => `<span>
+					Find a plan that satisfies all course requirements.
+					Save courses for future planning in your wish list.
+					<br />
+					<br />
+					View the test schedule for the current semester.
+					The first value is the date of the first test,
+					and each following value is the amount of days
+					to the next test.
+					The first row is for first exams, and the second for second exams.
+				</span>`
+			})),
 			catalog: `
 				View courses sorted by requirement and median grade.
 			`,
@@ -179,7 +184,7 @@ export const cms = {
 			progress: createRawSnippet(() => ({
 				render: () => `<span>
 					בחר תואר. ראה את כל הדרישות שלו, והתקדמותך בהן.
-					לכל דרישה, יש 3 ערכים:
+					לכל דרישה יש 3 ערכים:
 					<span class="text-nowrap bg-card-primary rounded-md p-1 pe-0">
 						<span class="text-accent-primary">בוצע</span>
 					 	/ מתוכנן 
@@ -192,14 +197,19 @@ export const cms = {
 					תופיע עם הסבר.
 				</span>`
 			})),
-			plan: `
-				מצא תוכנית שמקיימת את כל דרישות הקורסים.
-				שמור קורסים לתכנון עתידי ברשימת המשאלות שלך.
-				צפה בלוח המבחנים לסמסטר הנוכחי.
-				הערך הראשון הוא תאריך המבחן הראשון,
-				והערכים הבאים הם מספר הימים
-				עד למבחן הבא.
-			`,
+			plan: createRawSnippet(() => ({
+				render: () => `<span>
+					מצא תוכנית שמקיימת את כל דרישות הקורסים.
+					שמור קורסים לתכנון עתידי ברשימת המשאלות שלך.
+					<br />
+					<br />
+					צפה בלוח המבחנים לסמסטר הנוכחי.
+					הערך הראשון הוא תאריך המבחן הראשון,
+					והערכים הבאים הם מספר הימים
+					עד למבחן הבא.
+					השורה הראשונה היא עבור מועדי א׳, והשנייה עבור מועדי ב׳.
+				</span>`
+			})),
 			catalog: `
 				צפה בקורסים ממוינים לפי דרישה וציון חציון.
 			`,

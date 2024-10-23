@@ -18,7 +18,7 @@
 
 <div dir={content.lang.dir} class="circle flex flex-grow flex-col">
 	<div
-		class="m-3 flex h-fit flex-col items-start justify-center lg:mt-40 lg:flex-row"
+		class="m-3 flex h-fit flex-col items-start justify-center lg:mt-20 lg:flex-row"
 	>
 		<h1
 			class="mb-6 w-fit text-5xl text-content-primary md:text-6xl lg:me-20 lg:text-7xl"
@@ -65,7 +65,7 @@
 		</div>
 	{/snippet}
 
-	<div class="mt-8 flex w-full flex-col items-center space-y-8 p-2 sm:mt-32">
+	<div class="mt-8 flex w-full flex-col items-center space-y-8 p-2 sm:mt-20">
 		{@render video(
 			progress,
 			content.lang.header.progress,

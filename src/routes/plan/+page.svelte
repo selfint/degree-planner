@@ -131,7 +131,7 @@
 							index={semesterIndex}
 							semester={semester.map(getCourseData)}
 							isCurrent={semesterIndex === user.currentSemester}
-							link={true}
+							href={`/semester?c=${semesterIndex}`}
 						>
 							{#snippet children({ course })}
 								<button

@@ -11,17 +11,11 @@
 		semester: Course[];
 		disabled?: string[];
 		children: Snippet<[{ course: Course; index: number }]>;
-		link?: boolean;
+		href?: string;
 	};
 
-	let {
-		index,
-		isCurrent,
-		semester,
-		disabled,
-		children,
-		link = false
-	}: Props = $props();
+	let { index, isCurrent, semester, disabled, children, href }: Props =
+		$props();
 
 	const effectiveSemester = $derived(
 		semester.filter((c) => !disabled?.includes(c.code))
@@ -69,8 +63,8 @@
 {/snippet}
 
 <CourseWidth>
-	{#if link}
-		<a href="/semester?c={index}">
+	{#if href !== undefined}
+		<a {href}>
 			{@render title()}
 		</a>
 	{:else}

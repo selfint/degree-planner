@@ -88,7 +88,6 @@
 							index={semesterIndex}
 							semester={semester.map(getCourseData)}
 							isCurrent={false}
-							link={true}
 						>
 							{#snippet children({ course })}
 								<button

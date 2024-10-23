@@ -35,7 +35,7 @@
 </script>
 
 <header dir="ltr" class="touch-manipulation items-center pt-1">
-	<div class="flex flex-row items-center justify-between pl-2 pr-3">
+	<div class="flex flex-row items-center justify-between pe-3 ps-2">
 		<a href="/" class="flex h-12 min-w-12 flex-row items-center">
 			<img src={Logo} alt="Logo" class="h-12 w-12" />
 			{#if !started}
@@ -61,7 +61,7 @@
 			</Button>
 		{:else}
 			<nav
-				class="flex flex-row items-center justify-end space-x-3 md:space-x-8"
+				class="ms-2 flex flex-row items-center justify-end space-x-3 md:space-x-8"
 			>
 				<div
 					dir={content.lang.dir}

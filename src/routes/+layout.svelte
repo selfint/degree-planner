@@ -1,5 +1,5 @@
 <script lang="ts">
-	// import { injectSpeedInsights } from '@vercel/speed-insights/sveltekit';
+	import { injectSpeedInsights } from '@vercel/speed-insights/sveltekit';
 	import { inject } from '@vercel/analytics';
 
 	import '../app.css';
@@ -13,7 +13,7 @@
 	import TitleBar from './components/TitleBar.svelte';
 	import Select from '$lib/components/Select.svelte';
 
-	// injectSpeedInsights();
+	injectSpeedInsights();
 	inject();
 
 	const { children } = $props();

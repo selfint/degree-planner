@@ -90,7 +90,7 @@
 					</div>
 				{/if}
 
-				<div class="flex-grow"></div>
+				<div class="flex-grow sm:ms-3 sm:flex-grow-0"></div>
 				<span dir="ltr" class="text-nowrap font-normal text-content-secondary">
 					{scores}
 				</span>

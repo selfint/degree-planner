@@ -14,13 +14,13 @@
 </script>
 
 <div
-	class="w-full rounded-lg border border-white border-opacity-30 bg-white bg-opacity-10 p-2 bg-blend-color-burn shadow-md backdrop-blur"
+	class="w-full rounded-[15px] border border-white border-opacity-30 bg-white bg-opacity-10 p-2 bg-blend-color-burn shadow-md backdrop-blur"
 >
 	<video
 		bind:this={video}
 		onmouseenter={video.play}
 		onmouseleave={video.pause}
-		class="pointer-events-auto w-full rounded-none bg-transparent"
+		class="pointer-events-auto w-full rounded-[10px] bg-transparent"
 		playsinline
 		muted
 		loop

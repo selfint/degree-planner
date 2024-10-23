@@ -1,4 +1,4 @@
-import { catalog } from './stores.svelte';
+import { createRawSnippet } from 'svelte';
 
 export const cms = {
 	en: {
@@ -39,11 +39,30 @@ export const cms = {
 				'Plan your courses for each semester, ensuring their requirements are met.',
 				'When test schedules are published, quickly adapt your plan to maximize study time for each test.'
 			],
-			progress:
-				'Choose a degree. See all requirements for it, and your progress in them.',
+			progress: createRawSnippet(() => ({
+				render: () => `<span>
+					Choose a degree. See all requirements for it, and your progress in them.
+					For each requirement, there are 3 values:
+					<span class="text-nowrap bg-card-primary rounded-md p-1 pe-0">
+						<span class="text-accent-primary">done</span>
+					 	/ planned 
+						/ required
+					 </span>.
+					 If a requirement has special rules that were 
+					applied, a
+					<span class="bg-card-primary text-nowrap p-1 pe-0 me-1 rounded-md">
+						<span class="text-yellow-400"> ⚠ </span> notification
+					</span>
+					will appear with an explanation.
+				</span>`
+			})),
 			plan: `
 				Find a plan that satisfies all course requirements.
 				Save courses for future planning in your wish list.
+				View the test schedule for the current semester.
+				The first value is the date of the first test,
+				and each following value is the amount of days
+				to the next test.
 			`,
 			catalog: `
 				View courses sorted by requirement and median grade.
@@ -157,12 +176,29 @@ export const cms = {
 				'תכנן את הקורסים לכל סמסטר, עם וידוי שהדרישות שלהם נענו.',
 				'כאשר לוח המבחנים מתפרסם, התאם את התוכנית שלך במהירות כדי למקסם את זמן הלמידה לכל מבחן.'
 			],
-			progress: `
-				בחר תואר. ראה את כל הדרישות לו, ואת ההתקדמות שלך בהן.
-			`,
+			progress: createRawSnippet(() => ({
+				render: () => `<span>
+					בחר תואר. ראה את כל הדרישות שלו, והתקדמותך בהן.
+					לכל דרישה, יש 3 ערכים:
+					<span class="text-nowrap bg-card-primary rounded-md p-1 pe-0">
+						<span class="text-accent-primary">בוצע</span>
+					 	/ מתוכנן 
+						/ נדרש
+					 </span>.
+					 אם לדרישה יש כללים מיוחדים שהשפיעו על ההתקדמות, אז
+					<span class="bg-card-primary text-nowrap p-1 pe-0 me-1 rounded-md">
+						<span class="text-yellow-400"> ⚠ </span> התראה
+					</span>
+					תופיע עם הסבר.
+				</span>`
+			})),
 			plan: `
 				מצא תוכנית שמקיימת את כל דרישות הקורסים.
 				שמור קורסים לתכנון עתידי ברשימת המשאלות שלך.
+				צפה בלוח המבחנים לסמסטר הנוכחי.
+				הערך הראשון הוא תאריך המבחן הראשון,
+				והערכים הבאים הם מספר הימים
+				עד למבחן הבא.
 			`,
 			catalog: `
 				צפה בקורסים ממוינים לפי דרישה וציון חציון.

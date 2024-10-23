@@ -1,4 +1,6 @@
 <script lang="ts">
+	import type { Snippet } from 'svelte';
+
 	import { goto } from '$app/navigation';
 	import { content } from '$lib/stores.svelte';
 
@@ -43,7 +45,7 @@
 		</div>
 	</div>
 
-	{#snippet video(src: string, title: string, description: string)}
+	{#snippet video(src: string, title: string, description: string | Snippet)}
 		<div class="sm:flex sm:max-w-[1024px] sm:flex-row">
 			<div class="flex-grow sm:me-4 sm:max-w-[620px]">
 				<Video {src} />
@@ -53,7 +55,11 @@
 					{title}
 				</h2>
 				<p class="text-wrap break-words text-content-secondary">
-					{description}
+					{#if typeof description === 'string'}
+						{description}
+					{:else}
+						{@render description()}
+					{/if}
 				</p>
 			</div>
 		</div>

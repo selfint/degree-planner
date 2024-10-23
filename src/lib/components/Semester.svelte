@@ -45,14 +45,14 @@
 			</h1>
 		</div>
 		<div
-			class="flex flex-row items-baseline justify-end space-x-1 text-content-secondary"
+			class="flex flex-row items-baseline justify-end text-content-secondary"
 		>
-			<span>
+			<span class="me-1">
 				{effectiveSemester
 					.map((c) => c.tests)
 					.filter((t) => t !== undefined && t.length > 0).length}
 			</span>
-			<span>
+			<span class="me-1">
 				{getAvgMedian(effectiveSemester)}
 			</span>
 			<span>

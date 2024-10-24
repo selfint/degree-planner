@@ -37,7 +37,7 @@
 	</main>
 
 	<footer
-		class="flex flex-row items-baseline justify-between border-t-2 border-border bg-background p-4 text-sm"
+		class="flex flex-row items-baseline justify-between border-t-2 border-border bg-background p-3 text-sm"
 	>
 		<p class="text-content-secondary sm:flex-row sm:space-x-2">
 			{content.lang.footer.createdBy}

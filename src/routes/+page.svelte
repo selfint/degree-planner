@@ -1,6 +1,4 @@
 <script lang="ts">
-	import type { Snippet } from 'svelte';
-
 	import { goto } from '$app/navigation';
 	import { content } from '$lib/stores.svelte';
 
@@ -13,20 +11,20 @@
 
 	import Button from '$lib/components/Button.svelte';
 
-	import Video from './components/Video.svelte';
+	import Demo from './components/Demo.svelte';
 </script>
 
-<div dir={content.lang.dir} class="circle flex flex-grow flex-col">
+<div dir={content.lang.dir} class="circle flex flex-grow flex-col items-center">
 	<div
-		class="m-3 flex h-fit flex-col items-start justify-center lg:mt-20 lg:flex-row"
+		class="flex h-fit flex-col items-start justify-center p-3 sm:max-w-[1024px] lg:mt-20 lg:flex-row"
 	>
 		<h1
-			class="mb-6 w-fit text-5xl text-content-primary md:text-6xl lg:me-20 lg:text-7xl"
+			class="mb-6 text-5xl text-content-primary md:text-6xl lg:me-20 lg:text-7xl"
 		>
-			<span class="w-fit">{content.lang.landing.catchphrase[0]}</span>
+			<span class="text-nowrap">{content.lang.landing.catchphrase[0]}</span>
 			<br class="hidden lg:block" />
 			<span
-				class="w-fit bg-gradient-to-b from-white from-30% to-accent-primary bg-clip-text text-transparent"
+				class="bg-gradient-to-b from-white from-30% to-accent-primary bg-clip-text text-transparent"
 			>
 				{content.lang.landing.catchphrase[1]}
 			</span>
@@ -45,53 +43,53 @@
 		</div>
 	</div>
 
-	{#snippet video(src: string, title: string, description: string | Snippet)}
-		<div class="sm:flex sm:max-w-[1024px] sm:flex-row">
-			<div class="flex-grow sm:me-4 sm:max-w-[620px]">
-				<Video {src} />
-			</div>
-			<div class="mt-2 sm:min-w-[300px] sm:max-w-[300px] sm:flex-grow">
-				<h2 class="text-2xl font-medium text-content-primary">
-					{title}
-				</h2>
-				<p class="text-wrap break-words text-content-secondary">
-					{#if typeof description === 'string'}
-						{description}
-					{:else}
-						{@render description()}
-					{/if}
-				</p>
-			</div>
-		</div>
-	{/snippet}
+	<div
+		class="mt-8 flex flex-col items-center space-y-8 p-3 sm:mt-20 sm:max-w-[1024px]"
+	>
+		<Demo src={progress} title={content.lang.header.progress}>
+			<span>
+				{content.lang.landing.progress.header}
+				<span class="text-nowrap rounded-md bg-card-primary p-1">
+					<span class="text-accent-primary">
+						{content.lang.landing.progress.done}
+					</span>
+					/ {content.lang.landing.progress.planned}
+					/ {content.lang.landing.progress.required}
+				</span>
+				{content.lang.landing.progress.notification.header}
+				<span class="text-nowrap rounded-md bg-card-primary p-1">
+					<span class="text-yellow-400"> ⚠ </span>
+					{content.lang.landing.progress.notification.notification}
+				</span>
+				{content.lang.landing.progress.notification.footer}
+				<br />
+				<br />
+				{content.lang.landing.progress.markAsDone}
+			</span>
+		</Demo>
 
-	<div class="mt-8 flex w-full flex-col items-center space-y-8 p-2 sm:mt-20">
-		{@render video(
-			progress,
-			content.lang.header.progress,
-			content.lang.landing.progress
-		)}
-		{@render video(plan, content.lang.header.plan, content.lang.landing.plan)}
-		{@render video(
-			catalog,
-			content.lang.header.catalog,
-			content.lang.landing.catalog
-		)}
-		{@render video(
-			course,
-			content.lang.common.course,
-			content.lang.landing.course
-		)}
-		{@render video(
-			semester,
-			content.lang.common.semester,
-			content.lang.landing.semester
-		)}
-		{@render video(
-			share,
-			content.lang.landing.shareTitle,
-			content.lang.landing.share
-		)}
+		<Demo src={plan} title={content.lang.header.plan}>
+			{content.lang.landing.plan.header}
+			<br />
+			<br />
+			{content.lang.landing.plan.testSchedule}
+		</Demo>
+
+		<Demo src={catalog} title={content.lang.header.catalog}>
+			{content.lang.landing.catalog}
+		</Demo>
+
+		<Demo src={course} title={content.lang.common.course}>
+			{content.lang.landing.semester}
+		</Demo>
+
+		<Demo src={semester} title={content.lang.common.semester}>
+			{content.lang.landing.semester}
+		</Demo>
+
+		<Demo src={share} title={content.lang.landing.share.title}>
+			{content.lang.landing.share.description}
+		</Demo>
 	</div>
 </div>
 

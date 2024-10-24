@@ -1,5 +1,3 @@
-import { createRawSnippet } from 'svelte';
-
 export const cms = {
 	en: {
 		lang: 'en',
@@ -39,36 +37,39 @@ export const cms = {
 				'Plan your courses for each semester, ensuring their requirements are met.',
 				'When test schedules are published, quickly adapt your plan to maximize study time for each test.'
 			],
-			progress: createRawSnippet(() => ({
-				render: () => `<span>
+			progress: {
+				header: `
 					Choose a degree. See all requirements for it, and your progress in them.
 					For each requirement, there are 3 values:
-					<span class="text-nowrap bg-card-primary rounded-md p-1 pe-0">
-						<span class="text-accent-primary">done</span>
-					 	/ planned 
-						/ required
-					 </span>.
-					 If a requirement has special rules that were 
-					applied, a
-					<span class="bg-card-primary text-nowrap p-1 pe-0 me-1 rounded-md">
-						<span class="text-yellow-400"> ⚠ </span> notification
-					</span>
-					will appear with an explanation.
-				</span>`
-			})),
-			plan: createRawSnippet(() => ({
-				render: () => `<span>
+				`,
+				done: 'done',
+				planned: 'planned',
+				required: 'required',
+				notification: {
+					header: 'If a requirement has special rules that were applied, a',
+					notification: 'notification',
+					footer: 'will appear with an explanation.'
+				},
+				markAsDone: `
+					Below each requirement with progress, the courses that
+					contributed to it are listed. Courses that are planned
+					for future semesters are grayed out. Courses are counted
+					as done if they were taken before the current semester.
+				`
+			},
+			plan: {
+				header: `
 					Find a plan that satisfies all course requirements.
 					Save courses for future planning in your wish list.
-					<br />
-					<br />
+				`,
+				testSchedule: `
 					View the test schedule for the current semester.
 					The first value is the date of the first test,
 					and each following value is the amount of days
 					to the next test.
 					The first row is for first exams, and the second for second exams.
-				</span>`
-			})),
+				`
+			},
 			catalog: `
 				View courses sorted by requirement and median grade.
 			`,
@@ -83,14 +84,16 @@ export const cms = {
 				For the current semester, see the possible test
 				schedules for the courses you have selected.
 			`,
-			shareTitle: 'Share Plan',
-			share: `
-				Share your plan with a unique read-only public link.
-				Anyone with the link can view a copy of your plan,
-				and can copy it to their own account.
+			share: {
+				title: 'Share Plan',
+				description: `
+					Share your plan with a unique read-only public link.
+					Anyone with the link can view a copy of your plan,
+					and can copy it to their own account.
 
-				Even shared links do not allow editing the your plan.
-			`
+					Even shared links do not allow editing the your plan.
+				`
+			}
 		},
 		progress: {
 			degree: 'Degree',
@@ -181,35 +184,39 @@ export const cms = {
 				'תכנן את הקורסים לכל סמסטר, עם וידוי שהדרישות שלהם נענו.',
 				'כאשר לוח המבחנים מתפרסם, התאם את התוכנית שלך במהירות כדי למקסם את זמן הלמידה לכל מבחן.'
 			],
-			progress: createRawSnippet(() => ({
-				render: () => `<span>
+			progress: {
+				header: `
 					בחר תואר. ראה את כל הדרישות שלו, והתקדמותך בהן.
 					לכל דרישה יש 3 ערכים:
-					<span class="text-nowrap bg-card-primary rounded-md p-1 pe-0">
-						<span class="text-accent-primary">בוצע</span>
-					 	/ מתוכנן 
-						/ נדרש
-					 </span>.
-					 אם לדרישה יש כללים מיוחדים שהשפיעו על ההתקדמות, אז
-					<span class="bg-card-primary text-nowrap p-1 pe-0 me-1 rounded-md">
-						<span class="text-yellow-400"> ⚠ </span> התראה
-					</span>
-					תופיע עם הסבר.
-				</span>`
-			})),
-			plan: createRawSnippet(() => ({
-				render: () => `<span>
+				`,
+				done: 'בוצע',
+				planned: 'מתוכנן',
+				required: 'נדרש',
+				notification: {
+					header: 'אם לדרישה יש כללים מיוחדים שהשפיעו על ההתקדמות, אז',
+					notification: 'התראה',
+					footer: 'תופיע עם הסבר.'
+				},
+				markAsDone: `
+					מתחת לכל דרישה עם התקדמות, מפורטים הקורסים
+					שתרמו לה. קורסים שמתוכננים לסמסטרים עתידיים
+					יהיו דהויים. קורסים נחשבים כמבוצעים אם הושלמו
+					לפני הסמסטר הנוכחי.
+				`
+			},
+			plan: {
+				header: `
 					מצא תוכנית שמקיימת את כל דרישות הקורסים.
 					שמור קורסים לתכנון עתידי ברשימת המשאלות שלך.
-					<br />
-					<br />
+				`,
+				testSchedule: `
 					צפה בלוח המבחנים לסמסטר הנוכחי.
 					הערך הראשון הוא תאריך המבחן הראשון,
 					והערכים הבאים הם מספר הימים
 					עד למבחן הבא.
 					השורה הראשונה היא עבור מועדי א׳, והשנייה עבור מועדי ב׳.
-				</span>`
-			})),
+				`
+			},
 			catalog: `
 				צפה בקורסים ממוינים לפי דרישה וציון חציון.
 			`,
@@ -224,14 +231,16 @@ export const cms = {
 				לסמסטר הנוכחי, ראה את זמני הלמידה למבחנים
 				עבור הקורסים שבחרת.
 			`,
-			shareTitle: 'שתף תוכנית',
-			share: `
+			share: {
+				title: 'שתף תוכנית',
+				description: `
 				שתף את התוכנית שלך עם קישור ציבורי לקריאה בלבד.
 				כל מי שיש לו את הקישור יכול לראות עותק של התוכנית שלך,
 				ויכול להעתיק אותה לחשבון שלו.
 
 				גם קישורים ששותפו לא מאפשרים עריכה של התוכנית שלך.
 			`
+			}
 		},
 		progress: {
 			degree: 'תואר',

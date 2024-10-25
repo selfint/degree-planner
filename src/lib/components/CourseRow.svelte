@@ -7,9 +7,10 @@
 		courses: string[] | Course[];
 		indent?: number;
 		children: Snippet<[{ course: Course; index: number }]>;
+		resetScroll?: boolean;
 	};
 
-	let { courses, indent = 1, children }: Props = $props();
+	let { courses, indent = 1, children, resetScroll = false }: Props = $props();
 
 	const offset = `${indent * 0.75}rem`;
 	const margin = $derived(`margin-inline-end: ${offset}`);
@@ -23,9 +24,17 @@
 			return c;
 		})
 	);
+
+	let row: HTMLDivElement;
+	$effect(() => {
+		if (row && resetScroll) {
+			// Hack to get this effect to run each time the courses change
+			row.scrollLeft = courses.length - courses.length;
+		}
+	});
 </script>
 
-<div class="flex flex-row overflow-x-auto">
+<div bind:this={row} class="flex flex-row overflow-x-auto">
 	<div style={margin}></div>
 	{#each _courses as course, index}
 		<div class="pe-2">

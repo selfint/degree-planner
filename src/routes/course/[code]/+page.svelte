@@ -78,6 +78,14 @@
 		const modIndex = Math.floor(semesterIndex / 3) + 1;
 		return `${season} ${modIndex}`;
 	}
+
+	let depRow: HTMLDivElement;
+	$effect(() => {
+		if (depRow) {
+			// hack to get this effect to run each time the course changes
+			depRow.scrollLeft = code.length - code.length;
+		}
+	});
 </script>
 
 <div class="mt-3">
@@ -171,7 +179,11 @@
 				<h2 class="ms-3 pb-1 text-lg font-medium text-content-primary">
 					{content.lang.common.dependencies}
 				</h2>
-				<div dir={content.lang.dir} class="flex flex-row overflow-x-auto">
+				<div
+					bind:this={depRow}
+					dir={content.lang.dir}
+					class="flex flex-row overflow-x-auto"
+				>
 					<div class="me-3"></div>
 					{#each dependencies as group, i}
 						{#if i !== 0}
@@ -201,7 +213,7 @@
 					{content.lang.common.adjacencies}
 				</h2>
 				<div class="flex flex-row space-x-2 overflow-x-auto">
-					<CourseRow courses={course.connections?.adjacent ?? []}>
+					<CourseRow resetScroll courses={course.connections?.adjacent ?? []}>
 						{#snippet children({ course })}
 							<a href={`/course/${course.code}`}>
 								<CourseElement
@@ -219,7 +231,7 @@
 				<h2 class="ms-3 pb-1 text-lg font-medium text-content-primary">
 					{content.lang.common.exclusives}
 				</h2>
-				<CourseRow courses={course.connections?.exclusive ?? []}>
+				<CourseRow resetScroll courses={course.connections?.exclusive ?? []}>
 					{#snippet children({ course })}
 						<a href={`/course/${course.code}`}>
 							<CourseElement

@@ -123,8 +123,8 @@
 										{seasonEmojis[index % 3]}
 										<span class="hidden sm:inline">
 											{content.lang.common.seasons[index % 3]}
+											{Math.floor(index / 3) + 1}
 										</span>
-										{Math.floor(index / 3) + 1}
 									</span>
 								{:else if user.wishlist.includes(course.code)}
 									<span>🌟</span>

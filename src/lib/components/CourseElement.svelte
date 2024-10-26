@@ -28,9 +28,6 @@
 
 	const color = generateCourseColor(course);
 
-	const median =
-		course.median === undefined ? 'N/A' : Math.round(course.median * 10) / 10;
-
 	const hasTest = course.tests !== undefined && course.tests.length > 0;
 </script>
 
@@ -53,10 +50,10 @@
 						</span>
 					{/if}
 				</div>
-				<div class="flex flex-row">
-					<span class="me-2">{median}</span>
-					<span>{course.points ?? 'N/A'}</span>
-				</div>
+				<span>
+					<span>{course.median ?? '-'}</span>
+					<span>{course.points ?? '-'}</span>
+				</span>
 			</div>
 
 			<div

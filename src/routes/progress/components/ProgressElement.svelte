@@ -7,7 +7,7 @@
 
 	import { generateColor, generateRequirementColor } from '$lib/colors';
 	import { getCourseLists } from '$lib/requirements';
-	import { content } from '$lib/stores.svelte';
+	import { content, user } from '$lib/stores.svelte';
 
 	type Props = {
 		indent?: number;
@@ -86,6 +86,18 @@
 	const targetRequirement = $derived(
 		getRequirement(degreeRequirements, planned.overflow?.target)
 	);
+
+	function getCourseSemester(course: Course): number | undefined {
+		const index = user.semesters.findIndex((s) => s.includes(course.code));
+
+		if (index === -1) {
+			return undefined;
+		} else {
+			return index;
+		}
+	}
+
+	const seasonEmojis = ['❄️', '🌿', '☀️'];
 </script>
 
 <div id={section} class="mb-2 w-full">
@@ -197,7 +209,25 @@
 						<CourseElement
 							{course}
 							lists={getCourseLists(degreeRequirements, course.code)}
-						/>
+						>
+							{#snippet note()}
+								{@const index = getCourseSemester(course)}
+								{#if index !== undefined}
+									<span>
+										{seasonEmojis[index % 3]}
+										<span class="hidden sm:inline">
+											{content.lang.common.seasons[index % 3]}
+										</span>
+										{Math.floor(index / 3) + 1}
+									</span>
+								{:else if user.wishlist.includes(course.code)}
+									<span>🌟</span>
+									<span class="hidden sm:inline">
+										{formatName(content.lang.catalog.wishlist)}
+									</span>
+								{/if}
+							{/snippet}
+						</CourseElement>
 					</a>
 				{/snippet}
 			</CourseRow>

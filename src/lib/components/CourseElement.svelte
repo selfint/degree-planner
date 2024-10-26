@@ -6,11 +6,13 @@
 	import CourseWidth from './CourseWidth.svelte';
 	import StudyDaysComponent from './StudyDaysComponent.svelte';
 	import RequirementsElement from './RequirementsElement.svelte';
+	import type { Snippet } from 'svelte';
 
 	type Props = {
 		course: Course;
 		lists?: Requirement[][];
 		squeeze?: boolean;
+		note?: Snippet;
 		variant?:
 			| {
 					type: 'schedule';
@@ -22,7 +24,7 @@
 			  };
 	};
 
-	let { course, lists = [], squeeze = false, variant }: Props = $props();
+	let { course, lists = [], note, squeeze = false, variant }: Props = $props();
 
 	const color = generateCourseColor(course);
 
@@ -40,11 +42,16 @@
 			<div
 				class="flex flex-row items-center justify-between pb-1 text-xs text-content-secondary"
 			>
-				<div class="m-0 ml-1 p-0">
+				<div class="m-0 ms-1 flex flex-row p-0">
 					<div
 						style="background: {color}"
-						class="h-4 w-4 {hasTest ? 'rounded-full' : ''}"
+						class="h-4 min-w-4 {hasTest ? 'rounded-full' : ''}"
 					></div>
+					{#if note !== undefined}
+						<span class="me-1 ms-1">
+							{@render note()}
+						</span>
+					{/if}
 				</div>
 				<div class="flex flex-row">
 					<span class="me-2">{median}</span>

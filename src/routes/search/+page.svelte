@@ -2,7 +2,7 @@
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 
-	import { catalog, content } from '$lib/stores.svelte';
+	import { catalog, content, user } from '$lib/stores.svelte';
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import { getCourseLists } from '$lib/requirements';
 	import { getAllCourses } from '$lib/courseData';
@@ -32,6 +32,25 @@
 	);
 
 	const requirements = $derived(catalog()?.requirement);
+
+	function getCourseSemester(course: Course): number | undefined {
+		const index = user.semesters.findIndex((s) => s.includes(course.code));
+
+		if (index === -1) {
+			return undefined;
+		} else {
+			return index;
+		}
+	}
+
+	const seasonEmojis = ['❄️', '🌿', '☀️'];
+
+	function formatName(name: string): string {
+		return name
+			.split('_')
+			.map((word) => word[0].toUpperCase() + word.slice(1).toLowerCase())
+			.join(' ');
+	}
 </script>
 
 <div class="m-3 mr-0 text-content-primary">
@@ -53,7 +72,25 @@
 					<CourseElement
 						{course}
 						lists={getCourseLists(requirements, course.code)}
-					/>
+					>
+						{#snippet note()}
+							{@const index = getCourseSemester(course)}
+							{#if index !== undefined}
+								<span>
+									{seasonEmojis[index % 3]}
+									<span class="hidden sm:inline">
+										{content.lang.common.seasons[index % 3]}
+									</span>
+									{Math.floor(index / 3) + 1}
+								</span>
+							{:else if user.wishlist.includes(course.code)}
+								<span>🌟</span>
+								<span class="hidden sm:inline">
+									{formatName(content.lang.catalog.wishlist)}
+								</span>
+							{/if}
+						{/snippet}
+					</CourseElement>
 				</div>
 			</li>
 		{/each}

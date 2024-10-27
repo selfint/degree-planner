@@ -36,57 +36,54 @@
 	<h2 class="text-lg font-medium text-content-primary">
 		{content.lang.common.semester}
 	</h2>
-	<div class="space-y-1">
-		<div>
-			<span class="text-content-secondary">
-				{content.lang.progress.current}:
-			</span>
-			<Select bind:value={semesterChoice}>
-				{#each Array.from({ length: user.semesters.length }) as _, i}
-					<option value={i}>
-						{content.lang.common.seasons[i % 3]}
-						{Math.floor(i / 3) + 1}
-					</option>
-				{/each}
-			</Select>
+	<div class="grid w-fit grid-cols-[auto_auto] gap-x-2 gap-y-1">
+		<span class="text-content-secondary">
+			{content.lang.progress.current}
+		</span>
+		<Select bind:value={semesterChoice}>
+			{#each Array.from({ length: user.semesters.length }) as _, i}
+				<option value={i}>
+					{content.lang.common.seasons[i % 3]}
+					{Math.floor(i / 3) + 1}
+				</option>
+			{/each}
+		</Select>
 
-			{#if semesterChoice !== user.currentSemester}
-				<Button variant="primary" onmousedown={onUpdateCurrentSemester}>
-					{content.lang.progress.save}
-				</Button>
-				<Button
-					variant="secondary"
-					onmousedown={() => (semesterChoice = user.currentSemester)}
-				>
-					{content.lang.progress.cancel}
-				</Button>
-			{/if}
-		</div>
-		<div>
-			<span class="text-content-secondary">
-				{content.lang.progress.total}:
-			</span>
-			<Select bind:value={totalSemestersChoice}>
-				{#each validTotalValues as i}
-					<option value={i}>
-						{i}
-						({content.lang.common.seasons[(i - 1) % 3]}
-						{Math.floor((i - 1) / 3) + 1})
-					</option>
-				{/each}
-			</Select>
-
-			{#if totalSemestersChoice !== user.semesters.length}
-				<Button variant="primary" onmousedown={onUpdateTotalSemesters}>
-					{content.lang.progress.save}
-				</Button>
-				<Button
-					variant="secondary"
-					onmousedown={() => (totalSemestersChoice = user.semesters.length)}
-				>
-					{content.lang.progress.cancel}
-				</Button>
-			{/if}
-		</div>
+		{#if semesterChoice !== user.currentSemester}
+			<Button variant="primary" onmousedown={onUpdateCurrentSemester}>
+				{content.lang.progress.save}
+			</Button>
+			<Button
+				variant="secondary"
+				onmousedown={() => (semesterChoice = user.currentSemester)}
+			>
+				{content.lang.progress.cancel}
+			</Button>
+		{/if}
+		<span class="text-content-secondary">
+			{content.lang.progress.total}
+		</span>
+		<Select bind:value={totalSemestersChoice}>
+			{#each validTotalValues as i}
+				<option value={i}>
+					{i}
+					({content.lang.common.seasons[(i - 1) % 3]}
+					{Math.floor((i - 1) / 3) + 1})
+				</option>
+			{/each}
+		</Select>
+	</div>
+	<div class="mt-2">
+		{#if totalSemestersChoice !== user.semesters.length}
+			<Button variant="primary" onmousedown={onUpdateTotalSemesters}>
+				{content.lang.progress.save}
+			</Button>
+			<Button
+				variant="secondary"
+				onmousedown={() => (totalSemestersChoice = user.semesters.length)}
+			>
+				{content.lang.progress.cancel}
+			</Button>
+		{/if}
 	</div>
 </div>

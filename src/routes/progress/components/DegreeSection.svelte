@@ -122,16 +122,8 @@
 <div>
 	<h2 class="text-lg font-medium text-content-primary">
 		{content.lang.progress.degree}
-
-		{#if shareLink !== undefined}
-			<a href={shareLink} target="_blank" class="text-content-secondary">
-				({content.lang.progress.share})
-			</a>
-		{/if}
 	</h2>
-	<div
-		class="grid w-fit grid-cols-[auto_auto] items-baseline gap-x-2 space-y-1"
-	>
+	<div class="grid w-fit grid-cols-[auto_auto] items-baseline gap-x-2 gap-y-1">
 		<span class="text-content-secondary">
 			{content.lang.progress.year}
 		</span>
@@ -205,6 +197,13 @@
 				</Button>
 			</div>
 		{:else if !onRecommended}
+			{#if shareLink !== undefined}
+				<a href={shareLink} target="_blank" class="text-content-secondary">
+					<Button variant="primary" onmousedown={() => {}}>
+						{content.lang.progress.share}
+					</Button>
+				</a>
+			{/if}
 			<Button variant="secondary" onmousedown={onReset}>
 				{content.lang.progress.revert}
 			</Button>

@@ -129,62 +129,60 @@
 			</a>
 		{/if}
 	</h2>
-	<div class="space-y-1">
-		<div>
-			<span class="text-content-secondary">
-				{content.lang.progress.year}:
-			</span>
-			<Select bind:value={year}>
-				{#if year === undefined}
-					<option value={undefined}>{content.lang.progress.selectYear}</option>
-				{/if}
-				{#if years !== undefined}
-					{#each years as year}
-						<option value={year}>{year.replaceAll('_', '/')}</option>
-					{/each}
-				{/if}
-			</Select>
-		</div>
+	<div
+		class="grid w-fit grid-cols-[auto_auto] items-baseline gap-x-2 space-y-1"
+	>
+		<span class="text-content-secondary">
+			{content.lang.progress.year}
+		</span>
+		<Select bind:value={year}>
+			{#if year === undefined}
+				<option value={undefined}>{content.lang.progress.selectYear}</option>
+			{/if}
+			{#if years !== undefined}
+				{#each years as year}
+					<option value={year}>{year.replaceAll('_', '/')}</option>
+				{/each}
+			{/if}
+		</Select>
 
 		{#if year !== undefined}
-			<div>
-				<span class="text-content-secondary">
-					{content.lang.progress.faculty}:
-				</span>
-				<Select bind:value={faculty}>
-					{#if degree === undefined && faculty === undefined}
-						<option value={undefined}>
-							{content.lang.progress.selectFaculty}
-						</option>
-					{/if}
-					{#each getFaculties(year) as { display, value }}
-						<option {value}>
-							{display}
-						</option>
-					{/each}
-				</Select>
-			</div>
+			<span class="text-content-secondary">
+				{content.lang.progress.faculty}
+			</span>
+			<Select bind:value={faculty}>
+				{#if degree === undefined && faculty === undefined}
+					<option value={undefined}>
+						{content.lang.progress.selectFaculty}
+					</option>
+				{/if}
+				{#each getFaculties(year) as { display, value }}
+					<option {value}>
+						{display}
+					</option>
+				{/each}
+			</Select>
 		{/if}
 
 		{#if year !== undefined && faculty !== undefined}
-			<div>
-				<span class="text-content-secondary">
-					{content.lang.progress.path}:
-				</span>
-				<Select bind:value={path}>
-					{#if degree === undefined && path === undefined}
-						<option value={undefined}>
-							{content.lang.progress.selectPath}
-						</option>
-					{/if}
-					{#each getPaths(year, faculty) as { display, value }}
-						<option {value}>
-							{display}
-						</option>
-					{/each}
-				</Select>
-			</div>
+			<span class="text-content-secondary">
+				{content.lang.progress.path}
+			</span>
+			<Select bind:value={path}>
+				{#if degree === undefined && path === undefined}
+					<option value={undefined}>
+						{content.lang.progress.selectPath}
+					</option>
+				{/if}
+				{#each getPaths(year, faculty) as { display, value }}
+					<option {value}>
+						{display}
+					</option>
+				{/each}
+			</Select>
 		{/if}
+	</div>
+	<div class="mt-2">
 		{#if choiceIsChanged(year, faculty, path, degree)}
 			<div>
 				{#if choiceIsValid(year, faculty, path)}

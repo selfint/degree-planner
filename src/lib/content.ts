@@ -97,7 +97,7 @@ export const cms = {
 		},
 		progress: {
 			degree: 'Degree',
-			share: 'share plan',
+			share: 'Share plan',
 			year: 'Year',
 			selectYear: 'Select year',
 			faculty: 'Faculty',

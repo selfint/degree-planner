@@ -28,7 +28,7 @@
 
 	let { course, lists = [], note, squeeze = false, variant }: Props = $props();
 
-	const totalCols = $derived(4);
+	const totalCols = 4;
 
 	const listSizes = $derived.by(() => {
 		const totalRows = 2;

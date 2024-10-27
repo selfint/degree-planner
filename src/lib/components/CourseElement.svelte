@@ -39,7 +39,7 @@
 			<div
 				class="flex flex-row items-center justify-between pb-1 text-xs text-content-secondary"
 			>
-				<div class="m-0 ms-1 flex flex-row p-0">
+				<div class="flex flex-row">
 					<div
 						style="background: {color}"
 						class="h-4 min-w-4 {hasTest ? 'rounded-full' : ''}"

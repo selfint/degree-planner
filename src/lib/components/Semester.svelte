@@ -71,7 +71,7 @@
 		{@render title()}
 	{/if}
 
-	{#if isCurrent}
+	{#if isCurrent && effectiveSemester.filter((c) => c.tests?.length ?? 0 > 0).length > 0}
 		<div class="mb-1.5 mt-2">
 			<StudyDaysComponent semester={effectiveSemester} />
 		</div>

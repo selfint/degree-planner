@@ -51,8 +51,8 @@
 					{/if}
 				</div>
 				<span>
-					<span>{course.median ?? '-'}</span>
-					<span>{course.points ?? '-'}</span>
+					<span>{course.median ?? ''}</span>
+					<span>{course.points ?? ''}</span>
 				</span>
 			</div>
 
@@ -72,10 +72,7 @@
 				</div>
 
 				{#if lists?.length ?? 0 > 0}
-					<div class="hidden flex-row flex-wrap text-xs sm:flex">
-						<RequirementsElement requirements={lists} slice={2} maxWidth={6} />
-					</div>
-					<div class="flex flex-row flex-wrap text-xs sm:hidden">
+					<div class="text-xs">
 						<RequirementsElement requirements={lists} slice={2} maxWidth={3} />
 					</div>
 				{/if}

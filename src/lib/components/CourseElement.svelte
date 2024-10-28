@@ -89,7 +89,7 @@
 				{#if lists?.length ?? 0 > 0}
 					<div
 						style="grid-template-columns: repeat(4, 1fr);"
-						class="mt-1 grid w-fit gap-x-0.5 gap-y-1 text-xs text-content-primary"
+						class="mt-1 grid min-h-fit w-fit gap-x-0.5 gap-y-1 text-xs text-content-primary"
 					>
 						{#each lists as list}
 							{@const size = list.length}
@@ -98,7 +98,7 @@
 							{@const spanSm = Math.min(4, Math.floor((size / total) * 4 * 2))}
 							<div
 								style="--col-span: {span}; --col-span-sm: {spanSm};"
-								class="col-span sm:col-span-sm flex h-4 flex-row leading-none"
+								class="col-span sm:col-span-sm flex h-4 flex-row leading-tight"
 							>
 								{#if list.length === 1}
 									{@const item = list[0]}
@@ -117,9 +117,9 @@
 									{#each items as item, i}
 										<span
 											class="{i > 0 &&
-												'ms-0.5'} flex min-w-2 max-w-fit items-center justify-center
+												'border-s border-card-primary'} flex min-w-2 max-w-fit
 												{i === 0 ? 'rounded-s-full ps-1.5' : 'ps-0.5'}
-												{i === items.length - 1 ? 'rounded-e-full pe-1.5' : 'pe-0.5'}
+												{i === items.length - 1 ? 'rounded-e-full pe-1' : 'pe-0'}
 												"
 											style="background: {generateRequirementColor(
 												item.name
@@ -128,9 +128,9 @@
 												: 0};"
 										>
 											<span
-												class="overflow-hidden overflow-ellipsis text-nowrap text-start"
+												class="max-w-fit overflow-hidden overflow-ellipsis whitespace-pre text-nowrap break-all text-start"
 											>
-												{formatName(item)}
+												{formatName(item)}{' '}
 											</span>
 										</span>
 									{/each}

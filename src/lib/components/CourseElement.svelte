@@ -1,12 +1,14 @@
 <script lang="ts">
 	import ScheduleErrorComponent from './ScheduleErrorComponent.svelte';
 
-	import { generateCourseColor } from '$lib/colors';
+	import { generateCourseColor, generateRequirementColor } from '$lib/colors';
 	import type { ScheduleError } from '$lib/schedule';
 	import CourseWidth from './CourseWidth.svelte';
 	import StudyDaysComponent from './StudyDaysComponent.svelte';
 	import RequirementsElement from './RequirementsElement.svelte';
 	import type { Snippet } from 'svelte';
+
+	import { content } from '$lib/stores.svelte';
 
 	type Props = {
 		course: Course;
@@ -29,6 +31,20 @@
 	const color = generateCourseColor(course);
 
 	const hasTest = course.tests !== undefined && course.tests.length > 0;
+	function formatName(requirement: Requirement): string {
+		let name = requirement.name;
+
+		if (requirement.he !== undefined && content.lang.lang === 'he') {
+			name = requirement.he;
+		}
+
+		name = name
+			.split('_')
+			.map((word) => word[0].toUpperCase() + word.slice(1).toLowerCase())
+			.join(' ');
+
+		return name;
+	}
 </script>
 
 <div
@@ -57,9 +73,8 @@
 			</div>
 
 			<div
-				class="flex {squeeze
-					? ''
-					: 'min-h-28'} flex-col justify-between sm:min-h-16"
+				class="flex {!squeeze &&
+					'max-h-28 min-h-28'} flex-col justify-between sm:max-h-16 sm:min-h-16"
 			>
 				<div class="text-right text-xs leading-none text-content-primary">
 					<span class="hyphens-auto break-words" dir="rtl">
@@ -72,8 +87,55 @@
 				</div>
 
 				{#if lists?.length ?? 0 > 0}
-					<div class="text-xs">
-						<RequirementsElement requirements={lists} slice={2} maxWidth={3} />
+					<div
+						style="grid-template-columns: repeat(4, 1fr);"
+						class="mt-1 grid min-h-fit w-fit gap-x-0.5 gap-y-1 text-xs text-content-primary"
+					>
+						{#each lists as list}
+							{@const size = list.length}
+							{@const total = lists.reduce((acc, l) => acc + l.length, 0)}
+							{@const span = Math.min(4, Math.floor((size / total) * 4 * 3))}
+							{@const spanSm = Math.min(4, Math.floor((size / total) * 4 * 2))}
+							<div
+								style="--col-span: {span}; --col-span-sm: {spanSm};"
+								class="col-span sm:col-span-sm flex h-4 flex-row leading-tight"
+							>
+								{#if list.length === 1}
+									{@const item = list[0]}
+									<span
+										class="flex min-w-4 items-center overflow-hidden overflow-ellipsis text-nowrap rounded-full pe-1.5 ps-1.5"
+										style="background: {generateRequirementColor(item.name)};"
+									>
+										<span
+											class="overflow-hidden overflow-ellipsis text-nowrap text-start"
+										>
+											{formatName(item)}
+										</span>
+									</span>
+								{:else}
+									{@const items = list.slice(-2)}
+									{#each items as item, i}
+										{@const name = formatName(item)}
+										{@const background = generateRequirementColor(item.name)}
+										{@const grow = i === 0 || i === items.length - 1 ? 1 : 0}
+										<span
+											class="{i > 0 &&
+												'border-s border-card-primary'} flex min-w-2 max-w-fit
+												{i === 0 ? 'rounded-s-full ps-1.5' : 'ps-0.5'}
+												{i === items.length - 1 ? 'rounded-e-full pe-1.5' : 'pe-0'}
+												"
+											style="background: {background}; flex-grow: {grow};"
+										>
+											<span
+												class="max-w-fit overflow-hidden overflow-ellipsis whitespace-pre text-nowrap break-all text-start"
+											>
+												{name}{!(name.length > 1) && ' '}
+											</span>
+										</span>
+									{/each}
+								{/if}
+							</div>
+						{/each}
 					</div>
 				{/if}
 			</div>
@@ -90,3 +152,15 @@
 		{/if}
 	</CourseWidth>
 </div>
+
+<style>
+	.col-span {
+		grid-column: span var(--col-span);
+	}
+
+	@media (min-width: 640px) {
+		.col-span {
+			grid-column: span var(--col-span-sm);
+		}
+	}
+</style>

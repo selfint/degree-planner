@@ -63,21 +63,23 @@
 {/snippet}
 
 <CourseWidth>
-	{#if href !== undefined}
-		<a {href}>
+	<div class="mb-0.5 sm:mb-1.5">
+		{#if href !== undefined}
+			<a {href}>
+				{@render title()}
+			</a>
+		{:else}
 			{@render title()}
-		</a>
-	{:else}
-		{@render title()}
-	{/if}
+		{/if}
+	</div>
 
 	{#if isCurrent && effectiveSemester.filter((c) => c.tests?.length ?? 0 > 0).length > 0}
-		<div class="mb-1.5 mt-2">
+		<div class="mb-1.5">
 			<StudyDaysComponent semester={effectiveSemester} />
 		</div>
 	{/if}
 
-	<div class="mt-0.5 flex flex-col space-y-1 sm:space-y-1.5">
+	<div class="flex flex-col space-y-1 sm:space-y-1.5">
 		{#each semester as course, index}
 			{@render children({ course, index })}
 		{/each}

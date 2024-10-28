@@ -117,9 +117,9 @@
 									{#each items as item, i}
 										<span
 											class="{i > 0 &&
-												'ms-0.5'} flex min-w-2 max-w-fit items-center justify-center pe-1.5 ps-1.5
-												{i === 0 && 'rounded-s-full'}
-												{i === items.length - 1 && 'rounded-e-full'}
+												'ms-0.5'} flex min-w-2 max-w-fit items-center justify-center
+												{i === 0 ? 'rounded-s-full ps-1.5' : 'ps-0.5'}
+												{i === items.length - 1 ? 'rounded-e-full pe-1.5' : 'pe-0.5'}
 												"
 											style="background: {generateRequirementColor(
 												item.name

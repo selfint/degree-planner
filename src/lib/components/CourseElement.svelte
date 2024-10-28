@@ -186,37 +186,46 @@
 				{#if listSizes?.length ?? 0 > 0}
 					<div
 						style="grid-template-columns: repeat({totalCols}, 1fr);"
-						class="container mt-1 w-fit text-xs text-content-primary"
+						class="mt-1 grid w-fit gap-x-0.5 gap-y-1 text-xs text-content-primary"
 					>
-						{#each listSizes as [list, size]}
+						{#each lists as list}
+							{@const size = list.length}
+							{@const total = lists.reduce((acc, l) => acc + l.length, 0)}
+							{@const span = Math.min(4, Math.floor((size / total) * 4 * 3))}
+							{@const spanSm = Math.min(4, Math.floor((size / total) * 4 * 2))}
 							<div
-								style="grid-column: span {size};"
-								class="flex h-4 flex-row leading-none"
+								style="--col-span: {span}; --col-span-sm: {spanSm};"
+								class="col-span sm:col-span-sm flex h-4 flex-row leading-none"
 							>
 								{#if list.length === 1}
 									{@const item = list[0]}
 									<span
-										class="flex min-w-2 items-center overflow-hidden overflow-ellipsis text-nowrap rounded-full pe-1.5 ps-1.5"
+										class="flex min-w-4 items-center overflow-hidden overflow-ellipsis text-nowrap rounded-full pe-1.5 ps-1.5"
 										style="background: {generateRequirementColor(item.name)};"
 									>
-										{formatName(item)}
+										<span
+											class="overflow-hidden overflow-ellipsis text-nowrap text-start"
+										>
+											{formatName(item)}
+										</span>
 									</span>
 								{:else}
-									{#each list as item, i}
+									{@const items = list.slice(-2)}
+									{#each items as item, i}
 										<span
 											class="{i > 0 &&
-												'ms-0.5'} flex min-w-4 max-w-fit flex-grow items-center justify-center
+												'ms-0.5'} flex min-w-2 max-w-fit items-center justify-center pe-1.5 ps-1.5
 												{i === 0 && 'rounded-s-full'}
-												{i === list.length - 1 && 'rounded-e-full'}
+												{i === items.length - 1 && 'rounded-e-full'}
 												"
 											style="background: {generateRequirementColor(
 												item.name
-											)}; flex-grow: {item.name.length - 5};"
+											)}; flex-grow: {i === 0 || i === items.length - 1
+												? 1
+												: 0};"
 										>
 											<span
-												class="{i > 0
-													? 'ps-1'
-													: 'ps-1.5'} me-1.5 min-w-5 overflow-hidden overflow-ellipsis text-nowrap text-start"
+												class="overflow-hidden overflow-ellipsis text-nowrap text-start"
 											>
 												{formatName(item)}
 											</span>
@@ -243,8 +252,13 @@
 </div>
 
 <style>
-	.container {
-		display: grid;
-		gap: 0.25rem 0.5rem;
+	.col-span {
+		grid-column: span var(--col-span);
+	}
+
+	@media (min-width: 640px) {
+		.col-span {
+			grid-column: span var(--col-span-sm);
+		}
 	}
 </style>

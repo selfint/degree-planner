@@ -15,12 +15,14 @@
 	const { data } = $props();
 	const requirements = $derived(data.degreeData.requirement);
 
-	const semesters: string[][] = $derived(
-		($page.url.searchParams.get('semesters') ?? '')
+	const semesters: string[][] = $derived.by(() => {
+		const semesters = $page.url.searchParams.get('semesters') ?? '';
+
+		return semesters
 			.trim()
-			.split(';')
-			.map((s) => s.split(',').filter((c) => c !== ''))
-	);
+			.split('|')
+			.map((s) => s.split('-').filter((c) => c !== ''));
+	});
 
 	function formatName(name: string): string {
 		return (

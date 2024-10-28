@@ -79,7 +79,7 @@
 
 		const [year, faculty, path] = degree;
 
-		const semesters = user.semesters.map((s) => s.join(',')).join(';');
+		const semesters = user.semesters.map((s) => s.join('-')).join('|');
 
 		return `/preview/${year}/${faculty}/${path}?semesters=${semesters}`;
 	});

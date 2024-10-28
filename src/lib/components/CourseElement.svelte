@@ -28,103 +28,6 @@
 
 	let { course, lists = [], note, squeeze = false, variant }: Props = $props();
 
-	const totalCols = 4;
-
-	const listSizes = $derived.by(() => {
-		const totalRows = 2;
-
-		const rows = Array.from(
-			{ length: totalRows },
-			() => [] as [Requirement[], number][]
-		);
-		const available = Array.from({ length: totalRows }, () => totalCols);
-
-		const sorted = lists.toSorted((a, b) => b.length - a.length);
-
-		for (const list of sorted) {
-			const size = Math.min(totalCols, list.length);
-
-			let hasSpace = false;
-			for (let i = 0; i < totalRows; i++) {
-				const row = rows[i];
-				const rowSize = row.reduce((acc, [l, s]) => acc + s, 0);
-
-				if (rowSize + size <= totalCols) {
-					row.push([list, size]);
-					available[i] -= size;
-					hasSpace = true;
-					break;
-				}
-			}
-
-			if (hasSpace) {
-				continue;
-			}
-
-			// Find the row with the most space
-			let emptiestRow = 0;
-			for (let i = 1; i < totalRows; i++) {
-				if (available[i] > available[emptiestRow]) {
-					emptiestRow = i;
-				}
-			}
-
-			rows[emptiestRow].push([list, size]);
-			available[emptiestRow] -= size;
-		}
-
-		// Expand rows if possible
-		for (let i = 0; i < totalRows; i++) {
-			const row = rows[i];
-			const rowSize = row.reduce((acc, [l, s]) => acc + s, 0);
-			let space = totalCols - rowSize;
-
-			if (row.length === 0) {
-				continue;
-			}
-
-			while (space > 0) {
-				const mostShrunkAmount = Math.max(
-					...row.map(([item, size]) => item.length - size)
-				);
-
-				const mostShrunkIndex = row.findIndex(
-					([item, size]) => item.length - size === mostShrunkAmount
-				);
-
-				row[mostShrunkIndex][1]++;
-				space--;
-			}
-
-			available[i] = space;
-		}
-
-		// Shrink rows if needed
-		for (let i = 0; i < totalRows; i++) {
-			const row = rows[i];
-			let availableSpace = available[i];
-
-			if (row.length === 0) {
-				continue;
-			}
-
-			while (availableSpace < 0) {
-				const largestItemValue = Math.min(
-					...row.map(([item, size]) => item.length - size)
-				);
-				const largestItemIndex = row.findIndex(
-					([item, size]) => item.length - size === largestItemValue
-				);
-
-				row[largestItemIndex][1]--;
-				available[i]++;
-				availableSpace++;
-			}
-		}
-
-		return rows.flat();
-	});
-
 	const color = generateCourseColor(course);
 
 	const hasTest = course.tests !== undefined && course.tests.length > 0;
@@ -183,9 +86,9 @@
 					</span>
 				</div>
 
-				{#if listSizes?.length ?? 0 > 0}
+				{#if lists?.length ?? 0 > 0}
 					<div
-						style="grid-template-columns: repeat({totalCols}, 1fr);"
+						style="grid-template-columns: repeat(4, 1fr);"
 						class="mt-1 grid w-fit gap-x-0.5 gap-y-1 text-xs text-content-primary"
 					>
 						{#each lists as list}

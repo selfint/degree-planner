@@ -115,22 +115,21 @@
 								{:else}
 									{@const items = list.slice(-2)}
 									{#each items as item, i}
+										{@const name = formatName(item)}
+										{@const background = generateRequirementColor(item.name)}
+										{@const grow = i === 0 || i === items.length - 1 ? 1 : 0}
 										<span
 											class="{i > 0 &&
 												'border-s border-card-primary'} flex min-w-2 max-w-fit
 												{i === 0 ? 'rounded-s-full ps-1.5' : 'ps-0.5'}
-												{i === items.length - 1 ? 'rounded-e-full pe-1' : 'pe-0'}
+												{i === items.length - 1 ? 'rounded-e-full pe-1.5' : 'pe-0'}
 												"
-											style="background: {generateRequirementColor(
-												item.name
-											)}; flex-grow: {i === 0 || i === items.length - 1
-												? 1
-												: 0};"
+											style="background: {background}; flex-grow: {grow};"
 										>
 											<span
 												class="max-w-fit overflow-hidden overflow-ellipsis whitespace-pre text-nowrap break-all text-start"
 											>
-												{formatName(item)}{' '}
+												{name}{!(name.length > 1) && ' '}
 											</span>
 										</span>
 									{/each}

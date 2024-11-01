@@ -80,7 +80,7 @@
 		</Demo>
 
 		<Demo src={course} title={content.lang.common.course}>
-			{content.lang.landing.semester}
+			{content.lang.landing.course}
 		</Demo>
 
 		<Demo src={semester} title={content.lang.common.semester}>

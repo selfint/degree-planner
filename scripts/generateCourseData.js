@@ -117,7 +117,9 @@ export function getName(courseSAPInfo) {
  * @returns {[Object, Object | undefined]|undefined} An array of two test objects or undefined if not found.
  */
 export function getTests(courseSAPInfo) {
-	const exams = courseSAPInfo.Exams.results;
+	const exams = courseSAPInfo.Exams.results.filter(
+		(exam) => exam.ExamDate !== null
+	);
 
 	if (exams.length === 0) {
 		return undefined;
@@ -330,7 +332,7 @@ async function main(skip, top) {
 			$skip: skip.toString(),
 			$top: top.toString(),
 			$select: 'Otjid',
-			// $filter: `Peryr eq '${peryr}' and Perid eq '${perid}' and Otjid eq 'SM02340218'`
+			// $filter: `Peryr eq '${peryr}' and Perid eq '${perid}' and Otjid eq 'SM03240033'`
 			$filter: `Peryr eq '${peryr}' and Perid eq '${perid}' `
 		}))
 	).then((results) => results.map((r) => r.map((c) => c.Otjid)));

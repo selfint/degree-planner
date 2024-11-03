@@ -383,6 +383,12 @@ async function main(skip, top) {
 			].join(',')
 		}));
 		const results = await requestBatch('SmObjectSet', queries);
+		if (results === undefined) {
+			throw new Error(
+				`Failed to fetch data for courses: ${JSON.stringify(batch.map(([code]) => code))}`
+			);
+		}
+
 		const courses = await Promise.all(
 			results
 				.flat()

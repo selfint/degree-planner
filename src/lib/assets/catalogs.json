@@ -639,6 +639,12 @@
               "he": "רשימה א׳"
             },
             {
+              "name": "mandatory",
+              "courses": "/_catalogs/2023_2024/computer_science/Computer_Engineering/requirement/mandatory/courses",
+              "points": 112.5,
+              "he": "חובה"
+            },
+            {
               "name": "specialization",
               "amount": 2,
               "he": "התמחות",

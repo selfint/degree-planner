@@ -72,7 +72,7 @@
 				</div>
 
 				{#if lists?.length ?? 0 > 0}
-					<div class="text-xs">
+					<div class="flex flex-row flex-wrap text-xs">
 						<RequirementsElement requirements={lists} slice={2} maxWidth={3} />
 					</div>
 				{/if}

@@ -91,7 +91,7 @@ export const cms = {
 					Anyone with the link can view a copy of your plan,
 					and can copy it to their own account.
 
-					Even shared links do not allow editing the your plan.
+					Even shared links do not allow editing your plan.
 				`
 			}
 		},

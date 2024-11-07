@@ -26,9 +26,12 @@
 		const plannedProgress = getProgress(planned, requirements);
 
 		// global hook for total points
+		currentProgress.courses.done = current.flat();
 		currentProgress.points.done = current
 			.flat()
 			.reduce((acc, c) => acc + (c.points ?? 0), 0);
+
+		plannedProgress.courses.done = planned.flat();
 		plannedProgress.points.done = planned
 			.flat()
 			.reduce((acc, c) => acc + (c.points ?? 0), 0);

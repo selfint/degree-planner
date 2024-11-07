@@ -43,19 +43,21 @@
 		);
 	}
 
-	const color = generateColor(requirementName);
-	const offset = `${indent * 0.75}rem`;
+	const color = $derived(generateColor(requirementName));
+	const offset = $derived(`${indent * 0.75}rem`);
 	const dir = $derived(content.lang.dir === 'rtl' ? 'right' : 'left');
 	const margin = $derived(`margin-${dir}: ${offset}`);
 	const progressStyle = $derived(
 		`${margin}; max-width: calc(30rem - ${offset});`
 	);
 
-	const section = [...parents, requirementName]
-		.slice(1)
-		.map((t) => t.toLowerCase())
-		.join('_');
-	const href = `/catalog#${section}`;
+	const section = $derived(
+		[...parents, requirementName]
+			.slice(1)
+			.map((t) => t.toLowerCase())
+			.join('_')
+	);
+	const href = $derived(`/catalog#${section}`);
 
 	function getRequirement(
 		requirement: Requirement | undefined,
@@ -79,9 +81,17 @@
 		return undefined;
 	}
 
-	const requirementHasConditions = $derived(
+	const requirementHasCourses = $derived(
 		getRequirement(degreeRequirements, requirementName)?.courses !== undefined
 	);
+
+	const requirementHasConditions = $derived.by(() => {
+		const requirement = getRequirement(degreeRequirements, requirementName);
+
+		return (
+			requirement?.points !== undefined || requirement?.count !== undefined
+		);
+	});
 
 	const targetRequirement = $derived(
 		getRequirement(degreeRequirements, planned.overflow?.target)
@@ -106,7 +116,7 @@
 			class="mb-0.5 w-fit rounded-md pl-2 pr-2 text-content-primary"
 			style="background: {color}; {margin}"
 		>
-			{#if requirementHasConditions}
+			{#if requirementHasCourses}
 				<a {href}>
 					{formatName(name)}
 				</a>

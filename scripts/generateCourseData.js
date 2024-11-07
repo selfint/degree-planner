@@ -1,3 +1,10 @@
+/// <reference path="../src/app.d.ts"/>
+
+/**
+ * @param {number} bytes
+ * @param {number} decimals
+ * @returns
+ */
 function formatBytes(bytes, decimals = 2) {
 	if (bytes === 0) return '0 Bytes';
 	const k = 1024;
@@ -174,7 +181,7 @@ export function getTests(courseSAPInfo) {
  * @param {Array<Object>} courseSAPInfo.SmPrereq.results - The array of prerequisite objects.
  * @param {string} courseSAPInfo.SmPrereq.results[].ModuleId - The module ID of the prerequisite.
  * @param {string} courseSAPInfo.SmPrereq.results[].Bracket - The bracket indicating groupings.
- * @returns {Object} The course connections including dependencies, adjacent, and exclusive groups.
+ * @returns {CourseConnections} The course connections including dependencies, adjacent, and exclusive groups.
  */
 export function getConnections(courseSAPInfo) {
 	const dependencies = [];
@@ -276,6 +283,12 @@ export async function getMedian(course) {
 	}
 }
 
+/**
+ *
+ * @param {Object} course raw course object
+ * @param {boolean} current is the course in the current semester
+ * @returns {Course}
+ */
 async function parseCourse(course, current) {
 	const code = course.Otjid;
 
@@ -297,6 +310,45 @@ async function parseCourse(course, current) {
 			`Failed to parse course ${code}: ${error}\n${JSON.stringify(course)}`
 		);
 	}
+}
+
+/**
+ *
+ * @param {[string, [string, string, boolean]][]} batch
+ * @returns {Promise<Course[] | undefined>}
+ */
+async function fetchBatch(batch) {
+	console.error(`Fetching data for ${batch.length} courses`);
+
+	const queries = batch.map(([code, [peryr, perid]]) => ({
+		$expand: 'Responsible,Exams,SmRelations,SmPrereq',
+		$filter: `Otjid eq '${code}' and Peryr eq '${peryr}' and Perid eq '${perid}'`,
+		$select: [
+			'Otjid',
+			'Name',
+			'Points',
+			'StudyContentDescription',
+			'ZzOfferpattern',
+			'Exams',
+			'SmPrereq',
+			'SmRelations',
+			'OrgText'
+		].join(',')
+	}));
+	const results = await requestBatch('SmObjectSet', queries);
+	if (results === undefined) {
+		console.error(
+			`Failed to fetch data for courses: ${JSON.stringify(batch.map(([code]) => code))}`
+		);
+
+		return undefined;
+	}
+
+	return await Promise.all(
+		results
+			.flat()
+			.map((course, index) => parseCourse(course, batch[index][1][2]))
+	);
 }
 
 /**
@@ -365,36 +417,26 @@ async function main(skip, top) {
 		console.error(
 			`Fetching batch ${i / batchSize + 1}/${Math.ceil(codes.length / batchSize)}`
 		);
+		let courses = await fetchBatch(codes.slice(i, i + batchSize));
 
-		const batch = codes.slice(i, i + batchSize);
-		const queries = batch.map(([code, [peryr, perid]]) => ({
-			$expand: 'Responsible,Exams,SmRelations,SmPrereq',
-			$filter: `Otjid eq '${code}' and Peryr eq '${peryr}' and Perid eq '${perid}'`,
-			$select: [
-				'Otjid',
-				'Name',
-				'Points',
-				'StudyContentDescription',
-				'ZzOfferpattern',
-				'Exams',
-				'SmPrereq',
-				'SmRelations',
-				'OrgText'
-			].join(',')
-		}));
-		const results = await requestBatch('SmObjectSet', queries);
-		if (results === undefined) {
-			throw new Error(
-				`Failed to fetch data for courses: ${JSON.stringify(batch.map(([code]) => code))}`
-			);
+		let retry = 1;
+		let timeoutMS = 1000 * 5;
+		const maxRetries = 5;
+		while (courses === undefined) {
+			console.error(`Retry ${retry}/${maxRetries}, waiting ${timeoutMS}ms`);
+			await new Promise((resolve) => setTimeout(resolve, timeoutMS));
+			courses = await fetchBatch(codes.slice(i, i + batchSize));
+
+			timeoutMS *= 2;
+
+			retry++;
+
+			if (retry >= maxRetries) {
+				throw new Error('Failed to fetch batch');
+			}
 		}
 
-		const courses = await Promise.all(
-			results
-				.flat()
-				.map((course, index) => parseCourse(course, batch[index][1][2]))
-		);
-
+		console.error(`Got ${courses.length} courses`);
 		courseData.push(...courses);
 	}
 
@@ -417,6 +459,7 @@ async function main(skip, top) {
 
 const args = process.argv.slice(2);
 const skip = parseInt(args[0], 10);
+
 const top = parseInt(args[1], 10);
 
 if (isNaN(skip) || isNaN(top)) {

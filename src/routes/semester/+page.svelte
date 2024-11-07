@@ -362,11 +362,13 @@
 								<CourseElement
 									{course}
 									lists={getCourseLists(requirements, course.code)}
-									variant={currentSemester === user.currentSemester
-										? {
-												type: 'test',
-												semester: effectiveSemester
-											}
+									scheduleError={getScheduleError(
+										course,
+										user.semesters,
+										currentSemester
+									)}
+									tests={currentSemester === user.currentSemester
+										? effectiveSemester
 										: undefined}
 								/>
 							</button>
@@ -380,11 +382,13 @@
 								<CourseElement
 									{course}
 									lists={getCourseLists(requirements, course.code)}
-									variant={currentSemester === user.currentSemester
-										? {
-												type: 'test',
-												semester: effectiveSemester
-											}
+									scheduleError={getScheduleError(
+										course,
+										user.semesters,
+										currentSemester
+									)}
+									tests={currentSemester === user.currentSemester
+										? effectiveSemester
 										: undefined}
 								/>
 							</button>

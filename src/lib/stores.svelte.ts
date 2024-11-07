@@ -45,15 +45,24 @@ const loaders = [
 
 	function load_1(): UserData {
 		const userData = localStorage.getItem('userData');
-		return userData !== null
-			? JSON.parse(userData)
-			: {
-					semesters: [],
-					currentSemester: 0,
-					wishlist: [],
-					username: undefined,
-					degree: undefined
-				};
+		if (userData !== null) {
+			try {
+				const data: UserData = JSON.parse(userData);
+
+				data.semesters = data.semesters.map((s) => s.filter((c) => c !== ''));
+
+				return data;
+			} catch (error) {
+				console.error('Failed to load user data', error);
+			}
+		}
+		return {
+			semesters: [],
+			currentSemester: 0,
+			wishlist: [],
+			username: undefined,
+			degree: undefined
+		};
 	}
 ];
 

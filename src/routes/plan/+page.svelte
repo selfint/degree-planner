@@ -103,6 +103,7 @@
 			{#key user.semesters.flat().join(' ')}
 				{#each user.semesters as semester, semesterIndex}
 					<div
+						draggable="false"
 						class="pe-2"
 						ondragenter={(e) => {
 							if (e.dataTransfer?.types.includes('text/x-course')) {
@@ -118,8 +119,8 @@
 						ondragleave={(e) => e.preventDefault()}
 						ondrop={(e) => {
 							e.preventDefault();
-							const code = e.dataTransfer?.getData('text/x-course');
-							if (code !== undefined) {
+							const code = e.dataTransfer?.getData('text/x-course') ?? '';
+							if (code !== '') {
 								moveCourseToSemester(code, semesterIndex);
 							}
 						}}

@@ -155,7 +155,7 @@ exports[`Integration > should work with CS degree 1`] = `
         },
         "current": true,
         "faculty": "הפקולטה למדעי המחשב",
-        "median": 79.9,
+        "median": 79.6,
         "name": "מב.לתורת הקבוצות ואוטומטים למדמ"ח",
         "points": 3,
         "seasons": [
@@ -176,7 +176,13 @@ exports[`Integration > should work with CS degree 1`] = `
         ],
       },
       {
-        "about": "הקורס מיועד לבוגרי אנגלית מדעית 324022( 2), או לבוגרי אנגלית למתקדמים א' (324032) ולסטודנטים שסווגו לאנגלית טכנית- מתקדמים ב' על סמך הבחינה הפסיכומטרית או בחינת אמי"ר. הדגש מושם על הבנת טקסטים מדעיים ברמה מקצועית גבוהה, הבעה בכתב ובע"פ ועל שיפור עיקרי הלשון. כיתות הומוגניות מוצעות לסטודנטים בכל הפקולטות. חובה על הסטודנט להרשם לקבוצה המיועדת לפקולטה שבה הוא לומד. סיום הקורס בהצלחה ממלא את החובות במקצוע האנגלית.",
+        "about": "קורס מיועד לסטודנטים שעברו בהצלחה אנגלית מתקדמים א׳ ולסטודנטים שסווגו לאנגלית למתקדמים ב' על סמך הבחינה הפסיכומטרית או בחינת אמיר"ם. 
+
+שימת הדגש היא על אנגלית למטרות בינלאומיות EPIC על פי המתכונת האירופאית CEFR. מטרות הקורס כוללות שילוב פעיל בין ארבע המיומנויות הנדרשות בשפה: קריאה, כתיבה, הבנה ודיבור - כל אלה ברמה מקצועית ואקדמית גבוהה- דרך תיווך תקשורת והנחייה.
+
+ההקורס משלב פרוייקטים וחומרים עדכניים, המבוססים על תרחישים, על מנת לעזור לסטודנטים להשתלב בקהילה האקדמית והמקצועית הגלובלית (הקורס מתחיל ברמת B2 גבוהה ומסתיים בC1). 
+כחלק מהדגש על מיומנויות של המאה ה 21 באנגלית, הקורס מפגיש סטודנטים מפקולטות שונות.
+",
         "code": "03240033",
         "connections": {
           "adjacent": [],
@@ -518,7 +524,7 @@ exports[`Integration > should work with CS degree 1`] = `
         },
         "current": true,
         "faculty": "הפקולטה למתמטיקה",
-        "median": 78.1,
+        "median": 79.3,
         "name": "אלגברה מודרנית ח",
         "points": 2.5,
         "seasons": [
@@ -616,7 +622,7 @@ exports[`Integration > should work with CS degree 1`] = `
         },
         "current": true,
         "faculty": "הפקולטה להנדסת חשמל ומחשבים",
-        "median": 84.3,
+        "median": 82.6,
         "name": "מערכות ספרתיות ומבנה המחשב",
         "points": 5,
         "seasons": [
@@ -790,7 +796,7 @@ exports[`Integration > should work with CS degree 1`] = `
         },
         "current": true,
         "faculty": "הפקולטה למדעי המחשב",
-        "median": 75.2,
+        "median": 75,
         "name": "אלגוריתמים 1",
         "points": 3,
         "seasons": [
@@ -883,7 +889,7 @@ exports[`Integration > should work with CS degree 1`] = `
         },
         "current": true,
         "faculty": "הפקולטה למדעי המחשב",
-        "median": 78.2,
+        "median": 77.6,
         "name": "תורת הקומפילציה",
         "points": 3,
         "seasons": [
@@ -929,7 +935,7 @@ exports[`Integration > should work with CS degree 1`] = `
         },
         "current": true,
         "faculty": "הפקולטה להנדסת חשמל ומחשבים",
-        "median": 84.3,
+        "median": 82.6,
         "name": "מערכות ספרתיות ומבנה המחשב",
         "points": 5,
         "seasons": [
@@ -1198,7 +1204,7 @@ exports[`Integration > should work with CS degree 1`] = `
         },
         "current": true,
         "faculty": "הפקולטה למתמטיקה",
-        "median": 82.6,
+        "median": 83.8,
         "name": "תורת הפונקציות 1",
         "points": 3.5,
         "seasons": [
@@ -1249,7 +1255,7 @@ exports[`Integration > should work with CS degree 1`] = `
         },
         "current": true,
         "faculty": "הפקולטה למתמטיקה",
-        "median": 78.1,
+        "median": 79.3,
         "name": "אלגברה מודרנית ח",
         "points": 2.5,
         "seasons": [
@@ -1316,7 +1322,7 @@ exports[`Integration > should work with CS degree 1`] = `
         },
         "current": true,
         "faculty": "הפקולטה למתמטיקה",
-        "median": 81,
+        "median": 84.4,
         "name": "משוואות דפרנציאליות רגילות ת'",
         "points": 2.5,
         "seasons": [
@@ -1451,7 +1457,7 @@ exports[`Integration > should work with CS degree 1`] = `
         },
         "current": true,
         "faculty": "הפקולטה למתמטיקה",
-        "median": 79.6,
+        "median": 79.9,
         "name": "אלגברה במ'",
         "points": 3.5,
         "seasons": [
@@ -1648,7 +1654,7 @@ exports[`Integration > should work with CS degree 1`] = `
         },
         "current": true,
         "faculty": "הפקולטה לפיזיקה",
-        "median": 91.3,
+        "median": 91.8,
         "name": "פיסיקה 3",
         "points": 3.5,
         "seasons": [
@@ -1799,7 +1805,7 @@ exports[`Integration > should work with CS degree 1`] = `
         },
         "current": true,
         "faculty": "הפקולטה לפיזיקה",
-        "median": 83.2,
+        "median": 84.6,
         "name": "פיסיקה 2ממ",
         "points": 5,
         "seasons": [
@@ -2097,7 +2103,7 @@ exports[`Integration > should work with CS degree 1`] = `
         },
         "current": false,
         "faculty": "הפקולטה לכימיה",
-        "median": 71,
+        "median": 66.8,
         "name": "כימיה אורגנית",
         "points": 5,
         "seasons": [
@@ -2436,7 +2442,7 @@ exports[`Integration > should work with CS degree 1`] = `
         },
         "current": true,
         "faculty": "הפקולטה למדעי המחשב",
-        "median": 79.9,
+        "median": 79.6,
         "name": "מב.לתורת הקבוצות ואוטומטים למדמ"ח",
         "points": 3,
         "seasons": [
@@ -2590,7 +2596,7 @@ exports[`Integration > should work with CS degree 1`] = `
         },
         "current": true,
         "faculty": "הפקולטה למדעי המחשב",
-        "median": 75.2,
+        "median": 75,
         "name": "אלגוריתמים 1",
         "points": 3,
         "seasons": [
@@ -2733,7 +2739,7 @@ exports[`Integration > should work with CS degree 1`] = `
         },
         "current": true,
         "faculty": "הפקולטה למדעי המחשב",
-        "median": 78.2,
+        "median": 77.6,
         "name": "תורת הקומפילציה",
         "points": 3,
         "seasons": [
@@ -2754,7 +2760,13 @@ exports[`Integration > should work with CS degree 1`] = `
         ],
       },
       {
-        "about": "הקורס מיועד לבוגרי אנגלית מדעית 324022( 2), או לבוגרי אנגלית למתקדמים א' (324032) ולסטודנטים שסווגו לאנגלית טכנית- מתקדמים ב' על סמך הבחינה הפסיכומטרית או בחינת אמי"ר. הדגש מושם על הבנת טקסטים מדעיים ברמה מקצועית גבוהה, הבעה בכתב ובע"פ ועל שיפור עיקרי הלשון. כיתות הומוגניות מוצעות לסטודנטים בכל הפקולטות. חובה על הסטודנט להרשם לקבוצה המיועדת לפקולטה שבה הוא לומד. סיום הקורס בהצלחה ממלא את החובות במקצוע האנגלית.",
+        "about": "קורס מיועד לסטודנטים שעברו בהצלחה אנגלית מתקדמים א׳ ולסטודנטים שסווגו לאנגלית למתקדמים ב' על סמך הבחינה הפסיכומטרית או בחינת אמיר"ם. 
+
+שימת הדגש היא על אנגלית למטרות בינלאומיות EPIC על פי המתכונת האירופאית CEFR. מטרות הקורס כוללות שילוב פעיל בין ארבע המיומנויות הנדרשות בשפה: קריאה, כתיבה, הבנה ודיבור - כל אלה ברמה מקצועית ואקדמית גבוהה- דרך תיווך תקשורת והנחייה.
+
+ההקורס משלב פרוייקטים וחומרים עדכניים, המבוססים על תרחישים, על מנת לעזור לסטודנטים להשתלב בקהילה האקדמית והמקצועית הגלובלית (הקורס מתחיל ברמת B2 גבוהה ומסתיים בC1). 
+כחלק מהדגש על מיומנויות של המאה ה 21 באנגלית, הקורס מפגיש סטודנטים מפקולטות שונות.
+",
         "code": "03240033",
         "connections": {
           "adjacent": [],
@@ -3462,6 +3474,18 @@ exports[`Integration > should work with CS degree 1`] = `
           "Winter",
           "Spring",
           "Summer",
+        ],
+        "tests": [
+          {
+            "day": 20,
+            "monthIndex": 1,
+            "year": 2025,
+          },
+          {
+            "day": 20,
+            "monthIndex": 2,
+            "year": 2025,
+          },
         ],
       },
       {
@@ -4204,7 +4228,7 @@ exports[`Integration > should work with CS degree 1`] = `
         },
         "current": true,
         "faculty": "הפקולטה למדעי המחשב",
-        "median": 82.6,
+        "median": 82.8,
         "name": "הגנה ברשתות",
         "points": 3,
         "seasons": [
@@ -4322,7 +4346,7 @@ exports[`Integration > should work with CS degree 1`] = `
         },
         "current": true,
         "faculty": "הפקולטה למדעי המחשב",
-        "median": 78.2,
+        "median": 77.6,
         "name": "תורת הקומפילציה",
         "points": 3,
         "seasons": [
@@ -4384,7 +4408,7 @@ exports[`Integration > should work with CS degree 1`] = `
         },
         "current": true,
         "faculty": "הפקולטה למדעי המחשב",
-        "median": 78.3,
+        "median": 78.7,
         "name": "מסדי נתונים",
         "points": 3,
         "seasons": [
@@ -5930,7 +5954,7 @@ exports[`Integration > should work with CS degree 1`] = `
         },
         "current": false,
         "faculty": "הפקולטה למדעי המחשב",
-        "median": 85.2,
+        "median": 85.4,
         "name": "מבוא למערכות לומדות",
         "points": 3,
         "seasons": [
@@ -8116,7 +8140,7 @@ exports[`Integration > should work with CS degree 1`] = `
         },
         "current": true,
         "faculty": "הפקולטה למתמטיקה",
-        "median": 82.6,
+        "median": 83.8,
         "name": "תורת הפונקציות 1",
         "points": 3.5,
         "seasons": [
@@ -8184,7 +8208,7 @@ exports[`Integration > should work with CS degree 1`] = `
         },
         "current": true,
         "faculty": "הפקולטה למתמטיקה",
-        "median": 81,
+        "median": 84.4,
         "name": "משוואות דפרנציאליות רגילות ת'",
         "points": 2.5,
         "seasons": [
@@ -8284,25 +8308,14 @@ exports[`Integration > should work with CS degree 1`] = `
             "02140213",
           ],
         },
-        "current": false,
+        "current": true,
         "faculty": "הפקולטה למתמטיקה",
         "median": 86.8,
         "name": "מבוא לתורת המספרים",
         "points": 3.5,
         "seasons": [
           "Winter",
-        ],
-        "tests": [
-          {
-            "day": 27,
-            "monthIndex": 7,
-            "year": 2024,
-          },
-          {
-            "day": 29,
-            "monthIndex": 8,
-            "year": 2024,
-          },
+          "Spring",
         ],
       },
       {
@@ -8405,7 +8418,7 @@ exports[`Integration > should work with CS degree 1`] = `
         },
         "current": true,
         "faculty": "הפקולטה למתמטיקה",
-        "median": 79.6,
+        "median": 79.9,
         "name": "אלגברה במ'",
         "points": 3.5,
         "seasons": [
@@ -8524,7 +8537,7 @@ exports[`Integration > should work with CS degree 1`] = `
         },
         "current": true,
         "faculty": "הפקולטה למתמטיקה",
-        "median": 88.8,
+        "median": 88.6,
         "name": "מבוא למתמטיקה שמושית",
         "points": 3,
         "seasons": [
@@ -8913,7 +8926,7 @@ exports[`Integration > should work with CS degree 1`] = `
         },
         "current": false,
         "faculty": "הפקולטה לפיזיקה",
-        "median": 83.7,
+        "median": 83.8,
         "name": "פיסיקה סטטיסטית ותרמית",
         "points": 5,
         "seasons": [
@@ -9455,7 +9468,7 @@ exports[`Integration > should work with CS degree 1`] = `
         },
         "current": false,
         "faculty": "הפקולטה לכימיה",
-        "median": 71,
+        "median": 66.8,
         "name": "כימיה אורגנית",
         "points": 5,
         "seasons": [
@@ -9915,7 +9928,7 @@ exports[`Integration > should work with CS degree 1`] = `
         },
         "current": true,
         "faculty": "הפקולטה למתמטיקה",
-        "median": 82.6,
+        "median": 83.8,
         "name": "תורת הפונקציות 1",
         "points": 3.5,
         "seasons": [
@@ -9983,7 +9996,7 @@ exports[`Integration > should work with CS degree 1`] = `
         },
         "current": true,
         "faculty": "הפקולטה למתמטיקה",
-        "median": 81,
+        "median": 84.4,
         "name": "משוואות דפרנציאליות רגילות ת'",
         "points": 2.5,
         "seasons": [
@@ -10084,7 +10097,7 @@ exports[`Integration > should work with CS degree 1`] = `
         },
         "current": true,
         "faculty": "הפקולטה למתמטיקה",
-        "median": 79.6,
+        "median": 79.9,
         "name": "אלגברה במ'",
         "points": 3.5,
         "seasons": [
@@ -11070,7 +11083,7 @@ exports[`Integration > should work with CS degree 1`] = `
         },
         "current": true,
         "faculty": "הפקולטה לפיזיקה",
-        "median": 91.3,
+        "median": 91.8,
         "name": "פיסיקה 3",
         "points": 3.5,
         "seasons": [
@@ -11181,7 +11194,7 @@ exports[`Integration > should work with CS degree 1`] = `
         },
         "current": true,
         "faculty": "הפקולטה לפיזיקה",
-        "median": 83.2,
+        "median": 84.6,
         "name": "פיסיקה 2ממ",
         "points": 5,
         "seasons": [
@@ -11479,7 +11492,7 @@ exports[`Integration > should work with CS degree 1`] = `
         },
         "current": false,
         "faculty": "הפקולטה לכימיה",
-        "median": 71,
+        "median": 66.8,
         "name": "כימיה אורגנית",
         "points": 5,
         "seasons": [
@@ -12224,7 +12237,7 @@ exports[`Integration > should work with CS degree 1`] = `
         },
         "current": false,
         "faculty": "הפקולטה להנדסת מכונות",
-        "median": 90.5,
+        "median": 91,
         "name": "מידול מערכות בניסוי",
         "points": 3,
         "seasons": [
@@ -12253,7 +12266,7 @@ exports[`Integration > should work with CS degree 1`] = `
         },
         "current": false,
         "faculty": "הפקולטה להנדסת מכונות",
-        "median": 94.8,
+        "median": 94.7,
         "name": "אלקטרו ומגנטו מכניקה לשפעול וחישה",
         "points": 3,
         "seasons": [
@@ -12279,6 +12292,7 @@ exports[`Integration > should work with CS degree 1`] = `
         },
         "current": false,
         "faculty": "הפקולטה להנדסת מכונות",
+        "median": 92.5,
         "name": "בקרת פליטות מזהמים מכלי רכב",
         "points": 2.5,
         "seasons": [
@@ -12467,7 +12481,7 @@ exports[`Integration > should work with CS degree 1`] = `
         },
         "current": true,
         "faculty": "הפקולטה להנדסת חשמל ומחשבים",
-        "median": 81.6,
+        "median": 82,
         "name": "עבוד ונתוח תמונות",
         "points": 3,
         "seasons": [
@@ -12853,7 +12867,7 @@ __!תוצאות למידה: בסיום הקורס הסטודנטיות 1. הסט
         },
         "current": false,
         "faculty": "הפקולטה להנדסת אוירונאוטיקה וחלל",
-        "median": 83.8,
+        "median": 84.5,
         "name": "מבוא לתורת האלסטיות",
         "points": 2.5,
         "seasons": [
@@ -13133,7 +13147,7 @@ __!תוצאות למידה: בסיום הקורס הסטודנטיות 1. הסט
         },
         "current": true,
         "faculty": "הפקולטה למדעי הנתונים וההחלטות",
-        "median": 91,
+        "median": 91.7,
         "name": "כלכלה התנהגותית בסביבה טכנולוגית",
         "points": 3,
         "seasons": [
@@ -13172,7 +13186,7 @@ __!תוצאות למידה: בסיום הקורס הסטודנטיות 1. הסט
         },
         "current": true,
         "faculty": "הפקולטה למתמטיקה",
-        "median": 82.6,
+        "median": 83.8,
         "name": "תורת הפונקציות 1",
         "points": 3.5,
         "seasons": [
@@ -14575,6 +14589,7 @@ _תוצאות למידה:
         },
         "current": true,
         "faculty": "המחלקה ללימודים הומניסטיים ואמנות",
+        "median": 97,
         "name": "תיאוריות אנתרופולוגיות",
         "points": 2,
         "seasons": [
@@ -15262,7 +15277,7 @@ _תוצאות למידה:
         },
         "current": true,
         "faculty": "המחלקה ללימודים הומניסטיים ואמנות",
-        "median": 93.6,
+        "median": 93.8,
         "name": "הסתגלות למצבי לחץ",
         "points": 2,
         "seasons": [
@@ -15727,6 +15742,7 @@ _תוצאות למידה:
         },
         "current": false,
         "faculty": "המחלקה ללימודים הומניסטיים ואמנות",
+        "median": 91,
         "name": "נושאים נבחרים באתיקה 1",
         "points": 2,
         "seasons": [
@@ -15849,6 +15865,7 @@ _תוצאות למידה:
         },
         "current": true,
         "faculty": "המחלקה ללימודים הומניסטיים ואמנות",
+        "median": 97,
         "name": "תיאוריות אנתרופולוגיות",
         "points": 2,
         "seasons": [
@@ -16395,7 +16412,7 @@ _תוצאות למידה:
               },
               "current": true,
               "faculty": "הפקולטה למדעי המחשב",
-              "median": 79.9,
+              "median": 79.6,
               "name": "מב.לתורת הקבוצות ואוטומטים למדמ"ח",
               "points": 3,
               "seasons": [
@@ -16416,7 +16433,13 @@ _תוצאות למידה:
               ],
             },
             {
-              "about": "הקורס מיועד לבוגרי אנגלית מדעית 324022( 2), או לבוגרי אנגלית למתקדמים א' (324032) ולסטודנטים שסווגו לאנגלית טכנית- מתקדמים ב' על סמך הבחינה הפסיכומטרית או בחינת אמי"ר. הדגש מושם על הבנת טקסטים מדעיים ברמה מקצועית גבוהה, הבעה בכתב ובע"פ ועל שיפור עיקרי הלשון. כיתות הומוגניות מוצעות לסטודנטים בכל הפקולטות. חובה על הסטודנט להרשם לקבוצה המיועדת לפקולטה שבה הוא לומד. סיום הקורס בהצלחה ממלא את החובות במקצוע האנגלית.",
+              "about": "קורס מיועד לסטודנטים שעברו בהצלחה אנגלית מתקדמים א׳ ולסטודנטים שסווגו לאנגלית למתקדמים ב' על סמך הבחינה הפסיכומטרית או בחינת אמיר"ם. 
+
+שימת הדגש היא על אנגלית למטרות בינלאומיות EPIC על פי המתכונת האירופאית CEFR. מטרות הקורס כוללות שילוב פעיל בין ארבע המיומנויות הנדרשות בשפה: קריאה, כתיבה, הבנה ודיבור - כל אלה ברמה מקצועית ואקדמית גבוהה- דרך תיווך תקשורת והנחייה.
+
+ההקורס משלב פרוייקטים וחומרים עדכניים, המבוססים על תרחישים, על מנת לעזור לסטודנטים להשתלב בקהילה האקדמית והמקצועית הגלובלית (הקורס מתחיל ברמת B2 גבוהה ומסתיים בC1). 
+כחלק מהדגש על מיומנויות של המאה ה 21 באנגלית, הקורס מפגיש סטודנטים מפקולטות שונות.
+",
               "code": "03240033",
               "connections": {
                 "adjacent": [],
@@ -16758,7 +16781,7 @@ _תוצאות למידה:
               },
               "current": true,
               "faculty": "הפקולטה למתמטיקה",
-              "median": 78.1,
+              "median": 79.3,
               "name": "אלגברה מודרנית ח",
               "points": 2.5,
               "seasons": [
@@ -16856,7 +16879,7 @@ _תוצאות למידה:
               },
               "current": true,
               "faculty": "הפקולטה להנדסת חשמל ומחשבים",
-              "median": 84.3,
+              "median": 82.6,
               "name": "מערכות ספרתיות ומבנה המחשב",
               "points": 5,
               "seasons": [
@@ -17030,7 +17053,7 @@ _תוצאות למידה:
               },
               "current": true,
               "faculty": "הפקולטה למדעי המחשב",
-              "median": 75.2,
+              "median": 75,
               "name": "אלגוריתמים 1",
               "points": 3,
               "seasons": [
@@ -17123,7 +17146,7 @@ _תוצאות למידה:
               },
               "current": true,
               "faculty": "הפקולטה למדעי המחשב",
-              "median": 78.2,
+              "median": 77.6,
               "name": "תורת הקומפילציה",
               "points": 3,
               "seasons": [
@@ -17169,7 +17192,7 @@ _תוצאות למידה:
               },
               "current": true,
               "faculty": "הפקולטה להנדסת חשמל ומחשבים",
-              "median": 84.3,
+              "median": 82.6,
               "name": "מערכות ספרתיות ומבנה המחשב",
               "points": 5,
               "seasons": [
@@ -17438,7 +17461,7 @@ _תוצאות למידה:
               },
               "current": true,
               "faculty": "הפקולטה למתמטיקה",
-              "median": 82.6,
+              "median": 83.8,
               "name": "תורת הפונקציות 1",
               "points": 3.5,
               "seasons": [
@@ -17489,7 +17512,7 @@ _תוצאות למידה:
               },
               "current": true,
               "faculty": "הפקולטה למתמטיקה",
-              "median": 78.1,
+              "median": 79.3,
               "name": "אלגברה מודרנית ח",
               "points": 2.5,
               "seasons": [
@@ -17556,7 +17579,7 @@ _תוצאות למידה:
               },
               "current": true,
               "faculty": "הפקולטה למתמטיקה",
-              "median": 81,
+              "median": 84.4,
               "name": "משוואות דפרנציאליות רגילות ת'",
               "points": 2.5,
               "seasons": [
@@ -17691,7 +17714,7 @@ _תוצאות למידה:
               },
               "current": true,
               "faculty": "הפקולטה למתמטיקה",
-              "median": 79.6,
+              "median": 79.9,
               "name": "אלגברה במ'",
               "points": 3.5,
               "seasons": [
@@ -17888,7 +17911,7 @@ _תוצאות למידה:
               },
               "current": true,
               "faculty": "הפקולטה לפיזיקה",
-              "median": 91.3,
+              "median": 91.8,
               "name": "פיסיקה 3",
               "points": 3.5,
               "seasons": [
@@ -18039,7 +18062,7 @@ _תוצאות למידה:
               },
               "current": true,
               "faculty": "הפקולטה לפיזיקה",
-              "median": 83.2,
+              "median": 84.6,
               "name": "פיסיקה 2ממ",
               "points": 5,
               "seasons": [
@@ -18337,7 +18360,7 @@ _תוצאות למידה:
               },
               "current": false,
               "faculty": "הפקולטה לכימיה",
-              "median": 71,
+              "median": 66.8,
               "name": "כימיה אורגנית",
               "points": 5,
               "seasons": [
@@ -18676,7 +18699,7 @@ _תוצאות למידה:
               },
               "current": true,
               "faculty": "הפקולטה למדעי המחשב",
-              "median": 79.9,
+              "median": 79.6,
               "name": "מב.לתורת הקבוצות ואוטומטים למדמ"ח",
               "points": 3,
               "seasons": [
@@ -18830,7 +18853,7 @@ _תוצאות למידה:
               },
               "current": true,
               "faculty": "הפקולטה למדעי המחשב",
-              "median": 75.2,
+              "median": 75,
               "name": "אלגוריתמים 1",
               "points": 3,
               "seasons": [
@@ -18973,7 +18996,7 @@ _תוצאות למידה:
               },
               "current": true,
               "faculty": "הפקולטה למדעי המחשב",
-              "median": 78.2,
+              "median": 77.6,
               "name": "תורת הקומפילציה",
               "points": 3,
               "seasons": [
@@ -18994,7 +19017,13 @@ _תוצאות למידה:
               ],
             },
             {
-              "about": "הקורס מיועד לבוגרי אנגלית מדעית 324022( 2), או לבוגרי אנגלית למתקדמים א' (324032) ולסטודנטים שסווגו לאנגלית טכנית- מתקדמים ב' על סמך הבחינה הפסיכומטרית או בחינת אמי"ר. הדגש מושם על הבנת טקסטים מדעיים ברמה מקצועית גבוהה, הבעה בכתב ובע"פ ועל שיפור עיקרי הלשון. כיתות הומוגניות מוצעות לסטודנטים בכל הפקולטות. חובה על הסטודנט להרשם לקבוצה המיועדת לפקולטה שבה הוא לומד. סיום הקורס בהצלחה ממלא את החובות במקצוע האנגלית.",
+              "about": "קורס מיועד לסטודנטים שעברו בהצלחה אנגלית מתקדמים א׳ ולסטודנטים שסווגו לאנגלית למתקדמים ב' על סמך הבחינה הפסיכומטרית או בחינת אמיר"ם. 
+
+שימת הדגש היא על אנגלית למטרות בינלאומיות EPIC על פי המתכונת האירופאית CEFR. מטרות הקורס כוללות שילוב פעיל בין ארבע המיומנויות הנדרשות בשפה: קריאה, כתיבה, הבנה ודיבור - כל אלה ברמה מקצועית ואקדמית גבוהה- דרך תיווך תקשורת והנחייה.
+
+ההקורס משלב פרוייקטים וחומרים עדכניים, המבוססים על תרחישים, על מנת לעזור לסטודנטים להשתלב בקהילה האקדמית והמקצועית הגלובלית (הקורס מתחיל ברמת B2 גבוהה ומסתיים בC1). 
+כחלק מהדגש על מיומנויות של המאה ה 21 באנגלית, הקורס מפגיש סטודנטים מפקולטות שונות.
+",
               "code": "03240033",
               "connections": {
                 "adjacent": [],
@@ -19069,7 +19098,7 @@ _תוצאות למידה:
               },
               "current": true,
               "faculty": "הפקולטה למדעי המחשב",
-              "median": 78.2,
+              "median": 77.6,
               "name": "תורת הקומפילציה",
               "points": 3,
               "seasons": [
@@ -19779,6 +19808,18 @@ _תוצאות למידה:
                 "Winter",
                 "Spring",
                 "Summer",
+              ],
+              "tests": [
+                {
+                  "day": 20,
+                  "monthIndex": 1,
+                  "year": 2025,
+                },
+                {
+                  "day": 20,
+                  "monthIndex": 2,
+                  "year": 2025,
+                },
               ],
             },
             {
@@ -20521,7 +20562,7 @@ _תוצאות למידה:
               },
               "current": true,
               "faculty": "הפקולטה למדעי המחשב",
-              "median": 82.6,
+              "median": 82.8,
               "name": "הגנה ברשתות",
               "points": 3,
               "seasons": [
@@ -20639,7 +20680,7 @@ _תוצאות למידה:
               },
               "current": true,
               "faculty": "הפקולטה למדעי המחשב",
-              "median": 78.2,
+              "median": 77.6,
               "name": "תורת הקומפילציה",
               "points": 3,
               "seasons": [
@@ -20701,7 +20742,7 @@ _תוצאות למידה:
               },
               "current": true,
               "faculty": "הפקולטה למדעי המחשב",
-              "median": 78.3,
+              "median": 78.7,
               "name": "מסדי נתונים",
               "points": 3,
               "seasons": [
@@ -22247,7 +22288,7 @@ _תוצאות למידה:
               },
               "current": false,
               "faculty": "הפקולטה למדעי המחשב",
-              "median": 85.2,
+              "median": 85.4,
               "name": "מבוא למערכות לומדות",
               "points": 3,
               "seasons": [
@@ -24458,7 +24499,7 @@ _תוצאות למידה:
               },
               "current": true,
               "faculty": "הפקולטה למתמטיקה",
-              "median": 82.6,
+              "median": 83.8,
               "name": "תורת הפונקציות 1",
               "points": 3.5,
               "seasons": [
@@ -24526,7 +24567,7 @@ _תוצאות למידה:
               },
               "current": true,
               "faculty": "הפקולטה למתמטיקה",
-              "median": 81,
+              "median": 84.4,
               "name": "משוואות דפרנציאליות רגילות ת'",
               "points": 2.5,
               "seasons": [
@@ -24626,25 +24667,14 @@ _תוצאות למידה:
                   "02140213",
                 ],
               },
-              "current": false,
+              "current": true,
               "faculty": "הפקולטה למתמטיקה",
               "median": 86.8,
               "name": "מבוא לתורת המספרים",
               "points": 3.5,
               "seasons": [
                 "Winter",
-              ],
-              "tests": [
-                {
-                  "day": 27,
-                  "monthIndex": 7,
-                  "year": 2024,
-                },
-                {
-                  "day": 29,
-                  "monthIndex": 8,
-                  "year": 2024,
-                },
+                "Spring",
               ],
             },
             {
@@ -24747,7 +24777,7 @@ _תוצאות למידה:
               },
               "current": true,
               "faculty": "הפקולטה למתמטיקה",
-              "median": 79.6,
+              "median": 79.9,
               "name": "אלגברה במ'",
               "points": 3.5,
               "seasons": [
@@ -24866,7 +24896,7 @@ _תוצאות למידה:
               },
               "current": true,
               "faculty": "הפקולטה למתמטיקה",
-              "median": 88.8,
+              "median": 88.6,
               "name": "מבוא למתמטיקה שמושית",
               "points": 3,
               "seasons": [
@@ -25255,7 +25285,7 @@ _תוצאות למידה:
               },
               "current": false,
               "faculty": "הפקולטה לפיזיקה",
-              "median": 83.7,
+              "median": 83.8,
               "name": "פיסיקה סטטיסטית ותרמית",
               "points": 5,
               "seasons": [
@@ -25797,7 +25827,7 @@ _תוצאות למידה:
               },
               "current": false,
               "faculty": "הפקולטה לכימיה",
-              "median": 71,
+              "median": 66.8,
               "name": "כימיה אורגנית",
               "points": 5,
               "seasons": [
@@ -26282,7 +26312,7 @@ _תוצאות למידה:
               },
               "current": true,
               "faculty": "הפקולטה למתמטיקה",
-              "median": 82.6,
+              "median": 83.8,
               "name": "תורת הפונקציות 1",
               "points": 3.5,
               "seasons": [
@@ -26350,7 +26380,7 @@ _תוצאות למידה:
               },
               "current": true,
               "faculty": "הפקולטה למתמטיקה",
-              "median": 81,
+              "median": 84.4,
               "name": "משוואות דפרנציאליות רגילות ת'",
               "points": 2.5,
               "seasons": [
@@ -26451,7 +26481,7 @@ _תוצאות למידה:
               },
               "current": true,
               "faculty": "הפקולטה למתמטיקה",
-              "median": 79.6,
+              "median": 79.9,
               "name": "אלגברה במ'",
               "points": 3.5,
               "seasons": [
@@ -27487,7 +27517,7 @@ _תוצאות למידה:
               },
               "current": true,
               "faculty": "הפקולטה לפיזיקה",
-              "median": 91.3,
+              "median": 91.8,
               "name": "פיסיקה 3",
               "points": 3.5,
               "seasons": [
@@ -27598,7 +27628,7 @@ _תוצאות למידה:
               },
               "current": true,
               "faculty": "הפקולטה לפיזיקה",
-              "median": 83.2,
+              "median": 84.6,
               "name": "פיסיקה 2ממ",
               "points": 5,
               "seasons": [
@@ -27896,7 +27926,7 @@ _תוצאות למידה:
               },
               "current": false,
               "faculty": "הפקולטה לכימיה",
-              "median": 71,
+              "median": 66.8,
               "name": "כימיה אורגנית",
               "points": 5,
               "seasons": [
@@ -28251,7 +28281,7 @@ _תוצאות למידה:
                     },
                     "current": true,
                     "faculty": "הפקולטה לפיזיקה",
-                    "median": 83.2,
+                    "median": 84.6,
                     "name": "פיסיקה 2ממ",
                     "points": 5,
                     "seasons": [
@@ -28339,7 +28369,7 @@ _תוצאות למידה:
                     },
                     "current": true,
                     "faculty": "הפקולטה לפיזיקה",
-                    "median": 91.3,
+                    "median": 91.8,
                     "name": "פיסיקה 3",
                     "points": 3.5,
                     "seasons": [
@@ -28399,7 +28429,7 @@ _תוצאות למידה:
                           },
                           "current": true,
                           "faculty": "הפקולטה לפיזיקה",
-                          "median": 83.2,
+                          "median": 84.6,
                           "name": "פיסיקה 2ממ",
                           "points": 5,
                           "seasons": [
@@ -28511,7 +28541,7 @@ _תוצאות למידה:
                           },
                           "current": true,
                           "faculty": "הפקולטה לפיזיקה",
-                          "median": 91.3,
+                          "median": 91.8,
                           "name": "פיסיקה 3",
                           "points": 3.5,
                           "seasons": [
@@ -29217,7 +29247,7 @@ _תוצאות למידה:
               },
               "current": false,
               "faculty": "הפקולטה להנדסת מכונות",
-              "median": 90.5,
+              "median": 91,
               "name": "מידול מערכות בניסוי",
               "points": 3,
               "seasons": [
@@ -29246,7 +29276,7 @@ _תוצאות למידה:
               },
               "current": false,
               "faculty": "הפקולטה להנדסת מכונות",
-              "median": 94.8,
+              "median": 94.7,
               "name": "אלקטרו ומגנטו מכניקה לשפעול וחישה",
               "points": 3,
               "seasons": [
@@ -29272,6 +29302,7 @@ _תוצאות למידה:
               },
               "current": false,
               "faculty": "הפקולטה להנדסת מכונות",
+              "median": 92.5,
               "name": "בקרת פליטות מזהמים מכלי רכב",
               "points": 2.5,
               "seasons": [
@@ -29460,7 +29491,7 @@ _תוצאות למידה:
               },
               "current": true,
               "faculty": "הפקולטה להנדסת חשמל ומחשבים",
-              "median": 81.6,
+              "median": 82,
               "name": "עבוד ונתוח תמונות",
               "points": 3,
               "seasons": [
@@ -29846,7 +29877,7 @@ __!תוצאות למידה: בסיום הקורס הסטודנטיות 1. הסט
               },
               "current": false,
               "faculty": "הפקולטה להנדסת אוירונאוטיקה וחלל",
-              "median": 83.8,
+              "median": 84.5,
               "name": "מבוא לתורת האלסטיות",
               "points": 2.5,
               "seasons": [
@@ -30126,7 +30157,7 @@ __!תוצאות למידה: בסיום הקורס הסטודנטיות 1. הסט
               },
               "current": true,
               "faculty": "הפקולטה למדעי הנתונים וההחלטות",
-              "median": 91,
+              "median": 91.7,
               "name": "כלכלה התנהגותית בסביבה טכנולוגית",
               "points": 3,
               "seasons": [
@@ -30165,7 +30196,7 @@ __!תוצאות למידה: בסיום הקורס הסטודנטיות 1. הסט
               },
               "current": true,
               "faculty": "הפקולטה למתמטיקה",
-              "median": 82.6,
+              "median": 83.8,
               "name": "תורת הפונקציות 1",
               "points": 3.5,
               "seasons": [
@@ -31568,6 +31599,7 @@ _תוצאות למידה:
               },
               "current": true,
               "faculty": "המחלקה ללימודים הומניסטיים ואמנות",
+              "median": 97,
               "name": "תיאוריות אנתרופולוגיות",
               "points": 2,
               "seasons": [
@@ -32255,7 +32287,7 @@ _תוצאות למידה:
               },
               "current": true,
               "faculty": "המחלקה ללימודים הומניסטיים ואמנות",
-              "median": 93.6,
+              "median": 93.8,
               "name": "הסתגלות למצבי לחץ",
               "points": 2,
               "seasons": [
@@ -32720,6 +32752,7 @@ _תוצאות למידה:
               },
               "current": false,
               "faculty": "המחלקה ללימודים הומניסטיים ואמנות",
+              "median": 91,
               "name": "נושאים נבחרים באתיקה 1",
               "points": 2,
               "seasons": [
@@ -32842,6 +32875,7 @@ _תוצאות למידה:
               },
               "current": true,
               "faculty": "המחלקה ללימודים הומניסטיים ואמנות",
+              "median": 97,
               "name": "תיאוריות אנתרופולוגיות",
               "points": 2,
               "seasons": [
@@ -33893,7 +33927,7 @@ _תוצאות למידה:
                     },
                     "current": false,
                     "faculty": "הפקולטה להנדסת מכונות",
-                    "median": 90.5,
+                    "median": 91,
                     "name": "מידול מערכות בניסוי",
                     "points": 3,
                     "seasons": [
@@ -33922,7 +33956,7 @@ _תוצאות למידה:
                     },
                     "current": false,
                     "faculty": "הפקולטה להנדסת מכונות",
-                    "median": 94.8,
+                    "median": 94.7,
                     "name": "אלקטרו ומגנטו מכניקה לשפעול וחישה",
                     "points": 3,
                     "seasons": [
@@ -33948,6 +33982,7 @@ _תוצאות למידה:
                     },
                     "current": false,
                     "faculty": "הפקולטה להנדסת מכונות",
+                    "median": 92.5,
                     "name": "בקרת פליטות מזהמים מכלי רכב",
                     "points": 2.5,
                     "seasons": [
@@ -34136,7 +34171,7 @@ _תוצאות למידה:
                     },
                     "current": true,
                     "faculty": "הפקולטה להנדסת חשמל ומחשבים",
-                    "median": 81.6,
+                    "median": 82,
                     "name": "עבוד ונתוח תמונות",
                     "points": 3,
                     "seasons": [
@@ -34522,7 +34557,7 @@ __!תוצאות למידה: בסיום הקורס הסטודנטיות 1. הסט
                     },
                     "current": false,
                     "faculty": "הפקולטה להנדסת אוירונאוטיקה וחלל",
-                    "median": 83.8,
+                    "median": 84.5,
                     "name": "מבוא לתורת האלסטיות",
                     "points": 2.5,
                     "seasons": [
@@ -34802,7 +34837,7 @@ __!תוצאות למידה: בסיום הקורס הסטודנטיות 1. הסט
                     },
                     "current": true,
                     "faculty": "הפקולטה למדעי הנתונים וההחלטות",
-                    "median": 91,
+                    "median": 91.7,
                     "name": "כלכלה התנהגותית בסביבה טכנולוגית",
                     "points": 3,
                     "seasons": [
@@ -34841,7 +34876,7 @@ __!תוצאות למידה: בסיום הקורס הסטודנטיות 1. הסט
                     },
                     "current": true,
                     "faculty": "הפקולטה למתמטיקה",
-                    "median": 82.6,
+                    "median": 83.8,
                     "name": "תורת הפונקציות 1",
                     "points": 3.5,
                     "seasons": [
@@ -36244,6 +36279,7 @@ _תוצאות למידה:
                     },
                     "current": true,
                     "faculty": "המחלקה ללימודים הומניסטיים ואמנות",
+                    "median": 97,
                     "name": "תיאוריות אנתרופולוגיות",
                     "points": 2,
                     "seasons": [
@@ -36956,7 +36992,7 @@ _תוצאות למידה:
                     },
                     "current": true,
                     "faculty": "המחלקה ללימודים הומניסטיים ואמנות",
-                    "median": 93.6,
+                    "median": 93.8,
                     "name": "הסתגלות למצבי לחץ",
                     "points": 2,
                     "seasons": [
@@ -37421,6 +37457,7 @@ _תוצאות למידה:
                     },
                     "current": false,
                     "faculty": "המחלקה ללימודים הומניסטיים ואמנות",
+                    "median": 91,
                     "name": "נושאים נבחרים באתיקה 1",
                     "points": 2,
                     "seasons": [
@@ -37543,6 +37580,7 @@ _תוצאות למידה:
                     },
                     "current": true,
                     "faculty": "המחלקה ללימודים הומניסטיים ואמנות",
+                    "median": 97,
                     "name": "תיאוריות אנתרופולוגיות",
                     "points": 2,
                     "seasons": [

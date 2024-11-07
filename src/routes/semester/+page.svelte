@@ -105,7 +105,8 @@
 
 		for (const [index, courses] of futureSemesters) {
 			const season = content.lang.common.seasons[index % 3];
-			lists.push([[{ name: `${season} ${index + 1}` }], courses, false]);
+			const year = Math.floor(index / 3) + 1;
+			lists.push([[{ name: `${season} ${year}` }], courses, false]);
 		}
 
 		if (requirementCourses !== undefined) {

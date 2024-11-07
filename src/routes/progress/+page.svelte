@@ -22,9 +22,20 @@
 			return undefined;
 		}
 
+		const currentProgress = getProgress(current, requirements);
+		const plannedProgress = getProgress(planned, requirements);
+
+		// global hook for total points
+		currentProgress.points.done = current
+			.flat()
+			.reduce((acc, c) => acc + (c.points ?? 0), 0);
+		plannedProgress.points.done = planned
+			.flat()
+			.reduce((acc, c) => acc + (c.points ?? 0), 0);
+
 		return {
-			current: getProgress(current, requirements),
-			planned: getProgress(planned, requirements)
+			current: currentProgress,
+			planned: plannedProgress
 		};
 	});
 

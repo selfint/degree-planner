@@ -423,7 +423,9 @@ async function main(skip, top) {
 		let timeoutMS = 1000 * 5;
 		const maxRetries = 5;
 		while (courses === undefined) {
-			console.error(`Retry ${retry}/${maxRetries}, waiting ${timeoutMS}ms`);
+			console.error(
+				`Retry ${retry}/${maxRetries}, waiting ${timeoutMS / 1000}s`
+			);
 			await new Promise((resolve) => setTimeout(resolve, timeoutMS));
 			courses = await fetchBatch(codes.slice(i, i + batchSize));
 

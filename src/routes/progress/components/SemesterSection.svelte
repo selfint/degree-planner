@@ -50,15 +50,19 @@
 		</Select>
 
 		{#if semesterChoice !== user.currentSemester}
-			<Button variant="primary" onmousedown={onUpdateCurrentSemester}>
-				{content.lang.progress.save}
-			</Button>
-			<Button
-				variant="secondary"
-				onmousedown={() => (semesterChoice = user.currentSemester)}
-			>
-				{content.lang.progress.cancel}
-			</Button>
+			<div class="w-fit">
+				<Button variant="primary" onmousedown={onUpdateCurrentSemester}>
+					{content.lang.progress.save}
+				</Button>
+			</div>
+			<div class="w-fit">
+				<Button
+					variant="secondary"
+					onmousedown={() => (semesterChoice = user.currentSemester)}
+				>
+					{content.lang.progress.cancel}
+				</Button>
+			</div>
 		{/if}
 		<span class="text-content-secondary">
 			{content.lang.progress.total}
@@ -72,18 +76,20 @@
 				</option>
 			{/each}
 		</Select>
-	</div>
-	<div class="mt-2">
 		{#if totalSemestersChoice !== user.semesters.length}
-			<Button variant="primary" onmousedown={onUpdateTotalSemesters}>
-				{content.lang.progress.save}
-			</Button>
-			<Button
-				variant="secondary"
-				onmousedown={() => (totalSemestersChoice = user.semesters.length)}
-			>
-				{content.lang.progress.cancel}
-			</Button>
+			<div class="w-fit">
+				<Button variant="primary" onmousedown={onUpdateTotalSemesters}>
+					{content.lang.progress.save}
+				</Button>
+			</div>
+			<div class="w-fit">
+				<Button
+					variant="secondary"
+					onmousedown={() => (totalSemestersChoice = user.semesters.length)}
+				>
+					{content.lang.progress.cancel}
+				</Button>
+			</div>
 		{/if}
 	</div>
 </div>

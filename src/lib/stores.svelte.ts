@@ -14,6 +14,7 @@ function getLangPreference() {
 	if (localLang === 'he') {
 		return cms.he;
 	}
+
 	if (localLang === 'en') {
 		return cms.en;
 	} else {
@@ -56,6 +57,7 @@ const loaders = [
 				console.error('Failed to load user data', error);
 			}
 		}
+
 		return {
 			semesters: [],
 			currentSemester: 0,

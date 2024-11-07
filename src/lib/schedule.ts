@@ -27,10 +27,6 @@ export function getScheduleError(
 		courseSeason !== undefined && !courseSeason.includes(currentSeason);
 
 	function dependencyTaken(course: Course): boolean {
-		if (ignoreUndefined && course.name === undefined) {
-			return true;
-		}
-
 		return (
 			previous.includes(course.code) ||
 			(course.connections?.exclusive ?? []).some((c) => previous.includes(c))
@@ -51,6 +47,13 @@ export function getScheduleError(
 
 	const dependencies = (course.connections?.dependencies ?? [])
 		.map((group) => group.map((c) => getCourseData(c)))
+		.map((g) => {
+			if (ignoreUndefined) {
+				return g.filter((c) => c.name !== undefined);
+			} else {
+				return g;
+			}
+		})
 		.filter((g) => g.length > 0);
 	const adjacencies = (course.connections?.adjacent ?? []).map((c) =>
 		getCourseData(c)

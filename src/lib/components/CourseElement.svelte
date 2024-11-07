@@ -13,18 +13,18 @@
 		lists?: Requirement[][];
 		squeeze?: boolean;
 		note?: Snippet;
-		variant?:
-			| {
-					type: 'schedule';
-					error: ScheduleError;
-			  }
-			| {
-					type: 'test';
-					semester: Course[];
-			  };
+		scheduleError?: ScheduleError;
+		tests?: Course[];
 	};
 
-	let { course, lists = [], note, squeeze = false, variant }: Props = $props();
+	let {
+		course,
+		lists = [],
+		note,
+		squeeze = false,
+		scheduleError,
+		tests
+	}: Props = $props();
 
 	const color = generateCourseColor(course);
 
@@ -79,14 +79,14 @@
 			</div>
 		</div>
 
-		{#if variant?.type === 'schedule'}
-			<ScheduleErrorComponent scheduleError={variant.error} />
+		{#if tests !== undefined}
+			<div class="p-2 pb-1">
+				<StudyDaysComponent {course} semester={tests} />
+			</div>
 		{/if}
 
-		{#if variant?.type === 'test'}
-			<div class="p-2 pb-1">
-				<StudyDaysComponent {course} semester={variant.semester} />
-			</div>
+		{#if scheduleError !== undefined}
+			<ScheduleErrorComponent {scheduleError} />
 		{/if}
 	</CourseWidth>
 </div>

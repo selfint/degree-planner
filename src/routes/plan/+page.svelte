@@ -154,14 +154,11 @@
 										{course}
 										lists={getCourseLists(requirements, course.code)}
 										squeeze={true}
-										variant={{
-											type: 'schedule',
-											error: getScheduleError(
-												course,
-												user.semesters,
-												semesterIndex
-											)
-										}}
+										scheduleError={getScheduleError(
+											course,
+											user.semesters,
+											semesterIndex
+										)}
 									/>
 								</button>
 							{/snippet}

@@ -33,7 +33,6 @@ jobs:
         with:
           node-version: '20'
 
-        # Create a new branch for changes
       - name: Create branch
         run: |
           git checkout -b generate-course-data
@@ -46,10 +45,10 @@ jobs:
         run: |
           if git diff --quiet src/lib/assets/courseData.json; then
             echo "No changes to src/lib/assets/courseData.json, stopping the workflow."
-            exit 0
+            gh run cancel ${{ github.run_id }}
+            gh run watch ${{ github.run_id }}
           fi
 
-        # Push the new branch to GitHub
       - name: Push changes to new branch
         run: |
           git config user.name "github-actions[bot]"
@@ -58,11 +57,6 @@ jobs:
           git commit -m "[Automated] Update course data"
           git push --force origin generate-course-data
 
-        # Authenticate with GitHub using GITHUB_TOKEN
-      - name: Authenticate GitHub CLI
-        run: gh auth login --with-token <<< "${{ secrets.GITHUB_TOKEN }}"
-
-        # Create a PR
       - name: Create Pull Request
         run: |
           DATE=$(date +'%d-%m-%Y')

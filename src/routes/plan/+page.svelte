@@ -4,6 +4,7 @@
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import Semester from '$lib/components/Semester.svelte';
 	import CourseRow from '$lib/components/CourseRow.svelte';
+	import Button from '$lib/components/Button.svelte';
 
 	import { user, catalog, content } from '$lib/stores.svelte';
 
@@ -13,16 +14,32 @@
 
 	const requirements = $derived(catalog()?.requirement);
 
+	let wishlist = $state(user.wishlist);
+	let semesters = $state(user.semesters);
+	let hasChanges = $derived(
+		wishlist !== user.wishlist || semesters !== user.semesters
+	);
+
+	function onSave() {
+		user.wishlist = wishlist;
+		user.semesters = semesters;
+	}
+
+	function onCancel() {
+		wishlist = user.wishlist;
+		semesters = user.semesters;
+	}
+
 	function moveCourseToSemester(code: string, semester: number) {
-		user.wishlist = user.wishlist.filter((c) => c !== code);
-		user.semesters = user.semesters.map((s, i) =>
+		wishlist = wishlist.filter((c) => c !== code);
+		semesters = semesters.map((s, i) =>
 			i === semester ? [...new Set([...s, code])] : s.filter((c) => c !== code)
 		);
 	}
 
 	function moveCourseToWishlist(code: string) {
-		user.wishlist = [...new Set([...user.wishlist, code])];
-		user.semesters = user.semesters.map((s) => s.filter((c) => c !== code));
+		wishlist = [...new Set([...wishlist, code])];
+		semesters = semesters.map((s) => s.filter((c) => c !== code));
 	}
 
 	let didMount = false;
@@ -32,9 +49,7 @@
 
 	function scroll(semester: HTMLDivElement, index: number) {
 		const doScroll =
-			!didMount &&
-			user.currentSemester > 2 &&
-			index === user.semesters.length - 1;
+			!didMount && user.currentSemester > 2 && index === semesters.length - 1;
 
 		if (doScroll) {
 			semester.parentElement?.children[user.currentSemester]?.scrollIntoView({
@@ -71,10 +86,22 @@
 		role="button"
 		tabindex={0}
 	>
-		<h1 class="mb-1 ms-3 text-lg font-medium text-content-primary">
-			{content.lang.plan.wishlist}
-		</h1>
-		<CourseRow courses={user.wishlist}>
+		<div class="mb-1 me-3 ms-3 flex flex-row justify-between">
+			<h1 class="text-lg font-medium text-content-primary">
+				{content.lang.plan.wishlist}
+			</h1>
+			<div class="flex flex-row gap-x-2">
+				{#if hasChanges}
+					<Button variant="secondary" onmousedown={onCancel}>
+						{content.lang.progress.cancel}
+					</Button>
+					<Button variant="primary" onmousedown={onSave}>
+						{content.lang.progress.save}
+					</Button>
+				{/if}
+			</div>
+		</div>
+		<CourseRow courses={wishlist}>
 			{#snippet children({ course, index: i })}
 				<div
 					draggable="true"
@@ -100,8 +127,8 @@
 	<div style="transform: rotateX(180deg)" class="overflow-x-auto">
 		<div style="transform: rotateX(180deg)" class="flex flex-row">
 			<div class="ms-3"></div>
-			{#key user.semesters.flat().join(' ')}
-				{#each user.semesters as semester, semesterIndex}
+			{#key semesters.flat().join(' ')}
+				{#each semesters as semester, semesterIndex}
 					<div
 						draggable="false"
 						class="pe-2"
@@ -157,7 +184,7 @@
 										squeeze={true}
 										scheduleError={getScheduleError(
 											course,
-											user.semesters,
+											semesters,
 											semesterIndex
 										)}
 									/>

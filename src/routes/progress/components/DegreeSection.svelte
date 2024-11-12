@@ -88,13 +88,10 @@
 		year: keyof typeof catalogs
 	): { value: string; display: string }[] {
 		return Object.entries(catalogs[year])
-			.filter(([name]) => !['shared', 'he'].includes(name))
+			.filter(([name]) => !['he', 'en'].includes(name))
 			.map(([name, faculty]) => ({
 				value: name,
-				display:
-					content.lang.lang === 'he'
-						? faculty.he
-						: capitalizeWords(name.replaceAll('_', ' '))
+				display: content.lang.lang === 'he' ? faculty.he : faculty.en
 			}));
 	}
 
@@ -102,19 +99,16 @@
 		year: Year,
 		faculty: string
 	): { value: string; display: string }[] {
-		const entries: [string, { he: string }][] = Object.entries(
+		const entries: [string, { he: string; en: string }][] = Object.entries(
 			// @ts-expect-error
 			catalogs[year][faculty]
 		);
 
 		return entries
-			.filter(([name]) => !['shared', 'he'].includes(name))
+			.filter(([name]) => !['he', 'en'].includes(name))
 			.map(([name, path]) => ({
 				value: name,
-				display:
-					content.lang.lang === 'he'
-						? path.he
-						: capitalizeWords(name.replaceAll('_', ' '))
+				display: content.lang.lang === 'he' ? path.he : path.en
 			}));
 	}
 </script>

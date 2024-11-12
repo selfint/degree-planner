@@ -99,7 +99,12 @@
 
 <div class="mt-3">
 	<div class="mb-4 ms-3">
-		<DegreeSection degree={user.degree} {onChange} {onReset} {recommended} />
+		<DegreeSection
+			userDegree={user.degree}
+			{onChange}
+			{onReset}
+			{recommended}
+		/>
 	</div>
 
 	{#if user.username !== undefined}

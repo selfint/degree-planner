@@ -25,7 +25,7 @@ function getLangPreference() {
 
 export let content = $state({ lang: getLangPreference() });
 
-const version = 1;
+const version = 2;
 
 const loaders = [
 	function load_0(): UserData {
@@ -65,6 +65,30 @@ const loaders = [
 			username: undefined,
 			degree: undefined
 		};
+	},
+
+	function load_2(): UserData {
+		const userData = localStorage.getItem('userData');
+		if (userData !== null) {
+			try {
+				const data: UserData = JSON.parse(userData);
+
+				data.semesters = data.semesters.map((s) => s.filter((c) => c !== ''));
+
+				return data;
+			} catch (error) {
+				console.error('Failed to load user data', error);
+			}
+		}
+
+		return {
+			semesters: [],
+			currentSemester: 0,
+			wishlist: [],
+			username: undefined,
+			degree: undefined,
+			path: undefined
+		};
 	}
 ];
 
@@ -83,6 +107,14 @@ const migrations = [
 
 		// other than that data is the same
 		return v0;
+	},
+	function migrate_1_2(v1: UserData): UserData {
+		// save new user data
+		localStorage.setItem('version', '2');
+		localStorage.setItem('userData', JSON.stringify(v1));
+
+		// other than that data is the same
+		return v1;
 	}
 ];
 
@@ -93,7 +125,8 @@ export function loadUser(): UserData {
 			currentSemester: 0,
 			wishlist: [],
 			username: undefined,
-			degree: undefined
+			degree: undefined,
+			path: undefined
 		};
 	}
 

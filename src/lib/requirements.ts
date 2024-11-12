@@ -21,7 +21,7 @@ async function loadCourses(
 	let courses = undefined;
 	if (requirementHeader.courses !== undefined) {
 		const response = await _fetch(requirementHeader.courses);
-		courses = parseCatalog(await response.text()).sort();
+		courses = await response.text().then((t) => t.split('\n').sort());
 	}
 
 	let nested = undefined;
@@ -61,9 +61,6 @@ export async function loadCatalog(
 	const catalog = catalogs[year][faculty][path];
 
 	const requirement = await loadCourses(catalog.requirement, _fetch);
-	const sharedRequirement = await loadCourses(catalogs[year].shared, _fetch);
-
-	requirement.nested?.push(sharedRequirement);
 
 	return {
 		degree,

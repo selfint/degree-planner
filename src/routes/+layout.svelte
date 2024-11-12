@@ -26,7 +26,7 @@
 <div dir={content.lang.dir} class="flex h-full min-h-screen flex-col">
 	<div class="w-full border-b-2 border-border bg-background">
 		<TitleBar
-			started={user.semesters.length > 0}
+			started={user.username !== undefined}
 			onGetStarted={() => goto('/progress')}
 			onSearch={(query) => goto(`/search?q=${query}`)}
 		/>

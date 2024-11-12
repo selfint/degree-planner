@@ -138,7 +138,7 @@
 		</div>
 	{/if}
 
-	{#if planned.points.required > 0}
+	{#if planned.points.done > 0}
 		<div
 			class="flex flex-row items-center pe-2 text-content-secondary"
 			style={progressStyle}
@@ -154,12 +154,14 @@
 			<span class="ms-2 text-nowrap">
 				<span style="color: {color}">{current?.points.done ?? 0}</span>
 				/ {planned.points.done}
-				/ {planned.points.required}
+				{#if planned.points.required > 0}
+					/ {planned.points.required}
+				{/if}
 			</span>
 		</div>
 	{/if}
 
-	{#if planned.count.required > 0}
+	{#if planned.count.done > 0}
 		<div
 			class="flex flex-row items-center pe-2 text-content-secondary"
 			style={progressStyle}
@@ -175,7 +177,9 @@
 			<span class="ms-2 text-nowrap">
 				<span style="color: {color}">{current?.count.done ?? 0}</span>
 				/ {planned.count.done}
-				/ {planned.count.required}
+				{#if planned.count.required > 0}
+					/ {planned.count.required}
+				{/if}
 			</span>
 		</div>
 	{/if}
@@ -204,45 +208,41 @@
 		</span>
 	{/if}
 
-	{#if requirementHasConditions && planned.courses.done.length > 0}
-		<div class="mb-1 mt-1">
-			<CourseRow {indent} courses={planned.courses.done ?? []}>
-				{#snippet children({ course })}
-					<a
-						class={current?.courses?.done.some(
-							({ code }) => code === course.code
-						)
-							? ''
-							: 'opacity-50'}
-						href={`/course/${course.code}`}
+	<div class="mb-1 mt-1">
+		<CourseRow {indent} courses={planned.courses.done ?? []}>
+			{#snippet children({ course })}
+				<a
+					class={current?.courses?.done.some(({ code }) => code === course.code)
+						? ''
+						: 'opacity-50'}
+					href={`/course/${course.code}`}
+				>
+					<CourseElement
+						{course}
+						lists={getCourseLists(degreeRequirements, course.code)}
 					>
-						<CourseElement
-							{course}
-							lists={getCourseLists(degreeRequirements, course.code)}
-						>
-							{#snippet note()}
-								{@const index = getCourseSemester(course)}
-								{#if index !== undefined}
-									<span>
-										{seasonEmojis[index % 3]}
-										<span class="hidden sm:inline">
-											{content.lang.common.seasons[index % 3]}
-											{Math.floor(index / 3) + 1}
-										</span>
-									</span>
-								{:else if user.wishlist.includes(course.code)}
-									<span>🌟</span>
+						{#snippet note()}
+							{@const index = getCourseSemester(course)}
+							{#if index !== undefined}
+								<span>
+									{seasonEmojis[index % 3]}
 									<span class="hidden sm:inline">
-										{formatName(content.lang.catalog.wishlist)}
+										{content.lang.common.seasons[index % 3]}
+										{Math.floor(index / 3) + 1}
 									</span>
-								{/if}
-							{/snippet}
-						</CourseElement>
-					</a>
-				{/snippet}
-			</CourseRow>
-		</div>
-	{/if}
+								</span>
+							{:else if user.wishlist.includes(course.code)}
+								<span>🌟</span>
+								<span class="hidden sm:inline">
+									{formatName(content.lang.catalog.wishlist)}
+								</span>
+							{/if}
+						{/snippet}
+					</CourseElement>
+				</a>
+			{/snippet}
+		</CourseRow>
+	</div>
 
 	{#if planned.amount.required > 0}
 		{#if planned.amount.required < planned.nested.options.length}

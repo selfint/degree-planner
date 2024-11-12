@@ -50,7 +50,10 @@
 			user.degree = newDegree;
 
 			if (user.semesters.length === 0) {
-				user.semesters = data.recommended;
+				user.semesters = data.recommended ?? [];
+				while (user.semesters.length < user.currentSemester) {
+					user.semesters.push([]);
+				}
 				user.wishlist = user.wishlist.filter(
 					(c) => !data.recommended.flat().includes(c)
 				);
@@ -99,7 +102,7 @@
 		<DegreeSection degree={user.degree} {onChange} {onReset} {recommended} />
 	</div>
 
-	{#if user.semesters.length > 0}
+	{#if user.username !== undefined}
 		<div class="mb-4 ms-3">
 			<SemesterSection
 				{semesterChoice}

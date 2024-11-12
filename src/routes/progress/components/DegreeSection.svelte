@@ -7,20 +7,23 @@
 	import { user, content } from '$lib/stores.svelte';
 
 	type Props = {
-		degree?: Degree;
+		userDegree?: Degree;
+		userPath?: string;
 		onChange: (degree: Degree) => boolean;
 		onReset: () => void;
 		recommended?: string[][];
 	};
 
-	let { degree, onChange, onReset, recommended }: Props = $props();
+	let { userDegree, userPath, onChange, onReset, recommended }: Props =
+		$props();
 
 	type Year = keyof typeof catalogs;
 	const years = Object.keys(catalogs) as Year[];
 
-	let year: Year | undefined = $state(degree?.[0]);
-	let faculty: string | undefined = $state(degree?.[1]);
-	let path: string | undefined = $state(degree?.[2]);
+	let year: Year | undefined = $state(userDegree?.[0]);
+	let faculty: string | undefined = $state(userDegree?.[1]);
+	let degree: string | undefined = $state(userDegree?.[2]);
+	let path: string | undefined = $state(userPath);
 
 	function arraysEqualIgnoreOrder(a: string[], b: string[]) {
 		if (a.length !== b.length) return false;
@@ -60,28 +63,21 @@
 	}
 
 	function reset() {
-		year = degree?.[0];
-		faculty = degree?.[1];
-		path = degree?.[2];
-	}
-
-	function capitalizeWords(str: string) {
-		return str
-			.split(' ')
-			.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-			.join(' ');
+		year = userDegree?.[0];
+		faculty = userDegree?.[1];
+		degree = userDegree?.[2];
 	}
 
 	const shareLink = $derived.by(() => {
-		if (degree === undefined) {
+		if (userDegree === undefined) {
 			return undefined;
 		}
 
-		const [year, faculty, path] = degree;
+		const [year, faculty, degree] = userDegree;
 
 		const semesters = user.semesters.map((s) => s.join('-')).join('|');
 
-		return `/preview/${year}/${faculty}/${path}?semesters=${semesters}`;
+		return `/preview/${year}/${faculty}/${degree}?semesters=${semesters}`;
 	});
 
 	function getFaculties(
@@ -95,7 +91,7 @@
 			}));
 	}
 
-	function getPaths(
+	function getDegrees(
 		year: Year,
 		faculty: string
 	): { value: string; display: string }[] {
@@ -106,9 +102,9 @@
 
 		return entries
 			.filter(([name]) => !['he', 'en'].includes(name))
-			.map(([name, path]) => ({
+			.map(([name, degree]) => ({
 				value: name,
-				display: content.lang.lang === 'he' ? path.he : path.en
+				display: content.lang.lang === 'he' ? degree.he : degree.en
 			}));
 	}
 </script>
@@ -137,7 +133,7 @@
 				{content.lang.progress.faculty}
 			</span>
 			<Select bind:value={faculty}>
-				{#if degree === undefined && faculty === undefined}
+				{#if userDegree === undefined && faculty === undefined}
 					<option value={undefined}>
 						{content.lang.progress.selectFaculty}
 					</option>
@@ -152,15 +148,15 @@
 
 		{#if year !== undefined && faculty !== undefined}
 			<span class="text-content-secondary">
-				{content.lang.progress.path}
+				{content.lang.progress.degree}
 			</span>
-			<Select bind:value={path}>
-				{#if degree === undefined && path === undefined}
+			<Select bind:value={degree}>
+				{#if userDegree === undefined && degree === undefined}
 					<option value={undefined}>
-						{content.lang.progress.selectPath}
+						{content.lang.progress.selectDegree}
 					</option>
 				{/if}
-				{#each getPaths(year, faculty) as { display, value }}
+				{#each getDegrees(year, faculty) as { display, value }}
 					<option {value}>
 						{display}
 					</option>
@@ -169,14 +165,14 @@
 		{/if}
 	</div>
 	<div class="mt-2">
-		{#if choiceIsChanged(year, faculty, path, degree)}
+		{#if choiceIsChanged(year, faculty, degree, userDegree)}
 			<div>
-				{#if choiceIsValid(year, faculty, path)}
+				{#if choiceIsValid(year, faculty, degree)}
 					<Button
 						variant="primary"
 						onmousedown={() => {
 							// @ts-expect-error We validated the choice in `choiceIsValid`
-							const didChange = onChange([year, faculty, path]);
+							const didChange = onChange([year, faculty, degree]);
 
 							if (!didChange) {
 								reset();

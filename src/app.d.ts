@@ -176,6 +176,7 @@ declare global {
 		wishlist: string[];
 		username?: string;
 		degree?: Degree;
+		path?: string;
 	};
 
 	type Degree = NestedKeys<typeof catalogs>;

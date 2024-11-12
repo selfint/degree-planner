@@ -37,22 +37,30 @@ async function loadCourses(
 }
 
 export async function loadCatalog(
-	degree: Degree,
+	userDegree: Degree,
+	path: string | undefined = undefined,
 	_fetch: (
 		input: string | URL | globalThis.Request,
 		init?: RequestInit
 	) => Promise<Response> = fetch
 ): Promise<Catalog> {
-	const [year, faculty, path] = degree;
+	const [year, faculty, degree] = userDegree;
 
 	// TODO why does this not work?
 	// @ts-expect-error
-	const catalog = catalogs[year][faculty][path];
+	const catalog = catalogs[year][faculty][degree];
 
 	const requirement = await loadCourses(catalog.requirement, _fetch);
 
+	if (path !== undefined) {
+		requirement.nested = requirement.nested?.filter(
+			(nested) =>
+				nested.name === path || nested.en.toLowerCase().includes('elective')
+		);
+	}
+
 	return {
-		degree,
+		degree: userDegree,
 		recommended: catalog.recommended,
 		requirement
 	};

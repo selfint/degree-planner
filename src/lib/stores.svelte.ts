@@ -158,7 +158,7 @@ $effect.root(() => {
 
 	$effect(() => {
 		if (user.degree !== undefined) {
-			loadCatalog(user.degree).then((d) => (_catalog = d));
+			loadCatalog(user.degree, user.path).then((d) => (_catalog = d));
 		}
 	});
 });

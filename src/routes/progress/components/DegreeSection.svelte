@@ -9,7 +9,7 @@
 	type Props = {
 		userDegree?: Degree;
 		userPath?: string;
-		onChange: (degree: Degree) => boolean;
+		onChange: (degree: Degree, path?: string) => boolean;
 		onReset: () => void;
 		recommended?: string[][];
 	};
@@ -24,6 +24,8 @@
 	let faculty: string | undefined = $state(userDegree?.[1]);
 	let degree: string | undefined = $state(userDegree?.[2]);
 	let path: string | undefined = $state(userPath);
+
+	$inspect(path);
 
 	function arraysEqualIgnoreOrder(a: string[], b: string[]) {
 		if (a.length !== b.length) return false;
@@ -47,25 +49,30 @@
 	function choiceIsValid(
 		y: string | undefined,
 		f: string | undefined,
+		d: string | undefined,
 		p: string | undefined
 	) {
 		// @ts-expect-error
-		return catalogs[y]?.[f]?.[p] !== undefined;
+		return catalogs[y]?.[f]?.[d] !== undefined;
 	}
 
 	function choiceIsChanged(
 		y: string | undefined,
 		f: string | undefined,
+		d: string | undefined,
 		p: string | undefined,
-		d: Degree | undefined
+		ud: Degree | undefined,
+		up: string | undefined
 	) {
-		return y !== d?.[0] || f !== d?.[1] || p !== d?.[2];
+		console.log('here', p, up, p !== up);
+		return y !== ud?.[0] || f !== ud?.[1] || d !== ud?.[2] || p !== up;
 	}
 
 	function reset() {
 		year = userDegree?.[0];
 		faculty = userDegree?.[1];
 		degree = userDegree?.[2];
+		path = userPath;
 	}
 
 	const shareLink = $derived.by(() => {
@@ -105,6 +112,25 @@
 			.map(([name, degree]) => ({
 				value: name,
 				display: content.lang.lang === 'he' ? degree.he : degree.en
+			}));
+	}
+
+	function getPaths(
+		year: Year,
+		faculty: string,
+		degree: string
+	): { value: string; display: string }[] {
+		const entries: { name: string; he: string; en: string }[] =
+			// @ts-expect-error
+			catalogs[year][faculty][degree]['requirement']['nested'];
+
+		$inspect(entries);
+
+		return entries
+			.filter(({ en }) => en.toLowerCase().includes('path'))
+			.map(({ name, en, he }) => ({
+				value: name,
+				display: content.lang.lang === 'he' ? he : en
 			}));
 	}
 </script>
@@ -163,16 +189,34 @@
 				{/each}
 			</Select>
 		{/if}
+
+		{#if year !== undefined && faculty !== undefined && degree !== undefined}
+			<span class="text-content-secondary">
+				{content.lang.progress.path}
+			</span>
+			<Select bind:value={path}>
+				{#if path === undefined}
+					<option value={undefined}>
+						{content.lang.progress.selectPath}
+					</option>
+				{/if}
+				{#each getPaths(year, faculty, degree) as { display, value }}
+					<option {value}>
+						{display}
+					</option>
+				{/each}
+			</Select>
+		{/if}
 	</div>
 	<div class="mt-2">
-		{#if choiceIsChanged(year, faculty, degree, userDegree)}
+		{#if choiceIsChanged(year, faculty, degree, path, userDegree, userPath)}
 			<div>
-				{#if choiceIsValid(year, faculty, degree)}
+				{#if choiceIsValid(year, faculty, degree, path)}
 					<Button
 						variant="primary"
 						onmousedown={() => {
 							// @ts-expect-error We validated the choice in `choiceIsValid`
-							const didChange = onChange([year, faculty, degree]);
+							const didChange = onChange([year, faculty, degree], path);
 
 							if (!didChange) {
 								reset();

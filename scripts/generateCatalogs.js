@@ -10,14 +10,6 @@ const manifestPath = join(
 	'catalogs.json'
 );
 
-function formatName(name) {
-	return name
-		.replace(/_/g, ' ')
-		.split(' ')
-		.map((word) => word[0].toUpperCase() + word.slice(1))
-		.join(' ');
-}
-
 function parseCatalog(text) {
 	const regex = /\b\d{5,6}\b/g;
 	const matches = text.match(regex);
@@ -51,12 +43,13 @@ function nestRequirements(name, requirements) {
 	}
 
 	return {
-		name: requirements.en,
+		name,
 		courses: requirements.courses,
 		count: requirements.count,
 		amount: requirements.amount,
 		points: requirements.points,
 		he: requirements.he,
+		en: requirements.en,
 		overflow: requirements.overflow,
 		nested: nested.length > 0 ? nested : undefined,
 		hook: requirements.hook
@@ -75,7 +68,7 @@ function readDirectoryRecursively(directory, parents = []) {
 			result[file] = readDirectoryRecursively(filePath, [...parents, file]);
 
 			if (file === 'requirement') {
-				const name = formatName(parents.slice(-2).join(' - '));
+				const name = parents.slice(-2).join('/');
 				result[file] = nestRequirements(name, result[file]);
 			} else if (file === 'recommended') {
 				const semesters = readDirectoryRecursively(filePath, [

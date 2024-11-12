@@ -31,9 +31,14 @@ declare global {
 		name: string;
 
 		/**
+		 * English translation key for the requirement name.
+		 */
+		en: string;
+
+		/**
 		 * Hebrew translation key for the requirement name.
 		 */
-		he?: string;
+		he: string;
 
 		/**
 		 * The courses that satisfy this requirement.
@@ -94,9 +99,14 @@ declare global {
 		name: string;
 
 		/**
+		 * English translation key for the requirement name.
+		 */
+		en: string;
+
+		/**
 		 * Hebrew translation key for the requirement name.
 		 */
-		he?: string;
+		he: string;
 
 		/**
 		 * The courses that satisfy this requirement.

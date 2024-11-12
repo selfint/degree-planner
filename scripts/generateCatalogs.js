@@ -36,16 +36,10 @@ function nestRequirements(name, requirements) {
 		'amount',
 		'points',
 		'he',
+		'en',
 		'overflow',
 		'hook'
 	];
-	const translations = new Map([
-		['core', 'חובה'],
-		['sport', 'ספורט'],
-		['english', 'אנגלית'],
-		['list_a', 'רשימה א׳'],
-		['list_b', 'רשימה ב׳']
-	]);
 
 	const nonKeywords = Object.keys(requirements).filter(
 		(key) => !keywords.includes(key)
@@ -57,12 +51,12 @@ function nestRequirements(name, requirements) {
 	}
 
 	return {
-		name: name,
+		name: requirements.en,
 		courses: requirements.courses,
 		count: requirements.count,
 		amount: requirements.amount,
 		points: requirements.points,
-		he: requirements.he ?? translations.get(name),
+		he: requirements.he,
 		overflow: requirements.overflow,
 		nested: nested.length > 0 ? nested : undefined,
 		hook: requirements.hook
@@ -83,8 +77,6 @@ function readDirectoryRecursively(directory, parents = []) {
 			if (file === 'requirement') {
 				const name = formatName(parents.slice(-2).join(' - '));
 				result[file] = nestRequirements(name, result[file]);
-			} else if (file === 'shared') {
-				result[file] = nestRequirements(file, result[file]);
 			} else if (file === 'recommended') {
 				const semesters = readDirectoryRecursively(filePath, [
 					...parents,

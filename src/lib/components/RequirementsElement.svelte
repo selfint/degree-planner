@@ -11,11 +11,7 @@
 	let { requirements, slice, maxWidth }: Props = $props();
 
 	function formatName(requirement: Requirement): string {
-		let name = requirement.name;
-
-		if (requirement.he !== undefined && content.lang.lang === 'he') {
-			name = requirement.he;
-		}
+		let name = content.lang.lang === 'he' ? requirement.he : requirement.en;
 
 		name = name
 			.split('_')

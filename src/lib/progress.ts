@@ -93,6 +93,8 @@ export function getProgress(
 
 	let progress = {
 		name: requirement.name,
+		en: requirement.en,
+		he: requirement.he,
 		courses: {
 			done: relevantCourses,
 			options: requirementCourses.map(_getCourseData)

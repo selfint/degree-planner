@@ -13,7 +13,6 @@
 		indent?: number;
 		parents?: string[];
 		degreeRequirements: Requirement;
-		requirementName: string;
 		current?: Progress;
 		planned: Progress;
 	};
@@ -22,13 +21,14 @@
 		indent = 0,
 		parents = [],
 		degreeRequirements,
-		requirementName,
 		current,
 		planned
 	}: Props = $props();
 
-	const name = $derived(
-		content.lang.lang === 'he' ? (planned.he ?? planned.name) : planned.name
+	const name = $derived(planned.name);
+
+	const requirementName = $derived(
+		content.lang.lang === 'he' ? planned.he : planned.en
 	);
 
 	function formatName(name: string): string {
@@ -118,10 +118,10 @@
 		>
 			{#if requirementHasCourses}
 				<a {href}>
-					{formatName(name)}
+					{requirementName}
 				</a>
 			{:else}
-				{formatName(name)}
+				{requirementName}
 			{/if}
 		</h3>
 	{/if}
@@ -244,38 +244,37 @@
 		</CourseRow>
 	</div>
 
-	{#if planned.amount.required > 0}
-		{#if planned.amount.required < planned.nested.options.length}
-			<div
-				class="mb-1 flex flex-row items-center pe-2 text-content-secondary"
-				style={progressStyle}
-			>
-				<span class="me-2">{content.lang.progress.choice}</span>
-				<ProgressBar
-					{color}
-					value={current?.amount.done ?? 0}
-					value2={planned.amount.done}
-					max={planned.amount.required}
-					dir={content.lang.dir}
-				/>
-				<span class="ms-2 text-nowrap">
-					<span style="color: {color}">{current?.amount.done ?? 0}</span>
-					/ {planned.amount.done}
+	{#if planned.nested.options.length > 0}
+		<div
+			class="mb-1 flex flex-row items-center pe-2 text-content-secondary"
+			style={progressStyle}
+		>
+			<span class="me-2">{content.lang.progress.choice}</span>
+			<ProgressBar
+				{color}
+				value={current?.amount.done ?? 0}
+				value2={planned.amount.done}
+				max={planned.amount.required}
+				dir={content.lang.dir}
+			/>
+			<span class="ms-2 text-nowrap">
+				<span style="color: {color}">{current?.amount.done ?? 0}</span>
+				/ {planned.amount.done}
+				{#if planned.amount.required > 0}
 					/ {planned.amount.required}
-				</span>
-			</div>
-		{/if}
-		<div class="mt-2">
-			{#each planned.nested.options as nested, i}
-				<ProgressElement
-					indent={indent + 1}
-					parents={[...parents, requirementName]}
-					{degreeRequirements}
-					requirementName={nested.name}
-					current={current?.nested?.options[i]}
-					planned={nested}
-				/>
-			{/each}
+				{/if}
+			</span>
 		</div>
 	{/if}
+	<div class="mt-2">
+		{#each planned.nested.options as nested, i}
+			<ProgressElement
+				indent={indent + 1}
+				parents={[...parents, requirementName]}
+				{degreeRequirements}
+				current={current?.nested?.options[i]}
+				planned={nested}
+			/>
+		{/each}
+	</div>
 </div>

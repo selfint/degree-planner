@@ -58,6 +58,8 @@ jobs:
           git push --force origin generate-course-data
 
       - name: Create Pull Request
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           DATE=$(date +'%d-%m-%Y')
           gh pr create --base main --head generate-course-data \

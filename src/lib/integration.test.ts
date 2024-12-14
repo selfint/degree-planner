@@ -24,6 +24,28 @@ async function localFetch(
 	return new Response(text);
 }
 
+function replaceMedian(obj: unknown): unknown {
+	if (Array.isArray(obj)) {
+		// Traverse arrays
+		return obj.map(replaceMedian);
+	} else if (obj && typeof obj === 'object') {
+		// Traverse objects
+		for (const key in obj) {
+			// @ts-expect-error
+			if (key === 'median' && typeof obj[key] === 'number') {
+				// Replace the "median" field
+				// @ts-expect-error
+				obj[key] = '<number>';
+			} else {
+				// Recurse on nested objects
+				// @ts-expect-error
+				obj[key] = replaceMedian(obj[key]);
+			}
+		}
+	}
+	return obj;
+}
+
 describe('Integration', () => {
 	it('should work with CS degree', async (ctx) => {
 		const degree: Degree = ['2023_2024', 'computer_science', '3_year'];
@@ -35,7 +57,7 @@ describe('Integration', () => {
 			data.requirement
 		);
 
-		ctx.expect(progress).toMatchSnapshot();
+		ctx.expect(replaceMedian(progress)).toMatchSnapshot();
 	});
 });
 

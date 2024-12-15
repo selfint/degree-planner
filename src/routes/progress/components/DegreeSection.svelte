@@ -51,7 +51,19 @@
 		p: string | undefined
 	) {
 		// @ts-expect-error
-		return catalogs[y]?.[f]?.[d] !== undefined;
+		const catalog = catalogs[y]?.[f]?.[d];
+		if (catalog === undefined) {
+			return false;
+		}
+
+		const paths = getPaths(y, f, d);
+		if (paths.length === 0) {
+			return true;
+		} else {
+			const r = paths.map((p) => p.value).includes(path);
+			console.log(paths, path, r);
+			return r;
+		}
 	}
 
 	function choiceIsChanged(
@@ -79,9 +91,19 @@
 
 		const [year, faculty, degree] = userDegree;
 
-		const semesters = user.semesters.map((s) => s.join('-')).join('|');
+		const semesters = user.semesters.map((s) => s.join('-')).join('~');
 
-		return `/preview/${year}/${faculty}/${degree}?semesters=${semesters}`;
+		const urlParams = new URLSearchParams();
+		if (path !== undefined) {
+			urlParams.append('path', path);
+		}
+		urlParams.append('semesters', semesters);
+
+		const link = `/preview/${year}/${faculty}/${degree}?${urlParams}`;
+
+		console.log('here', semesters, path, link);
+
+		return link;
 	});
 
 	function getFaculties(

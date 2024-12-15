@@ -1,9 +1,18 @@
 import catalogs from '$lib/assets/catalogs.json';
 import { loadCatalog } from '$lib/requirements';
-import type { PageLoad } from './$types';
+import type { PageServerLoad } from './$types';
 
-export const load: PageLoad = async ({ params, fetch }) => {
+export const load: PageServerLoad = async ({ params, url, fetch }) => {
 	const { year, faculty, path } = params;
+
+	const semesters =
+		url.searchParams
+			.get('semesters')
+			?.trim()
+			.split('~')
+			.map((s) => s.split('-').filter((c) => c !== '')) ?? [];
+
+	const userPath = url.searchParams.get('path') ?? undefined;
 
 	// @ts-expect-error
 	if (!catalogs[year]) {
@@ -21,9 +30,12 @@ export const load: PageLoad = async ({ params, fetch }) => {
 	}
 
 	const degree = [year, faculty, path] as Degree;
-	const degreeData = await loadCatalog(degree, fetch);
+	const degreeData = await loadCatalog(degree, userPath, fetch);
+	console.log('here3', degree, userPath, degreeData, semesters);
 
 	return {
-		degreeData
+		degreeData,
+		semesters,
+		userPath
 	};
 };

@@ -55,6 +55,9 @@
 				while (user.semesters.length < user.currentSemester) {
 					user.semesters.push([]);
 				}
+				if (user.semesters.length === 0) {
+					user.semesters.push([]);
+				}
 				user.wishlist = user.wishlist.filter(
 					(c) => !data.recommended.flat().includes(c)
 				);
@@ -70,7 +73,7 @@
 				return;
 			}
 
-			user.semesters = recommended;
+			user.semesters = recommended ?? [];
 			user.wishlist = user.wishlist.filter(
 				(c) => !recommended.flat().includes(c)
 			);

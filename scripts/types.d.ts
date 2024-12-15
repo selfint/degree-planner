@@ -23,11 +23,16 @@ type TreeOnDemandSetResponse = {
 type Track = {
 	Otjid: string;
 	Peryr: string;
-	Perid: string;
+	Perid: SemesterNumber;
 	Name: I18N;
 	OrgId: string;
 	OrgText: I18N;
 	ZzQualifications: I18N;
+};
+
+type TreeHead = {
+	courses?: string[];
+	children?: Tree[];
 };
 
 type Tree = {
@@ -43,15 +48,33 @@ type I18N = {
 };
 
 type Catalog = {
+	track: Track;
+	tree: TreeHead;
+};
+
+type Track = {
 	Otjid: string;
 	Peryr: string;
 	Perid: string;
-	Name: I18N;
+	Name: string;
 	OrgId: string;
-	OrgText: I18N;
-	ZzQualifications: I18N;
-	tree: {
-		courses?: string[];
-		children?: Tree[];
-	};
+	OrgText: string;
+	ZzQualifications: string;
+};
+
+type Degree = Track[];
+
+type Faculty = {
+	Name: I18N;
+	PiqYear: string;
+	PiqSession: string;
+	ZzOrgId: string;
+	ZzOrgName: string;
+};
+
+type SemesterNumber = '200' | '201' | '202';
+
+type SemesterYear = {
+	PiqSession: SemesterNumber;
+	PiqYear: string;
 };

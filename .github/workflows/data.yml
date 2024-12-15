@@ -19,7 +19,7 @@ permissions:
   pull-requests: write
 
 jobs:
-  generate-course-data:
+  generate-data:
     runs-on: ubuntu-latest
 
     steps:
@@ -35,33 +35,41 @@ jobs:
 
       - name: Create branch
         run: |
-          git checkout -b generate-course-data
+          git checkout -b generate-data
           git reset --hard origin/main
 
-      - name: Run script and save output
+      - name: Update courseData.json
         run: node scripts/generateCourseData.js ${{ github.event.inputs.skip || '0' }} ${{ github.event.inputs.start || '10000' }} > src/lib/assets/courseData.json
+
+      - name: Update static/_catalogs
+        run: |
+            set -e
+            node scripts/generateCatalogsRaw.mjs
+            node scripts/generateCatalogsStatic.mjs
+            node scripts/generateCatalogsManifest.mjs
 
       - name: Check if data has changed
         run: |
-          if git diff --quiet src/lib/assets/courseData.json; then
-            echo "No changes to src/lib/assets/courseData.json, stopping the workflow."
-            gh run cancel ${{ github.run_id }}
-            gh run watch ${{ github.run_id }}
-          fi
+            if git diff --quiet src/lib/assets/courseData.json && git diff --quiet static/_catalogs; then
+              echo "No changes to static/_catalogs or src/lib/assets/courseData.json, stopping the workflow."
+              gh run cancel ${{ github.run_id }}
+              gh run watch ${{ github.run_id }}
+            fi
 
       - name: Push changes to new branch
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add src/lib/assets/courseData.json
-          git commit -m "[Automated] Update course data"
-          git push --force origin generate-course-data
+          git add static/_catalogs
+          git commit -m "[Automated] Update data"
+          git push --force origin generate-data
 
       - name: Create Pull Request
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           DATE=$(date +'%d-%m-%Y')
-          gh pr create --base main --head generate-course-data \
+          gh pr create --base main --head generate-data \
           --title "[Automated] Update course data $DATE" \
           --body "This automated PR updates the \`src/lib/assets/courseData.json\` file."

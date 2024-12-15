@@ -1730,10 +1730,10 @@
       },
       "SC00001396_CG00008827": {
         "en": "B.SC.ELEC.ENG-B.SC. IN PHYSICS(3 YEARS)\r\nB.SC. IN PHYSICS (3 YEARS)",
-        "he": "מוסמך למדעים בהנד.חשמל-בוגר למדעים בפיז\r\nבוגר למדעים בהנדסה בפיזיקה",
+        "he": "מוסמך למדעים בהנד.חשמל-בוגר למדעים בפיז\r\nבוגר למדעים בפיזיקה",
         "requirement": {
           "name": "00002050/SC00001396_CG00008827",
-          "he": "מוסמך למדעים בהנד.חשמל-בוגר למדעים בפיז\r\nבוגר למדעים בהנדסה בפיזיקה",
+          "he": "מוסמך למדעים בהנד.חשמל-בוגר למדעים בפיז\r\nבוגר למדעים בפיזיקה",
           "en": "B.SC.ELEC.ENG-B.SC. IN PHYSICS(3 YEARS)\r\nB.SC. IN PHYSICS (3 YEARS)",
           "nested": [
             {
@@ -4116,10 +4116,10 @@
       },
       "SC00001441_CG00001436": {
         "en": "B.SC. IN PHYSICS (3 YEARS)",
-        "he": "בוגר למדעים בהנדסה בפיזיקה",
+        "he": "בוגר למדעים בפיזיקה",
         "requirement": {
           "name": "00002090/SC00001441_CG00001436",
-          "he": "בוגר למדעים בהנדסה בפיזיקה",
+          "he": "בוגר למדעים בפיזיקה",
           "en": "B.SC. IN PHYSICS (3 YEARS)",
           "nested": [
             {
@@ -4632,10 +4632,10 @@
       },
       "SC00001447_CG00001559": {
         "en": "B.SC. IN MATH. WITH COMP.SCIEN (3 YEAR)",
-        "he": "בוגר למדעים בהנדסה במתמט.עם מדעי המחשב",
+        "he": "בוגר למדעים במתמטיקה עם מדעי המחשב",
         "requirement": {
           "name": "00002100/SC00001447_CG00001559",
-          "he": "בוגר למדעים בהנדסה במתמט.עם מדעי המחשב",
+          "he": "בוגר למדעים במתמטיקה עם מדעי המחשב",
           "en": "B.SC. IN MATH. WITH COMP.SCIEN (3 YEAR)",
           "nested": [
             {
@@ -6749,6 +6749,25 @@
                   "courses": "/_catalogs/2021_200/00002160/SC00001385_CG00000351/requirement/CG00000352/CG00000360/courses",
                   "he": "רשימה: מעבדה",
                   "en": "List: Laboratory"
+                },
+                {
+                  "name": "CG00009291",
+                  "he": "אפשרויות בחירה בחובה",
+                  "en": "Mandatory Options",
+                  "nested": [
+                    {
+                      "name": "CG00009293",
+                      "courses": "/_catalogs/2021_200/00002160/SC00001385_CG00000351/requirement/CG00000352/CG00009291/CG00009293/courses",
+                      "he": "אפשרות 1",
+                      "en": "Option 1"
+                    },
+                    {
+                      "name": "CG00009294",
+                      "courses": "/_catalogs/2021_200/00002160/SC00001385_CG00000351/requirement/CG00000352/CG00009291/CG00009294/courses",
+                      "he": "אפשרות 2",
+                      "en": "Option 2"
+                    }
+                  ]
                 }
               ]
             },
@@ -6815,6 +6834,25 @@
                   "courses": "/_catalogs/2021_200/00002160/SC00001385_CG00000351/requirement/CG00000361/CG00000362/courses",
                   "he": "חובה (נתיב אסטרונוטיקה)",
                   "en": "Mandatory (Astronautics Path)"
+                },
+                {
+                  "name": "CG00009292",
+                  "he": "אפשרויות בחירה בחובה",
+                  "en": "Mandatory Options",
+                  "nested": [
+                    {
+                      "name": "CG00009295",
+                      "courses": "/_catalogs/2021_200/00002160/SC00001385_CG00000351/requirement/CG00000361/CG00009292/CG00009295/courses",
+                      "he": "אפשרות 1",
+                      "en": "Option 1"
+                    },
+                    {
+                      "name": "CG00009296",
+                      "courses": "/_catalogs/2021_200/00002160/SC00001385_CG00000351/requirement/CG00000361/CG00009292/CG00009296/courses",
+                      "he": "אפשרות 2",
+                      "en": "Option 2"
+                    }
+                  ]
                 }
               ]
             }
@@ -7257,7 +7295,7 @@
         }
       },
       "en": "Data and Decision Sciences",
-      "he": "הפקולטה למדעי הנתונים וההחלטות"
+      "he": "מדעי הנתונים וההחלטות"
     },
     "00002220": {
       "SC00001310_CG00008822": {
@@ -7791,7 +7829,7 @@
         }
       },
       "en": "Education in Science and Technology",
-      "he": "הפקולטה לחינוך למדע וטכנולוגיה"
+      "he": "חינוך למדע וטכנולוגיה"
     },
     "00002270": {
       "SC00001366_CG00001077": {
@@ -8244,7 +8282,7 @@
               "nested": [
                 {
                   "name": "CG00000289",
-                  "he": "מקצועות חובה",
+                  "he": "חובה",
                   "en": "Mandatory"
                 }
               ]
@@ -8363,6 +8401,11 @@
                   "en": "Compulsory Clinical Round"
                 }
               ]
+            },
+            {
+              "name": "CG00009185",
+              "he": "National Exams",
+              "en": "National Exams"
             }
           ]
         }
@@ -8621,7 +8664,90 @@
             {
               "name": "CG00000170",
               "he": "בחירה כלל טכניונית",
-              "en": "All-Technion Electives"
+              "en": "All-Technion Electives",
+              "nested": [
+                {
+                  "name": "CG00000172",
+                  "courses": "/_catalogs/2021_200/00002340/SC00001427_CG00001672/requirement/CG00000170/CG00000172/courses",
+                  "he": "קורסי ספורט",
+                  "en": "Sports Courses",
+                  "nested": [
+                    {
+                      "name": "CG00000173",
+                      "courses": "/_catalogs/2021_200/00002340/SC00001427_CG00001672/requirement/CG00000170/CG00000172/CG00000173/courses",
+                      "he": "קבוצות ספורט",
+                      "en": "Sport Teams"
+                    }
+                  ]
+                },
+                {
+                  "name": "CG00000174",
+                  "courses": "/_catalogs/2021_200/00002340/SC00001427_CG00001672/requirement/CG00000170/CG00000174/courses",
+                  "he": "מקהלה / תזמורת",
+                  "en": "Choir / Orchestra"
+                },
+                {
+                  "name": "CG00000175",
+                  "he": "בחירה חופשית",
+                  "en": "Free Electives"
+                },
+                {
+                  "name": "CG00000551",
+                  "he": "תוכנית קהילתית",
+                  "en": "Community Program"
+                },
+                {
+                  "name": "CG00009076",
+                  "courses": "/_catalogs/2021_200/00002340/SC00001427_CG00001672/requirement/CG00000170/CG00009076/courses",
+                  "he": "קורסי מל\"ג",
+                  "en": "Malag Courses"
+                }
+              ]
+            },
+            {
+              "name": "CG00001674",
+              "courses": "/_catalogs/2021_200/00002340/SC00001427_CG00001672/requirement/CG00001674/courses",
+              "he": "מקצועות חובה",
+              "en": "Mandatory",
+              "nested": [
+                {
+                  "name": "CG00001675",
+                  "courses": "/_catalogs/2021_200/00002340/SC00001427_CG00001672/requirement/CG00001674/CG00001675/courses",
+                  "he": "אפשרויות בחירה בחובה",
+                  "en": "Mandatory options"
+                },
+                {
+                  "name": "CG00001676",
+                  "courses": "/_catalogs/2021_200/00002340/SC00001427_CG00001672/requirement/CG00001674/CG00001676/courses",
+                  "he": "אפשרויות בחירה בחובה",
+                  "en": "Mandatory options"
+                }
+              ]
+            },
+            {
+              "name": "CG00001677",
+              "he": "קורסי בחירה",
+              "en": "Elective Courses",
+              "nested": [
+                {
+                  "name": "CG00001678",
+                  "courses": "/_catalogs/2021_200/00002340/SC00001427_CG00001672/requirement/CG00001677/CG00001678/courses",
+                  "he": "מקצועות בחירה פקולטיים",
+                  "en": "Faculty elective courses"
+                },
+                {
+                  "name": "CG00001679",
+                  "courses": "/_catalogs/2021_200/00002340/SC00001427_CG00001672/requirement/CG00001677/CG00001679/courses",
+                  "he": "קורסי בחירה בביולוגיה",
+                  "en": "Biology Elective Courses"
+                },
+                {
+                  "name": "CG00001680",
+                  "courses": "/_catalogs/2021_200/00002340/SC00001427_CG00001672/requirement/CG00001677/CG00001680/courses",
+                  "he": "קורסי בחירה בכימיה",
+                  "en": "Chemistry Elective Courses"
+                }
+              ]
             }
           ]
         }
@@ -10517,10 +10643,10 @@
       },
       "SC00001396_CG00008827": {
         "en": "B.SC.ELEC.ENG-B.SC. IN PHYSICS(3 YEARS)\r\nB.SC. IN PHYSICS (3 YEARS)",
-        "he": "מוסמך למדעים בהנד.חשמל-בוגר למדעים בפיז\r\nבוגר למדעים בהנדסה בפיזיקה",
+        "he": "מוסמך למדעים בהנד.חשמל-בוגר למדעים בפיז\r\nבוגר למדעים בפיזיקה",
         "requirement": {
           "name": "00002050/SC00001396_CG00008827",
-          "he": "מוסמך למדעים בהנד.חשמל-בוגר למדעים בפיז\r\nבוגר למדעים בהנדסה בפיזיקה",
+          "he": "מוסמך למדעים בהנד.חשמל-בוגר למדעים בפיז\r\nבוגר למדעים בפיזיקה",
           "en": "B.SC.ELEC.ENG-B.SC. IN PHYSICS(3 YEARS)\r\nB.SC. IN PHYSICS (3 YEARS)",
           "nested": [
             {
@@ -12893,10 +13019,10 @@
       },
       "SC00001441_CG00001436": {
         "en": "B.SC. IN PHYSICS (3 YEARS)",
-        "he": "בוגר למדעים בהנדסה בפיזיקה",
+        "he": "בוגר למדעים בפיזיקה",
         "requirement": {
           "name": "00002090/SC00001441_CG00001436",
-          "he": "בוגר למדעים בהנדסה בפיזיקה",
+          "he": "בוגר למדעים בפיזיקה",
           "en": "B.SC. IN PHYSICS (3 YEARS)",
           "nested": [
             {
@@ -13409,10 +13535,10 @@
       },
       "SC00001447_CG00001559": {
         "en": "B.SC. IN MATH. WITH COMP.SCIEN (3 YEAR)",
-        "he": "בוגר למדעים בהנדסה במתמט.עם מדעי המחשב",
+        "he": "בוגר למדעים במתמטיקה עם מדעי המחשב",
         "requirement": {
           "name": "00002100/SC00001447_CG00001559",
-          "he": "בוגר למדעים בהנדסה במתמט.עם מדעי המחשב",
+          "he": "בוגר למדעים במתמטיקה עם מדעי המחשב",
           "en": "B.SC. IN MATH. WITH COMP.SCIEN (3 YEAR)",
           "nested": [
             {
@@ -15548,6 +15674,25 @@
                   "courses": "/_catalogs/2021_201/00002160/SC00001385_CG00000351/requirement/CG00000352/CG00000582/courses",
                   "he": "מקצועות בחירה פקולטיים AE",
                   "en": "B.Sc. AE Faculty Electives"
+                },
+                {
+                  "name": "CG00009291",
+                  "he": "אפשרויות בחירה בחובה",
+                  "en": "Mandatory Options",
+                  "nested": [
+                    {
+                      "name": "CG00009293",
+                      "courses": "/_catalogs/2021_201/00002160/SC00001385_CG00000351/requirement/CG00000352/CG00009291/CG00009293/courses",
+                      "he": "אפשרות 1",
+                      "en": "Option 1"
+                    },
+                    {
+                      "name": "CG00009294",
+                      "courses": "/_catalogs/2021_201/00002160/SC00001385_CG00000351/requirement/CG00000352/CG00009291/CG00009294/courses",
+                      "he": "אפשרות 2",
+                      "en": "Option 2"
+                    }
+                  ]
                 }
               ]
             },
@@ -15633,6 +15778,25 @@
                   "courses": "/_catalogs/2021_201/00002160/SC00001385_CG00000351/requirement/CG00000361/CG00000582/courses",
                   "he": "מקצועות בחירה פקולטיים AE",
                   "en": "B.Sc. AE Faculty Electives"
+                },
+                {
+                  "name": "CG00009292",
+                  "he": "אפשרויות בחירה בחובה",
+                  "en": "Mandatory Options",
+                  "nested": [
+                    {
+                      "name": "CG00009295",
+                      "courses": "/_catalogs/2021_201/00002160/SC00001385_CG00000351/requirement/CG00000361/CG00009292/CG00009295/courses",
+                      "he": "אפשרות 1",
+                      "en": "Option 1"
+                    },
+                    {
+                      "name": "CG00009296",
+                      "courses": "/_catalogs/2021_201/00002160/SC00001385_CG00000351/requirement/CG00000361/CG00009292/CG00009296/courses",
+                      "he": "אפשרות 2",
+                      "en": "Option 2"
+                    }
+                  ]
                 }
               ]
             }
@@ -16076,7 +16240,7 @@
         }
       },
       "en": "Data and Decision Sciences",
-      "he": "הפקולטה למדעי הנתונים וההחלטות"
+      "he": "מדעי הנתונים וההחלטות"
     },
     "00002220": {
       "SC00001310_CG00008822": {
@@ -16609,7 +16773,7 @@
         }
       },
       "en": "Education in Science and Technology",
-      "he": "הפקולטה לחינוך למדע וטכנולוגיה"
+      "he": "חינוך למדע וטכנולוגיה"
     },
     "00002270": {
       "SC00001366_CG00001077": {
@@ -17054,7 +17218,7 @@
               "nested": [
                 {
                   "name": "CG00000289",
-                  "he": "מקצועות חובה",
+                  "he": "חובה",
                   "en": "Mandatory"
                 }
               ]
@@ -17181,6 +17345,11 @@
                   "en": "Compulsory Module List"
                 }
               ]
+            },
+            {
+              "name": "CG00009185",
+              "he": "National Exams",
+              "en": "National Exams"
             }
           ]
         }
@@ -19528,10 +19697,10 @@
       },
       "SC00001396_CG00008827": {
         "en": "B.SC.ELEC.ENG-B.SC. IN PHYSICS(3 YEARS)\r\nB.SC. IN PHYSICS (3 YEARS)",
-        "he": "מוסמך למדעים בהנד.חשמל-בוגר למדעים בפיז\r\nבוגר למדעים בהנדסה בפיזיקה",
+        "he": "מוסמך למדעים בהנד.חשמל-בוגר למדעים בפיז\r\nבוגר למדעים בפיזיקה",
         "requirement": {
           "name": "00002050/SC00001396_CG00008827",
-          "he": "מוסמך למדעים בהנד.חשמל-בוגר למדעים בפיז\r\nבוגר למדעים בהנדסה בפיזיקה",
+          "he": "מוסמך למדעים בהנד.חשמל-בוגר למדעים בפיז\r\nבוגר למדעים בפיזיקה",
           "en": "B.SC.ELEC.ENG-B.SC. IN PHYSICS(3 YEARS)\r\nB.SC. IN PHYSICS (3 YEARS)",
           "nested": [
             {
@@ -19841,6 +20010,26 @@
                 {
                   "name": "CG00003696",
                   "courses": "/_catalogs/2022_201/00002050/SC00001397_CG00003697/requirement/CG00003735/CG00003696/courses",
+                  "he": "אפשרויות בחירה",
+                  "en": "Options"
+                }
+              ]
+            },
+            {
+              "name": "CG00009314",
+              "courses": "/_catalogs/2022_201/00002050/SC00001397_CG00003697/requirement/CG00009314/courses",
+              "he": "Cluster 10 - Machine Learning and Artifi",
+              "en": "Cluster 10 - Machine Learning and Artifi",
+              "nested": [
+                {
+                  "name": "CG00003682",
+                  "courses": "/_catalogs/2022_201/00002050/SC00001397_CG00003697/requirement/CG00009314/CG00003682/courses",
+                  "he": "אפשרויות בחירה בחובה",
+                  "en": "Mandatory options"
+                },
+                {
+                  "name": "CG00003683",
+                  "courses": "/_catalogs/2022_201/00002050/SC00001397_CG00003697/requirement/CG00009314/CG00003683/courses",
                   "he": "אפשרויות בחירה",
                   "en": "Options"
                 }
@@ -21882,10 +22071,10 @@
       },
       "SC00001441_CG00001446": {
         "en": "B.SC. IN PHYSICS (3 YEARS)",
-        "he": "בוגר למדעים בהנדסה בפיזיקה",
+        "he": "בוגר למדעים בפיזיקה",
         "requirement": {
           "name": "00002090/SC00001441_CG00001446",
-          "he": "בוגר למדעים בהנדסה בפיזיקה",
+          "he": "בוגר למדעים בפיזיקה",
           "en": "B.SC. IN PHYSICS (3 YEARS)",
           "nested": [
             {
@@ -22406,10 +22595,10 @@
       },
       "SC00001447_CG00001568": {
         "en": "B.SC. IN MATH. WITH COMP.SCIEN (3 YEAR)",
-        "he": "בוגר למדעים בהנדסה במתמט.עם מדעי המחשב",
+        "he": "בוגר למדעים במתמטיקה עם מדעי המחשב",
         "requirement": {
           "name": "00002100/SC00001447_CG00001568",
-          "he": "בוגר למדעים בהנדסה במתמט.עם מדעי המחשב",
+          "he": "בוגר למדעים במתמטיקה עם מדעי המחשב",
           "en": "B.SC. IN MATH. WITH COMP.SCIEN (3 YEAR)",
           "nested": [
             {
@@ -24557,6 +24746,25 @@
                   "courses": "/_catalogs/2022_201/00002160/SC00001385_CG00000626/requirement/CG00000627/CG00000633/courses",
                   "he": "אשכול: הנדסת תכנון ומערכות",
                   "en": "Cluster: Design & Systems Engineering"
+                },
+                {
+                  "name": "CG00009291",
+                  "he": "אפשרויות בחירה בחובה",
+                  "en": "Mandatory Options",
+                  "nested": [
+                    {
+                      "name": "CG00009293",
+                      "courses": "/_catalogs/2022_201/00002160/SC00001385_CG00000626/requirement/CG00000627/CG00009291/CG00009293/courses",
+                      "he": "אפשרות 1",
+                      "en": "Option 1"
+                    },
+                    {
+                      "name": "CG00009294",
+                      "courses": "/_catalogs/2022_201/00002160/SC00001385_CG00000626/requirement/CG00000627/CG00009291/CG00009294/courses",
+                      "he": "אפשרות 2",
+                      "en": "Option 2"
+                    }
+                  ]
                 }
               ]
             },
@@ -24642,6 +24850,25 @@
                   "courses": "/_catalogs/2022_201/00002160/SC00001385_CG00000626/requirement/CG00000634/CG00000635/courses",
                   "he": "חובה (נתיב אסטרונוטיקה)",
                   "en": "Mandatory (Astronautics Path)"
+                },
+                {
+                  "name": "CG00009292",
+                  "he": "אפשרויות בחירה בחובה",
+                  "en": "Mandatory Options",
+                  "nested": [
+                    {
+                      "name": "CG00009295",
+                      "courses": "/_catalogs/2022_201/00002160/SC00001385_CG00000626/requirement/CG00000634/CG00009292/CG00009295/courses",
+                      "he": "אפשרות 1",
+                      "en": "Option 1"
+                    },
+                    {
+                      "name": "CG00009296",
+                      "courses": "/_catalogs/2022_201/00002160/SC00001385_CG00000626/requirement/CG00000634/CG00009292/CG00009296/courses",
+                      "he": "אפשרות 2",
+                      "en": "Option 2"
+                    }
+                  ]
                 }
               ]
             }
@@ -25104,7 +25331,7 @@
         }
       },
       "en": "Data and Decision Sciences",
-      "he": "הפקולטה למדעי הנתונים וההחלטות"
+      "he": "מדעי הנתונים וההחלטות"
     },
     "00002220": {
       "SC00001310_CG00008822": {
@@ -25666,7 +25893,7 @@
         }
       },
       "en": "Education in Science and Technology",
-      "he": "הפקולטה לחינוך למדע וטכנולוגיה"
+      "he": "חינוך למדע וטכנולוגיה"
     },
     "00002270": {
       "SC00001366_CG00001115": {
@@ -26044,6 +26271,11 @@
           "he": "דוקטור לרפואה",
           "en": "M.D.",
           "nested": [
+            {
+              "name": "CG00000175",
+              "he": "בחירה חופשית",
+              "en": "Free Electives"
+            },
             {
               "name": "CG00000290",
               "he": "קליני",
@@ -28485,10 +28717,10 @@
       },
       "SC00001396_CG00008827": {
         "en": "B.SC.ELEC.ENG-B.SC. IN PHYSICS(3 YEARS)\r\nB.SC. IN PHYSICS (3 YEARS)",
-        "he": "מוסמך למדעים בהנד.חשמל-בוגר למדעים בפיז\r\nבוגר למדעים בהנדסה בפיזיקה",
+        "he": "מוסמך למדעים בהנד.חשמל-בוגר למדעים בפיז\r\nבוגר למדעים בפיזיקה",
         "requirement": {
           "name": "00002050/SC00001396_CG00008827",
-          "he": "מוסמך למדעים בהנד.חשמל-בוגר למדעים בפיז\r\nבוגר למדעים בהנדסה בפיזיקה",
+          "he": "מוסמך למדעים בהנד.חשמל-בוגר למדעים בפיז\r\nבוגר למדעים בפיזיקה",
           "en": "B.SC.ELEC.ENG-B.SC. IN PHYSICS(3 YEARS)\r\nB.SC. IN PHYSICS (3 YEARS)",
           "nested": [
             {
@@ -30271,6 +30503,20 @@
                   "en": "List 3: Elective courses"
                 },
                 {
+                  "name": "CG00005676",
+                  "courses": "/_catalogs/2023_200/00002070/SC00001394_CG00005667/requirement/CG00005670/CG00005676/courses",
+                  "he": "רשימה 2: קורסי ליבה",
+                  "en": "List 2: Core courses",
+                  "nested": [
+                    {
+                      "name": "CG00005682",
+                      "courses": "/_catalogs/2023_200/00002070/SC00001394_CG00005667/requirement/CG00005670/CG00005676/CG00005682/courses",
+                      "he": "אפשרויות בחירה בחובה",
+                      "en": "Mandatory Options"
+                    }
+                  ]
+                },
+                {
                   "name": "CG00005681",
                   "courses": "/_catalogs/2023_200/00002070/SC00001394_CG00005667/requirement/CG00005670/CG00005681/courses",
                   "he": "רשימה 2: קורסי ליבה",
@@ -30337,6 +30583,40 @@
                       "en": "Mandatory Options"
                     }
                   ]
+                },
+                {
+                  "name": "CG00005694",
+                  "courses": "/_catalogs/2023_200/00002070/SC00001394_CG00005667/requirement/CG00005673/CG00005694/courses",
+                  "he": "רשימה 2: קורסי ליבה",
+                  "en": "List 2: Core courses",
+                  "nested": [
+                    {
+                      "name": "CG00005677",
+                      "courses": "/_catalogs/2023_200/00002070/SC00001394_CG00005667/requirement/CG00005673/CG00005694/CG00005677/courses",
+                      "he": "אפשרויות בחירה בחובה",
+                      "en": "Mandatory Options"
+                    },
+                    {
+                      "name": "CG00005678",
+                      "courses": "/_catalogs/2023_200/00002070/SC00001394_CG00005667/requirement/CG00005673/CG00005694/CG00005678/courses",
+                      "he": "אפשרויות בחירה בחובה",
+                      "en": "Mandatory Options"
+                    }
+                  ]
+                },
+                {
+                  "name": "CG00005695",
+                  "courses": "/_catalogs/2023_200/00002070/SC00001394_CG00005667/requirement/CG00005673/CG00005695/courses",
+                  "he": "רשימה 3: קורסי בחירה",
+                  "en": "List 3: Elective courses",
+                  "nested": [
+                    {
+                      "name": "CG00005680",
+                      "courses": "/_catalogs/2023_200/00002070/SC00001394_CG00005667/requirement/CG00005673/CG00005695/CG00005680/courses",
+                      "he": "אפשרויות בחירה בחובה",
+                      "en": "Mandatory Options"
+                    }
+                  ]
                 }
               ]
             },
@@ -30346,9 +30626,30 @@
               "en": "Chemical engineering",
               "nested": [
                 {
-                  "name": "CG00005688",
+                  "name": "CG00005679",
+                  "courses": "/_catalogs/2023_200/00002070/SC00001394_CG00005667/requirement/CG00005684/CG00005679/courses",
                   "he": "רשימה 1: כלים מתמטיים",
                   "en": "List 1: Mathematical tools",
+                  "nested": [
+                    {
+                      "name": "CG00005697",
+                      "courses": "/_catalogs/2023_200/00002070/SC00001394_CG00005667/requirement/CG00005684/CG00005679/CG00005697/courses",
+                      "he": "אפשרויות בחירה בחובה",
+                      "en": "Mandatory Options"
+                    }
+                  ]
+                },
+                {
+                  "name": "CG00005681",
+                  "courses": "/_catalogs/2023_200/00002070/SC00001394_CG00005667/requirement/CG00005684/CG00005681/courses",
+                  "he": "רשימה 2: קורסי ליבה",
+                  "en": "List 2: Core courses"
+                },
+                {
+                  "name": "CG00005688",
+                  "courses": "/_catalogs/2023_200/00002070/SC00001394_CG00005667/requirement/CG00005684/CG00005688/courses",
+                  "he": "רשימה 3: קורסי בחירה",
+                  "en": "List 3: Elective courses",
                   "nested": [
                     {
                       "name": "CG00005697",
@@ -30378,9 +30679,37 @@
               "en": "Pharmaceutical engineering biochemical",
               "nested": [
                 {
-                  "name": "CG00005691",
+                  "name": "CG00005689",
                   "he": "רשימה 1: כלים מתמטיים",
                   "en": "List 1: Mathematical tools",
+                  "nested": [
+                    {
+                      "name": "CG00005698",
+                      "courses": "/_catalogs/2023_200/00002070/SC00001394_CG00005667/requirement/CG00005685/CG00005689/CG00005698/courses",
+                      "he": "אפשרויות בחירה בחובה",
+                      "en": "Mandatory Options"
+                    }
+                  ]
+                },
+                {
+                  "name": "CG00005690",
+                  "courses": "/_catalogs/2023_200/00002070/SC00001394_CG00005667/requirement/CG00005685/CG00005690/courses",
+                  "he": "רשימה 2: קורסי ליבה",
+                  "en": "List 2: Core courses",
+                  "nested": [
+                    {
+                      "name": "CG00005699",
+                      "courses": "/_catalogs/2023_200/00002070/SC00001394_CG00005667/requirement/CG00005685/CG00005690/CG00005699/courses",
+                      "he": "אפשרויות בחירה",
+                      "en": "Options"
+                    }
+                  ]
+                },
+                {
+                  "name": "CG00005691",
+                  "courses": "/_catalogs/2023_200/00002070/SC00001394_CG00005667/requirement/CG00005685/CG00005691/courses",
+                  "he": "רשימה 3: קורסי בחירה",
+                  "en": "List 3: Elective courses",
                   "nested": [
                     {
                       "name": "CG00005698",
@@ -30417,6 +30746,34 @@
               "he": "כלים אנליטיים וחישוביים",
               "en": "Analytical and computational tools",
               "nested": [
+                {
+                  "name": "CG00005692",
+                  "courses": "/_catalogs/2023_200/00002070/SC00001394_CG00005667/requirement/CG00005686/CG00005692/courses",
+                  "he": "רשימה 1: כלים מתמטיים",
+                  "en": "List 1: Mathematical tools",
+                  "nested": [
+                    {
+                      "name": "CG00005700",
+                      "courses": "/_catalogs/2023_200/00002070/SC00001394_CG00005667/requirement/CG00005686/CG00005692/CG00005700/courses",
+                      "he": "אפשרויות בחירה בחובה",
+                      "en": "Mandatory Options"
+                    }
+                  ]
+                },
+                {
+                  "name": "CG00005693",
+                  "courses": "/_catalogs/2023_200/00002070/SC00001394_CG00005667/requirement/CG00005686/CG00005693/courses",
+                  "he": "רשימה 2: קורסי ליבה",
+                  "en": "List 2: Core courses",
+                  "nested": [
+                    {
+                      "name": "CG00005701",
+                      "courses": "/_catalogs/2023_200/00002070/SC00001394_CG00005667/requirement/CG00005686/CG00005693/CG00005701/courses",
+                      "he": "אפשרויות בחירה בחובה",
+                      "en": "Mandatory Options"
+                    }
+                  ]
+                },
                 {
                   "name": "CG00005694",
                   "he": "רשימה 1: כלים מתמטיים",
@@ -30915,10 +31272,10 @@
       },
       "SC00001441_CG00005968": {
         "en": "B.SC. IN PHYSICS (3 YEARS)",
-        "he": "בוגר למדעים בהנדסה בפיזיקה",
+        "he": "בוגר למדעים בפיזיקה",
         "requirement": {
           "name": "00002090/SC00001441_CG00005968",
-          "he": "בוגר למדעים בהנדסה בפיזיקה",
+          "he": "בוגר למדעים בפיזיקה",
           "en": "B.SC. IN PHYSICS (3 YEARS)",
           "nested": [
             {
@@ -31432,10 +31789,10 @@
       },
       "SC00001447_CG00001568": {
         "en": "B.SC. IN MATH. WITH COMP.SCIEN (3 YEAR)",
-        "he": "בוגר למדעים בהנדסה במתמט.עם מדעי המחשב",
+        "he": "בוגר למדעים במתמטיקה עם מדעי המחשב",
         "requirement": {
           "name": "00002100/SC00001447_CG00001568",
-          "he": "בוגר למדעים בהנדסה במתמט.עם מדעי המחשב",
+          "he": "בוגר למדעים במתמטיקה עם מדעי המחשב",
           "en": "B.SC. IN MATH. WITH COMP.SCIEN (3 YEAR)",
           "nested": [
             {
@@ -33570,6 +33927,25 @@
                   "courses": "/_catalogs/2023_200/00002160/SC00001385_CG00006307/requirement/CG00006308/CG00006314/courses",
                   "he": "מקצועות בחירה מפקולטות אחרות",
                   "en": "B.Sc. AE Electives from other Faculties"
+                },
+                {
+                  "name": "CG00009291",
+                  "he": "אפשרויות בחירה בחובה",
+                  "en": "Mandatory Options",
+                  "nested": [
+                    {
+                      "name": "CG00009293",
+                      "courses": "/_catalogs/2023_200/00002160/SC00001385_CG00006307/requirement/CG00006308/CG00009291/CG00009293/courses",
+                      "he": "אפשרות 1",
+                      "en": "Option 1"
+                    },
+                    {
+                      "name": "CG00009294",
+                      "courses": "/_catalogs/2023_200/00002160/SC00001385_CG00006307/requirement/CG00006308/CG00009291/CG00009294/courses",
+                      "he": "אפשרות 2",
+                      "en": "Option 2"
+                    }
+                  ]
                 }
               ]
             },
@@ -33654,6 +34030,25 @@
                   "courses": "/_catalogs/2023_200/00002160/SC00001385_CG00006307/requirement/CG00006315/CG00006314/courses",
                   "he": "מקצועות בחירה מפקולטות אחרות",
                   "en": "B.Sc. AE Electives from other Faculties"
+                },
+                {
+                  "name": "CG00009292",
+                  "he": "אפשרויות בחירה בחובה",
+                  "en": "Mandatory Options",
+                  "nested": [
+                    {
+                      "name": "CG00009295",
+                      "courses": "/_catalogs/2023_200/00002160/SC00001385_CG00006307/requirement/CG00006315/CG00009292/CG00009295/courses",
+                      "he": "אפשרות 1",
+                      "en": "Option 1"
+                    },
+                    {
+                      "name": "CG00009296",
+                      "courses": "/_catalogs/2023_200/00002160/SC00001385_CG00006307/requirement/CG00006315/CG00009292/CG00009296/courses",
+                      "he": "אפשרות 2",
+                      "en": "Option 2"
+                    }
+                  ]
                 }
               ]
             }
@@ -34075,7 +34470,7 @@
         }
       },
       "en": "Data and Decision Sciences",
-      "he": "הפקולטה למדעי הנתונים וההחלטות"
+      "he": "מדעי הנתונים וההחלטות"
     },
     "00002220": {
       "SC00001310_CG00008822": {
@@ -34623,7 +35018,7 @@
         }
       },
       "en": "Education in Science and Technology",
-      "he": "הפקולטה לחינוך למדע וטכנולוגיה"
+      "he": "חינוך למדע וטכנולוגיה"
     },
     "00002270": {
       "SC00001366_CG00006842": {
@@ -34912,6 +35307,11 @@
           "he": "דוקטור לרפואה",
           "en": "M.D.",
           "nested": [
+            {
+              "name": "CG00000175",
+              "he": "בחירה חופשית",
+              "en": "Free Electives"
+            },
             {
               "name": "CG00000290",
               "he": "קליני",
@@ -37451,10 +37851,10 @@
       },
       "SC00001396_CG00008827": {
         "en": "B.SC.ELEC.ENG-B.SC. IN PHYSICS(3 YEARS)\r\nB.SC. IN PHYSICS (3 YEARS)",
-        "he": "מוסמך למדעים בהנד.חשמל-בוגר למדעים בפיז\r\nבוגר למדעים בהנדסה בפיזיקה",
+        "he": "מוסמך למדעים בהנד.חשמל-בוגר למדעים בפיז\r\nבוגר למדעים בפיזיקה",
         "requirement": {
           "name": "00002050/SC00001396_CG00008827",
-          "he": "מוסמך למדעים בהנד.חשמל-בוגר למדעים בפיז\r\nבוגר למדעים בהנדסה בפיזיקה",
+          "he": "מוסמך למדעים בהנד.חשמל-בוגר למדעים בפיז\r\nבוגר למדעים בפיזיקה",
           "en": "B.SC.ELEC.ENG-B.SC. IN PHYSICS(3 YEARS)\r\nB.SC. IN PHYSICS (3 YEARS)",
           "nested": [
             {
@@ -39243,6 +39643,20 @@
                   "en": "List 3: Elective courses"
                 },
                 {
+                  "name": "CG00005676",
+                  "courses": "/_catalogs/2023_201/00002070/SC00001394_CG00005667/requirement/CG00005670/CG00005676/courses",
+                  "he": "רשימה 2: קורסי ליבה",
+                  "en": "List 2: Core courses",
+                  "nested": [
+                    {
+                      "name": "CG00005682",
+                      "courses": "/_catalogs/2023_201/00002070/SC00001394_CG00005667/requirement/CG00005670/CG00005676/CG00005682/courses",
+                      "he": "אפשרויות בחירה בחובה",
+                      "en": "Mandatory Options"
+                    }
+                  ]
+                },
+                {
                   "name": "CG00005681",
                   "courses": "/_catalogs/2023_201/00002070/SC00001394_CG00005667/requirement/CG00005670/CG00005681/courses",
                   "he": "רשימה 2: קורסי ליבה",
@@ -39309,6 +39723,40 @@
                       "en": "Mandatory Options"
                     }
                   ]
+                },
+                {
+                  "name": "CG00005694",
+                  "courses": "/_catalogs/2023_201/00002070/SC00001394_CG00005667/requirement/CG00005673/CG00005694/courses",
+                  "he": "רשימה 2: קורסי ליבה",
+                  "en": "List 2: Core courses",
+                  "nested": [
+                    {
+                      "name": "CG00005677",
+                      "courses": "/_catalogs/2023_201/00002070/SC00001394_CG00005667/requirement/CG00005673/CG00005694/CG00005677/courses",
+                      "he": "אפשרויות בחירה בחובה",
+                      "en": "Mandatory Options"
+                    },
+                    {
+                      "name": "CG00005678",
+                      "courses": "/_catalogs/2023_201/00002070/SC00001394_CG00005667/requirement/CG00005673/CG00005694/CG00005678/courses",
+                      "he": "אפשרויות בחירה בחובה",
+                      "en": "Mandatory Options"
+                    }
+                  ]
+                },
+                {
+                  "name": "CG00005695",
+                  "courses": "/_catalogs/2023_201/00002070/SC00001394_CG00005667/requirement/CG00005673/CG00005695/courses",
+                  "he": "רשימה 3: קורסי בחירה",
+                  "en": "List 3: Elective courses",
+                  "nested": [
+                    {
+                      "name": "CG00005680",
+                      "courses": "/_catalogs/2023_201/00002070/SC00001394_CG00005667/requirement/CG00005673/CG00005695/CG00005680/courses",
+                      "he": "אפשרויות בחירה בחובה",
+                      "en": "Mandatory Options"
+                    }
+                  ]
                 }
               ]
             },
@@ -39318,9 +39766,30 @@
               "en": "Chemical engineering",
               "nested": [
                 {
-                  "name": "CG00005688",
+                  "name": "CG00005679",
+                  "courses": "/_catalogs/2023_201/00002070/SC00001394_CG00005667/requirement/CG00005684/CG00005679/courses",
                   "he": "רשימה 1: כלים מתמטיים",
                   "en": "List 1: Mathematical tools",
+                  "nested": [
+                    {
+                      "name": "CG00005697",
+                      "courses": "/_catalogs/2023_201/00002070/SC00001394_CG00005667/requirement/CG00005684/CG00005679/CG00005697/courses",
+                      "he": "אפשרויות בחירה בחובה",
+                      "en": "Mandatory Options"
+                    }
+                  ]
+                },
+                {
+                  "name": "CG00005681",
+                  "courses": "/_catalogs/2023_201/00002070/SC00001394_CG00005667/requirement/CG00005684/CG00005681/courses",
+                  "he": "רשימה 2: קורסי ליבה",
+                  "en": "List 2: Core courses"
+                },
+                {
+                  "name": "CG00005688",
+                  "courses": "/_catalogs/2023_201/00002070/SC00001394_CG00005667/requirement/CG00005684/CG00005688/courses",
+                  "he": "רשימה 3: קורסי בחירה",
+                  "en": "List 3: Elective courses",
                   "nested": [
                     {
                       "name": "CG00005697",
@@ -39350,9 +39819,37 @@
               "en": "Pharmaceutical engineering biochemical",
               "nested": [
                 {
-                  "name": "CG00005691",
+                  "name": "CG00005689",
                   "he": "רשימה 1: כלים מתמטיים",
                   "en": "List 1: Mathematical tools",
+                  "nested": [
+                    {
+                      "name": "CG00005698",
+                      "courses": "/_catalogs/2023_201/00002070/SC00001394_CG00005667/requirement/CG00005685/CG00005689/CG00005698/courses",
+                      "he": "אפשרויות בחירה בחובה",
+                      "en": "Mandatory Options"
+                    }
+                  ]
+                },
+                {
+                  "name": "CG00005690",
+                  "courses": "/_catalogs/2023_201/00002070/SC00001394_CG00005667/requirement/CG00005685/CG00005690/courses",
+                  "he": "רשימה 2: קורסי ליבה",
+                  "en": "List 2: Core courses",
+                  "nested": [
+                    {
+                      "name": "CG00005699",
+                      "courses": "/_catalogs/2023_201/00002070/SC00001394_CG00005667/requirement/CG00005685/CG00005690/CG00005699/courses",
+                      "he": "אפשרויות בחירה",
+                      "en": "Options"
+                    }
+                  ]
+                },
+                {
+                  "name": "CG00005691",
+                  "courses": "/_catalogs/2023_201/00002070/SC00001394_CG00005667/requirement/CG00005685/CG00005691/courses",
+                  "he": "רשימה 3: קורסי בחירה",
+                  "en": "List 3: Elective courses",
                   "nested": [
                     {
                       "name": "CG00005698",
@@ -39389,6 +39886,33 @@
               "he": "כלים אנליטיים וחישוביים",
               "en": "Analytical and computational tools",
               "nested": [
+                {
+                  "name": "CG00005692",
+                  "he": "רשימה 1: כלים מתמטיים",
+                  "en": "List 1: Mathematical tools",
+                  "nested": [
+                    {
+                      "name": "CG00005700",
+                      "courses": "/_catalogs/2023_201/00002070/SC00001394_CG00005667/requirement/CG00005686/CG00005692/CG00005700/courses",
+                      "he": "אפשרויות בחירה בחובה",
+                      "en": "Mandatory Options"
+                    }
+                  ]
+                },
+                {
+                  "name": "CG00005693",
+                  "courses": "/_catalogs/2023_201/00002070/SC00001394_CG00005667/requirement/CG00005686/CG00005693/courses",
+                  "he": "רשימה 2: קורסי ליבה",
+                  "en": "List 2: Core courses",
+                  "nested": [
+                    {
+                      "name": "CG00005701",
+                      "courses": "/_catalogs/2023_201/00002070/SC00001394_CG00005667/requirement/CG00005686/CG00005693/CG00005701/courses",
+                      "he": "אפשרויות בחירה בחובה",
+                      "en": "Mandatory Options"
+                    }
+                  ]
+                },
                 {
                   "name": "CG00005694",
                   "he": "רשימה 1: כלים מתמטיים",
@@ -39887,10 +40411,10 @@
       },
       "SC00001441_CG00005968": {
         "en": "B.SC. IN PHYSICS (3 YEARS)",
-        "he": "בוגר למדעים בהנדסה בפיזיקה",
+        "he": "בוגר למדעים בפיזיקה",
         "requirement": {
           "name": "00002090/SC00001441_CG00005968",
-          "he": "בוגר למדעים בהנדסה בפיזיקה",
+          "he": "בוגר למדעים בפיזיקה",
           "en": "B.SC. IN PHYSICS (3 YEARS)",
           "nested": [
             {
@@ -40405,10 +40929,10 @@
       },
       "SC00001447_CG00001568": {
         "en": "B.SC. IN MATH. WITH COMP.SCIEN (3 YEAR)",
-        "he": "בוגר למדעים בהנדסה במתמט.עם מדעי המחשב",
+        "he": "בוגר למדעים במתמטיקה עם מדעי המחשב",
         "requirement": {
           "name": "00002100/SC00001447_CG00001568",
-          "he": "בוגר למדעים בהנדסה במתמט.עם מדעי המחשב",
+          "he": "בוגר למדעים במתמטיקה עם מדעי המחשב",
           "en": "B.SC. IN MATH. WITH COMP.SCIEN (3 YEAR)",
           "nested": [
             {
@@ -42546,6 +43070,25 @@
                   "courses": "/_catalogs/2023_201/00002160/SC00001385_CG00006307/requirement/CG00006308/CG00006314/courses",
                   "he": "מקצועות בחירה מפקולטות אחרות",
                   "en": "B.Sc. AE Electives from other Faculties"
+                },
+                {
+                  "name": "CG00009291",
+                  "he": "אפשרויות בחירה בחובה",
+                  "en": "Mandatory Options",
+                  "nested": [
+                    {
+                      "name": "CG00009293",
+                      "courses": "/_catalogs/2023_201/00002160/SC00001385_CG00006307/requirement/CG00006308/CG00009291/CG00009293/courses",
+                      "he": "אפשרות 1",
+                      "en": "Option 1"
+                    },
+                    {
+                      "name": "CG00009294",
+                      "courses": "/_catalogs/2023_201/00002160/SC00001385_CG00006307/requirement/CG00006308/CG00009291/CG00009294/courses",
+                      "he": "אפשרות 2",
+                      "en": "Option 2"
+                    }
+                  ]
                 }
               ]
             },
@@ -42631,6 +43174,25 @@
                   "courses": "/_catalogs/2023_201/00002160/SC00001385_CG00006307/requirement/CG00006315/CG00006314/courses",
                   "he": "מקצועות בחירה מפקולטות אחרות",
                   "en": "B.Sc. AE Electives from other Faculties"
+                },
+                {
+                  "name": "CG00009292",
+                  "he": "אפשרויות בחירה בחובה",
+                  "en": "Mandatory Options",
+                  "nested": [
+                    {
+                      "name": "CG00009295",
+                      "courses": "/_catalogs/2023_201/00002160/SC00001385_CG00006307/requirement/CG00006315/CG00009292/CG00009295/courses",
+                      "he": "אפשרות 1",
+                      "en": "Option 1"
+                    },
+                    {
+                      "name": "CG00009296",
+                      "courses": "/_catalogs/2023_201/00002160/SC00001385_CG00006307/requirement/CG00006315/CG00009292/CG00009296/courses",
+                      "he": "אפשרות 2",
+                      "en": "Option 2"
+                    }
+                  ]
                 }
               ]
             }
@@ -43051,7 +43613,7 @@
         }
       },
       "en": "Data and Decision Sciences",
-      "he": "הפקולטה למדעי הנתונים וההחלטות"
+      "he": "מדעי הנתונים וההחלטות"
     },
     "00002220": {
       "SC00001310_CG00008822": {
@@ -43599,7 +44161,7 @@
         }
       },
       "en": "Education in Science and Technology",
-      "he": "הפקולטה לחינוך למדע וטכנולוגיה"
+      "he": "חינוך למדע וטכנולוגיה"
     },
     "00002270": {
       "SC00001366_CG00006842": {
@@ -43888,6 +44450,11 @@
           "he": "דוקטור לרפואה",
           "en": "M.D.",
           "nested": [
+            {
+              "name": "CG00000175",
+              "he": "בחירה חופשית",
+              "en": "Free Electives"
+            },
             {
               "name": "CG00000290",
               "he": "קליני",
@@ -46428,10 +46995,10 @@
       },
       "SC00001396_CG00008827": {
         "en": "B.SC.ELEC.ENG-B.SC. IN PHYSICS(3 YEARS)\r\nB.SC. IN PHYSICS (3 YEARS)",
-        "he": "מוסמך למדעים בהנד.חשמל-בוגר למדעים בפיז\r\nבוגר למדעים בהנדסה בפיזיקה",
+        "he": "מוסמך למדעים בהנד.חשמל-בוגר למדעים בפיז\r\nבוגר למדעים בפיזיקה",
         "requirement": {
           "name": "00002050/SC00001396_CG00008827",
-          "he": "מוסמך למדעים בהנד.חשמל-בוגר למדעים בפיז\r\nבוגר למדעים בהנדסה בפיזיקה",
+          "he": "מוסמך למדעים בהנד.חשמל-בוגר למדעים בפיז\r\nבוגר למדעים בפיזיקה",
           "en": "B.SC.ELEC.ENG-B.SC. IN PHYSICS(3 YEARS)\r\nB.SC. IN PHYSICS (3 YEARS)",
           "nested": [
             {
@@ -48214,6 +48781,20 @@
                   "en": "List 3: Elective courses"
                 },
                 {
+                  "name": "CG00005676",
+                  "courses": "/_catalogs/2024_200/00002070/SC00001394_CG00005667/requirement/CG00005670/CG00005676/courses",
+                  "he": "רשימה 2: קורסי ליבה",
+                  "en": "List 2: Core courses",
+                  "nested": [
+                    {
+                      "name": "CG00005682",
+                      "courses": "/_catalogs/2024_200/00002070/SC00001394_CG00005667/requirement/CG00005670/CG00005676/CG00005682/courses",
+                      "he": "אפשרויות בחירה בחובה",
+                      "en": "Mandatory Options"
+                    }
+                  ]
+                },
+                {
                   "name": "CG00005681",
                   "courses": "/_catalogs/2024_200/00002070/SC00001394_CG00005667/requirement/CG00005670/CG00005681/courses",
                   "he": "רשימה 2: קורסי ליבה",
@@ -48280,6 +48861,40 @@
                       "en": "Mandatory Options"
                     }
                   ]
+                },
+                {
+                  "name": "CG00005694",
+                  "courses": "/_catalogs/2024_200/00002070/SC00001394_CG00005667/requirement/CG00005673/CG00005694/courses",
+                  "he": "רשימה 2: קורסי ליבה",
+                  "en": "List 2: Core courses",
+                  "nested": [
+                    {
+                      "name": "CG00005677",
+                      "courses": "/_catalogs/2024_200/00002070/SC00001394_CG00005667/requirement/CG00005673/CG00005694/CG00005677/courses",
+                      "he": "אפשרויות בחירה בחובה",
+                      "en": "Mandatory Options"
+                    },
+                    {
+                      "name": "CG00005678",
+                      "courses": "/_catalogs/2024_200/00002070/SC00001394_CG00005667/requirement/CG00005673/CG00005694/CG00005678/courses",
+                      "he": "אפשרויות בחירה בחובה",
+                      "en": "Mandatory Options"
+                    }
+                  ]
+                },
+                {
+                  "name": "CG00005695",
+                  "courses": "/_catalogs/2024_200/00002070/SC00001394_CG00005667/requirement/CG00005673/CG00005695/courses",
+                  "he": "רשימה 3: קורסי בחירה",
+                  "en": "List 3: Elective courses",
+                  "nested": [
+                    {
+                      "name": "CG00005680",
+                      "courses": "/_catalogs/2024_200/00002070/SC00001394_CG00005667/requirement/CG00005673/CG00005695/CG00005680/courses",
+                      "he": "אפשרויות בחירה בחובה",
+                      "en": "Mandatory Options"
+                    }
+                  ]
                 }
               ]
             },
@@ -48289,9 +48904,30 @@
               "en": "Chemical engineering",
               "nested": [
                 {
-                  "name": "CG00005688",
+                  "name": "CG00005679",
+                  "courses": "/_catalogs/2024_200/00002070/SC00001394_CG00005667/requirement/CG00005684/CG00005679/courses",
                   "he": "רשימה 1: כלים מתמטיים",
                   "en": "List 1: Mathematical tools",
+                  "nested": [
+                    {
+                      "name": "CG00005697",
+                      "courses": "/_catalogs/2024_200/00002070/SC00001394_CG00005667/requirement/CG00005684/CG00005679/CG00005697/courses",
+                      "he": "אפשרויות בחירה בחובה",
+                      "en": "Mandatory Options"
+                    }
+                  ]
+                },
+                {
+                  "name": "CG00005681",
+                  "courses": "/_catalogs/2024_200/00002070/SC00001394_CG00005667/requirement/CG00005684/CG00005681/courses",
+                  "he": "רשימה 2: קורסי ליבה",
+                  "en": "List 2: Core courses"
+                },
+                {
+                  "name": "CG00005688",
+                  "courses": "/_catalogs/2024_200/00002070/SC00001394_CG00005667/requirement/CG00005684/CG00005688/courses",
+                  "he": "רשימה 3: קורסי בחירה",
+                  "en": "List 3: Elective courses",
                   "nested": [
                     {
                       "name": "CG00005697",
@@ -48321,9 +48957,37 @@
               "en": "Pharmaceutical engineering biochemical",
               "nested": [
                 {
-                  "name": "CG00005691",
+                  "name": "CG00005689",
                   "he": "רשימה 1: כלים מתמטיים",
                   "en": "List 1: Mathematical tools",
+                  "nested": [
+                    {
+                      "name": "CG00005698",
+                      "courses": "/_catalogs/2024_200/00002070/SC00001394_CG00005667/requirement/CG00005685/CG00005689/CG00005698/courses",
+                      "he": "אפשרויות בחירה בחובה",
+                      "en": "Mandatory Options"
+                    }
+                  ]
+                },
+                {
+                  "name": "CG00005690",
+                  "courses": "/_catalogs/2024_200/00002070/SC00001394_CG00005667/requirement/CG00005685/CG00005690/courses",
+                  "he": "רשימה 2: קורסי ליבה",
+                  "en": "List 2: Core courses",
+                  "nested": [
+                    {
+                      "name": "CG00005699",
+                      "courses": "/_catalogs/2024_200/00002070/SC00001394_CG00005667/requirement/CG00005685/CG00005690/CG00005699/courses",
+                      "he": "אפשרויות בחירה",
+                      "en": "Options"
+                    }
+                  ]
+                },
+                {
+                  "name": "CG00005691",
+                  "courses": "/_catalogs/2024_200/00002070/SC00001394_CG00005667/requirement/CG00005685/CG00005691/courses",
+                  "he": "רשימה 3: קורסי בחירה",
+                  "en": "List 3: Elective courses",
                   "nested": [
                     {
                       "name": "CG00005698",
@@ -48360,6 +49024,34 @@
               "he": "כלים אנליטיים וחישוביים",
               "en": "Analytical and computational tools",
               "nested": [
+                {
+                  "name": "CG00005692",
+                  "courses": "/_catalogs/2024_200/00002070/SC00001394_CG00005667/requirement/CG00005686/CG00005692/courses",
+                  "he": "רשימה 1: כלים מתמטיים",
+                  "en": "List 1: Mathematical tools",
+                  "nested": [
+                    {
+                      "name": "CG00005700",
+                      "courses": "/_catalogs/2024_200/00002070/SC00001394_CG00005667/requirement/CG00005686/CG00005692/CG00005700/courses",
+                      "he": "אפשרויות בחירה בחובה",
+                      "en": "Mandatory Options"
+                    }
+                  ]
+                },
+                {
+                  "name": "CG00005693",
+                  "courses": "/_catalogs/2024_200/00002070/SC00001394_CG00005667/requirement/CG00005686/CG00005693/courses",
+                  "he": "רשימה 2: קורסי ליבה",
+                  "en": "List 2: Core courses",
+                  "nested": [
+                    {
+                      "name": "CG00005701",
+                      "courses": "/_catalogs/2024_200/00002070/SC00001394_CG00005667/requirement/CG00005686/CG00005693/CG00005701/courses",
+                      "he": "אפשרויות בחירה בחובה",
+                      "en": "Mandatory Options"
+                    }
+                  ]
+                },
                 {
                   "name": "CG00005694",
                   "he": "רשימה 1: כלים מתמטיים",
@@ -48857,10 +49549,10 @@
       },
       "SC00001441_CG00005968": {
         "en": "B.SC. IN PHYSICS (3 YEARS)",
-        "he": "בוגר למדעים בהנדסה בפיזיקה",
+        "he": "בוגר למדעים בפיזיקה",
         "requirement": {
           "name": "00002090/SC00001441_CG00005968",
-          "he": "בוגר למדעים בהנדסה בפיזיקה",
+          "he": "בוגר למדעים בפיזיקה",
           "en": "B.SC. IN PHYSICS (3 YEARS)",
           "nested": [
             {
@@ -49374,10 +50066,10 @@
       },
       "SC00001447_CG00001568": {
         "en": "B.SC. IN MATH. WITH COMP.SCIEN (3 YEAR)",
-        "he": "בוגר למדעים בהנדסה במתמט.עם מדעי המחשב",
+        "he": "בוגר למדעים במתמטיקה עם מדעי המחשב",
         "requirement": {
           "name": "00002100/SC00001447_CG00001568",
-          "he": "בוגר למדעים בהנדסה במתמט.עם מדעי המחשב",
+          "he": "בוגר למדעים במתמטיקה עם מדעי המחשב",
           "en": "B.SC. IN MATH. WITH COMP.SCIEN (3 YEAR)",
           "nested": [
             {
@@ -51433,7 +52125,7 @@
             },
             {
               "name": "CG00008132",
-              "he": "נתיב: אווירונאוטיקה",
+              "he": "נתיב: אוירונוטיקה",
               "en": "Path: Aeronautics",
               "nested": [
                 {
@@ -51510,14 +52202,33 @@
                 {
                   "name": "CG00008133",
                   "courses": "/_catalogs/2024_200/00002160/SC00001385_CG00008131/requirement/CG00008132/CG00008133/courses",
-                  "he": "מקצועות חובה באווירונאוטיקה",
+                  "he": "מקצועות חובה באוירונוטיקה",
                   "en": "Mandatory (Aeronautics Path)"
+                },
+                {
+                  "name": "CG00009291",
+                  "he": "אפשרויות בחירה בחובה",
+                  "en": "Mandatory Options",
+                  "nested": [
+                    {
+                      "name": "CG00009293",
+                      "courses": "/_catalogs/2024_200/00002160/SC00001385_CG00008131/requirement/CG00008132/CG00009291/CG00009293/courses",
+                      "he": "אפשרות 1",
+                      "en": "Option 1"
+                    },
+                    {
+                      "name": "CG00009294",
+                      "courses": "/_catalogs/2024_200/00002160/SC00001385_CG00008131/requirement/CG00008132/CG00009291/CG00009294/courses",
+                      "he": "אפשרות 2",
+                      "en": "Option 2"
+                    }
+                  ]
                 }
               ]
             },
             {
               "name": "CG00008134",
-              "he": "נתיב: אסטרונאוטיקה",
+              "he": "נתיב: אסטרונוטיקה",
               "en": "Path: Astronautics",
               "nested": [
                 {
@@ -51594,8 +52305,27 @@
                 {
                   "name": "CG00008135",
                   "courses": "/_catalogs/2024_200/00002160/SC00001385_CG00008131/requirement/CG00008134/CG00008135/courses",
-                  "he": "מקצועות חובה באסטרונאוטיקה",
+                  "he": "מקצועות חובה באסטרונוטיקה",
                   "en": "Mandatory (Astronautics Path)"
+                },
+                {
+                  "name": "CG00009292",
+                  "he": "אפשרויות בחירה בחובה",
+                  "en": "Mandatory Options",
+                  "nested": [
+                    {
+                      "name": "CG00009295",
+                      "courses": "/_catalogs/2024_200/00002160/SC00001385_CG00008131/requirement/CG00008134/CG00009292/CG00009295/courses",
+                      "he": "אפשרות 1",
+                      "en": "Option 1"
+                    },
+                    {
+                      "name": "CG00009296",
+                      "courses": "/_catalogs/2024_200/00002160/SC00001385_CG00008131/requirement/CG00008134/CG00009292/CG00009296/courses",
+                      "he": "אפשרות 2",
+                      "en": "Option 2"
+                    }
+                  ]
                 }
               ]
             }
@@ -52017,7 +52747,7 @@
         }
       },
       "en": "Data and Decision Sciences",
-      "he": "הפקולטה למדעי הנתונים וההחלטות"
+      "he": "מדעי הנתונים וההחלטות"
     },
     "00002220": {
       "SC00001310_CG00008822": {
@@ -52565,7 +53295,7 @@
         }
       },
       "en": "Education in Science and Technology",
-      "he": "הפקולטה לחינוך למדע וטכנולוגיה"
+      "he": "חינוך למדע וטכנולוגיה"
     },
     "00002270": {
       "SC00001366_CG00006842": {
@@ -52854,6 +53584,11 @@
           "he": "דוקטור לרפואה",
           "en": "M.D.",
           "nested": [
+            {
+              "name": "CG00000175",
+              "he": "בחירה חופשית",
+              "en": "Free Electives"
+            },
             {
               "name": "CG00000290",
               "he": "קליני",

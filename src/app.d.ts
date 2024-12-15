@@ -27,6 +27,18 @@ declare global {
 		// interface Platform {}
 	}
 
+	type I18N = {
+		/**
+		 * English translation key for the object.
+		 */
+		en: string;
+
+		/**
+		 * Hebrew translation key for the object.
+		 */
+		he: string;
+	};
+
 	type Requirement = {
 		name: string;
 

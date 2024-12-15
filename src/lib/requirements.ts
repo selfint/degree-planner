@@ -28,12 +28,14 @@ async function loadCourses(
 		hook = new Function('semesters', 'progress', src) as Requirement['hook'];
 	}
 
-	return {
+	const result: Requirement = {
 		...requirementHeader,
 		...(courses !== undefined && { courses }),
 		...(nested !== undefined && { nested }),
 		...(hook !== undefined && { hook: hook })
 	} as Requirement;
+
+	return result;
 }
 
 export async function loadCatalog(

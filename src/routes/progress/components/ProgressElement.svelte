@@ -43,7 +43,7 @@
 		);
 	}
 
-	const color = $derived(generateColor(requirementName));
+	const color = $derived(generateColor(name));
 	const offset = $derived(`${indent * 0.75}rem`);
 	const dir = $derived(content.lang.dir === 'rtl' ? 'right' : 'left');
 	const margin = $derived(`margin-${dir}: ${offset}`);
@@ -52,7 +52,7 @@
 	);
 
 	const section = $derived(
-		[...parents, requirementName]
+		[...parents, name]
 			.slice(1)
 			.map((t) => t.toLowerCase())
 			.join('_')
@@ -82,16 +82,8 @@
 	}
 
 	const requirementHasCourses = $derived(
-		getRequirement(degreeRequirements, requirementName)?.courses !== undefined
+		getRequirement(degreeRequirements, name)?.courses !== undefined
 	);
-
-	const requirementHasConditions = $derived.by(() => {
-		const requirement = getRequirement(degreeRequirements, requirementName);
-
-		return (
-			requirement?.points !== undefined || requirement?.count !== undefined
-		);
-	});
 
 	const targetRequirement = $derived(
 		getRequirement(degreeRequirements, planned.overflow?.target)
@@ -260,9 +252,7 @@
 			<span class="ms-2 text-nowrap">
 				<span style="color: {color}">{current?.amount.done ?? 0}</span>
 				/ {planned.amount.done}
-				{#if planned.amount.required > 0}
-					/ {planned.amount.required}
-				{/if}
+				/ {planned.amount.required}
 			</span>
 		</div>
 	{/if}
@@ -270,7 +260,7 @@
 		{#each planned.nested.options as nested, i}
 			<ProgressElement
 				indent={indent + 1}
-				parents={[...parents, requirementName]}
+				parents={[...parents, name]}
 				{degreeRequirements}
 				current={current?.nested?.options[i]}
 				planned={nested}

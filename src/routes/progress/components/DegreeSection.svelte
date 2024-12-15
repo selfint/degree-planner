@@ -25,8 +25,6 @@
 	let degree: string | undefined = $state(userDegree?.[2]);
 	let path: string | undefined = $state(userPath);
 
-	$inspect(path);
-
 	function arraysEqualIgnoreOrder(a: string[], b: string[]) {
 		if (a.length !== b.length) return false;
 		const sortedA = [...a].sort();
@@ -64,7 +62,6 @@
 		ud: Degree | undefined,
 		up: string | undefined
 	) {
-		console.log('here', p, up, p !== up);
 		return y !== ud?.[0] || f !== ud?.[1] || d !== ud?.[2] || p !== up;
 	}
 
@@ -124,8 +121,6 @@
 			// @ts-expect-error
 			catalogs[year][faculty][degree]['requirement']['nested'];
 
-		$inspect(entries);
-
 		return entries
 			.filter(({ en }) => en.toLowerCase().includes('path'))
 			.map(({ name, en, he }) => ({
@@ -143,7 +138,14 @@
 		<span class="text-content-secondary">
 			{content.lang.progress.year}
 		</span>
-		<Select bind:value={year}>
+		<Select
+			bind:value={year}
+			onchange={() => {
+				faculty = undefined;
+				degree = undefined;
+				path = undefined;
+			}}
+		>
 			{#if year === undefined}
 				<option value={undefined}>{content.lang.progress.selectYear}</option>
 			{/if}
@@ -158,7 +160,13 @@
 			<span class="text-content-secondary">
 				{content.lang.progress.faculty}
 			</span>
-			<Select bind:value={faculty}>
+			<Select
+				bind:value={faculty}
+				onchange={() => {
+					degree = undefined;
+					path = undefined;
+				}}
+			>
 				{#if userDegree === undefined && faculty === undefined}
 					<option value={undefined}>
 						{content.lang.progress.selectFaculty}
@@ -176,7 +184,12 @@
 			<span class="text-content-secondary">
 				{content.lang.progress.degree}
 			</span>
-			<Select bind:value={degree}>
+			<Select
+				bind:value={degree}
+				onchange={() => {
+					path = undefined;
+				}}
+			>
 				{#if userDegree === undefined && degree === undefined}
 					<option value={undefined}>
 						{content.lang.progress.selectDegree}
@@ -191,21 +204,24 @@
 		{/if}
 
 		{#if year !== undefined && faculty !== undefined && degree !== undefined}
-			<span class="text-content-secondary">
-				{content.lang.progress.path}
-			</span>
-			<Select bind:value={path}>
-				{#if path === undefined}
-					<option value={undefined}>
-						{content.lang.progress.selectPath}
-					</option>
-				{/if}
-				{#each getPaths(year, faculty, degree) as { display, value }}
-					<option {value}>
-						{display}
-					</option>
-				{/each}
-			</Select>
+			{@const paths = getPaths(year, faculty, degree)}
+			{#if paths.length > 0}
+				<span class="text-content-secondary">
+					{content.lang.progress.path}
+				</span>
+				<Select bind:value={path}>
+					{#if path === undefined}
+						<option value={undefined}>
+							{content.lang.progress.selectPath}
+						</option>
+					{/if}
+					{#each paths as { display, value }}
+						<option {value}>
+							{display}
+						</option>
+					{/each}
+				</Select>
+			{/if}
 		{/if}
 	</div>
 	<div class="mt-2">
@@ -238,9 +254,11 @@
 					</Button>
 				</a>
 			{/if}
-			<Button variant="secondary" onmousedown={onReset}>
-				{content.lang.progress.revert}
-			</Button>
+			{#if recommended !== undefined}
+				<Button variant="secondary" onmousedown={onReset}>
+					{content.lang.progress.revert}
+				</Button>
+			{/if}
 		{/if}
 	</div>
 </div>

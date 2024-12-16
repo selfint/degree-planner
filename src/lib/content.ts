@@ -121,7 +121,7 @@ export const cms = {
 			wishlist: 'Wish list'
 		},
 		catalog: {
-			wishlist: 'wish_list'
+			wishlist: 'Wish list'
 		},
 		course: {
 			median: 'Median',

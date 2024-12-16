@@ -239,8 +239,6 @@ async function parseCourse(course, current) {
  * @returns {Promise<string>}
  */
 async function main(top) {
-	console.error('Fetching semesters');
-
 	const semesterYears = await sap.getSemesterYears();
 	console.error(
 		semesterYears.length,
@@ -309,7 +307,6 @@ async function main(top) {
 
 const args = process.argv.slice(2);
 const top = parseInt(args[0], 10);
-// const top = 10;
 
 if (isNaN(top)) {
 	throw new Error('Invalid arguments');

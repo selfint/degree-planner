@@ -140,11 +140,21 @@ async function requestSAP(endpoint, queries, lang = 'en') {
  * Request a batch of queries to the Technion SAP API.
  * @param {string} endpoint
  * @param {Record<string, string>[]} queries
+ * @param {'en' | 'he'} lang
+ * @param {{maxRetry: number, maxBatchSize: number}} options
  * @returns {Promise<unknown[][]>} The results of the queries.
  */
-async function requestBatch(endpoint, queries, lang = 'en', maxRetry = 7) {
+async function requestBatch(
+	endpoint,
+	queries,
+	lang = 'en',
+	options = {
+		maxRetry: 7,
+		maxBatchSize: 500
+	}
+) {
 	// break the queries into batches if needed
-	const maxBatchSize = 500;
+	const { maxRetry = 7, maxBatchSize = 500 } = options;
 	const responses = [];
 
 	if (queries.length > maxBatchSize) {
@@ -499,7 +509,10 @@ export async function getCourseData(courses) {
 				'SmRelations',
 				'OrgText'
 			].join(',')
-		}))
+		})),
+		{
+			maxBatchSize: 100
+		}
 	).then((results) =>
 		results.map((r) =>
 			r.map((c) => {

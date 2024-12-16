@@ -17,7 +17,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          ref: 74-extract-catalog-data-from-sap-studyfields
+          ref: main
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -27,7 +27,7 @@ jobs:
       - name: Create branch
         run: |
           git checkout -b generate-data
-          git reset --hard origin/74-extract-catalog-data-from-sap-studyfields
+          git reset --hard origin/main
 
       - name: Update courseData.json
         run: node scripts/generateCourseData.mjs 10000 > src/lib/assets/courseData.json
@@ -61,6 +61,6 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           DATE=$(date +'%d-%m-%Y')
-          gh pr create --base 74-extract-catalog-data-from-sap-studyfields --head generate-data \
+          gh pr create --base main --head generate-data \
           --title "[Automated] Update course data $DATE" \
           --body "This automated PR updates the \`src/lib/assets/courseData.json\` file."

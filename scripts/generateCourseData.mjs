@@ -245,6 +245,13 @@ async function main(top) {
 		`Semester years: ${semesterYears.map(({ PiqSession, PiqYear }) => `${sap.getSemesterName(PiqSession).en} ${PiqYear}`).join(', ')}`
 	);
 	const currentYear = semesterYears.find(({ IsCurrent }) => IsCurrent === 0);
+	if (currentYear === undefined) {
+		console.error(`Current year not found`);
+	} else {
+		console.error(
+			`Current year: ${currentYear.PiqYear} ${sap.getSemesterName(currentYear.PiqSession).en}`
+		);
+	}
 
 	let courseHeaders = (await sap.getCourses(semesterYears, top)).flat();
 	console.error(courseHeaders.length, `Total course IDs`);

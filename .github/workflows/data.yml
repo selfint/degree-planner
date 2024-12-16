@@ -5,7 +5,6 @@ on:
     inputs:
       start:
         description: 'Number of records to start'
-        required: true
         default: '10000'
   schedule:
     - cron: '0 0 * * 5'

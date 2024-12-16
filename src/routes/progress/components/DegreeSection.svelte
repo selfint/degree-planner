@@ -152,11 +152,13 @@
 	}
 </script>
 
-<div>
+<div class="me-3">
 	<h2 class="text-lg font-medium text-content-primary">
 		{content.lang.progress.degree}
 	</h2>
-	<div class="grid w-fit grid-cols-[auto_auto] items-baseline gap-x-2 gap-y-1">
+	<div
+		class="grid w-fit max-w-full grid-cols-[auto_auto] items-baseline gap-x-2 gap-y-1"
+	>
 		<span class="text-content-secondary">
 			{content.lang.progress.year}
 		</span>
@@ -172,8 +174,12 @@
 				<option value={undefined}>{content.lang.progress.selectYear}</option>
 			{/if}
 			{#if years !== undefined}
-				{#each years as year}
-					<option value={year}>{year.replaceAll('_', '/')}</option>
+				{#each years as yearSemester}
+					{@const [year, semester] = yearSemester.split('_')}
+					<option value={yearSemester}>
+						{year}
+						{content.lang.common.seasons[parseInt(semester) - 200]}
+					</option>
 				{/each}
 			{/if}
 		</Select>
@@ -189,7 +195,7 @@
 					path = undefined;
 				}}
 			>
-				{#if userDegree === undefined && faculty === undefined}
+				{#if faculty === undefined}
 					<option value={undefined}>
 						{content.lang.progress.selectFaculty}
 					</option>
@@ -212,7 +218,7 @@
 					path = undefined;
 				}}
 			>
-				{#if userDegree === undefined && degree === undefined}
+				{#if degree === undefined}
 					<option value={undefined}>
 						{content.lang.progress.selectDegree}
 					</option>

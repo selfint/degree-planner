@@ -77,4 +77,11 @@ type SemesterNumber = '200' | '201' | '202';
 type SemesterYear = {
 	PiqSession: SemesterNumber;
 	PiqYear: string;
+	IsCurrent: 0 | -1;
+};
+
+type CourseHeader = {
+	Otjid: string;
+	Peryr: string;
+	Perid: string;
 };

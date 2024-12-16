@@ -1,85 +1,6 @@
 /// <reference path="../src/app.d.ts"/>
 
-/**
- * @param {number} bytes
- * @param {number} decimals
- * @returns
- */
-function formatBytes(bytes, decimals = 2) {
-	if (bytes === 0) return '0 Bytes';
-	const k = 1024;
-	const dm = decimals < 0 ? 0 : decimals;
-	const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-
-	const i = Math.floor(Math.log(bytes) / Math.log(k));
-
-	return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-}
-
-/**
- * Request a batch of queries to the Technion SAP API.
- * @param {unknown[]} endpoint
- * @param {unknown[]} queries
- * @returns {Promise<unknown[][] | undefined>} The results of the queries.
- */
-async function requestBatch(endpoint, queries) {
-	const url =
-		'https://portalex.technion.ac.il/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/$batch';
-
-	const boundary = 'batch_1d12-afbf-e3c7';
-	const headers = {
-		'Accept-Language': 'he',
-		'User-Agent': '',
-		'Content-Type': `multipart/mixed;boundary=${boundary}`
-	};
-
-	function buildRequest(query) {
-		return [
-			'Content-Type: application/http\r\n',
-			`GET ${endpoint}?${new URLSearchParams(query).toString()} HTTP/1.1`,
-			'Accept: application/json',
-			'Accept-Language: he\r\n\r\n\r\n'
-		].join('\r\n');
-	}
-
-	const body = queries.reduceRight(
-		(acc, q) => `--${boundary}\r\n${buildRequest(q)}` + acc,
-		`--${boundary}--\r\n`
-	);
-
-	const response = await fetch(url, {
-		method: 'POST',
-		headers,
-		body
-	});
-	const contentLength = response.headers.get('Content-Length');
-	const size = formatBytes(parseInt(contentLength, 10));
-
-	console.error(`Got response: status=${response.status} size=${size}`);
-
-	if (!response.ok) {
-		console.log(await response.text());
-		return undefined;
-	}
-
-	const text = await response.text();
-	const responseBoundary = response.headers
-		.get('Content-Type')
-		.split('boundary=')[1];
-
-	const blobs = text.split(`--${responseBoundary}`).slice(1, -1);
-
-	if (blobs.length !== queries.length) {
-		throw new Error(text);
-	}
-
-	return blobs.map((blob) => {
-		const lines = blob.trim().split('\r\n');
-		const results = JSON.parse(lines[lines.length - 1]);
-
-		return results['d']['results'];
-	});
-}
+import * as sap from './SAPClient.mjs';
 
 /**
  * Get the about information of a course.
@@ -287,7 +208,7 @@ export async function getMedian(course) {
  *
  * @param {Object} course raw course object
  * @param {boolean} current is the course in the current semester
- * @returns {Course}
+ * @returns {Promise<Course>}
  */
 async function parseCourse(course, current) {
 	const code = course.Otjid;
@@ -314,140 +235,67 @@ async function parseCourse(course, current) {
 
 /**
  *
- * @param {[string, [string, string, boolean]][]} batch
- * @returns {Promise<Course[] | undefined>}
- */
-async function fetchBatch(batch) {
-	console.error(`Fetching data for ${batch.length} courses`);
-
-	const queries = batch.map(([code, [peryr, perid]]) => ({
-		$expand: 'Responsible,Exams,SmRelations,SmPrereq',
-		$filter: `Otjid eq '${code}' and Peryr eq '${peryr}' and Perid eq '${perid}'`,
-		$select: [
-			'Otjid',
-			'Name',
-			'Points',
-			'StudyContentDescription',
-			'ZzOfferpattern',
-			'Exams',
-			'SmPrereq',
-			'SmRelations',
-			'OrgText'
-		].join(',')
-	}));
-	const results = await requestBatch('SmObjectSet', queries);
-	if (results === undefined) {
-		console.error(
-			`Failed to fetch data for courses: ${JSON.stringify(batch.map(([code]) => code))}`
-		);
-
-		return undefined;
-	}
-
-	return await Promise.all(
-		results
-			.flat()
-			.map((course, index) => parseCourse(course, batch[index][1][2]))
-	);
-}
-
-/**
- *
- * @param {number} skip
  * @param {number} top
  * @returns {Promise<string>}
  */
-async function main(skip, top) {
+async function main(top) {
 	console.error('Fetching semesters');
 
-	/** @type {[string, string, boolean][]} */
-	const filters = await requestBatch('SemesterSet', [
-		{
-			$select: 'PiqYear,PiqSession,IsCurrent'
-		}
-	]).then((results) =>
-		results[0].map((c) => [
-			c.PiqYear,
-			c.PiqSession,
-			// TODO: what is 208?
-			c.IsCurrent !== -1 && c.PiqSession !== '208'
-		])
+	const semesterYears = await sap.getSemesterYears();
+	console.error(
+		semesterYears.length,
+		`Semester years: ${semesterYears.map(({ PiqSession, PiqYear }) => `${sap.getSemesterName(PiqSession).en} ${PiqYear}`).join(', ')}`
 	);
+	const currentYear = semesterYears.find(({ IsCurrent }) => IsCurrent === 0);
 
-	console.error(`Got ${filters.length} semesters:\n${filters.join('\n')}`);
-	console.error('Fetching course codes');
+	let courseHeaders = (await sap.getCourses(semesterYears, top)).flat();
+	console.error(courseHeaders.length, `Total course IDs`);
 
-	/** @type {string[][]} */
-	const yearCodes = await requestBatch(
-		'SmObjectSet',
-		filters.map(([peryr, perid]) => ({
-			$skip: skip.toString(),
-			$top: top.toString(),
-			$select: 'Otjid',
-			// $filter: `Peryr eq '${peryr}' and Perid eq '${perid}' and Otjid eq 'SM03240033'`
-			$filter: `Peryr eq '${peryr}' and Perid eq '${perid}' `
-		}))
-	).then((results) => results.map((r) => r.map((c) => c.Otjid)));
-
-	/** @type {Map<string, [string, string, boolean]>} */
+	// deduplicate course headers, keep latest (year, semester) for each Otjid
+	/** @type {Map<string, CourseHeader>} */
 	const codesMap = new Map();
-	for (let i = 0; i < filters.length; i++) {
-		const filter = filters[i];
-		const courses = yearCodes[i];
+	for (const header of courseHeaders) {
+		const value = codesMap.get(header.Otjid);
+		if (value === undefined) {
+			codesMap.set(header.Otjid, header);
+		} else {
+			const { Peryr: currentYear, Perid: currentSession } = value;
 
-		// TODO: Handle multiple filters more elegantly
-		for (const code of courses) {
-			if (!codesMap.has(code)) {
-				codesMap.set(code, filter);
+			// update if (header > current)
+			if (
+				currentYear < header.Peryr ||
+				(currentYear === header.Peryr && currentSession < header.Perid)
+			) {
+				codesMap.set(header.Otjid, header);
 			}
 		}
 	}
-
-	const codes = Array.from(codesMap.entries());
-
-	console.error(
-		`Got ${codes.filter(([, [, , current]]) => current).length} current courses`
-	);
-	console.error(`Got ${codes.length} total courses`);
-
-	const batchSize = 100;
-
-	const courseData = [];
-	for (let i = 0; i < codes.length; i += batchSize) {
-		console.error(
-			`Fetching batch ${i / batchSize + 1}/${Math.ceil(codes.length / batchSize)}`
-		);
-		let courses = await fetchBatch(codes.slice(i, i + batchSize));
-
-		let retry = 1;
-		let timeoutMS = 1000 * 5;
-		const maxRetries = 5;
-		while (courses === undefined) {
-			console.error(
-				`Retry ${retry}/${maxRetries}, waiting ${timeoutMS / 1000}s`
-			);
-			await new Promise((resolve) => setTimeout(resolve, timeoutMS));
-			courses = await fetchBatch(codes.slice(i, i + batchSize));
-
-			timeoutMS *= 2;
-
-			retry++;
-
-			if (retry >= maxRetries) {
-				throw new Error('Failed to fetch batch');
-			}
-		}
-
-		console.error(`Got ${courses.length} courses`);
-		courseData.push(...courses);
-	}
-
-	const uniqueCourses = [...new Set(courseData.map((c) => c.code))];
-	uniqueCourses.sort();
+	courseHeaders = Array.from(codesMap.values());
 
 	console.error(
-		`Generated data for ${uniqueCourses.length} unique courses:\n${uniqueCourses.join(',')}`
+		courseHeaders.length,
+		`Unique course IDs: ${courseHeaders.map(({ Otjid }) => Otjid).join(', ')}`
 	);
+
+	const rawData = (await sap.getCourseData(courseHeaders)).flat();
+
+	const courseData = await Promise.all(
+		rawData.map(async (raw) => {
+			const current =
+				currentYear !== undefined &&
+				raw.Peryr === currentYear.Peryr &&
+				raw.Perid === currentYear.Perid;
+			const course = await parseCourse(raw, current);
+			return course;
+		})
+	);
+
+	console.error(
+		courseData.length,
+		`Parsed courses: ${courseData.map(({ code }) => code).join(', ')}`
+	);
+
+	console.error('SAP Usage:', JSON.stringify(sap.getUsage()));
 
 	const courseDataMap = [];
 	for (const course of courseData) {
@@ -460,12 +308,11 @@ async function main(skip, top) {
 }
 
 const args = process.argv.slice(2);
-const skip = parseInt(args[0], 10);
+const top = parseInt(args[0], 10);
+// const top = 10;
 
-const top = parseInt(args[1], 10);
-
-if (isNaN(skip) || isNaN(top)) {
+if (isNaN(top)) {
 	throw new Error('Invalid arguments');
 }
 
-console.log(JSON.stringify(await main(skip, top), null, 1));
+console.log(JSON.stringify(await main(top), null, 1));

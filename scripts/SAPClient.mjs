@@ -155,19 +155,22 @@ async function requestBatch(endpoint, queries, lang = 'en', maxRetry = 7) {
 
 	for (let i = 0; i < queries.length; i += maxBatchSize) {
 		const batch = queries.slice(i, i + maxBatchSize);
+		console.error(
+			`Requesting batch ${i / maxBatchSize + 1}/${Math.ceil(queries.length / maxBatchSize)}`
+		);
 		let response = await requestSAP(endpoint, batch, lang);
 		let retry = 0;
 		let timeoutMS = 1000;
 		while (response === undefined) {
 			retry++;
 			if (retry > maxRetry) {
-				const msg = `Failed to fetch batch ${i / maxBatchSize + 1}/${queries.length / maxBatchSize}`;
+				const msg = `Failed to fetch batch ${i / maxBatchSize + 1}/${Math.ceil(queries.length / maxBatchSize)}`;
 				console.error(msg);
 				throw new Error(msg);
 			}
 
 			console.error(
-				`Retrying request ${i / maxBatchSize + 1}/${queries.length / maxBatchSize} (${retry}/${maxRetry})`
+				`Retrying request ${i / maxBatchSize + 1}/${Math.ceil(queries.length / maxBatchSize)} (${retry}/${maxRetry})`
 			);
 			await new Promise((resolve) => setTimeout(resolve, timeoutMS));
 			timeoutMS *= 2;
@@ -308,7 +311,7 @@ export async function getSemesterYears() {
 		{
 			$skip: '0',
 			$top: '10000',
-			$select: 'PiqYear,PiqSession'
+			$select: 'PiqYear,PiqSession,IsCurrent'
 		}
 	]);
 
@@ -448,4 +451,61 @@ export function getSemesterName(semester) {
 	]);
 
 	return semesterNames.get(semester);
+}
+
+/**
+ *
+ * @param {SemesterYear[]} semesterYears
+ * @param {number} top
+ * @returns {Promise<CourseHeader[][]>}
+ */
+export async function getCourses(semesterYears, top = 10000) {
+	return await requestBatch(
+		'SmObjectSet',
+		semesterYears.map(({ PiqYear, PiqSession }) => ({
+			$skip: 0,
+			$top: top,
+			$select: 'Otjid,Peryr,Perid',
+			$filter: `Peryr eq '${PiqYear}' and Perid eq '${PiqSession}' `
+		}))
+	).then((results) =>
+		results.map((r) =>
+			r.map((c) => {
+				delete c.__metadata;
+				return c;
+			})
+		)
+	);
+}
+
+/**
+ * @param {CourseHeader[]} courses
+ * @returns {Promise<unknown[][]>}
+ */
+export async function getCourseData(courses) {
+	return await requestBatch(
+		'SmObjectSet',
+		courses.map(({ Otjid, Peryr, Perid }) => ({
+			$expand: 'Responsible,Exams,SmRelations,SmPrereq',
+			$filter: `Otjid eq '${Otjid}' and Peryr eq '${Peryr}' and Perid eq '${Perid}'`,
+			$select: [
+				'Otjid',
+				'Name',
+				'Points',
+				'StudyContentDescription',
+				'ZzOfferpattern',
+				'Exams',
+				'SmPrereq',
+				'SmRelations',
+				'OrgText'
+			].join(',')
+		}))
+	).then((results) =>
+		results.map((r) =>
+			r.map((c) => {
+				delete c.__metadata;
+				return c;
+			})
+		)
+	);
 }

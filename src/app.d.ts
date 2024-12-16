@@ -192,6 +192,14 @@ declare global {
 		requirement: Requirement;
 	};
 
+	type UserDataV1 = {
+		semesters: string[][];
+		currentSemester: number;
+		wishlist: string[];
+		username?: string;
+		degree?: Degree;
+	};
+
 	type UserData = {
 		semesters: string[][];
 		currentSemester: number;

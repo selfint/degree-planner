@@ -94,8 +94,10 @@ const loaders = [
 
 const migrations = [
 	function migrate_0_1(v0: UserData): UserData {
-		// save new user data
+		// update version
 		localStorage.setItem('version', '1');
+
+		// save new user data
 		localStorage.setItem('userData', JSON.stringify(v0));
 
 		// clear old localStorage
@@ -108,13 +110,51 @@ const migrations = [
 		// other than that data is the same
 		return v0;
 	},
-	function migrate_1_2(v1: UserData): UserData {
-		// save new user data
+	function migrate_1_2(v1: UserDataV1): UserData {
+		// update version
 		localStorage.setItem('version', '2');
-		localStorage.setItem('userData', JSON.stringify(v1));
+
+		const v2: UserData = { ...v1 };
+
+		// migrate degree and path
+		if (v1.degree !== undefined) {
+			const degree = v1.degree;
+
+			degree[0] = '2024_200';
+
+			const faculty = degree[1] as string;
+			if (faculty === 'computer_science') {
+				degree[1] = '00002120';
+				const path = degree[2] as string;
+
+				if (path === '4_year') {
+					degree[2] = 'SC00001313_CG00006209';
+					v2.path = 'CG00006210';
+				} else if (path === 'Computer_Engineering') {
+					degree[2] = 'SC00001306_CG00006135';
+					// no path
+					v2.path = undefined;
+				} else if (path === 'ML_&_data_analysis') {
+					degree[2] = 'SC00001314_CG00006245';
+					v2.path = 'CG00006253';
+				} else {
+					// default to 3 year path
+					degree[2] = 'SC00001320_CG00006382';
+					v2.path = 'CG00006246';
+				}
+			} else {
+				degree[1] = '00002080';
+				degree[2] = 'SC00001391_CG00006095';
+			}
+
+			v2.degree = degree;
+		}
+
+		// save new user data
+		localStorage.setItem('userData', JSON.stringify(v2));
 
 		// other than that data is the same
-		return v1;
+		return v2;
 	}
 ];
 

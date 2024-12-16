@@ -35,7 +35,7 @@ jobs:
           git reset --hard origin/74-extract-catalog-data-from-sap-studyfields
 
       - name: Update courseData.json
-        run: node scripts/generateCourseData.js ${{ github.event.inputs.start || '10000' }} > src/lib/assets/courseData.json
+        run: node scripts/generateCourseData.mjs ${{ github.event.inputs.start || '10000' }} > src/lib/assets/courseData.json
 
       - name: Update static/_catalogs
         run: |

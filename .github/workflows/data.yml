@@ -3,10 +3,6 @@ name: Data
 on:
   workflow_dispatch:
     inputs:
-      skip:
-        description: 'Number of records to skip'
-        required: true
-        default: '0'
       start:
         description: 'Number of records to start'
         required: true
@@ -39,7 +35,7 @@ jobs:
           git reset --hard origin/74-extract-catalog-data-from-sap-studyfields
 
       - name: Update courseData.json
-        run: node scripts/generateCourseData.js ${{ github.event.inputs.skip || '0' }} ${{ github.event.inputs.start || '10000' }} > src/lib/assets/courseData.json
+        run: node scripts/generateCourseData.js ${{ github.event.inputs.start || '10000' }} > src/lib/assets/courseData.json
 
       - name: Update static/_catalogs
         run: |

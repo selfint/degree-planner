@@ -112,7 +112,7 @@
 		/>
 	</div>
 
-	{#if user.username !== undefined}
+	{#if user.degree !== undefined}
 		<div class="mb-4 ms-3">
 			<SemesterSection
 				{semesterChoice}

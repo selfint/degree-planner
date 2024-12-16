@@ -38,12 +38,6 @@
 		)
 	);
 
-	$effect(() => {
-		if (year === undefined) {
-			year = years[0];
-		}
-	});
-
 	function choiceIsValid(
 		y: string | undefined,
 		f: string | undefined,
@@ -258,7 +252,7 @@
 				{#if choiceIsValid(year, faculty, degree, path)}
 					<Button
 						variant="primary"
-						onmousedown={() => {
+						onclick={() => {
 							// @ts-expect-error We validated the choice in `choiceIsValid`
 							const didChange = onChange([year, faculty, degree], path);
 
@@ -270,20 +264,20 @@
 						{content.lang.progress.save}
 					</Button>
 				{/if}
-				<Button variant="secondary" onmousedown={reset}>
+				<Button variant="secondary" onclick={reset}>
 					{content.lang.progress.cancel}
 				</Button>
 			</div>
 		{:else if !onRecommended}
 			{#if shareLink !== undefined}
 				<a href={shareLink} target="_blank" class="text-content-secondary">
-					<Button variant="primary" onmousedown={() => {}}>
+					<Button variant="primary" onclick={() => {}}>
 						{content.lang.progress.share}
 					</Button>
 				</a>
 			{/if}
 			{#if recommended !== undefined}
-				<Button variant="secondary" onmousedown={onReset}>
+				<Button variant="secondary" onclick={onReset}>
 					{content.lang.progress.revert}
 				</Button>
 			{/if}

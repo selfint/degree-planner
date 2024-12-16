@@ -13,6 +13,6 @@
 </script>
 
 <h2 class="mb-1 ms-3 text-lg font-medium text-content-primary">
-	{content.lang.progress.requirements}
+	{content.lang.progress.progress}
 </h2>
 <ProgressElement indent={1} {degreeRequirements} {current} {planned} />

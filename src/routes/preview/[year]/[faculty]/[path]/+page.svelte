@@ -83,7 +83,7 @@
 		<h1 class="mb-2 text-lg font-medium text-content-primary">
 			{getDegreeName(data.degreeData.degree, data.userPath)}
 		</h1>
-		<Button variant="primary" onmousedown={importPlan}>
+		<Button variant="primary" onclick={importPlan}>
 			{content.lang.preview.copy}
 		</Button>
 	</div>

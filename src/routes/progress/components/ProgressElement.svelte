@@ -236,26 +236,6 @@
 		</CourseRow>
 	</div>
 
-	{#if planned.nested.options.length > 0}
-		<div
-			class="mb-1 flex flex-row items-center pe-2 text-content-secondary"
-			style={progressStyle}
-		>
-			<span class="me-2">{content.lang.progress.choice}</span>
-			<ProgressBar
-				{color}
-				value={current?.amount.done ?? 0}
-				value2={planned.amount.done}
-				max={planned.amount.required}
-				dir={content.lang.dir}
-			/>
-			<span class="ms-2 text-nowrap">
-				<span style="color: {color}">{current?.amount.done ?? 0}</span>
-				/ {planned.amount.done}
-				/ {planned.amount.required}
-			</span>
-		</div>
-	{/if}
 	<div class="mt-2">
 		{#each planned.nested.options as nested, i}
 			<ProgressElement

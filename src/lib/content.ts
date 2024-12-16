@@ -112,7 +112,7 @@ export const cms = {
 			choice: 'Choice',
 			overflowed: 'Overflowed',
 			to: 'to',
-			requirements: 'Requirements',
+			progress: 'Progress',
 			current: 'Current',
 			total: 'Total',
 			revert: 'Revert to recommended'
@@ -169,7 +169,7 @@ export const cms = {
 			searchPlaceholder: 'חיפוש',
 			catalog: 'קטלוג',
 			plan: 'תוכנית',
-			progress: 'דרישות',
+			progress: 'התקדמות',
 			name: 'PlanIt.'
 		},
 		footer: {
@@ -260,7 +260,7 @@ export const cms = {
 			choice: 'בחירה',
 			overflowed: 'נוספו',
 			to: 'ל',
-			requirements: 'דרישות',
+			progress: 'התקדמות',
 			current: 'נוכחי',
 			total: 'סה"כ',
 			revert: 'חזור למומלצת'

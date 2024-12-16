@@ -46,7 +46,7 @@ jobs:
             set -e
             node scripts/generateCatalogsRaw.mjs
             node scripts/generateCatalogsStatic.mjs
-            node scripts/generateCatalogsManifest.mjs
+            node scripts/generateCatalogsManifest.js
 
       - name: Check if data has changed
         run: |

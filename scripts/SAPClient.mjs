@@ -141,7 +141,7 @@ async function requestSAP(endpoint, queries, lang = 'en') {
  * @param {string} endpoint
  * @param {Record<string, string>[]} queries
  * @param {'en' | 'he'} lang
- * @param {{maxRetry: number, maxBatchSize: number}} options
+ * @param {{maxRetry?: number, maxBatchSize?: number}} options
  * @returns {Promise<unknown[][]>} The results of the queries.
  */
 async function requestBatch(
@@ -154,12 +154,15 @@ async function requestBatch(
 	}
 ) {
 	// break the queries into batches if needed
-	const { maxRetry = 7, maxBatchSize = 500 } = options;
+	let { maxRetry, maxBatchSize } = options;
+	maxRetry ??= 7;
+	maxBatchSize ??= 500;
+
 	const responses = [];
 
 	if (queries.length > maxBatchSize) {
 		console.error(
-			`Requesting ${queries.length} queries in ${Math.ceil(queries.length / maxBatchSize)} batches`
+			`Requesting '${endpoint}' with ${queries.length} queries in ${Math.ceil(queries.length / maxBatchSize)} batches`
 		);
 	}
 
@@ -510,6 +513,7 @@ export async function getCourseData(courses) {
 				'OrgText'
 			].join(',')
 		})),
+		'en',
 		{
 			maxBatchSize: 100
 		}

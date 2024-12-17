@@ -3,10 +3,7 @@
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import CourseRow from '$lib/components/CourseRow.svelte';
 
-	import { getCourseLists } from '$lib/requirements';
 	import { content, user } from '$lib/stores.svelte';
-
-	import RequirementsElement from '$lib/components/RequirementsElement.svelte';
 
 	type Props = {
 		titles: Requirement[];
@@ -69,38 +66,38 @@
 	const seasonEmojis = ['❄️', '🌿', '☀️'];
 </script>
 
-<div {id} class="mb-4 min-h-[118px] max-w-full">
-	{#each groups as [scores, group]}
-		<div class="mb-4">
+<div {id} class="mb-2 min-h-[118px] max-w-full">
+	{#each groups as [scores, group], index}
+		<div class="mb-2">
 			<h1
-				class="mb-1 me-3 ms-3 flex flex-row items-baseline text-lg font-medium text-content-primary"
+				class="text-md mb-2 me-3 ms-3 flex flex-row items-baseline font-medium text-content-primary"
 			>
-				{#if colorize}
-					<RequirementsElement requirements={[titles]} />
-				{:else}
-					<div class="me-2 flex flex-row flex-wrap items-baseline">
-						{#each titles as title}
-							<span class="me-1">
-								{content.lang.lang === 'he' ? title.he : title.en}
-							</span>
-						{/each}
-					</div>
-				{/if}
+				<div class="me-2 flex flex-col flex-wrap items-start gap-y-1">
+					{#each titles as title}
+						<span class="me-1 leading-none">
+							{content.lang.lang === 'he' ? title.he : title.en}
+						</span>
+					{/each}
+				</div>
 
 				<div class="flex-grow sm:ms-3 sm:flex-grow-0"></div>
-				<span dir="ltr" class="text-nowrap font-normal text-content-secondary">
-					{scores}
+				<span
+					class="flex flex-row text-nowrap font-normal text-content-secondary"
+				>
+					<span>
+						{scores}
+					</span>
+					{#if groups.length > 1}
+						<span class="ms-1">
+							({index + 1}/{groups.length})
+						</span>
+					{/if}
 				</span>
 			</h1>
 			<CourseRow courses={group}>
 				{#snippet children({ course })}
 					<a href={`/course/${course.code}`}>
-						<CourseElement
-							{course}
-							lists={getCourseLists(requirements, course.code).filter(
-								(list) => !list.every((req, i) => req.name === titles[i]?.name)
-							)}
-						>
+						<CourseElement {course}>
 							{#snippet note()}
 								{@const index = getCourseSemester(course)}
 								{#if index !== undefined}

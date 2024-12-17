@@ -90,27 +90,29 @@
 
 <div class="mt-3">
 	<h1 class="ms-3 text-lg font-medium text-content-primary">
-		<span dir="rtl">
-			{course.name ?? code}
-		</span>
-
-		<a
-			href={`https://portalex.technion.ac.il/ovv/?sap-theme=sap_belize&sap-language=HE&sap-ui-language=HE#/details/2024/200/SM/${code}`}
-			target="_blank"
-		>
-			<span class="text-content-secondary">
-				{course.code}
+		<div class="flex flex-row flex-wrap items-center gap-x-1 leading-tight">
+			<div class="m-0 mb-1 mt-1 p-0">
+				<div
+					style="background: {generateCourseColor(course)}"
+					class="h-4 w-4 rounded-full"
+				></div>
+			</div>
+			<span dir="rtl">
+				{course.name ?? code}
 			</span>
-		</a>
+
+			<a
+				href={`https://portalex.technion.ac.il/ovv/?sap-theme=sap_belize&sap-language=HE&sap-ui-language=HE#/details/2024/200/SM/${code}`}
+				target="_blank"
+			>
+				<span class="text-content-secondary">
+					{course.code}
+				</span>
+			</a>
+		</div>
 	</h1>
 
 	<div class="mb-4 ms-3 flex flex-row flex-wrap items-center space-y-1">
-		<div class="m-0 me-1 mt-1 p-0">
-			<div
-				style="background: {generateCourseColor(course)}"
-				class="h-6 w-6 rounded-full"
-			></div>
-		</div>
 		<RequirementsElement requirements={courseMemberRequirements} />
 	</div>
 
@@ -196,10 +198,7 @@
 						<div class="flex flex-col space-y-1">
 							{#each group.map(getCourseData) as dep}
 								<a class="pe-2" href={`/course/${dep.code}`}>
-									<CourseElement
-										course={dep}
-										lists={getCourseLists(requirements, dep.code)}
-									/>
+									<CourseElement course={dep} />
 								</a>
 							{/each}
 						</div>
@@ -216,10 +215,7 @@
 					<CourseRow resetScroll courses={course.connections?.adjacent ?? []}>
 						{#snippet children({ course })}
 							<a href={`/course/${course.code}`}>
-								<CourseElement
-									{course}
-									lists={getCourseLists(requirements, course.code)}
-								/>
+								<CourseElement {course} />
 							</a>
 						{/snippet}
 					</CourseRow>
@@ -234,10 +230,7 @@
 				<CourseRow resetScroll courses={course.connections?.exclusive ?? []}>
 					{#snippet children({ course })}
 						<a href={`/course/${course.code}`}>
-							<CourseElement
-								{course}
-								lists={getCourseLists(requirements, course.code)}
-							/>
+							<CourseElement {course} />
 						</a>
 					{/snippet}
 				</CourseRow>
@@ -251,10 +244,7 @@
 				<div class="flex flex-row flex-wrap">
 					{#each dependants as c}
 						<a class="pb-4 pe-2" href={`/course/${c.code}`}>
-							<CourseElement
-								course={c}
-								lists={getCourseLists(requirements, c.code)}
-							/>
+							<CourseElement course={c} />
 						</a>
 					{/each}
 				</div>

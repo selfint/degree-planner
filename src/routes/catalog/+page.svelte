@@ -30,7 +30,12 @@
 	/>
 	{#each lists as list}
 		{#if list.courses.length > 0}
-			<CourseGroup titles={list.path} codes={list.courses} {requirements} />
+			<CourseGroup
+				colorize={false}
+				titles={list.path}
+				codes={list.courses}
+				{requirements}
+			/>
 		{/if}
 	{/each}
 </div>

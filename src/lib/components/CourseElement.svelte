@@ -5,26 +5,17 @@
 	import type { ScheduleError } from '$lib/schedule';
 	import CourseWidth from './CourseWidth.svelte';
 	import StudyDaysComponent from './StudyDaysComponent.svelte';
-	import RequirementsElement from './RequirementsElement.svelte';
 	import type { Snippet } from 'svelte';
 
 	type Props = {
 		course: Course;
-		lists?: Requirement[][];
 		squeeze?: boolean;
 		note?: Snippet;
 		scheduleError?: ScheduleError;
 		tests?: Course[];
 	};
 
-	let {
-		course,
-		lists = [],
-		note,
-		squeeze = false,
-		scheduleError,
-		tests
-	}: Props = $props();
+	let { course, note, squeeze = false, scheduleError, tests }: Props = $props();
 
 	const color = generateCourseColor(course);
 
@@ -59,7 +50,7 @@
 			<div
 				class="flex {squeeze
 					? ''
-					: 'min-h-28'} flex-col justify-between sm:min-h-16"
+					: 'min-h-24 sm:min-h-12'} flex-col justify-between"
 			>
 				<div class="text-right text-xs leading-none text-content-primary">
 					<span class="hyphens-auto break-words" dir="rtl">
@@ -70,12 +61,6 @@
 						</span>
 					</span>
 				</div>
-
-				{#if lists?.length ?? 0 > 0}
-					<div class="flex flex-row flex-wrap text-xs">
-						<RequirementsElement requirements={lists} slice={2} maxWidth={3} />
-					</div>
-				{/if}
 			</div>
 		</div>
 

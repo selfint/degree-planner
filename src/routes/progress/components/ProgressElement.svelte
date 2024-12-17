@@ -209,10 +209,7 @@
 						: 'opacity-50'}
 					href={`/course/${course.code}`}
 				>
-					<CourseElement
-						{course}
-						lists={getCourseLists(degreeRequirements, course.code)}
-					>
+					<CourseElement {course}>
 						{#snippet note()}
 							{@const index = getCourseSemester(course)}
 							{#if index !== undefined}

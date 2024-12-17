@@ -290,10 +290,7 @@
 					class={disabled.includes(course.code) ? 'opacity-50' : ''}
 					onmousedown={() => toggleCourseDisabled(course)}
 				>
-					<CourseElement
-						{course}
-						lists={getCourseLists(requirements, course.code)}
-					/>
+					<CourseElement {course} />
 				</button>
 			{/snippet}
 		</Semester>
@@ -334,10 +331,7 @@
 					class={disabled.includes(course.code) ? 'opacity-50' : ''}
 					onmousedown={() => toggleCourseDisabled(course)}
 				>
-					<CourseElement
-						{course}
-						lists={getCourseLists(requirements, course.code)}
-					/>
+					<CourseElement {course} />
 				</button>
 			{/snippet}
 		</CourseRow>
@@ -362,7 +356,6 @@
 							<button onmousedown={() => goto(`/course/${course.code}`)}>
 								<CourseElement
 									{course}
-									lists={getCourseLists(requirements, course.code)}
 									scheduleError={getScheduleError(
 										course,
 										user.semesters,
@@ -382,7 +375,6 @@
 							<button onmousedown={() => goto(`/course/${course.code}`)}>
 								<CourseElement
 									{course}
-									lists={getCourseLists(requirements, course.code)}
 									scheduleError={getScheduleError(
 										course,
 										user.semesters,

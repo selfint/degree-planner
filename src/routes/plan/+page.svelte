@@ -116,10 +116,7 @@
 						}
 					}}
 				>
-					<CourseElement
-						{course}
-						lists={getCourseLists(requirements, course.code)}
-					/>
+					<CourseElement {course} />
 				</div>
 			{/snippet}
 		</CourseRow>
@@ -161,8 +158,8 @@
 							isCurrent={semesterIndex === user.currentSemester}
 							href={`/semester?c=${semesterIndex}`}
 						>
-							{#snippet children({ course })}
-								<button
+							{#snippet children({ course, index })}
+								<div
 									draggable="true"
 									class="touch-manipulation text-content-primary"
 									ondragstart={(e) => {
@@ -171,6 +168,8 @@
 											e.dataTransfer.effectAllowed = 'move';
 										}
 									}}
+									role="button"
+									tabindex={index}
 									onclick={() => goto(`/course/${course.code}`)}
 									onkeydown={(e) => {
 										if (e.key === 'Enter') {
@@ -180,7 +179,6 @@
 								>
 									<CourseElement
 										{course}
-										lists={getCourseLists(requirements, course.code)}
 										squeeze={true}
 										scheduleError={getScheduleError(
 											course,
@@ -188,7 +186,7 @@
 											semesterIndex
 										)}
 									/>
-								</button>
+								</div>
 							{/snippet}
 						</Semester>
 					</div>

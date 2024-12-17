@@ -102,11 +102,7 @@
 								class="touch-manipulation text-content-primary"
 								onclick={() => goto(`/course/${course.code}`)}
 							>
-								<CourseElement
-									{course}
-									lists={getCourseLists(requirements, course.code)}
-									squeeze={true}
-								/>
+								<CourseElement {course} squeeze={true} />
 							</button>
 						{/snippet}
 					</Semester>

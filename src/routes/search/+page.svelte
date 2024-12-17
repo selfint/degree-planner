@@ -69,10 +69,7 @@
 					role="button"
 					tabindex={i}
 				>
-					<CourseElement
-						{course}
-						lists={getCourseLists(requirements, course.code)}
-					>
+					<CourseElement {course}>
 						{#snippet note()}
 							{@const index = getCourseSemester(course)}
 							{#if index !== undefined}

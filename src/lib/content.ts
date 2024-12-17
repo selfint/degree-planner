@@ -40,7 +40,7 @@ export const cms = {
 			progress: {
 				header: `
 					Choose a degree. See all requirements for it, and your progress in them.
-					For each requirement, there are 3 values:
+					For each requirement, there are 2 values:
 				`,
 				done: 'done',
 				planned: 'planned',
@@ -188,7 +188,7 @@ export const cms = {
 			progress: {
 				header: `
 					בחר תואר. ראה את כל הדרישות שלו, והתקדמותך בהן.
-					לכל דרישה יש 3 ערכים:
+					לכל דרישה יש 2 ערכים:
 				`,
 				done: 'בוצע',
 				planned: 'מתוכנן',

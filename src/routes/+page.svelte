@@ -54,7 +54,6 @@
 						{content.lang.landing.progress.done}
 					</span>
 					/ {content.lang.landing.progress.planned}
-					/ {content.lang.landing.progress.required}
 				</span>
 				{content.lang.landing.progress.notification.header}
 				<span class="text-nowrap rounded-md bg-card-primary p-1">

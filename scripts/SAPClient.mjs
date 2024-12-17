@@ -513,7 +513,7 @@ export async function getCourseData(courses) {
 				'OrgText'
 			].join(',')
 		})),
-		'en',
+		'he',
 		{
 			maxBatchSize: 100
 		}

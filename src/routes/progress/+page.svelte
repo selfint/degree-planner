@@ -121,12 +121,4 @@
 			/>
 		</div>
 	{/if}
-
-	{#if degreeProgress !== undefined && requirements !== undefined}
-		<ProgressSection
-			degreeRequirements={requirements}
-			current={degreeProgress.current}
-			planned={degreeProgress.planned}
-		/>
-	{/if}
 </div>

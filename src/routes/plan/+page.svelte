@@ -87,7 +87,7 @@
 		tabindex={0}
 	>
 		<div class="mb-1 me-3 ms-3 flex flex-row justify-between">
-			<h1 class="text-lg font-medium text-content-primary">
+			<h1 class="text-md font-medium text-content-primary">
 				{content.lang.plan.wishlist}
 			</h1>
 			<div class="flex flex-row gap-x-2">

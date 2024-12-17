@@ -33,7 +33,7 @@
 </script>
 
 <div>
-	<h2 class="text-lg font-medium text-content-primary">
+	<h2 class="text-md font-medium text-content-primary">
 		{content.lang.common.semester}
 	</h2>
 	<div class="grid w-fit grid-cols-[auto_auto] gap-x-2 gap-y-1">

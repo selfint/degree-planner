@@ -29,35 +29,39 @@
 		<h2 class="text-start text-sm text-content-primary">
 			{content.lang.common.dependencies}
 		</h2>
-		<div class="mb-2 space-y-2 text-start text-xs">
+		<div class="mb-0 gap-y-2 text-start text-xs">
 			{#each scheduleError.dependencies as group, i}
 				{#if i !== 0}
 					<p class="w-full text-center text-content-secondary">
 						{content.lang.common.or}
 					</p>
 				{/if}
-				<div class="space-y-1">
+				<div>
 					{#each group as { course: dep, taken }}
-						<div class="text-content-primary">
-							<div class="flex flex-row justify-between">
-								<div>
-									{#if taken}
-										<span dir="rtl" class="line-through">
-											{dep.name}
-										</span>
-									{:else}
-										<span dir="rtl">
-											{dep.name}
-										</span>
-									{/if}
-									<span class="text-content-secondary">
-										{dep.code}
+						<div class="flex flex-row justify-start text-content-primary">
+							<div
+								style="background: {generateCourseColor(dep)}"
+								class="me-1 mt-0.5 h-3 w-3 min-w-3 {dep.tests
+									? 'rounded-full'
+									: ''}"
+							></div>
+							<div class="flex flex-row flex-wrap gap-x-1 overflow-hidden">
+								<div class="truncate">
+									<span dir="rtl">
+										{#if taken}
+											<span class="line-through">
+												{dep.name}
+											</span>
+										{:else}
+											<span>
+												{dep.name}
+											</span>
+										{/if}
 									</span>
 								</div>
-								<div
-									style="background: {generateCourseColor(dep)}"
-									class="h-4 w-4 min-w-4 {dep.tests ? 'rounded-full' : ''}"
-								></div>
+								<span class="flex-nowrap text-content-secondary">
+									{dep.code}
+								</span>
 							</div>
 						</div>
 					{/each}

@@ -15,7 +15,6 @@
 
 	let { data }: { data: PageData } = $props();
 
-	console.log('here2', data);
 	const requirements = $derived(data.degreeData.requirement);
 
 	function formatName(i18n: I18N): string {
@@ -65,8 +64,6 @@
 		if (userPath === undefined) {
 			return `${faculty} (${content.lang.preview.catalog} ${year}) - ${path}`;
 		}
-
-		console.log('here5', userPath, catalogs[degree[0]][degree[1]][degree[2]]);
 
 		let userPathNested = catalogs[degree[0]][degree[1]][
 			degree[2]

@@ -55,7 +55,6 @@
 			return true;
 		} else {
 			const r = paths.map((p) => p.value).includes(path);
-			console.log(paths, path, r);
 			return r;
 		}
 	}
@@ -94,8 +93,6 @@
 		urlParams.append('semesters', semesters);
 
 		const link = `/preview/${year}/${faculty}/${degree}?${urlParams}`;
-
-		console.log('here', semesters, path, link);
 
 		return link;
 	});

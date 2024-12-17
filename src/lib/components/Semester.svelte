@@ -38,7 +38,7 @@
 			<h1
 				class="border-b-2 {isCurrent
 					? 'border-b-accent-primary'
-					: 'border-b-transparent'} text-lg font-medium text-content-primary"
+					: 'border-b-transparent'} text-md font-medium text-content-primary"
 			>
 				{content.lang.common.seasons[index % 3]}
 				{Math.floor(index / 3) + 1}

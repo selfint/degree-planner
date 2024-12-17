@@ -112,11 +112,7 @@
 		</div>
 	</h1>
 
-	<div class="mb-4 ms-3 flex flex-row flex-wrap items-center space-y-1">
-		<RequirementsElement requirements={courseMemberRequirements} />
-	</div>
-
-	<p class="mb-4 ml-3 mr-3 text-content-secondary" dir="rtl">
+	<p class="mb-4 ml-3 mr-3 mt-3 text-content-secondary" dir="rtl">
 		{course.about}
 	</p>
 

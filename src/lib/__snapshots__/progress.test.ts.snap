@@ -32,6 +32,8 @@ exports[`Progress > should apply overflow 1`] = `
       },
     ],
   },
+  "en": "overflow_target",
+  "he": "overflow_target",
   "name": "core",
   "nested": {
     "done": [],
@@ -81,6 +83,8 @@ exports[`Progress > should return count progress 1`] = `
       },
     ],
   },
+  "en": undefined,
+  "he": undefined,
   "name": "base",
   "nested": {
     "done": [],

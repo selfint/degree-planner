@@ -27,13 +27,30 @@ declare global {
 		// interface Platform {}
 	}
 
+	type I18N = {
+		/**
+		 * English translation key for the object.
+		 */
+		en: string;
+
+		/**
+		 * Hebrew translation key for the object.
+		 */
+		he: string;
+	};
+
 	type Requirement = {
 		name: string;
 
 		/**
+		 * English translation key for the requirement name.
+		 */
+		en: string;
+
+		/**
 		 * Hebrew translation key for the requirement name.
 		 */
-		he?: string;
+		he: string;
 
 		/**
 		 * The courses that satisfy this requirement.
@@ -94,9 +111,14 @@ declare global {
 		name: string;
 
 		/**
+		 * English translation key for the requirement name.
+		 */
+		en: string;
+
+		/**
 		 * Hebrew translation key for the requirement name.
 		 */
-		he?: string;
+		he: string;
 
 		/**
 		 * The courses that satisfy this requirement.
@@ -170,12 +192,21 @@ declare global {
 		requirement: Requirement;
 	};
 
+	type UserDataV1 = {
+		semesters: string[][];
+		currentSemester: number;
+		wishlist: string[];
+		username?: string;
+		degree?: Degree;
+	};
+
 	type UserData = {
 		semesters: string[][];
 		currentSemester: number;
 		wishlist: string[];
 		username?: string;
 		degree?: Degree;
+		path?: string;
 	};
 
 	type Degree = NestedKeys<typeof catalogs>;

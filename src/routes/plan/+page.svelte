@@ -92,10 +92,10 @@
 			</h1>
 			<div class="flex flex-row gap-x-2">
 				{#if hasChanges}
-					<Button variant="secondary" onmousedown={onCancel}>
+					<Button variant="secondary" onclick={onCancel}>
 						{content.lang.progress.cancel}
 					</Button>
-					<Button variant="primary" onmousedown={onSave}>
+					<Button variant="primary" onclick={onSave}>
 						{content.lang.progress.save}
 					</Button>
 				{/if}

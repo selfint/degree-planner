@@ -13,15 +13,22 @@ function buildSemesters(semesters: string[][]): Course[][] {
 describe('Progress', () => {
 	it('should apply overflow', () => {
 		const semesters = buildSemesters([['1', '2']]);
+
 		const requirement: Requirement = {
 			name: 'base',
+			en: 'base',
+			he: 'base',
 			nested: [
 				{
 					name: 'overflow_target',
+					en: 'overflow_target',
+					he: 'overflow_target',
 					points: 1
 				},
 				{
 					name: 'core',
+					en: 'overflow_target',
+					he: 'overflow_target',
 					points: 2,
 					courses: ['1', '2'],
 					overflow: 'overflow_target'

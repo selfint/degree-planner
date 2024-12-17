@@ -16,23 +16,6 @@
 	};
 	let { titles, colorize = true, codes, requirements }: Props = $props();
 
-	function formatName(requirement: Requirement): string {
-		let name = requirement.name;
-		if (content.lang.lang === 'he' && requirement.he !== undefined) {
-			name = requirement.he;
-		}
-
-		return (
-			name[0].toUpperCase() +
-			name
-				.slice(1)
-				.toLowerCase()
-				.split('_')
-				.map((word) => (word.length > 2 ? word : word.toUpperCase()))
-				.join(' ')
-		);
-	}
-
 	const groups = $derived.by(() => {
 		const courses = codes
 			.map((c) => getCourseData(c))
@@ -97,7 +80,9 @@
 				{:else}
 					<div class="me-2 flex flex-row flex-wrap items-baseline">
 						{#each titles as title}
-							<span class="me-1">{formatName(title)}</span>
+							<span class="me-1">
+								{content.lang.lang === 'he' ? title.he : title.en}
+							</span>
 						{/each}
 					</div>
 				{/if}
@@ -129,7 +114,7 @@
 								{:else if user.wishlist.includes(course.code)}
 									<span>🌟</span>
 									<span class="hidden sm:inline">
-										{formatName({ name: content.lang.catalog.wishlist })}
+										{content.lang.catalog.wishlist}
 									</span>
 								{/if}
 							{/snippet}

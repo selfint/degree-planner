@@ -4,7 +4,7 @@
 	"private": true,
 	"scripts": {
 		"dev": "vite dev",
-		"generate-catalogs": "node scripts/generateCatalogs.js",
+		"generate-catalogs": "node scripts/generateCatalogsManifest.js",
 		"build": "npm run generate-catalogs && vite build",
 		"preview": "vite preview",
 		"test": "npm run test:integration && npm run test:unit",

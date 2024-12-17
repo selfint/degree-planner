@@ -40,7 +40,7 @@ export const cms = {
 			progress: {
 				header: `
 					Choose a degree. See all requirements for it, and your progress in them.
-					For each requirement, there are 3 values:
+					For each requirement, there are 2 values:
 				`,
 				done: 'done',
 				planned: 'planned',
@@ -104,6 +104,7 @@ export const cms = {
 			selectFaculty: 'Select faculty',
 			path: 'Path',
 			selectPath: 'Select path',
+			selectDegree: 'Select degree',
 			save: 'Save',
 			cancel: 'Cancel',
 			points: 'Points',
@@ -111,7 +112,7 @@ export const cms = {
 			choice: 'Choice',
 			overflowed: 'Overflowed',
 			to: 'to',
-			requirements: 'Requirements',
+			progress: 'Progress',
 			current: 'Current',
 			total: 'Total',
 			revert: 'Revert to recommended'
@@ -120,7 +121,7 @@ export const cms = {
 			wishlist: 'Wish list'
 		},
 		catalog: {
-			wishlist: 'wish_list'
+			wishlist: 'Wish list'
 		},
 		course: {
 			median: 'Median',
@@ -168,7 +169,7 @@ export const cms = {
 			searchPlaceholder: 'חיפוש',
 			catalog: 'קטלוג',
 			plan: 'תוכנית',
-			progress: 'דרישות',
+			progress: 'התקדמות',
 			name: 'PlanIt.'
 		},
 		footer: {
@@ -187,7 +188,7 @@ export const cms = {
 			progress: {
 				header: `
 					בחר תואר. ראה את כל הדרישות שלו, והתקדמותך בהן.
-					לכל דרישה יש 3 ערכים:
+					לכל דרישה יש 2 ערכים:
 				`,
 				done: 'בוצע',
 				planned: 'מתוכנן',
@@ -251,6 +252,7 @@ export const cms = {
 			selectFaculty: 'בחר פקולטה',
 			path: 'מסלול',
 			selectPath: 'בחר מסלול',
+			selectDegree: 'בחר תואר',
 			save: 'שמור',
 			cancel: 'בטל',
 			points: 'נקודות',
@@ -258,7 +260,7 @@ export const cms = {
 			choice: 'בחירה',
 			overflowed: 'נוספו',
 			to: 'ל',
-			requirements: 'דרישות',
+			progress: 'התקדמות',
 			current: 'נוכחי',
 			total: 'סה"כ',
 			revert: 'חזור למומלצת'

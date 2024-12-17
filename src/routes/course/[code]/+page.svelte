@@ -79,7 +79,7 @@
 		return `${season} ${modIndex}`;
 	}
 
-	let depRow: HTMLDivElement;
+	let depRow: HTMLDivElement | undefined = $state(undefined);
 	$effect(() => {
 		if (depRow) {
 			// hack to get this effect to run each time the course changes

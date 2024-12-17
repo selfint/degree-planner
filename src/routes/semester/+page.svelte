@@ -276,7 +276,7 @@
 
 <div class="items-start sm:mt-3 sm:flex sm:flex-row">
 	<div
-		class="sticky top-2 mb-3 mt-0 hidden touch-manipulation pe-3 ps-3 sm:block"
+		class="sticky top-2 mb-3 mt-0 hidden max-h-screen touch-manipulation overflow-y-scroll pe-3 ps-3 sm:block"
 	>
 		<Semester
 			index={currentSemester}
@@ -339,15 +339,15 @@
 
 	<div class="flex-1 overflow-x-auto">
 		{#each loloco as [titles, courses, colorize]}
-			<div class="pb-2">
+			<div class="pb-3">
 				<h1 class="mb-1.5 ms-3 font-medium text-content-primary sm:ms-0">
-					{#if colorize}
-						<RequirementsElement requirements={[titles]} />
-					{:else}
-						<div class="me-2 flex flex-row flex-wrap items-baseline">
-							<span class="me-1">{formatName(titles)}</span>
-						</div>
-					{/if}
+					<div class="me-2 flex flex-col flex-wrap items-start gap-y-1">
+						{#each titles as title}
+							<span class="me-1 leading-none">
+								{content.lang.lang === 'he' ? title.he : title.en}
+							</span>
+						{/each}
+					</div>
 				</h1>
 
 				<div class="sm:hidden">

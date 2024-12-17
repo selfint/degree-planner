@@ -10,21 +10,9 @@
 	};
 
 	const { degreeRequirements, current, planned }: Props = $props();
-
-	const requirementName = $derived(
-		content.lang.lang === 'he'
-			? (degreeRequirements.he ?? degreeRequirements.name)
-			: degreeRequirements.name
-	);
 </script>
 
 <h2 class="mb-1 ms-3 text-lg font-medium text-content-primary">
-	{content.lang.progress.requirements}
+	{content.lang.progress.progress}
 </h2>
-<ProgressElement
-	indent={1}
-	{degreeRequirements}
-	{requirementName}
-	{current}
-	{planned}
-/>
+<ProgressElement indent={1} {degreeRequirements} {current} {planned} />

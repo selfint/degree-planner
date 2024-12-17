@@ -122,7 +122,7 @@
 		{#if user.semesters.some((s) => s.includes(course.code))}
 			<Button
 				variant="secondary"
-				onmousedown={() => removeCourseFromSemesters(course.code)}
+				onclick={() => removeCourseFromSemesters(course.code)}
 			>
 				{content.lang.course.removeFromSemester}
 				{getSeasonAndIndex(
@@ -130,13 +130,13 @@
 				)}
 			</Button>
 		{:else}
-			<Button variant="primary" onmousedown={() => planCourse(course.code)}>
+			<Button variant="primary" onclick={() => planCourse(course.code)}>
 				{content.lang.course.plan}
 			</Button>
 			{#if user.wishlist.includes(course.code)}
 				<Button
 					variant="secondary"
-					onmousedown={() =>
+					onclick={() =>
 						(user.wishlist = user.wishlist.filter((c) => c !== course.code))}
 				>
 					{content.lang.course.removeFromWishlist}
@@ -144,7 +144,7 @@
 			{:else}
 				<Button
 					variant="secondary"
-					onmousedown={() =>
+					onclick={() =>
 						(user.wishlist = [...new Set([...user.wishlist, course.code])])}
 				>
 					{content.lang.course.wishlist}

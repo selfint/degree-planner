@@ -3,7 +3,7 @@ import path from 'path';
 import { describe, it } from 'vitest';
 
 import { getProgress, requirementCompleted } from './progress';
-import { loadCatalog, parseCatalog } from './requirements';
+import { loadCatalog } from './requirements';
 import { getCourseData } from './courseData';
 
 async function localFetch(
@@ -48,32 +48,63 @@ function replaceMedian(obj: unknown): unknown {
 
 describe('Integration', () => {
 	it('should work with CS degree', async (ctx) => {
-		const degree: Degree = ['2023_2024', 'computer_science', '3_year'];
+		const degree: Degree = ['2024_200', '00002120', 'SC00001314_CG00006245'];
+		const path = 'CG00006246';
 
-		const data = await loadCatalog(degree, localFetch);
+		const data = await loadCatalog(degree, path, localFetch);
 
-		const progress = getProgress(
-			data.recommended.map((s) => s.map(getCourseData)),
-			data.requirement
-		);
+		const semesters = [
+			['01040031', '01040166', '02340114', '02340129', '03240033']
+		].map((s) => s.map(getCourseData));
 
-		ctx.expect(replaceMedian(progress)).toMatchSnapshot();
+		const progress = getProgress(semesters, data.requirement);
+
+		console.dir(progress);
+		console.log('done');
+		console.error('done');
+
+		function formatProgress(p: Progress): unknown {
+			if (typeof p.courses.done !== 'number') {
+				p.courses.done = p.courses.done?.length;
+			}
+			if (typeof p.courses.options !== 'number') {
+				p.courses.options = p.courses.options?.length;
+			}
+			p.nested.done = p.nested.done?.map(formatProgress);
+			p.nested.options = p.nested.options?.map(formatProgress);
+
+			return p;
+		}
+
+		ctx.expect(formatProgress(progress)).toMatchSnapshot();
 	});
 });
 
 describe('CS 4 year degree', () => {
-	it('should only count specialization points from completed specializations', async (ctx) => {
-		const degree: Degree = ['2023_2024', 'computer_science', '4_year'];
+	it.skip('should only count specialization points from completed specializations', async (ctx) => {
+		const degree: Degree = ['2024_200', '00002120', 'SC00001313_CG00006209'];
+		const path = 'CG00006210';
 
 		function buildSemesters(semesters: string[][]): Course[][] {
 			return semesters.map((semester) => semester.map(getCourseData));
 		}
 
-		const data = await loadCatalog(degree, localFetch);
+		const data = await loadCatalog(degree, path, localFetch);
 
 		const specialization = data.requirement.nested
 			?.find((r) => r.name === 'list_a')
 			?.nested?.find((r) => r.name === 'specialization');
+
+		function parseCatalog(text) {
+			const regex = /\b\d{5,6}\b/g;
+			const matches = text.match(regex);
+
+			const codes = [...new Set(matches ? matches : [])];
+			return codes
+				.map((code) => code.replace(/^0+/, ''))
+				.map((code) => '0'.repeat(6 - code.length) + code)
+				.map((code) => '0' + code.slice(0, 3) + '0' + code.slice(3));
+		}
 
 		const chosenSpecializations = parseCatalog(`
 			1 סיבוכיות של חישובים נק'

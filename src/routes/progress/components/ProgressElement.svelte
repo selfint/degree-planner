@@ -13,7 +13,6 @@
 		indent?: number;
 		parents?: string[];
 		degreeRequirements: Requirement;
-		requirementName: string;
 		current?: Progress;
 		planned: Progress;
 	};
@@ -22,13 +21,14 @@
 		indent = 0,
 		parents = [],
 		degreeRequirements,
-		requirementName,
 		current,
 		planned
 	}: Props = $props();
 
-	const name = $derived(
-		content.lang.lang === 'he' ? (planned.he ?? planned.name) : planned.name
+	const name = $derived(planned.name);
+
+	const requirementName = $derived(
+		content.lang.lang === 'he' ? planned.he : planned.en
 	);
 
 	function formatName(name: string): string {
@@ -43,7 +43,7 @@
 		);
 	}
 
-	const color = $derived(generateColor(requirementName));
+	const color = $derived(generateColor(name));
 	const offset = $derived(`${indent * 0.75}rem`);
 	const dir = $derived(content.lang.dir === 'rtl' ? 'right' : 'left');
 	const margin = $derived(`margin-${dir}: ${offset}`);
@@ -52,7 +52,7 @@
 	);
 
 	const section = $derived(
-		[...parents, requirementName]
+		[...parents, name]
 			.slice(1)
 			.map((t) => t.toLowerCase())
 			.join('_')
@@ -82,16 +82,8 @@
 	}
 
 	const requirementHasCourses = $derived(
-		getRequirement(degreeRequirements, requirementName)?.courses !== undefined
+		getRequirement(degreeRequirements, name)?.courses !== undefined
 	);
-
-	const requirementHasConditions = $derived.by(() => {
-		const requirement = getRequirement(degreeRequirements, requirementName);
-
-		return (
-			requirement?.points !== undefined || requirement?.count !== undefined
-		);
-	});
 
 	const targetRequirement = $derived(
 		getRequirement(degreeRequirements, planned.overflow?.target)
@@ -118,10 +110,10 @@
 		>
 			{#if requirementHasCourses}
 				<a {href}>
-					{formatName(name)}
+					{requirementName}
 				</a>
 			{:else}
-				{formatName(name)}
+				{requirementName}
 			{/if}
 		</h3>
 	{/if}
@@ -138,7 +130,7 @@
 		</div>
 	{/if}
 
-	{#if planned.points.required > 0}
+	{#if planned.points.done > 0}
 		<div
 			class="flex flex-row items-center pe-2 text-content-secondary"
 			style={progressStyle}
@@ -154,12 +146,14 @@
 			<span class="ms-2 text-nowrap">
 				<span style="color: {color}">{current?.points.done ?? 0}</span>
 				/ {planned.points.done}
-				/ {planned.points.required}
+				{#if planned.points.required > 0}
+					/ {planned.points.required}
+				{/if}
 			</span>
 		</div>
 	{/if}
 
-	{#if planned.count.required > 0}
+	{#if planned.count.done > 0}
 		<div
 			class="flex flex-row items-center pe-2 text-content-secondary"
 			style={progressStyle}
@@ -175,7 +169,9 @@
 			<span class="ms-2 text-nowrap">
 				<span style="color: {color}">{current?.count.done ?? 0}</span>
 				/ {planned.count.done}
-				/ {planned.count.required}
+				{#if planned.count.required > 0}
+					/ {planned.count.required}
+				{/if}
 			</span>
 		</div>
 	{/if}
@@ -204,78 +200,51 @@
 		</span>
 	{/if}
 
-	{#if requirementHasConditions && planned.courses.done.length > 0}
-		<div class="mb-1 mt-1">
-			<CourseRow {indent} courses={planned.courses.done ?? []}>
-				{#snippet children({ course })}
-					<a
-						class={current?.courses?.done.some(
-							({ code }) => code === course.code
-						)
-							? ''
-							: 'opacity-50'}
-						href={`/course/${course.code}`}
+	<div class="mb-1 mt-1">
+		<CourseRow {indent} courses={planned.courses.done ?? []}>
+			{#snippet children({ course })}
+				<a
+					class={current?.courses?.done.some(({ code }) => code === course.code)
+						? ''
+						: 'opacity-50'}
+					href={`/course/${course.code}`}
+				>
+					<CourseElement
+						{course}
+						lists={getCourseLists(degreeRequirements, course.code)}
 					>
-						<CourseElement
-							{course}
-							lists={getCourseLists(degreeRequirements, course.code)}
-						>
-							{#snippet note()}
-								{@const index = getCourseSemester(course)}
-								{#if index !== undefined}
-									<span>
-										{seasonEmojis[index % 3]}
-										<span class="hidden sm:inline">
-											{content.lang.common.seasons[index % 3]}
-											{Math.floor(index / 3) + 1}
-										</span>
-									</span>
-								{:else if user.wishlist.includes(course.code)}
-									<span>🌟</span>
+						{#snippet note()}
+							{@const index = getCourseSemester(course)}
+							{#if index !== undefined}
+								<span>
+									{seasonEmojis[index % 3]}
 									<span class="hidden sm:inline">
-										{formatName(content.lang.catalog.wishlist)}
+										{content.lang.common.seasons[index % 3]}
+										{Math.floor(index / 3) + 1}
 									</span>
-								{/if}
-							{/snippet}
-						</CourseElement>
-					</a>
-				{/snippet}
-			</CourseRow>
-		</div>
-	{/if}
+								</span>
+							{:else if user.wishlist.includes(course.code)}
+								<span>🌟</span>
+								<span class="hidden sm:inline">
+									{formatName(content.lang.catalog.wishlist)}
+								</span>
+							{/if}
+						{/snippet}
+					</CourseElement>
+				</a>
+			{/snippet}
+		</CourseRow>
+	</div>
 
-	{#if planned.amount.required > 0}
-		{#if planned.amount.required < planned.nested.options.length}
-			<div
-				class="mb-1 flex flex-row items-center pe-2 text-content-secondary"
-				style={progressStyle}
-			>
-				<span class="me-2">{content.lang.progress.choice}</span>
-				<ProgressBar
-					{color}
-					value={current?.amount.done ?? 0}
-					value2={planned.amount.done}
-					max={planned.amount.required}
-					dir={content.lang.dir}
-				/>
-				<span class="ms-2 text-nowrap">
-					<span style="color: {color}">{current?.amount.done ?? 0}</span>
-					/ {planned.amount.done}
-					/ {planned.amount.required}
-				</span>
-			</div>
-		{/if}
-		<div class="mt-2">
-			{#each planned.nested.options as nested, i}
-				<ProgressElement
-					indent={indent + 1}
-					parents={[...parents, requirementName]}
-					{degreeRequirements}
-					requirementName={nested.name}
-					current={current?.nested?.options[i]}
-					planned={nested}
-				/>
-			{/each}
-		</div>
-	{/if}
+	<div class="mt-2">
+		{#each planned.nested.options as nested, i}
+			<ProgressElement
+				indent={indent + 1}
+				parents={[...parents, name]}
+				{degreeRequirements}
+				current={current?.nested?.options[i]}
+				planned={nested}
+			/>
+		{/each}
+	</div>
 </div>

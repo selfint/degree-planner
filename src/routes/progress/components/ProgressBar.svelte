@@ -1,13 +1,17 @@
 <script lang="ts">
 	type Props = {
 		value: number;
-		value2?: number;
+		value2: number;
 		max: number;
 		color?: string;
 		dir: 'ltr' | 'rtl';
 	};
 
 	let { value, value2, max, color, dir }: Props = $props();
+
+	if (max === 0) {
+		max = value2;
+	}
 
 	const p1 = $derived(Math.min(100, Math.floor((value / max) * 100)));
 	const p2 = $derived(

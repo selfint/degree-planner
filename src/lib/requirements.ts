@@ -1,16 +1,5 @@
 import catalogs from '$lib/assets/catalogs.json';
 
-export function parseCatalog(text: string): string[] {
-	const regex = /\b\d{5,6}\b/g;
-	const matches = text.match(regex);
-
-	const codes = [...new Set(matches ? matches : [])];
-	return codes
-		.map((code) => code.replace(/^0+/, ''))
-		.map((code) => '0'.repeat(6 - code.length) + code)
-		.map((code) => '0' + code.slice(0, 3) + '0' + code.slice(3));
-}
-
 async function loadCourses(
 	requirementHeader: RequirementHeader,
 	_fetch: (
@@ -21,7 +10,7 @@ async function loadCourses(
 	let courses = undefined;
 	if (requirementHeader.courses !== undefined) {
 		const response = await _fetch(requirementHeader.courses);
-		courses = parseCatalog(await response.text()).sort();
+		courses = await response.text().then((t) => t.split('\n').sort());
 	}
 
 	let nested = undefined;
@@ -39,34 +28,41 @@ async function loadCourses(
 		hook = new Function('semesters', 'progress', src) as Requirement['hook'];
 	}
 
-	return {
+	const result: Requirement = {
 		...requirementHeader,
 		...(courses !== undefined && { courses }),
 		...(nested !== undefined && { nested }),
 		...(hook !== undefined && { hook: hook })
 	} as Requirement;
+
+	return result;
 }
 
 export async function loadCatalog(
-	degree: Degree,
+	userDegree: Degree,
+	path: string | undefined = undefined,
 	_fetch: (
 		input: string | URL | globalThis.Request,
 		init?: RequestInit
 	) => Promise<Response> = fetch
 ): Promise<Catalog> {
-	const [year, faculty, path] = degree;
+	const [year, faculty, degree] = userDegree;
 
 	// TODO why does this not work?
 	// @ts-expect-error
-	const catalog = catalogs[year][faculty][path];
+	const catalog = catalogs[year][faculty][degree];
 
 	const requirement = await loadCourses(catalog.requirement, _fetch);
-	const sharedRequirement = await loadCourses(catalogs[year].shared, _fetch);
 
-	requirement.nested?.push(sharedRequirement);
+	if (path !== undefined) {
+		requirement.nested = requirement.nested?.filter(
+			(nested) =>
+				nested.name === path || nested.en.toLowerCase().includes('elective')
+		);
+	}
 
 	return {
-		degree,
+		degree: userDegree,
 		recommended: catalog.recommended,
 		requirement
 	};

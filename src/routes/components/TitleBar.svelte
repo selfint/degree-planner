@@ -56,7 +56,7 @@
 		</a>
 		<div class="flex-grow"></div>
 		{#if !started}
-			<Button variant="primary" onmousedown={onGetStarted}>
+			<Button variant="primary" onclick={onGetStarted}>
 				{content.lang.common.getStarted}
 			</Button>
 		{:else}

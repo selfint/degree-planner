@@ -12,7 +12,7 @@
 
 <select
 	bind:value
-	class="w-fit rounded-md border border-border bg-background p-1 text-content-secondary outline-none"
+	class="w-full max-w-fit rounded-md border border-border bg-background p-1 text-content-secondary outline-none"
 	onchange={() => onchange?.(value)}
 >
 	{@render children()}

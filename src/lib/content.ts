@@ -131,7 +131,8 @@ export const cms = {
 			removeFromWishlist: 'Remove from wish list',
 			wishlist: 'Wish list',
 			available: 'Available',
-			info: 'Info'
+			info: 'Info',
+			appliesTo: 'Applies towards'
 		},
 		preview: {
 			overwriteWarning:
@@ -279,7 +280,8 @@ export const cms = {
 			removeFromWishlist: 'הסר מרשימת המשאלות',
 			wishlist: 'רשימת משאלות',
 			available: 'זמין',
-			info: 'מידע'
+			info: 'מידע',
+			appliesTo: 'תורם לדרישות'
 		},
 		preview: {
 			overwriteWarning:

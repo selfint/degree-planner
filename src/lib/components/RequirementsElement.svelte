@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { generateRequirementColor } from '$lib/colors';
 	import { content } from '$lib/stores.svelte';
 
 	type Props = {
@@ -29,36 +28,22 @@
 {#each requirements ?? [] as requirementGroup}
 	{@const reqGroup =
 		slice === undefined ? requirementGroup : requirementGroup.slice(-slice)}
-	<div
-		class="me-1 mt-1 flex w-fit flex-row flex-wrap rounded-md text-start leading-none text-content-primary"
-	>
+	<div class="me-1 mt-1 flex w-fit flex-col rounded-md text-start leading-none">
 		{#each reqGroup as req, i}
 			{#if i === 0 && i === reqGroup.length - 1}
-				<span
-					class="rounded-e-md rounded-s-md pb-0.5 pe-1.5 ps-1.5 pt-0.5"
-					style="background: {generateRequirementColor(req.name)}"
-				>
+				<span class="rounded-e-md rounded-s-md pb-0.5 pe-1.5 pt-0.5">
 					{formatName(req)}
 				</span>
 			{:else if i === 0}
-				<span
-					class="me-0.5 rounded-s-md pb-0.5 pe-1 ps-1.5 pt-0.5"
-					style="background: {generateRequirementColor(req.name)}"
-				>
+				<span class="me-0.5 rounded-s-md pb-0.5 pe-1 pt-0.5">
 					{formatName(req)}
 				</span>
 			{:else if i === reqGroup.length - 1}
-				<span
-					class="rounded-e-md pb-0.5 pe-1.5 ps-1 pt-0.5"
-					style="background: {generateRequirementColor(req.name)}"
-				>
+				<span class="rounded-e-md pb-0.5 pe-1.5 pt-0.5">
 					{formatName(req)}
 				</span>
 			{:else}
-				<span
-					class="me-0.5 pb-0.5 pe-1 ps-1 pt-0.5"
-					style="background: {generateRequirementColor(req.name)}"
-				>
+				<span class="me-0.5 pb-0.5 pe-1 pt-0.5">
 					{formatName(req)}
 				</span>
 			{/if}

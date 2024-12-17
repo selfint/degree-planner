@@ -16,16 +16,6 @@ function writeFileSync(path, data) {
 
 const rawCatalogs = join(process.cwd(), 'catalogs.json');
 const dbPath = join(process.cwd(), 'static', '_catalogs');
-const manifestPath = join(
-	process.cwd(),
-	'src',
-	'lib',
-	'assets',
-	'catalogs.json'
-);
-
-const AllTechnionElectivesCgId = 'CG00000170';
-const FreeElectives = 'CG00000175';
 
 /**
  * @param {string} path base path to write the tree

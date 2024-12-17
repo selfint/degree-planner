@@ -50,7 +50,7 @@
 			<div
 				class="flex {squeeze
 					? ''
-					: 'min-h-24 sm:min-h-12'} flex-col justify-between"
+					: 'min-h-20 sm:min-h-12'} flex-col justify-between"
 			>
 				<div class="text-right text-xs leading-none text-content-primary">
 					<span class="hyphens-auto break-words" dir="rtl">

@@ -116,7 +116,7 @@
 		<RequirementsElement requirements={courseMemberRequirements} />
 	</div>
 
-	<p class="mb-8 ml-3 mr-3 text-content-secondary" dir="rtl">
+	<p class="mb-4 ml-3 mr-3 text-content-secondary" dir="rtl">
 		{course.about}
 	</p>
 
@@ -156,6 +156,15 @@
 	</div>
 
 	<div class="ms-3 mt-4">
+		<h2 class="text-lg font-medium text-content-primary">
+			{content.lang.course.appliesTo}
+		</h2>
+		<div class="text-content-secondary">
+			<RequirementsElement requirements={courseMemberRequirements} />
+		</div>
+	</div>
+
+	<div class="ms-3 mt-2">
 		<h2 class="text-lg font-medium text-content-primary">
 			{content.lang.course.info}
 		</h2>

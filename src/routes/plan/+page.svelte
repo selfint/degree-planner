@@ -6,7 +6,7 @@
 	import CourseRow from '$lib/components/CourseRow.svelte';
 	import Button from '$lib/components/Button.svelte';
 
-	import { user, catalog, content } from '$lib/stores.svelte';
+	import { user, content } from '$lib/stores.svelte';
 
 	import { getCourseData } from '$lib/courseData';
 	import { getScheduleError } from '$lib/schedule';
@@ -116,11 +116,13 @@
 						{content.lang.progress.save}
 					</Button>
 				{/if}
-				<a href={shareLink} target="_blank">
-					<Button variant="primary" onclick={() => {}}>
-						{content.lang.progress.share}
-					</Button>
-				</a>
+				{#if user.semesters.some((s) => s.length > 0)}
+					<a href={shareLink} target="_blank">
+						<Button variant="primary" onclick={() => {}}>
+							{content.lang.progress.share}
+						</Button>
+					</a>
+				{/if}
 			</div>
 		</div>
 		<CourseRow courses={wishlist}>

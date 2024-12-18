@@ -31,7 +31,6 @@ export const load: PageServerLoad = async ({ params, url, fetch }) => {
 
 	const degree = [year, faculty, path] as Degree;
 	const degreeData = await loadCatalog(degree, userPath, fetch);
-	console.log('here3', degree, userPath, degreeData, semesters);
 
 	return {
 		degreeData,

@@ -5,6 +5,7 @@
 	import CourseRow from '$lib/components/CourseRow.svelte';
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
+	import catalogs from '$lib/assets/catalogs.json';
 
 	const requirements = $derived(catalog()?.requirement);
 
@@ -30,9 +31,102 @@
 
 	const planned = $derived(user.semesters);
 	const current = $derived(planned.slice(0, user.currentSemester));
+
+	function applyI18n(i18n: I18N): string {
+		let name = i18n.en;
+		if (content.lang.lang === 'he') {
+			name = i18n.he;
+		}
+
+		return name;
+	}
+
+	const totalCurrentCount = $derived(current.flat().length);
+	const totalPlannedCount = $derived(planned.flat().length);
+	const totalCurrentPoints = $derived(
+		current
+			.flat()
+			.map(getCourseData)
+			.reduce((sum, { points }) => sum + (points ?? 0), 0)
+	);
+	const totalPlannedPoints = $derived(
+		planned
+			.flat()
+			.map(getCourseData)
+			.reduce((sum, { points }) => sum + (points ?? 0), 0)
+	);
+	const degreeName = $derived.by(() => {
+		const degree = user.degree;
+		if (degree === undefined) {
+			return undefined;
+		}
+		let year = applyI18n(catalogs[degree[0]]);
+		// @ts-expect-error
+		let faculty = applyI18n(catalogs[degree[0]][degree[1]]);
+		// @ts-expect-error
+		let path = applyI18n(catalogs[degree[0]][degree[1]][degree[2]]);
+
+		if (user.path === undefined) {
+			return `${faculty} (${content.lang.preview.catalog} ${year}) - ${path}`;
+		}
+
+		let userPathNested = catalogs[degree[0]][degree[1]][
+			degree[2]
+		].requirement.nested.find((n) => n.name === user.path);
+
+		const userPathName = applyI18n(userPathNested);
+
+		return `${faculty} (${content.lang.preview.catalog} ${year}) - ${path} ${userPathName}`;
+	});
 </script>
 
 <div class="mt-3">
+	{#if degreeName !== undefined}
+		<div class="mb-7">
+			<h1
+				class="mb-1 me-3 ms-3 flex flex-row items-baseline text-base font-medium text-content-primary"
+			>
+				<div class="me-2 flex flex-col flex-wrap items-start gap-y-1">
+					<span class="me-1">
+						{degreeName}
+					</span>
+				</div>
+			</h1>
+			<div class="max-w-[30rem]">
+				<div
+					class="ms-3 flex flex-row items-center pe-2 text-content-secondary"
+				>
+					<span class="me-2">{content.lang.progress.count}</span>
+					<ProgressBar
+						value={totalCurrentCount}
+						value2={totalPlannedCount}
+						max={totalPlannedCount}
+						dir={content.lang.dir}
+					/>
+					<span class="ms-2 text-nowrap">
+						<span class="text-accent-primary">{totalCurrentCount}</span>
+						/ {totalPlannedCount}
+					</span>
+				</div>
+				<div
+					class="ms-3 flex flex-row items-center pe-2 text-content-secondary"
+				>
+					<span class="me-2">{content.lang.progress.points}</span>
+					<ProgressBar
+						value={totalCurrentPoints}
+						value2={totalPlannedPoints}
+						max={totalPlannedPoints}
+						dir={content.lang.dir}
+					/>
+					<span class="ms-2 text-nowrap">
+						<span class="text-accent-primary">{totalCurrentPoints}</span>
+						/ {totalPlannedPoints}
+					</span>
+				</div>
+			</div>
+		</div>
+	{/if}
+
 	<div class="mb-7">
 		<h1
 			class="mb-1 me-3 ms-3 flex flex-row items-baseline text-base font-medium text-content-primary"

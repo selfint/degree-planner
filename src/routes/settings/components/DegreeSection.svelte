@@ -77,26 +77,6 @@
 		path = userPath;
 	}
 
-	const shareLink = $derived.by(() => {
-		if (userDegree === undefined) {
-			return undefined;
-		}
-
-		const [year, faculty, degree] = userDegree;
-
-		const semesters = user.semesters.map((s) => s.join('-')).join('~');
-
-		const urlParams = new URLSearchParams();
-		if (path !== undefined) {
-			urlParams.append('path', path);
-		}
-		urlParams.append('semesters', semesters);
-
-		const link = `/preview/${year}/${faculty}/${degree}?${urlParams}`;
-
-		return link;
-	});
-
 	function getFaculties(
 		year: keyof typeof catalogs
 	): { value: string; display: string }[] {
@@ -266,13 +246,6 @@
 				</Button>
 			</div>
 		{:else if !onRecommended}
-			{#if shareLink !== undefined}
-				<a href={shareLink} target="_blank" class="text-content-secondary">
-					<Button variant="primary" onclick={() => {}}>
-						{content.lang.progress.share}
-					</Button>
-				</a>
-			{/if}
 			{#if recommended !== undefined}
 				<Button variant="secondary" onclick={onReset}>
 					{content.lang.progress.revert}

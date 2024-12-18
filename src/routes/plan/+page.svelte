@@ -9,16 +9,33 @@
 	import { user, catalog, content } from '$lib/stores.svelte';
 
 	import { getCourseData } from '$lib/courseData';
-	import { getCourseLists } from '$lib/requirements';
 	import { getScheduleError } from '$lib/schedule';
-
-	const requirements = $derived(catalog()?.requirement);
 
 	let wishlist = $state(user.wishlist);
 	let semesters = $state(user.semesters);
 	let hasChanges = $derived(
 		wishlist !== user.wishlist || semesters !== user.semesters
 	);
+
+	const shareLink = $derived.by(() => {
+		if (user.degree === undefined) {
+			return undefined;
+		}
+
+		const [year, faculty, degree] = user.degree;
+
+		const semesters = user.semesters.map((s) => s.join('-')).join('~');
+
+		const urlParams = new URLSearchParams();
+		if (user.path !== undefined) {
+			urlParams.append('path', user.path);
+		}
+		urlParams.append('semesters', semesters);
+
+		const link = `/preview/${year}/${faculty}/${degree}?${urlParams}`;
+
+		return link;
+	});
 
 	function onSave() {
 		user.wishlist = wishlist;
@@ -99,6 +116,11 @@
 						{content.lang.progress.save}
 					</Button>
 				{/if}
+				<a href={shareLink} target="_blank">
+					<Button variant="primary" onclick={() => {}}>
+						{content.lang.progress.share}
+					</Button>
+				</a>
 			</div>
 		</div>
 		<CourseRow courses={wishlist}>

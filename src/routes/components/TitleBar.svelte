@@ -7,6 +7,7 @@
 	import Nav from './Nav.svelte';
 
 	import { content } from '$lib/stores.svelte';
+	import Settings from '$lib/components/Settings.svelte';
 
 	type Props = {
 		started: boolean;
@@ -89,7 +90,9 @@
 				</div>
 				<Nav target="catalog">{content.lang.header.catalog}</Nav>
 				<Nav target="plan">{content.lang.header.plan}</Nav>
-				<Nav target="progress">{content.lang.header.progress}</Nav>
+				<Nav target="progress">
+					<Settings></Settings>
+				</Nav>
 			</nav>
 		{/if}
 	</div>

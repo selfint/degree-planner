@@ -33,12 +33,12 @@
 </script>
 
 <div class="mt-3">
-	<div class="mb-3">
+	<div class="mb-7">
 		<h1
-			class="text-md mb-2 me-3 ms-3 flex flex-row items-baseline font-medium text-content-primary"
+			class="text-md mb-1 me-3 ms-3 flex flex-row items-baseline font-medium text-content-primary"
 		>
 			<div class="me-2 flex flex-col flex-wrap items-start gap-y-1">
-				<span class="me-1 leading-none">
+				<span class="me-1">
 					{content.lang.catalog.wishlist}
 				</span>
 			</div>
@@ -86,7 +86,7 @@
 				.map(getCourseData)
 				.reduce((sum, { points }) => sum + (points ?? 0), 0)}
 
-			<div class="mb-3 flex flex-col gap-y-1">
+			<div class="mb-7 flex flex-col gap-y-1">
 				<h1
 					class="text-md me-3 ms-3 flex flex-row items-baseline font-medium text-content-primary"
 				>
@@ -111,7 +111,7 @@
 							dir={content.lang.dir}
 						/>
 						<span class="ms-2 text-nowrap">
-							{countCurrent} / {countPlanned}
+							<span class="text-accent-primary">{countCurrent}</span> / {countPlanned}
 						</span>
 					</div>
 					<div
@@ -125,7 +125,7 @@
 							dir={content.lang.dir}
 						/>
 						<span class="ms-2 text-nowrap">
-							{pointsCurrent} / {pointsPlanned}
+							<span class="text-accent-primary">{pointsCurrent}</span> / {pointsPlanned}
 						</span>
 					</div>
 				</div>

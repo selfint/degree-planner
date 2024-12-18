@@ -4,7 +4,7 @@
 	import { getCourseData } from '$lib/courseData';
 	import CourseRow from '$lib/components/CourseRow.svelte';
 	import CourseElement from '$lib/components/CourseElement.svelte';
-	import ProgressBar from '../settings/components/ProgressBar.svelte';
+	import ProgressBar from '$lib/components/ProgressBar.svelte';
 
 	const requirements = $derived(catalog()?.requirement);
 

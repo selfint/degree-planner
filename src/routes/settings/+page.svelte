@@ -1,46 +1,15 @@
 <script lang="ts">
 	import { user, catalog, content } from '$lib/stores.svelte';
-	import { getCourseData } from '$lib/courseData';
-	import { getProgress } from '$lib/progress';
 	import { loadCatalog } from '$lib/requirements';
 
 	import DegreeSection from './components/DegreeSection.svelte';
-	import ProgressSection from './components/ProgressSection.svelte';
 	import SemesterSection from './components/SemesterSection.svelte';
 
 	if (user.username === undefined) {
 		user.username = 'guest';
 	}
 
-	const planned = $derived(user.semesters.map((s) => s.map(getCourseData)));
-	const current = $derived(planned.slice(0, user.currentSemester));
-	const requirements = $derived(catalog()?.requirement);
 	const recommended = $derived(catalog()?.recommended);
-
-	const degreeProgress = $derived.by(() => {
-		if (requirements === undefined) {
-			return undefined;
-		}
-
-		const currentProgress = getProgress(current, requirements);
-		const plannedProgress = getProgress(planned, requirements);
-
-		// global hook for total points
-		currentProgress.courses.done = current.flat();
-		currentProgress.points.done = current
-			.flat()
-			.reduce((acc, c) => acc + (c.points ?? 0), 0);
-
-		plannedProgress.courses.done = planned.flat();
-		plannedProgress.points.done = planned
-			.flat()
-			.reduce((acc, c) => acc + (c.points ?? 0), 0);
-
-		return {
-			current: currentProgress,
-			planned: plannedProgress
-		};
-	});
 
 	// we can't trust svelte to notify us when the degree value *actually*
 	// changes, so we need to keep track of it ourselves

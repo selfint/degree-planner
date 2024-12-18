@@ -27,7 +27,7 @@
 	<div class="w-full border-b-2 border-border bg-background">
 		<TitleBar
 			started={user.username !== undefined}
-			onGetStarted={() => goto('/progress')}
+			onGetStarted={() => goto('/settings')}
 			onSearch={(query) => goto(`/search?q=${query}`)}
 		/>
 	</div>

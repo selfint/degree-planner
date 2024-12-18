@@ -124,7 +124,7 @@
 </script>
 
 <div class="me-3">
-	<h2 class="text-md font-medium text-content-primary">
+	<h2 class="text-base font-medium text-content-primary">
 		{content.lang.progress.degree}
 	</h2>
 	<div

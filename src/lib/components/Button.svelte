@@ -13,7 +13,7 @@
 </script>
 
 <button
-	class="h-full rounded-md border border-transparent p-0.5 pl-3 pr-3 {bg} text-content-primary"
+	class="h-full rounded-md border border-transparent p-0.5 pl-3 pr-3 leading-tight {bg} text-content-primary"
 	{onclick}
 >
 	{@render children()}

@@ -70,7 +70,7 @@
 	{#each groups as [scores, group], index}
 		<div class="mb-2">
 			<h1
-				class="text-md mb-2 me-3 ms-3 flex flex-row items-baseline font-medium text-content-primary"
+				class="mb-2 me-3 ms-3 flex flex-row items-baseline text-base font-medium text-content-primary"
 			>
 				<div class="me-2 flex flex-col flex-wrap items-start gap-y-1">
 					{#each titles as title}

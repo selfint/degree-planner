@@ -35,7 +35,7 @@
 <div class="mt-3">
 	<div class="mb-7">
 		<h1
-			class="text-md mb-1 me-3 ms-3 flex flex-row items-baseline font-medium text-content-primary"
+			class="mb-1 me-3 ms-3 flex flex-row items-baseline text-base font-medium text-content-primary"
 		>
 			<div class="me-2 flex flex-col flex-wrap items-start gap-y-1">
 				<span class="me-1">
@@ -88,7 +88,7 @@
 
 			<div class="mb-7 flex flex-col gap-y-1">
 				<h1
-					class="text-md me-3 ms-3 flex flex-row items-baseline font-medium text-content-primary"
+					class="me-3 ms-3 flex flex-row items-baseline text-base font-medium text-content-primary"
 				>
 					<div class="me-2 flex flex-row flex-wrap items-start gap-y-1">
 						{#each list.path as title}

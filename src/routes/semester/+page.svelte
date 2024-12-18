@@ -302,7 +302,7 @@
 				<h1
 					class="w-fit border-b-2 {currentSemester === user.currentSemester
 						? 'border-accent-primary'
-						: 'border-transparent'} text-md font-medium text-content-primary"
+						: 'border-transparent'} text-base font-medium text-content-primary"
 				>
 					{content.lang.common.seasons[currentSemester % 3]}
 					{Math.floor(currentSemester / 3) + 1}

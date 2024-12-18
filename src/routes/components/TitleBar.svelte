@@ -90,7 +90,7 @@
 				</div>
 				<Nav target="catalog">{content.lang.header.catalog}</Nav>
 				<Nav target="plan">{content.lang.header.plan}</Nav>
-				<Nav target="progress">
+				<Nav target="settings">
 					<Settings></Settings>
 				</Nav>
 			</nav>

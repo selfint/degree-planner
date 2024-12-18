@@ -36,7 +36,7 @@
 			</p>
 
 			<div class="h-9">
-				<Button variant="primary" onclick={() => goto('/progress')}>
+				<Button variant="primary" onclick={() => goto('/settings')}>
 					{content.lang.common.getStarted}
 				</Button>
 			</div>

@@ -1,84 +1,106 @@
-<script>
-	import * as pdfjs from 'pdfjs-dist';
+<script lang="ts">
+	import type { Transcript } from '$lib/transcriptParser';
+	import * as TranscriptParser from '$lib/transcriptParser';
+	import { user, content } from '$lib/stores.svelte';
+	import Button from '$lib/components/Button.svelte';
+	import Semester from '$lib/components/Semester.svelte';
+	import CourseElement from '$lib/components/CourseElement.svelte';
 	import { getCourseData } from '$lib/courseData';
+	import CourseRow from '$lib/components/CourseRow.svelte';
 
-	pdfjs.GlobalWorkerOptions.workerSrc =
-		'../../../../node_modules/pdfjs-dist/build/pdf.worker.min.mjs';
+	let transcript: Transcript | undefined = $state(undefined);
 
-	let extractedText = $state('');
-	let pdfFile = $state(null);
-
-	async function extractTextFromPDF(file) {
+	async function handleFileUpload(event: unknown) {
+		// @ts-expect-error
+		const file = event.target.files[0];
 		if (!file) return;
 
-		const fileReader = new FileReader();
+		const buffer = await file.arrayBuffer();
 
-		fileReader.onload = async (event) => {
-			const typedArray = new Uint8Array(event.target.result);
-			const pdf = await pdfjs.getDocument(typedArray).promise;
-			let text = '';
-
-			for (let i = 1; i <= pdf.numPages; i++) {
-				const page = await pdf.getPage(i);
-				const textContent = await page.getTextContent();
-				console.log(textContent);
-				text += textContent.items.map((item) => item.str).join(' ') + '\n';
-			}
-
-			extractedText = text;
-		};
-
-		fileReader.readAsArrayBuffer(file);
+		const result = await TranscriptParser.parseTranscript(buffer);
+		if (result !== undefined) {
+			transcript = result;
+		}
 	}
 
-	function handleFileUpload(event) {
-		pdfFile = event.target.files[0];
-		extractTextFromPDF(pdfFile);
-	}
+	function onSave(t: Transcript) {
+		const currentSemester = t.semesters.length - 1;
 
-	// yyyy-yyyy regex
-	const yearRegex = /(?:\d{4})-(?:\d{4})/g;
-
-	// course code regex - 6 to 8 digits
-	const courseRegex = /(\d{6,8})/g;
-
-	const semesters = $derived.by(() => {
-		if (extractedText === '') {
-			return [];
+		const semesters = t.semesters;
+		while (semesters.length < 9) {
+			semesters.push([]);
 		}
 
-		// separate text by yearRegex
-		const parts = extractedText.split(yearRegex);
+		user.semesters = semesters;
+		user.currentSemester = currentSemester;
+		user.wishlist = t.exemptions;
+	}
 
-		console.log(parts);
-
-		// get all course regex in each part
-		const courses = parts.map((part) =>
-			[...new Set(part.match(courseRegex))]
-				// left pad with zeros to 8 digits
-				.map((c) => c.padStart(8, '0'))
-				.filter((c) => getCourseData(c).name !== undefined)
-		);
-
-		return courses;
-	});
+	function onCancel() {
+		transcript = undefined;
+	}
 </script>
 
-<main class="mx-auto mt-10 max-w-xl rounded-lg bg-white p-6 shadow-md">
-	<h1 class="mb-4 text-center text-2xl font-bold">Extract Text from PDF</h1>
-
-	<div class="mb-6">
-		<input
-			type="file"
-			accept="application/pdf"
-			onchange={handleFileUpload}
-			class="block w-full cursor-pointer rounded-lg border border-gray-300 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-		/>
-	</div>
-
-	<h2 class="mb-2 text-xl font-semibold">Extracted Text</h2>
-	<pre
-		class="whitespace-pre-wrap rounded-lg border border-gray-300 bg-gray-100 p-4">
-        {JSON.stringify(semesters)}
-      </pre>
-</main>
+<div>
+	<h2 class="mb-2 text-base font-medium text-content-primary">
+		{content.lang.settings.upload}
+	</h2>
+	{#if transcript === undefined}
+		<div class="mb-6 w-fit">
+			<div
+				class="h-full cursor-pointer rounded-md border border-transparent bg-accent-primary p-0.5 pl-3 pr-3 leading-tight text-content-primary"
+			>
+				<label class="block h-full w-full cursor-pointer">
+					{content.lang.settings.uploadLabel}
+					<input
+						type="file"
+						accept="application/pdf"
+						onchange={handleFileUpload}
+						class="hidden"
+					/>
+				</label>
+			</div>
+		</div>
+	{:else}
+		<div class="mb-6 flex w-fit flex-row gap-x-1">
+			<div class="w-fit">
+				<Button variant="primary" onclick={() => onSave(transcript!)}>
+					{content.lang.settings.save}
+				</Button>
+			</div>
+			<div class="w-fit">
+				<Button variant="secondary" onclick={onCancel}>
+					{content.lang.settings.cancel}
+				</Button>
+			</div>
+		</div>
+		<div class="mb-4">
+			<h2 class="mb-2 text-base font-medium text-content-primary">
+				{content.lang.settings.exemptions}
+			</h2>
+			<CourseRow courses={transcript.exemptions} indent={0}>
+				{#snippet children({ course })}
+					<CourseElement {course} />
+				{/snippet}
+			</CourseRow>
+		</div>
+		<div style="transform: rotateX(180deg)" class="overflow-x-auto">
+			<div style="transform: rotateX(180deg)" class="flex flex-row">
+				{#each transcript.semesters as semester, semesterIndex}
+					<div class="pe-2" role="button" tabindex={semesterIndex}>
+						<Semester
+							index={semesterIndex}
+							semester={semester.map(getCourseData)}
+							isCurrent={semesterIndex === transcript.semesters.length - 1}
+						>
+							{#snippet children({ course })}
+								<CourseElement {course} squeeze={true} />
+							{/snippet}
+						</Semester>
+					</div>
+				{/each}
+				<div class="min-w-[1px]"></div>
+			</div>
+		</div>
+	{/if}
+</div>

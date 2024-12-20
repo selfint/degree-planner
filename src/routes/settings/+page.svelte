@@ -90,6 +90,8 @@
 				{validTotalValues}
 			/>
 		</div>
+	{/if}
+	{#if user.degree !== undefined && user.semesters.flat().length === 0}
 		<div class="mb-4 ms-3">
 			<UploadSection />
 		</div>

@@ -96,7 +96,7 @@
 				<div
 					class="ms-3 flex flex-row items-center pe-2 text-content-secondary"
 				>
-					<span class="me-2">{content.lang.progress.count}</span>
+					<span class="me-2">{content.lang.settings.count}</span>
 					<ProgressBar
 						value={totalCurrentCount}
 						value2={totalPlannedCount}
@@ -111,7 +111,7 @@
 				<div
 					class="ms-3 flex flex-row items-center pe-2 text-content-secondary"
 				>
-					<span class="me-2">{content.lang.progress.points}</span>
+					<span class="me-2">{content.lang.settings.points}</span>
 					<ProgressBar
 						value={totalCurrentPoints}
 						value2={totalPlannedPoints}
@@ -201,7 +201,7 @@
 					<div
 						class="ms-3 flex flex-row items-center pe-2 text-content-secondary"
 					>
-						<span class="me-2">{content.lang.progress.count}</span>
+						<span class="me-2">{content.lang.settings.count}</span>
 						<ProgressBar
 							value={countCurrent}
 							value2={countPlanned}
@@ -217,7 +217,7 @@
 					<div
 						class="ms-3 flex flex-row items-center pe-2 text-content-secondary"
 					>
-						<span class="me-2">{content.lang.progress.points}</span>
+						<span class="me-2">{content.lang.settings.points}</span>
 						<ProgressBar
 							value={pointsCurrent}
 							value2={pointsPlanned}

@@ -98,6 +98,12 @@ export async function syncFirebase(firebase: FirebaseServices) {
 		toFirestore: (data: FirestoreData) => {
 			// @ts-expect-error
 			data.semesters = encodeSemesters(data.semesters ?? []);
+			data.currentSemester = data.currentSemester ?? 0;
+			data.wishlist = data.wishlist ?? [];
+			// @ts-expect-error
+			data.degree = data.degree ?? null;
+			// @ts-expect-error
+			data.path = data.path ?? null;
 
 			return data;
 		},
@@ -105,6 +111,8 @@ export async function syncFirebase(firebase: FirebaseServices) {
 			const d = snap.data();
 
 			d.semesters = decodeSemesters(d.semesters);
+			d.degree = d.degree ?? undefined;
+			d.path = d.path ?? undefined;
 
 			return d as FirestoreData;
 		}

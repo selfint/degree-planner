@@ -40,56 +40,60 @@
 		<span class="text-content-secondary">
 			{content.lang.progress.current}
 		</span>
-		<Select bind:value={semesterChoice}>
-			{#each Array.from({ length: user.semesters.length }) as _, i}
-				<option value={i}>
-					{content.lang.common.seasons[i % 3]}
-					{Math.floor(i / 3) + 1}
-				</option>
-			{/each}
-		</Select>
+		<div class="flex flex-row gap-x-1">
+			<Select bind:value={semesterChoice}>
+				{#each Array.from({ length: user.semesters.length }) as _, i}
+					<option value={i}>
+						{content.lang.common.seasons[i % 3]}
+						{Math.floor(i / 3) + 1}
+					</option>
+				{/each}
+			</Select>
 
-		{#if semesterChoice !== user.currentSemester}
-			<div class="w-fit">
-				<Button variant="primary" onclick={onUpdateCurrentSemester}>
-					{content.lang.progress.save}
-				</Button>
-			</div>
-			<div class="w-fit">
-				<Button
-					variant="secondary"
-					onclick={() => (semesterChoice = user.currentSemester)}
-				>
-					{content.lang.progress.cancel}
-				</Button>
-			</div>
-		{/if}
+			{#if semesterChoice !== user.currentSemester}
+				<div class="w-fit">
+					<Button variant="primary" onclick={onUpdateCurrentSemester}>
+						{content.lang.progress.save}
+					</Button>
+				</div>
+				<div class="w-fit">
+					<Button
+						variant="secondary"
+						onclick={() => (semesterChoice = user.currentSemester)}
+					>
+						{content.lang.progress.cancel}
+					</Button>
+				</div>
+			{/if}
+		</div>
 		<span class="text-content-secondary">
 			{content.lang.progress.total}
 		</span>
-		<Select bind:value={totalSemestersChoice}>
-			{#each validTotalValues as i}
-				<option value={i}>
-					{i}
-					({content.lang.common.seasons[(i - 1) % 3]}
-					{Math.floor((i - 1) / 3) + 1})
-				</option>
-			{/each}
-		</Select>
-		{#if totalSemestersChoice !== user.semesters.length}
-			<div class="w-fit">
-				<Button variant="primary" onclick={onUpdateTotalSemesters}>
-					{content.lang.progress.save}
-				</Button>
-			</div>
-			<div class="w-fit">
-				<Button
-					variant="secondary"
-					onclick={() => (totalSemestersChoice = user.semesters.length)}
-				>
-					{content.lang.progress.cancel}
-				</Button>
-			</div>
-		{/if}
+		<div class="flex flex-row gap-x-1">
+			<Select bind:value={totalSemestersChoice}>
+				{#each validTotalValues as i}
+					<option value={i}>
+						{i}
+						({content.lang.common.seasons[(i - 1) % 3]}
+						{Math.floor((i - 1) / 3) + 1})
+					</option>
+				{/each}
+			</Select>
+			{#if totalSemestersChoice !== user.semesters.length}
+				<div class="w-fit">
+					<Button variant="primary" onclick={onUpdateTotalSemesters}>
+						{content.lang.progress.save}
+					</Button>
+				</div>
+				<div class="w-fit">
+					<Button
+						variant="secondary"
+						onclick={() => (totalSemestersChoice = user.semesters.length)}
+					>
+						{content.lang.progress.cancel}
+					</Button>
+				</div>
+			{/if}
+		</div>
 	</div>
 </div>

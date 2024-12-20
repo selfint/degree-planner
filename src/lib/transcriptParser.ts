@@ -1,8 +1,9 @@
 import * as pdfjs from 'pdfjs-dist';
+import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
+
 import { getCourseData } from '$lib/courseData';
 
-pdfjs.GlobalWorkerOptions.workerSrc =
-	'../../../node_modules/pdfjs-dist/build/pdf.worker.min.mjs';
+pdfjs.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 
 export type Transcript = {
 	semesters: string[][];

@@ -7,6 +7,7 @@
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import { getCourseData } from '$lib/courseData';
 	import CourseRow from '$lib/components/CourseRow.svelte';
+	import { goto } from '$app/navigation';
 
 	let transcript: Transcript | undefined = $state(undefined);
 
@@ -34,6 +35,8 @@
 		user.semesters = semesters;
 		user.currentSemester = currentSemester;
 		user.wishlist = t.exemptions;
+
+		goto('/plan');
 	}
 
 	function onCancel() {

@@ -125,13 +125,13 @@
 
 <div class="me-3">
 	<h2 class="text-base font-medium text-content-primary">
-		{content.lang.progress.degree}
+		{content.lang.settings.degree}
 	</h2>
 	<div
 		class="grid w-fit max-w-full grid-cols-[auto_auto] items-baseline gap-x-2 gap-y-1"
 	>
 		<span class="text-content-secondary">
-			{content.lang.progress.year}
+			{content.lang.settings.year}
 		</span>
 		<Select
 			bind:value={year}
@@ -142,7 +142,7 @@
 			}}
 		>
 			{#if year === undefined}
-				<option value={undefined}>{content.lang.progress.selectYear}</option>
+				<option value={undefined}>{content.lang.settings.selectYear}</option>
 			{/if}
 			{#if years !== undefined}
 				{#each years as yearSemester}
@@ -157,7 +157,7 @@
 
 		{#if year !== undefined}
 			<span class="text-content-secondary">
-				{content.lang.progress.faculty}
+				{content.lang.settings.faculty}
 			</span>
 			<Select
 				bind:value={faculty}
@@ -168,7 +168,7 @@
 			>
 				{#if faculty === undefined}
 					<option value={undefined}>
-						{content.lang.progress.selectFaculty}
+						{content.lang.settings.selectFaculty}
 					</option>
 				{/if}
 				{#each getFaculties(year) as { display, value }}
@@ -181,7 +181,7 @@
 
 		{#if year !== undefined && faculty !== undefined}
 			<span class="text-content-secondary">
-				{content.lang.progress.degree}
+				{content.lang.settings.degree}
 			</span>
 			<Select
 				bind:value={degree}
@@ -191,7 +191,7 @@
 			>
 				{#if degree === undefined}
 					<option value={undefined}>
-						{content.lang.progress.selectDegree}
+						{content.lang.settings.selectDegree}
 					</option>
 				{/if}
 				{#each getDegrees(year, faculty) as { display, value }}
@@ -206,12 +206,12 @@
 			{@const paths = getPaths(year, faculty, degree)}
 			{#if paths.length > 0}
 				<span class="text-content-secondary">
-					{content.lang.progress.path}
+					{content.lang.settings.path}
 				</span>
 				<Select bind:value={path}>
 					{#if path === undefined}
 						<option value={undefined}>
-							{content.lang.progress.selectPath}
+							{content.lang.settings.selectPath}
 						</option>
 					{/if}
 					{#each paths as { display, value }}
@@ -238,17 +238,17 @@
 							}
 						}}
 					>
-						{content.lang.progress.save}
+						{content.lang.settings.save}
 					</Button>
 				{/if}
 				<Button variant="secondary" onclick={reset}>
-					{content.lang.progress.cancel}
+					{content.lang.settings.cancel}
 				</Button>
 			</div>
 		{:else if !onRecommended}
 			{#if recommended !== undefined}
 				<Button variant="secondary" onclick={onReset}>
-					{content.lang.progress.revert}
+					{content.lang.settings.revert}
 				</Button>
 			{/if}
 		{/if}

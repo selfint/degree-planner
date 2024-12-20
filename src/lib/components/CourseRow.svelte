@@ -16,13 +16,23 @@
 	const margin = $derived(`margin-inline-end: ${offset}`);
 
 	const _courses = $derived(
-		courses.map((c) => {
-			if (typeof c === 'string') {
-				return getCourseData(c);
-			}
+		courses
+			.map((c) => {
+				if (typeof c === 'string') {
+					return getCourseData(c);
+				}
 
-			return c;
-		})
+				return c;
+			})
+			.toSorted((a, b) => {
+				const medians = (b.median ?? 0) - (a.median ?? 0);
+
+				if (medians !== 0) {
+					return medians;
+				}
+
+				return (a.code ?? '').localeCompare(b.code ?? '');
+			})
 	);
 
 	let row: HTMLDivElement;

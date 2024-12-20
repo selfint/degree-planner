@@ -10,11 +10,7 @@
 	import { user, catalog, content } from '$lib/stores.svelte';
 	import { getCourseData } from '$lib/courseData';
 	import { getScheduleError } from '$lib/schedule';
-	import {
-		getCourseLists,
-		getDegreeRequirementCourses
-	} from '$lib/requirements';
-	import RequirementsElement from '$lib/components/RequirementsElement.svelte';
+	import { getDegreeRequirementCourses } from '$lib/requirements';
 
 	let disabled: string[] = $state([]);
 
@@ -98,7 +94,13 @@
 		let lists: [Requirement[], Course[], boolean][] = [];
 
 		lists.push([
-			[{ name: content.lang.semester.wishlist }],
+			[
+				{
+					name: content.lang.semester.wishlist,
+					en: content.lang.semester.wishlist,
+					he: content.lang.semester.wishlist
+				}
+			],
 			wishlistCourses,
 			false
 		]);
@@ -106,7 +108,8 @@
 		for (const [index, courses] of futureSemesters) {
 			const season = content.lang.common.seasons[index % 3];
 			const year = Math.floor(index / 3) + 1;
-			lists.push([[{ name: `${season} ${year}` }], courses, false]);
+			const name = `${season} ${year}`;
+			lists.push([[{ name, en: name, he: name }], courses, false]);
 		}
 
 		if (requirementCourses !== undefined) {
@@ -296,7 +299,7 @@
 		</Semester>
 	</div>
 
-	<div class="sticky top-0 bg-background pb-2 sm:hidden">
+	<div class="sticky top-0 mb-5 bg-background pb-2 sm:hidden">
 		<div class="mb-2 me-3 mt-1 flex flex-row items-center justify-between pt-2">
 			<div class="ms-3">
 				<h1
@@ -339,7 +342,7 @@
 
 	<div class="flex-1 overflow-x-auto">
 		{#each loloco as [titles, courses, colorize]}
-			<div class="pb-3">
+			<div class="mb-7">
 				<h1 class="mb-1.5 ms-3 font-medium text-content-primary sm:ms-0">
 					<div class="me-2 flex flex-col flex-wrap items-start gap-y-1">
 						{#each titles as title}
@@ -356,11 +359,6 @@
 							<button onmousedown={() => goto(`/course/${course.code}`)}>
 								<CourseElement
 									{course}
-									scheduleError={getScheduleError(
-										course,
-										user.semesters,
-										currentSemester
-									)}
 									tests={currentSemester === user.currentSemester
 										? effectiveSemester
 										: undefined}
@@ -375,11 +373,6 @@
 							<button onmousedown={() => goto(`/course/${course.code}`)}>
 								<CourseElement
 									{course}
-									scheduleError={getScheduleError(
-										course,
-										user.semesters,
-										currentSemester
-									)}
 									tests={currentSemester === user.currentSemester
 										? effectiveSemester
 										: undefined}

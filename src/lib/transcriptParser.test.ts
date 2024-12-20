@@ -4,6 +4,8 @@ import * as TranscriptParser from './transcriptParser';
 import fs from 'fs';
 import path from 'path';
 
+const url = '../../../node_modules/pdfjs-dist/build/pdf.worker.min.mjs';
+
 describe('Transcript parser', () => {
 	it('should parse English transcript', async (ctx) => {
 		const filePath = path.resolve(
@@ -13,7 +15,7 @@ describe('Transcript parser', () => {
 		const file = fs.readFileSync(filePath);
 		const buffer = new Uint8Array(file);
 
-		const courses = await TranscriptParser.parseTranscript(buffer);
+		const courses = await TranscriptParser.parseTranscript(buffer, url);
 
 		ctx.expect(courses).toMatchInlineSnapshot(`
 			{
@@ -62,7 +64,7 @@ describe('Transcript parser', () => {
 		const file = fs.readFileSync(filePath);
 		const buffer = new Uint8Array(file);
 
-		const courses = await TranscriptParser.parseTranscript(buffer);
+		const courses = await TranscriptParser.parseTranscript(buffer, url);
 
 		ctx.expect(courses).toMatchInlineSnapshot(`
 			{

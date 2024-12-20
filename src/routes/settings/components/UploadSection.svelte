@@ -8,6 +8,7 @@
 	import { getCourseData } from '$lib/courseData';
 	import CourseRow from '$lib/components/CourseRow.svelte';
 	import { goto } from '$app/navigation';
+	import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 
 	let transcript: Transcript | undefined = $state(undefined);
 
@@ -18,7 +19,7 @@
 
 		const buffer = await file.arrayBuffer();
 
-		const result = await TranscriptParser.parseTranscript(buffer);
+		const result = await TranscriptParser.parseTranscript(buffer, pdfWorkerUrl);
 		if (result !== undefined) {
 			transcript = result;
 		}

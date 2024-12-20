@@ -1,9 +1,6 @@
 import * as pdfjs from 'pdfjs-dist';
-import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 
 import { getCourseData } from '$lib/courseData';
-
-pdfjs.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 
 export type Transcript = {
 	semesters: string[][];
@@ -11,10 +8,11 @@ export type Transcript = {
 };
 
 export async function parseTranscript(
-	buffer: Uint8Array
+	buffer: Uint8Array,
+	workerSrcUrl: string
 ): Promise<Transcript | undefined> {
+	pdfjs.GlobalWorkerOptions.workerSrc = workerSrcUrl;
 	const pdf = await pdfjs.getDocument(buffer).promise;
-	let text = '';
 
 	// yyyy-yyyy regex
 	const yearRegex = /(?:\d{4})-(?:\d{4})/g;
@@ -82,13 +80,6 @@ export async function parseTranscript(
 					currentBasicSemester.push(code);
 					current?.semester.push(code);
 				}
-				console.log({
-					code,
-					currentBasicSemester,
-					current,
-					isExemptions,
-					exemptions
-				});
 			} else if (exemption.some((exempt) => str.includes(exempt))) {
 				isExemptions = true;
 			}

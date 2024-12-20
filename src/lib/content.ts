@@ -39,22 +39,19 @@ export const cms = {
 			],
 			progress: {
 				header: `
-					Choose a degree. See all requirements for it, and your progress in them.
-					For each requirement, there are 2 values:
+					See degree catalog, and your degree progress.
+					For each section, there are 3 values:
 				`,
 				done: 'done',
 				planned: 'planned',
-				required: 'required',
+				total: 'total',
 				notification: {
 					header: 'If a requirement has special rules that were applied, a',
 					notification: 'notification',
 					footer: 'will appear with an explanation.'
 				},
 				markAsDone: `
-					Below each requirement with progress, the courses that
-					contributed to it are listed. Courses that are planned
-					for future semesters are grayed out. Courses are counted
-					as done if they were taken before the current semester.
+					In each section y
 				`
 			},
 			plan: {
@@ -70,9 +67,25 @@ export const cms = {
 					The first row is for first exams, and the second for second exams.
 				`
 			},
-			catalog: `
-				View courses sorted by requirement and median grade.
-			`,
+			catalog: {
+				header: `
+					See degree catalog, and your progress in it.
+					Progress is by course count and points.
+					Each progress bar has 3 values:
+				`,
+				done: 'done',
+				planned: 'planned',
+				total: 'total',
+				notification: {
+					header: 'If a requirement has special rules that were applied, a',
+					notification: 'notification',
+					footer: 'will appear with an explanation.'
+				},
+				footer: `
+					Courses are sorted by median, and count as done if they
+					were taken before the current semester.
+				`
+			},
 			course: `
 				See course info, dependencies, exclusives, and more.
 				Add them to your current semester or wish list.
@@ -193,7 +206,7 @@ export const cms = {
 				`,
 				done: 'בוצע',
 				planned: 'מתוכנן',
-				required: 'נדרש',
+				total: 'סה״כ',
 				notification: {
 					header: 'אם לדרישה יש כללים מיוחדים שהשפיעו על ההתקדמות, אז',
 					notification: 'התראה',
@@ -219,9 +232,25 @@ export const cms = {
 					השורה הראשונה היא עבור מועדי א׳, והשנייה עבור מועדי ב׳.
 				`
 			},
-			catalog: `
-				צפה בקורסים ממוינים לפי דרישה וציון חציון.
-			`,
+			catalog: {
+				header: `
+					ראה את הקטלוג של התואר, והתקדמותך בו.
+					ההתקדמות היא לפי מספר קורסים ונקודות.
+					לכל סרגל התקדמות יש 3 ערכים:
+				`,
+				done: 'בוצע',
+				planned: 'מתוכנן',
+				total: 'סה״כ',
+				notification: {
+					header: 'אם לדרישה יש כללים מיוחדים שהשפיעו על ההתקדמות, אז',
+					notification: 'התראה',
+					footer: 'תופיע עם הסבר.'
+				},
+				footer: `
+					קורסים מסודרים לפי חציון, ונחשבים כמבוצעים אם הושלמו
+					לפני הסמסטר הנוכחי.
+				`
+			},
 			course: `
 				ראה מידע על הקורס, קדמים, מקצועות ללא זיכוי נוסף, ועוד.
 				הוסף אותם לסמסטר הנוכחי או לרשימת המשאלות שלך.

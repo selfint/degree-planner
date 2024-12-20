@@ -173,10 +173,14 @@
 			)}
 			{@const countCurrent = listCurrent.length}
 			{@const countPlanned = listPlanned.length}
+			{@const countTotal = list.courses.length}
 			{@const pointsCurrent = listCurrent
 				.map(getCourseData)
 				.reduce((sum, { points }) => sum + (points ?? 0), 0)}
 			{@const pointsPlanned = listPlanned
+				.map(getCourseData)
+				.reduce((sum, { points }) => sum + (points ?? 0), 0)}
+			{@const pointsTotal = list.courses
 				.map(getCourseData)
 				.reduce((sum, { points }) => sum + (points ?? 0), 0)}
 
@@ -201,11 +205,13 @@
 						<ProgressBar
 							value={countCurrent}
 							value2={countPlanned}
-							max={countPlanned}
+							max={countTotal}
 							dir={content.lang.dir}
 						/>
 						<span class="ms-2 text-nowrap">
-							<span class="text-accent-primary">{countCurrent}</span> / {countPlanned}
+							<span class="text-accent-primary">{countCurrent}</span>
+							/ {countPlanned}
+							/ {countTotal}
 						</span>
 					</div>
 					<div
@@ -215,11 +221,13 @@
 						<ProgressBar
 							value={pointsCurrent}
 							value2={pointsPlanned}
-							max={pointsPlanned}
+							max={pointsTotal}
 							dir={content.lang.dir}
 						/>
 						<span class="ms-2 text-nowrap">
-							<span class="text-accent-primary">{pointsCurrent}</span> / {pointsPlanned}
+							<span class="text-accent-primary">{pointsCurrent}</span>
+							/ {pointsPlanned}
+							/ {pointsTotal}
 						</span>
 					</div>
 				</div>

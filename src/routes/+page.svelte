@@ -46,27 +46,6 @@
 	<div
 		class="mt-8 flex flex-col items-center space-y-8 p-3 sm:mt-20 sm:max-w-[1024px]"
 	>
-		<Demo src={progress} title={content.lang.header.progress}>
-			<span>
-				{content.lang.landing.progress.header}
-				<span class="text-nowrap rounded-md bg-card-primary p-1">
-					<span class="text-accent-primary">
-						{content.lang.landing.progress.done}
-					</span>
-					/ {content.lang.landing.progress.planned}
-				</span>
-				{content.lang.landing.progress.notification.header}
-				<span class="text-nowrap rounded-md bg-card-primary p-1">
-					<span class="text-yellow-400"> ⚠ </span>
-					{content.lang.landing.progress.notification.notification}
-				</span>
-				{content.lang.landing.progress.notification.footer}
-				<br />
-				<br />
-				{content.lang.landing.progress.markAsDone}
-			</span>
-		</Demo>
-
 		<Demo src={plan} title={content.lang.header.plan}>
 			{content.lang.landing.plan.header}
 			<br />
@@ -75,7 +54,17 @@
 		</Demo>
 
 		<Demo src={catalog} title={content.lang.header.catalog}>
-			{content.lang.landing.catalog}
+			{content.lang.landing.catalog.header}
+			<span class="text-nowrap rounded-md bg-card-primary p-1">
+				<span class="text-accent-primary">
+					{content.lang.landing.catalog.done}
+				</span>
+				/ {content.lang.landing.catalog.planned}
+				/ {content.lang.landing.catalog.total}
+			</span>.
+			<br />
+			<br />
+			{content.lang.landing.catalog.footer}
 		</Demo>
 
 		<Demo src={course} title={content.lang.common.course}>

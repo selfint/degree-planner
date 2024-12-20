@@ -6,6 +6,27 @@
 	import SemesterSection from './components/SemesterSection.svelte';
 	import UploadSection from './components/UploadSection.svelte';
 
+	import { session } from '$lib/firebase.svelte';
+	import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+	import Button from '$lib/components/Button.svelte';
+
+	const { data } = $props();
+
+	function signIn() {
+		signInWithPopup(data.auth, new GoogleAuthProvider()).then((result) => {
+			// This gives you a Google Access Token. You can use it to access the Google API.
+			const credential = GoogleAuthProvider.credentialFromResult(result);
+			if (credential !== null) {
+				const token = credential.accessToken;
+				// The signed-in user info.
+				const user = result.user;
+
+				session.user = user;
+				session.token = token;
+			}
+		});
+	}
+
 	if (user.username === undefined) {
 		user.username = 'guest';
 	}
@@ -72,6 +93,23 @@
 </script>
 
 <div class="mt-3">
+	<div class="mb-4 ms-3">
+		<h1 class="text-xl text-content-primary">
+			Welcome, {session.user?.displayName ?? user.username}
+		</h1>
+		{#if session.user === undefined}
+			<Button variant="secondary" onclick={signIn}>
+				<span class="flex flex-row gap-x-2">
+					<span> Sign in with </span>
+					<img
+						src="https://www.svgrepo.com/show/355037/google.svg"
+						alt="Google Logo"
+						class="h-5 w-5"
+					/>
+				</span>
+			</Button>
+		{/if}
+	</div>
 	<div class="mb-4 ms-3">
 		<DegreeSection
 			userDegree={user.degree}

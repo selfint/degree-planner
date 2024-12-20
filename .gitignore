@@ -11,3 +11,4 @@ vite.config.ts.timestamp-*
 test-results/
 /.vercel
 catalogs.json
+firebase-debug.log

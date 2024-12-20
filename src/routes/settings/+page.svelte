@@ -4,6 +4,7 @@
 
 	import DegreeSection from './components/DegreeSection.svelte';
 	import SemesterSection from './components/SemesterSection.svelte';
+	import UploadSection from './components/UploadSection.svelte';
 
 	if (user.username === undefined) {
 		user.username = 'guest';
@@ -88,6 +89,9 @@
 				{totalSemestersChoice}
 				{validTotalValues}
 			/>
+		</div>
+		<div class="mb-4 ms-3">
+			<UploadSection />
 		</div>
 	{/if}
 </div>

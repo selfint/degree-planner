@@ -2,29 +2,17 @@
 	import { user, catalog, content } from '$lib/stores.svelte';
 	import { loadCatalog } from '$lib/requirements';
 
+	import Button from '$lib/components/Button.svelte';
 	import DegreeSection from './components/DegreeSection.svelte';
 	import SemesterSection from './components/SemesterSection.svelte';
 	import UploadSection from './components/UploadSection.svelte';
 
-	import { session } from '$lib/firebase.svelte';
-	import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
-	import Button from '$lib/components/Button.svelte';
+	import { signIn } from '$lib/firebase.svelte';
 
-	const { data } = $props();
+	const { data: firebase } = $props();
 
-	function signIn() {
-		signInWithPopup(data.auth, new GoogleAuthProvider()).then((result) => {
-			// This gives you a Google Access Token. You can use it to access the Google API.
-			const credential = GoogleAuthProvider.credentialFromResult(result);
-			if (credential !== null) {
-				const token = credential.accessToken;
-				// The signed-in user info.
-				const user = result.user;
-
-				session.user = user;
-				session.token = token;
-			}
-		});
+	async function onSignInWithGoogle() {
+		await signIn(firebase);
 	}
 
 	if (user.username === undefined) {
@@ -90,15 +78,18 @@
 			(i) => i >= maxNonEmptySemesterIndex
 		)
 	);
+
+	let currentUser = $state(firebase.auth.currentUser);
+	firebase.auth.onAuthStateChanged((u) => (currentUser = u));
 </script>
 
 <div class="mt-3">
 	<div class="mb-4 ms-3">
 		<h1 class="text-xl text-content-primary">
-			Welcome, {session.user?.displayName ?? user.username}
+			Welcome, {currentUser?.displayName ?? user.username}
 		</h1>
-		{#if session.user === undefined}
-			<Button variant="secondary" onclick={signIn}>
+		{#if currentUser === null}
+			<Button variant="secondary" onclick={onSignInWithGoogle}>
 				<span class="flex flex-row gap-x-2">
 					<span> Sign in with </span>
 					<img

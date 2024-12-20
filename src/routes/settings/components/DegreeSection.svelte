@@ -25,6 +25,13 @@
 	let degree: string | undefined = $state(userDegree?.[2]);
 	let path: string | undefined = $state(userPath);
 
+	$effect(() => {
+		year = userDegree?.[0];
+		faculty = userDegree?.[1];
+		degree = userDegree?.[2];
+		path = userPath;
+	});
+
 	function arraysEqualIgnoreOrder(a: string[], b: string[]) {
 		if (a.length !== b.length) return false;
 		const sortedA = [...a].sort();
@@ -54,7 +61,7 @@
 		if (paths.length === 0) {
 			return true;
 		} else {
-			const r = paths.map((p) => p.value).includes(path);
+			const r = paths.map((p) => p.value).includes(p);
 			return r;
 		}
 	}

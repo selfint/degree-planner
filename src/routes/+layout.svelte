@@ -16,7 +16,13 @@
 	injectSpeedInsights();
 	inject();
 
-	const { children } = $props();
+	const { data: firebase, children } = $props();
+
+	$effect(() => {
+		firebase.auth.onAuthStateChanged((u) => {
+			console.log('here2', `${JSON.stringify(u?.toJSON())} `);
+		});
+	});
 
 	function onchangeLang(newValue: (typeof cms)[keyof typeof cms]): void {
 		localStorage.setItem('lang', newValue.lang);

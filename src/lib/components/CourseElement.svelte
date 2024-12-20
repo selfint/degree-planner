@@ -17,9 +17,11 @@
 
 	let { course, note, squeeze = false, scheduleError, tests }: Props = $props();
 
-	const color = generateCourseColor(course);
+	const color = $derived(generateCourseColor(course));
 
-	const hasTest = course.tests !== undefined && course.tests.length > 0;
+	const hasTest = $derived(
+		course.tests !== undefined && course.tests.length > 0
+	);
 </script>
 
 <div

@@ -213,23 +213,53 @@ export async function getMedian(course) {
 async function parseCourse(course, current) {
 	const code = course.Otjid;
 
-	try {
-		return {
+	const retries = 5;
+	const sleepMS = 1000;
+
+	for (let attempt = 1; attempt <= retries; attempt++) {
+		const errors = [];
+		async function handleField(fieldName, fn) {
+			try {
+				return await fn();
+			} catch (error) {
+				errors.push({ field: fieldName, error });
+				return undefined;
+			}
+		}
+
+		const parsedCourse = {
 			code: code.slice(2),
-			median: await getMedian(code),
-			about: getAbout(course),
-			points: getPoints(course),
-			name: getName(course),
-			tests: getTests(course),
-			connections: getConnections(course),
-			seasons: getSeasons(course),
+			median: await handleField('median', async () => await getMedian(code)),
+			about: await handleField('about', () => getAbout(course)),
+			points: await handleField('points', () => getPoints(course)),
+			name: await handleField('name', () => getName(course)),
+			tests: await handleField('tests', () => getTests(course)),
+			connections: await handleField('connections', () =>
+				getConnections(course)
+			),
+			seasons: await handleField('seasons', () => getSeasons(course)),
 			faculty: course.OrgText,
 			current
 		};
-	} catch (error) {
-		throw new Error(
-			`Failed to parse course ${code}: ${error}\n${JSON.stringify(course)}`
+
+		if (errors.length === 0) {
+			return parsedCourse;
+		}
+
+		const msg = JSON.stringify(errors);
+
+		console.error(msg);
+		if (attempt === retries) {
+			throw new Error(
+				`Failed to parse course ${code} after ${retries} attempts: ${msg}\n${JSON.stringify(course)}`
+			);
+		}
+
+		console.error(
+			`Failed to parse course ${code}, retrying (${attempt}/${retries}): ${msg}`
 		);
+
+		await new Promise((resolve) => setTimeout(resolve, sleepMS));
 	}
 }
 

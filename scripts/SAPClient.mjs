@@ -69,6 +69,8 @@ async function requestSAP(endpoint, queries, lang = 'en') {
 		`Sending request to '${endpoint}', batch size: ${queries.length}`
 	);
 
+	const start = Date.now();
+
 	/** @type {Response} */
 	let response;
 	try {
@@ -78,12 +80,16 @@ async function requestSAP(endpoint, queries, lang = 'en') {
 		return undefined;
 	}
 
+	const duration = Date.now() - start;
+
 	const contentLength = response.headers.get('Content-Length');
 	const contentSize = parseInt(contentLength ?? '-1', 10);
 	totalBytesReceived += contentSize;
 	const size = formatBytes(contentSize);
 
-	console.error(`Got response: status=${response.status} size=${size}`);
+	console.error(
+		`Got response: status=${response.status} size=${size} duration=${duration}ms`
+	);
 
 	if (!response.ok) {
 		console.error(await response.text());

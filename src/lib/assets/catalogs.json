@@ -4401,7 +4401,7 @@
             {
               "name": "CG00001777",
               "courses": "/_catalogs/2021_200/00002100/SC00001444_CG00001771/requirement/CG00001777/courses",
-              "he": "בחירה במתמטיקה",
+              "he": "רשימה א",
               "en": "Electives in mathematics"
             },
             {
@@ -13304,7 +13304,7 @@
             {
               "name": "CG00001777",
               "courses": "/_catalogs/2021_201/00002100/SC00001444_CG00001771/requirement/CG00001777/courses",
-              "he": "בחירה במתמטיקה",
+              "he": "רשימה א",
               "en": "Electives in mathematics"
             },
             {
@@ -52479,6 +52479,12 @@
                   "en": "Mandatory Option"
                 }
               ]
+            },
+            {
+              "name": "CG00009101",
+              "courses": "/_catalogs/2024_200/00002190/SC00001383_CG00007951/requirement/CG00009101/courses",
+              "he": "מקצועות בחירה פקולטיים",
+              "en": "Faculty Electives"
             }
           ]
         }

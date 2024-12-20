@@ -108,7 +108,7 @@ export const cms = {
 				`
 			}
 		},
-		progress: {
+		settings: {
 			degree: 'Degree',
 			share: 'Share plan',
 			year: 'Year',
@@ -128,7 +128,11 @@ export const cms = {
 			progress: 'Progress',
 			current: 'Current',
 			total: 'Total',
-			revert: 'Revert to recommended'
+			revert: 'Revert to recommended',
+			upload: 'Upload transcript',
+			uploadLabel: 'Choose file',
+			preview: 'Preview',
+			exemptions: 'Exemptions (will be moved to wish list)'
 		},
 		plan: {
 			wishlist: 'Wish list'
@@ -273,7 +277,7 @@ export const cms = {
 			`
 			}
 		},
-		progress: {
+		settings: {
 			degree: 'תואר',
 			share: 'שתף תוכנית',
 			year: 'שנה',
@@ -293,7 +297,11 @@ export const cms = {
 			progress: 'התקדמות',
 			current: 'נוכחי',
 			total: 'סה"כ',
-			revert: 'חזור למומלצת'
+			revert: 'חזור למומלצת',
+			upload: 'העלאת גיליון ציונים',
+			uploadLabel: 'בחר קובץ',
+			preview: 'צפייה מוקדמת',
+			exemptions: 'זיכויים (יועברו לרשימת משאלות)'
 		},
 		plan: {
 			wishlist: 'רשימת משאלות'

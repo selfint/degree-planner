@@ -110,16 +110,16 @@
 			<div class="flex flex-row items-center gap-x-2 text-sm">
 				{#if hasChanges}
 					<Button variant="secondary" onclick={onCancel}>
-						{content.lang.progress.cancel}
+						{content.lang.settings.cancel}
 					</Button>
 					<Button variant="primary" onclick={onSave}>
-						{content.lang.progress.save}
+						{content.lang.settings.save}
 					</Button>
 				{/if}
 				{#if user.semesters.some((s) => s.length > 0)}
 					<a href={shareLink} target="_blank">
 						<Button variant="primary" onclick={() => {}}>
-							{content.lang.progress.share}
+							{content.lang.settings.share}
 						</Button>
 					</a>
 				{/if}

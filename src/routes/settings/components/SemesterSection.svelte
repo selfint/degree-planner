@@ -38,7 +38,7 @@
 	</h2>
 	<div class="grid w-fit grid-cols-[auto_auto] gap-x-2 gap-y-1">
 		<span class="text-content-secondary">
-			{content.lang.progress.current}
+			{content.lang.settings.current}
 		</span>
 		<div class="flex flex-row gap-x-1">
 			<Select bind:value={semesterChoice}>
@@ -53,7 +53,7 @@
 			{#if semesterChoice !== user.currentSemester}
 				<div class="w-fit">
 					<Button variant="primary" onclick={onUpdateCurrentSemester}>
-						{content.lang.progress.save}
+						{content.lang.settings.save}
 					</Button>
 				</div>
 				<div class="w-fit">
@@ -61,13 +61,13 @@
 						variant="secondary"
 						onclick={() => (semesterChoice = user.currentSemester)}
 					>
-						{content.lang.progress.cancel}
+						{content.lang.settings.cancel}
 					</Button>
 				</div>
 			{/if}
 		</div>
 		<span class="text-content-secondary">
-			{content.lang.progress.total}
+			{content.lang.settings.total}
 		</span>
 		<div class="flex flex-row gap-x-1">
 			<Select bind:value={totalSemestersChoice}>
@@ -82,7 +82,7 @@
 			{#if totalSemestersChoice !== user.semesters.length}
 				<div class="w-fit">
 					<Button variant="primary" onclick={onUpdateTotalSemesters}>
-						{content.lang.progress.save}
+						{content.lang.settings.save}
 					</Button>
 				</div>
 				<div class="w-fit">
@@ -90,7 +90,7 @@
 						variant="secondary"
 						onclick={() => (totalSemestersChoice = user.semesters.length)}
 					>
-						{content.lang.progress.cancel}
+						{content.lang.settings.cancel}
 					</Button>
 				</div>
 			{/if}

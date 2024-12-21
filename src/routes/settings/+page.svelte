@@ -81,14 +81,16 @@
 </script>
 
 <div class="mt-3">
-	<div class="mb-4 ms-3">
+	<div class="mb-4 ms-3 flex flex-row gap-x-2">
 		<h1 class="mb-2 text-xl text-content-primary">
-			Welcome, {currentUser?.displayName ?? user.username}
+			{currentUser?.displayName ?? user.username}
 		</h1>
 		{#if currentUser === null}
 			<Button variant="secondary" onclick={onSignInWithGoogle}>
-				<span class="flex flex-row gap-x-2">
-					<span> Sign in with </span>
+				<span
+					class="flex h-fit w-fit flex-row items-center gap-x-2 pb-0.5 pt-0.5"
+				>
+					<span class="text-nowrap">{content.lang.settings.signInWith}</span>
 					<img
 						src="https://www.svgrepo.com/show/355037/google.svg"
 						alt="Google Logo"
@@ -101,12 +103,15 @@
 				variant="secondary"
 				onclick={async () => await firebase.auth.signOut()}
 			>
-				<span class="flex h-fit w-fit flex-row gap-x-2 text-center">
+				<span
+					class="flex h-fit w-fit flex-row items-center gap-x-2 pb-0.5 pt-0.5"
+				>
+					<span class="text-nowrap">{content.lang.settings.signOut}</span>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
 						viewBox="0 0 24 24"
-						height="24"
-						width="24"
+						height="20"
+						width="20"
 						fill="none"
 						stroke="currentColor"
 						stroke-width="2"
@@ -117,7 +122,6 @@
 							d="M15 3h5a2 2 0 012 2v14a2 2 0 01-2 2h-5M10 17l5-5-5-5M15 12H3"
 						/>
 					</svg>
-					<span class="text-nowrap"> Sign out </span>
 				</span>
 			</Button>
 		{/if}

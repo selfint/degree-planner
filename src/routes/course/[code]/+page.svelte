@@ -4,13 +4,20 @@
 	import Button from '$lib/components/Button.svelte';
 	import CourseElement from '$lib/components/CourseElement.svelte';
 
-	import { user, catalog, content, writeStorage } from '$lib/stores.svelte';
+	import {
+		user,
+		catalog,
+		content,
+		writeStorage,
+		setUser
+	} from '$lib/stores.svelte';
 
 	import { getCourseData, getAllCourses } from '$lib/courseData';
 	import { getCourseLists } from '$lib/requirements';
 	import { generateCourseColor } from '$lib/colors';
 	import RequirementsElement from '$lib/components/RequirementsElement.svelte';
 	import CourseRow from '$lib/components/CourseRow.svelte';
+	import AsyncButton from '$lib/components/AsyncButton.svelte';
 
 	const code = $derived(page.params.code);
 	const course = $derived(getCourseData(code));
@@ -47,22 +54,45 @@
 			})
 	);
 
-	function planCourse(code: string): void {
-		const current = user.semesters[user.currentSemester];
-		if (!current.includes(code)) {
-			current.push(code);
-		}
+	let buttonInProgress = $state('');
 
-		if (user.wishlist.includes(code)) {
-			user.wishlist = user.wishlist.filter((c) => c !== code);
-		}
-
-		writeStorage(user);
+	async function planCourse(code: string): Promise<void> {
+		setUser(
+			await writeStorage({
+				...user,
+				semesters: user.semesters.map((s, i) =>
+					i === user.currentSemester ? [...new Set([...s, code])] : s
+				),
+				wishlist: user.wishlist.filter((c) => c !== code)
+			})
+		);
 	}
 
-	function removeCourseFromSemesters(code: string): void {
-		user.semesters = user.semesters.map((s) => s.filter((c) => c !== code));
-		writeStorage(user);
+	async function removeCourseFromSemesters(code: string): Promise<void> {
+		setUser(
+			await writeStorage({
+				...user,
+				semesters: user.semesters.map((s) => s.filter((c) => c !== code))
+			})
+		);
+	}
+
+	async function addCourseToWishlist(code: string): Promise<void> {
+		setUser(
+			await writeStorage({
+				...user,
+				wishlist: [...new Set([...user.wishlist, code])]
+			})
+		);
+	}
+
+	async function removeCourseFromWishlist(code: string): Promise<void> {
+		setUser(
+			await writeStorage({
+				...user,
+				wishlist: user.wishlist.filter((c) => c !== code)
+			})
+		);
 	}
 
 	function getSeasonAndIndex(semesterIndex: number): string {
@@ -108,37 +138,46 @@
 		{course.about}
 	</p>
 
-	<div class="ml-3 mr-3 space-x-1">
+	<div class="ml-3 mr-3 flex flex-row items-center gap-x-1">
 		{#if user.semesters.some((s) => s.includes(course.code))}
-			<Button
+			<AsyncButton
 				variant="secondary"
-				onclick={() => removeCourseFromSemesters(course.code)}
+				onclick={async () => await removeCourseFromSemesters(course.code)}
+				bind:namespace={buttonInProgress}
+				name="un-plan"
 			>
 				{content.lang.course.removeFromSemester}
 				{getSeasonAndIndex(
 					user.semesters.findIndex((s) => s.includes(course.code))
 				)}
-			</Button>
+			</AsyncButton>
 		{:else}
-			<Button variant="primary" onclick={() => planCourse(course.code)}>
+			<AsyncButton
+				variant="primary"
+				onclick={async () => await planCourse(course.code)}
+				bind:namespace={buttonInProgress}
+				name="plan"
+			>
 				{content.lang.course.plan}
-			</Button>
+			</AsyncButton>
 			{#if user.wishlist.includes(course.code)}
-				<Button
+				<AsyncButton
 					variant="secondary"
-					onclick={() =>
-						(user.wishlist = user.wishlist.filter((c) => c !== course.code))}
+					onclick={async () => await removeCourseFromWishlist(course.code)}
+					bind:namespace={buttonInProgress}
+					name="un-wish"
 				>
 					{content.lang.course.removeFromWishlist}
-				</Button>
+				</AsyncButton>
 			{:else}
-				<Button
+				<AsyncButton
 					variant="secondary"
-					onclick={() =>
-						(user.wishlist = [...new Set([...user.wishlist, course.code])])}
+					onclick={async () => await addCourseToWishlist(course.code)}
+					bind:namespace={buttonInProgress}
+					name="wish"
 				>
 					{content.lang.course.wishlist}
-				</Button>
+				</AsyncButton>
 			{/if}
 		{/if}
 	</div>

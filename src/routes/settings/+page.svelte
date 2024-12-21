@@ -1,5 +1,11 @@
 <script lang="ts">
-	import { user, catalog, content, writeStorage } from '$lib/stores.svelte';
+	import {
+		user,
+		catalog,
+		content,
+		writeStorage,
+		setUser
+	} from '$lib/stores.svelte';
 
 	import Button from '$lib/components/Button.svelte';
 	import DegreeSection from './components/DegreeSection.svelte';
@@ -32,13 +38,13 @@
 		newDegree: Degree,
 		newPath?: string
 	): Promise<boolean> {
-		user.degree = newDegree;
-		user.path = newPath;
-
-		await writeStorage(user);
-
-		userDegree = user.degree;
-		userPath = user.path;
+		setUser(
+			await writeStorage({
+				...user,
+				degree: newDegree,
+				path: newPath
+			})
+		);
 
 		return true;
 	}
@@ -78,6 +84,8 @@
 
 	let currentUser = $state(firebase.auth.currentUser);
 	firebase.auth.onAuthStateChanged((u) => (currentUser = u));
+
+	let buttonInProgress = $state('');
 </script>
 
 <div class="mt-3">
@@ -127,7 +135,14 @@
 		{/if}
 	</div>
 	<div class="mb-4 ms-3">
-		<DegreeSection {userDegree} {userPath} {onChange} {onReset} {recommended} />
+		<DegreeSection
+			{userDegree}
+			{userPath}
+			{onChange}
+			{onReset}
+			{recommended}
+			bind:buttonInProgress
+		/>
 	</div>
 
 	{#if userDegree !== undefined}
@@ -136,6 +151,7 @@
 				{semesterChoice}
 				{totalSemestersChoice}
 				{validTotalValues}
+				bind:buttonInProgress
 			/>
 		</div>
 	{/if}

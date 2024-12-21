@@ -13,10 +13,17 @@
 		onChange: (degree: Degree, path?: string) => Promise<boolean>;
 		onReset: () => void;
 		recommended?: string[][];
+		buttonInProgress: string;
 	};
 
-	let { userDegree, userPath, onChange, onReset, recommended }: Props =
-		$props();
+	let {
+		userDegree,
+		userPath,
+		onChange,
+		onReset,
+		recommended,
+		buttonInProgress = $bindable()
+	}: Props = $props();
 
 	type Year = keyof typeof catalogs;
 	const years = Object.keys(catalogs) as Year[];
@@ -131,8 +138,6 @@
 				display: content.lang.lang === 'he' ? he : en
 			}));
 	}
-
-	let canCancel = $state(true);
 </script>
 
 <div class="me-3">
@@ -237,32 +242,32 @@
 	</div>
 	<div class="mt-2">
 		{#if choiceIsChanged(year, faculty, degree, path, userDegree, userPath)}
-			<div>
+			<div class="flex flex-row items-center gap-x-1">
 				{#if choiceIsValid(year, faculty, degree, path)}
 					<AsyncButton
 						variant="primary"
 						onclick={async () => {
-							canCancel = false;
-							try {
-								// @ts-expect-error We validated the choice in `choiceIsValid`
-								const didChange = await onChange([year, faculty, degree], path);
+							// @ts-expect-error We validated the choice in `choiceIsValid`
+							const didChange = await onChange([year, faculty, degree], path);
 
-								if (!didChange) {
-									reset();
-								}
-							} catch (_) {
-								canCancel = true;
+							if (!didChange) {
+								reset();
 							}
 						}}
+						bind:namespace={buttonInProgress}
+						name="save-degree"
 					>
 						{content.lang.settings.save}
 					</AsyncButton>
 				{/if}
-				{#if canCancel}
-					<Button variant="secondary" onclick={reset}>
-						{content.lang.settings.cancel}
-					</Button>
-				{/if}
+				<AsyncButton
+					variant="secondary"
+					onclick={async () => reset()}
+					bind:namespace={buttonInProgress}
+					name="cancel-degree"
+				>
+					{content.lang.settings.cancel}
+				</AsyncButton>
 			</div>
 		{:else if !onRecommended}
 			{#if recommended !== undefined}

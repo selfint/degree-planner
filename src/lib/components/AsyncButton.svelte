@@ -5,22 +5,56 @@
 		variant: 'primary' | 'secondary';
 		onclick: () => Promise<void>;
 		children: Snippet;
+		namespace?: string;
+		name?: string;
 	};
 
-	let { variant, onclick: _onclick, children }: Props = $props();
+	let {
+		variant,
+		onclick: _onclick,
+		children,
+		namespace = $bindable(),
+		name
+	}: Props = $props();
 
 	const bg = variant === 'primary' ? 'bg-accent-primary' : 'bg-card-secondary';
 
 	let inProgress = $state(false);
+
 	async function onclick() {
 		inProgress = true;
+
+		if (namespace !== undefined && name !== undefined) {
+			namespace = name;
+		}
+
 		await _onclick();
+
 		inProgress = false;
+
+		if (namespace !== undefined && name !== undefined) {
+			namespace = '';
+		}
 	}
+
+	let disabled = $derived.by(() => {
+		if (namespace === undefined || name === undefined) {
+			return false;
+		}
+
+		if (namespace === '') {
+			return false;
+		}
+
+		return namespace !== name;
+	});
 </script>
 
 {#if inProgress}
-	<div role="status" class="m-2 w-fit cursor-progress">
+	<div
+		role="status"
+		class="m-1 inline-flex max-h-full w-fit cursor-progress items-center justify-center"
+	>
 		<svg
 			aria-hidden="true"
 			class="h-5 w-5 animate-spin fill-accent-primary text-content-primary"
@@ -40,8 +74,10 @@
 	</div>
 {:else}
 	<button
+		{disabled}
 		class="h-full rounded-md border border-transparent p-0.5 pl-3 pr-3 leading-tight {bg} text-content-primary"
 		{onclick}
+		class:opacity-50={disabled}
 	>
 		{@render children()}
 	</button>

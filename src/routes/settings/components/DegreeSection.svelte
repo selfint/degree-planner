@@ -1,5 +1,6 @@
 <script lang="ts">
 	import catalogs from '$lib/assets/catalogs.json';
+	import AsyncButton from '$lib/components/AsyncButton.svelte';
 
 	import Button from '$lib/components/Button.svelte';
 	import Select from '$lib/components/Select.svelte';
@@ -9,7 +10,7 @@
 	type Props = {
 		userDegree?: Degree;
 		userPath?: string;
-		onChange: (degree: Degree, path?: string) => boolean;
+		onChange: (degree: Degree, path?: string) => Promise<boolean>;
 		onReset: () => void;
 		recommended?: string[][];
 	};
@@ -57,10 +58,12 @@
 			return false;
 		}
 
+		// @ts-expect-error
 		const paths = getPaths(y, f, d);
 		if (paths.length === 0) {
 			return true;
 		} else {
+			// @ts-expect-error
 			const r = paths.map((p) => p.value).includes(p);
 			return r;
 		}
@@ -128,6 +131,8 @@
 				display: content.lang.lang === 'he' ? he : en
 			}));
 	}
+
+	let canCancel = $state(true);
 </script>
 
 <div class="me-3">
@@ -234,23 +239,30 @@
 		{#if choiceIsChanged(year, faculty, degree, path, userDegree, userPath)}
 			<div>
 				{#if choiceIsValid(year, faculty, degree, path)}
-					<Button
+					<AsyncButton
 						variant="primary"
-						onclick={() => {
-							// @ts-expect-error We validated the choice in `choiceIsValid`
-							const didChange = onChange([year, faculty, degree], path);
+						onclick={async () => {
+							canCancel = false;
+							try {
+								// @ts-expect-error We validated the choice in `choiceIsValid`
+								const didChange = await onChange([year, faculty, degree], path);
 
-							if (!didChange) {
-								reset();
+								if (!didChange) {
+									reset();
+								}
+							} catch (_) {
+								canCancel = true;
 							}
 						}}
 					>
 						{content.lang.settings.save}
+					</AsyncButton>
+				{/if}
+				{#if canCancel}
+					<Button variant="secondary" onclick={reset}>
+						{content.lang.settings.cancel}
 					</Button>
 				{/if}
-				<Button variant="secondary" onclick={reset}>
-					{content.lang.settings.cancel}
-				</Button>
 			</div>
 		{:else if !onRecommended}
 			{#if recommended !== undefined}

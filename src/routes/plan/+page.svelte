@@ -6,16 +6,21 @@
 	import CourseRow from '$lib/components/CourseRow.svelte';
 	import Button from '$lib/components/Button.svelte';
 
-	import { user, content } from '$lib/stores.svelte';
+	import { user, content, writeStorage } from '$lib/stores.svelte';
 
 	import { getCourseData } from '$lib/courseData';
 	import { getScheduleError } from '$lib/schedule';
 
 	let wishlist = $state(user.wishlist);
 	let semesters = $state(user.semesters);
-	let hasChanges = $derived(
+	const hasChanges = $derived(
 		wishlist !== user.wishlist || semesters !== user.semesters
 	);
+
+	$effect(() => {
+		wishlist = user.wishlist;
+		semesters = user.semesters;
+	});
 
 	const shareLink = $derived.by(() => {
 		if (user.degree === undefined) {
@@ -40,6 +45,8 @@
 	function onSave() {
 		user.wishlist = wishlist;
 		user.semesters = semesters;
+
+		writeStorage(user);
 	}
 
 	function onCancel() {

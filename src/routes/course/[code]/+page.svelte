@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 
 	import Button from '$lib/components/Button.svelte';
 	import CourseElement from '$lib/components/CourseElement.svelte';
 
-	import { user, catalog, content } from '$lib/stores.svelte';
+	import { user, catalog, content, writeStorage } from '$lib/stores.svelte';
 
 	import { getCourseData, getAllCourses } from '$lib/courseData';
 	import { getCourseLists } from '$lib/requirements';
@@ -12,7 +12,7 @@
 	import RequirementsElement from '$lib/components/RequirementsElement.svelte';
 	import CourseRow from '$lib/components/CourseRow.svelte';
 
-	const code = $derived($page.params.code);
+	const code = $derived(page.params.code);
 	const course = $derived(getCourseData(code));
 	const requirements = $derived(catalog()?.requirement);
 
@@ -47,17 +47,6 @@
 			})
 	);
 
-	function formatRequirementName(requirement: Requirement): string {
-		let name = requirement.name;
-		if (requirement.he !== undefined && content.lang.lang === 'he') {
-			name = requirement.he;
-		}
-		return name
-			.split('_')
-			.map((word) => word[0].toUpperCase() + word.slice(1).toLowerCase())
-			.join(' ');
-	}
-
 	function planCourse(code: string): void {
 		const current = user.semesters[user.currentSemester];
 		if (!current.includes(code)) {
@@ -67,10 +56,13 @@
 		if (user.wishlist.includes(code)) {
 			user.wishlist = user.wishlist.filter((c) => c !== code);
 		}
+
+		writeStorage(user);
 	}
 
 	function removeCourseFromSemesters(code: string): void {
 		user.semesters = user.semesters.map((s) => s.filter((c) => c !== code));
+		writeStorage(user);
 	}
 
 	function getSeasonAndIndex(semesterIndex: number): string {

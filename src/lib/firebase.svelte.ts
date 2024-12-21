@@ -1,5 +1,3 @@
-import { user } from './stores.svelte';
-
 import { initializeApp, type FirebaseApp } from 'firebase/app';
 import {
 	getAuth,
@@ -7,8 +5,7 @@ import {
 	type Auth as FirebaseAuth,
 	signInWithPopup,
 	GoogleAuthProvider,
-	browserLocalPersistence,
-	type User as FirebaseUser
+	browserLocalPersistence
 } from 'firebase/auth';
 import {
 	getAnalytics,
@@ -18,7 +15,9 @@ import {
 import {
 	getFirestore,
 	type Firestore as FirebaseFirestore,
-	connectFirestoreEmulator
+	connectFirestoreEmulator,
+	DocumentReference,
+	type Unsubscribe as FirestoreUnsubscribe
 } from 'firebase/firestore';
 import {
 	collection,
@@ -27,6 +26,8 @@ import {
 	setDoc,
 	QueryDocumentSnapshot
 } from 'firebase/firestore';
+import type { StorageMethod } from './stores.svelte';
+import { onSnapshot } from 'firebase/firestore';
 
 const firebaseConfig = {
 	apiKey: 'AIzaSyBU4Z-kNIh2B1pVy5QZMuZsY9NqTp487i4',
@@ -45,13 +46,13 @@ export type FirebaseServices = {
 	analytics?: FirebaseAnalytics;
 };
 
-export type FirestoreData = {
+type FirestoreData = {
 	version: 2;
-	semesters?: string[][];
-	currentSemester?: number;
-	wishlist?: string[];
-	degree?: [string, string, string];
-	path?: string;
+	semesters: string[];
+	currentSemester: number;
+	wishlist: string[];
+	degree: [string, string, string] | null;
+	path: string | null;
 };
 
 export async function initFirebase(): Promise<FirebaseServices> {
@@ -75,70 +76,121 @@ export async function initFirebase(): Promise<FirebaseServices> {
 	return { app, auth, firestore, analytics };
 }
 
-const courseSeparator = '-';
-
-function encodeSemesters(semesters: string[][]): string[] {
-	return semesters.map((semester) => semester.join(courseSeparator));
-}
-
-function decodeSemesters(encodedSemesters: string[]): string[][] {
-	return (
-		encodedSemesters.map((s) =>
-			s.split(courseSeparator).filter((c) => c !== '')
-		) ?? []
-	);
-}
-
-export async function syncFirebase(firebase: FirebaseServices) {
+function getUserDocRef(
+	firebase: FirebaseServices
+): DocumentReference<UserData> | undefined {
 	if (firebase.auth.currentUser === null) {
-		return;
+		return undefined;
+	}
+
+	const courseSeparator = '-';
+	function encodeSemesters(semesters: string[][]): string[] {
+		return semesters.map((semester) => semester.join(courseSeparator));
+	}
+
+	function decodeSemesters(encodedSemesters: string[]): string[][] {
+		return (
+			encodedSemesters.map((s) =>
+				s.split(courseSeparator).filter((c) => c !== '')
+			) ?? []
+		);
 	}
 
 	const users = collection(firebase.firestore, 'users').withConverter({
-		toFirestore: (data: FirestoreData) => {
-			// @ts-expect-error
-			data.semesters = encodeSemesters(data.semesters ?? []);
-			data.currentSemester = data.currentSemester ?? 0;
-			data.wishlist = data.wishlist ?? [];
-			// @ts-expect-error
-			data.degree = data.degree ?? null;
-			// @ts-expect-error
-			data.path = data.path ?? null;
+		toFirestore: (data: UserData) => {
+			const firestoreData: FirestoreData = {
+				version: 2,
+				semesters: encodeSemesters(data.semesters),
+				currentSemester: data.currentSemester ?? 0,
+				wishlist: data.wishlist,
+				degree: data.degree ?? null,
+				path: data.path ?? null
+			};
 
-			return data;
+			return firestoreData;
 		},
-		fromFirestore: (snap: QueryDocumentSnapshot) => {
-			const d = snap.data();
+		fromFirestore: (snap: QueryDocumentSnapshot): UserData => {
+			const data = snap.data() as FirestoreData;
 
-			d.semesters = decodeSemesters(d.semesters);
-			d.degree = d.degree ?? undefined;
-			d.path = d.path ?? undefined;
+			const userData: UserData = {
+				semesters: decodeSemesters(data.semesters),
+				currentSemester: data.currentSemester,
+				wishlist: data.wishlist,
+				degree: (data.degree ?? undefined) as Degree | undefined,
+				path: data.path ?? undefined
+			};
 
-			return d as FirestoreData;
+			return userData;
 		}
 	});
+
 	const userDoc = doc(users, firebase.auth.currentUser.uid);
-	const userData = await getDoc(userDoc);
 
-	if (!userData.exists()) {
-		const newFirestoreData: FirestoreData = {
-			version: 2,
-			semesters: user.semesters,
-			currentSemester: user.currentSemester,
-			wishlist: user.wishlist,
-			degree: user.degree,
-			path: user.path
-		};
+	return userDoc;
+}
 
-		await setDoc(userDoc, newFirestoreData);
-	} else {
-		const d = userData.data();
-		user.semesters = d.semesters ?? [];
-		user.currentSemester = d.currentSemester ?? 0;
-		user.wishlist = d.wishlist ?? [];
-		user.degree = d.degree as Degree | undefined;
-		user.path = d.path;
+async function writeFirebase(
+	firebase: FirebaseServices,
+	data: UserData
+): Promise<UserData> {
+	const userDoc = getUserDocRef(firebase);
+	if (userDoc === undefined) {
+		return data;
 	}
+
+	await setDoc(userDoc, data);
+
+	return data;
+}
+
+async function readFirebase(
+	firebase: FirebaseServices
+): Promise<UserData | undefined> {
+	const userDoc = getUserDocRef(firebase);
+	if (userDoc === undefined) {
+		return;
+	}
+
+	return (await getDoc(userDoc)).data();
+}
+
+export function buildFirebaseStorage(
+	firebase: FirebaseServices
+): StorageMethod {
+	return {
+		read: async () => {
+			const remote = await readFirebase(firebase);
+			if (remote !== undefined) {
+				return remote;
+			}
+
+			return {
+				semesters: [],
+				currentSemester: 0,
+				wishlist: [],
+				username: undefined,
+				degree: undefined,
+				path: undefined
+			};
+		},
+		write: async (data) => writeFirebase(firebase, data)
+	};
+}
+
+export function subscribeFirebase(
+	firebase: FirebaseServices,
+	onchange: (data: UserData) => unknown
+): FirestoreUnsubscribe | undefined {
+	const userDoc = getUserDocRef(firebase);
+	if (userDoc === undefined) {
+		return undefined;
+	}
+
+	return onSnapshot(userDoc, (doc) => {
+		if (doc.exists()) {
+			onchange(doc.data());
+		}
+	});
 }
 
 export async function signIn(firebase: FirebaseServices) {
@@ -148,6 +200,4 @@ export async function signIn(firebase: FirebaseServices) {
 	if (credential === null) {
 		return;
 	}
-
-	await syncFirebase(firebase);
 }

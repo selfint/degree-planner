@@ -158,7 +158,20 @@ const migrations = [
 	}
 ];
 
-export function loadUser(): UserData {
+export let user: UserData = $state(readLocalStorage());
+export function setUser(data: UserData) {
+	for (const key in data) {
+		if (Object.prototype.hasOwnProperty.call(data, key)) {
+			// @ts-expect-error
+			user[key] = data[key];
+		}
+	}
+}
+
+let _catalog: Catalog | undefined = $state(undefined);
+export const catalog = () => _catalog;
+
+function readLocalStorage(): UserData {
 	if (!browser) {
 		return {
 			semesters: [],
@@ -186,16 +199,32 @@ export function loadUser(): UserData {
 	return user;
 }
 
-export const user: UserData = $state(loadUser());
-let _catalog: Catalog | undefined = $state(undefined);
-export const catalog = () => _catalog;
+export async function writeLocalStorage(data: UserData): Promise<UserData> {
+	// sleep 5 seconds
+	await new Promise((resolve) => setTimeout(resolve, 5000));
+
+	localStorage.setItem('version', version.toString());
+	localStorage.setItem('userData', JSON.stringify(data));
+
+	return user;
+}
+
+export interface StorageMethod {
+	read: () => Promise<UserData>;
+	write: (data: UserData) => Promise<UserData>;
+}
+
+export const localStorageMethod: StorageMethod = {
+	read: async () => readLocalStorage(),
+	write: writeLocalStorage
+};
+
+let _storage: StorageMethod = $state(localStorageMethod);
+export const readStorage = async () => await _storage.read();
+export const writeStorage = async (d: UserData) => await _storage.write(d);
+export const setStorage = (s: StorageMethod) => (_storage = s);
 
 $effect.root(() => {
-	$effect(() => {
-		localStorage.setItem('version', version.toString());
-		localStorage.setItem('userData', JSON.stringify(user));
-	});
-
 	$effect(() => {
 		if (user.degree !== undefined) {
 			loadCatalog(user.degree, user.path).then((d) => (_catalog = d));

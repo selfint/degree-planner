@@ -2,7 +2,7 @@
 	import Select from '$lib/components/Select.svelte';
 	import Button from '$lib/components/Button.svelte';
 
-	import { user, content } from '$lib/stores.svelte';
+	import { user, content, writeStorage } from '$lib/stores.svelte';
 
 	type Props = {
 		semesterChoice: number;
@@ -16,6 +16,7 @@
 	function onUpdateCurrentSemester() {
 		if (semesterChoice !== user.currentSemester) {
 			user.currentSemester = semesterChoice;
+			writeStorage(user);
 		}
 	}
 
@@ -29,6 +30,7 @@
 				}).map(() => [])
 			);
 		}
+		writeStorage(user);
 	}
 </script>
 

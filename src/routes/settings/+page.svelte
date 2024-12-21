@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { user, catalog, content } from '$lib/stores.svelte';
-	import { loadCatalog } from '$lib/requirements';
+	import { user, catalog, content, writeStorage } from '$lib/stores.svelte';
 
 	import Button from '$lib/components/Button.svelte';
 	import DegreeSection from './components/DegreeSection.svelte';
@@ -21,27 +20,25 @@
 
 	const recommended = $derived(catalog()?.recommended);
 
-	// we can't trust svelte to notify us when the degree value *actually*
-	// changes, so we need to keep track of it ourselves
-	// this is *the only* place where we should be setting the degree value
-	function onChange(newDegree: Degree, newPath?: string): boolean {
-		loadCatalog(newDegree, newPath).then((data) => {
-			user.degree = newDegree;
-			user.path = newPath;
+	let userDegree = $state(user.degree);
+	let userPath = $state(user.path);
 
-			if (user.semesters.length === 0) {
-				user.semesters = data.recommended ?? [];
-				while (user.semesters.length < user.currentSemester) {
-					user.semesters.push([]);
-				}
-				if (user.semesters.length === 0) {
-					user.semesters.push([]);
-				}
-				user.wishlist = user.wishlist.filter(
-					(c) => !data.recommended.flat().includes(c)
-				);
-			}
-		});
+	$effect(() => {
+		userDegree = user.degree;
+		userPath = user.path;
+	});
+
+	async function onChange(
+		newDegree: Degree,
+		newPath?: string
+	): Promise<boolean> {
+		user.degree = newDegree;
+		user.path = newPath;
+
+		await writeStorage(user);
+
+		userDegree = user.degree;
+		userPath = user.path;
 
 		return true;
 	}
@@ -85,7 +82,7 @@
 
 <div class="mt-3">
 	<div class="mb-4 ms-3">
-		<h1 class="text-xl text-content-primary">
+		<h1 class="mb-2 text-xl text-content-primary">
 			Welcome, {currentUser?.displayName ?? user.username}
 		</h1>
 		{#if currentUser === null}
@@ -99,19 +96,37 @@
 					/>
 				</span>
 			</Button>
+		{:else}
+			<Button
+				variant="secondary"
+				onclick={async () => await firebase.auth.signOut()}
+			>
+				<span class="flex h-fit w-fit flex-row gap-x-2 text-center">
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						viewBox="0 0 24 24"
+						height="24"
+						width="24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					>
+						<path
+							d="M15 3h5a2 2 0 012 2v14a2 2 0 01-2 2h-5M10 17l5-5-5-5M15 12H3"
+						/>
+					</svg>
+					<span class="text-nowrap"> Sign out </span>
+				</span>
+			</Button>
 		{/if}
 	</div>
 	<div class="mb-4 ms-3">
-		<DegreeSection
-			userDegree={user.degree}
-			userPath={user.path}
-			{onChange}
-			{onReset}
-			{recommended}
-		/>
+		<DegreeSection {userDegree} {userPath} {onChange} {onReset} {recommended} />
 	</div>
 
-	{#if user.degree !== undefined}
+	{#if userDegree !== undefined}
 		<div class="mb-4 ms-3">
 			<SemesterSection
 				{semesterChoice}
@@ -120,7 +135,7 @@
 			/>
 		</div>
 	{/if}
-	{#if user.degree !== undefined && user.semesters.flat().length === 0}
+	{#if userDegree !== undefined && user.semesters.flat().length === 0}
 		<div class="mb-4 ms-3">
 			<UploadSection />
 		</div>

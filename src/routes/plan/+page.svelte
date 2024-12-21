@@ -6,16 +6,22 @@
 	import CourseRow from '$lib/components/CourseRow.svelte';
 	import Button from '$lib/components/Button.svelte';
 
-	import { user, content } from '$lib/stores.svelte';
+	import { user, content, writeStorage, setUser } from '$lib/stores.svelte';
 
 	import { getCourseData } from '$lib/courseData';
 	import { getScheduleError } from '$lib/schedule';
+	import AsyncButton from '$lib/components/AsyncButton.svelte';
 
 	let wishlist = $state(user.wishlist);
 	let semesters = $state(user.semesters);
-	let hasChanges = $derived(
+	const hasChanges = $derived(
 		wishlist !== user.wishlist || semesters !== user.semesters
 	);
+
+	$effect(() => {
+		wishlist = user.wishlist;
+		semesters = user.semesters;
+	});
 
 	const shareLink = $derived.by(() => {
 		if (user.degree === undefined) {
@@ -36,11 +42,6 @@
 
 		return link;
 	});
-
-	function onSave() {
-		user.wishlist = wishlist;
-		user.semesters = semesters;
-	}
 
 	function onCancel() {
 		wishlist = user.wishlist;
@@ -76,6 +77,16 @@
 			});
 		}
 	}
+
+	let canCancel = $state(true);
+	async function onSave() {
+		canCancel = false;
+		try {
+			setUser(await writeStorage({ ...user, wishlist, semesters }));
+		} catch (_) {
+			canCancel = true;
+		}
+	}
 </script>
 
 <div class="mb-3 mt-3">
@@ -109,12 +120,14 @@
 			</h1>
 			<div class="flex flex-row items-center gap-x-2 text-sm">
 				{#if hasChanges}
-					<Button variant="secondary" onclick={onCancel}>
-						{content.lang.settings.cancel}
-					</Button>
-					<Button variant="primary" onclick={onSave}>
+					{#if canCancel}
+						<Button variant="secondary" onclick={onCancel}>
+							{content.lang.settings.cancel}
+						</Button>
+					{/if}
+					<AsyncButton variant="primary" onclick={onSave}>
 						{content.lang.settings.save}
-					</Button>
+					</AsyncButton>
 				{/if}
 				{#if user.semesters.some((s) => s.length > 0)}
 					<a href={shareLink} target="_blank">

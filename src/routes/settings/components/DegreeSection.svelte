@@ -1,5 +1,6 @@
 <script lang="ts">
 	import catalogs from '$lib/assets/catalogs.json';
+	import AsyncButton from '$lib/components/AsyncButton.svelte';
 
 	import Button from '$lib/components/Button.svelte';
 	import Select from '$lib/components/Select.svelte';
@@ -9,13 +10,20 @@
 	type Props = {
 		userDegree?: Degree;
 		userPath?: string;
-		onChange: (degree: Degree, path?: string) => boolean;
+		onChange: (degree: Degree, path?: string) => Promise<boolean>;
 		onReset: () => void;
 		recommended?: string[][];
+		buttonInProgress: string;
 	};
 
-	let { userDegree, userPath, onChange, onReset, recommended }: Props =
-		$props();
+	let {
+		userDegree,
+		userPath,
+		onChange,
+		onReset,
+		recommended,
+		buttonInProgress = $bindable()
+	}: Props = $props();
 
 	type Year = keyof typeof catalogs;
 	const years = Object.keys(catalogs) as Year[];
@@ -24,6 +32,13 @@
 	let faculty: string | undefined = $state(userDegree?.[1]);
 	let degree: string | undefined = $state(userDegree?.[2]);
 	let path: string | undefined = $state(userPath);
+
+	$effect(() => {
+		year = userDegree?.[0];
+		faculty = userDegree?.[1];
+		degree = userDegree?.[2];
+		path = userPath;
+	});
 
 	function arraysEqualIgnoreOrder(a: string[], b: string[]) {
 		if (a.length !== b.length) return false;
@@ -50,11 +65,13 @@
 			return false;
 		}
 
+		// @ts-expect-error
 		const paths = getPaths(y, f, d);
 		if (paths.length === 0) {
 			return true;
 		} else {
-			const r = paths.map((p) => p.value).includes(path);
+			// @ts-expect-error
+			const r = paths.map((p) => p.value).includes(p);
 			return r;
 		}
 	}
@@ -225,25 +242,32 @@
 	</div>
 	<div class="mt-2">
 		{#if choiceIsChanged(year, faculty, degree, path, userDegree, userPath)}
-			<div>
+			<div class="flex flex-row items-center gap-x-1">
 				{#if choiceIsValid(year, faculty, degree, path)}
-					<Button
+					<AsyncButton
 						variant="primary"
-						onclick={() => {
+						onclick={async () => {
 							// @ts-expect-error We validated the choice in `choiceIsValid`
-							const didChange = onChange([year, faculty, degree], path);
+							const didChange = await onChange([year, faculty, degree], path);
 
 							if (!didChange) {
 								reset();
 							}
 						}}
+						bind:namespace={buttonInProgress}
+						name="save-degree"
 					>
 						{content.lang.settings.save}
-					</Button>
+					</AsyncButton>
 				{/if}
-				<Button variant="secondary" onclick={reset}>
+				<AsyncButton
+					variant="secondary"
+					onclick={async () => reset()}
+					bind:namespace={buttonInProgress}
+					name="cancel-degree"
+				>
 					{content.lang.settings.cancel}
-				</Button>
+				</AsyncButton>
 			</div>
 		{:else if !onRecommended}
 			{#if recommended !== undefined}

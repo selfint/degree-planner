@@ -132,7 +132,9 @@ export const cms = {
 			upload: 'Upload transcript',
 			uploadLabel: 'Choose file',
 			preview: 'Preview',
-			exemptions: 'Exemptions (will be moved to wish list)'
+			exemptions: 'Exemptions (will be moved to wish list)',
+			signInWith: 'Sign in with',
+			signOut: 'Sign out'
 		},
 		plan: {
 			wishlist: 'Wish list'
@@ -301,7 +303,9 @@ export const cms = {
 			upload: 'העלאת גיליון ציונים',
 			uploadLabel: 'בחר קובץ',
 			preview: 'צפייה מוקדמת',
-			exemptions: 'זיכויים (יועברו לרשימת משאלות)'
+			exemptions: 'זיכויים (יועברו לרשימת משאלות)',
+			signInWith: 'התחבר דרך',
+			signOut: 'התנתק'
 		},
 		plan: {
 			wishlist: 'רשימת משאלות'

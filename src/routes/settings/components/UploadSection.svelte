@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Transcript } from '$lib/transcriptParser';
 	import * as TranscriptParser from '$lib/transcriptParser';
-	import { user, content } from '$lib/stores.svelte';
+	import { user, content, writeStorage } from '$lib/stores.svelte';
 	import Button from '$lib/components/Button.svelte';
 	import Semester from '$lib/components/Semester.svelte';
 	import CourseElement from '$lib/components/CourseElement.svelte';
@@ -9,6 +9,7 @@
 	import CourseRow from '$lib/components/CourseRow.svelte';
 	import { goto } from '$app/navigation';
 	import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
+	import AsyncButton from '$lib/components/AsyncButton.svelte';
 
 	let transcript: Transcript | undefined = $state(undefined);
 
@@ -25,17 +26,30 @@
 		}
 	}
 
-	function onSave(t: Transcript) {
-		const currentSemester = t.semesters.length - 1;
+	let canCancel = $state(true);
+	async function onSave() {
+		if (transcript === undefined) {
+			return;
+		}
 
-		const semesters = t.semesters;
+		const currentSemester = transcript.semesters.length - 1;
+
+		const semesters = transcript.semesters;
 		while (semesters.length < 9) {
 			semesters.push([]);
 		}
 
 		user.semesters = semesters;
 		user.currentSemester = currentSemester;
-		user.wishlist = t.exemptions;
+		user.wishlist = transcript.exemptions;
+
+		try {
+			canCancel = false;
+			await writeStorage(user);
+		} catch (_) {
+			canCancel = true;
+			return;
+		}
 
 		goto('/plan');
 	}
@@ -68,15 +82,17 @@
 	{:else}
 		<div class="mb-6 flex w-fit flex-row gap-x-1">
 			<div class="w-fit">
-				<Button variant="primary" onclick={() => onSave(transcript!)}>
+				<AsyncButton variant="primary" onclick={onSave}>
 					{content.lang.settings.save}
-				</Button>
+				</AsyncButton>
 			</div>
-			<div class="w-fit">
-				<Button variant="secondary" onclick={onCancel}>
-					{content.lang.settings.cancel}
-				</Button>
-			</div>
+			{#if canCancel}
+				<div class="w-fit">
+					<Button variant="secondary" onclick={onCancel}>
+						{content.lang.settings.cancel}
+					</Button>
+				</div>
+			{/if}
 		</div>
 		<div class="mb-4">
 			<h2 class="mb-2 text-base font-medium text-content-primary">

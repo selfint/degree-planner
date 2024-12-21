@@ -7,7 +7,7 @@ type NestedKeys<T, Depth extends number = 3> = Depth extends 0
 	: T extends object
 		? {
 				[K in keyof T]: Depth extends 2 | 1 // Exclude "shared" at level 2, "he" at level 2 and 3
-					? K extends 'shared' | 'he'
+					? K extends 'en' | 'he'
 						? never
 						: [K, ...NestedKeys<T[K], Decrement<Depth>>]
 					: [K, ...NestedKeys<T[K], Decrement<Depth>>];

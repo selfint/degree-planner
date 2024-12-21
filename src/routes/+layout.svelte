@@ -6,17 +6,39 @@
 
 	import { goto } from '$app/navigation';
 
-	import { user, content } from '$lib/stores.svelte';
+	import {
+		user,
+		content,
+		setStorage,
+		localStorageMethod,
+		readStorage,
+		setUser
+	} from '$lib/stores.svelte';
 
 	import { cms } from '$lib/content';
 
 	import TitleBar from './components/TitleBar.svelte';
 	import Select from '$lib/components/Select.svelte';
+	import {
+		buildFirebaseStorage,
+		subscribeFirebase
+	} from '$lib/firebase.svelte';
 
 	injectSpeedInsights();
 	inject();
 
-	const { children } = $props();
+	const { data: firebase, children } = $props();
+
+	firebase.auth.onAuthStateChanged(async (u) => {
+		if (u !== null) {
+			setStorage(buildFirebaseStorage(firebase));
+			setUser(await readStorage());
+			return subscribeFirebase(firebase, setUser);
+		} else {
+			setStorage(localStorageMethod);
+			setUser(await readStorage());
+		}
+	});
 
 	function onchangeLang(newValue: (typeof cms)[keyof typeof cms]): void {
 		localStorage.setItem('lang', newValue.lang);

@@ -1,34 +1,45 @@
 <script lang="ts">
 	import Select from '$lib/components/Select.svelte';
-	import Button from '$lib/components/Button.svelte';
 
-	import { user, content } from '$lib/stores.svelte';
+	import { user, content, writeStorage, setUser } from '$lib/stores.svelte';
+	import AsyncButton from '$lib/components/AsyncButton.svelte';
 
 	type Props = {
 		semesterChoice: number;
 		totalSemestersChoice: number;
 		validTotalValues: number[];
+		buttonInProgress: string;
 	};
 
-	let { semesterChoice, totalSemestersChoice, validTotalValues }: Props =
-		$props();
+	let {
+		semesterChoice,
+		totalSemestersChoice,
+		validTotalValues,
+		buttonInProgress = $bindable()
+	}: Props = $props();
 
-	function onUpdateCurrentSemester() {
+	async function onUpdateCurrentSemester() {
 		if (semesterChoice !== user.currentSemester) {
-			user.currentSemester = semesterChoice;
+			setUser(
+				await writeStorage({
+					...user,
+					currentSemester: semesterChoice
+				})
+			);
 		}
 	}
 
-	function onUpdateTotalSemesters() {
-		if (totalSemestersChoice < user.semesters.length) {
-			user.semesters = user.semesters.slice(0, totalSemestersChoice);
-		} else if (totalSemestersChoice > user.semesters.length) {
-			user.semesters = user.semesters.concat(
-				Array.from({
-					length: totalSemestersChoice - user.semesters.length
-				}).map(() => [])
-			);
-		}
+	async function onUpdateTotalSemesters() {
+		const semesters =
+			totalSemestersChoice < user.semesters.length
+				? user.semesters.slice(0, totalSemestersChoice)
+				: user.semesters.concat(
+						Array.from({
+							length: totalSemestersChoice - user.semesters.length
+						}).map(() => [])
+					);
+
+		setUser(await writeStorage({ ...user, semesters }));
 	}
 </script>
 
@@ -52,17 +63,26 @@
 
 			{#if semesterChoice !== user.currentSemester}
 				<div class="w-fit">
-					<Button variant="primary" onclick={onUpdateCurrentSemester}>
+					<AsyncButton
+						variant="primary"
+						onclick={onUpdateCurrentSemester}
+						bind:namespace={buttonInProgress}
+						name="save-semesters"
+					>
 						{content.lang.settings.save}
-					</Button>
+					</AsyncButton>
 				</div>
 				<div class="w-fit">
-					<Button
+					<AsyncButton
 						variant="secondary"
-						onclick={() => (semesterChoice = user.currentSemester)}
+						onclick={async () => {
+							semesterChoice = user.currentSemester;
+						}}
+						bind:namespace={buttonInProgress}
+						name="cancel-semesters"
 					>
 						{content.lang.settings.cancel}
-					</Button>
+					</AsyncButton>
 				</div>
 			{/if}
 		</div>
@@ -81,17 +101,26 @@
 			</Select>
 			{#if totalSemestersChoice !== user.semesters.length}
 				<div class="w-fit">
-					<Button variant="primary" onclick={onUpdateTotalSemesters}>
+					<AsyncButton
+						variant="primary"
+						onclick={onUpdateTotalSemesters}
+						bind:namespace={buttonInProgress}
+						name="save-total"
+					>
 						{content.lang.settings.save}
-					</Button>
+					</AsyncButton>
 				</div>
 				<div class="w-fit">
-					<Button
+					<AsyncButton
 						variant="secondary"
-						onclick={() => (totalSemestersChoice = user.semesters.length)}
+						onclick={async () => {
+							totalSemestersChoice = user.semesters.length;
+						}}
+						bind:namespace={buttonInProgress}
+						name="cancel-total"
 					>
 						{content.lang.settings.cancel}
-					</Button>
+					</AsyncButton>
 				</div>
 			{/if}
 		</div>

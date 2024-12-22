@@ -25,10 +25,10 @@ function getLangPreference() {
 
 export let content = $state({ lang: getLangPreference() });
 
-const version = 2;
+const version = 3 as const;
 
 const loaders = [
-	function load_0(): UserData {
+	function load_0(): UserDataV1 {
 		const username = localStorage.getItem('username');
 		const degree = localStorage.getItem('degree');
 		const semesters = localStorage.getItem('semesters');
@@ -44,7 +44,7 @@ const loaders = [
 		};
 	},
 
-	function load_1(): UserData {
+	function load_1(): UserDataV1 {
 		const userData = localStorage.getItem('userData');
 		if (userData !== null) {
 			try {
@@ -67,11 +67,11 @@ const loaders = [
 		};
 	},
 
-	function load_2(): UserData {
+	function load_2(): UserDataV2 {
 		const userData = localStorage.getItem('userData');
 		if (userData !== null) {
 			try {
-				const data: UserData = JSON.parse(userData);
+				const data: UserDataV2 = JSON.parse(userData);
 
 				data.semesters = data.semesters.map((s) => s.filter((c) => c !== ''));
 
@@ -89,11 +89,35 @@ const loaders = [
 			degree: undefined,
 			path: undefined
 		};
+	},
+
+	function load_3(): UserData {
+		const userData = localStorage.getItem('userData');
+		if (userData !== null) {
+			try {
+				const data: UserData = JSON.parse(userData);
+
+				data.semesters = data.semesters.map((s) => s.filter((c) => c !== ''));
+
+				return data;
+			} catch (error) {
+				console.error('Failed to load user data', error);
+			}
+		}
+
+		return {
+			exemptions: [],
+			semesters: [],
+			currentSemester: 0,
+			wishlist: [],
+			degree: undefined,
+			path: undefined
+		};
 	}
-];
+] as const;
 
 const migrations = [
-	function migrate_0_1(v0: UserData): UserData {
+	function migrate_0_1(v0: UserDataV1): UserDataV1 {
 		// update version
 		localStorage.setItem('version', '1');
 
@@ -110,11 +134,11 @@ const migrations = [
 		// other than that data is the same
 		return v0;
 	},
-	function migrate_1_2(v1: UserDataV1): UserData {
+	function migrate_1_2(v1: UserDataV1): UserDataV2 {
 		// update version
 		localStorage.setItem('version', '2');
 
-		const v2: UserData = { ...v1 };
+		const v2: UserDataV2 = { ...v1 };
 
 		// migrate degree and path
 		if (v1.degree !== undefined) {
@@ -155,8 +179,24 @@ const migrations = [
 
 		// other than that data is the same
 		return v2;
+	},
+	function migrate_2_3(v2: UserDataV2): UserData {
+		// update version
+		localStorage.setItem('version', '3');
+
+		delete v2.username;
+
+		const v3: UserData = {
+			exemptions: [],
+			...v2
+		};
+
+		// save new user data
+		localStorage.setItem('userData', JSON.stringify(v3));
+
+		return v3;
 	}
-];
+] as const;
 
 export let user: UserData = $state(readLocalStorage());
 export function setUser(data: UserData) {
@@ -174,10 +214,10 @@ export const catalog = () => _catalog;
 function readLocalStorage(): UserData {
 	if (!browser) {
 		return {
+			exemptions: [],
 			semesters: [],
 			currentSemester: 0,
 			wishlist: [],
-			username: undefined,
 			degree: undefined,
 			path: undefined
 		};
@@ -196,12 +236,12 @@ function readLocalStorage(): UserData {
 		localVersion++;
 	}
 
-	return user;
+	return user as UserData;
 }
 
 export async function writeLocalStorage(data: UserData): Promise<UserData> {
 	// sleep 5 seconds
-	// await new Promise((resolve) => setTimeout(resolve, 5000));
+	await new Promise((resolve) => setTimeout(resolve, 5000));
 
 	localStorage.setItem('version', version.toString());
 	localStorage.setItem('userData', JSON.stringify(data));

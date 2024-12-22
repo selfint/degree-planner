@@ -5,7 +5,7 @@
 		variant: 'primary' | 'secondary';
 		onclick: () => Promise<void>;
 		children: Snippet;
-		namespace?: string;
+		buttonNamespace?: string;
 		name?: string;
 	};
 
@@ -13,7 +13,7 @@
 		variant,
 		onclick: _onclick,
 		children,
-		namespace = $bindable(),
+		buttonNamespace: namespace = $bindable(),
 		name
 	}: Props = $props();
 
@@ -22,18 +22,20 @@
 	let inProgress = $state(false);
 
 	async function onclick() {
-		inProgress = true;
+		try {
+			inProgress = true;
 
-		if (namespace !== undefined && name !== undefined) {
-			namespace = name;
-		}
+			if (namespace !== undefined && name !== undefined) {
+				namespace = name;
+			}
 
-		await _onclick();
+			await _onclick();
+		} finally {
+			inProgress = false;
 
-		inProgress = false;
-
-		if (namespace !== undefined && name !== undefined) {
-			namespace = '';
+			if (namespace !== undefined && name !== undefined) {
+				namespace = '';
+			}
 		}
 	}
 

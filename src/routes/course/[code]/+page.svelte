@@ -54,9 +54,9 @@
 			})
 	);
 
-	let buttonInProgress = $state('');
+	let buttonNamespace = $state('');
 
-	async function planCourse(code: string): Promise<void> {
+	async function planCourse(): Promise<void> {
 		setUser(
 			await writeStorage({
 				...user,
@@ -68,7 +68,7 @@
 		);
 	}
 
-	async function removeCourseFromSemesters(code: string): Promise<void> {
+	async function removeCourseFromSemesters(): Promise<void> {
 		setUser(
 			await writeStorage({
 				...user,
@@ -77,7 +77,25 @@
 		);
 	}
 
-	async function addCourseToWishlist(code: string): Promise<void> {
+	async function addCourseToExemptions(): Promise<void> {
+		setUser(
+			await writeStorage({
+				...user,
+				exemptions: [...new Set([...user.exemptions, code])]
+			})
+		);
+	}
+
+	async function removeCourseFromExemptions(): Promise<void> {
+		setUser(
+			await writeStorage({
+				...user,
+				exemptions: user.exemptions.filter((c) => c !== code)
+			})
+		);
+	}
+
+	async function addCourseToWishlist(): Promise<void> {
 		setUser(
 			await writeStorage({
 				...user,
@@ -86,7 +104,7 @@
 		);
 	}
 
-	async function removeCourseFromWishlist(code: string): Promise<void> {
+	async function removeCourseFromWishlist(): Promise<void> {
 		setUser(
 			await writeStorage({
 				...user,
@@ -107,6 +125,23 @@
 			// hack to get this effect to run each time the course changes
 			depRow.scrollLeft = code.length - code.length;
 		}
+	});
+
+	type CourseState = 'planned' | 'wished' | 'exempt' | 'none';
+	const courseState = $derived.by((): CourseState => {
+		if (user.semesters.flat().includes(code)) {
+			return 'planned';
+		}
+
+		if (user.exemptions.includes(code)) {
+			return 'exempt';
+		}
+
+		if (user.wishlist.includes(code)) {
+			return 'wished';
+		}
+
+		return 'none';
 	});
 </script>
 
@@ -139,11 +174,11 @@
 	</p>
 
 	<div class="ml-3 mr-3 flex flex-row items-center gap-x-1">
-		{#if user.semesters.some((s) => s.includes(course.code))}
+		{#if courseState === 'planned'}
 			<AsyncButton
 				variant="secondary"
-				onclick={async () => await removeCourseFromSemesters(course.code)}
-				bind:namespace={buttonInProgress}
+				onclick={removeCourseFromSemesters}
+				bind:buttonNamespace
 				name="un-plan"
 			>
 				{content.lang.course.removeFromSemester}
@@ -154,29 +189,46 @@
 		{:else}
 			<AsyncButton
 				variant="primary"
-				onclick={async () => await planCourse(course.code)}
-				bind:namespace={buttonInProgress}
+				onclick={planCourse}
+				bind:buttonNamespace
 				name="plan"
 			>
 				{content.lang.course.plan}
 			</AsyncButton>
-			{#if user.wishlist.includes(course.code)}
+			{#if courseState === 'wished'}
 				<AsyncButton
 					variant="secondary"
-					onclick={async () => await removeCourseFromWishlist(course.code)}
-					bind:namespace={buttonInProgress}
+					onclick={removeCourseFromWishlist}
+					bind:buttonNamespace
 					name="un-wish"
 				>
 					{content.lang.course.removeFromWishlist}
 				</AsyncButton>
+			{:else if courseState === 'exempt'}
+				<AsyncButton
+					variant="secondary"
+					onclick={removeCourseFromExemptions}
+					bind:buttonNamespace
+					name="un-exempt"
+				>
+					{content.lang.course.removeFromExemption}
+				</AsyncButton>
 			{:else}
 				<AsyncButton
 					variant="secondary"
-					onclick={async () => await addCourseToWishlist(course.code)}
-					bind:namespace={buttonInProgress}
+					onclick={addCourseToWishlist}
+					bind:buttonNamespace
 					name="wish"
 				>
 					{content.lang.course.wishlist}
+				</AsyncButton>
+				<AsyncButton
+					variant="secondary"
+					onclick={addCourseToExemptions}
+					bind:buttonNamespace
+					name="exempt"
+				>
+					{content.lang.course.exempt}
 				</AsyncButton>
 			{/if}
 		{/if}

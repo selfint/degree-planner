@@ -132,9 +132,10 @@ export const cms = {
 			upload: 'Upload transcript',
 			uploadLabel: 'Choose file',
 			preview: 'Preview',
-			exemptions: 'Exemptions (will be moved to wish list)',
+			exemptions: 'Exemptions',
 			signInWith: 'Sign in with',
-			signOut: 'Sign out'
+			signOut: 'Sign out',
+			guest: 'Guest'
 		},
 		plan: {
 			wishlist: 'Wish list'
@@ -148,7 +149,9 @@ export const cms = {
 			plan: 'Plan',
 			removeFromSemester: 'Remove from semester',
 			removeFromWishlist: 'Remove from wish list',
+			removeFromExemption: 'Remove from exemptions',
 			wishlist: 'Wish list',
+			exempt: 'Add to exemptions',
 			available: 'Available',
 			info: 'Info',
 			appliesTo: 'Applies towards'
@@ -303,9 +306,10 @@ export const cms = {
 			upload: 'העלאת גיליון ציונים',
 			uploadLabel: 'בחר קובץ',
 			preview: 'צפייה מוקדמת',
-			exemptions: 'זיכויים (יועברו לרשימת משאלות)',
+			exemptions: 'זיכויים',
 			signInWith: 'התחבר דרך',
-			signOut: 'התנתק'
+			signOut: 'התנתק',
+			guest: 'אורח'
 		},
 		plan: {
 			wishlist: 'רשימת משאלות'
@@ -319,7 +323,9 @@ export const cms = {
 			plan: 'הוספה',
 			removeFromSemester: 'הסר מהסמסטר',
 			removeFromWishlist: 'הסר מרשימת המשאלות',
+			removeFromExemption: 'הסר מרשימת הפטורים',
 			wishlist: 'רשימת משאלות',
+			exempt: 'רשימת פטורים',
 			available: 'זמין',
 			info: 'מידע',
 			appliesTo: 'תורם לדרישות'

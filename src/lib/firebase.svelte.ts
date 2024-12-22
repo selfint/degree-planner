@@ -46,14 +46,24 @@ export type FirebaseServices = {
 	analytics?: FirebaseAnalytics;
 };
 
-type FirestoreData = {
-	version: 2;
-	semesters: string[];
-	currentSemester: number;
-	wishlist: string[];
-	degree: [string, string, string] | null;
-	path: string | null;
-};
+type FirestoreData =
+	| {
+			version: 2;
+			semesters: string[];
+			currentSemester: number;
+			wishlist: string[];
+			degree: [string, string, string] | null;
+			path: string | null;
+	  }
+	| {
+			version: 3;
+			exemptions: string[];
+			semesters: string[];
+			currentSemester: number;
+			wishlist: string[];
+			degree: [string, string, string] | null;
+			path: string | null;
+	  };
 
 export async function initFirebase(): Promise<FirebaseServices> {
 	const app = initializeApp(firebaseConfig);
@@ -99,7 +109,8 @@ function getUserDocRef(
 	const users = collection(firebase.firestore, 'users').withConverter({
 		toFirestore: (data: UserData) => {
 			const firestoreData: FirestoreData = {
-				version: 2,
+				version: 3,
+				exemptions: data.exemptions,
 				semesters: encodeSemesters(data.semesters),
 				currentSemester: data.currentSemester ?? 0,
 				wishlist: data.wishlist,
@@ -112,15 +123,27 @@ function getUserDocRef(
 		fromFirestore: (snap: QueryDocumentSnapshot): UserData => {
 			const data = snap.data() as FirestoreData;
 
-			const userData: UserData = {
-				semesters: decodeSemesters(data.semesters),
-				currentSemester: data.currentSemester,
-				wishlist: data.wishlist,
-				degree: (data.degree ?? undefined) as Degree | undefined,
-				path: data.path ?? undefined
-			};
+			switch (data.version) {
+				case 2:
+					return {
+						exemptions: [],
+						semesters: decodeSemesters(data.semesters),
+						currentSemester: data.currentSemester,
+						wishlist: data.wishlist,
+						degree: (data.degree ?? undefined) as Degree | undefined,
+						path: data.path ?? undefined
+					};
 
-			return userData;
+				case 3:
+					return {
+						exemptions: data.exemptions,
+						semesters: decodeSemesters(data.semesters),
+						currentSemester: data.currentSemester,
+						wishlist: data.wishlist,
+						degree: (data.degree ?? undefined) as Degree | undefined,
+						path: data.path ?? undefined
+					};
+			}
 		}
 	});
 
@@ -134,7 +157,7 @@ async function writeFirebase(
 	data: UserData
 ): Promise<UserData> {
 	// sleep 5 seconds
-	// await new Promise((resolve) => setTimeout(resolve, 5000));
+	await new Promise((resolve) => setTimeout(resolve, 5000));
 
 	const userDoc = getUserDocRef(firebase);
 	if (userDoc === undefined) {
@@ -168,6 +191,7 @@ export function buildFirebaseStorage(
 			}
 
 			return {
+				exemptions: [],
 				semesters: [],
 				currentSemester: 0,
 				wishlist: [],

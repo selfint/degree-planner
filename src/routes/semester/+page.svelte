@@ -236,8 +236,9 @@
 
 		const error = getScheduleError(
 			course,
+			user.exemptions,
 			user.semesters,
-			currentSemester,
+			currentSemester + 1,
 			true
 		);
 

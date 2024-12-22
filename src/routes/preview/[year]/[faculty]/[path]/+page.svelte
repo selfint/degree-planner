@@ -9,7 +9,8 @@
 	import catalogs from '$lib/assets/catalogs.json';
 	import { getCourseData } from '$lib/courseData';
 
-	import { user, content } from '$lib/stores.svelte';
+	import { user, content, setUser, writeStorage } from '$lib/stores.svelte';
+	import AsyncButton from '$lib/components/AsyncButton.svelte';
 
 	let { data }: { data: PageData } = $props();
 
@@ -22,7 +23,7 @@
 		return name;
 	}
 
-	function importPlan() {
+	async function importPlan() {
 		if (user.semesters.length > 0) {
 			const userConfirmation = confirm(content.lang.preview.overwriteWarning);
 
@@ -31,20 +32,23 @@
 			}
 		}
 
-		user.username = 'guest';
-		user.semesters = data.semesters;
-		user.degree = data.degreeData.degree;
-		user.currentSemester = user.currentSemester ?? 0;
-		user.wishlist = user.wishlist.filter(
-			(c) => !data.semesters.flat().includes(c)
+		setUser(
+			await writeStorage({
+				...user,
+				semesters: data.semesters,
+				degree: data.degreeData.degree,
+				currentSemester: user.currentSemester ?? 0,
+				wishlist: user.wishlist.filter(
+					(c) => !data.semesters.flat().includes(c)
+				)
+			})
 		);
 
-		goto('/plan');
+		await goto('/plan');
 	}
 
 	function getDegreeName(degree: Degree, userPath: string | undefined): string {
 		let year = applyI18n(catalogs[degree[0]]);
-		// @ts-expect-error
 		let faculty = applyI18n(catalogs[degree[0]][degree[1]]);
 		// @ts-expect-error
 		let path = applyI18n(catalogs[degree[0]][degree[1]][degree[2]]);
@@ -53,9 +57,10 @@
 			return `${faculty} (${content.lang.preview.catalog} ${year}) - ${path}`;
 		}
 
+		// @ts-expect-error
 		let userPathNested = catalogs[degree[0]][degree[1]][
 			degree[2]
-		].requirement.nested.find((n) => n.name === userPath);
+		].requirement.nested.find((n: Requirement) => n.name === userPath);
 
 		const userPathName = applyI18n(userPathNested);
 
@@ -68,9 +73,9 @@
 		<h1 class="mb-2 text-lg font-medium text-content-primary">
 			{getDegreeName(data.degreeData.degree, data.userPath)}
 		</h1>
-		<Button variant="primary" onclick={importPlan}>
+		<AsyncButton variant="primary" onclick={importPlan}>
 			{content.lang.preview.copy}
-		</Button>
+		</AsyncButton>
 	</div>
 	<div style="transform: rotateX(180deg)" class="overflow-x-auto">
 		<div style="transform: rotateX(180deg)" class="flex flex-row">

@@ -219,6 +219,7 @@
 										squeeze={true}
 										scheduleError={getScheduleError(
 											course,
+											user.exemptions,
 											semesters,
 											semesterIndex
 										)}

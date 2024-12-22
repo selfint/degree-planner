@@ -13,7 +13,7 @@
 		onChange: (degree: Degree, path?: string) => Promise<boolean>;
 		onReset: () => void;
 		recommended?: string[][];
-		buttonInProgress: string;
+		buttonNamespace: string;
 	};
 
 	let {
@@ -22,7 +22,7 @@
 		onChange,
 		onReset,
 		recommended,
-		buttonInProgress = $bindable()
+		buttonNamespace = $bindable()
 	}: Props = $props();
 
 	type Year = keyof typeof catalogs;
@@ -254,7 +254,7 @@
 								reset();
 							}
 						}}
-						bind:namespace={buttonInProgress}
+						bind:buttonNamespace
 						name="save-degree"
 					>
 						{content.lang.settings.save}
@@ -263,7 +263,7 @@
 				<AsyncButton
 					variant="secondary"
 					onclick={async () => reset()}
-					bind:namespace={buttonInProgress}
+					bind:buttonNamespace
 					name="cancel-degree"
 				>
 					{content.lang.settings.cancel}

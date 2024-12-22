@@ -24,7 +24,7 @@
 	}
 
 	async function importPlan() {
-		if (user.semesters.length > 0) {
+		if (user.d.semesters.length > 0) {
 			const userConfirmation = confirm(content.lang.preview.overwriteWarning);
 
 			if (!userConfirmation) {
@@ -34,11 +34,11 @@
 
 		setUser(
 			await writeStorage({
-				...user,
+				...user.d,
 				semesters: data.semesters,
 				degree: data.degreeData.degree,
-				currentSemester: user.currentSemester ?? 0,
-				wishlist: user.wishlist.filter(
+				currentSemester: user.d.currentSemester ?? 0,
+				wishlist: user.d.wishlist.filter(
 					(c) => !data.semesters.flat().includes(c)
 				)
 			})

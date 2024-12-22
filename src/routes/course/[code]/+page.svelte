@@ -59,11 +59,11 @@
 	async function planCourse(): Promise<void> {
 		setUser(
 			await writeStorage({
-				...user,
-				semesters: user.semesters.map((s, i) =>
-					i === user.currentSemester ? [...new Set([...s, code])] : s
+				...user.d,
+				semesters: user.d.semesters.map((s, i) =>
+					i === user.d.currentSemester ? [...new Set([...s, code])] : s
 				),
-				wishlist: user.wishlist.filter((c) => c !== code)
+				wishlist: user.d.wishlist.filter((c) => c !== code)
 			})
 		);
 	}
@@ -71,8 +71,8 @@
 	async function removeCourseFromSemesters(): Promise<void> {
 		setUser(
 			await writeStorage({
-				...user,
-				semesters: user.semesters.map((s) => s.filter((c) => c !== code))
+				...user.d,
+				semesters: user.d.semesters.map((s) => s.filter((c) => c !== code))
 			})
 		);
 	}
@@ -80,8 +80,8 @@
 	async function addCourseToExemptions(): Promise<void> {
 		setUser(
 			await writeStorage({
-				...user,
-				exemptions: [...new Set([...user.exemptions, code])]
+				...user.d,
+				exemptions: [...new Set([...user.d.exemptions, code])]
 			})
 		);
 	}
@@ -89,8 +89,8 @@
 	async function removeCourseFromExemptions(): Promise<void> {
 		setUser(
 			await writeStorage({
-				...user,
-				exemptions: user.exemptions.filter((c) => c !== code)
+				...user.d,
+				exemptions: user.d.exemptions.filter((c) => c !== code)
 			})
 		);
 	}
@@ -98,8 +98,8 @@
 	async function addCourseToWishlist(): Promise<void> {
 		setUser(
 			await writeStorage({
-				...user,
-				wishlist: [...new Set([...user.wishlist, code])]
+				...user.d,
+				wishlist: [...new Set([...user.d.wishlist, code])]
 			})
 		);
 	}
@@ -107,8 +107,8 @@
 	async function removeCourseFromWishlist(): Promise<void> {
 		setUser(
 			await writeStorage({
-				...user,
-				wishlist: user.wishlist.filter((c) => c !== code)
+				...user.d,
+				wishlist: user.d.wishlist.filter((c) => c !== code)
 			})
 		);
 	}
@@ -129,15 +129,15 @@
 
 	type CourseState = 'planned' | 'wished' | 'exempt' | 'none';
 	const courseState = $derived.by((): CourseState => {
-		if (user.semesters.flat().includes(code)) {
+		if (user.d.semesters.flat().includes(code)) {
 			return 'planned';
 		}
 
-		if (user.exemptions.includes(code)) {
+		if (user.d.exemptions.includes(code)) {
 			return 'exempt';
 		}
 
-		if (user.wishlist.includes(code)) {
+		if (user.d.wishlist.includes(code)) {
 			return 'wished';
 		}
 
@@ -183,7 +183,7 @@
 			>
 				{content.lang.course.removeFromSemester}
 				{getSeasonAndIndex(
-					user.semesters.findIndex((s) => s.includes(course.code))
+					user.d.semesters.findIndex((s) => s.includes(course.code))
 				)}
 			</AsyncButton>
 		{:else}

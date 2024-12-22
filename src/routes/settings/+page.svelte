@@ -26,13 +26,10 @@
 
 	const recommended = $derived(catalog()?.recommended);
 
-	let userDegree = $state(user.degree);
-	let userPath = $state(user.path);
+	const userDegree = $derived(user.d.degree);
+	const userPath = $derived(user.d.path);
 
-	$effect(() => {
-		userDegree = user.degree;
-		userPath = user.path;
-	});
+	$inspect({ userDegree, userPath });
 
 	async function onChange(
 		newDegree: Degree,
@@ -40,7 +37,7 @@
 	): Promise<boolean> {
 		setUser(
 			await writeStorage({
-				...user,
+				...user.d,
 				degree: newDegree,
 				path: newPath
 			})
@@ -55,8 +52,8 @@
 				return;
 			}
 
-			user.semesters = recommended ?? [];
-			user.wishlist = user.wishlist.filter(
+			user.d.semesters = recommended ?? [];
+			user.d.wishlist = user.d.wishlist.filter(
 				(c) => !recommended.flat().includes(c)
 			);
 		}
@@ -64,11 +61,11 @@
 
 	const maxTotalSemesters = 15;
 
-	const semesterChoice = $derived(user.currentSemester);
-	const totalSemestersChoice = $derived(user.semesters.length);
+	const semesterChoice = $derived(user.d.currentSemester);
+	const totalSemestersChoice = $derived(user.d.semesters.length);
 
 	const maxNonEmptySemesterIndex = $derived(
-		user.semesters
+		user.d.semesters
 			.map((s, i) => [s.length, i])
 			.filter(([s]) => s > 0)
 			.map(([, i]) => i)
@@ -157,17 +154,17 @@
 			/>
 		</div>
 	{/if}
-	{#if userDegree !== undefined && user.semesters.flat().length === 0}
+	{#if userDegree !== undefined && user.d.semesters.flat().length === 0}
 		<div class="mb-4">
 			<UploadSection bind:buttonNamespace />
 		</div>
 	{/if}
-	{#if user.exemptions.length > 0}
+	{#if user.d.exemptions.length > 0}
 		<div class="mb-4">
 			<h2 class="mb-2 ms-3 text-base font-medium text-content-primary">
 				{content.lang.settings.exemptions}
 			</h2>
-			<CourseRow courses={user.exemptions}>
+			<CourseRow courses={user.d.exemptions}>
 				{#snippet children({ course, index })}
 					<div
 						role="button"

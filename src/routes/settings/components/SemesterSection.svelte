@@ -19,10 +19,10 @@
 	}: Props = $props();
 
 	async function onUpdateCurrentSemester() {
-		if (semesterChoice !== user.currentSemester) {
+		if (semesterChoice !== user.d.currentSemester) {
 			setUser(
 				await writeStorage({
-					...user,
+					...user.d,
 					currentSemester: semesterChoice
 				})
 			);
@@ -31,15 +31,15 @@
 
 	async function onUpdateTotalSemesters() {
 		const semesters =
-			totalSemestersChoice < user.semesters.length
-				? user.semesters.slice(0, totalSemestersChoice)
-				: user.semesters.concat(
+			totalSemestersChoice < user.d.semesters.length
+				? user.d.semesters.slice(0, totalSemestersChoice)
+				: user.d.semesters.concat(
 						Array.from({
-							length: totalSemestersChoice - user.semesters.length
+							length: totalSemestersChoice - user.d.semesters.length
 						}).map(() => [])
 					);
 
-		setUser(await writeStorage({ ...user, semesters }));
+		setUser(await writeStorage({ ...user.d, semesters }));
 	}
 </script>
 
@@ -53,7 +53,7 @@
 		</span>
 		<div class="flex flex-row gap-x-1">
 			<Select bind:value={semesterChoice}>
-				{#each Array.from({ length: user.semesters.length }) as _, i}
+				{#each Array.from({ length: user.d.semesters.length }) as _, i}
 					<option value={i}>
 						{content.lang.common.seasons[i % 3]}
 						{Math.floor(i / 3) + 1}
@@ -61,7 +61,7 @@
 				{/each}
 			</Select>
 
-			{#if semesterChoice !== user.currentSemester}
+			{#if semesterChoice !== user.d.currentSemester}
 				<div class="w-fit">
 					<AsyncButton
 						variant="primary"
@@ -76,7 +76,7 @@
 					<AsyncButton
 						variant="secondary"
 						onclick={async () => {
-							semesterChoice = user.currentSemester;
+							semesterChoice = user.d.currentSemester;
 						}}
 						bind:buttonNamespace
 						name="cancel-semesters"
@@ -99,7 +99,7 @@
 					</option>
 				{/each}
 			</Select>
-			{#if totalSemestersChoice !== user.semesters.length}
+			{#if totalSemestersChoice !== user.d.semesters.length}
 				<div class="w-fit">
 					<AsyncButton
 						variant="primary"
@@ -114,7 +114,7 @@
 					<AsyncButton
 						variant="secondary"
 						onclick={async () => {
-							totalSemestersChoice = user.semesters.length;
+							totalSemestersChoice = user.d.semesters.length;
 						}}
 						bind:buttonNamespace
 						name="cancel-total"

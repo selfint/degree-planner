@@ -198,14 +198,9 @@ const migrations = [
 	}
 ] as const;
 
-export let user: UserData = $state(readLocalStorage());
+export const user: { d: UserData } = $state({ d: readLocalStorage() });
 export function setUser(data: UserData) {
-	for (const key in data) {
-		if (Object.prototype.hasOwnProperty.call(data, key)) {
-			// @ts-expect-error
-			user[key] = data[key];
-		}
-	}
+	user.d = data;
 }
 
 let _catalog: Catalog | undefined = $state(undefined);
@@ -246,7 +241,7 @@ export async function writeLocalStorage(data: UserData): Promise<UserData> {
 	localStorage.setItem('version', version.toString());
 	localStorage.setItem('userData', JSON.stringify(data));
 
-	return user;
+	return data;
 }
 
 export interface StorageMethod {
@@ -266,8 +261,8 @@ export const setStorage = (s: StorageMethod) => (_storage = s);
 
 $effect.root(() => {
 	$effect(() => {
-		if (user.degree !== undefined) {
-			loadCatalog(user.degree, user.path).then((d) => (_catalog = d));
+		if (user.d.degree !== undefined) {
+			loadCatalog(user.d.degree, user.d.path).then((d) => (_catalog = d));
 		}
 	});
 });

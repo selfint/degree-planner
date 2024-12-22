@@ -108,6 +108,11 @@
 											{Math.floor(index / 3) + 1}
 										</span>
 									</span>
+								{:else if user.d.exemptions.includes(course.code)}
+									<span>✓</span>
+									<span class="hidden sm:inline">
+										{content.lang.catalog.exempt}
+									</span>
 								{:else if user.d.wishlist.includes(course.code)}
 									<span>🌟</span>
 									<span class="hidden sm:inline">

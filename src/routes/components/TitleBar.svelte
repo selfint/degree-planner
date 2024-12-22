@@ -2,16 +2,16 @@
 	import Logo from '$lib/assets/logo.webp';
 
 	import SearchIcon from '$lib/components/SearchIcon.svelte';
-	import Button from '$lib/components/Button.svelte';
 
 	import Nav from './Nav.svelte';
 
 	import { content } from '$lib/stores.svelte';
 	import Settings from '$lib/components/Settings.svelte';
+	import AsyncButton from '$lib/components/AsyncButton.svelte';
 
 	type Props = {
 		started: boolean;
-		onGetStarted: () => void;
+		onGetStarted: () => Promise<void>;
 		onSearch: (query: string) => void;
 	};
 
@@ -57,9 +57,9 @@
 		</a>
 		<div class="flex-grow"></div>
 		{#if !started}
-			<Button variant="primary" onclick={onGetStarted}>
+			<AsyncButton variant="primary" onclick={onGetStarted}>
 				{content.lang.common.getStarted}
-			</Button>
+			</AsyncButton>
 		{:else}
 			<nav
 				class="ms-2 flex flex-row items-center justify-end space-x-3 md:space-x-8"

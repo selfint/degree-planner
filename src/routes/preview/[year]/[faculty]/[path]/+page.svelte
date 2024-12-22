@@ -2,14 +2,14 @@
 	import { goto } from '$app/navigation';
 	import type { PageData } from './$types';
 
-	import Button from '$lib/components/Button.svelte';
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import Semester from '$lib/components/Semester.svelte';
 
-	import catalogs from '$lib/assets/catalogs.json';
 	import { getCourseData } from '$lib/courseData';
 
-	import { user, content } from '$lib/stores.svelte';
+	import { user, content, setUser, writeStorage } from '$lib/stores.svelte';
+	import AsyncButton from '$lib/components/AsyncButton.svelte';
+	import Spinner from '$lib/components/Spinner.svelte';
 
 	let { data }: { data: PageData } = $props();
 
@@ -22,8 +22,8 @@
 		return name;
 	}
 
-	function importPlan() {
-		if (user.semesters.length > 0) {
+	async function importPlan() {
+		if (user.d.semesters.length > 0) {
 			const userConfirmation = confirm(content.lang.preview.overwriteWarning);
 
 			if (!userConfirmation) {
@@ -31,20 +31,28 @@
 			}
 		}
 
-		user.username = 'guest';
-		user.semesters = data.semesters;
-		user.degree = data.degreeData.degree;
-		user.currentSemester = user.currentSemester ?? 0;
-		user.wishlist = user.wishlist.filter(
-			(c) => !data.semesters.flat().includes(c)
+		setUser(
+			await writeStorage({
+				...user.d,
+				semesters: data.semesters,
+				degree: data.degreeData.degree,
+				currentSemester: user.d.currentSemester ?? 0,
+				wishlist: user.d.wishlist.filter(
+					(c) => !data.semesters.flat().includes(c)
+				)
+			})
 		);
 
-		goto('/plan');
+		await goto('/plan');
 	}
 
-	function getDegreeName(degree: Degree, userPath: string | undefined): string {
+	async function getDegreeName(
+		degree: Degree,
+		userPath: string | undefined
+	): Promise<string> {
+		const catalogs = (await import('$lib/assets/catalogsHeader.json')).default;
+
 		let year = applyI18n(catalogs[degree[0]]);
-		// @ts-expect-error
 		let faculty = applyI18n(catalogs[degree[0]][degree[1]]);
 		// @ts-expect-error
 		let path = applyI18n(catalogs[degree[0]][degree[1]][degree[2]]);
@@ -53,9 +61,10 @@
 			return `${faculty} (${content.lang.preview.catalog} ${year}) - ${path}`;
 		}
 
+		// @ts-expect-error
 		let userPathNested = catalogs[degree[0]][degree[1]][
 			degree[2]
-		].requirement.nested.find((n) => n.name === userPath);
+		].requirement.nested.find((n: Requirement) => n.name === userPath);
 
 		const userPathName = applyI18n(userPathNested);
 
@@ -66,11 +75,17 @@
 <div class="mb-3 mt-3">
 	<div class="mb-4 ms-3">
 		<h1 class="mb-2 text-lg font-medium text-content-primary">
-			{getDegreeName(data.degreeData.degree, data.userPath)}
+			{#await getDegreeName(data.degreeData.degree, data.userPath)}
+				<div class="h-7 w-7">
+					<Spinner />
+				</div>
+			{:then name}
+				{name}
+			{/await}
 		</h1>
-		<Button variant="primary" onclick={importPlan}>
+		<AsyncButton variant="primary" onclick={importPlan}>
 			{content.lang.preview.copy}
-		</Button>
+		</AsyncButton>
 	</div>
 	<div style="transform: rotateX(180deg)" class="overflow-x-auto">
 		<div style="transform: rotateX(180deg)" class="flex flex-row">

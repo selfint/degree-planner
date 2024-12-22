@@ -1,20 +1,29 @@
 <script lang="ts">
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 
 	import Button from '$lib/components/Button.svelte';
 	import CourseElement from '$lib/components/CourseElement.svelte';
 
-	import { user, catalog, content } from '$lib/stores.svelte';
+	import {
+		user,
+		catalog,
+		content,
+		writeStorage,
+		setUser
+	} from '$lib/stores.svelte';
 
 	import { getCourseData, getAllCourses } from '$lib/courseData';
 	import { getCourseLists } from '$lib/requirements';
 	import { generateCourseColor } from '$lib/colors';
 	import RequirementsElement from '$lib/components/RequirementsElement.svelte';
 	import CourseRow from '$lib/components/CourseRow.svelte';
+	import AsyncButton from '$lib/components/AsyncButton.svelte';
 
-	const code = $derived($page.params.code);
+	const code = $derived(page.params.code);
 	const course = $derived(getCourseData(code));
 	const requirements = $derived(catalog()?.requirement);
+
+	const seasonEmojis = ['❄️', '🌿', '☀️'];
 
 	const courseMemberRequirements = $derived.by(() => {
 		if (requirements === undefined) {
@@ -47,30 +56,63 @@
 			})
 	);
 
-	function formatRequirementName(requirement: Requirement): string {
-		let name = requirement.name;
-		if (requirement.he !== undefined && content.lang.lang === 'he') {
-			name = requirement.he;
-		}
-		return name
-			.split('_')
-			.map((word) => word[0].toUpperCase() + word.slice(1).toLowerCase())
-			.join(' ');
+	let buttonNamespace = $state('');
+
+	async function planCourse(): Promise<void> {
+		setUser(
+			await writeStorage({
+				...user.d,
+				semesters: user.d.semesters.map((s, i) =>
+					i === user.d.currentSemester ? [...new Set([...s, code])] : s
+				),
+				wishlist: user.d.wishlist.filter((c) => c !== code)
+			})
+		);
 	}
 
-	function planCourse(code: string): void {
-		const current = user.semesters[user.currentSemester];
-		if (!current.includes(code)) {
-			current.push(code);
-		}
-
-		if (user.wishlist.includes(code)) {
-			user.wishlist = user.wishlist.filter((c) => c !== code);
-		}
+	async function removeCourseFromSemesters(): Promise<void> {
+		setUser(
+			await writeStorage({
+				...user.d,
+				semesters: user.d.semesters.map((s) => s.filter((c) => c !== code))
+			})
+		);
 	}
 
-	function removeCourseFromSemesters(code: string): void {
-		user.semesters = user.semesters.map((s) => s.filter((c) => c !== code));
+	async function addCourseToExemptions(): Promise<void> {
+		setUser(
+			await writeStorage({
+				...user.d,
+				exemptions: [...new Set([...user.d.exemptions, code])]
+			})
+		);
+	}
+
+	async function removeCourseFromExemptions(): Promise<void> {
+		setUser(
+			await writeStorage({
+				...user.d,
+				exemptions: user.d.exemptions.filter((c) => c !== code)
+			})
+		);
+	}
+
+	async function addCourseToWishlist(): Promise<void> {
+		setUser(
+			await writeStorage({
+				...user.d,
+				wishlist: [...new Set([...user.d.wishlist, code])]
+			})
+		);
+	}
+
+	async function removeCourseFromWishlist(): Promise<void> {
+		setUser(
+			await writeStorage({
+				...user.d,
+				wishlist: user.d.wishlist.filter((c) => c !== code)
+			})
+		);
 	}
 
 	function getSeasonAndIndex(semesterIndex: number): string {
@@ -86,6 +128,33 @@
 			depRow.scrollLeft = code.length - code.length;
 		}
 	});
+
+	type CourseState = 'planned' | 'wished' | 'exempt' | 'none';
+	const courseState = $derived.by((): CourseState => {
+		if (user.d.semesters.flat().includes(code)) {
+			return 'planned';
+		}
+
+		if (user.d.exemptions.includes(code)) {
+			return 'exempt';
+		}
+
+		if (user.d.wishlist.includes(code)) {
+			return 'wished';
+		}
+
+		return 'none';
+	});
+
+	function getCourseSemester(course: Course): number | undefined {
+		const index = user.d.semesters.findIndex((s) => s.includes(course.code));
+
+		if (index === -1) {
+			return undefined;
+		} else {
+			return index;
+		}
+	}
 </script>
 
 <div class="mt-3">
@@ -116,37 +185,63 @@
 		{course.about}
 	</p>
 
-	<div class="ml-3 mr-3 space-x-1">
-		{#if user.semesters.some((s) => s.includes(course.code))}
-			<Button
+	<div class="ml-3 mr-3 flex flex-row items-center gap-x-1">
+		{#if courseState === 'planned'}
+			<AsyncButton
 				variant="secondary"
-				onclick={() => removeCourseFromSemesters(course.code)}
+				onclick={removeCourseFromSemesters}
+				bind:buttonNamespace
+				name="un-plan"
 			>
 				{content.lang.course.removeFromSemester}
 				{getSeasonAndIndex(
-					user.semesters.findIndex((s) => s.includes(course.code))
+					user.d.semesters.findIndex((s) => s.includes(course.code))
 				)}
-			</Button>
+			</AsyncButton>
 		{:else}
-			<Button variant="primary" onclick={() => planCourse(course.code)}>
+			<AsyncButton
+				variant="primary"
+				onclick={planCourse}
+				bind:buttonNamespace
+				name="plan"
+			>
 				{content.lang.course.plan}
-			</Button>
-			{#if user.wishlist.includes(course.code)}
-				<Button
+			</AsyncButton>
+			{#if courseState === 'wished'}
+				<AsyncButton
 					variant="secondary"
-					onclick={() =>
-						(user.wishlist = user.wishlist.filter((c) => c !== course.code))}
+					onclick={removeCourseFromWishlist}
+					bind:buttonNamespace
+					name="un-wish"
 				>
 					{content.lang.course.removeFromWishlist}
-				</Button>
-			{:else}
-				<Button
+				</AsyncButton>
+			{:else if courseState === 'exempt'}
+				<AsyncButton
 					variant="secondary"
-					onclick={() =>
-						(user.wishlist = [...new Set([...user.wishlist, course.code])])}
+					onclick={removeCourseFromExemptions}
+					bind:buttonNamespace
+					name="un-exempt"
+				>
+					{content.lang.course.removeFromExemption}
+				</AsyncButton>
+			{:else}
+				<AsyncButton
+					variant="secondary"
+					onclick={addCourseToWishlist}
+					bind:buttonNamespace
+					name="wish"
 				>
 					{content.lang.course.wishlist}
-				</Button>
+				</AsyncButton>
+				<AsyncButton
+					variant="secondary"
+					onclick={addCourseToExemptions}
+					bind:buttonNamespace
+					name="exempt"
+				>
+					{content.lang.course.exempt}
+				</AsyncButton>
 			{/if}
 		{/if}
 	</div>
@@ -201,9 +296,32 @@
 							</p>
 						{/if}
 						<div class="flex flex-col space-y-1">
-							{#each group.map(getCourseData) as dep}
-								<a class="pe-2" href={`/course/${dep.code}`}>
-									<CourseElement course={dep} />
+							{#each group.map(getCourseData) as course}
+								<a class="pe-2" href={`/course/${course.code}`}>
+									<CourseElement {course}>
+										{#snippet note()}
+											{@const index = getCourseSemester(course)}
+											{#if index !== undefined}
+												<span>
+													{seasonEmojis[index % 3]}
+													<span class="hidden sm:inline">
+														{content.lang.common.seasons[index % 3]}
+														{Math.floor(index / 3) + 1}
+													</span>
+												</span>
+											{:else if user.d.exemptions.includes(course.code)}
+												<span>✓</span>
+												<span class="hidden sm:inline">
+													{content.lang.catalog.exempt}
+												</span>
+											{:else if user.d.wishlist.includes(course.code)}
+												<span>🌟</span>
+												<span class="hidden sm:inline">
+													{content.lang.catalog.wishlist}
+												</span>
+											{/if}
+										{/snippet}
+									</CourseElement>
 								</a>
 							{/each}
 						</div>
@@ -220,7 +338,30 @@
 					<CourseRow resetScroll courses={course.connections?.adjacent ?? []}>
 						{#snippet children({ course })}
 							<a href={`/course/${course.code}`}>
-								<CourseElement {course} />
+								<CourseElement {course}>
+									{#snippet note()}
+										{@const index = getCourseSemester(course)}
+										{#if index !== undefined}
+											<span>
+												{seasonEmojis[index % 3]}
+												<span class="hidden sm:inline">
+													{content.lang.common.seasons[index % 3]}
+													{Math.floor(index / 3) + 1}
+												</span>
+											</span>
+										{:else if user.d.exemptions.includes(course.code)}
+											<span>✓</span>
+											<span class="hidden sm:inline">
+												{content.lang.catalog.exempt}
+											</span>
+										{:else if user.d.wishlist.includes(course.code)}
+											<span>🌟</span>
+											<span class="hidden sm:inline">
+												{content.lang.catalog.wishlist}
+											</span>
+										{/if}
+									{/snippet}
+								</CourseElement>
 							</a>
 						{/snippet}
 					</CourseRow>
@@ -235,7 +376,30 @@
 				<CourseRow resetScroll courses={course.connections?.exclusive ?? []}>
 					{#snippet children({ course })}
 						<a href={`/course/${course.code}`}>
-							<CourseElement {course} />
+							<CourseElement {course}>
+								{#snippet note()}
+									{@const index = getCourseSemester(course)}
+									{#if index !== undefined}
+										<span>
+											{seasonEmojis[index % 3]}
+											<span class="hidden sm:inline">
+												{content.lang.common.seasons[index % 3]}
+												{Math.floor(index / 3) + 1}
+											</span>
+										</span>
+									{:else if user.d.exemptions.includes(course.code)}
+										<span>✓</span>
+										<span class="hidden sm:inline">
+											{content.lang.catalog.exempt}
+										</span>
+									{:else if user.d.wishlist.includes(course.code)}
+										<span>🌟</span>
+										<span class="hidden sm:inline">
+											{content.lang.catalog.wishlist}
+										</span>
+									{/if}
+								{/snippet}
+							</CourseElement>
 						</a>
 					{/snippet}
 				</CourseRow>
@@ -249,7 +413,30 @@
 				<div class="flex flex-row flex-wrap">
 					{#each dependants as c}
 						<a class="pb-4 pe-2" href={`/course/${c.code}`}>
-							<CourseElement course={c} />
+							<CourseElement course={c}>
+								{#snippet note()}
+									{@const index = getCourseSemester(c)}
+									{#if index !== undefined}
+										<span>
+											{seasonEmojis[index % 3]}
+											<span class="hidden sm:inline">
+												{content.lang.common.seasons[index % 3]}
+												{Math.floor(index / 3) + 1}
+											</span>
+										</span>
+									{:else if user.d.exemptions.includes(course.code)}
+										<span>✓</span>
+										<span class="hidden sm:inline">
+											{content.lang.catalog.exempt}
+										</span>
+									{:else if user.d.wishlist.includes(course.code)}
+										<span>🌟</span>
+										<span class="hidden sm:inline">
+											{content.lang.catalog.wishlist}
+										</span>
+									{/if}
+								{/snippet}
+							</CourseElement>
 						</a>
 					{/each}
 				</div>

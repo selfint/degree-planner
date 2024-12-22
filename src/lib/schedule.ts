@@ -9,12 +9,16 @@ export type ScheduleError = {
 
 export function getScheduleError(
 	course: Course,
+	exemptions: string[],
 	semesters: string[][],
 	currentSemester: number,
 	ignoreUndefined = false
 ): ScheduleError {
 	const semester = semesters[currentSemester];
-	const previous = semesters.slice(0, currentSemester).flat();
+	const previous = [
+		...semesters.slice(0, currentSemester).flat(),
+		...exemptions
+	];
 
 	// type gymnastics for typescript
 	type Season = 'Winter' | 'Spring' | 'Summer';

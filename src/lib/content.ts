@@ -15,7 +15,8 @@ export const cms = {
 			exclusives: 'Exclusives',
 			semester: 'Semester',
 			faculty: 'Faculty',
-			course: 'Course'
+			course: 'Course',
+			loading: 'Loading'
 		},
 		header: {
 			searchPlaceholder: 'Search',
@@ -37,21 +38,14 @@ export const cms = {
 				'Plan your courses for each semester, ensuring their requirements are met.',
 				'When test schedules are published, quickly adapt your plan to maximize study time for each test.'
 			],
-			progress: {
-				header: `
-					See degree catalog, and your degree progress.
-					For each section, there are 3 values:
-				`,
-				done: 'done',
-				planned: 'planned',
-				total: 'total',
-				notification: {
-					header: 'If a requirement has special rules that were applied, a',
-					notification: 'notification',
-					footer: 'will appear with an explanation.'
-				},
-				markAsDone: `
-					In each section y
+			settings: {
+				header: `Settings`,
+				description: `
+					Select your degree, and optionally a path.
+
+					Upload your transcript to insert your courses.
+
+					You can also manually add all your courses.
 				`
 			},
 			plan: {
@@ -106,7 +100,10 @@ export const cms = {
 
 					Even shared links do not allow editing your plan.
 				`
-			}
+			},
+			search: `
+				Search for courses by name or by number.
+			`
 		},
 		settings: {
 			degree: 'Degree',
@@ -132,13 +129,17 @@ export const cms = {
 			upload: 'Upload transcript',
 			uploadLabel: 'Choose file',
 			preview: 'Preview',
-			exemptions: 'Exemptions (will be moved to wish list)'
+			exemptions: 'Exemptions',
+			signInWith: 'Sign in with',
+			signOut: 'Sign out',
+			guest: 'Guest'
 		},
 		plan: {
 			wishlist: 'Wish list'
 		},
 		catalog: {
-			wishlist: 'Wish list'
+			wishlist: 'Wish list',
+			exempt: 'Exempt'
 		},
 		course: {
 			median: 'Median',
@@ -146,7 +147,9 @@ export const cms = {
 			plan: 'Plan',
 			removeFromSemester: 'Remove from semester',
 			removeFromWishlist: 'Remove from wish list',
+			removeFromExemption: 'Remove from exemptions',
 			wishlist: 'Wish list',
+			exempt: 'Add to exemptions',
 			available: 'Available',
 			info: 'Info',
 			appliesTo: 'Applies towards'
@@ -181,7 +184,8 @@ export const cms = {
 			exclusives: 'ללא זיכוי נוסף',
 			semester: 'סמסטר',
 			faculty: 'פקולטה',
-			course: 'קורס'
+			course: 'קורס',
+			loading: 'טוען'
 		},
 		header: {
 			searchPlaceholder: 'חיפוש',
@@ -203,6 +207,16 @@ export const cms = {
 				'תכנן את הקורסים לכל סמסטר, עם וידוי שהדרישות שלהם נענו.',
 				'כאשר לוח המבחנים מתפרסם, התאם את התוכנית שלך במהירות כדי למקסם את זמן הלמידה לכל מבחן.'
 			],
+			settings: {
+				header: `הגדרות`,
+				description: `
+					בחר את הקטלוג הרלוונטי אליך.
+
+					העלה גיליון ציונים כדי לראות את הקורסים שלך.
+
+					ניתן גם לשבץ קורסים ידנית.
+				`
+			},
 			progress: {
 				header: `
 					בחר תואר. ראה את כל הדרישות שלו, והתקדמותך בהן.
@@ -275,7 +289,10 @@ export const cms = {
 
 				גם קישורים ששותפו לא מאפשרים עריכה של התוכנית שלך.
 			`
-			}
+			},
+			search: `
+				חפש קורסים לפי שם או לפי מספר.
+			`
 		},
 		settings: {
 			degree: 'תואר',
@@ -301,13 +318,17 @@ export const cms = {
 			upload: 'העלאת גיליון ציונים',
 			uploadLabel: 'בחר קובץ',
 			preview: 'צפייה מוקדמת',
-			exemptions: 'זיכויים (יועברו לרשימת משאלות)'
+			exemptions: 'זיכויים',
+			signInWith: 'התחבר דרך',
+			signOut: 'התנתק',
+			guest: 'אורח'
 		},
 		plan: {
 			wishlist: 'רשימת משאלות'
 		},
 		catalog: {
-			wishlist: 'רשימת משאלות'
+			wishlist: 'רשימת משאלות',
+			exempt: 'פטור'
 		},
 		course: {
 			median: 'חציון',
@@ -315,7 +336,9 @@ export const cms = {
 			plan: 'הוספה',
 			removeFromSemester: 'הסר מהסמסטר',
 			removeFromWishlist: 'הסר מרשימת המשאלות',
+			removeFromExemption: 'הסר מרשימת הפטורים',
 			wishlist: 'רשימת משאלות',
+			exempt: 'רשימת פטורים',
 			available: 'זמין',
 			info: 'מידע',
 			appliesTo: 'תורם לדרישות'

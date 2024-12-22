@@ -6,29 +6,35 @@
 	import CourseRow from '$lib/components/CourseRow.svelte';
 	import Button from '$lib/components/Button.svelte';
 
-	import { user, content } from '$lib/stores.svelte';
+	import { user, content, writeStorage, setUser } from '$lib/stores.svelte';
 
 	import { getCourseData } from '$lib/courseData';
 	import { getScheduleError } from '$lib/schedule';
+	import AsyncButton from '$lib/components/AsyncButton.svelte';
 
-	let wishlist = $state(user.wishlist);
-	let semesters = $state(user.semesters);
-	let hasChanges = $derived(
-		wishlist !== user.wishlist || semesters !== user.semesters
+	let wishlist = $state(user.d.wishlist);
+	let semesters = $state(user.d.semesters);
+	const hasChanges = $derived(
+		wishlist !== user.d.wishlist || semesters !== user.d.semesters
 	);
 
+	$effect(() => {
+		wishlist = user.d.wishlist;
+		semesters = user.d.semesters;
+	});
+
 	const shareLink = $derived.by(() => {
-		if (user.degree === undefined) {
+		if (user.d.degree === undefined) {
 			return undefined;
 		}
 
-		const [year, faculty, degree] = user.degree;
+		const [year, faculty, degree] = user.d.degree;
 
-		const semesters = user.semesters.map((s) => s.join('-')).join('~');
+		const semesters = user.d.semesters.map((s) => s.join('-')).join('~');
 
 		const urlParams = new URLSearchParams();
-		if (user.path !== undefined) {
-			urlParams.append('path', user.path);
+		if (user.d.path !== undefined) {
+			urlParams.append('path', user.d.path);
 		}
 		urlParams.append('semesters', semesters);
 
@@ -37,14 +43,9 @@
 		return link;
 	});
 
-	function onSave() {
-		user.wishlist = wishlist;
-		user.semesters = semesters;
-	}
-
 	function onCancel() {
-		wishlist = user.wishlist;
-		semesters = user.semesters;
+		wishlist = user.d.wishlist;
+		semesters = user.d.semesters;
 	}
 
 	function moveCourseToSemester(code: string, semester: number) {
@@ -66,14 +67,24 @@
 
 	function scroll(semester: HTMLDivElement, index: number) {
 		const doScroll =
-			!didMount && user.currentSemester > 2 && index === semesters.length - 1;
+			!didMount && user.d.currentSemester > 2 && index === semesters.length - 1;
 
 		if (doScroll) {
-			semester.parentElement?.children[user.currentSemester]?.scrollIntoView({
+			semester.parentElement?.children[user.d.currentSemester]?.scrollIntoView({
 				behavior: 'instant',
 				inline: 'start',
 				block: 'nearest'
 			});
+		}
+	}
+
+	let canCancel = $state(true);
+	async function onSave() {
+		canCancel = false;
+		try {
+			setUser(await writeStorage({ ...user.d, wishlist, semesters }));
+		} catch (_) {
+			canCancel = true;
 		}
 	}
 </script>
@@ -109,14 +120,16 @@
 			</h1>
 			<div class="flex flex-row items-center gap-x-2 text-sm">
 				{#if hasChanges}
-					<Button variant="secondary" onclick={onCancel}>
-						{content.lang.settings.cancel}
-					</Button>
-					<Button variant="primary" onclick={onSave}>
+					{#if canCancel}
+						<Button variant="secondary" onclick={onCancel}>
+							{content.lang.settings.cancel}
+						</Button>
+					{/if}
+					<AsyncButton variant="primary" onclick={onSave}>
 						{content.lang.settings.save}
-					</Button>
+					</AsyncButton>
 				{/if}
-				{#if user.semesters.some((s) => s.length > 0)}
+				{#if user.d.semesters.some((s) => s.length > 0)}
 					<a href={shareLink} target="_blank">
 						<Button variant="primary" onclick={() => {}}>
 							{content.lang.settings.share}
@@ -179,7 +192,7 @@
 						<Semester
 							index={semesterIndex}
 							semester={semester.map(getCourseData)}
-							isCurrent={semesterIndex === user.currentSemester}
+							isCurrent={semesterIndex === user.d.currentSemester}
 							href={`/semester?c=${semesterIndex}`}
 						>
 							{#snippet children({ course, index })}
@@ -206,6 +219,7 @@
 										squeeze={true}
 										scheduleError={getScheduleError(
 											course,
+											user.d.exemptions,
 											semesters,
 											semesterIndex
 										)}

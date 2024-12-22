@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import Semester from '$lib/components/Semester.svelte';
@@ -15,19 +15,19 @@
 	let disabled: string[] = $state([]);
 
 	const currentSemester = $derived.by(() => {
-		const current = $page.url.searchParams.get('c');
+		const current = page.url.searchParams.get('c');
 
 		if (current === null) {
-			return user.currentSemester;
+			return user.d.currentSemester;
 		} else {
 			return parseInt(current.trim());
 		}
 	});
 
-	const wishlistCourses = $derived(user.wishlist.map(getCourseData));
+	const wishlistCourses = $derived(user.d.wishlist.map(getCourseData));
 	const requirements = $derived(catalog()?.requirement);
 	const semester = $derived(
-		user.semesters.at(currentSemester)?.map(getCourseData) ?? []
+		user.d.semesters.at(currentSemester)?.map(getCourseData) ?? []
 	);
 
 	const effectiveSemester = $derived(
@@ -35,7 +35,7 @@
 	);
 
 	const futureSemesters = $derived(
-		user.semesters
+		user.d.semesters
 			.slice(currentSemester + 1)
 			.map((s, i): [number, Course[]] => [
 				currentSemester + 1 + i,
@@ -226,7 +226,7 @@
 		}
 
 		if (
-			user.semesters
+			user.d.semesters
 				.slice(0, currentSemester + 1)
 				.flat()
 				.some((c) => c === course.code)
@@ -236,8 +236,9 @@
 
 		const error = getScheduleError(
 			course,
-			user.semesters,
-			currentSemester,
+			user.d.exemptions,
+			user.d.semesters,
+			currentSemester + 1,
 			true
 		);
 
@@ -285,7 +286,7 @@
 			index={currentSemester}
 			{semester}
 			{disabled}
-			isCurrent={currentSemester === user.currentSemester}
+			isCurrent={currentSemester === user.d.currentSemester}
 			href={'/plan'}
 		>
 			{#snippet children({ course })}
@@ -303,7 +304,7 @@
 		<div class="mb-2 me-3 mt-1 flex flex-row items-center justify-between pt-2">
 			<div class="ms-3">
 				<h1
-					class="w-fit border-b-2 {currentSemester === user.currentSemester
+					class="w-fit border-b-2 {currentSemester === user.d.currentSemester
 						? 'border-accent-primary'
 						: 'border-transparent'} text-base font-medium text-content-primary"
 				>
@@ -324,7 +325,7 @@
 					</span>
 				</div>
 			</div>
-			{#if currentSemester === user.currentSemester}
+			{#if currentSemester === user.d.currentSemester}
 				<StudyDaysComponent semester={effectiveSemester} />
 			{/if}
 		</div>
@@ -359,7 +360,7 @@
 							<button onmousedown={() => goto(`/course/${course.code}`)}>
 								<CourseElement
 									{course}
-									tests={currentSemester === user.currentSemester
+									tests={currentSemester === user.d.currentSemester
 										? effectiveSemester
 										: undefined}
 								/>
@@ -373,7 +374,7 @@
 							<button onmousedown={() => goto(`/course/${course.code}`)}>
 								<CourseElement
 									{course}
-									tests={currentSemester === user.currentSemester
+									tests={currentSemester === user.d.currentSemester
 										? effectiveSemester
 										: undefined}
 								/>

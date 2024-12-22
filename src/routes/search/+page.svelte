@@ -1,14 +1,13 @@
 <script lang="ts">
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 
-	import { catalog, content, user } from '$lib/stores.svelte';
+	import { content, user } from '$lib/stores.svelte';
 	import CourseElement from '$lib/components/CourseElement.svelte';
-	import { getCourseLists } from '$lib/requirements';
 	import { getAllCourses } from '$lib/courseData';
 
 	const query = $derived.by(() => {
-		let q = ($page.url.searchParams.get('q') ?? '').trim();
+		let q = (page.url.searchParams.get('q') ?? '').trim();
 
 		// special case for backwards compatibility, convert 6 digit codes to 8 digit codes
 		// first, check if q is all numbers
@@ -31,10 +30,8 @@
 			})
 	);
 
-	const requirements = $derived(catalog()?.requirement);
-
 	function getCourseSemester(course: Course): number | undefined {
-		const index = user.semesters.findIndex((s) => s.includes(course.code));
+		const index = user.d.semesters.findIndex((s) => s.includes(course.code));
 
 		if (index === -1) {
 			return undefined;
@@ -80,7 +77,12 @@
 										{Math.floor(index / 3) + 1}
 									</span>
 								</span>
-							{:else if user.wishlist.includes(course.code)}
+							{:else if user.d.exemptions.includes(course.code)}
+								<span>✓</span>
+								<span class="hidden sm:inline">
+									{content.lang.catalog.exempt}
+								</span>
+							{:else if user.d.wishlist.includes(course.code)}
 								<span>🌟</span>
 								<span class="hidden sm:inline">
 									{formatName(content.lang.catalog.wishlist)}

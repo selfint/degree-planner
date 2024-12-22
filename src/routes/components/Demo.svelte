@@ -15,11 +15,11 @@
 	<div class="flex-grow sm:me-4">
 		<Video {src} />
 	</div>
-	<div class="mt-2 sm:min-w-[300px] sm:max-w-[300px] sm:flex-grow">
-		<h2 class="text-2xl font-medium text-content-primary">
+	<div class="me-3 mt-2 sm:min-w-[300px] sm:max-w-[300px] sm:flex-grow">
+		<h2 class="ms-3 text-2xl font-medium text-content-primary sm:ms-0">
 			{title}
 		</h2>
-		<p class="text-wrap break-words text-content-secondary">
+		<p class="ms-3 text-wrap break-words text-content-secondary sm:ms-0">
 			{@render children()}
 		</p>
 	</div>

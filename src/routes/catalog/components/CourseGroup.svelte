@@ -54,7 +54,7 @@
 	const id = titles.map((t) => t.name.toLowerCase()).join('_');
 
 	function getCourseSemester(course: Course): number | undefined {
-		const index = user.semesters.findIndex((s) => s.includes(course.code));
+		const index = user.d.semesters.findIndex((s) => s.includes(course.code));
 
 		if (index === -1) {
 			return undefined;
@@ -108,7 +108,12 @@
 											{Math.floor(index / 3) + 1}
 										</span>
 									</span>
-								{:else if user.wishlist.includes(course.code)}
+								{:else if user.d.exemptions.includes(course.code)}
+									<span>✓</span>
+									<span class="hidden sm:inline">
+										{content.lang.catalog.exempt}
+									</span>
+								{:else if user.d.wishlist.includes(course.code)}
 									<span>🌟</span>
 									<span class="hidden sm:inline">
 										{content.lang.catalog.wishlist}

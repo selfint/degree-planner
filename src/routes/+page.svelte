@@ -44,7 +44,7 @@
 	</div>
 
 	<div
-		class="mt-8 flex flex-col items-center space-y-8 p-3 sm:mt-20 sm:max-w-[1024px]"
+		class="mt-8 flex flex-col items-center gap-y-12 p-3 sm:mt-20 sm:max-w-[1024px]"
 	>
 		<Demo src={plan} title={content.lang.header.plan}>
 			{content.lang.landing.plan.header}

@@ -345,7 +345,7 @@
 		{#each loloco as [titles, courses, colorize]}
 			<div class="mb-7">
 				<h1 class="mb-1.5 ms-3 font-medium text-content-primary sm:ms-0">
-					<div class="me-2 flex flex-col flex-wrap items-start gap-y-1">
+					<div class="me-2 flex flex-row flex-wrap items-start gap-y-1">
 						{#each titles as title}
 							<span class="me-1 leading-none">
 								{content.lang.lang === 'he' ? title.he : title.en}

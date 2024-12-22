@@ -33,8 +33,6 @@
 	let degree: string | undefined = $state(userDegree?.[2]);
 	let path: string | undefined = $state(userPath);
 
-	$inspect({ userDegree, year, faculty, degree, path });
-
 	$effect(() => {
 		year = userDegree?.[0];
 		faculty = userDegree?.[1];

@@ -44,6 +44,8 @@ export const cms = {
 					Select your degree, and optionally a path.
 
 					Upload your transcript to insert your courses.
+
+					You can also manually add all your courses.
 				`
 			},
 			plan: {
@@ -209,6 +211,10 @@ export const cms = {
 				header: `הגדרות`,
 				description: `
 					בחר את הקטלוג הרלוונטי אליך.
+
+					העלה גיליון ציונים כדי לראות את הקורסים שלך.
+
+					ניתן גם לשבץ קורסים ידנית.
 				`
 			},
 			progress: {

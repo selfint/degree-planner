@@ -157,7 +157,7 @@ async function writeFirebase(
 	data: UserData
 ): Promise<UserData> {
 	// sleep 5 seconds
-	await new Promise((resolve) => setTimeout(resolve, 5000));
+	// await new Promise((resolve) => setTimeout(resolve, 5000));
 
 	const userDoc = getUserDocRef(firebase);
 	if (userDoc === undefined) {

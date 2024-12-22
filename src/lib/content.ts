@@ -141,7 +141,8 @@ export const cms = {
 			wishlist: 'Wish list'
 		},
 		catalog: {
-			wishlist: 'Wish list'
+			wishlist: 'Wish list',
+			exempt: 'Exempt'
 		},
 		course: {
 			median: 'Median',
@@ -315,7 +316,8 @@ export const cms = {
 			wishlist: 'רשימת משאלות'
 		},
 		catalog: {
-			wishlist: 'רשימת משאלות'
+			wishlist: 'רשימת משאלות',
+			exempt: 'פטור'
 		},
 		course: {
 			median: 'חציון',

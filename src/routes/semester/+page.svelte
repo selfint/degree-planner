@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import Semester from '$lib/components/Semester.svelte';
@@ -15,7 +15,7 @@
 	let disabled: string[] = $state([]);
 
 	const currentSemester = $derived.by(() => {
-		const current = $page.url.searchParams.get('c');
+		const current = page.url.searchParams.get('c');
 
 		if (current === null) {
 			return user.d.currentSemester;

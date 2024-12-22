@@ -10,23 +10,11 @@
 	import { goto } from '$app/navigation';
 	import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 	import AsyncButton from '$lib/components/AsyncButton.svelte';
+	import Spinner from '$lib/components/Spinner.svelte';
 
 	let transcript: Transcript | undefined = $state(undefined);
 
 	let { buttonNamespace = $bindable() } = $props();
-
-	async function handleFileUpload(event: unknown) {
-		// @ts-expect-error
-		const file = event.target.files[0];
-		if (!file) return;
-
-		const buffer = await file.arrayBuffer();
-
-		const result = await TranscriptParser.parseTranscript(buffer, pdfWorkerUrl);
-		if (result !== undefined) {
-			transcript = result;
-		}
-	}
 
 	async function onSave() {
 		if (transcript === undefined) {
@@ -55,6 +43,28 @@
 	async function onCancel() {
 		transcript = undefined;
 	}
+
+	let uploading = $state(false);
+	async function handleFileUpload(event: unknown) {
+		uploading = true;
+		try {
+			// @ts-expect-error
+			const file = event.target.files[0];
+			if (!file) return;
+
+			const buffer = await file.arrayBuffer();
+
+			const result = await TranscriptParser.parseTranscript(
+				buffer,
+				pdfWorkerUrl
+			);
+			if (result !== undefined) {
+				transcript = result;
+			}
+		} finally {
+			uploading = false;
+		}
+	}
 </script>
 
 <div>
@@ -62,20 +72,27 @@
 		{content.lang.settings.upload}
 	</h2>
 	{#if transcript === undefined}
-		<div class="mb-4 ms-3 w-fit">
+		<div class="mb-4 ms-3 flex w-fit flex-row gap-x-2">
 			<div
 				class="h-full cursor-pointer rounded-md border border-transparent bg-accent-primary p-0.5 pl-3 pr-3 leading-tight text-content-primary"
+				class:opacity-50={uploading}
 			>
 				<label class="block h-full w-full cursor-pointer">
 					{content.lang.settings.uploadLabel}
 					<input
 						type="file"
+						disabled={uploading}
 						accept="application/pdf"
 						onchange={handleFileUpload}
 						class="hidden"
 					/>
 				</label>
 			</div>
+			{#if uploading}
+				<div class="h-7 w-7">
+					<Spinner />
+				</div>
+			{/if}
 		</div>
 	{:else}
 		<div class="mb-4 ms-3 flex w-fit flex-row gap-x-1">

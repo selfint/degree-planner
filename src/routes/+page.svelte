@@ -41,11 +41,12 @@
 			</p>
 
 			<div class="h-9">
-				<a href="/settings">
-					<Button variant="primary" onclick={() => {}}>
-						{content.lang.common.getStarted}
-					</Button>
-				</a>
+				<AsyncButton
+					variant="primary"
+					onclick={async () => await goto('/settings')}
+				>
+					{content.lang.common.getStarted}
+				</AsyncButton>
 			</div>
 		</div>
 	</div>

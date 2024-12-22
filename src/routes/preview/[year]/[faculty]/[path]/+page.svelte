@@ -76,7 +76,9 @@
 	<div class="mb-4 ms-3">
 		<h1 class="mb-2 text-lg font-medium text-content-primary">
 			{#await getDegreeName(data.degreeData.degree, data.userPath)}
-				<Spinner />
+				<div class="h-7 w-7">
+					<Spinner />
+				</div>
 			{:then name}
 				{name}
 			{/await}

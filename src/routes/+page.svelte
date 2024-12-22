@@ -2,6 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { content } from '$lib/stores.svelte';
 
+	import settings from '$lib/assets/gifs/settings-video.mp4';
 	import plan from '$lib/assets/gifs/plan-video.mp4';
 	import catalog from '$lib/assets/gifs/catalog-video.mp4';
 	import semester from '$lib/assets/gifs/semester-video.mp4';
@@ -67,6 +68,10 @@
 			{content.lang.landing.catalog.footer}
 		</Demo>
 
+		<Demo src={settings} title={content.lang.landing.settings.header}>
+			{content.lang.landing.settings.description}
+		</Demo>
+
 		<Demo src={course} title={content.lang.common.course}>
 			{content.lang.landing.course}
 		</Demo>
@@ -79,7 +84,7 @@
 			{content.lang.landing.share.description}
 		</Demo>
 
-		<Demo src={share} title={content.lang.header.searchPlaceholder}>
+		<Demo src={search} title={content.lang.header.searchPlaceholder}>
 			{content.lang.landing.search}
 		</Demo>
 	</div>

@@ -37,21 +37,10 @@ export const cms = {
 				'Plan your courses for each semester, ensuring their requirements are met.',
 				'When test schedules are published, quickly adapt your plan to maximize study time for each test.'
 			],
-			progress: {
-				header: `
-					See degree catalog, and your degree progress.
-					For each section, there are 3 values:
-				`,
-				done: 'done',
-				planned: 'planned',
-				total: 'total',
-				notification: {
-					header: 'If a requirement has special rules that were applied, a',
-					notification: 'notification',
-					footer: 'will appear with an explanation.'
-				},
-				markAsDone: `
-					In each section y
+			settings: {
+				header: `Settings`,
+				description: `
+					Pick your catalog.
 				`
 			},
 			plan: {
@@ -212,6 +201,12 @@ export const cms = {
 				'תכנן את הקורסים לכל סמסטר, עם וידוי שהדרישות שלהם נענו.',
 				'כאשר לוח המבחנים מתפרסם, התאם את התוכנית שלך במהירות כדי למקסם את זמן הלמידה לכל מבחן.'
 			],
+			settings: {
+				header: `הגדרות`,
+				description: `
+					בחר את הקטלוג הרלוונטי אליך.
+				`
+			},
 			progress: {
 				header: `
 					בחר תואר. ראה את כל הדרישות שלו, והתקדמותך בהן.

@@ -2,12 +2,12 @@
 	import { goto } from '$app/navigation';
 	import { content } from '$lib/stores.svelte';
 
-	import progress from '$lib/assets/gifs/progress.mp4';
-	import plan from '$lib/assets/gifs/plan.mp4';
-	import catalog from '$lib/assets/gifs/catalog.mp4';
-	import semester from '$lib/assets/gifs/semester.mp4';
-	import course from '$lib/assets/gifs/course.mp4';
-	import share from '$lib/assets/gifs/share.mp4';
+	import plan from '$lib/assets/gifs/plan-video.mp4';
+	import catalog from '$lib/assets/gifs/catalog-video.mp4';
+	import semester from '$lib/assets/gifs/semester-video.mp4';
+	import course from '$lib/assets/gifs/course-video.mp4';
+	import share from '$lib/assets/gifs/share-video.mp4';
+	import search from '$lib/assets/gifs/search-video.mp4';
 
 	import Button from '$lib/components/Button.svelte';
 
@@ -77,6 +77,10 @@
 
 		<Demo src={share} title={content.lang.landing.share.title}>
 			{content.lang.landing.share.description}
+		</Demo>
+
+		<Demo src={share} title={content.lang.header.searchPlaceholder}>
+			{content.lang.landing.search}
 		</Demo>
 	</div>
 </div>

@@ -106,7 +106,10 @@ export const cms = {
 
 					Even shared links do not allow editing your plan.
 				`
-			}
+			},
+			search: `
+				Search for courses by name or by number.
+			`
 		},
 		settings: {
 			degree: 'Degree',
@@ -281,7 +284,10 @@ export const cms = {
 
 				גם קישורים ששותפו לא מאפשרים עריכה של התוכנית שלך.
 			`
-			}
+			},
+			search: `
+				חפש קורסים לפי שם או לפי מספר.
+			`
 		},
 		settings: {
 			degree: 'תואר',

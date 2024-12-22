@@ -13,15 +13,15 @@
 	import UploadSection from './components/UploadSection.svelte';
 
 	import { signIn } from '$lib/firebase.svelte';
+	import CourseRow from '$lib/components/CourseRow.svelte';
+	import CourseElement from '$lib/components/CourseElement.svelte';
+	import AsyncButton from '$lib/components/AsyncButton.svelte';
+	import { goto } from '$app/navigation';
 
 	const { data: firebase } = $props();
 
 	async function onSignInWithGoogle() {
 		await signIn(firebase);
-	}
-
-	if (user.username === undefined) {
-		user.username = 'guest';
 	}
 
 	const recommended = $derived(catalog()?.recommended);
@@ -85,13 +85,13 @@
 	let currentUser = $state(firebase.auth.currentUser);
 	firebase.auth.onAuthStateChanged((u) => (currentUser = u));
 
-	let buttonInProgress = $state('');
+	let buttonNamespace = $state('');
 </script>
 
 <div class="mt-3">
 	<div class="mb-4 ms-3 flex flex-row gap-x-2">
 		<h1 class="mb-2 text-xl text-content-primary">
-			{currentUser?.displayName ?? user.username}
+			{currentUser?.displayName ?? content.lang.settings.guest}
 		</h1>
 		{#if currentUser === null}
 			<Button variant="secondary" onclick={onSignInWithGoogle}>
@@ -107,9 +107,11 @@
 				</span>
 			</Button>
 		{:else}
-			<Button
+			<AsyncButton
 				variant="secondary"
 				onclick={async () => await firebase.auth.signOut()}
+				bind:buttonNamespace
+				name="signout"
 			>
 				<span
 					class="flex h-fit w-fit flex-row items-center gap-x-2 pb-0.5 pt-0.5"
@@ -131,7 +133,7 @@
 						/>
 					</svg>
 				</span>
-			</Button>
+			</AsyncButton>
 		{/if}
 	</div>
 	<div class="mb-4 ms-3">
@@ -141,7 +143,7 @@
 			{onChange}
 			{onReset}
 			{recommended}
-			bind:buttonInProgress
+			bind:buttonNamespace
 		/>
 	</div>
 
@@ -151,13 +153,36 @@
 				{semesterChoice}
 				{totalSemestersChoice}
 				{validTotalValues}
-				bind:buttonInProgress
+				bind:buttonNamespace
 			/>
 		</div>
 	{/if}
 	{#if userDegree !== undefined && user.semesters.flat().length === 0}
-		<div class="mb-4 ms-3">
-			<UploadSection />
+		<div class="mb-4">
+			<UploadSection bind:buttonNamespace />
+		</div>
+	{/if}
+	{#if user.exemptions.length > 0}
+		<div class="mb-4">
+			<h2 class="mb-2 ms-3 text-base font-medium text-content-primary">
+				{content.lang.settings.exemptions}
+			</h2>
+			<CourseRow courses={user.exemptions}>
+				{#snippet children({ course, index })}
+					<div
+						role="button"
+						tabindex={index}
+						onclick={() => goto(`/course/${course.code}`)}
+						onkeydown={(e) => {
+							if (e.key === 'Enter') {
+								goto(`/course/${course.code}`);
+							}
+						}}
+					>
+						<CourseElement {course} />
+					</div>
+				{/snippet}
+			</CourseRow>
 		</div>
 	{/if}
 </div>

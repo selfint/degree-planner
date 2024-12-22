@@ -200,11 +200,20 @@ declare global {
 		degree?: Degree;
 	};
 
-	type UserData = {
+	type UserDataV2 = {
 		semesters: string[][];
 		currentSemester: number;
 		wishlist: string[];
 		username?: string;
+		degree?: Degree;
+		path?: string;
+	};
+
+	type UserData = {
+		exemptions: string[];
+		semesters: string[][];
+		currentSemester: number;
+		wishlist: string[];
 		degree?: Degree;
 		path?: string;
 	};

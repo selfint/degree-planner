@@ -8,14 +8,14 @@
 		semesterChoice: number;
 		totalSemestersChoice: number;
 		validTotalValues: number[];
-		buttonInProgress: string;
+		buttonNamespace: string;
 	};
 
 	let {
 		semesterChoice,
 		totalSemestersChoice,
 		validTotalValues,
-		buttonInProgress = $bindable()
+		buttonNamespace = $bindable()
 	}: Props = $props();
 
 	async function onUpdateCurrentSemester() {
@@ -66,7 +66,7 @@
 					<AsyncButton
 						variant="primary"
 						onclick={onUpdateCurrentSemester}
-						bind:namespace={buttonInProgress}
+						bind:buttonNamespace
 						name="save-semesters"
 					>
 						{content.lang.settings.save}
@@ -78,7 +78,7 @@
 						onclick={async () => {
 							semesterChoice = user.currentSemester;
 						}}
-						bind:namespace={buttonInProgress}
+						bind:buttonNamespace
 						name="cancel-semesters"
 					>
 						{content.lang.settings.cancel}
@@ -104,7 +104,7 @@
 					<AsyncButton
 						variant="primary"
 						onclick={onUpdateTotalSemesters}
-						bind:namespace={buttonInProgress}
+						bind:buttonNamespace
 						name="save-total"
 					>
 						{content.lang.settings.save}
@@ -116,7 +116,7 @@
 						onclick={async () => {
 							totalSemestersChoice = user.semesters.length;
 						}}
-						bind:namespace={buttonInProgress}
+						bind:buttonNamespace
 						name="cancel-total"
 					>
 						{content.lang.settings.cancel}

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 
 	type Props = {
 		target: string;
@@ -10,7 +10,7 @@
 	let { target, children }: Props = $props();
 
 	const border = $derived(
-		'/' + target === $page.url.pathname
+		'/' + target === page.url.pathname
 			? 'border-b-2 border-accent-primary'
 			: 'border-b-2 border-transparent'
 	);

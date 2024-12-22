@@ -39,6 +39,7 @@ jobs:
             node scripts/generateCatalogsRaw.mjs
             node scripts/generateCatalogsStatic.mjs
             node scripts/generateCatalogsManifest.js
+            node scripts/generateCatalogsHeader.js
 
       - name: Check if data has changed
         run: |

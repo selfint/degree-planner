@@ -4,7 +4,7 @@
 	"private": true,
 	"scripts": {
 		"dev": "vite dev",
-		"generate-catalogs": "node scripts/generateCatalogsManifest.js",
+		"generate-catalogs": "node scripts/generateCatalogsManifest.js && node scripts/generateCatalogsHeader.js",
 		"build": "npm run generate-catalogs && vite build",
 		"preview": "vite preview",
 		"test": "npm run test:integration && npm run test:unit",
@@ -45,6 +45,7 @@
 	"dependencies": {
 		"@vercel/analytics": "^1.4.1",
 		"@vercel/speed-insights": "^1.1.0",
+		"firebase": "^11.1.0",
 		"pdfjs-dist": "^4.9.155"
 	}
 }

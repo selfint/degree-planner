@@ -5,10 +5,12 @@
 
 	let { src }: Props = $props();
 
-	let video: HTMLVideoElement;
+	let video: HTMLVideoElement | undefined = $state(undefined);
 
 	$effect(() => {
-		video.play().then(() => video.pause());
+		if (video !== undefined) {
+			video.play().then(() => video!.pause());
+		}
 	});
 </script>
 
@@ -17,14 +19,14 @@
 >
 	<video
 		bind:this={video}
-		onmouseenter={video.play}
-		onmouseleave={video.pause}
+		onmouseenter={video?.play}
+		onmouseleave={video?.pause}
 		class="pointer-events-auto w-full rounded-[10px] bg-transparent"
 		playsinline
 		muted
 		loop
 		controls
-		preload="auto"
+		preload="none"
 	>
 		<source {src} type="video/mp4" />
 		Your browser does not support the video tag.

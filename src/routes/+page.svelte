@@ -2,16 +2,21 @@
 	import { goto } from '$app/navigation';
 	import { content } from '$lib/stores.svelte';
 
-	import progress from '$lib/assets/gifs/progress.mp4';
-	import plan from '$lib/assets/gifs/plan.mp4';
-	import catalog from '$lib/assets/gifs/catalog.mp4';
-	import semester from '$lib/assets/gifs/semester.mp4';
-	import course from '$lib/assets/gifs/course.mp4';
-	import share from '$lib/assets/gifs/share.mp4';
-
-	import Button from '$lib/components/Button.svelte';
+	import settings from '$lib/assets/gifs/settings-video.mp4';
+	import plan from '$lib/assets/gifs/plan-video.mp4';
+	import catalog from '$lib/assets/gifs/catalog-video.mp4';
+	import semester from '$lib/assets/gifs/semester-video.mp4';
+	import course from '$lib/assets/gifs/course-video.mp4';
+	import share from '$lib/assets/gifs/share-video.mp4';
+	import search from '$lib/assets/gifs/search-video.mp4';
 
 	import Demo from './components/Demo.svelte';
+	import AsyncButton from '$lib/components/AsyncButton.svelte';
+	import Button from '$lib/components/Button.svelte';
+
+	// start lazy loading course data and catalogs
+	const courseData = import('$lib/assets/courseData.json');
+	const catalogs = import('$lib/assets/catalogs.json');
 </script>
 
 <div dir={content.lang.dir} class="circle flex flex-grow flex-col items-center">
@@ -36,15 +41,18 @@
 			</p>
 
 			<div class="h-9">
-				<Button variant="primary" onclick={() => goto('/settings')}>
+				<AsyncButton
+					variant="primary"
+					onclick={async () => await goto('/settings')}
+				>
 					{content.lang.common.getStarted}
-				</Button>
+				</AsyncButton>
 			</div>
 		</div>
 	</div>
 
 	<div
-		class="mt-8 flex flex-col items-center space-y-8 p-3 sm:mt-20 sm:max-w-[1024px]"
+		class="mt-8 flex flex-col items-center gap-y-12 p-3 sm:mt-20 sm:max-w-[1024px]"
 	>
 		<Demo src={plan} title={content.lang.header.plan}>
 			{content.lang.landing.plan.header}
@@ -67,6 +75,10 @@
 			{content.lang.landing.catalog.footer}
 		</Demo>
 
+		<Demo src={settings} title={content.lang.landing.settings.header}>
+			{content.lang.landing.settings.description}
+		</Demo>
+
 		<Demo src={course} title={content.lang.common.course}>
 			{content.lang.landing.course}
 		</Demo>
@@ -77,6 +89,10 @@
 
 		<Demo src={share} title={content.lang.landing.share.title}>
 			{content.lang.landing.share.description}
+		</Demo>
+
+		<Demo src={search} title={content.lang.header.searchPlaceholder}>
+			{content.lang.landing.search}
 		</Demo>
 	</div>
 </div>

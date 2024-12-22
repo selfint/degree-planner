@@ -5,7 +5,6 @@
 	import CourseRow from '$lib/components/CourseRow.svelte';
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
-	import catalogs from '$lib/assets/catalogs.json';
 
 	const requirements = $derived(catalog()?.requirement);
 
@@ -18,7 +17,7 @@
 	});
 
 	function getCourseSemester(course: Course): number | undefined {
-		const index = user.semesters.findIndex((s) => s.includes(course.code));
+		const index = user.d.semesters.findIndex((s) => s.includes(course.code));
 
 		if (index === -1) {
 			return undefined;
@@ -29,8 +28,11 @@
 
 	const seasonEmojis = ['❄️', '🌿', '☀️'];
 
-	const planned = $derived(user.semesters);
-	const current = $derived(planned.slice(0, user.currentSemester));
+	const planned = $derived([...user.d.semesters.flat(), ...user.d.exemptions]);
+	const current = $derived([
+		...user.d.semesters.slice(0, user.d.currentSemester).flat(),
+		...user.d.exemptions
+	]);
 
 	function applyI18n(i18n: I18N): string {
 		let name = i18n.en;
@@ -41,42 +43,30 @@
 		return name;
 	}
 
-	const totalCurrentCount = $derived(current.flat().length);
-	const totalPlannedCount = $derived(planned.flat().length);
+	const totalCurrentCount = $derived(current.length);
+	const totalPlannedCount = $derived(planned.length);
 	const totalCurrentPoints = $derived(
 		current
-			.flat()
 			.map(getCourseData)
 			.reduce((sum, { points }) => sum + (points ?? 0), 0)
 	);
 	const totalPlannedPoints = $derived(
 		planned
-			.flat()
 			.map(getCourseData)
 			.reduce((sum, { points }) => sum + (points ?? 0), 0)
 	);
 	const degreeName = $derived.by(() => {
-		const degree = user.degree;
-		if (degree === undefined) {
-			return undefined;
-		}
-		let year = applyI18n(catalogs[degree[0]]);
-		// @ts-expect-error
-		let faculty = applyI18n(catalogs[degree[0]][degree[1]]);
-		// @ts-expect-error
-		let path = applyI18n(catalogs[degree[0]][degree[1]][degree[2]]);
-
-		if (user.path === undefined) {
-			return `${faculty} (${content.lang.preview.catalog} ${year}) - ${path}`;
+		const i18n = catalog()?.i18n;
+		if (i18n === undefined) {
+			return '';
 		}
 
-		let userPathNested = catalogs[degree[0]][degree[1]][
-			degree[2]
-		].requirement.nested.find((n) => n.name === user.path);
+		let name = i18n.en;
+		if (content.lang.lang === 'he') {
+			name = i18n.he;
+		}
 
-		const userPathName = applyI18n(userPathNested);
-
-		return `${faculty} (${content.lang.preview.catalog} ${year}) - ${path} ${userPathName}`;
+		return name;
 	});
 </script>
 
@@ -137,7 +127,7 @@
 				</span>
 			</div>
 		</h1>
-		<CourseRow courses={user.wishlist}>
+		<CourseRow courses={user.d.wishlist}>
 			{#snippet children({ course })}
 				<a href={`/course/${course.code}`}>
 					<CourseElement {course}>
@@ -151,7 +141,12 @@
 										{Math.floor(index / 3) + 1}
 									</span>
 								</span>
-							{:else if user.wishlist.includes(course.code)}
+							{:else if user.d.exemptions.includes(course.code)}
+								<span>✓</span>
+								<span class="hidden sm:inline">
+									{content.lang.catalog.exempt}
+								</span>
+							{:else if user.d.wishlist.includes(course.code)}
 								<span>🌟</span>
 								<span class="hidden sm:inline">
 									{content.lang.catalog.wishlist}
@@ -165,12 +160,8 @@
 	</div>
 	{#each lists as list}
 		{#if list.courses.length > 0}
-			{@const listPlanned = list.courses.filter((c) =>
-				planned.flat().includes(c)
-			)}
-			{@const listCurrent = list.courses.filter((c) =>
-				current.flat().includes(c)
-			)}
+			{@const listPlanned = list.courses.filter((c) => planned.includes(c))}
+			{@const listCurrent = list.courses.filter((c) => current.includes(c))}
 			{@const countCurrent = listCurrent.length}
 			{@const countPlanned = listPlanned.length}
 			{@const countTotal = list.courses.length}
@@ -246,7 +237,12 @@
 												{Math.floor(index / 3) + 1}
 											</span>
 										</span>
-									{:else if user.wishlist.includes(course.code)}
+									{:else if user.d.exemptions.includes(course.code)}
+										<span>✓</span>
+										<span class="hidden sm:inline">
+											{content.lang.catalog.exempt}
+										</span>
+									{:else if user.d.wishlist.includes(course.code)}
 										<span>🌟</span>
 										<span class="hidden sm:inline">
 											{content.lang.catalog.wishlist}

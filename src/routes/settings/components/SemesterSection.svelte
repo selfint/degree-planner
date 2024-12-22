@@ -1,34 +1,45 @@
 <script lang="ts">
 	import Select from '$lib/components/Select.svelte';
-	import Button from '$lib/components/Button.svelte';
 
-	import { user, content } from '$lib/stores.svelte';
+	import { user, content, writeStorage, setUser } from '$lib/stores.svelte';
+	import AsyncButton from '$lib/components/AsyncButton.svelte';
 
 	type Props = {
 		semesterChoice: number;
 		totalSemestersChoice: number;
 		validTotalValues: number[];
+		buttonNamespace: string;
 	};
 
-	let { semesterChoice, totalSemestersChoice, validTotalValues }: Props =
-		$props();
+	let {
+		semesterChoice,
+		totalSemestersChoice,
+		validTotalValues,
+		buttonNamespace = $bindable()
+	}: Props = $props();
 
-	function onUpdateCurrentSemester() {
-		if (semesterChoice !== user.currentSemester) {
-			user.currentSemester = semesterChoice;
+	async function onUpdateCurrentSemester() {
+		if (semesterChoice !== user.d.currentSemester) {
+			setUser(
+				await writeStorage({
+					...user.d,
+					currentSemester: semesterChoice
+				})
+			);
 		}
 	}
 
-	function onUpdateTotalSemesters() {
-		if (totalSemestersChoice < user.semesters.length) {
-			user.semesters = user.semesters.slice(0, totalSemestersChoice);
-		} else if (totalSemestersChoice > user.semesters.length) {
-			user.semesters = user.semesters.concat(
-				Array.from({
-					length: totalSemestersChoice - user.semesters.length
-				}).map(() => [])
-			);
-		}
+	async function onUpdateTotalSemesters() {
+		const semesters =
+			totalSemestersChoice < user.d.semesters.length
+				? user.d.semesters.slice(0, totalSemestersChoice)
+				: user.d.semesters.concat(
+						Array.from({
+							length: totalSemestersChoice - user.d.semesters.length
+						}).map(() => [])
+					);
+
+		setUser(await writeStorage({ ...user.d, semesters }));
 	}
 </script>
 
@@ -42,7 +53,7 @@
 		</span>
 		<div class="flex flex-row gap-x-1">
 			<Select bind:value={semesterChoice}>
-				{#each Array.from({ length: user.semesters.length }) as _, i}
+				{#each Array.from({ length: user.d.semesters.length }) as _, i}
 					<option value={i}>
 						{content.lang.common.seasons[i % 3]}
 						{Math.floor(i / 3) + 1}
@@ -50,19 +61,28 @@
 				{/each}
 			</Select>
 
-			{#if semesterChoice !== user.currentSemester}
+			{#if semesterChoice !== user.d.currentSemester}
 				<div class="w-fit">
-					<Button variant="primary" onclick={onUpdateCurrentSemester}>
+					<AsyncButton
+						variant="primary"
+						onclick={onUpdateCurrentSemester}
+						bind:buttonNamespace
+						name="save-semesters"
+					>
 						{content.lang.settings.save}
-					</Button>
+					</AsyncButton>
 				</div>
 				<div class="w-fit">
-					<Button
+					<AsyncButton
 						variant="secondary"
-						onclick={() => (semesterChoice = user.currentSemester)}
+						onclick={async () => {
+							semesterChoice = user.d.currentSemester;
+						}}
+						bind:buttonNamespace
+						name="cancel-semesters"
 					>
 						{content.lang.settings.cancel}
-					</Button>
+					</AsyncButton>
 				</div>
 			{/if}
 		</div>
@@ -79,19 +99,28 @@
 					</option>
 				{/each}
 			</Select>
-			{#if totalSemestersChoice !== user.semesters.length}
+			{#if totalSemestersChoice !== user.d.semesters.length}
 				<div class="w-fit">
-					<Button variant="primary" onclick={onUpdateTotalSemesters}>
+					<AsyncButton
+						variant="primary"
+						onclick={onUpdateTotalSemesters}
+						bind:buttonNamespace
+						name="save-total"
+					>
 						{content.lang.settings.save}
-					</Button>
+					</AsyncButton>
 				</div>
 				<div class="w-fit">
-					<Button
+					<AsyncButton
 						variant="secondary"
-						onclick={() => (totalSemestersChoice = user.semesters.length)}
+						onclick={async () => {
+							totalSemestersChoice = user.d.semesters.length;
+						}}
+						bind:buttonNamespace
+						name="cancel-total"
 					>
 						{content.lang.settings.cancel}
-					</Button>
+					</AsyncButton>
 				</div>
 			{/if}
 		</div>

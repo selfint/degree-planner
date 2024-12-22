@@ -2,15 +2,14 @@
 	import { goto } from '$app/navigation';
 	import type { PageData } from './$types';
 
-	import Button from '$lib/components/Button.svelte';
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import Semester from '$lib/components/Semester.svelte';
 
-	import catalogs from '$lib/assets/catalogs.json';
 	import { getCourseData } from '$lib/courseData';
 
 	import { user, content, setUser, writeStorage } from '$lib/stores.svelte';
 	import AsyncButton from '$lib/components/AsyncButton.svelte';
+	import Spinner from '$lib/components/Spinner.svelte';
 
 	let { data }: { data: PageData } = $props();
 
@@ -47,7 +46,12 @@
 		await goto('/plan');
 	}
 
-	function getDegreeName(degree: Degree, userPath: string | undefined): string {
+	async function getDegreeName(
+		degree: Degree,
+		userPath: string | undefined
+	): Promise<string> {
+		const catalogs = (await import('$lib/assets/catalogsHeader.json')).default;
+
 		let year = applyI18n(catalogs[degree[0]]);
 		let faculty = applyI18n(catalogs[degree[0]][degree[1]]);
 		// @ts-expect-error
@@ -71,7 +75,11 @@
 <div class="mb-3 mt-3">
 	<div class="mb-4 ms-3">
 		<h1 class="mb-2 text-lg font-medium text-content-primary">
-			{getDegreeName(data.degreeData.degree, data.userPath)}
+			{#await getDegreeName(data.degreeData.degree, data.userPath)}
+				<Spinner />
+			{:then name}
+				{name}
+			{/await}
 		</h1>
 		<AsyncButton variant="primary" onclick={importPlan}>
 			{content.lang.preview.copy}

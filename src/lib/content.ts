@@ -15,7 +15,8 @@ export const cms = {
 			exclusives: 'Exclusives',
 			semester: 'Semester',
 			faculty: 'Faculty',
-			course: 'Course'
+			course: 'Course',
+			loading: 'Loading'
 		},
 		header: {
 			searchPlaceholder: 'Search',
@@ -40,7 +41,9 @@ export const cms = {
 			settings: {
 				header: `Settings`,
 				description: `
-					Pick your catalog.
+					Select your degree, and optionally a path.
+
+					Upload your transcript to insert your courses.
 				`
 			},
 			plan: {
@@ -179,7 +182,8 @@ export const cms = {
 			exclusives: 'ללא זיכוי נוסף',
 			semester: 'סמסטר',
 			faculty: 'פקולטה',
-			course: 'קורס'
+			course: 'קורס',
+			loading: 'טוען'
 		},
 		header: {
 			searchPlaceholder: 'חיפוש',

@@ -10,10 +10,13 @@
 	import share from '$lib/assets/gifs/share-video.mp4';
 	import search from '$lib/assets/gifs/search-video.mp4';
 
-	import Button from '$lib/components/Button.svelte';
-
 	import Demo from './components/Demo.svelte';
 	import AsyncButton from '$lib/components/AsyncButton.svelte';
+	import Button from '$lib/components/Button.svelte';
+
+	// start lazy loading course data and catalogs
+	const courseData = import('$lib/assets/courseData.json');
+	const catalogs = import('$lib/assets/catalogs.json');
 </script>
 
 <div dir={content.lang.dir} class="circle flex flex-grow flex-col items-center">
@@ -38,12 +41,11 @@
 			</p>
 
 			<div class="h-9">
-				<AsyncButton
-					variant="primary"
-					onclick={async () => await goto('/settings')}
-				>
-					{content.lang.common.getStarted}
-				</AsyncButton>
+				<a href="/settings">
+					<Button variant="primary" onclick={() => {}}>
+						{content.lang.common.getStarted}
+					</Button>
+				</a>
 			</div>
 		</div>
 	</div>

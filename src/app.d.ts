@@ -188,6 +188,8 @@ declare global {
 
 	type Catalog = {
 		degree: Degree;
+		path?: string;
+		i18n: I18N;
 		recommended: string[][];
 		requirement: Requirement;
 	};

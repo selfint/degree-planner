@@ -15,14 +15,24 @@ export async function parseTranscript(
 	const pdf = await pdfjs.getDocument(buffer).promise;
 
 	// yyyy-yyyy regex
-	const yearRegex = /(?:\d{4})-(?:\d{4})/g;
+	const yearRegex = /(\d{4}-\d{4})/g;
+
+	// yyyy/yy regex
+	const legacyYearRegex = /(\d{4}\/\d{2})/g;
 
 	// course code regex - 6 to 8 digits
 	const courseRegex = /(\d{6,8})/g;
 
-	const seasons = ['winter', 'spring', 'summer', 'חורף', 'אביב', 'קיץ'];
+	const seasons = [
+		'winter',
+		'spring',
+		'summer',
+		'חורף',
+		'אביב',
+		'קיץ'
+	] as const;
 
-	const exemption = ['זיכויים', 'exemptions'];
+	const exemption = ['זיכויים', 'exemptions'] as const;
 
 	let basicSemesters = [];
 
@@ -45,9 +55,10 @@ export async function parseTranscript(
 			//@ts-expect-error we don't have TextMarkedContent
 			let str: string = item.str.toLowerCase().trim();
 
-			if (yearRegex.test(str)) {
+			if (yearRegex.test(str) || legacyYearRegex.test(str)) {
 				// extract year
-				const year = str.match(yearRegex);
+				const year = str.match(yearRegex) || str.match(legacyYearRegex);
+
 				const season = seasons.findIndex((season) => str.includes(season)) % 3;
 				const yearStart = parseInt(year![0].split('-')[0]);
 
@@ -69,18 +80,31 @@ export async function parseTranscript(
 						semesters.push([]);
 					}
 				}
+				// offset by 1 for spring starts
+				if (season === 1 && current === undefined) {
+					semesters.push([]);
+				}
 
 				isExemptions = false;
 				currentBasicSemester = [];
 				current = { semester: [], year: yearStart, season };
 			} else if (courseRegex.test(str)) {
 				let code = str.match(courseRegex)!.toString().trim();
-				code = code.padStart(8, '0');
-				if (getCourseData(code).name !== undefined) {
-					currentBasicSemester.push(code);
-					current?.semester.push(code);
+
+				const newCode = code.padStart(8, '0');
+				const legacyCode = '0' + code.slice(0, 3) + '0' + code.slice(3);
+
+				// try to validate code as new
+				if (getCourseData(newCode).name !== undefined) {
+					currentBasicSemester.push(newCode);
+					current?.semester.push(newCode);
 				}
-			} else if (exemption.some((exempt) => str.includes(exempt))) {
+				// try to validate course as legacy
+				else if (getCourseData(legacyCode).name !== undefined) {
+					currentBasicSemester.push(legacyCode);
+					current?.semester.push(legacyCode);
+				}
+			} else if (exemption.some((w) => str.includes(w))) {
 				isExemptions = true;
 			}
 		}

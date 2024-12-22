@@ -105,4 +105,84 @@ describe('Transcript parser', () => {
 			}
 		`);
 	});
+
+	it('should parse legacy transcript en', async (ctx) => {
+		const filePath = path.resolve(
+			__dirname,
+			'./__snapshots__/legacy-transcript-en.pdf'
+		);
+		const file = fs.readFileSync(filePath);
+		const buffer = new Uint8Array(file);
+
+		const courses = await TranscriptParser.parseTranscript(buffer, url);
+		ctx.expect(courses).toMatchInlineSnapshot(`
+			{
+			  "exemptions": [
+			    "01040031",
+			    "01040032",
+			    "01040166",
+			    "01140071",
+			    "01230015",
+			    "02340114",
+			    "02340129",
+			    "02340141",
+			    "03240033",
+			  ],
+			  "semesters": [
+			    [
+			      "01040174",
+			      "02340124",
+			      "02340125",
+			    ],
+			    [
+			      "00440252",
+			      "00940412",
+			      "02340218",
+			      "02340292",
+			      "02360781",
+			    ],
+			  ],
+			}
+		`);
+	});
+
+	it('should parse legacy transcript he', async (ctx) => {
+		const filePath = path.resolve(
+			__dirname,
+			'./__snapshots__/legacy-transcript-he.pdf'
+		);
+		const file = fs.readFileSync(filePath);
+		const buffer = new Uint8Array(file);
+
+		const courses = await TranscriptParser.parseTranscript(buffer, url);
+		ctx.expect(courses).toMatchInlineSnapshot(`
+			{
+			  "exemptions": [
+			    "01040031",
+			    "01040032",
+			    "01040166",
+			    "01140071",
+			    "01230015",
+			    "02340114",
+			    "02340129",
+			    "02340141",
+			    "03240033",
+			  ],
+			  "semesters": [
+			    [
+			      "01040174",
+			      "02340124",
+			      "02340125",
+			    ],
+			    [
+			      "00440252",
+			      "00940412",
+			      "02340218",
+			      "02340292",
+			      "02360781",
+			    ],
+			  ],
+			}
+		`);
+	});
 });

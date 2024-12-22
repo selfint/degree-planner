@@ -1,5 +1,3 @@
-import catalogs from '$lib/assets/catalogs.json';
-
 async function loadCourses(
 	requirementHeader: RequirementHeader,
 	_fetch: (
@@ -46,7 +44,12 @@ export async function loadCatalog(
 		init?: RequestInit
 	) => Promise<Response> = fetch
 ): Promise<Catalog> {
+	const catalogs = (await import('$lib/assets/catalogs.json')).default;
+
 	const [year, faculty, degree] = userDegree;
+
+	const yearCatalog: I18N = catalogs[year];
+	const facultyCatalog: I18N = catalogs[year][faculty];
 
 	// TODO why does this not work?
 	// @ts-expect-error
@@ -54,15 +57,55 @@ export async function loadCatalog(
 
 	const requirement = await loadCourses(catalog.requirement, _fetch);
 
+	let pathCatalog: Requirement | undefined = undefined;
 	if (path !== undefined) {
+		pathCatalog = requirement.nested?.find((nested) => nested.name === path);
+
 		requirement.nested = requirement.nested?.filter(
 			(nested) =>
 				nested.name === path || nested.en.toLowerCase().includes('elective')
 		);
 	}
 
+	const catalogLevels = [yearCatalog, facultyCatalog, catalog as I18N];
+
+	if (pathCatalog !== undefined) {
+		catalogLevels.push(pathCatalog satisfies I18N);
+	}
+
+	function applyI18n(i18n: I18N, lang: 'en' | 'he'): string {
+		let name = i18n.en;
+		if (lang === 'he') {
+			name = i18n.he;
+		}
+
+		return name;
+	}
+
+	function buildCatalogName(levels: I18N[], lang: 'en' | 'he'): string {
+		const catalogName = lang === 'en' ? 'catalog' : 'קטלוג';
+
+		let [year, faculty, degree, path] = levels;
+		const yearName = applyI18n(year, lang);
+		const facultyName = applyI18n(faculty, lang);
+		const degreeName = applyI18n(degree, lang);
+		if (path === undefined) {
+			return `${facultyName} (${catalogName} ${yearName}) - ${degreeName}`;
+		} else {
+			const pathName = applyI18n(path, lang);
+			return `${facultyName} (${catalogName} ${yearName}) - ${degreeName} ${pathName}`;
+		}
+	}
+
+	const i18n = {
+		en: buildCatalogName(catalogLevels, 'en'),
+		he: buildCatalogName(catalogLevels, 'he')
+	};
+
 	return {
 		degree: userDegree,
+		path,
+		i18n,
 		recommended: catalog.recommended,
 		requirement
 	};

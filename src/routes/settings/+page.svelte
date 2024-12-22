@@ -29,8 +29,6 @@
 	const userDegree = $derived(user.d.degree);
 	const userPath = $derived(user.d.path);
 
-	$inspect({ userDegree, userPath });
-
 	async function onChange(
 		newDegree: Degree,
 		newPath?: string

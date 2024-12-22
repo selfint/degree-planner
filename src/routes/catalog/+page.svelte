@@ -5,7 +5,6 @@
 	import CourseRow from '$lib/components/CourseRow.svelte';
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
-	import catalogs from '$lib/assets/catalogs.json';
 
 	const requirements = $derived(catalog()?.requirement);
 
@@ -57,27 +56,17 @@
 			.reduce((sum, { points }) => sum + (points ?? 0), 0)
 	);
 	const degreeName = $derived.by(() => {
-		const degree = user.d.degree;
-		if (degree === undefined) {
-			return undefined;
-		}
-		let year = applyI18n(catalogs[degree[0]]);
-		let faculty = applyI18n(catalogs[degree[0]][degree[1]]);
-		// @ts-expect-error
-		let path = applyI18n(catalogs[degree[0]][degree[1]][degree[2]]);
-
-		if (user.d.path === undefined) {
-			return `${faculty} (${content.lang.preview.catalog} ${year}) - ${path}`;
+		const i18n = catalog()?.i18n;
+		if (i18n === undefined) {
+			return '';
 		}
 
-		// @ts-expect-error
-		let userPathNested = catalogs[degree[0]][degree[1]][
-			degree[2]
-		].requirement.nested.find((n: Requirement) => n.name === user.d.path);
+		let name = i18n.en;
+		if (content.lang.lang === 'he') {
+			name = i18n.he;
+		}
 
-		const userPathName = applyI18n(userPathNested);
-
-		return `${faculty} (${content.lang.preview.catalog} ${year}) - ${path} ${userPathName}`;
+		return name;
 	});
 </script>
 

@@ -26,7 +26,7 @@
 		muted
 		loop
 		controls
-		preload="metadata"
+		preload="none"
 	>
 		<source {src} type="video/mp4" />
 		Your browser does not support the video tag.

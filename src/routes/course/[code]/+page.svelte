@@ -411,11 +411,11 @@
 					{content.lang.common.dependants}
 				</h2>
 				<div class="flex flex-row flex-wrap">
-					{#each dependants as c}
-						<a class="pb-4 pe-2" href={`/course/${c.code}`}>
-							<CourseElement course={c}>
+					{#each dependants as course}
+						<a class="pb-4 pe-2" href={`/course/${course.code}`}>
+							<CourseElement {course}>
 								{#snippet note()}
-									{@const index = getCourseSemester(c)}
+									{@const index = getCourseSemester(course)}
 									{#if index !== undefined}
 										<span>
 											{seasonEmojis[index % 3]}

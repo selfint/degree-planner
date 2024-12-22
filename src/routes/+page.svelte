@@ -13,6 +13,7 @@
 	import Button from '$lib/components/Button.svelte';
 
 	import Demo from './components/Demo.svelte';
+	import AsyncButton from '$lib/components/AsyncButton.svelte';
 </script>
 
 <div dir={content.lang.dir} class="circle flex flex-grow flex-col items-center">
@@ -37,9 +38,12 @@
 			</p>
 
 			<div class="h-9">
-				<Button variant="primary" onclick={() => goto('/settings')}>
+				<AsyncButton
+					variant="primary"
+					onclick={async () => await goto('/settings')}
+				>
 					{content.lang.common.getStarted}
-				</Button>
+				</AsyncButton>
 			</div>
 		</div>
 	</div>

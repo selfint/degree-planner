@@ -25,14 +25,9 @@
 		buttonNamespace = $bindable()
 	}: Props = $props();
 
-	const catalogs = import('$lib/assets/catalogsHeader.json')
-		.then((c) => c.default)
-		.then(async (c) => {
-			// sleep 5 seconds
-			await new Promise((resolve) => setTimeout(resolve, 5000));
-			return c;
-		});
-
+	const catalogs = import('$lib/assets/catalogsHeader.json').then(
+		(c) => c.default
+	);
 	type Year = keyof Awaited<typeof catalogs>;
 	const years = catalogs.then((c) => Object.keys(c) as Year[]);
 

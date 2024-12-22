@@ -18,7 +18,7 @@
 	});
 
 	function getCourseSemester(course: Course): number | undefined {
-		const index = user.semesters.findIndex((s) => s.includes(course.code));
+		const index = user.d.semesters.findIndex((s) => s.includes(course.code));
 
 		if (index === -1) {
 			return undefined;
@@ -29,8 +29,8 @@
 
 	const seasonEmojis = ['❄️', '🌿', '☀️'];
 
-	const planned = $derived(user.semesters);
-	const current = $derived(planned.slice(0, user.currentSemester));
+	const planned = $derived(user.d.semesters);
+	const current = $derived(planned.slice(0, user.d.currentSemester));
 
 	function applyI18n(i18n: I18N): string {
 		let name = i18n.en;
@@ -56,7 +56,7 @@
 			.reduce((sum, { points }) => sum + (points ?? 0), 0)
 	);
 	const degreeName = $derived.by(() => {
-		const degree = user.degree;
+		const degree = user.d.degree;
 		if (degree === undefined) {
 			return undefined;
 		}
@@ -66,13 +66,13 @@
 		// @ts-expect-error
 		let path = applyI18n(catalogs[degree[0]][degree[1]][degree[2]]);
 
-		if (user.path === undefined) {
+		if (user.d.path === undefined) {
 			return `${faculty} (${content.lang.preview.catalog} ${year}) - ${path}`;
 		}
 
 		let userPathNested = catalogs[degree[0]][degree[1]][
 			degree[2]
-		].requirement.nested.find((n) => n.name === user.path);
+		].requirement.nested.find((n) => n.name === user.d.path);
 
 		const userPathName = applyI18n(userPathNested);
 
@@ -137,7 +137,7 @@
 				</span>
 			</div>
 		</h1>
-		<CourseRow courses={user.wishlist}>
+		<CourseRow courses={user.d.wishlist}>
 			{#snippet children({ course })}
 				<a href={`/course/${course.code}`}>
 					<CourseElement {course}>
@@ -151,7 +151,7 @@
 										{Math.floor(index / 3) + 1}
 									</span>
 								</span>
-							{:else if user.wishlist.includes(course.code)}
+							{:else if user.d.wishlist.includes(course.code)}
 								<span>🌟</span>
 								<span class="hidden sm:inline">
 									{content.lang.catalog.wishlist}
@@ -246,7 +246,7 @@
 												{Math.floor(index / 3) + 1}
 											</span>
 										</span>
-									{:else if user.wishlist.includes(course.code)}
+									{:else if user.d.wishlist.includes(course.code)}
 										<span>🌟</span>
 										<span class="hidden sm:inline">
 											{content.lang.catalog.wishlist}

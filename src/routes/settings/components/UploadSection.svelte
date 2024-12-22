@@ -42,7 +42,7 @@
 
 		setUser(
 			await writeStorage({
-				...user,
+				...user.d,
 				semesters,
 				currentSemester,
 				exemptions: transcript.exemptions

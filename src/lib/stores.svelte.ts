@@ -235,9 +235,6 @@ function readLocalStorage(): UserData {
 }
 
 export async function writeLocalStorage(data: UserData): Promise<UserData> {
-	// sleep 5 seconds
-	await new Promise((resolve) => setTimeout(resolve, 5000));
-
 	localStorage.setItem('version', version.toString());
 	localStorage.setItem('userData', JSON.stringify(data));
 

@@ -62,7 +62,6 @@
 			return undefined;
 		}
 		let year = applyI18n(catalogs[degree[0]]);
-		// @ts-expect-error
 		let faculty = applyI18n(catalogs[degree[0]][degree[1]]);
 		// @ts-expect-error
 		let path = applyI18n(catalogs[degree[0]][degree[1]][degree[2]]);
@@ -71,9 +70,10 @@
 			return `${faculty} (${content.lang.preview.catalog} ${year}) - ${path}`;
 		}
 
+		// @ts-expect-error
 		let userPathNested = catalogs[degree[0]][degree[1]][
 			degree[2]
-		].requirement.nested.find((n) => n.name === user.d.path);
+		].requirement.nested.find((n: Requirement) => n.name === user.d.path);
 
 		const userPathName = applyI18n(userPathNested);
 
@@ -151,6 +151,11 @@
 										{content.lang.common.seasons[index % 3]}
 										{Math.floor(index / 3) + 1}
 									</span>
+								</span>
+							{:else if user.d.exemptions.includes(course.code)}
+								<span>✓</span>
+								<span class="hidden sm:inline">
+									{content.lang.catalog.exempt}
 								</span>
 							{:else if user.d.wishlist.includes(course.code)}
 								<span>🌟</span>

@@ -23,6 +23,8 @@
 	const course = $derived(getCourseData(code));
 	const requirements = $derived(catalog()?.requirement);
 
+	const seasonEmojis = ['❄️', '🌿', '☀️'];
+
 	const courseMemberRequirements = $derived.by(() => {
 		if (requirements === undefined) {
 			return [];
@@ -143,6 +145,16 @@
 
 		return 'none';
 	});
+
+	function getCourseSemester(course: Course): number | undefined {
+		const index = user.d.semesters.findIndex((s) => s.includes(course.code));
+
+		if (index === -1) {
+			return undefined;
+		} else {
+			return index;
+		}
+	}
 </script>
 
 <div class="mt-3">
@@ -284,9 +296,32 @@
 							</p>
 						{/if}
 						<div class="flex flex-col space-y-1">
-							{#each group.map(getCourseData) as dep}
-								<a class="pe-2" href={`/course/${dep.code}`}>
-									<CourseElement course={dep} />
+							{#each group.map(getCourseData) as course}
+								<a class="pe-2" href={`/course/${course.code}`}>
+									<CourseElement {course}>
+										{#snippet note()}
+											{@const index = getCourseSemester(course)}
+											{#if index !== undefined}
+												<span>
+													{seasonEmojis[index % 3]}
+													<span class="hidden sm:inline">
+														{content.lang.common.seasons[index % 3]}
+														{Math.floor(index / 3) + 1}
+													</span>
+												</span>
+											{:else if user.d.exemptions.includes(course.code)}
+												<span>✓</span>
+												<span class="hidden sm:inline">
+													{content.lang.catalog.exempt}
+												</span>
+											{:else if user.d.wishlist.includes(course.code)}
+												<span>🌟</span>
+												<span class="hidden sm:inline">
+													{content.lang.catalog.wishlist}
+												</span>
+											{/if}
+										{/snippet}
+									</CourseElement>
 								</a>
 							{/each}
 						</div>
@@ -303,7 +338,30 @@
 					<CourseRow resetScroll courses={course.connections?.adjacent ?? []}>
 						{#snippet children({ course })}
 							<a href={`/course/${course.code}`}>
-								<CourseElement {course} />
+								<CourseElement {course}>
+									{#snippet note()}
+										{@const index = getCourseSemester(course)}
+										{#if index !== undefined}
+											<span>
+												{seasonEmojis[index % 3]}
+												<span class="hidden sm:inline">
+													{content.lang.common.seasons[index % 3]}
+													{Math.floor(index / 3) + 1}
+												</span>
+											</span>
+										{:else if user.d.exemptions.includes(course.code)}
+											<span>✓</span>
+											<span class="hidden sm:inline">
+												{content.lang.catalog.exempt}
+											</span>
+										{:else if user.d.wishlist.includes(course.code)}
+											<span>🌟</span>
+											<span class="hidden sm:inline">
+												{content.lang.catalog.wishlist}
+											</span>
+										{/if}
+									{/snippet}
+								</CourseElement>
 							</a>
 						{/snippet}
 					</CourseRow>
@@ -318,7 +376,30 @@
 				<CourseRow resetScroll courses={course.connections?.exclusive ?? []}>
 					{#snippet children({ course })}
 						<a href={`/course/${course.code}`}>
-							<CourseElement {course} />
+							<CourseElement {course}>
+								{#snippet note()}
+									{@const index = getCourseSemester(course)}
+									{#if index !== undefined}
+										<span>
+											{seasonEmojis[index % 3]}
+											<span class="hidden sm:inline">
+												{content.lang.common.seasons[index % 3]}
+												{Math.floor(index / 3) + 1}
+											</span>
+										</span>
+									{:else if user.d.exemptions.includes(course.code)}
+										<span>✓</span>
+										<span class="hidden sm:inline">
+											{content.lang.catalog.exempt}
+										</span>
+									{:else if user.d.wishlist.includes(course.code)}
+										<span>🌟</span>
+										<span class="hidden sm:inline">
+											{content.lang.catalog.wishlist}
+										</span>
+									{/if}
+								{/snippet}
+							</CourseElement>
 						</a>
 					{/snippet}
 				</CourseRow>
@@ -332,7 +413,30 @@
 				<div class="flex flex-row flex-wrap">
 					{#each dependants as c}
 						<a class="pb-4 pe-2" href={`/course/${c.code}`}>
-							<CourseElement course={c} />
+							<CourseElement course={c}>
+								{#snippet note()}
+									{@const index = getCourseSemester(c)}
+									{#if index !== undefined}
+										<span>
+											{seasonEmojis[index % 3]}
+											<span class="hidden sm:inline">
+												{content.lang.common.seasons[index % 3]}
+												{Math.floor(index / 3) + 1}
+											</span>
+										</span>
+									{:else if user.d.exemptions.includes(course.code)}
+										<span>✓</span>
+										<span class="hidden sm:inline">
+											{content.lang.catalog.exempt}
+										</span>
+									{:else if user.d.wishlist.includes(course.code)}
+										<span>🌟</span>
+										<span class="hidden sm:inline">
+											{content.lang.catalog.wishlist}
+										</span>
+									{/if}
+								{/snippet}
+							</CourseElement>
 						</a>
 					{/each}
 				</div>

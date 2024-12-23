@@ -1,6 +1,5 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import Video from './Video.svelte';
 
 	type Props = {
 		src: string;
@@ -13,7 +12,15 @@
 
 <div class="sm:flex sm:max-w-[1024px] sm:flex-row">
 	<div class="flex-grow sm:me-4">
-		<Video {src} />
+		<div
+			class="w-full rounded-[15px] border border-white border-opacity-30 bg-white bg-opacity-10 p-2 bg-blend-color-burn backdrop-blur"
+		>
+			<img
+				{src}
+				alt={title}
+				class="pointer-events-auto w-full rounded-[10px] bg-transparent"
+			/>
+		</div>
 	</div>
 	<div class="me-3 mt-2 sm:min-w-[300px] sm:max-w-[300px] sm:flex-grow">
 		<h2 class="ms-3 text-2xl font-medium text-content-primary sm:ms-0">

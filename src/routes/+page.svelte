@@ -13,6 +13,7 @@
 	import Demo from './components/Demo.svelte';
 	import AsyncButton from '$lib/components/AsyncButton.svelte';
 	import Button from '$lib/components/Button.svelte';
+	import CourseExplanation from '$lib/components/CourseExplanation.svelte';
 
 	// start lazy loading course data and catalogs
 	const courseData = import('$lib/assets/courseData.json');
@@ -54,6 +55,22 @@
 	<div
 		class="mt-8 flex flex-col items-center gap-y-12 p-3 sm:mt-20 sm:max-w-[1024px]"
 	>
+		<div class="w-full sm:flex sm:max-w-[1024px] sm:flex-row">
+			<div
+				class="w-full flex-grow pe-12 ps-12 sm:me-4 lg:pb-14 lg:pe-28 lg:ps-28"
+			>
+				<CourseExplanation class="h-full w-full" />
+			</div>
+			<div class="me-3 mt-2 sm:min-w-[300px] sm:max-w-[300px] sm:flex-grow">
+				<h2 class="ms-3 text-2xl font-medium text-content-primary sm:ms-0">
+					{content.lang.common.course}
+				</h2>
+				<p class="ms-3 text-wrap break-words text-content-secondary sm:ms-0">
+					{content.lang.landing.courseCard}
+				</p>
+			</div>
+		</div>
+
 		<Demo src={plan} title={content.lang.header.plan}>
 			{content.lang.landing.plan.header}
 			<br />

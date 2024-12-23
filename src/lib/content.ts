@@ -38,7 +38,7 @@ export const cms = {
 				'Plan your courses for each semester, ensuring their requirements are met.',
 				'When test schedules are published, quickly adapt your plan to maximize study time for each test.'
 			],
-			courseCard: 'The course card is the building block of PlanIt',
+			courseCard: 'The course card is the building block of PlanIt.',
 			settings: {
 				header: `Settings`,
 				description: `
@@ -208,7 +208,7 @@ export const cms = {
 				'תכנן את הקורסים לכל סמסטר, עם וידוי שהדרישות שלהם נענו.',
 				'כאשר לוח המבחנים מתפרסם, התאם את התוכנית שלך במהירות כדי למקסם את זמן הלמידה לכל מבחן.'
 			],
-			courseCard: 'כרטיס הקורס הוא הבסיס ל-PlanIt',
+			courseCard: 'כרטיס הקורס הוא הבסיס ל-PlanIt.',
 			settings: {
 				header: `הגדרות`,
 				description: `

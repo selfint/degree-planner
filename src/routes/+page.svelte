@@ -10,10 +10,19 @@
 	import share from '$lib/assets/gifs/share-video.mp4';
 	import search from '$lib/assets/gifs/search-video.mp4';
 
+	import settingsPic from '$lib/assets/gifs/settings-pic.png';
+	import planPic from '$lib/assets/gifs/plan-pic.png';
+	import catalogPic from '$lib/assets/gifs/catalog-pic.png';
+	import semesterPic from '$lib/assets/gifs/semester-pic.png';
+	import coursePic from '$lib/assets/gifs/course-pic.png';
+	import sharePic from '$lib/assets/gifs/share-pic.png';
+	import searchPic from '$lib/assets/gifs/search-pic.png';
+
 	import Demo from './components/Demo.svelte';
 	import AsyncButton from '$lib/components/AsyncButton.svelte';
 	import Button from '$lib/components/Button.svelte';
 	import CourseExplanation from '$lib/components/CourseExplanation.svelte';
+	import ImgDemo from './components/ImgDemo.svelte';
 
 	// start lazy loading course data and catalogs
 	const courseData = import('$lib/assets/courseData.json');
@@ -71,14 +80,14 @@
 			</div>
 		</div>
 
-		<Demo src={plan} title={content.lang.header.plan}>
+		<ImgDemo src={planPic} title={content.lang.header.plan}>
 			{content.lang.landing.plan.header}
 			<br />
 			<br />
 			{content.lang.landing.plan.testSchedule}
-		</Demo>
+		</ImgDemo>
 
-		<Demo src={catalog} title={content.lang.header.catalog}>
+		<ImgDemo src={catalogPic} title={content.lang.header.catalog}>
 			{content.lang.landing.catalog.header}
 			<span class="text-nowrap rounded-md bg-card-primary p-1">
 				<span class="text-accent-primary">
@@ -90,27 +99,27 @@
 			<br />
 			<br />
 			{content.lang.landing.catalog.footer}
-		</Demo>
+		</ImgDemo>
 
-		<Demo src={settings} title={content.lang.landing.settings.header}>
+		<ImgDemo src={settingsPic} title={content.lang.landing.settings.header}>
 			{content.lang.landing.settings.description}
-		</Demo>
+		</ImgDemo>
 
-		<Demo src={course} title={content.lang.common.course}>
+		<ImgDemo src={coursePic} title={content.lang.common.course}>
 			{content.lang.landing.course}
-		</Demo>
+		</ImgDemo>
 
-		<Demo src={semester} title={content.lang.common.semester}>
+		<ImgDemo src={semesterPic} title={content.lang.common.semester}>
 			{content.lang.landing.semester}
-		</Demo>
+		</ImgDemo>
 
-		<Demo src={share} title={content.lang.landing.share.title}>
+		<ImgDemo src={sharePic} title={content.lang.landing.share.title}>
 			{content.lang.landing.share.description}
-		</Demo>
+		</ImgDemo>
 
-		<Demo src={search} title={content.lang.header.searchPlaceholder}>
+		<ImgDemo src={searchPic} title={content.lang.header.searchPlaceholder}>
 			{content.lang.landing.search}
-		</Demo>
+		</ImgDemo>
 	</div>
 </div>
 

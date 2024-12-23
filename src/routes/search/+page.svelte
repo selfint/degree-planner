@@ -50,7 +50,7 @@
 	}
 </script>
 
-<div class="m-3 mr-0 text-content-primary">
+<div class="m-3 me-0 text-content-primary">
 	<h1 class="text-lg">
 		{content.lang.search.resultsFor} "{query}"
 	</h1>

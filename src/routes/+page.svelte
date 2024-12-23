@@ -2,14 +2,6 @@
 	import { goto } from '$app/navigation';
 	import { content } from '$lib/stores.svelte';
 
-	import settings from '$lib/assets/gifs/settings-video.mp4';
-	import plan from '$lib/assets/gifs/plan-video.mp4';
-	import catalog from '$lib/assets/gifs/catalog-video.mp4';
-	import semester from '$lib/assets/gifs/semester-video.mp4';
-	import course from '$lib/assets/gifs/course-video.mp4';
-	import share from '$lib/assets/gifs/share-video.mp4';
-	import search from '$lib/assets/gifs/search-video.mp4';
-
 	import settingsPic from '$lib/assets/gifs/settings-pic.png';
 	import planPic from '$lib/assets/gifs/plan-pic.png';
 	import catalogPic from '$lib/assets/gifs/catalog-pic.png';
@@ -18,15 +10,9 @@
 	import sharePic from '$lib/assets/gifs/share-pic.png';
 	import searchPic from '$lib/assets/gifs/search-pic.png';
 
-	import Demo from './components/Demo.svelte';
 	import AsyncButton from '$lib/components/AsyncButton.svelte';
-	import Button from '$lib/components/Button.svelte';
 	import CourseExplanation from '$lib/components/CourseExplanation.svelte';
 	import ImgDemo from './components/ImgDemo.svelte';
-
-	// start lazy loading course data and catalogs
-	const courseData = import('$lib/assets/courseData.json');
-	const catalogs = import('$lib/assets/catalogs.json');
 </script>
 
 <div dir={content.lang.dir} class="circle flex flex-grow flex-col items-center">

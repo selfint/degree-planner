@@ -505,7 +505,7 @@ export async function getCourseData(courses) {
 	return await requestBatch(
 		'SmObjectSet',
 		courses.map(({ Otjid, Peryr, Perid }) => ({
-			$expand: 'Responsible,Exams,SmRelations,SmPrereq',
+			$expand: 'Exams,SmRelations,SmPrereq',
 			$filter: `Otjid eq '${Otjid}' and Peryr eq '${Peryr}' and Perid eq '${Perid}'`,
 			$select: [
 				'Otjid',

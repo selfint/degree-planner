@@ -1,6 +1,7 @@
 /// <reference path="../src/app.d.ts"/>
 
 import * as sap from './SAPClient.mjs';
+import { getMedian } from './HistogramsClient.mjs';
 
 /**
  * Get the about information of a course.
@@ -167,44 +168,6 @@ export function getSeasons(courseSAPInfo) {
 }
 
 /**
- * Fetches the median score for a course from a remote source.
- * @param {string} course - The course code.
- * @returns {Promise<number|undefined>} A promise that resolves to the median score or undefined if not available.
- */
-export async function getMedian(course) {
-	// Remove first leading zero and remove character at index 6
-	const code = course.slice(3, 6) + course.slice(7);
-
-	const url = `https://michael-maltsev.github.io/technion-histograms/${code}/index.min.json`;
-	const response = await fetch(url);
-
-	if (!response.ok) {
-		return undefined;
-	}
-
-	const info = await response.json();
-	let medians = 0;
-	let count = 0;
-
-	// Iterate over the last 5 semesters to calculate the average median score
-	for (const semester of Object.values(info).slice(-5)) {
-		const median = semester.Finals?.median;
-		if (median !== undefined) {
-			medians += parseFloat(median);
-			count++;
-		}
-	}
-
-	// If no medians were found, return undefined; otherwise, return the average median
-	if (count === 0) {
-		return undefined;
-	} else {
-		// Round to one decimal place
-		return parseFloat((medians / count).toFixed(1));
-	}
-}
-
-/**
  *
  * @param {Object} course raw course object
  * @param {boolean} current is the course in the current semester
@@ -314,16 +277,17 @@ async function main(top) {
 
 	const rawData = (await sap.getCourseData(courseHeaders)).flat();
 
-	const courseData = await Promise.all(
-		rawData.map(async (raw) => {
-			const current =
-				currentYear !== undefined &&
-				raw.Peryr === currentYear.Peryr &&
-				raw.Perid === currentYear.Perid;
-			const course = await parseCourse(raw, current);
-			return course;
-		})
-	);
+	const courseData = [];
+	for (let index = 0; index < rawData.length; index++) {
+		const raw = rawData[index];
+		const current =
+			currentYear !== undefined &&
+			raw.Peryr === currentYear.Peryr &&
+			raw.Perid === currentYear.Perid;
+
+		const course = await parseCourse(raw, current);
+		courseData.push(course);
+	}
 
 	console.error(
 		courseData.length,

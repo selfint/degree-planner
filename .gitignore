@@ -10,5 +10,5 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 test-results/
 /.vercel
-catalogs.json
+./catalogs.json
 fire*.log

@@ -1,4 +1,5 @@
-import catalogs from '$lib/assets/catalogs.json';
+import catalogs from '../static/catalogs.json';
+import catalogsHeader from '../static/catalogsHeader.json';
 
 // type gymnastics to get catalogs in a type-safe way
 // credit: https://chatgpt.com/share/67137b39-7de8-8002-a4aa-0556e0c86b5a
@@ -220,7 +221,9 @@ declare global {
 		path?: string;
 	};
 
-	type Degree = NestedKeys<typeof catalogs>;
+	type Catalogs = typeof catalogs;
+	type CatalogsHeader = typeof catalogsHeader;
+	type Degree = NestedKeys<Catalogs>;
 
 	type CourseConnections = {
 		dependencies: string[][];

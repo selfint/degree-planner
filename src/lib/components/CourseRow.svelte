@@ -34,7 +34,6 @@
 		});
 
 		if (sortable === undefined) {
-			console.log('sorting course data');
 			courseData = courseData.toSorted((a, b) => {
 				const medians = (b.median ?? 0) - (a.median ?? 0);
 

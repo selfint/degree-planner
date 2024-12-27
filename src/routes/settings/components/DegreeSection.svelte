@@ -25,8 +25,8 @@
 		buttonNamespace = $bindable()
 	}: Props = $props();
 
-	const catalogs = import('$lib/assets/catalogsHeader.json').then(
-		(c) => c.default
+	const catalogs = fetch('/catalogsHeader.json').then(
+		async (c) => (await c.json()) as Catalogs
 	);
 	type Year = keyof Awaited<typeof catalogs>;
 	const years = catalogs.then((c) => Object.keys(c) as Year[]);

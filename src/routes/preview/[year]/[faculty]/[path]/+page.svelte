@@ -50,7 +50,8 @@
 		degree: Degree,
 		userPath: string | undefined
 	): Promise<string> {
-		const catalogs = (await import('$lib/assets/catalogsHeader.json')).default;
+		const response = await fetch('/catalogsHeader.json');
+		const catalogs: CatalogsHeader = await response.json();
 
 		let year = applyI18n(catalogs[degree[0]]);
 		let faculty = applyI18n(catalogs[degree[0]][degree[1]]);

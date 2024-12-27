@@ -44,7 +44,8 @@ export async function loadCatalog(
 		init?: RequestInit
 	) => Promise<Response> = fetch
 ): Promise<Catalog> {
-	const catalogs = (await import('$lib/assets/catalogs.json')).default;
+	const response = await fetch('/catalogs.json');
+	const catalogs: Catalogs = await response.json();
 
 	const [year, faculty, degree] = userDegree;
 

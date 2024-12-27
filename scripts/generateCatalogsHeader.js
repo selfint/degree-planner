@@ -2,13 +2,7 @@ import { readdirSync, statSync, writeFileSync, readFileSync } from 'fs';
 import { join } from 'path';
 
 const dbPath = join(process.cwd(), 'static', '_catalogs');
-const manifestPath = join(
-	process.cwd(),
-	'src',
-	'lib',
-	'assets',
-	'catalogsHeader.json'
-);
+const manifestPath = join(process.cwd(), 'static', 'catalogsHeader.json');
 
 function nestRequirements(name, requirements) {
 	const keywords = [

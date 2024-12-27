@@ -2,13 +2,7 @@ import { readdirSync, statSync, writeFileSync, readFileSync } from 'fs';
 import { join } from 'path';
 
 const dbPath = join(process.cwd(), 'static', '_catalogs');
-const manifestPath = join(
-	process.cwd(),
-	'src',
-	'lib',
-	'assets',
-	'catalogs.json'
-);
+const manifestPath = join(process.cwd(), 'static', 'catalogs.json');
 
 function parseCatalog(text) {
 	const regex = /\b\d{5,6}\b/g;

@@ -85,3 +85,13 @@ type CourseHeader = {
 	Peryr: string;
 	Perid: string;
 };
+
+type Result<T, E> =
+	| {
+			status: 'ok';
+			value: T;
+	  }
+	| {
+			status: 'err';
+			value: E;
+	  };

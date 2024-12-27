@@ -24,16 +24,18 @@
 	const offset = `${indent * 0.75}rem`;
 	const margin = $derived(`margin-inline-end: ${offset}`);
 
-	const _courses = $derived(
-		courses
-			.map((c) => {
-				if (typeof c === 'string') {
-					return getCourseData(c);
-				}
+	const _courses = $derived.by(() => {
+		let courseData = courses.map((c) => {
+			if (typeof c === 'string') {
+				return getCourseData(c);
+			}
 
-				return c;
-			})
-			.toSorted((a, b) => {
+			return c;
+		});
+
+		if (sortable === undefined) {
+			console.log('sorting course data');
+			courseData = courseData.toSorted((a, b) => {
 				const medians = (b.median ?? 0) - (a.median ?? 0);
 
 				if (medians !== 0) {
@@ -41,8 +43,11 @@
 				}
 
 				return (a.code ?? '').localeCompare(b.code ?? '');
-			})
-	);
+			});
+		}
+
+		return courseData;
+	});
 
 	let row: HTMLDivElement;
 	$effect(() => {
@@ -63,7 +68,7 @@
 <div
 	bind:this={row}
 	use:makeSortable
-	class="flex min-h-32 flex-row overflow-x-auto"
+	class="flex min-h-full flex-row items-start overflow-x-auto"
 >
 	<div class="margin" style={margin}></div>
 	{#each _courses as course, index}

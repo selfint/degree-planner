@@ -60,7 +60,7 @@
 </script>
 
 <div class="mb-3 mt-3">
-	<div class="mb-4 min-h-[118px]">
+	<div class="mb-4 h-36 max-h-36 overflow-y-hidden sm:h-28 sm:max-h-28">
 		<div class="mb-1 me-3 ms-3 flex flex-row justify-between">
 			<h1 class="text-base font-medium text-content-primary">
 				{content.lang.plan.wishlist}
@@ -93,30 +93,56 @@
 				{/if}
 			</div>
 		</div>
-		<CourseRow
-			courses={wishlist}
-			sortable={{
-				group: 'semesters',
-				sort: false,
-				dataIdAttr: 'data-code',
-				onAdd: (event) => {
-					const data = event.item.getAttribute('data-code');
-
-					if (data !== null) {
-						moveCourseToWishlist(data);
-						if (wishlist.includes(data)) {
-							event.item.remove();
+		{#key wishlist.join(' ')}
+			<CourseRow
+				courses={wishlist}
+				sortable={{
+					group: 'semesters',
+					sort: true,
+					direction: 'horizontal',
+					animation: 100,
+					dataIdAttr: 'data-code',
+					ghostClass: 'wishlist-ghost',
+					onUpdate: (event) => {
+						const code = event.item.getAttribute('data-code');
+						if (code === null) {
+							return;
 						}
+
+						const wishlistCodes = Array.from(event.to.children)
+							.map((c) => c.getAttribute('data-code'))
+							.filter((d) => d !== null);
+
+						// deduplicate wishlist and preserve order
+						wishlist = [...new Set(wishlistCodes)];
+					},
+					onAdd: (event) => {
+						const code = event.item.getAttribute('data-code');
+						if (code === null) {
+							return;
+						}
+
+						const wishlistCodes = Array.from(event.to.children)
+							.map((c) => c.getAttribute('data-code'))
+							.filter((d) => d !== null);
+
+						// deduplicate wishlist and preserve order
+						wishlist = [...new Set(wishlistCodes)];
+
+						// remove wishlist from semesters
+						semesters = semesters.map((s) =>
+							s.filter((c) => !wishlist.includes(c))
+						);
 					}
-				}
-			}}
-		>
-			{#snippet children({ course })}
-				<button onclick={() => goto(`/course/${course.code}`)}>
-					<CourseElement {course} />
-				</button>
-			{/snippet}
-		</CourseRow>
+				}}
+			>
+				{#snippet children({ course })}
+					<button onclick={() => goto(`/course/${course.code}`)}>
+						<CourseElement {course} />
+					</button>
+				{/snippet}
+			</CourseRow>
+		{/key}
 	</div>
 	<div style="transform: rotateX(180deg)" class="overflow-x-auto">
 		<div style="transform: rotateX(180deg)" class="flex flex-row">
@@ -133,6 +159,7 @@
 								group: 'semesters',
 								dataIdAttr: 'data-code',
 								sort: true,
+								animation: 100,
 								onUpdate: (event) => {
 									const code = event.item.getAttribute('data-code');
 									if (code === null) {
@@ -197,3 +224,9 @@
 		</div>
 	</div>
 </div>
+
+<style lang="postcss">
+	:global(.wishlist-ghost) {
+		@apply me-2 max-h-[118px] w-[29vw] min-w-[29vw] max-w-[220px] overflow-y-hidden sm:min-w-[220px];
+	}
+</style>

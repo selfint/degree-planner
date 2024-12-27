@@ -43,16 +43,9 @@
 		return link;
 	});
 
-	function onCancel() {
+	async function onCancel() {
 		wishlist = user.d.wishlist;
 		semesters = user.d.semesters;
-	}
-
-	function moveCourseToSemester(code: string, semester: number) {
-		wishlist = wishlist.filter((c) => c !== code);
-		semesters = semesters.map((s, i) =>
-			i === semester ? [...new Set([...s, code])] : s.filter((c) => c !== code)
-		);
 	}
 
 	function moveCourseToWishlist(code: string) {
@@ -60,32 +53,9 @@
 		semesters = semesters.map((s) => s.filter((c) => c !== code));
 	}
 
-	let didMount = false;
-	$effect(() => {
-		didMount = true;
-	});
-
-	function scroll(semester: HTMLDivElement, index: number) {
-		const doScroll =
-			!didMount && user.d.currentSemester > 2 && index === semesters.length - 1;
-
-		if (doScroll) {
-			semester.parentElement?.children[user.d.currentSemester]?.scrollIntoView({
-				behavior: 'instant',
-				inline: 'start',
-				block: 'nearest'
-			});
-		}
-	}
-
-	let canCancel = $state(true);
+	let buttonNamespace = $state('');
 	async function onSave() {
-		canCancel = false;
-		try {
-			setUser(await writeStorage({ ...user.d, wishlist, semesters }));
-		} catch (_) {
-			canCancel = true;
-		}
+		setUser(await writeStorage({ ...user.d, wishlist, semesters }));
 	}
 </script>
 
@@ -97,12 +67,20 @@
 			</h1>
 			<div class="flex flex-row items-center gap-x-2 text-sm">
 				{#if hasChanges}
-					{#if canCancel}
-						<Button variant="secondary" onclick={onCancel}>
-							{content.lang.settings.cancel}
-						</Button>
-					{/if}
-					<AsyncButton variant="primary" onclick={onSave}>
+					<AsyncButton
+						variant="secondary"
+						onclick={onCancel}
+						bind:buttonNamespace
+						name="cancel"
+					>
+						{content.lang.settings.cancel}
+					</AsyncButton>
+					<AsyncButton
+						variant="primary"
+						onclick={onSave}
+						bind:buttonNamespace
+						name="save"
+					>
 						{content.lang.settings.save}
 					</AsyncButton>
 				{/if}
@@ -119,13 +97,16 @@
 			courses={wishlist}
 			sortable={{
 				group: 'semesters',
+				sort: false,
 				dataIdAttr: 'data-code',
 				onAdd: (event) => {
 					const data = event.item.getAttribute('data-code');
 
 					if (data !== null) {
-						event.item.remove();
 						moveCourseToWishlist(data);
+						if (wishlist.includes(data)) {
+							event.item.remove();
+						}
 					}
 				}
 			}}
@@ -140,9 +121,9 @@
 	<div style="transform: rotateX(180deg)" class="overflow-x-auto">
 		<div style="transform: rotateX(180deg)" class="flex flex-row">
 			<div class="ms-3"></div>
-			{#key semesters.flat().join(' ')}
+			{#key semesters.map((s) => s.join('-')).join(',')}
 				{#each semesters as semester, semesterIndex}
-					<div class="pe-2" use:scroll={semesterIndex}>
+					<div class="pe-2">
 						<Semester
 							index={semesterIndex}
 							semester={semester.map(getCourseData)}
@@ -151,15 +132,42 @@
 							sortable={{
 								group: 'semesters',
 								dataIdAttr: 'data-code',
-								sort: false,
-								ghostClass: 'sortable-ghost',
-								onAdd: (event) => {
-									const data = event.item.getAttribute('data-code');
-
-									if (data !== null) {
-										event.item.remove();
-										moveCourseToSemester(data, semesterIndex);
+								sort: true,
+								onUpdate: (event) => {
+									const code = event.item.getAttribute('data-code');
+									if (code === null) {
+										return;
 									}
+
+									const semesterCodes = Array.from(event.to.children)
+										.map((c) => c.getAttribute('data-code'))
+										.filter((d) => d !== null);
+
+									// re-order semester
+									semesters = semesters.map((s, i) =>
+										i === semesterIndex ? semesterCodes : s
+									);
+								},
+								onAdd: (event) => {
+									const code = event.item.getAttribute('data-code');
+									if (code === null) {
+										return;
+									}
+
+									const semesterCodes = Array.from(event.to.children)
+										.map((c) => c.getAttribute('data-code'))
+										.filter((d) => d !== null);
+
+									// remove course from wishlist
+									wishlist = wishlist.filter((c) => c !== code);
+
+									semesters = semesters.map((s, i) =>
+										i === semesterIndex
+											? // deduplicate semester codes and preserve order
+												[...new Set(semesterCodes)]
+											: // remove course from other semesters
+												s.filter((c) => c !== code)
+									);
 								}
 							}}
 						>
@@ -189,12 +197,3 @@
 		</div>
 	</div>
 </div>
-
-<style>
-	:global(.sortable-ghost) {
-		visibility: hidden;
-		max-height: 0px;
-		max-width: 0px;
-		overflow: hidden;
-	}
-</style>

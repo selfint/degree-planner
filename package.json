@@ -22,6 +22,7 @@
 		"@sveltejs/kit": "^2.11.1",
 		"@types/eslint": "^9.6.1",
 		"@types/jsdom": "^21.1.7",
+		"@types/sortablejs": "^1.15.8",
 		"@typescript-eslint/eslint-plugin": "^8.18.0",
 		"@typescript-eslint/parser": "^8.18.0",
 		"autoprefixer": "^10.4.20",
@@ -46,6 +47,7 @@
 		"@vercel/analytics": "^1.4.1",
 		"@vercel/speed-insights": "^1.1.0",
 		"firebase": "^11.1.0",
-		"pdfjs-dist": "^4.9.155"
+		"pdfjs-dist": "^4.9.155",
+		"sortablejs": "^1.15.6"
 	}
 }

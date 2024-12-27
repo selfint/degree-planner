@@ -1,6 +1,8 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 
+	import Sortable from 'sortablejs';
+
 	import { getCourseData } from '$lib/courseData';
 
 	type Props = {
@@ -8,9 +10,16 @@
 		indent?: number;
 		children: Snippet<[{ course: Course; index: number }]>;
 		resetScroll?: boolean;
+		sortable?: Sortable.Options;
 	};
 
-	let { courses, indent = 1, children, resetScroll = false }: Props = $props();
+	let {
+		courses,
+		indent = 1,
+		children,
+		resetScroll = false,
+		sortable
+	}: Props = $props();
 
 	const offset = `${indent * 0.75}rem`;
 	const margin = $derived(`margin-inline-end: ${offset}`);
@@ -42,12 +51,23 @@
 			row.scrollLeft = courses.length - courses.length;
 		}
 	});
+
+	function makeSortable(row: HTMLDivElement) {
+		if (sortable !== undefined) {
+			sortable.filter = 'margin';
+			new Sortable(row, sortable);
+		}
+	}
 </script>
 
-<div bind:this={row} class="flex flex-row overflow-x-auto">
-	<div style={margin}></div>
+<div
+	bind:this={row}
+	use:makeSortable
+	class="flex min-h-32 flex-row overflow-x-auto"
+>
+	<div class="margin" style={margin}></div>
 	{#each _courses as course, index}
-		<div class="pe-2">
+		<div data-code={course.code} class="pe-2">
 			{@render children({ course, index })}
 		</div>
 	{/each}

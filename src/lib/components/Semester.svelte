@@ -1,5 +1,8 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+
+	import Sortable from 'sortablejs';
+
 	import CourseWidth from './CourseWidth.svelte';
 	import StudyDaysComponent from './StudyDaysComponent.svelte';
 
@@ -12,10 +15,18 @@
 		disabled?: string[];
 		children: Snippet<[{ course: Course; index: number }]>;
 		href?: string;
+		sortable?: Sortable.Options;
 	};
 
-	let { index, isCurrent, semester, disabled, children, href }: Props =
-		$props();
+	let {
+		index,
+		isCurrent,
+		semester,
+		disabled,
+		children,
+		href,
+		sortable
+	}: Props = $props();
 
 	const effectiveSemester = $derived(
 		semester.filter((c) => !disabled?.includes(c.code))
@@ -29,6 +40,12 @@
 		return medians.length > 0
 			? Math.round((medians.reduce((a, b) => a + b) / medians.length) * 10) / 10
 			: 0;
+	}
+
+	function makeSortable(column: HTMLDivElement) {
+		if (sortable !== undefined) {
+			new Sortable(column, sortable);
+		}
 	}
 </script>
 
@@ -79,7 +96,10 @@
 		</div>
 	{/if}
 
-	<div class="flex flex-col space-y-1 sm:space-y-1.5">
+	<div
+		class="flex h-full min-h-32 flex-col space-y-1 bg-opacity-50 sm:space-y-1.5"
+		use:makeSortable
+	>
 		{#each semester as course, index}
 			{@render children({ course, index })}
 		{/each}

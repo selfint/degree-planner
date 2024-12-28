@@ -1,7 +1,7 @@
 import courseData from '$lib/assets/courseData.json';
 
 export function getAllCourses(): Course[] {
-	return Object.values(courseData);
+	return Object.values(courseData) as Course[];
 }
 
 /**

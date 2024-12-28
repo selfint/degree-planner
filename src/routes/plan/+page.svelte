@@ -101,6 +101,8 @@
 					sort: true,
 					direction: 'horizontal',
 					animation: 100,
+					delay: 100,
+					delayOnTouchOnly: true,
 					dataIdAttr: 'data-code',
 					ghostClass: 'wishlist-ghost',
 					onUpdate: (event) => {
@@ -160,6 +162,8 @@
 								dataIdAttr: 'data-code',
 								sort: true,
 								animation: 100,
+								delay: 100,
+								delayOnTouchOnly: true,
 								onUpdate: (event) => {
 									const code = event.item.getAttribute('data-code');
 									if (code === null) {

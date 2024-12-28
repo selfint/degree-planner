@@ -91,7 +91,9 @@
 				<Nav target="catalog">{content.lang.header.catalog}</Nav>
 				<Nav target="plan">{content.lang.header.plan}</Nav>
 				<Nav target="settings">
-					<Settings></Settings>
+					<div class="p-0.5 pl-0 pr-0">
+						<Settings></Settings>
+					</div>
 				</Nav>
 			</nav>
 		{/if}

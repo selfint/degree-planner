@@ -149,9 +149,12 @@
 					class="me-2 ms-2 flex min-h-fit flex-row justify-end gap-x-2"
 				>
 					{#each wishlist.map(getCourseData) as course}
-						<a data-code={course.code} href={`/course/${course.code}`}>
+						<button
+							data-code={course.code}
+							onclick={() => goto(`/course/${course.code}`)}
+						>
 							<CourseElement {course} />
-						</a>
+						</button>
 					{/each}
 				</div>
 			{/key}

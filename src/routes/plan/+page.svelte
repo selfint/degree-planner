@@ -98,7 +98,10 @@
 				{/if}
 			</div>
 		</div>
-		<div dir="ltr" class="flex flex-row overflow-x-auto overflow-y-hidden">
+		<div
+			dir="ltr"
+			class="flex flex-row overflow-x-auto overflow-y-hidden rtl:flex-row-reverse"
+		>
 			{#key wishlist.join(' ')}
 				<div
 					use:makeSortable={{

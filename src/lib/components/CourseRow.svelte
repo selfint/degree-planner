@@ -67,7 +67,8 @@
 <div
 	bind:this={row}
 	use:makeSortable
-	class="flex min-h-full flex-row items-start overflow-x-auto"
+	dir="ltr"
+	class="flex min-h-full flex-row items-start overflow-x-auto rtl:justify-end"
 >
 	<div class="margin" style={margin}></div>
 	{#each _courses as course, index}

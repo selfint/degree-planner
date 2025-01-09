@@ -16,6 +16,11 @@ suite(
 				[
 				  {
 				    "IsCurrent": 0,
+				    "PiqSession": "201",
+				    "PiqYear": "2024",
+				  },
+				  {
+				    "IsCurrent": -1,
 				    "PiqSession": "200",
 				    "PiqYear": "2024",
 				  },
@@ -3619,7 +3624,7 @@ suite(
 				      "ZzQualifications": {
 				        "en": "B.SC. IN PHYSICS (3 YEARS)
 				B.SC. IN COMP.SCI.-3Y-B.SC. IN PHYSIC-3Y",
-				        "he": "בוגר למדעים בפיזיקה
+				        "he": "בוגר למדעים בהנדסה בפיזיקה
 				ב.למדע בהנד.במ.המחשב - מ.למדע בהנד.בפיזי",
 				      },
 				    },

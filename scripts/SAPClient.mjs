@@ -505,7 +505,7 @@ export async function getCourseData(courses) {
 	return await requestBatch(
 		'SmObjectSet',
 		courses.map(({ Otjid, Peryr, Perid }) => ({
-			$expand: 'Exams,SmRelations,SmPrereq',
+			$expand: 'Exams,SmRelations,SmPrereq,SmOfferedPeriodSet',
 			$filter: `Otjid eq '${Otjid}' and Peryr eq '${Peryr}' and Perid eq '${Perid}'`,
 			$select: [
 				'Otjid',
@@ -516,7 +516,8 @@ export async function getCourseData(courses) {
 				'Exams',
 				'SmPrereq',
 				'SmRelations',
-				'OrgText'
+				'OrgText',
+				'SmOfferedPeriodSet'
 			].join(',')
 		})),
 		'he',

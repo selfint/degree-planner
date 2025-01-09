@@ -62,7 +62,7 @@
 		{#each results as course, i}
 			<li class="pb-4 pr-2">
 				<button
-					class:opacity-60={course.current}
+					class:opacity-60={!course.current}
 					onclick={() => goto(`/course/${course.code}`)}
 				>
 					<CourseElement {course}>

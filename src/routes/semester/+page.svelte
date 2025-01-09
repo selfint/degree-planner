@@ -234,6 +234,10 @@
 			return false;
 		}
 
+		if (user.d.exemptions.includes(course.code)) {
+			return false;
+		}
+
 		const error = getScheduleError(
 			course,
 			user.d.exemptions,

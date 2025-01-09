@@ -150,7 +150,7 @@ export function getConnections(courseSAPInfo) {
  * @param {string} courseSAPInfo.ZzOfferpattern - The course offer pattern.
  * @returns {Array<string>|undefined} The array of seasons or undefined if not found.
  */
-export function getSeasons(courseSAPInfo) {
+function getSeasons(courseSAPInfo) {
 	const seasons = courseSAPInfo.ZzOfferpattern;
 
 	switch (seasons) {
@@ -169,8 +169,29 @@ export function getSeasons(courseSAPInfo) {
 
 /**
  *
+ * @param {Object} course
+ * @param {SemesterYear | undefined} current
+ * @returns {boolean | undefined}
+ */
+function getCurrent(course, current) {
+	if (current === undefined) {
+		return undefined;
+	}
+
+	const offers = course.SmOfferedPeriodSet.results;
+	for (const { Peryr, Perid } of offers) {
+		if (Peryr === current.PiqYear && Perid === current.PiqSession) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/**
+ *
  * @param {Object} course raw course object
- * @param {boolean} current is the course in the current semester
+ * @param {SemesterYear | undefined} current is the course in the current semester
  * @returns {Promise<Course>}
  */
 async function parseCourse(course, current) {
@@ -202,7 +223,7 @@ async function parseCourse(course, current) {
 			),
 			seasons: await handleField('seasons', () => getSeasons(course)),
 			faculty: course.OrgText,
-			current
+			current: await handleField('current', () => getCurrent(course, current))
 		};
 
 		if (errors.length === 0) {
@@ -285,7 +306,7 @@ async function main(top) {
 			raw.Peryr === currentYear.Peryr &&
 			raw.Perid === currentYear.Perid;
 
-		const course = await parseCourse(raw, current);
+		const course = await parseCourse(raw, currentYear);
 		courseData.push(course);
 	}
 

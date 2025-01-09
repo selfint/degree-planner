@@ -3,7 +3,6 @@
 
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import Semester from '$lib/components/Semester.svelte';
-	import CourseRow from '$lib/components/CourseRow.svelte';
 	import Button from '$lib/components/Button.svelte';
 
 	import { user, content, writeStorage, setUser } from '$lib/stores.svelte';

@@ -5,6 +5,7 @@
 	import CourseRow from '$lib/components/CourseRow.svelte';
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
+	import { goto } from '$app/navigation';
 
 	const requirements = $derived(catalog()?.requirement);
 
@@ -120,7 +121,10 @@
 		</h1>
 		<CourseRow courses={user.d.wishlist}>
 			{#snippet children({ course })}
-				<a class:opacity-50={!course.current} href={`/course/${course.code}`}>
+				<button
+					class:opacity-60={!course.current}
+					onclick={() => goto(`/course/${course.code}`)}
+				>
 					<CourseElement {course}>
 						{#snippet note()}
 							{@const index = getCourseSemester(course)}
@@ -145,7 +149,7 @@
 							{/if}
 						{/snippet}
 					</CourseElement>
-				</a>
+				</button>
 			{/snippet}
 		</CourseRow>
 	</div>
@@ -216,9 +220,9 @@
 
 				<CourseRow courses={list.courses}>
 					{#snippet children({ course })}
-						<a
-							class:opacity-50={!course.current}
-							href={`/course/${course.code}`}
+						<button
+							class:opacity-60={!course.current}
+							onclick={() => goto(`/course/${course.code}`)}
 						>
 							<CourseElement {course}>
 								{#snippet note()}
@@ -244,7 +248,7 @@
 									{/if}
 								{/snippet}
 							</CourseElement>
-						</a>
+						</button>
 					{/snippet}
 				</CourseRow>
 			</div>

@@ -171,7 +171,7 @@
 			</span>
 
 			<a
-				href={`https://portalex.technion.ac.il/ovv/?sap-theme=sap_belize&sap-language=HE&sap-ui-language=HE#/details/2024/200/SM/${code}`}
+				href={`https://portalex.technion.ac.il/ovv/?sap-theme=sap_belize&sap-language=HE&sap-ui-language=HE#/details/2024/201/SM/${code}`}
 				target="_blank"
 			>
 				<span class="text-content-secondary">

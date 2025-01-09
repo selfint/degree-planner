@@ -61,7 +61,10 @@
 	<ul class="flex flex-row flex-wrap">
 		{#each results as course, i}
 			<li class="pb-4 pr-2">
-				<a class:opacity-50={course.current} href={`/course/${course.code}`}>
+				<button
+					class:opacity-60={course.current}
+					onclick={() => goto(`/course/${course.code}`)}
+				>
 					<CourseElement {course}>
 						{#snippet note()}
 							{@const index = getCourseSemester(course)}
@@ -86,7 +89,7 @@
 							{/if}
 						{/snippet}
 					</CourseElement>
-				</a>
+				</button>
 			</li>
 		{/each}
 	</ul>

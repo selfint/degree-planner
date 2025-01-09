@@ -61,11 +61,7 @@
 	<ul class="flex flex-row flex-wrap">
 		{#each results as course, i}
 			<li class="pb-4 pr-2">
-				<div
-					onmousedown={() => goto(`/course/${course.code}`)}
-					role="button"
-					tabindex={i}
-				>
+				<a class:opacity-50={course.current} href={`/course/${course.code}`}>
 					<CourseElement {course}>
 						{#snippet note()}
 							{@const index = getCourseSemester(course)}
@@ -90,7 +86,7 @@
 							{/if}
 						{/snippet}
 					</CourseElement>
-				</div>
+				</a>
 			</li>
 		{/each}
 	</ul>

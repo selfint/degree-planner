@@ -34,15 +34,6 @@
 		...user.d.exemptions
 	]);
 
-	function applyI18n(i18n: I18N): string {
-		let name = i18n.en;
-		if (content.lang.lang === 'he') {
-			name = i18n.he;
-		}
-
-		return name;
-	}
-
 	const totalCurrentCount = $derived(current.length);
 	const totalPlannedCount = $derived(planned.length);
 	const totalCurrentPoints = $derived(
@@ -129,7 +120,7 @@
 		</h1>
 		<CourseRow courses={user.d.wishlist}>
 			{#snippet children({ course })}
-				<a href={`/course/${course.code}`}>
+				<a class:opacity-50={!course.current} href={`/course/${course.code}`}>
 					<CourseElement {course}>
 						{#snippet note()}
 							{@const index = getCourseSemester(course)}
@@ -225,7 +216,10 @@
 
 				<CourseRow courses={list.courses}>
 					{#snippet children({ course })}
-						<a href={`/course/${course.code}`}>
+						<a
+							class:opacity-50={!course.current}
+							href={`/course/${course.code}`}
+						>
 							<CourseElement {course}>
 								{#snippet note()}
 									{@const index = getCourseSemester(course)}

@@ -247,7 +247,7 @@
 		);
 
 		const canTake =
-			error.season === undefined &&
+			// error.season === undefined &&
 			error.dependencies.length === 0 &&
 			error.adjacencies.length === 0 &&
 			error.exclusives.length === 0;

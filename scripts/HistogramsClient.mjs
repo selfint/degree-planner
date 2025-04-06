@@ -7,8 +7,7 @@ const histograms = `https://michael-maltsev.github.io/technion-histograms`;
  */
 async function _getMedian(code) {
 	// Parse course code in SMXXXXXXXX format
-	// Remove first leading zero and remove character at index 6
-	code = code.slice(3, 6) + code.slice(7);
+	code = code.slice(2);
 
 	const url = `${histograms}/${code}/index.min.json`;
 	const response = await fetch(url);

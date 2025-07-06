@@ -258,7 +258,9 @@ async function main(top) {
 		semesterYears.length,
 		`Semester years: ${semesterYears.map(({ PiqSession, PiqYear }) => `${sap.getSemesterName(PiqSession).en} ${PiqYear}`).join(', ')}`
 	);
-	const currentYear = semesterYears.find(({ IsCurrent }) => IsCurrent === 0);
+	const currentYear = semesterYears.find(
+		({ IsCurrent, PiqSession }) => IsCurrent >= 0 && PiqSession !== '202'
+	);
 	if (currentYear === undefined) {
 		console.error(`Current year not found`);
 	} else {

@@ -163,7 +163,9 @@ export const cms = {
 		},
 		search: {
 			resultsFor: 'Results for',
-			resultsFound: 'results found'
+			resultsFound: 'results found',
+			filters: 'Filters',
+			available: 'Available'
 		},
 		semester: {
 			wishlist: 'Wish list'
@@ -353,7 +355,9 @@ export const cms = {
 		},
 		search: {
 			resultsFor: 'תוצאות עבור',
-			resultsFound: 'תוצאות נמצאו'
+			resultsFound: 'תוצאות נמצאו',
+			filters: 'סינונים',
+			available: 'זמין'
 		},
 		semester: {
 			wishlist: 'רשימת משאלות'

@@ -2,6 +2,9 @@
 	"name": "degree-planner",
 	"version": "0.0.1",
 	"private": true,
+	"engines": {
+		"node": "22.x"
+	},
 	"scripts": {
 		"dev": "vite dev",
 		"generate-catalogs": "node scripts/generateCatalogsManifest.js && node scripts/generateCatalogsHeader.js && node scripts/generateRequirementsData.mjs",

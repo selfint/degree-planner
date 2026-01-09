@@ -266,6 +266,13 @@ declare global {
 		| ['Winter']
 		| ['Spring']
 		| ['Summer'];
+
+	type ScheduleError = {
+		dependencies: { course: Course; taken: boolean }[][];
+		adjacencies: { course: Course; taken: boolean }[];
+		exclusives: Course[];
+		season?: number[];
+	};
 }
 
 export {};

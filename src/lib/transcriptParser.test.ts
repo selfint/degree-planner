@@ -20,6 +20,7 @@ describe('Transcript parser', () => {
 		ctx.expect(courses).toMatchInlineSnapshot(`
 			{
 			  "exemptions": [
+			    "01030015",
 			    "01040031",
 			    "01040032",
 			    "01040166",
@@ -69,6 +70,7 @@ describe('Transcript parser', () => {
 		ctx.expect(courses).toMatchInlineSnapshot(`
 			{
 			  "exemptions": [
+			    "01030015",
 			    "01040031",
 			    "01040032",
 			    "01040166",
@@ -118,6 +120,7 @@ describe('Transcript parser', () => {
 		ctx.expect(courses).toMatchInlineSnapshot(`
 			{
 			  "exemptions": [
+			    "01030015",
 			    "01040031",
 			    "01040032",
 			    "01040166",
@@ -158,6 +161,7 @@ describe('Transcript parser', () => {
 		ctx.expect(courses).toMatchInlineSnapshot(`
 			{
 			  "exemptions": [
+			    "01030015",
 			    "01040031",
 			    "01040032",
 			    "01040166",

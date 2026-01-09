@@ -1,12 +1,5 @@
 import { getCourseData } from './courseData';
 
-export type ScheduleError = {
-	dependencies: { course: Course; taken: boolean }[][];
-	adjacencies: { course: Course; taken: boolean }[];
-	exclusives: Course[];
-	season?: number[];
-};
-
 export function getScheduleError(
 	course: Course,
 	exemptions: string[],

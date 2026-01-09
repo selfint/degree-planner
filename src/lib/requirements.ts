@@ -1,39 +1,13 @@
-async function loadCourses(
-	requirementHeader: RequirementHeader,
-	_fetch: (
-		input: string | URL | globalThis.Request,
-		init?: RequestInit
-	) => Promise<Response>
-): Promise<Requirement> {
-	let courses = undefined;
-	if (requirementHeader.courses !== undefined) {
-		const response = await _fetch(requirementHeader.courses);
-		courses = await response.text().then((t) => t.split('\n').sort());
-	}
-
-	let nested = undefined;
-	if (requirementHeader.nested !== undefined) {
-		nested = await Promise.all(
-			requirementHeader.nested.map((header) => loadCourses(header, _fetch))
-		);
-	}
-
-	let hook: Requirement['hook'] = undefined;
-	if (requirementHeader.hook !== undefined) {
-		const response = await _fetch(requirementHeader.hook);
-		const src = await response.text();
-
-		hook = new Function('semesters', 'progress', src) as Requirement['hook'];
-	}
-
-	const result: Requirement = {
-		...requirementHeader,
-		...(courses !== undefined && { courses }),
-		...(nested !== undefined && { nested }),
-		...(hook !== undefined && { hook: hook })
-	} as Requirement;
-
-	return result;
+function loadRequirement(name: string, data: any): Requirement {
+	return {
+		name,
+		en: data.en,
+		he: data.he,
+		courses: data.courses ?? [],
+		nested: Object.entries(data)
+			.filter(([k, _]) => !['en', 'he', 'courses'].includes(k))
+			.map(([k, v]) => loadRequirement(k, v))
+	};
 }
 
 export async function loadCatalog(
@@ -56,7 +30,10 @@ export async function loadCatalog(
 	// @ts-expect-error
 	const catalog = catalogs[year][faculty][degree];
 
-	const requirement = await loadCourses(catalog.requirement, _fetch);
+	const data = await _fetch(
+		['_catalogs', ...userDegree, 'requirementsData.json'].join('/')
+	).then((r) => r.json());
+	const requirement = loadRequirement(userDegree.join('_'), data);
 
 	let pathCatalog: Requirement | undefined = undefined;
 	if (path !== undefined) {

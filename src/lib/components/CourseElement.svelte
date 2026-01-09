@@ -2,7 +2,6 @@
 	import ScheduleErrorComponent from './ScheduleErrorComponent.svelte';
 
 	import { generateCourseColor } from '$lib/colors';
-	import type { ScheduleError } from '$lib/schedule';
 	import CourseWidth from './CourseWidth.svelte';
 	import StudyDaysComponent from './StudyDaysComponent.svelte';
 	import type { Snippet } from 'svelte';

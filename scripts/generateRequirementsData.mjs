@@ -1,7 +1,7 @@
 /// <reference path="./types.d.ts"/>
 
 import * as fs from 'fs';
-import { join, dirname } from 'path';
+import { join, dirname, basename } from 'path';
 import * as sap from './SAPClient.mjs';
 
 const DB_PATH = join(process.cwd(), 'static', '_catalogs');
@@ -44,9 +44,31 @@ function dirToJson(dir) {
 	};
 }
 
+/**
+ * @param {string} db_path
+ */
+function getDegrees(db_path) {
+	const getSubdirs = (d) =>
+		fs
+			.readdirSync(d)
+			.map((sub) => join(d, sub))
+			.filter((sub) => fs.statSync(sub).isDirectory());
+
+	return (
+		// years
+		getSubdirs(db_path)
+			// semesters
+			.flatMap(getSubdirs)
+			// faculties
+			.flatMap(getSubdirs)
+			// requirements
+			.flatMap(getSubdirs)
+			.filter((d) => basename(d) == 'requirement')
+	);
+}
+
 function main() {
-	const degrees = fs.globSync(`${DB_PATH}/*/*/*/requirement`);
-	for (const degree of degrees) {
+	for (const degree of getDegrees(DB_PATH)) {
 		writeFileSync(
 			join(dirname(degree), 'requirementsData.json'),
 			JSON.stringify(dirToJson(degree))

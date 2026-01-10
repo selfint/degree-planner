@@ -2,12 +2,9 @@
 	"name": "degree-planner",
 	"version": "0.0.1",
 	"private": true,
-	"engines": {
-		"node": "20.x"
-	},
 	"scripts": {
 		"dev": "vite dev",
-		"generate-catalogs": "node scripts/generateCatalogsManifest.js && node scripts/generateCatalogsHeader.js && node scripts/generateRequirementsData.mjs",
+		"generate-catalogs": "node scripts/generateCatalogsManifest.js && node scripts/generateCatalogsHeader.js",
 		"build": "npm run generate-catalogs && vite build",
 		"preview": "vite preview",
 		"test": "npm run test:integration && npm run test:unit",
@@ -21,11 +18,10 @@
 	},
 	"devDependencies": {
 		"@playwright/test": "^1.49.1",
-		"@sveltejs/adapter-vercel": "^6.3.0",
+		"@sveltejs/adapter-auto": "^3.3.1",
 		"@sveltejs/kit": "^2.11.1",
 		"@types/eslint": "^9.6.1",
 		"@types/jsdom": "^21.1.7",
-		"@types/node": "^20.19.28",
 		"@types/sortablejs": "^1.15.8",
 		"@typescript-eslint/eslint-plugin": "^8.18.0",
 		"@typescript-eslint/parser": "^8.18.0",
@@ -53,8 +49,5 @@
 		"firebase": "^11.1.0",
 		"pdfjs-dist": "^4.9.155",
 		"sortablejs": "^1.15.6"
-	},
-	"optionalDependencies": {
-		"@rollup/rollup-linux-x64-gnu": "^4.55.5"
 	}
 }

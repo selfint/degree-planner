@@ -53,5 +53,8 @@
 		"firebase": "^11.1.0",
 		"pdfjs-dist": "^4.9.155",
 		"sortablejs": "^1.15.6"
+	},
+	"optionalDependencies": {
+		"@rollup/rollup-linux-x64-gnu": "^4.55.5"
 	}
 }

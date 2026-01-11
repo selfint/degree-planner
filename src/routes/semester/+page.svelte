@@ -10,6 +10,7 @@
 	import { user, catalog, content } from '$lib/stores.svelte';
 	import { getScheduleError } from '$lib/schedule';
 	import { getDegreeRequirementCourses } from '$lib/requirements';
+	import LoadingCourseElement from '$lib/components/LoadingCourseElement.svelte';
 
 	const { data: pageData } = $props();
 	const { getCourseData, courseData } = pageData;
@@ -28,21 +29,29 @@
 
 	const wishlistCourses = $derived(user.d.wishlist.map(getCourseData));
 	const requirements = $derived(catalog()?.requirement);
-	const semester = $derived(
-		user.d.semesters.at(currentSemester)?.map(getCourseData) ?? []
+	const semester = $derived(user.d.semesters.at(currentSemester) ?? []);
+
+	const effectiveSemester = $derived.by(() =>
+		semester.filter((c) => !disabled.includes(c))
 	);
 
-	const effectiveSemester = $derived(
-		semester.filter((c) => !disabled.includes(c.code))
+	const _effectiveSemester = $derived.by(
+		async () => await Promise.all(effectiveSemester.map(getCourseData))
 	);
 
-	const futureSemesters = $derived(
-		user.d.semesters
-			.slice(currentSemester + 1)
-			.map((s, i): [number, Course[]] => [
-				currentSemester + 1 + i,
-				s.map(getCourseData)
-			])
+	const futureSemesters = $derived.by(
+		async () =>
+			await Promise.all(
+				user.d.semesters
+					.slice(currentSemester + 1)
+					.map(
+						async (s: string[], i: number) =>
+							[
+								currentSemester + 1 + i,
+								await Promise.all(s.map(getCourseData))
+							] as const
+					)
+			)
 	);
 
 	const requirementCourses = $derived.by(() => {
@@ -92,7 +101,7 @@
 			.sort((a, b) => compareCourses(courses, a, b));
 	}
 
-	const loloco = $derived.by(() => {
+	const loloco = $derived.by(async () => {
 		let lists: [Requirement[], Course[], boolean][] = [];
 
 		lists.push([
@@ -103,11 +112,11 @@
 					he: content.lang.semester.wishlist
 				}
 			],
-			wishlistCourses,
+			await Promise.all(wishlistCourses),
 			false
 		]);
 
-		for (const [index, courses] of futureSemesters) {
+		for (const [index, courses] of await futureSemesters) {
 			const season = content.lang.common.seasons[index % 3];
 			const year = Math.floor(index / 3) + 1;
 			const name = `${season} ${year}`;
@@ -116,7 +125,7 @@
 
 		if (requirementCourses !== undefined) {
 			for (const { path, courses } of requirementCourses) {
-				lists.push([path, courses, true]);
+				lists.push([path, await Promise.all(courses), true]);
 			}
 		}
 
@@ -218,7 +227,7 @@
 		};
 	}
 
-	function courseCanBeTaken(course: Course): boolean {
+	async function courseCanBeTaken(course: Course): Promise<boolean> {
 		if (course.name === undefined) {
 			return false;
 		}
@@ -249,11 +258,13 @@
 			true
 		);
 
-		const canTake =
-			// error.season === undefined &&
-			error.dependencies.length === 0 &&
-			error.adjacencies.length === 0 &&
-			error.exclusives.length === 0;
+		const canTake = await error.then(
+			(error) =>
+				// error.season === undefined &&
+				error.dependencies.length === 0 &&
+				error.adjacencies.length === 0 &&
+				error.exclusives.length === 0
+		);
 
 		return canTake;
 	}
@@ -290,6 +301,7 @@
 		class="sticky top-2 mb-3 mt-0 hidden max-h-screen touch-manipulation overflow-y-scroll pe-3 ps-3 sm:block"
 	>
 		<Semester
+			{getCourseData}
 			index={currentSemester}
 			{semester}
 			{disabled}
@@ -297,12 +309,16 @@
 			href={'/plan'}
 		>
 			{#snippet children({ course })}
-				<button
-					class={disabled.includes(course.code) ? 'opacity-50' : ''}
-					onmousedown={() => toggleCourseDisabled(course)}
-				>
-					<CourseElement {course} />
-				</button>
+				{#await course}
+					<LoadingCourseElement />
+				{:then course}
+					<button
+						class={disabled.includes(course.code) ? 'opacity-50' : ''}
+						onmousedown={() => toggleCourseDisabled(course)}
+					>
+						<CourseElement {course} />
+					</button>
+				{/await}
 			{/snippet}
 		</Semester>
 	</div>
@@ -319,21 +335,23 @@
 					{Math.floor(currentSemester / 3) + 1}
 				</h1>
 				<div class="text-content-secondary">
-					<span>
-						{effectiveSemester
-							.map((c) => c.tests)
-							.filter((t) => t !== undefined && t.length > 0).length}
-					</span>
-					<span>
-						{getAvgMedian(effectiveSemester)}
-					</span>
-					<span>
-						{effectiveSemester.reduce((a, b) => a + (b.points ?? 0), 0)}
-					</span>
+					{#await _effectiveSemester then effectiveSemester}
+						<span>
+							{effectiveSemester
+								.map((c) => c.tests)
+								.filter((t) => t !== undefined && t.length > 0).length}
+						</span>
+						<span>
+							{getAvgMedian(effectiveSemester)}
+						</span>
+						<span>
+							{effectiveSemester.reduce((a, b) => a + (b.points ?? 0), 0)}
+						</span>
+					{/await}
 				</div>
 			</div>
 			{#if currentSemester === user.d.currentSemester}
-				<StudyDaysComponent semester={effectiveSemester} />
+				<StudyDaysComponent semester={_effectiveSemester} />
 			{/if}
 		</div>
 		<CourseRow {getCourseData} courses={semester}>
@@ -349,48 +367,50 @@
 	</div>
 
 	<div class="flex-1 overflow-x-auto">
-		{#each loloco as [titles, courses, colorize]}
-			<div class="mb-7">
-				<h1 class="mb-1.5 ms-3 font-medium text-content-primary sm:ms-0">
-					<div class="me-2 flex flex-row flex-wrap items-start gap-y-1">
-						{#each titles as title}
-							<span class="me-1 leading-none">
-								{content.lang.lang === 'he' ? title.he : title.en}
-							</span>
-						{/each}
-					</div>
-				</h1>
+		{#await loloco then loloco}
+			{#each loloco as [titles, courses, colorize]}
+				<div class="mb-7">
+					<h1 class="mb-1.5 ms-3 font-medium text-content-primary sm:ms-0">
+						<div class="me-2 flex flex-row flex-wrap items-start gap-y-1">
+							{#each titles as title}
+								<span class="me-1 leading-none">
+									{content.lang.lang === 'he' ? title.he : title.en}
+								</span>
+							{/each}
+						</div>
+					</h1>
 
-				<div class="sm:hidden">
-					<CourseRow {getCourseData} indent={1} {courses}>
-						{#snippet children({ course })}
-							<button onmousedown={() => goto(`/course/${course.code}`)}>
-								<CourseElement
-									{course}
-									tests={currentSemester === user.d.currentSemester
-										? effectiveSemester
-										: undefined}
-								/>
-							</button>
-						{/snippet}
-					</CourseRow>
+					<div class="sm:hidden">
+						<CourseRow {getCourseData} indent={1} {courses}>
+							{#snippet children({ course })}
+								<button onmousedown={() => goto(`/course/${course.code}`)}>
+									<CourseElement
+										{course}
+										tests={currentSemester === user.d.currentSemester
+											? _effectiveSemester
+											: undefined}
+									/>
+								</button>
+							{/snippet}
+						</CourseRow>
+					</div>
+					<div class="hidden sm:block">
+						<CourseRow {getCourseData} indent={0} {courses}>
+							{#snippet children({ course })}
+								<button onmousedown={() => goto(`/course/${course.code}`)}>
+									<CourseElement
+										{course}
+										tests={currentSemester === user.d.currentSemester
+											? _effectiveSemester
+											: undefined}
+									/>
+								</button>
+							{/snippet}
+						</CourseRow>
+					</div>
 				</div>
-				<div class="hidden sm:block">
-					<CourseRow {getCourseData} indent={0} {courses}>
-						{#snippet children({ course })}
-							<button onmousedown={() => goto(`/course/${course.code}`)}>
-								<CourseElement
-									{course}
-									tests={currentSemester === user.d.currentSemester
-										? effectiveSemester
-										: undefined}
-								/>
-							</button>
-						{/snippet}
-					</CourseRow>
-				</div>
-			</div>
-		{/each}
+			{/each}
+		{/await}
 	</div>
 </div>
 

@@ -168,8 +168,9 @@
 				{#each semesters as semester, semesterIndex}
 					<div class="pe-2">
 						<Semester
+							{getCourseData}
 							index={semesterIndex}
-							semester={semester.map(getCourseData)}
+							{semester}
 							isCurrent={semesterIndex === user.d.currentSemester}
 							href={`/semester?c=${semesterIndex}`}
 							sortable={{
@@ -217,11 +218,11 @@
 								}
 							}}
 						>
-							{#snippet children({ course })}
+							{#snippet children({ code, course })}
 								<button
 									class="touch-manipulation text-content-primary"
-									data-code={course.code}
-									onclick={() => goto(`/course/${course.code}`)}
+									data-code={code}
+									onclick={() => goto(`/course/${code}`)}
 								>
 									<CourseElement
 										{course}

@@ -153,7 +153,8 @@ export const cms = {
 			exempt: 'Add to exemptions',
 			available: 'Available',
 			info: 'Info',
-			appliesTo: 'Applies towards'
+			appliesTo: 'Applies towards',
+			checkingRequirements: 'Validating'
 		},
 		preview: {
 			overwriteWarning:
@@ -345,7 +346,8 @@ export const cms = {
 			exempt: 'רשימת פטורים',
 			available: 'זמין',
 			info: 'מידע',
-			appliesTo: 'תורם לדרישות'
+			appliesTo: 'תורם לדרישות',
+			checkingRequirements: 'דירשות בבדיקה'
 		},
 		preview: {
 			overwriteWarning:

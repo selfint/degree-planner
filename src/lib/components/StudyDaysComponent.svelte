@@ -2,7 +2,7 @@
 	import { generateCourseColor } from '$lib/colors';
 
 	type Props = {
-		semester: Course[];
+		semester: Promise<Course[]>;
 		course?: Course;
 	};
 
@@ -75,57 +75,61 @@
 		};
 	}
 
-	const semesterCourses = $derived(
-		course === undefined ? semester : semester.concat(course)
+	const semesterCourses = $derived.by(async () =>
+		course === undefined ? await semester : (await semester).concat(course)
 	);
-	const days0 = $derived(getStudyDays(semesterCourses, 0));
-	const days1 = $derived(getStudyDays(semesterCourses, 1));
+	const days0 = $derived.by(async () => getStudyDays(await semesterCourses, 0));
+	const days1 = $derived.by(async () => getStudyDays(await semesterCourses, 1));
 </script>
 
-<div>
-	<div class="mb-1 flex flex-row flex-wrap text-content-primary">
-		{#if days0 !== undefined}
-			<div
-				style="background: {generateCourseColor(days0.first[0])}"
-				class="mb-0.5 mr-0.5 w-fit border {days0.first[0].code === course?.code
-					? 'border-content-primary'
-					: 'border-transparent'} p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
-			>
-				{days0.first[1].getDate()}/{days0.first[1].getMonth() + 1}
-			</div>
-			{#each days0.next as [c, days]}
+{#await Promise.all([days0, days1]) then [days0, days1]}
+	<div>
+		<div class="mb-1 flex flex-row flex-wrap text-content-primary">
+			{#if days0 !== undefined}
 				<div
-					style="background: {generateCourseColor(c)}"
-					class="mb-0.5 mr-0.5 w-6 border {c.code === course?.code
+					style="background: {generateCourseColor(days0.first[0])}"
+					class="mb-0.5 mr-0.5 w-fit border {days0.first[0].code ===
+					course?.code
 						? 'border-content-primary'
 						: 'border-transparent'} p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
 				>
-					{days}
+					{days0.first[1].getDate()}/{days0.first[1].getMonth() + 1}
 				</div>
-			{/each}
-		{/if}
-	</div>
+				{#each days0.next as [c, days]}
+					<div
+						style="background: {generateCourseColor(c)}"
+						class="mb-0.5 mr-0.5 w-6 border {c.code === course?.code
+							? 'border-content-primary'
+							: 'border-transparent'} p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
+					>
+						{days}
+					</div>
+				{/each}
+			{/if}
+		</div>
 
-	<div class="flex flex-row flex-wrap text-content-primary">
-		{#if days1 !== undefined}
-			<div
-				style="background: {generateCourseColor(days1.first[0])}"
-				class="mb-0.5 mr-0.5 w-fit border {days1.first[0].code === course?.code
-					? 'border-content-primary'
-					: 'border-transparent'} p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
-			>
-				{days1.first[1].getDate()}/{days1.first[1].getMonth() + 1}
-			</div>
-			{#each days1.next as [c, days]}
+		<div class="flex flex-row flex-wrap text-content-primary">
+			{#if days1 !== undefined}
 				<div
-					style="background: {generateCourseColor(c)}"
-					class="mb-0.5 mr-0.5 w-6 border {c.code === course?.code
+					style="background: {generateCourseColor(days1.first[0])}"
+					class="mb-0.5 mr-0.5 w-fit border {days1.first[0].code ===
+					course?.code
 						? 'border-content-primary'
 						: 'border-transparent'} p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
 				>
-					{days}
+					{days1.first[1].getDate()}/{days1.first[1].getMonth() + 1}
 				</div>
-			{/each}
-		{/if}
+				{#each days1.next as [c, days]}
+					<div
+						style="background: {generateCourseColor(c)}"
+						class="mb-0.5 mr-0.5 w-6 border {c.code === course?.code
+							? 'border-content-primary'
+							: 'border-transparent'} p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
+					>
+						{days}
+					</div>
+				{/each}
+			{/if}
+		</div>
 	</div>
-</div>
+{/await}

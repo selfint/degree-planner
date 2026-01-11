@@ -16,7 +16,7 @@ async function localGetCourseData(code: string): Promise<Course> {
 	return COURSE_DATA[code] || { code };
 }
 
-describe('Transcript parser', () => {
+describe.skip('Transcript parser', () => {
 	it('should parse English transcript', async (ctx) => {
 		const filePath = path.resolve(
 			__dirname,

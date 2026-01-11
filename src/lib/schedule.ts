@@ -1,6 +1,6 @@
 export async function getScheduleError(
 	getCourseData: GetCourseData,
-	course: Course,
+	course: Promise<Course> | Course,
 	exemptions: string[],
 	semesters: string[][],
 	currentSemester: number,
@@ -15,6 +15,8 @@ export async function getScheduleError(
 	// type gymnastics for typescript
 	type Season = 'Winter' | 'Spring' | 'Summer';
 	const seasons = ['Winter', 'Spring', 'Summer'] as const;
+
+	course = await Promise.resolve(course);
 
 	const currentSeason = seasons[currentSemester % 3];
 	const courseSeason: Season[] | undefined = course.seasons;

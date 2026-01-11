@@ -12,3 +12,4 @@ test-results/
 /.vercel
 ./catalogs.json
 fire*.log
+*.pdf

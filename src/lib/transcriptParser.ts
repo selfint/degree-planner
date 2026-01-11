@@ -1,13 +1,12 @@
 import * as pdfjs from 'pdfjs-dist';
 
-import { getCourseData } from '$lib/courseData';
-
 export type Transcript = {
 	semesters: string[][];
 	exemptions: string[];
 };
 
 export async function parseTranscript(
+	getCourseData: GetCourseData,
 	buffer: Uint8Array,
 	workerSrcUrl: string
 ): Promise<Transcript | undefined> {
@@ -95,12 +94,12 @@ export async function parseTranscript(
 				const legacyCode = '0' + code.slice(0, 3) + '0' + code.slice(3);
 
 				// try to validate code as new
-				if (getCourseData(newCode).name !== undefined) {
+				if ((await getCourseData(newCode)).name !== undefined) {
 					currentBasicSemester.push(newCode);
 					current?.semester.push(newCode);
 				}
 				// try to validate course as legacy
-				else if (getCourseData(legacyCode).name !== undefined) {
+				else if ((await getCourseData(legacyCode)).name !== undefined) {
 					currentBasicSemester.push(legacyCode);
 					current?.semester.push(legacyCode);
 				}

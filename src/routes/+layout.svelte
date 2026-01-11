@@ -27,7 +27,8 @@
 	injectSpeedInsights();
 	inject();
 
-	const { data: firebase, children } = $props();
+	const { data: pageData, children } = $props();
+	const { firebase, courseData } = pageData;
 
 	firebase.auth.onAuthStateChanged(async (u) => {
 		if (u !== null) {

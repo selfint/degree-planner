@@ -4,7 +4,9 @@
 
 	import { content, user } from '$lib/stores.svelte';
 	import CourseElement from '$lib/components/CourseElement.svelte';
-	import { getAllCourses } from '$lib/courseData';
+
+	const { data: pageData } = $props();
+	const { getCourseData, courseData } = pageData;
 
 	const query = $derived.by(() => {
 		let q = (page.url.searchParams.get('q') ?? '').trim();
@@ -42,7 +44,7 @@
 	}
 
 	const courses = $derived(
-		getAllCourses().toSorted((a, b) => {
+		Object.values(courseData).toSorted((a, b) => {
 			return (b.median ?? 0) - (a.median ?? 0);
 		})
 	);

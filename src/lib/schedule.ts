@@ -1,12 +1,11 @@
-import { getCourseData } from './courseData';
-
-export function getScheduleError(
+export async function getScheduleError(
+	getCourseData: GetCourseData,
 	course: Course,
 	exemptions: string[],
 	semesters: string[][],
 	currentSemester: number,
 	ignoreUndefined = false
-): ScheduleError {
+): Promise<ScheduleError> {
 	const semester = semesters[currentSemester];
 	const previous = [
 		...semesters.slice(0, currentSemester).flat(),
@@ -42,45 +41,59 @@ export function getScheduleError(
 		);
 	}
 
-	const dependencies = (course.connections?.dependencies ?? [])
-		.map((group) => group.map((c) => getCourseData(c)))
-		.map((g) => {
-			if (ignoreUndefined) {
-				return g.filter((c) => c.name !== undefined);
-			} else {
-				return g;
-			}
-		})
-		.filter((g) => g.length > 0);
-	const adjacencies = (course.connections?.adjacent ?? []).map((c) =>
-		getCourseData(c)
+	const dependencies = Promise.all(
+		(course.connections?.dependencies ?? [])
+			.map((group) => Promise.all(group.map(getCourseData)))
+			.map((group) =>
+				group.then((g) => {
+					if (ignoreUndefined) {
+						return g.filter((c) => c.name !== undefined);
+					} else {
+						return g;
+					}
+				})
+			)
+	).then((g) => g.filter((g) => g.length > 0));
+	const adjacencies = Promise.all(
+		(course.connections?.adjacent ?? []).map(getCourseData)
 	);
 
-	const dependenciesSatisfied =
-		dependencies.length === 0 ||
-		dependencies.some((group) => group.every((c) => dependencyTaken(c)));
+	const dependenciesSatisfied = dependencies.then(
+		(dependencies) =>
+			dependencies.length === 0 ||
+			dependencies.some((group) => group.every((c) => dependencyTaken(c)))
+	);
 
-	const adjacenciesSatisfied =
-		adjacencies.length === 0 || adjacencies.some(adjacencyTaken);
+	const adjacenciesSatisfied = adjacencies.then(
+		(adjacencies) =>
+			adjacencies.length === 0 || adjacencies.some(adjacencyTaken)
+	);
 
 	function i18nSeasons(season: Season[]): number[] {
 		return season.map((s) => seasons.indexOf(s));
 	}
 
-	const exclusives = (course.connections?.exclusive ?? []).filter(
-		(c) => previous.some((p) => c === p) || semester.some((s) => c === s)
+	const exclusives = Promise.all(
+		(course.connections?.exclusive ?? [])
+			.filter(
+				(c) => previous.some((p) => c === p) || semester.some((s) => c === s)
+			)
+			.map(getCourseData)
 	);
 
 	return {
-		dependencies: dependenciesSatisfied
+		dependencies: (await dependenciesSatisfied)
 			? []
-			: dependencies.map((g) =>
+			: (await dependencies).map((g) =>
 					g.map((c) => ({ course: c, taken: dependencyTaken(c) }))
 				),
-		adjacencies: adjacenciesSatisfied
+		adjacencies: (await adjacenciesSatisfied)
 			? []
-			: adjacencies.map((c) => ({ course: c, taken: adjacencyTaken(c) })),
-		exclusives: exclusives.map(getCourseData),
+			: (await adjacencies).map((c) => ({
+					course: c,
+					taken: adjacencyTaken(c)
+				})),
+		exclusives: await exclusives,
 		season: seasonError ? i18nSeasons(courseSeason) : undefined
 	};
 }

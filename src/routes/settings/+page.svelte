@@ -18,7 +18,8 @@
 	import AsyncButton from '$lib/components/AsyncButton.svelte';
 	import { goto } from '$app/navigation';
 
-	const { data: firebase } = $props();
+	const { data: pageData } = $props();
+	const { getCourseData, courseData, firebase } = pageData;
 
 	async function onSignInWithGoogle() {
 		await signIn(firebase);
@@ -154,7 +155,7 @@
 	{/if}
 	{#if userDegree !== undefined && user.d.semesters.flat().length === 0}
 		<div class="mb-4">
-			<UploadSection bind:buttonNamespace />
+			<UploadSection {getCourseData} bind:buttonNamespace />
 		</div>
 	{/if}
 	{#if user.d.exemptions.length > 0}
@@ -162,7 +163,7 @@
 			<h2 class="mb-2 ms-3 text-base font-medium text-content-primary">
 				{content.lang.settings.exemptions}
 			</h2>
-			<CourseRow courses={user.d.exemptions}>
+			<CourseRow {getCourseData} courses={user.d.exemptions}>
 				{#snippet children({ course, index })}
 					<div
 						role="button"

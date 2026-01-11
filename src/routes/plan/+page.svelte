@@ -7,10 +7,12 @@
 
 	import { user, content, writeStorage, setUser } from '$lib/stores.svelte';
 
-	import { getCourseData } from '$lib/courseData';
 	import { getScheduleError } from '$lib/schedule';
 	import AsyncButton from '$lib/components/AsyncButton.svelte';
 	import Sortable from 'sortablejs';
+
+	const { data: pageData } = $props();
+	const { getCourseData, courseData } = pageData;
 
 	let wishlist = $state(user.d.wishlist);
 	let semesters = $state(user.d.semesters);
@@ -147,12 +149,12 @@
 					}}
 					class="me-2 ms-2 flex min-h-fit flex-row justify-end gap-x-2"
 				>
-					{#each wishlist.map(getCourseData) as course}
+					{#each wishlist as course}
 						<button
-							data-code={course.code}
-							onclick={() => goto(`/course/${course.code}`)}
+							data-code={course}
+							onclick={() => goto(`/course/${course}`)}
 						>
-							<CourseElement {course} />
+							<CourseElement course={getCourseData(course)} />
 						</button>
 					{/each}
 				</div>
@@ -225,6 +227,7 @@
 										{course}
 										squeeze={true}
 										scheduleError={getScheduleError(
+											getCourseData,
 											course,
 											user.d.exemptions,
 											semesters,

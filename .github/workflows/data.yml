@@ -31,7 +31,7 @@ jobs:
           git reset --hard origin/main
 
       - name: Update courseData.json
-        run: node scripts/generateCourseData.mjs 10000 > src/lib/assets/courseData.json
+        run: node scripts/generateCourseData.mjs 10000 > static/courseData.json
 
       - name: Update static/_catalogs
         run: |
@@ -43,8 +43,8 @@ jobs:
 
       - name: Check if data has changed
         run: |
-            if git diff --quiet src/lib/assets/courseData.json && git diff --quiet static/_catalogs; then
-              echo "No changes to static/_catalogs or src/lib/assets/courseData.json, stopping the workflow."
+            if git diff --quiet static/courseData.json && git diff --quiet static/_catalogs; then
+              echo "No changes to static/_catalogs or static/courseData.json, stopping the workflow."
               gh run cancel ${{ github.run_id }}
               gh run watch ${{ github.run_id }}
             fi
@@ -53,7 +53,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add src/lib/assets/courseData.json
+          git add static/courseData.json
           git add static/_catalogs
           git commit -m "[Automated] Update data"
           git push --force origin generate-data
@@ -65,4 +65,4 @@ jobs:
           DATE=$(date +'%d-%m-%Y')
           gh pr create --base main --head generate-data \
           --title "[Automated] Update course data $DATE" \
-          --body "This automated PR updates the \`src/lib/assets/courseData.json\` file."
+          --body "This automated PR updates the \`static/courseData.json\` file."

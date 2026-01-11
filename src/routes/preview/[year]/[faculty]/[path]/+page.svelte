@@ -5,13 +5,12 @@
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import Semester from '$lib/components/Semester.svelte';
 
-	import { getCourseData } from '$lib/courseData';
-
 	import { user, content, setUser, writeStorage } from '$lib/stores.svelte';
 	import AsyncButton from '$lib/components/AsyncButton.svelte';
 	import Spinner from '$lib/components/Spinner.svelte';
 
-	let { data }: { data: PageData } = $props();
+	const { data } = $props();
+	const { getCourseData } = data;
 
 	function applyI18n(i18n: I18N): string {
 		let name = i18n.en;

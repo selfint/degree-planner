@@ -8,9 +8,11 @@
 	import CourseRow from '$lib/components/CourseRow.svelte';
 
 	import { user, catalog, content } from '$lib/stores.svelte';
-	import { getCourseData } from '$lib/courseData';
 	import { getScheduleError } from '$lib/schedule';
 	import { getDegreeRequirementCourses } from '$lib/requirements';
+
+	const { data: pageData } = $props();
+	const { getCourseData, courseData } = pageData;
 
 	let disabled: string[] = $state([]);
 
@@ -239,6 +241,7 @@
 		}
 
 		const error = getScheduleError(
+			getCourseData,
 			course,
 			user.d.exemptions,
 			user.d.semesters,
@@ -333,7 +336,7 @@
 				<StudyDaysComponent semester={effectiveSemester} />
 			{/if}
 		</div>
-		<CourseRow courses={semester}>
+		<CourseRow {getCourseData} courses={semester}>
 			{#snippet children({ course })}
 				<button
 					class={disabled.includes(course.code) ? 'opacity-50' : ''}
@@ -359,7 +362,7 @@
 				</h1>
 
 				<div class="sm:hidden">
-					<CourseRow indent={1} {courses}>
+					<CourseRow {getCourseData} indent={1} {courses}>
 						{#snippet children({ course })}
 							<button onmousedown={() => goto(`/course/${course.code}`)}>
 								<CourseElement
@@ -373,7 +376,7 @@
 					</CourseRow>
 				</div>
 				<div class="hidden sm:block">
-					<CourseRow indent={0} {courses}>
+					<CourseRow {getCourseData} indent={0} {courses}>
 						{#snippet children({ course })}
 							<button onmousedown={() => goto(`/course/${course.code}`)}>
 								<CourseElement

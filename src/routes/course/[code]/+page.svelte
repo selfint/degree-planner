@@ -12,12 +12,14 @@
 		setUser
 	} from '$lib/stores.svelte';
 
-	import { getCourseData, getAllCourses } from '$lib/courseData';
 	import { getCourseLists } from '$lib/requirements';
 	import { generateCourseColor } from '$lib/colors';
 	import RequirementsElement from '$lib/components/RequirementsElement.svelte';
 	import CourseRow from '$lib/components/CourseRow.svelte';
 	import AsyncButton from '$lib/components/AsyncButton.svelte';
+
+	const { data: pageData } = $props();
+	const { getCourseData, courseData } = pageData;
 
 	const code = $derived(page.params.code);
 	const course = $derived(getCourseData(code));
@@ -38,7 +40,7 @@
 	);
 
 	const dependants = $derived(
-		getAllCourses()
+		Object.values(courseData)
 			.filter((c) =>
 				(c.connections?.dependencies ?? []).some((group) =>
 					group.includes(code)
@@ -335,7 +337,11 @@
 					{content.lang.common.adjacencies}
 				</h2>
 				<div class="flex flex-row space-x-2 overflow-x-auto">
-					<CourseRow resetScroll courses={course.connections?.adjacent ?? []}>
+					<CourseRow
+						{getCourseData}
+						resetScroll
+						courses={course.connections?.adjacent ?? []}
+					>
 						{#snippet children({ course })}
 							<a href={`/course/${course.code}`}>
 								<CourseElement {course}>
@@ -373,7 +379,11 @@
 				<h2 class="ms-3 pb-1 text-lg font-medium text-content-primary">
 					{content.lang.common.exclusives}
 				</h2>
-				<CourseRow resetScroll courses={course.connections?.exclusive ?? []}>
+				<CourseRow
+					{getCourseData}
+					resetScroll
+					courses={course.connections?.exclusive ?? []}
+				>
 					{#snippet children({ course })}
 						<a href={`/course/${course.code}`}>
 							<CourseElement {course}>

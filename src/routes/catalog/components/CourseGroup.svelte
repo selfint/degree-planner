@@ -1,17 +1,23 @@
 <script lang="ts">
-	import { getCourseData } from '$lib/courseData';
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import CourseRow from '$lib/components/CourseRow.svelte';
 
 	import { content, user } from '$lib/stores.svelte';
 
 	type Props = {
+		getCourseData: GetCourseData;
 		titles: Requirement[];
 		colorize?: boolean;
 		codes: string[];
 		requirements?: Requirement;
 	};
-	let { titles, colorize = true, codes, requirements }: Props = $props();
+	let {
+		getCourseData,
+		titles,
+		colorize = true,
+		codes,
+		requirements
+	}: Props = $props();
 
 	const groups = $derived.by(() => {
 		const courses = codes
@@ -94,7 +100,7 @@
 					{/if}
 				</span>
 			</h1>
-			<CourseRow courses={group}>
+			<CourseRow {getCourseData} courses={group}>
 				{#snippet children({ course })}
 					<a href={`/course/${course.code}`}>
 						<CourseElement {course}>

@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { generateCourseColor } from '$lib/colors';
-	import type { ScheduleError } from '$lib/schedule';
 	import { content } from '$lib/stores.svelte';
 
 	type Props = {

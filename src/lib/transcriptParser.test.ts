@@ -6,6 +6,16 @@ import path from 'path';
 
 const url = '../../../node_modules/pdfjs-dist/build/pdf.worker.min.mjs';
 
+const COURSE_DATA = JSON.parse(
+	fs
+		.readFileSync(path.join(process.cwd(), 'static', 'courseData.json'))
+		.toString()
+);
+
+async function localGetCourseData(code: string): Promise<Course> {
+	return COURSE_DATA[code] || { code };
+}
+
 describe('Transcript parser', () => {
 	it('should parse English transcript', async (ctx) => {
 		const filePath = path.resolve(
@@ -15,11 +25,16 @@ describe('Transcript parser', () => {
 		const file = fs.readFileSync(filePath);
 		const buffer = new Uint8Array(file);
 
-		const courses = await TranscriptParser.parseTranscript(buffer, url);
+		const courses = await TranscriptParser.parseTranscript(
+			localGetCourseData,
+			buffer,
+			url
+		);
 
 		ctx.expect(courses).toMatchInlineSnapshot(`
 			{
 			  "exemptions": [
+			    "01030015",
 			    "01040031",
 			    "01040032",
 			    "01040166",
@@ -64,11 +79,16 @@ describe('Transcript parser', () => {
 		const file = fs.readFileSync(filePath);
 		const buffer = new Uint8Array(file);
 
-		const courses = await TranscriptParser.parseTranscript(buffer, url);
+		const courses = await TranscriptParser.parseTranscript(
+			localGetCourseData,
+			buffer,
+			url
+		);
 
 		ctx.expect(courses).toMatchInlineSnapshot(`
 			{
 			  "exemptions": [
+			    "01030015",
 			    "01040031",
 			    "01040032",
 			    "01040166",
@@ -114,10 +134,15 @@ describe('Transcript parser', () => {
 		const file = fs.readFileSync(filePath);
 		const buffer = new Uint8Array(file);
 
-		const courses = await TranscriptParser.parseTranscript(buffer, url);
+		const courses = await TranscriptParser.parseTranscript(
+			localGetCourseData,
+			buffer,
+			url
+		);
 		ctx.expect(courses).toMatchInlineSnapshot(`
 			{
 			  "exemptions": [
+			    "01030015",
 			    "01040031",
 			    "01040032",
 			    "01040166",
@@ -154,10 +179,15 @@ describe('Transcript parser', () => {
 		const file = fs.readFileSync(filePath);
 		const buffer = new Uint8Array(file);
 
-		const courses = await TranscriptParser.parseTranscript(buffer, url);
+		const courses = await TranscriptParser.parseTranscript(
+			localGetCourseData,
+			buffer,
+			url
+		);
 		ctx.expect(courses).toMatchInlineSnapshot(`
 			{
 			  "exemptions": [
+			    "01030015",
 			    "01040031",
 			    "01040032",
 			    "01040166",

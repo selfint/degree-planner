@@ -1,11 +1,13 @@
 <script lang="ts">
 	import { user, catalog, content } from '$lib/stores.svelte';
 	import { getDegreeRequirementCourses } from '$lib/requirements';
-	import { getCourseData } from '$lib/courseData';
 	import CourseRow from '$lib/components/CourseRow.svelte';
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
 	import { goto } from '$app/navigation';
+
+	const { data: pageData } = $props();
+	const { getCourseData, courseData } = pageData;
 
 	const requirements = $derived(catalog()?.requirement);
 
@@ -38,14 +40,14 @@
 	const totalCurrentCount = $derived(current.length);
 	const totalPlannedCount = $derived(planned.length);
 	const totalCurrentPoints = $derived(
-		current
-			.map(getCourseData)
-			.reduce((sum, { points }) => sum + (points ?? 0), 0)
+		Promise.all(current.map(getCourseData)).then((p) =>
+			p.reduce((sum, { points }) => sum + (points ?? 0), 0)
+		)
 	);
 	const totalPlannedPoints = $derived(
-		planned
-			.map(getCourseData)
-			.reduce((sum, { points }) => sum + (points ?? 0), 0)
+		Promise.all(planned.map(getCourseData)).then((p) =>
+			p.reduce((sum, { points }) => sum + (points ?? 0), 0)
+		)
 	);
 	const degreeName = $derived.by(() => {
 		const i18n = catalog()?.i18n;
@@ -94,12 +96,21 @@
 					class="ms-3 flex flex-row items-center pe-2 text-content-secondary"
 				>
 					<span class="me-2">{content.lang.settings.points}</span>
-					<ProgressBar
-						value={totalCurrentPoints}
-						value2={totalPlannedPoints}
-						max={totalPlannedPoints}
-						dir={content.lang.dir}
-					/>
+					{#await Promise.all([totalCurrentPoints, totalPlannedPoints])}
+						<ProgressBar
+							value={-1}
+							value2={-1}
+							max={-1}
+							dir={content.lang.dir}
+						/>
+					{:then [totalCurrentPoints, totalPlannedPoints]}
+						<ProgressBar
+							value={totalCurrentPoints}
+							value2={totalPlannedPoints}
+							max={totalPlannedPoints}
+							dir={content.lang.dir}
+						/>
+					{/await}
 					<span class="ms-2 text-nowrap">
 						<span class="text-accent-primary">{totalCurrentPoints}</span>
 						/ {totalPlannedPoints}
@@ -119,7 +130,7 @@
 				</span>
 			</div>
 		</h1>
-		<CourseRow courses={user.d.wishlist}>
+		<CourseRow {getCourseData} courses={user.d.wishlist}>
 			{#snippet children({ course })}
 				<button
 					class:opacity-60={!course.current}
@@ -160,15 +171,15 @@
 			{@const countCurrent = listCurrent.length}
 			{@const countPlanned = listPlanned.length}
 			{@const countTotal = list.courses.length}
-			{@const pointsCurrent = listCurrent
-				.map(getCourseData)
-				.reduce((sum, { points }) => sum + (points ?? 0), 0)}
-			{@const pointsPlanned = listPlanned
-				.map(getCourseData)
-				.reduce((sum, { points }) => sum + (points ?? 0), 0)}
-			{@const pointsTotal = list.courses
-				.map(getCourseData)
-				.reduce((sum, { points }) => sum + (points ?? 0), 0)}
+			{@const pointsCurrent = Promise.all(listCurrent.map(getCourseData)).then(
+				(p) => p.reduce((sum, { points }) => sum + (points ?? 0), 0)
+			)}
+			{@const pointsPlanned = Promise.all(listPlanned.map(getCourseData)).then(
+				(p) => p.reduce((sum, { points }) => sum + (points ?? 0), 0)
+			)}
+			{@const pointsTotal = Promise.all(list.courses.map(getCourseData)).then(
+				(p) => p.reduce((sum, { points }) => sum + (points ?? 0), 0)
+			)}
 
 			<div class="mb-7 flex flex-col gap-y-1">
 				<h1
@@ -204,12 +215,21 @@
 						class="ms-3 flex flex-row items-center pe-2 text-content-secondary"
 					>
 						<span class="me-2">{content.lang.settings.points}</span>
-						<ProgressBar
-							value={pointsCurrent}
-							value2={pointsPlanned}
-							max={pointsTotal}
-							dir={content.lang.dir}
-						/>
+						{#await Promise.all([pointsCurrent, pointsPlanned, pointsTotal])}
+							<ProgressBar
+								value={-1}
+								value2={-1}
+								max={-1}
+								dir={content.lang.dir}
+							/>
+						{:then [pointsCurrent, pointsPlanned, pointsTotal]}
+							<ProgressBar
+								value={pointsCurrent}
+								value2={pointsPlanned}
+								max={pointsTotal}
+								dir={content.lang.dir}
+							/>
+						{/await}
 						<span class="ms-2 text-nowrap">
 							<span class="text-accent-primary">{pointsCurrent}</span>
 							/ {pointsPlanned}
@@ -218,7 +238,7 @@
 					</div>
 				</div>
 
-				<CourseRow courses={list.courses}>
+				<CourseRow {getCourseData} courses={list.courses}>
 					{#snippet children({ course })}
 						<button
 							class:opacity-60={!course.current}

@@ -11,7 +11,7 @@
 	type Props = {
 		index: number;
 		isCurrent: boolean;
-		semester: Course[];
+		semester: Promise<Course[]>;
 		disabled?: string[];
 		children: Snippet<[{ course: Course; index: number }]>;
 		href?: string;

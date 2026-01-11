@@ -1,6 +1,6 @@
 import catalogs from '../static/catalogs.json';
 import catalogsHeader from '../static/catalogsHeader.json';
-import courseData from '$lib/assets/courseData.json';
+import courseData from '../static/courseData.json';
 
 // type gymnastics to get catalogs in a type-safe way
 // credit: https://chatgpt.com/share/67137b39-7de8-8002-a4aa-0556e0c86b5a
@@ -266,6 +266,15 @@ declare global {
 		| ['Winter']
 		| ['Spring']
 		| ['Summer'];
+
+	type ScheduleError = {
+		dependencies: { course: Course; taken: boolean }[][];
+		adjacencies: { course: Course; taken: boolean }[];
+		exclusives: Course[];
+		season?: number[];
+	};
+
+	type GetCourseData = (code: string) => Promise<Course>;
 }
 
 export {};

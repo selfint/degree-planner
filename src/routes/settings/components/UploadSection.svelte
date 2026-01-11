@@ -5,7 +5,6 @@
 	import Button from '$lib/components/Button.svelte';
 	import Semester from '$lib/components/Semester.svelte';
 	import CourseElement from '$lib/components/CourseElement.svelte';
-	import { getCourseData } from '$lib/courseData';
 	import CourseRow from '$lib/components/CourseRow.svelte';
 	import { goto } from '$app/navigation';
 	import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
@@ -14,7 +13,7 @@
 
 	let transcript: Transcript | undefined = $state(undefined);
 
-	let { buttonNamespace = $bindable() } = $props();
+	let { getCourseData, buttonNamespace = $bindable() } = $props();
 
 	async function onSave() {
 		if (transcript === undefined) {
@@ -55,6 +54,7 @@
 			const buffer = await file.arrayBuffer();
 
 			const result = await TranscriptParser.parseTranscript(
+				getCourseData,
 				buffer,
 				pdfWorkerUrl
 			);
@@ -121,7 +121,7 @@
 			<h2 class="mb-2 ms-3 text-base font-medium text-content-primary">
 				{content.lang.settings.exemptions}
 			</h2>
-			<CourseRow courses={transcript.exemptions}>
+			<CourseRow {getCourseData} courses={transcript.exemptions}>
 				{#snippet children({ course })}
 					<CourseElement {course} />
 				{/snippet}

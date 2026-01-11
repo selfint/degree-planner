@@ -6,34 +6,40 @@
 	import StudyDaysComponent from './StudyDaysComponent.svelte';
 	import type { Snippet } from 'svelte';
 	import Arrow from '$lib/components/Arrow.svelte';
+	import Spinner from './Spinner.svelte';
 
 	type Props = {
-		course: Course;
+		course: Promise<Course> | Course;
 		squeeze?: boolean;
 		note?: Snippet;
-		scheduleError?: ScheduleError;
+		scheduleError?: Promise<ScheduleError>;
 		tests?: Course[];
 	};
 
 	let { course, note, squeeze = false, scheduleError, tests }: Props = $props();
 
-	const color = $derived(generateCourseColor(course));
+	const color = $derived(Promise.resolve(course).then(generateCourseColor));
 
 	const hasTest = $derived(
-		course.tests !== undefined && course.tests.length > 0
+		Promise.resolve(course).then(
+			(c) => c.tests !== undefined && c.tests.length > 0
+		)
 	);
 
 	let minimize = $state(false);
-	const _scheduleError = $derived.by(() => {
+	const _scheduleError = $derived.by(async () => {
 		if (scheduleError === undefined) {
 			return false;
 		} else if (
-			scheduleError.season !== undefined ||
-			scheduleError.dependencies.length > 0 ||
-			scheduleError.adjacencies.length > 0 ||
-			scheduleError.exclusives.length > 0
+			await scheduleError.then(
+				(se) =>
+					se.season !== undefined ||
+					se.dependencies.length > 0 ||
+					se.adjacencies.length > 0 ||
+					se.exclusives.length > 0
+			)
 		) {
-			return scheduleError;
+			return await scheduleError;
 		} else {
 			return false;
 		}
@@ -58,10 +64,14 @@
 				class="flex flex-row items-center justify-between pb-1 text-xs text-content-secondary"
 			>
 				<div class="flex flex-row">
-					<div
-						style="background: {color}"
-						class="h-4 min-w-4 {hasTest ? 'rounded-full' : ''}"
-					></div>
+					{#await hasTest}
+						<div style="background: {color}" class="h-4 min-w-4"></div>
+					{:then hasTest}
+						<div
+							style="background: {color}"
+							class="h-4 min-w-4 {hasTest ? 'rounded-full' : ''}"
+						></div>
+					{/await}
 					{#if note !== undefined}
 						<span class="me-1 ms-1">
 							{@render note()}
@@ -69,8 +79,10 @@
 					{/if}
 				</div>
 				<span>
-					<span>{course.median ?? ''}</span>
-					<span>{course.points ?? ''}</span>
+					{#await course then course}
+						<span>{course.median ?? ''}</span>
+						<span>{course.points ?? ''}</span>
+					{/await}
 				</span>
 			</div>
 
@@ -81,11 +93,13 @@
 			>
 				<div class="text-right text-xs leading-none text-content-primary">
 					<span class="hyphens-auto break-words" dir="rtl">
-						{course.name}
+						{#await course then course}
+							{course.name}
 
-						<span class="text-right leading-none text-content-secondary">
-							{course.code}
-						</span>
+							<span class="text-right leading-none text-content-secondary">
+								{course.code}
+							</span>
+						{/await}
 					</span>
 				</div>
 			</div>
@@ -93,7 +107,9 @@
 
 		{#if tests !== undefined}
 			<div class="p-2 pb-1">
-				<StudyDaysComponent {course} semester={tests} />
+				{#await course then course}
+					<StudyDaysComponent {course} semester={tests} />
+				{/await}
 			</div>
 		{/if}
 
@@ -106,18 +122,22 @@
 					minimize = !minimize;
 				}}
 			>
-				{#if !minimize}
-					<ScheduleErrorComponent scheduleError={_scheduleError} />
-				{/if}
-				{#if _scheduleError}
-					<div
-						class="flex h-4 w-full flex-row items-center justify-center text-content-secondary"
-					>
-						<div class="w-4" class:rotate-180={!minimize}>
-							<Arrow />
+				{#await _scheduleError}
+					<Spinner />
+				{:then _scheduleError}
+					{#if !minimize && _scheduleError !== false}
+						<ScheduleErrorComponent scheduleError={_scheduleError} />
+					{/if}
+					{#if _scheduleError}
+						<div
+							class="flex h-4 w-full flex-row items-center justify-center text-content-secondary"
+						>
+							<div class="w-4" class:rotate-180={!minimize}>
+								<Arrow />
+							</div>
 						</div>
-					</div>
-				{/if}
+					{/if}
+				{/await}
 			</button>
 		{/if}
 	</CourseWidth>

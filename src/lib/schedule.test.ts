@@ -1,9 +1,22 @@
-import { describe, it, expect } from 'vitest';
+import fs from 'fs';
+import path from 'path';
+
+import { describe, expect, it } from 'vitest';
 
 import { getScheduleError } from './schedule';
 
+const COURSE_DATA = JSON.parse(
+	fs
+		.readFileSync(path.join(process.cwd(), 'static', 'courseData.json'))
+		.toString()
+);
+
+async function localGetCourseData(code: string): Promise<Course> {
+	return COURSE_DATA[code] || { code };
+}
+
 describe('Schedule', () => {
-	it('should account for exemptions', () => {
+	it('should account for exemptions', async () => {
 		const course: Course = {
 			code: '2',
 			connections: {
@@ -13,7 +26,8 @@ describe('Schedule', () => {
 			}
 		};
 
-		expect(getScheduleError(course, ['1'], [], 0)).toMatchInlineSnapshot(`
+		expect(await getScheduleError(localGetCourseData, course, ['1'], [], 0))
+			.toMatchInlineSnapshot(`
 			{
 			  "adjacencies": [],
 			  "dependencies": [],
@@ -23,13 +37,14 @@ describe('Schedule', () => {
 		`);
 	});
 
-	it('should check the season', () => {
+	it('should check the season', async () => {
 		const course: Course = {
 			code: '1',
 			seasons: ['Spring']
 		};
 
-		expect(getScheduleError(course, [], [], 0)).toMatchInlineSnapshot(`
+		expect(await getScheduleError(localGetCourseData, course, [], [], 0))
+			.toMatchInlineSnapshot(`
 			{
 			  "adjacencies": [],
 			  "dependencies": [],
@@ -40,7 +55,8 @@ describe('Schedule', () => {
 			}
 		`);
 
-		expect(getScheduleError(course, [], [], 1)).toMatchInlineSnapshot(`
+		expect(await getScheduleError(localGetCourseData, course, [], [], 1))
+			.toMatchInlineSnapshot(`
 			{
 			  "adjacencies": [],
 			  "dependencies": [],

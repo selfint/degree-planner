@@ -3,9 +3,8 @@
 
 	import Sortable from 'sortablejs';
 
-	import { getCourseData } from '$lib/courseData';
-
 	type Props = {
+		getCourseData: GetCourseData;
 		courses: string[] | Course[];
 		indent?: number;
 		children: Snippet<[{ course: Course; index: number }]>;
@@ -14,6 +13,7 @@
 	};
 
 	let {
+		getCourseData,
 		courses,
 		indent = 1,
 		children,

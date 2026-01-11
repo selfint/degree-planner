@@ -8,22 +8,27 @@
 	import Arrow from '$lib/components/Arrow.svelte';
 	import Spinner from './Spinner.svelte';
 
+	import { content } from '$lib/stores.svelte';
+
 	type Props = {
 		course: Promise<Course> | Course;
 		squeeze?: boolean;
 		note?: Snippet;
 		scheduleError?: Promise<ScheduleError>;
-		tests?: Course[];
+		tests?: Promise<Course[]>;
 	};
 
 	let { course, note, squeeze = false, scheduleError, tests }: Props = $props();
 
-	const color = $derived(Promise.resolve(course).then(generateCourseColor));
+	const color = $derived.by(
+		async () => await Promise.resolve(course).then(generateCourseColor)
+	);
 
-	const hasTest = $derived(
-		Promise.resolve(course).then(
-			(c) => c.tests !== undefined && c.tests.length > 0
-		)
+	const hasTest = $derived.by(
+		async () =>
+			await Promise.resolve(course).then(
+				(c) => c.tests !== undefined && c.tests.length > 0
+			)
 	);
 
 	let minimize = $state(false);
@@ -64,9 +69,9 @@
 				class="flex flex-row items-center justify-between pb-1 text-xs text-content-secondary"
 			>
 				<div class="flex flex-row">
-					{#await hasTest}
-						<div style="background: {color}" class="h-4 min-w-4"></div>
-					{:then hasTest}
+					{#await Promise.all([hasTest, color])}
+						<div class="h-4 min-w-4 bg-gray-500"></div>
+					{:then [hasTest, color]}
 						<div
 							style="background: {color}"
 							class="h-4 min-w-4 {hasTest ? 'rounded-full' : ''}"
@@ -113,32 +118,41 @@
 			</div>
 		{/if}
 
-		{#if _scheduleError}
-			<button
-				class="w-full"
-				onclick={(e) => {
-					e.preventDefault();
-					e.stopPropagation();
-					minimize = !minimize;
-				}}
-			>
-				{#await _scheduleError}
-					<Spinner />
-				{:then _scheduleError}
-					{#if !minimize && _scheduleError !== false}
-						<ScheduleErrorComponent scheduleError={_scheduleError} />
-					{/if}
-					{#if _scheduleError}
-						<div
-							class="flex h-4 w-full flex-row items-center justify-center text-content-secondary"
-						>
-							<div class="w-4" class:rotate-180={!minimize}>
-								<Arrow />
+		{#if scheduleError !== undefined}
+			{#await _scheduleError}
+				<div
+					class="flex flex-row items-center p-2 pb-1 pt-1 text-xs text-content-secondary"
+				>
+					<div class="h-5 w-5 opacity-75">
+						<Spinner />
+					</div>
+					{content.lang.course.checkingRequirements}
+				</div>
+			{:then _scheduleError}
+				{#if _scheduleError}
+					<button
+						class="w-full"
+						onclick={(e) => {
+							e.preventDefault();
+							e.stopPropagation();
+							minimize = !minimize;
+						}}
+					>
+						{#if !minimize}
+							<ScheduleErrorComponent scheduleError={_scheduleError} />
+						{/if}
+						{#if _scheduleError}
+							<div
+								class="flex h-4 w-full flex-row items-center justify-center text-content-secondary"
+							>
+								<div class="w-4" class:rotate-180={!minimize}>
+									<Arrow />
+								</div>
 							</div>
-						</div>
-					{/if}
-				{/await}
-			</button>
+						{/if}
+					</button>
+				{/if}
+			{/await}
 		{/if}
 	</CourseWidth>
 </div>

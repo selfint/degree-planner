@@ -9,16 +9,20 @@
 	import { content } from '$lib/stores.svelte';
 
 	type Props = {
+		getCourseData: GetCourseData;
 		index: number;
 		isCurrent: boolean;
-		semester: Promise<Course[]>;
+		semester: string[];
 		disabled?: string[];
-		children: Snippet<[{ course: Course; index: number }]>;
+		children: Snippet<
+			[{ code: string; course: Promise<Course>; index: number }]
+		>;
 		href?: string;
 		sortable?: Sortable.Options;
 	};
 
 	let {
+		getCourseData,
 		index,
 		isCurrent,
 		semester,
@@ -29,7 +33,9 @@
 	}: Props = $props();
 
 	const effectiveSemester = $derived(
-		semester.filter((c) => !disabled?.includes(c.code))
+		Promise.all(
+			semester.filter((c) => !disabled?.includes(c)).map(getCourseData)
+		)
 	);
 
 	function getAvgMedian(courses: Course[]): number {
@@ -65,15 +71,27 @@
 			class="flex flex-row items-baseline justify-end text-content-secondary"
 		>
 			<span class="me-1">
-				{effectiveSemester
-					.map((c) => c.tests)
-					.filter((t) => t !== undefined && t.length > 0).length}
+				{#await effectiveSemester}
+					-
+				{:then effectiveSemester}
+					{effectiveSemester
+						.map((c) => c.tests)
+						.filter((t) => t !== undefined && t.length > 0).length}
+				{/await}
 			</span>
 			<span class="me-1">
-				{getAvgMedian(effectiveSemester)}
+				{#await effectiveSemester}
+					-
+				{:then effectiveSemester}
+					{getAvgMedian(effectiveSemester)}
+				{/await}
 			</span>
 			<span>
-				{effectiveSemester.reduce((a, b) => a + (b.points ?? 0), 0)}
+				{#await effectiveSemester}
+					-
+				{:then effectiveSemester}
+					{effectiveSemester.reduce((a, b) => a + (b.points ?? 0), 0)}
+				{/await}
 			</span>
 		</div>
 	</div>
@@ -90,18 +108,20 @@
 		{/if}
 	</div>
 
-	{#if isCurrent && effectiveSemester.filter((c) => c.tests?.length ?? 0 > 0).length > 0}
-		<div class="mb-1.5">
-			<StudyDaysComponent semester={effectiveSemester} />
-		</div>
-	{/if}
+	{#await effectiveSemester then _effectiveSemester}
+		{#if isCurrent && _effectiveSemester.filter((c) => c.tests?.length ?? 0 > 0).length > 0}
+			<div class="mb-1.5">
+				<StudyDaysComponent semester={effectiveSemester} />
+			</div>
+		{/if}
+	{/await}
 
 	<div
 		class="flex h-full min-h-32 flex-col space-y-1 bg-opacity-50 sm:space-y-1.5"
 		use:makeSortable
 	>
 		{#each semester as course, index}
-			{@render children({ course, index })}
+			{@render children({ code: course, course: getCourseData(course), index })}
 		{/each}
 	</div>
 </CourseWidth>

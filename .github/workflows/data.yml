@@ -40,6 +40,7 @@ jobs:
             node scripts/generateCatalogsStatic.mjs
             node scripts/generateCatalogsManifest.js
             node scripts/generateCatalogsHeader.js
+            node scripts/generateRequirementsData.mjs
 
       - name: Check if data has changed
         run: |

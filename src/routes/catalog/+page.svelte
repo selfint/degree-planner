@@ -5,6 +5,7 @@
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
 	import { goto } from '$app/navigation';
+	import Spinner from '$lib/components/Spinner.svelte';
 
 	const { data: pageData } = $props();
 	const { getCourseData, courseData } = pageData;
@@ -39,15 +40,17 @@
 
 	const totalCurrentCount = $derived(current.length);
 	const totalPlannedCount = $derived(planned.length);
-	const totalCurrentPoints = $derived(
-		Promise.all(current.map(getCourseData)).then((p) =>
-			p.reduce((sum, { points }) => sum + (points ?? 0), 0)
-		)
+	const totalCurrentPoints = $derived.by(
+		async () =>
+			await Promise.all(current.map(getCourseData)).then((p) =>
+				p.reduce((sum, { points }) => sum + (points ?? 0), 0)
+			)
 	);
-	const totalPlannedPoints = $derived(
-		Promise.all(planned.map(getCourseData)).then((p) =>
-			p.reduce((sum, { points }) => sum + (points ?? 0), 0)
-		)
+	const totalPlannedPoints = $derived.by(
+		async () =>
+			await Promise.all(planned.map(getCourseData)).then((p) =>
+				p.reduce((sum, { points }) => sum + (points ?? 0), 0)
+			)
 	);
 	const degreeName = $derived.by(() => {
 		const i18n = catalog()?.i18n;
@@ -97,12 +100,11 @@
 				>
 					<span class="me-2">{content.lang.settings.points}</span>
 					{#await Promise.all([totalCurrentPoints, totalPlannedPoints])}
-						<ProgressBar
-							value={-1}
-							value2={-1}
-							max={-1}
-							dir={content.lang.dir}
-						/>
+						<ProgressBar value={1} value2={1} max={1} dir={content.lang.dir} />
+						<span class="ms-2 text-nowrap">
+							<span class="text-accent-primary">-</span>
+							/ -
+						</span>
 					{:then [totalCurrentPoints, totalPlannedPoints]}
 						<ProgressBar
 							value={totalCurrentPoints}
@@ -110,11 +112,11 @@
 							max={totalPlannedPoints}
 							dir={content.lang.dir}
 						/>
+						<span class="ms-2 text-nowrap">
+							<span class="text-accent-primary">{totalCurrentPoints}</span>
+							/ {totalPlannedPoints}
+						</span>
 					{/await}
-					<span class="ms-2 text-nowrap">
-						<span class="text-accent-primary">{totalCurrentPoints}</span>
-						/ {totalPlannedPoints}
-					</span>
 				</div>
 			</div>
 		</div>
@@ -217,11 +219,14 @@
 						<span class="me-2">{content.lang.settings.points}</span>
 						{#await Promise.all([pointsCurrent, pointsPlanned, pointsTotal])}
 							<ProgressBar
-								value={-1}
-								value2={-1}
-								max={-1}
+								value={1}
+								value2={2}
+								max={3}
 								dir={content.lang.dir}
 							/>
+							<div class="w-full max-w-6">
+								<Spinner />
+							</div>
 						{:then [pointsCurrent, pointsPlanned, pointsTotal]}
 							<ProgressBar
 								value={pointsCurrent}
@@ -229,12 +234,12 @@
 								max={pointsTotal}
 								dir={content.lang.dir}
 							/>
+							<span class="ms-2 text-nowrap">
+								<span class="text-accent-primary">{pointsCurrent}</span>
+								/ {pointsPlanned}
+								/ {pointsTotal}
+							</span>
 						{/await}
-						<span class="ms-2 text-nowrap">
-							<span class="text-accent-primary">{pointsCurrent}</span>
-							/ {pointsPlanned}
-							/ {pointsTotal}
-						</span>
 					</div>
 				</div>
 

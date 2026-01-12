@@ -2,7 +2,6 @@
 	import type { Transcript } from '$lib/transcriptParser';
 	import * as TranscriptParser from '$lib/transcriptParser';
 	import { user, content, writeStorage, setUser } from '$lib/stores.svelte';
-	import Button from '$lib/components/Button.svelte';
 	import Semester from '$lib/components/Semester.svelte';
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import CourseRow from '$lib/components/CourseRow.svelte';
@@ -133,8 +132,9 @@
 				{#each transcript.semesters as semester, semesterIndex}
 					<div class="pe-2" role="button" tabindex={semesterIndex}>
 						<Semester
+							{getCourseData}
 							index={semesterIndex}
-							semester={semester.map(getCourseData)}
+							{semester}
 							isCurrent={semesterIndex === transcript.semesters.length - 1}
 						>
 							{#snippet children({ course })}

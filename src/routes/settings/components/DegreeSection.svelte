@@ -8,6 +8,7 @@
 	import { user, content } from '$lib/stores.svelte';
 
 	type Props = {
+		catalogs: Promise<Catalogs>;
 		userDegree?: Degree;
 		userPath?: string;
 		onChange: (degree: Degree, path?: string) => Promise<boolean>;
@@ -17,6 +18,7 @@
 	};
 
 	let {
+		catalogs,
 		userDegree,
 		userPath,
 		onChange,
@@ -25,9 +27,6 @@
 		buttonNamespace = $bindable()
 	}: Props = $props();
 
-	const catalogs = fetch('/catalogsHeader.json').then(
-		async (c) => (await c.json()) as Catalogs
-	);
 	type Year = keyof Awaited<typeof catalogs>;
 	const years = catalogs.then((c) => Object.keys(c) as Year[]);
 

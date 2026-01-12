@@ -32,10 +32,11 @@
 		sortable
 	}: Props = $props();
 
-	const effectiveSemester = $derived(
-		Promise.all(
-			semester.filter((c) => !disabled?.includes(c)).map(getCourseData)
-		)
+	const effectiveSemester = $derived.by(
+		async () =>
+			await Promise.all(
+				semester.filter((c) => !disabled?.includes(c)).map(getCourseData)
+			)
 	);
 
 	function getAvgMedian(courses: Course[]): number {
@@ -56,8 +57,8 @@
 </script>
 
 {#snippet title()}
-	<div class="flex w-full flex-col items-baseline justify-between sm:flex-row">
-		<div class="items-baseline justify-between">
+	<div class="flex w-full flex-col items-start justify-between sm:flex-row">
+		<div class="items-baseline justify-start">
 			<h1
 				class="border-b-2 {isCurrent
 					? 'border-b-accent-primary'

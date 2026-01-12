@@ -19,7 +19,7 @@
 	import { goto } from '$app/navigation';
 
 	const { data: pageData } = $props();
-	const { getCourseData, courseData, firebase } = pageData;
+	const { getCourseData, firebase, catalogs } = pageData;
 
 	async function onSignInWithGoogle() {
 		await signIn(firebase);
@@ -134,6 +134,7 @@
 	</div>
 	<div class="mb-4 ms-3">
 		<DegreeSection
+			{catalogs}
 			{userDegree}
 			{userPath}
 			{onChange}

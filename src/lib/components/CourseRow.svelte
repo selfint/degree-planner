@@ -8,10 +8,18 @@
 		courses: CourseCode[] | Course[];
 		indent?: number;
 		children: Snippet<
-			[{ code: CourseCode; course: Promise<Course>; index: number }]
+			[
+				{
+					code: CourseCode;
+					course: Promise<Course>;
+					index: number;
+					scheduleError?: Promise<ScheduleError>;
+				}
+			]
 		>;
 		resetScroll?: boolean;
 		sortable?: Sortable.Options;
+		checkScheduleError?: (course: Promise<Course>) => Promise<ScheduleError>;
 	};
 
 	let {
@@ -20,42 +28,51 @@
 		indent = 1,
 		children,
 		resetScroll = false,
-		sortable
+		sortable,
+		checkScheduleError
 	}: Props = $props();
 
-	const offset = `${indent * 0.75}rem`;
-	const margin = $derived(`margin-inline-end: ${offset}`);
+	const margin = $derived(`margin-inline-end: ${indent * 0.75}rem`);
 
-	let _courses = $state(
-		courses.map((c) => {
-			if (typeof c === 'string') {
-				return { code: c, course: getCourseData(c) };
+	let loadingCourses: { code: CourseCode; course: Promise<Course> }[] =
+		$derived(
+			courses.map((c) => {
+				if (typeof c === 'string') {
+					return { code: c, course: getCourseData(c) };
+				}
+
+				return { code: c.code, course: Promise.resolve(c) };
+			})
+		);
+
+	let sortedCourses:
+		| undefined
+		| Promise<{ code: CourseCode; course: Promise<Course> }[]> = $derived.by(
+		() => {
+			if (sortable !== undefined) {
+				return undefined;
 			}
 
-			return { code: c.code, course: Promise.resolve(c) };
-		})
+			return Promise.all(loadingCourses.map((c) => c.course)).then(
+				(courseRow) => {
+					courseRow.sort((a, b) => {
+						const medians = (b.median ?? 0) - (a.median ?? 0);
+
+						if (medians !== 0) {
+							return medians;
+						}
+
+						return (a.code ?? '').localeCompare(b.code ?? '');
+					});
+
+					return courseRow.map((c) => ({
+						code: c.code,
+						course: Promise.resolve(c)
+					}));
+				}
+			);
+		}
 	);
-
-	// $effect(() => {
-	// 	if (sortable === undefined) {
-	// 		Promise.all(_courses.map((c) => c.course)).then((courseData) => {
-	// 			courseData.sort((a, b) => {
-	// 				const medians = (b.median ?? 0) - (a.median ?? 0);
-
-	// 				if (medians !== 0) {
-	// 					return medians;
-	// 				}
-
-	// 				return (a.code ?? '').localeCompare(b.code ?? '');
-	// 			});
-
-	// 			_courses = courseData.map((c) => ({
-	// 				code: c.code,
-	// 				course: Promise.resolve(c)
-	// 			}));
-	// 		});
-	// 	}
-	// });
 
 	let row: HTMLDivElement;
 	$effect(() => {
@@ -79,9 +96,37 @@
 	class="flex min-h-full flex-row items-start overflow-x-auto"
 >
 	<div class="margin" style={margin}></div>
-	{#each _courses as { code, course }, index}
-		<div data-code={code} class="pe-2">
-			{@render children({ code, course, index })}
-		</div>
-	{/each}
+	{#if sortedCourses === undefined}
+		{#each loadingCourses as { code, course }, index}
+			{@const scheduleError =
+				checkScheduleError === undefined
+					? undefined
+					: checkScheduleError(course)}
+			<div data-code={code} class="pe-2">
+				{@render children({
+					code,
+					course,
+					index,
+					scheduleError
+				})}
+			</div>
+		{/each}
+	{:else}
+		{#await sortedCourses then sortedCourses}
+			{#each sortedCourses as { code, course }, index}
+				{@const scheduleError =
+					checkScheduleError === undefined
+						? undefined
+						: checkScheduleError(course)}
+				<div data-code={code} class="pe-2">
+					{@render children({
+						code,
+						course,
+						index,
+						scheduleError
+					})}
+				</div>
+			{/each}
+		{/await}
+	{/if}
 </div>

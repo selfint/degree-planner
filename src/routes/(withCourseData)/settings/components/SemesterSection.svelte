@@ -47,7 +47,7 @@
 	<h2 class="text-base font-medium text-content-primary">
 		{content.lang.common.semester}
 	</h2>
-	<div class="grid w-fit grid-cols-[auto_auto] gap-x-2 gap-y-1">
+	<div class="grid w-fit grid-cols-[auto_auto] items-baseline gap-x-2 gap-y-1">
 		<span class="text-content-secondary">
 			{content.lang.settings.current}
 		</span>

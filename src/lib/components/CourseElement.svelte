@@ -18,6 +18,7 @@
 		scheduleError?: Promise<ScheduleError>;
 		tests?: Promise<Course[]>;
 		index?: number;
+		styleOnCourse?: (course: Course) => Promise<string>;
 	};
 
 	let {
@@ -27,14 +28,21 @@
 		squeeze = false,
 		scheduleError,
 		tests,
-		index = 0
+		index = 0,
+		styleOnCourse
 	}: Props = $props();
 
 	const course = $derived.by(() => Promise.resolve(_course));
 
 	let loaded = $state(false);
+	let style = $state('');
 	$effect(() => {
-		course.then(() => (loaded = true));
+		course.then((course) => {
+			loaded = true;
+			if (styleOnCourse !== undefined) {
+				styleOnCourse(course).then((s) => (style = s));
+			}
+		});
 	});
 
 	const color = $derived.by(() => generateColor(code));
@@ -66,6 +74,7 @@
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
+	{style}
 	class="relative h-fit w-fit select-none justify-between rounded-md bg-card-secondary"
 	onclick={(e) => {
 		if (minimize) {

@@ -3,10 +3,16 @@
 
 	import CourseElement from '$lib/components/CourseElement.svelte';
 
-	import { user, content, writeStorage, setUser } from '$lib/stores.svelte';
+	import {
+		user,
+		content,
+		writeStorage,
+		setUser,
+		requirement
+	} from '$lib/stores.svelte';
 
 	import { getCourseLists, loadRequirement } from '$lib/requirements';
-	import { generateColor, generateCourseColor } from '$lib/colors';
+	import { generateColor } from '$lib/colors';
 	import RequirementsElement from '$lib/components/RequirementsElement.svelte';
 	import CourseRow from '$lib/components/CourseRow.svelte';
 	import AsyncButton from '$lib/components/AsyncButton.svelte';
@@ -18,28 +24,13 @@
 	const code = $derived(page.params.code as CourseCode);
 	const course = $derived(getCourseData(code));
 
-	// decouple the user degree/path from the rest of the user object
-	const fineGrainedReactivityUserDegree = $derived.by(() => {
-		if (user.d.degree === undefined) {
-			return undefined;
-		}
-
-		// serialize to string so that svelte reactivity can diff check
-		return [user.d.degree.join(':'), user.d.path ?? '-'].join(';');
-	});
-
 	const courseMemberRequirements = $derived.by(async () => {
-		if (fineGrainedReactivityUserDegree === undefined) {
+		const r = requirement();
+		if (r === undefined) {
 			return [];
 		}
 
-		// parse serialized user degree
-		const [degreeString, path] = fineGrainedReactivityUserDegree.split(';');
-		const degree = degreeString.split(':') as Degree;
-
-		const requirement = await loadRequirement(degree, path);
-
-		return getCourseLists(requirement, code);
+		return getCourseLists(await r, code);
 	});
 
 	const seasonEmojis = ['❄️', '🌿', '☀️'];

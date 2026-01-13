@@ -14,10 +14,9 @@ export const load: PageServerLoad = async ({ params, url, fetch }) => {
 	const userPath = url.searchParams.get('path') ?? undefined;
 
 	const degree = [year, faculty, path] as Degree;
-	const degreeData = await loadCatalog(degree, userPath, fetch);
 
 	return {
-		degreeData,
+		degree,
 		semesters,
 		userPath
 	};

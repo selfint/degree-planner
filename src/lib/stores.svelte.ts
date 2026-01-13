@@ -1,5 +1,5 @@
 import { browser } from '$app/environment';
-import { loadCatalog } from './requirements';
+import { loadCatalog, loadRequirement } from './requirements';
 import { cms } from './content';
 
 function getLangPreference() {
@@ -218,6 +218,28 @@ export function initCatalog(catalogs: Promise<Catalogs>): void {
 		);
 	}
 }
+
+// decouple the user degree/path from the rest of the user object
+const _fineGrainedReactivityUserDegree = $derived.by(() => {
+	if (user.d.degree === undefined) {
+		return undefined;
+	}
+
+	// serialize to string so that svelte reactivity can diff check
+	return [user.d.degree.join(':'), user.d.path ?? '-'].join(';');
+});
+const _requirement = $derived.by(() => {
+	if (_fineGrainedReactivityUserDegree === undefined) {
+		return undefined;
+	}
+
+	// parse serialized user degree
+	const [degreeString, path] = _fineGrainedReactivityUserDegree.split(';');
+	const degree = degreeString.split(':') as Degree;
+
+	return loadRequirement(degree, path);
+});
+export const requirement = () => _requirement;
 
 function readLocalStorage(): UserData {
 	if (!browser) {

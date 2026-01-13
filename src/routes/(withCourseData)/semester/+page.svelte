@@ -7,13 +7,10 @@
 	import StudyDaysComponent from '$lib/components/StudyDaysComponent.svelte';
 	import CourseRow from '$lib/components/CourseRow.svelte';
 
-	import { user, catalog, content } from '$lib/stores.svelte';
+	import { user, content, requirement } from '$lib/stores.svelte';
 	import { getScheduleError } from '$lib/schedule';
-	import {
-		getDegreeRequirementCourses,
-		loadRequirement
-	} from '$lib/requirements';
-	import LoadingCourseElement from '$lib/components/LoadingCourseElement.svelte';
+	import { getDegreeRequirementCourses } from '$lib/requirements';
+	import Spinner from '$lib/components/Spinner.svelte';
 
 	const { data: pageData } = $props();
 	const { getCourseData, courseData } = pageData;
@@ -30,11 +27,7 @@
 		}
 	});
 
-	const wishlistCourses = $derived(user.d.wishlist.map(getCourseData));
-	const requirements =
-		user.d.degree === undefined
-			? undefined
-			: loadRequirement(user.d.degree, user.d.path);
+	const wishlistCourses = $derived(user.d.wishlist);
 	const semester = $derived(user.d.semesters.at(currentSemester) ?? []);
 
 	const effectiveSemester = $derived.by(() =>
@@ -45,31 +38,25 @@
 		async () => await Promise.all(effectiveSemester.map(getCourseData))
 	);
 
-	const futureSemesters = $derived.by(
-		async () =>
-			await Promise.all(
-				user.d.semesters
-					.slice(currentSemester + 1)
-					.map(
-						async (s: string[], i: number) =>
-							[
-								currentSemester + 1 + i,
-								await Promise.all(s.map(getCourseData))
-							] as const
-					)
+	const futureSemesters = $derived.by(() =>
+		user.d.semesters
+			.slice(currentSemester + 1)
+			.map(
+				(s: CourseCode[], i: number) => [currentSemester + 1 + i, s] as const
 			)
 	);
 
 	const requirementCourses = $derived.by(() => {
-		if (requirements === undefined) {
+		const r = requirement();
+		if (r === undefined) {
 			return undefined;
 		}
 
-		return getDegreeRequirementCourses(requirements).map(
-			({ path, courses }) => ({
+		return r.then((r) =>
+			getDegreeRequirementCourses(r).map(({ path, courses }) => ({
 				path,
-				courses: courses.map(getCourseData)
-			})
+				courses: courses
+			}))
 		);
 	});
 
@@ -107,8 +94,9 @@
 			.sort((a, b) => compareCourses(courses, a, b));
 	}
 
-	const loloco = $derived.by(async () => {
-		let lists: [Requirement[], Course[], boolean][] = [];
+	// list of lists of courses
+	const loLoCo = $derived.by(async () => {
+		let lists: [Requirement[], CourseCode[], boolean][] = [];
 
 		lists.push([
 			[
@@ -118,11 +106,11 @@
 					he: content.lang.semester.wishlist
 				}
 			],
-			await Promise.all(wishlistCourses),
+			wishlistCourses,
 			false
 		]);
 
-		for (const [index, courses] of await futureSemesters) {
+		for (const [index, courses] of futureSemesters) {
 			const season = content.lang.common.seasons[index % 3];
 			const year = Math.floor(index / 3) + 1;
 			const name = `${season} ${year}`;
@@ -130,23 +118,12 @@
 		}
 
 		if (requirementCourses !== undefined) {
-			for (const { path, courses } of requirementCourses) {
-				lists.push([path, await Promise.all(courses), true]);
+			for (const { path, courses } of await requirementCourses) {
+				lists.push([path, courses, true]);
 			}
 		}
 
-		lists = lists
-			.map(
-				([title, courses, colorize]) =>
-					[title, sortCourses(courses.filter(courseCanBeTaken)), colorize] as [
-						Requirement[],
-						Course[],
-						boolean
-					]
-			)
-			.filter(([_, courses]) => courses.length > 0);
-
-		return lists;
+		return lists.filter(([_, courses]) => courses.length > 0);
 	});
 
 	function getCourseStudyDays(
@@ -233,13 +210,15 @@
 		};
 	}
 
-	async function courseCanBeTaken(course: Course): Promise<boolean> {
+	async function styleOnCourse(course: Course): Promise<string> {
+		const styleOnCannotTake = 'opacity: 0.6';
+
 		if (course.name === undefined) {
-			return false;
+			return styleOnCannotTake;
 		}
 
-		if (course.current !== true) {
-			return false;
+		if (!course.current) {
+			return styleOnCannotTake;
 		}
 
 		if (
@@ -248,11 +227,11 @@
 				.flat()
 				.some((c) => c === course.code)
 		) {
-			return false;
+			return styleOnCannotTake;
 		}
 
 		if (user.d.exemptions.includes(course.code)) {
-			return false;
+			return styleOnCannotTake;
 		}
 
 		const error = getScheduleError(
@@ -272,7 +251,7 @@
 				error.exclusives.length === 0
 		);
 
-		return canTake;
+		return canTake ? '' : styleOnCannotTake;
 	}
 
 	function formatName(requirements: Requirement[]): string {
@@ -300,7 +279,43 @@
 			disabled = [...disabled, code];
 		}
 	}
+
+	const seasonEmojis = ['❄️', '🌿', '☀️'];
 </script>
+
+{#snippet courseNote(course: Course, se: Promise<ScheduleError>)}
+	{#if !course.current}
+		❌
+		<span dir={content.lang.dir} class="hidden sm:inline">
+			{content.lang.common.no}
+			{content.lang.course.available}
+		</span>
+	{:else if user.d.semesters
+		.slice(0, currentSemester + 1)
+		.flat()
+		.some((c) => c === course.code)}
+		{@const index = user.d.semesters.findIndex((c) => c.includes(course.code))}
+		{seasonEmojis[index % 3]}
+		<span dir={content.lang.dir} class="hidden sm:inline">
+			{content.lang.common.seasons[index % 3]}
+			{Math.floor(index / 3) + 1}
+		</span>
+	{:else if user.d.exemptions.includes(course.code)}
+		✓
+		<span class="hidden sm:inline">
+			{content.lang.catalog.exempt}
+		</span>
+	{:else}
+		{#await se then se}
+			{#if (se?.dependencies ?? []).flat().length > 0 || (se?.adjacencies ?? []).length > 0 || (se?.exclusives ?? []).length > 0}
+				📚
+				<span dir={content.lang.dir} class="hidden sm:inline">
+					{content.lang.common.dependencies}
+				</span>
+			{/if}
+		{/await}
+	{/if}
+{/snippet}
 
 <div class="items-start sm:mt-3 sm:flex sm:flex-row">
 	<div
@@ -325,7 +340,7 @@
 		</Semester>
 	</div>
 
-	<div class="sticky top-0 mb-5 bg-background pb-2 sm:hidden">
+	<div class="sticky top-0 z-30 mb-5 bg-background pb-2 sm:hidden">
 		<div class="mb-2 me-3 mt-1 flex flex-row items-center justify-between pt-2">
 			<div class="ms-3">
 				<h1
@@ -368,9 +383,16 @@
 		</CourseRow>
 	</div>
 
-	<div class="flex-1 overflow-x-auto">
-		{#await loloco then loloco}
-			{#each loloco as [titles, courses, colorize]}
+	<div class="relative z-0 flex-1 overflow-x-auto">
+		{#await loLoCo}
+			<h2 class="flex flex-row text-content-primary">
+				{content.lang.common.loading}
+				<div class="me-1 h-5 w-5">
+					<Spinner />
+				</div>
+			</h2>
+		{:then loLoCo}
+			{#each loLoCo as [titles, courses, colorize]}
 				<div class="mb-7">
 					<h1 class="mb-1.5 ms-3 font-medium text-content-primary sm:ms-0">
 						<div class="me-2 flex flex-row flex-wrap items-start gap-y-1">
@@ -392,14 +414,32 @@
 										tests={currentSemester === user.d.currentSemester
 											? _effectiveSemester
 											: undefined}
-									/>
+										{styleOnCourse}
+									>
+										{#snippet note(course)}
+											{@render courseNote(course, scheduleError!)}
+										{/snippet}
+									</CourseElement>
 								</button>
 							{/snippet}
 						</CourseRow>
 					</div>
 					<div class="hidden sm:block">
-						<CourseRow {getCourseData} indent={0} {courses}>
-							{#snippet children({ code, course })}
+						<CourseRow
+							{getCourseData}
+							indent={0}
+							{courses}
+							checkScheduleError={(course) =>
+								getScheduleError(
+									getCourseData,
+									course,
+									user.d.exemptions,
+									user.d.semesters,
+									currentSemester + 1,
+									true
+								)}
+						>
+							{#snippet children({ code, course, scheduleError })}
 								<button onmousedown={() => goto(`/course/${code}`)}>
 									<CourseElement
 										{code}
@@ -407,7 +447,12 @@
 										tests={currentSemester === user.d.currentSemester
 											? _effectiveSemester
 											: undefined}
-									/>
+										{styleOnCourse}
+									>
+										{#snippet note(course)}
+											{@render courseNote(course, scheduleError!)}
+										{/snippet}
+									</CourseElement>
 								</button>
 							{/snippet}
 						</CourseRow>

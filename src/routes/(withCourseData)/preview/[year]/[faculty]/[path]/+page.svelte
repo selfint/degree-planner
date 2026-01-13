@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import type { PageData } from './$types';
 
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import Semester from '$lib/components/Semester.svelte';
@@ -33,8 +32,8 @@
 		setUser(
 			await writeStorage({
 				...user.d,
-				semesters: data.semesters,
-				degree: data.degreeData.degree,
+				semesters: data.semesters as CourseCode[][],
+				degree: data.degree,
 				currentSemester: user.d.currentSemester ?? 0,
 				wishlist: user.d.wishlist.filter(
 					(c) => !data.semesters.flat().includes(c)
@@ -75,7 +74,7 @@
 <div class="mb-3 mt-3">
 	<div class="mb-4 ms-3">
 		<h1 class="mb-2 text-lg font-medium text-content-primary">
-			{#await getDegreeName(data.degreeData.degree, data.userPath)}
+			{#await getDegreeName(data.degree, data.userPath)}
 				<div class="h-7 w-7">
 					<Spinner />
 				</div>
@@ -93,16 +92,17 @@
 			{#each data.semesters as semester, semesterIndex}
 				<div class="pe-2" role="button" tabindex={semesterIndex}>
 					<Semester
+						{getCourseData}
 						index={semesterIndex}
-						semester={semester.map(getCourseData)}
+						{semester}
 						isCurrent={false}
 					>
-						{#snippet children({ course })}
+						{#snippet children({ code, course })}
 							<button
 								class="touch-manipulation text-content-primary"
-								onclick={() => goto(`/course/${course.code}`)}
+								onclick={() => goto(`/course/${code}`)}
 							>
-								<CourseElement {course} squeeze={true} />
+								<CourseElement {code} {course} squeeze={true} />
 							</button>
 						{/snippet}
 					</Semester>

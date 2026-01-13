@@ -1,9 +1,6 @@
 <script lang="ts">
-	import { user, catalog, content } from '$lib/stores.svelte';
-	import {
-		getDegreeRequirementCourses,
-		loadRequirement
-	} from '$lib/requirements';
+	import { user, content, requirement } from '$lib/stores.svelte';
+	import { getDegreeRequirementCourses } from '$lib/requirements';
 	import CourseRow from '$lib/components/CourseRow.svelte';
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
@@ -14,13 +11,12 @@
 	const { getCourseData } = pageData;
 
 	const lists = $derived.by(async () => {
-		if (user.d.degree === undefined) {
+		const r = requirement();
+		if (r === undefined) {
 			return [];
 		}
 
-		const requirement = await loadRequirement(user.d.degree);
-
-		return getDegreeRequirementCourses(requirement);
+		return getDegreeRequirementCourses(await r);
 	});
 
 	function getCourseSemester(course: Course): number | undefined {
@@ -53,18 +49,44 @@
 			p.reduce((sum, { points }) => sum + (points ?? 0), 0)
 		)
 	);
-	const degreeName = $derived.by(() => {
-		const i18n = catalog()?.i18n;
-		if (i18n === undefined) {
+
+	const catalogName = $derived(
+		content.lang.lang === 'en' ? 'catalog' : 'קטלוג'
+	);
+
+	const degreeName = $derived.by(async () => {
+		if (user.d.degree === undefined) {
 			return '';
 		}
 
-		let name = i18n.en;
-		if (content.lang.lang === 'he') {
-			name = i18n.he;
-		}
+		const lang = content.lang.lang;
 
-		return name;
+		const [year, faculty, degree] = user.d.degree;
+		const path = user.d.path;
+
+		const _fetch = (values: string[]) =>
+			fetch(['/_catalogs', ...values, lang].join('/')).then((r) => r.text());
+
+		const _yearName = _fetch([year]);
+		const _facultyName = _fetch([year, faculty]);
+		const _degreeName = _fetch([year, faculty, degree]);
+
+		if (path === undefined) {
+			const [yearName, facultyName, degreeName] = await Promise.all([
+				_yearName,
+				_facultyName,
+				_degreeName
+			]);
+			return `${facultyName} (${catalogName} ${yearName}) - ${degreeName}`;
+		} else {
+			const [yearName, facultyName, degreeName, pathName] = await Promise.all([
+				_yearName,
+				_facultyName,
+				_degreeName,
+				_fetch([year, faculty, degree, 'requirement', path])
+			]);
+			return `${facultyName} (${catalogName} ${yearName}) - ${degreeName} ${pathName}`;
+		}
 	});
 </script>
 
@@ -74,10 +96,16 @@
 			<h1
 				class="mb-1 me-3 ms-3 flex flex-row items-baseline text-base font-medium text-content-primary"
 			>
-				<div class="me-2 flex flex-col flex-wrap items-start gap-y-1">
-					<span class="me-1">
+				<div class="me-2 flex flex-row flex-wrap items-start gap-y-1">
+					{#await degreeName}
+						{content.lang.common.loading}
+						{catalogName}
+						<div class="me-1 inline h-5 w-5">
+							<Spinner />
+						</div>
+					{:then degreeName}
 						{degreeName}
-					</span>
+					{/await}
 				</div>
 			</h1>
 			<div class="max-w-[30rem]">
@@ -134,11 +162,14 @@
 		</h1>
 		<CourseRow {getCourseData} courses={user.d.wishlist}>
 			{#snippet children({ code, course, index })}
-				<button
-					class:opacity-60={false}
-					onclick={() => goto(`/course/${code}`)}
-				>
-					<CourseElement {code} {course} {index}>
+				<button onclick={() => goto(`/course/${code}`)}>
+					<CourseElement
+						{code}
+						{course}
+						{index}
+						styleOnCourse={(c) =>
+							Promise.resolve(c.current ? '' : 'opacity: 0.6')}
+					>
 						{#snippet note(course)}
 							{@const index = getCourseSemester(course)}
 							{#if index !== undefined}

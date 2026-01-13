@@ -2,13 +2,13 @@
 	import { goto } from '$app/navigation';
 	import { content } from '$lib/stores.svelte';
 
-	import settingsPic from '$lib/assets/gifs/settings-pic.png';
-	import planPic from '$lib/assets/gifs/plan-pic.png';
-	import catalogPic from '$lib/assets/gifs/catalog-pic.png';
-	import semesterPic from '$lib/assets/gifs/semester-pic.png';
-	import coursePic from '$lib/assets/gifs/course-pic.png';
-	import sharePic from '$lib/assets/gifs/share-pic.png';
-	import searchPic from '$lib/assets/gifs/search-pic.png';
+	import settingsPic from '$lib/assets/gifs/settings-pic.webp';
+	import planPic from '$lib/assets/gifs/plan-pic.webp';
+	import catalogPic from '$lib/assets/gifs/catalog-pic.webp';
+	import semesterPic from '$lib/assets/gifs/semester-pic.webp';
+	import coursePic from '$lib/assets/gifs/course-pic.webp';
+	import sharePic from '$lib/assets/gifs/share-pic.webp';
+	import searchPic from '$lib/assets/gifs/search-pic.webp';
 
 	import AsyncButton from '$lib/components/AsyncButton.svelte';
 	import CourseExplanation from '$lib/components/CourseExplanation.svelte';

@@ -9,7 +9,10 @@
 
 	import { user, catalog, content } from '$lib/stores.svelte';
 	import { getScheduleError } from '$lib/schedule';
-	import { getDegreeRequirementCourses } from '$lib/requirements';
+	import {
+		getDegreeRequirementCourses,
+		loadRequirement
+	} from '$lib/requirements';
 	import LoadingCourseElement from '$lib/components/LoadingCourseElement.svelte';
 
 	const { data: pageData } = $props();
@@ -28,7 +31,10 @@
 	});
 
 	const wishlistCourses = $derived(user.d.wishlist.map(getCourseData));
-	const requirements = $derived(catalog()?.requirement);
+	const requirements =
+		user.d.degree === undefined
+			? undefined
+			: loadRequirement(user.d.degree, user.d.path);
 	const semester = $derived(user.d.semesters.at(currentSemester) ?? []);
 
 	const effectiveSemester = $derived.by(() =>
@@ -287,11 +293,11 @@
 			.join(' ');
 	}
 
-	function toggleCourseDisabled(course: Course) {
-		if (disabled.includes(course.code)) {
-			disabled = disabled.filter((c) => c !== course.code);
+	function toggleCourseDisabled(code: string) {
+		if (disabled.includes(code)) {
+			disabled = disabled.filter((c) => c !== code);
 		} else {
-			disabled = [...disabled, course.code];
+			disabled = [...disabled, code];
 		}
 	}
 </script>
@@ -308,17 +314,13 @@
 			isCurrent={currentSemester === user.d.currentSemester}
 			href={'/plan'}
 		>
-			{#snippet children({ course })}
-				{#await course}
-					<LoadingCourseElement />
-				{:then course}
-					<button
-						class={disabled.includes(course.code) ? 'opacity-50' : ''}
-						onmousedown={() => toggleCourseDisabled(course)}
-					>
-						<CourseElement {course} />
-					</button>
-				{/await}
+			{#snippet children({ code, course })}
+				<button
+					class={disabled.includes(code) ? 'opacity-50' : ''}
+					onmousedown={() => toggleCourseDisabled(code)}
+				>
+					<CourseElement {code} {course} />
+				</button>
 			{/snippet}
 		</Semester>
 	</div>
@@ -355,12 +357,12 @@
 			{/if}
 		</div>
 		<CourseRow {getCourseData} courses={semester}>
-			{#snippet children({ course })}
+			{#snippet children({ code, course })}
 				<button
-					class={disabled.includes(course.code) ? 'opacity-50' : ''}
-					onmousedown={() => toggleCourseDisabled(course)}
+					class={disabled.includes(code) ? 'opacity-50' : ''}
+					onmousedown={() => toggleCourseDisabled(code)}
 				>
-					<CourseElement {course} />
+					<CourseElement {code} {course} />
 				</button>
 			{/snippet}
 		</CourseRow>
@@ -382,9 +384,10 @@
 
 					<div class="sm:hidden">
 						<CourseRow {getCourseData} indent={1} {courses}>
-							{#snippet children({ course })}
-								<button onmousedown={() => goto(`/course/${course.code}`)}>
+							{#snippet children({ code, course })}
+								<button onmousedown={() => goto(`/course/${code}`)}>
 									<CourseElement
+										{code}
 										{course}
 										tests={currentSemester === user.d.currentSemester
 											? _effectiveSemester
@@ -396,9 +399,10 @@
 					</div>
 					<div class="hidden sm:block">
 						<CourseRow {getCourseData} indent={0} {courses}>
-							{#snippet children({ course })}
-								<button onmousedown={() => goto(`/course/${course.code}`)}>
+							{#snippet children({ code, course })}
+								<button onmousedown={() => goto(`/course/${code}`)}>
 									<CourseElement
+										{code}
 										{course}
 										tests={currentSemester === user.d.currentSemester
 											? _effectiveSemester

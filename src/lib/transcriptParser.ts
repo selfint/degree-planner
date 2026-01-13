@@ -1,5 +1,3 @@
-import * as pdfjs from 'pdfjs-dist';
-
 export type Transcript = {
 	semesters: string[][];
 	exemptions: string[];
@@ -10,6 +8,8 @@ export async function parseTranscript(
 	buffer: Uint8Array,
 	workerSrcUrl: string
 ): Promise<Transcript | undefined> {
+	const pdfjs = await import('pdfjs-dist');
+
 	pdfjs.GlobalWorkerOptions.workerSrc = workerSrcUrl;
 	const pdf = await pdfjs.getDocument(buffer).promise;
 
@@ -90,8 +90,11 @@ export async function parseTranscript(
 			} else if (courseRegex.test(str)) {
 				let code = str.match(courseRegex)!.toString().trim();
 
-				const newCode = code.padStart(8, '0');
-				const legacyCode = '0' + code.slice(0, 3) + '0' + code.slice(3);
+				const newCode = code.padStart(8, '0') as CourseCode;
+				const legacyCode = ('0' +
+					code.slice(0, 3) +
+					'0' +
+					code.slice(3)) as CourseCode;
 
 				// try to validate code as new
 				if ((await getCourseData(newCode)).name !== undefined) {
@@ -112,9 +115,5 @@ export async function parseTranscript(
 		semesters.push([...new Set(current.semester)]);
 	}
 
-	// if (semesters.length < 20 && semesters.length > 0) {
 	return { semesters, exemptions };
-	// } else {
-	// 	return { semesters: basicSemesters, exemptions: [] };
-	// }
 }

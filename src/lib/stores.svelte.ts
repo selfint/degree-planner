@@ -50,7 +50,9 @@ const loaders = [
 			try {
 				const data: UserData = JSON.parse(userData);
 
-				data.semesters = data.semesters.map((s) => s.filter((c) => c !== ''));
+				data.semesters = data.semesters.map((s) =>
+					s.filter((c) => (c as string) !== '')
+				);
 
 				return data;
 			} catch (error) {
@@ -73,7 +75,9 @@ const loaders = [
 			try {
 				const data: UserDataV2 = JSON.parse(userData);
 
-				data.semesters = data.semesters.map((s) => s.filter((c) => c !== ''));
+				data.semesters = data.semesters.map((s) =>
+					s.filter((c) => (c as string) !== '')
+				);
 
 				return data;
 			} catch (error) {
@@ -97,7 +101,9 @@ const loaders = [
 			try {
 				const data: UserData = JSON.parse(userData);
 
-				data.semesters = data.semesters.map((s) => s.filter((c) => c !== ''));
+				data.semesters = data.semesters.map((s) =>
+					s.filter((c) => (c as string) !== '')
+				);
 
 				return data;
 			} catch (error) {
@@ -205,6 +211,13 @@ export function setUser(data: UserData) {
 
 let _catalog: Catalog | undefined = $state(undefined);
 export const catalog = () => _catalog;
+export function initCatalog(catalogs: Promise<Catalogs>): void {
+	if (user.d.degree !== undefined) {
+		loadCatalog(catalogs, user.d.degree, user.d.path).then(
+			(d) => (_catalog = d)
+		);
+	}
+}
 
 function readLocalStorage(): UserData {
 	if (!browser) {
@@ -255,11 +268,3 @@ let _storage: StorageMethod = $state(localStorageMethod);
 export const readStorage = async () => await _storage.read();
 export const writeStorage = async (d: UserData) => await _storage.write(d);
 export const setStorage = (s: StorageMethod) => (_storage = s);
-
-$effect.root(() => {
-	$effect(() => {
-		if (user.d.degree !== undefined) {
-			loadCatalog(user.d.degree, user.d.path).then((d) => (_catalog = d));
-		}
-	});
-});

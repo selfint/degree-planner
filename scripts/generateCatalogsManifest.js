@@ -1,100 +1,46 @@
 import { readdirSync, statSync, writeFileSync, readFileSync } from 'fs';
 import { join } from 'path';
 
-const dbPath = join(process.cwd(), 'static', '_catalogs');
-const manifestPath = join(process.cwd(), 'static', 'catalogs.json');
+const DB_PATH = join(process.cwd(), 'static', '_catalogs');
+const MANIFEST_PATH = join(process.cwd(), 'static', 'catalogs.json');
 
-function parseCatalog(text) {
-	const regex = /\b\d{5,6}\b/g;
-	const matches = text.match(regex);
-
-	const codes = [...new Set(matches ? matches : [])];
-	return codes
-		.map((code) => code.replace(/^0+/, ''))
-		.map((code) => '0'.repeat(6 - code.length) + code)
-		.map((code) => '0' + code.slice(0, 3) + '0' + code.slice(3));
-}
-
-function nestRequirements(name, requirements) {
-	const keywords = [
-		'courses',
-		'count',
-		'amount',
-		'points',
-		'he',
-		'en',
-		'overflow',
-		'hook'
-	];
-
-	const nonKeywords = Object.keys(requirements).filter(
-		(key) => !keywords.includes(key)
-	);
-
-	const nested = [];
-	for (const key of nonKeywords) {
-		nested.push(nestRequirements(key, requirements[key]));
-	}
+function parseI18N(path) {
+	const en = readFileSync(join(path, 'en')).toString();
+	const he = readFileSync(join(path, 'he')).toString();
 
 	return {
-		name,
-		courses: requirements.courses,
-		count: requirements.count,
-		amount: requirements.amount,
-		points: requirements.points,
-		he: requirements.he,
-		en: requirements.en,
-		overflow: requirements.overflow,
-		nested: nested.length > 0 ? nested : undefined,
-		hook: requirements.hook
+		en,
+		he
 	};
 }
 
-function readDirectoryRecursively(directory, parents = []) {
-	const result = {};
-	const files = readdirSync(directory);
+function parseDir(path, depth) {
+	if (depth === 0) {
+		return {
+			...parseI18N(path)
+		};
+	}
 
-	files.forEach((file) => {
-		const filePath = join(directory, file);
-		const stats = statSync(filePath);
+	const subdirs = readdirSync(path)
+		.filter((s) => !['en', 'he'].includes(s))
+		.map((s) => [s, parseDir(join(path, s), depth - 1)]);
 
-		if (stats.isDirectory()) {
-			result[file] = readDirectoryRecursively(filePath, [...parents, file]);
-
-			if (file === 'requirement') {
-				const name = parents.slice(-2).join('/');
-				result[file] = nestRequirements(name, result[file]);
-			} else if (file === 'recommended') {
-				const semesters = readDirectoryRecursively(filePath, [
-					...parents,
-					file
-				]);
-
-				result[file] = Object.entries(semesters)
-					.sort(([a], [b]) => a.localeCompare(b))
-					.map(([, courses]) => courses);
-			}
-		} else {
-			const content = readFileSync(filePath, 'utf8');
-
-			if (file.startsWith('semester')) {
-				result[file] = parseCatalog(content);
-			} else if (file === 'courses') {
-				result[file] = `/_catalogs/${[...parents, file].join('/')}`;
-			} else if (file === 'hook.js') {
-				result['hook'] = `/_catalogs/${[...parents, file].join('/')}`;
-			} else if (['count', 'amount', 'points'].includes(file)) {
-				result[file] = parseFloat(content);
-			} else {
-				result[file] = content;
-			}
-		}
-	});
-
-	return result;
+	return {
+		...parseI18N(path),
+		...Object.fromEntries(subdirs)
+	};
 }
 
-const manifest = readDirectoryRecursively(dbPath);
+function parseDB(db_path) {
+	const years = readdirSync(db_path).map((y) => [
+		y,
+		parseDir(join(DB_PATH, y), 2)
+	]);
+
+	return { ...Object.fromEntries(years) };
+}
+
+const manifest = parseDB(DB_PATH);
 
 // writeFileSync(manifestPath, JSON.stringify(manifest));
-writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+writeFileSync(MANIFEST_PATH, JSON.stringify(manifest, null, 2));

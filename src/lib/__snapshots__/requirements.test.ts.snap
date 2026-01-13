@@ -4,13 +4,11 @@ exports[`Requirements > should parse recommended 1`] = `undefined`;
 
 exports[`Requirements > should parse requirements 1`] = `
 {
-  "courses": [],
   "en": "B.SC. IN COMPUTER SCIENCES (3 YEARS)",
   "he": "בוגר למדעים במדעי המחשב",
-  "name": "2024_200_00002120_SC00001314_CG00006245",
+  "name": "requirement",
   "nested": [
     {
-      "courses": [],
       "en": "All-Technion Electives",
       "he": "בחירה כלל טכניונית",
       "name": "CG00000170",
@@ -54,14 +52,12 @@ exports[`Requirements > should parse requirements 1`] = `
           "nested": [],
         },
         {
-          "courses": [],
           "en": "Free Electives",
           "he": "בחירה חופשית",
           "name": "CG00000175",
           "nested": [],
         },
         {
-          "courses": [],
           "en": "Community Program",
           "he": "תוכנית קהילתית",
           "name": "CG00000551",
@@ -198,7 +194,6 @@ exports[`Requirements > should parse requirements 1`] = `
       ],
     },
     {
-      "courses": [],
       "en": "Path: Computer Science and Bioinformatic",
       "he": "Path: Computer Science and Bioinformatic",
       "name": "CG00006222",
@@ -327,7 +322,6 @@ exports[`Requirements > should parse requirements 1`] = `
           "nested": [],
         },
         {
-          "courses": [],
           "en": "Elective lists Biology",
           "he": "Elective lists Biology",
           "name": "CG00006255",
@@ -371,7 +365,6 @@ exports[`Requirements > should parse requirements 1`] = `
       ],
     },
     {
-      "courses": [],
       "en": "Path: Compter Science 3 Years",
       "he": "נתיב: מדעי המחשב תלת שנתי",
       "name": "CG00006246",
@@ -413,13 +406,11 @@ exports[`Requirements > should parse requirements 1`] = `
           ],
         },
         {
-          "courses": [],
           "en": "Elective Courses - Computer Science",
           "he": "קורסי בחירה - מדעי המחשב",
           "name": "CG00006247",
           "nested": [
             {
-              "courses": [],
               "en": "List Elective Courses",
               "he": "רשימת קורסי בחירה",
               "name": "CG00006249",
@@ -595,19 +586,16 @@ exports[`Requirements > should parse requirements 1`] = `
           ],
         },
         {
-          "courses": [],
           "en": "Science Chains Collection",
           "he": "אוסף שרשראות מדעיות",
           "name": "CG00007018",
           "nested": [
             {
-              "courses": [],
               "en": "List 1 - Physics Chain",
               "he": "רשימה 1 - רשימת פיזיקה",
               "name": "CG00006971",
               "nested": [
                 {
-                  "courses": [],
                   "en": "Mandatory options",
                   "he": "אפשרויות בחירה בחובה",
                   "name": "CG00006972",
@@ -721,7 +709,6 @@ exports[`Requirements > should parse requirements 1`] = `
       ],
     },
     {
-      "courses": [],
       "en": "Path: Learning and analyzing information",
       "he": "נתיב: למידה וניתוח מידע",
       "name": "CG00006253",
@@ -772,19 +759,16 @@ exports[`Requirements > should parse requirements 1`] = `
           ],
         },
         {
-          "courses": [],
           "en": "Science Chains Collection",
           "he": "אוסף שרשראות מדעיות",
           "name": "CG00007018",
           "nested": [
             {
-              "courses": [],
               "en": "List 1 - Physics Chain",
               "he": "רשימה 1 - רשימת פיזיקה",
               "name": "CG00006971",
               "nested": [
                 {
-                  "courses": [],
                   "en": "Mandatory options",
                   "he": "אפשרויות בחירה בחובה",
                   "name": "CG00006972",
@@ -872,7 +856,6 @@ exports[`Requirements > should parse requirements 1`] = `
           ],
         },
         {
-          "courses": [],
           "en": "List Collection - Learning and analyzing",
           "he": "מקצועות בחירה - המגמה ללמידה וניתוח מידע",
           "name": "CG00008289",
@@ -1035,12 +1018,6 @@ exports[`Requirements > should parse requirements 1`] = `
 exports[`Requirements > should provide a list of requirements and their courses 1`] = `
 [
   {
-    "courses": 0,
-    "path": [
-      "CG00000170",
-    ],
-  },
-  {
     "courses": 10,
     "path": [
       "CG00000170",
@@ -1063,20 +1040,6 @@ exports[`Requirements > should provide a list of requirements and their courses 
     ],
   },
   {
-    "courses": 0,
-    "path": [
-      "CG00000170",
-      "CG00000175",
-    ],
-  },
-  {
-    "courses": 0,
-    "path": [
-      "CG00000170",
-      "CG00000551",
-    ],
-  },
-  {
     "courses": 56,
     "path": [
       "CG00000170",
@@ -1088,12 +1051,6 @@ exports[`Requirements > should provide a list of requirements and their courses 
     "path": [
       "CG00000170",
       "CG00010092",
-    ],
-  },
-  {
-    "courses": 0,
-    "path": [
-      "CG00006222",
     ],
   },
   {
@@ -1116,13 +1073,6 @@ exports[`Requirements > should provide a list of requirements and their courses 
     "path": [
       "CG00006222",
       "CG00006251",
-    ],
-  },
-  {
-    "courses": 0,
-    "path": [
-      "CG00006222",
-      "CG00006255",
     ],
   },
   {
@@ -1149,12 +1099,6 @@ exports[`Requirements > should provide a list of requirements and their courses 
     ],
   },
   {
-    "courses": 0,
-    "path": [
-      "CG00006246",
-    ],
-  },
-  {
     "courses": 18,
     "path": [
       "CG00006246",
@@ -1167,21 +1111,6 @@ exports[`Requirements > should provide a list of requirements and their courses 
       "CG00006246",
       "CG00004775",
       "CG00004702",
-    ],
-  },
-  {
-    "courses": 0,
-    "path": [
-      "CG00006246",
-      "CG00006247",
-    ],
-  },
-  {
-    "courses": 0,
-    "path": [
-      "CG00006246",
-      "CG00006247",
-      "CG00006249",
     ],
   },
   {
@@ -1208,30 +1137,6 @@ exports[`Requirements > should provide a list of requirements and their courses 
       "CG00006246",
       "CG00006247",
       "CG00006252",
-    ],
-  },
-  {
-    "courses": 0,
-    "path": [
-      "CG00006246",
-      "CG00007018",
-    ],
-  },
-  {
-    "courses": 0,
-    "path": [
-      "CG00006246",
-      "CG00007018",
-      "CG00006971",
-    ],
-  },
-  {
-    "courses": 0,
-    "path": [
-      "CG00006246",
-      "CG00007018",
-      "CG00006971",
-      "CG00006972",
     ],
   },
   {
@@ -1310,12 +1215,6 @@ exports[`Requirements > should provide a list of requirements and their courses 
     ],
   },
   {
-    "courses": 0,
-    "path": [
-      "CG00006253",
-    ],
-  },
-  {
     "courses": 17,
     "path": [
       "CG00006253",
@@ -1336,30 +1235,6 @@ exports[`Requirements > should provide a list of requirements and their courses 
       "CG00006253",
       "CG00004777",
       "CG00008215",
-    ],
-  },
-  {
-    "courses": 0,
-    "path": [
-      "CG00006253",
-      "CG00007018",
-    ],
-  },
-  {
-    "courses": 0,
-    "path": [
-      "CG00006253",
-      "CG00007018",
-      "CG00006971",
-    ],
-  },
-  {
-    "courses": 0,
-    "path": [
-      "CG00006253",
-      "CG00007018",
-      "CG00006971",
-      "CG00006972",
     ],
   },
   {
@@ -1421,13 +1296,6 @@ exports[`Requirements > should provide a list of requirements and their courses 
       "CG00006253",
       "CG00007018",
       "CG00007016",
-    ],
-  },
-  {
-    "courses": 0,
-    "path": [
-      "CG00006253",
-      "CG00008289",
     ],
   },
   {

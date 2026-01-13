@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { generateCourseColor } from '$lib/colors';
+	import { generateColor } from '$lib/colors';
 	import { content } from '$lib/stores.svelte';
 
 	type Props = {
@@ -39,7 +39,7 @@
 					{#each group as { course: dep, taken }}
 						<div class="flex flex-row justify-start text-content-primary">
 							<div
-								style="background: {generateCourseColor(dep)}"
+								style="background: {generateColor(dep.code)}"
 								class="me-1 mt-0.5 h-3 w-3 min-w-3 {dep.tests
 									? 'rounded-full'
 									: ''}"
@@ -92,7 +92,7 @@
 							</span>
 						</div>
 						<div
-							style="background: {generateCourseColor(adj)}"
+							style="background: {generateColor(adj.code)}"
 							class="h-4 w-4 min-w-4 {adj.tests ? 'rounded-full' : ''}"
 						></div>
 					</div>
@@ -120,7 +120,7 @@
 							</span>
 						</div>
 						<div
-							style="background: {generateCourseColor(course)}"
+							style="background: {generateColor(course.code)}"
 							class="h-4 w-4 min-w-4 {course.tests ? 'rounded-full' : ''}"
 						></div>
 					</div>

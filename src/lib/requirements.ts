@@ -1,39 +1,14 @@
-function loadRequirement(name: string, data: any): Requirement {
-	return {
-		name,
-		en: data.en,
-		he: data.he,
-		courses: data.courses ?? [],
-		nested: Object.entries(data)
-			.filter(([k, _]) => !['en', 'he', 'courses'].includes(k))
-			.map(([k, v]) => loadRequirement(k, v))
-	};
-}
-
-export async function loadCatalog(
+export async function loadRequirement(
 	userDegree: Degree,
 	path: string | undefined = undefined,
 	_fetch: (
 		input: string | URL | globalThis.Request,
 		init?: RequestInit
 	) => Promise<Response> = fetch
-): Promise<Catalog> {
-	const response = await _fetch('/catalogs.json');
-	const catalogs: Catalogs = await response.json();
-
-	const [year, faculty, degree] = userDegree;
-
-	const yearCatalog: I18N = catalogs[year];
-	const facultyCatalog: I18N = catalogs[year][faculty];
-
-	// TODO why does this not work?
-	// @ts-expect-error
-	const catalog = catalogs[year][faculty][degree];
-
-	const data = await _fetch(
-		['_catalogs', ...userDegree, 'requirementsData.json'].join('/')
+): Promise<Requirement> {
+	const requirement: Requirement = await _fetch(
+		['/_catalogs', ...userDegree, 'requirementsData.json'].join('/')
 	).then((r) => r.json());
-	const requirement = loadRequirement(userDegree.join('_'), data);
 
 	let pathCatalog: Requirement | undefined = undefined;
 	if (path !== undefined) {
@@ -45,10 +20,35 @@ export async function loadCatalog(
 		);
 	}
 
-	const catalogLevels = [yearCatalog, facultyCatalog, catalog as I18N];
+	return requirement;
+}
 
-	if (pathCatalog !== undefined) {
-		catalogLevels.push(pathCatalog satisfies I18N);
+export async function loadCatalog(
+	catalogs: Promise<Catalogs>,
+	userDegree: Degree,
+	path: string | undefined = undefined,
+	_fetch: (
+		input: string | URL | globalThis.Request,
+		init?: RequestInit
+	) => Promise<Response> = fetch
+): Promise<Catalog> {
+	const [year, faculty, degree] = userDegree;
+
+	const [_catalogs, requirement] = await Promise.all([
+		catalogs,
+		loadRequirement(userDegree, path, _fetch)
+	]);
+	const yearCatalog: I18N = _catalogs[year];
+	const facultyCatalog: I18N = _catalogs[year][faculty];
+
+	// TODO why does this not work?
+	// @ts-expect-error
+	const catalog: I18N = _catalogs[year][faculty][degree];
+
+	const catalogLevels = [yearCatalog, facultyCatalog, catalog];
+
+	if (path !== undefined) {
+		catalogLevels.push({ en: requirement.en, he: requirement.he });
 	}
 
 	function applyI18n(i18n: I18N, lang: 'en' | 'he'): string {
@@ -84,14 +84,14 @@ export async function loadCatalog(
 		degree: userDegree,
 		path,
 		i18n,
-		recommended: catalog.recommended,
+		recommended: undefined,
 		requirement
 	};
 }
 
 export function getCourseLists(
 	requirement: Requirement | undefined,
-	code: string
+	code: CourseCode
 ): Requirement[][] {
 	if (requirement === undefined) {
 		return [];
@@ -116,24 +116,21 @@ export function getCourseLists(
 		return lists;
 	}
 
-	// const lists = [..._getLists(requirement, [])];
-	const lists = requirement.nested?.flatMap((r) => _getLists(r, [])) ?? [];
-
-	return lists;
+	return requirement.nested?.flatMap((r) => _getLists(r, [])) ?? [];
 }
 
 export function getDegreeRequirementCourses(
 	requirement: Requirement
-): { path: Requirement[]; courses: string[] }[] {
+): { path: Requirement[]; courses: CourseCode[] }[] {
 	function _getRequirementCourses(
 		r: Requirement,
 		path: Requirement[]
-	): { path: Requirement[]; courses: string[] }[] {
+	): { path: Requirement[]; courses: CourseCode[] }[] {
 		// add the current requirement to the path
 		path = [...path, r];
 
 		const result = [];
-		if (r.courses) {
+		if (r.courses !== undefined) {
 			result.push({ path, courses: r.courses });
 		}
 
@@ -144,8 +141,7 @@ export function getDegreeRequirementCourses(
 		return result;
 	}
 
-	const value =
-		requirement.nested?.flatMap((r) => _getRequirementCourses(r, [])) ?? [];
-
-	return value;
+	return (
+		requirement.nested?.flatMap((r) => _getRequirementCourses(r, [])) ?? []
+	);
 }

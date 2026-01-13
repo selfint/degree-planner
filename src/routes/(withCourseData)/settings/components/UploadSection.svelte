@@ -29,9 +29,9 @@
 		setUser(
 			await writeStorage({
 				...user.d,
-				semesters: semesters,
+				semesters: semesters as CourseCode[][],
 				currentSemester: currentSemester,
-				exemptions: transcript.exemptions
+				exemptions: transcript.exemptions as CourseCode[]
 			})
 		);
 
@@ -121,8 +121,8 @@
 				{content.lang.settings.exemptions}
 			</h2>
 			<CourseRow {getCourseData} courses={transcript.exemptions}>
-				{#snippet children({ course })}
-					<CourseElement {course} />
+				{#snippet children({ code, course })}
+					<CourseElement {code} {course} />
 				{/snippet}
 			</CourseRow>
 		</div>
@@ -137,8 +137,8 @@
 							{semester}
 							isCurrent={semesterIndex === transcript.semesters.length - 1}
 						>
-							{#snippet children({ course })}
-								<CourseElement {course} squeeze={true} />
+							{#snippet children({ code, course })}
+								<CourseElement {code} {course} squeeze={true} />
 							{/snippet}
 						</Semester>
 					</div>

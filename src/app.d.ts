@@ -58,7 +58,7 @@ declare global {
 		 * The courses that satisfy this requirement.
 		 * If empty, courses will be taken from the nested requirements.
 		 */
-		courses?: string[];
+		courses?: CourseCode[];
 
 		/**
 		 * The points required to satisfy this requirement.
@@ -192,32 +192,32 @@ declare global {
 		degree: Degree;
 		path?: string;
 		i18n: I18N;
-		recommended: string[][];
+		recommended?: CourseCode[][];
 		requirement: Requirement;
 	};
 
 	type UserDataV1 = {
-		semesters: string[][];
+		semesters: CourseCode[][];
 		currentSemester: number;
-		wishlist: string[];
+		wishlist: CourseCode[];
 		username?: string;
 		degree?: Degree;
 	};
 
 	type UserDataV2 = {
-		semesters: string[][];
+		semesters: CourseCode[][];
 		currentSemester: number;
-		wishlist: string[];
+		wishlist: CourseCode[];
 		username?: string;
 		degree?: Degree;
 		path?: string;
 	};
 
 	type UserData = {
-		exemptions: string[];
-		semesters: string[][];
+		exemptions: CourseCode[];
+		semesters: CourseCode[][];
 		currentSemester: number;
-		wishlist: string[];
+		wishlist: CourseCode[];
 		degree?: Degree;
 		path?: string;
 	};
@@ -226,12 +226,14 @@ declare global {
 	type CatalogsHeader = typeof catalogsHeader;
 	type Degree = NestedKeys<Catalogs>;
 
-	type CourseData = typeof courseData;
+	type _CourseData = typeof courseData;
+	type CourseCode = keyof _CourseData;
+	type CourseData = Record<CourseCode, Course>;
 
 	type CourseConnections = {
-		dependencies: string[][];
-		adjacent: string[];
-		exclusive: string[];
+		dependencies: CourseCode[][];
+		adjacent: CourseCode[];
+		exclusive: CourseCode[];
 	};
 
 	type Test = {
@@ -246,7 +248,7 @@ declare global {
 	};
 
 	type Course = {
-		code: string;
+		code: CourseCode;
 		name?: string;
 		points?: number;
 		median?: number;
@@ -274,7 +276,7 @@ declare global {
 		season?: number[];
 	};
 
-	type GetCourseData = (code: string) => Promise<Course>;
+	type GetCourseData = (code: CourseCode) => Promise<Course>;
 }
 
 export {};

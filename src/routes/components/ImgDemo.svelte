@@ -18,6 +18,7 @@
 			<img
 				{src}
 				alt={title}
+				loading="lazy"
 				class="pointer-events-auto w-full rounded-[10px] bg-transparent"
 			/>
 		</div>

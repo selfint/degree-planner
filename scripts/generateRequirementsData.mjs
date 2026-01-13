@@ -1,4 +1,5 @@
 /// <reference path="./types.d.ts"/>
+/// <reference path="../src/app.d.ts"/>
 
 import * as fs from 'fs';
 import { join, dirname, basename } from 'path';
@@ -18,6 +19,7 @@ function writeFileSync(path, data) {
 
 /**
  * @param {string} dir
+ * @returns {Requirement}
  */
 function dirToJson(dir) {
 	const subDirs = [];
@@ -28,7 +30,7 @@ function dirToJson(dir) {
 		}
 		const childPath = join(dir, child);
 		if (fs.statSync(childPath).isDirectory()) {
-			subDirs.push([child, dirToJson(childPath)]);
+			subDirs.push(dirToJson(childPath));
 		} else {
 			let childContent = fs.readFileSync(childPath).toString();
 			if (child === 'courses') {
@@ -38,10 +40,14 @@ function dirToJson(dir) {
 		}
 	}
 
-	return {
-		...Object.fromEntries(subDirs),
+	/** @type {Requirement} */
+	const r = {
+		name: basename(dir),
+		nested: subDirs,
 		...Object.fromEntries(files)
 	};
+
+	return r;
 }
 
 /**

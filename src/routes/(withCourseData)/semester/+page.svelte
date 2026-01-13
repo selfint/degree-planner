@@ -406,7 +406,7 @@
 
 					<div class="sm:hidden">
 						<CourseRow {getCourseData} indent={1} {courses}>
-							{#snippet children({ code, course })}
+							{#snippet children({ code, course, scheduleError })}
 								<button onmousedown={() => goto(`/course/${code}`)}>
 									<CourseElement
 										{code}

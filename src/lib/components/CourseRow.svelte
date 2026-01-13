@@ -112,7 +112,22 @@
 			</div>
 		{/each}
 	{:else}
-		{#await sortedCourses then sortedCourses}
+		{#await sortedCourses}
+			{#each loadingCourses as { code, course }, index}
+				{@const scheduleError =
+					checkScheduleError === undefined
+						? undefined
+						: checkScheduleError(course)}
+				<div data-code={code} class="pe-2">
+					{@render children({
+						code,
+						course,
+						index,
+						scheduleError
+					})}
+				</div>
+			{/each}
+		{:then sortedCourses}
 			{#each sortedCourses as { code, course }, index}
 				{@const scheduleError =
 					checkScheduleError === undefined

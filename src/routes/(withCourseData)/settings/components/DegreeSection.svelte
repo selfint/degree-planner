@@ -4,6 +4,7 @@
 	import Button from '$lib/components/Button.svelte';
 	import Select from '$lib/components/Select.svelte';
 	import Spinner from '$lib/components/Spinner.svelte';
+	import { loadRequirement } from '$lib/requirements';
 
 	import { user, content } from '$lib/stores.svelte';
 
@@ -135,13 +136,9 @@
 		faculty: string,
 		degree: string
 	): Promise<{ value: string; display: string }[]> {
-		let c = await catalogs;
+		let r = await loadRequirement([year, faculty, degree] as Degree);
 
-		const entries: { name: string; he: string; en: string }[] =
-			// @ts-expect-error
-			c[year][faculty][degree]['requirement']['nested'];
-
-		return entries
+		return (r.nested ?? [])
 			.filter(({ en }) => en.toLowerCase().includes('path'))
 			.map(({ name, en, he }) => ({
 				value: name,
@@ -240,7 +237,14 @@
 		{/if}
 
 		{#if year !== undefined && faculty !== undefined && degree !== undefined}
-			{#await getPaths(year, faculty, degree) then paths}
+			{#await getPaths(year, faculty, degree)}
+				<span class="text-content-secondary">
+					{content.lang.settings.path}
+				</span>
+				<div class="h-7 w-7">
+					<Spinner />
+				</div>
+			{:then paths}
 				{#if paths.length > 0}
 					<span class="text-content-secondary">
 						{content.lang.settings.path}

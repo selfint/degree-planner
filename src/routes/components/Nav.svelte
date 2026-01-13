@@ -9,7 +9,7 @@
 
 	let { target, children }: Props = $props();
 
-	const border = $derived(
+	const border = $derived.by(() =>
 		'/' + target === page.url.pathname
 			? 'border-b-2 border-accent-primary'
 			: 'border-b-2 border-transparent'

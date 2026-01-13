@@ -1,7 +1,7 @@
 <script lang="ts">
 	import ScheduleErrorComponent from './ScheduleErrorComponent.svelte';
 
-	import { generateCourseColor } from '$lib/colors';
+	import { generateColor } from '$lib/colors';
 	import CourseWidth from './CourseWidth.svelte';
 	import StudyDaysComponent from './StudyDaysComponent.svelte';
 	import type { Snippet } from 'svelte';
@@ -11,24 +11,36 @@
 	import { content } from '$lib/stores.svelte';
 
 	type Props = {
+		code: string;
 		course: Promise<Course> | Course;
 		squeeze?: boolean;
-		note?: Snippet;
+		note?: Snippet<[Course]>;
 		scheduleError?: Promise<ScheduleError>;
 		tests?: Promise<Course[]>;
+		index?: number;
 	};
 
-	let { course, note, squeeze = false, scheduleError, tests }: Props = $props();
+	let {
+		code,
+		course: _course,
+		note,
+		squeeze = false,
+		scheduleError,
+		tests,
+		index = 0
+	}: Props = $props();
 
-	const color = $derived.by(
-		async () => await Promise.resolve(course).then(generateCourseColor)
-	);
+	const course = $derived.by(() => Promise.resolve(_course));
 
-	const hasTest = $derived.by(
-		async () =>
-			await Promise.resolve(course).then(
-				(c) => c.tests !== undefined && c.tests.length > 0
-			)
+	let loaded = $state(false);
+	$effect(() => {
+		course.then(() => (loaded = true));
+	});
+
+	const color = $derived.by(() => generateColor(code));
+
+	const hasTest = $derived.by(() =>
+		course.then((c) => c.tests !== undefined && c.tests.length > 0)
 	);
 
 	let minimize = $state(false);
@@ -54,7 +66,7 @@
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
-	class="h-fit w-fit select-none justify-between rounded-md bg-card-secondary"
+	class="relative h-fit w-fit select-none justify-between rounded-md bg-card-secondary"
 	onclick={(e) => {
 		if (minimize) {
 			e.preventDefault();
@@ -63,15 +75,22 @@
 		}
 	}}
 >
+	{#await course}
+		<div
+			class="animate-opacity-wave pointer-events-none absolute inset-0 z-0
+           rounded-md bg-gradient-to-r from-card-secondary/50 via-card-primary/50
+           to-card-secondary/50 bg-[length:300%_100%]"
+		></div>
+	{/await}
 	<CourseWidth>
 		<div class="w-full rounded-md bg-card-primary p-2">
 			<div
 				class="flex flex-row items-center justify-between pb-1 text-xs text-content-secondary"
 			>
 				<div class="flex flex-row">
-					{#await Promise.all([hasTest, color])}
-						<div class="h-4 min-w-4 bg-gray-500"></div>
-					{:then [hasTest, color]}
+					{#await hasTest}
+						<div style="background: {color}" class="h-4 min-w-4"></div>
+					{:then hasTest}
 						<div
 							style="background: {color}"
 							class="h-4 min-w-4 {hasTest ? 'rounded-full' : ''}"
@@ -79,7 +98,9 @@
 					{/await}
 					{#if note !== undefined}
 						<span class="me-1 ms-1">
-							{@render note()}
+							{#await course then course}
+								{@render note(course)}
+							{/await}
 						</span>
 					{/if}
 				</div>
@@ -118,7 +139,7 @@
 			</div>
 		{/if}
 
-		{#if scheduleError !== undefined}
+		{#if scheduleError !== undefined && loaded}
 			{#await _scheduleError}
 				<div
 					class="flex flex-row items-center p-2 pb-1 pt-1 text-xs text-content-secondary"
@@ -156,3 +177,34 @@
 		{/if}
 	</CourseWidth>
 </div>
+
+<style>
+	@keyframes opacity-wave {
+		0% {
+			background-position: 0% 50%;
+		}
+		50% {
+			background-position: 100% 50%;
+		}
+		100% {
+			background-position: 0% 50%;
+		}
+	}
+
+	.animate-opacity-wave {
+		animation: opacity-wave 3s ease-in-out infinite;
+		will-change: background-position;
+	}
+
+	@keyframes gradient {
+		0% {
+			background-position: 0% 50%;
+		}
+		50% {
+			background-position: 100% 50%;
+		}
+		100% {
+			background-position: 0% 50%;
+		}
+	}
+</style>

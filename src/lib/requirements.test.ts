@@ -1,8 +1,9 @@
 import fs from 'fs/promises';
 import path from 'path';
 
-import { describe, it, expect } from 'vitest';
+import { describe, it } from 'vitest';
 
+import catalogs from '../../static/catalogs.json';
 import { getDegreeRequirementCourses, loadCatalog } from './requirements';
 
 async function localFetch(
@@ -27,7 +28,12 @@ describe('Requirements', () => {
 	it('should provide a list of requirements and their courses', async (ctx) => {
 		const degree: Degree = ['2024_200', '00002120', 'SC00001314_CG00006245'];
 
-		const data = await loadCatalog(degree, undefined, localFetch);
+		const data = await loadCatalog(
+			Promise.resolve(catalogs),
+			degree,
+			undefined,
+			localFetch
+		);
 
 		const requirementsCourses = getDegreeRequirementCourses(data.requirement);
 
@@ -44,7 +50,12 @@ describe('Requirements', () => {
 	it('should parse recommended', async (ctx) => {
 		const degree: Degree = ['2024_200', '00002120', 'SC00001314_CG00006245'];
 
-		const requirements = await loadCatalog(degree, undefined, localFetch);
+		const requirements = await loadCatalog(
+			Promise.resolve(catalogs),
+			degree,
+			undefined,
+			localFetch
+		);
 
 		ctx.expect(requirements.recommended).toMatchSnapshot();
 	});
@@ -52,7 +63,12 @@ describe('Requirements', () => {
 	it('should parse requirements', async (ctx) => {
 		const degree: Degree = ['2024_200', '00002120', 'SC00001314_CG00006245'];
 
-		const data = await loadCatalog(degree, undefined, localFetch);
+		const data = await loadCatalog(
+			Promise.resolve(catalogs),
+			degree,
+			undefined,
+			localFetch
+		);
 
 		ctx.expect(data.requirement).toMatchSnapshot();
 	});

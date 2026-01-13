@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { generateCourseColor } from '$lib/colors';
+	import { generateColor } from '$lib/colors';
 
 	type Props = {
 		semester: Promise<Course[]>;
@@ -87,7 +87,7 @@
 		<div class="mb-1 flex flex-row flex-wrap text-content-primary">
 			{#if days0 !== undefined}
 				<div
-					style="background: {generateCourseColor(days0.first[0])}"
+					style="background: {generateColor(days0.first[0].code)}"
 					class="mb-0.5 mr-0.5 w-fit border {days0.first[0].code ===
 					course?.code
 						? 'border-content-primary'
@@ -97,7 +97,7 @@
 				</div>
 				{#each days0.next as [c, days]}
 					<div
-						style="background: {generateCourseColor(c)}"
+						style="background: {generateColor(c.code)}"
 						class="mb-0.5 mr-0.5 w-6 border {c.code === course?.code
 							? 'border-content-primary'
 							: 'border-transparent'} p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
@@ -111,7 +111,7 @@
 		<div class="flex flex-row flex-wrap text-content-primary">
 			{#if days1 !== undefined}
 				<div
-					style="background: {generateCourseColor(days1.first[0])}"
+					style="background: {generateColor(days1.first[0].code)}"
 					class="mb-0.5 mr-0.5 w-fit border {days1.first[0].code ===
 					course?.code
 						? 'border-content-primary'
@@ -121,7 +121,7 @@
 				</div>
 				{#each days1.next as [c, days]}
 					<div
-						style="background: {generateCourseColor(c)}"
+						style="background: {generateColor(c.code)}"
 						class="mb-0.5 mr-0.5 w-6 border {c.code === course?.code
 							? 'border-content-primary'
 							: 'border-transparent'} p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"

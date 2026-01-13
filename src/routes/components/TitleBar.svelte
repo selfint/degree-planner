@@ -38,7 +38,7 @@
 <header dir="ltr" class="touch-manipulation items-center pt-1">
 	<div class="flex flex-row items-center justify-between pe-3 ps-2">
 		<a href="/" class="flex h-12 min-w-12 flex-row items-center">
-			<img src={Logo} alt="Logo" class="h-12 w-12" />
+			<img src={Logo} loading="lazy" alt="Logo" class="h-12 w-12" />
 			{#if !started}
 				<span
 					class="border-b-2 border-background text-2xl font-semibold tracking-tight text-content-primary"

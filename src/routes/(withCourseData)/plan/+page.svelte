@@ -154,7 +154,7 @@
 							data-code={course}
 							onclick={() => goto(`/course/${course}`)}
 						>
-							<CourseElement course={getCourseData(course)} />
+							<CourseElement code={course} course={getCourseData(course)} />
 						</button>
 					{/each}
 				</div>
@@ -225,6 +225,7 @@
 									onclick={() => goto(`/course/${code}`)}
 								>
 									<CourseElement
+										{code}
 										{course}
 										squeeze={true}
 										scheduleError={getScheduleError(

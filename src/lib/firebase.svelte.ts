@@ -16,7 +16,7 @@ import {
 	getFirestore,
 	type Firestore as FirebaseFirestore,
 	connectFirestoreEmulator,
-	DocumentReference,
+	type DocumentReference,
 	type Unsubscribe as FirestoreUnsubscribe
 } from 'firebase/firestore';
 import {
@@ -24,7 +24,7 @@ import {
 	getDoc,
 	doc,
 	setDoc,
-	QueryDocumentSnapshot
+	type QueryDocumentSnapshot
 } from 'firebase/firestore';
 import type { StorageMethod } from './stores.svelte';
 import { onSnapshot } from 'firebase/firestore';
@@ -67,8 +67,8 @@ type FirestoreData =
 
 export async function initFirebase(): Promise<FirebaseServices> {
 	const app = initializeApp(firebaseConfig);
-	const auth = getAuth(app);
 
+	const auth = getAuth(app);
 	const firestore = getFirestore(app);
 
 	let analytics = undefined;
@@ -94,16 +94,14 @@ function getUserDocRef(
 	}
 
 	const courseSeparator = '-';
-	function encodeSemesters(semesters: string[][]): string[] {
+	function encodeSemesters(semesters: CourseCode[][]): string[] {
 		return semesters.map((semester) => semester.join(courseSeparator));
 	}
 
-	function decodeSemesters(encodedSemesters: string[]): string[][] {
-		return (
-			encodedSemesters.map((s) =>
-				s.split(courseSeparator).filter((c) => c !== '')
-			) ?? []
-		);
+	function decodeSemesters(encodedSemesters: string[]): CourseCode[][] {
+		return (encodedSemesters.map((s) =>
+			s.split(courseSeparator).filter((c) => c !== '')
+		) ?? []) as CourseCode[][];
 	}
 
 	const users = collection(firebase.firestore, 'users').withConverter({
@@ -129,17 +127,17 @@ function getUserDocRef(
 						exemptions: [],
 						semesters: decodeSemesters(data.semesters),
 						currentSemester: data.currentSemester,
-						wishlist: data.wishlist,
+						wishlist: data.wishlist as CourseCode[],
 						degree: (data.degree ?? undefined) as Degree | undefined,
 						path: data.path ?? undefined
 					};
 
 				case 3:
 					return {
-						exemptions: data.exemptions,
+						exemptions: data.exemptions as CourseCode[],
 						semesters: decodeSemesters(data.semesters),
 						currentSemester: data.currentSemester,
-						wishlist: data.wishlist,
+						wishlist: data.wishlist as CourseCode[],
 						degree: (data.degree ?? undefined) as Degree | undefined,
 						path: data.path ?? undefined
 					};

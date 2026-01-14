@@ -213,6 +213,15 @@ declare global {
 		path?: string;
 	};
 
+	type UserDataV3 = {
+		exemptions: CourseCode[];
+		semesters: CourseCode[][];
+		currentSemester: number;
+		wishlist: CourseCode[];
+		degree?: Degree;
+		path?: string;
+	};
+
 	type UserData = {
 		exemptions: CourseCode[];
 		semesters: CourseCode[][];

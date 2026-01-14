@@ -17,22 +17,14 @@
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import AsyncButton from '$lib/components/AsyncButton.svelte';
 	import { goto } from '$app/navigation';
-	import type { User } from 'firebase/auth';
 	import Spinner from '$lib/components/Spinner.svelte';
 
 	const { data: pageData } = $props();
 	const { getCourseData, firebase, catalogs } = pageData;
 
 	async function onSignInWithGoogle() {
-		await signIn(await firebase);
+		await signIn(firebase);
 	}
-
-	let currentUser: User | null = $state(null);
-	$effect(() => {
-		firebase.then((firebase) => {
-			firebase.auth.onAuthStateChanged((u) => (currentUser = u));
-		});
-	});
 
 	const recommended = $derived(catalog()?.recommended);
 
@@ -87,6 +79,12 @@
 		)
 	);
 
+	let currentUser = $state(firebase.auth.currentUser);
+	firebase.auth.onAuthStateChanged((u) => {
+		console.log('here');
+		currentUser = u;
+	});
+
 	let buttonNamespace = $state('');
 </script>
 
@@ -99,9 +97,8 @@
 				</div>
 			</h1>
 		{:then firebase}
-			{@const currentUser = firebase.auth.currentUser}
 			<h1 class="mb-2 text-xl text-content-primary">
-				{currentUser ?? content.lang.settings.guest}
+				{currentUser?.displayName ?? content.lang.settings.guest}
 			</h1>
 			{#if currentUser === null}
 				<Button variant="secondary" onclick={onSignInWithGoogle}>

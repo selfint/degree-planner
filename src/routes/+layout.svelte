@@ -28,20 +28,18 @@
 	inject();
 
 	const { data: pageData, children } = $props();
-	// const { firebase: firebaseP } = pageData;
+	const { firebase } = pageData;
 
-	// firebaseP.then((firebase) => {
-	// 	firebase.auth.onAuthStateChanged(async (u) => {
-	// 		if (u !== null) {
-	// 			setStorage(buildFirebaseStorage(firebase));
-	// 			setUser(await readStorage());
-	// 			return subscribeFirebase(firebase, setUser);
-	// 		} else {
-	// 			setStorage(localStorageMethod);
-	// 			setUser(await readStorage());
-	// 		}
-	// 	});
-	// });
+	firebase.auth.onAuthStateChanged(async (u) => {
+		if (u !== null) {
+			setStorage(buildFirebaseStorage(firebase));
+			setUser(await readStorage());
+			return subscribeFirebase(firebase, setUser);
+		} else {
+			setStorage(localStorageMethod);
+			setUser(await readStorage());
+		}
+	});
 
 	function onchangeLang(newValue: (typeof cms)[keyof typeof cms]): void {
 		localStorage.setItem('lang', newValue.lang);

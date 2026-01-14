@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { user, content, requirement } from '$lib/stores.svelte';
+	import { user, content, requirement, degreeName } from '$lib/stores.svelte';
 	import { getDegreeRequirementCourses } from '$lib/requirements';
 	import CourseRow from '$lib/components/CourseRow.svelte';
 	import CourseElement from '$lib/components/CourseElement.svelte';
@@ -49,45 +49,6 @@
 			p.reduce((sum, { points }) => sum + (points ?? 0), 0)
 		)
 	);
-
-	const catalogName = $derived(
-		content.lang.lang === 'en' ? 'catalog' : 'קטלוג'
-	);
-
-	const degreeName = $derived.by(async () => {
-		if (user.d.degree === undefined) {
-			return '';
-		}
-
-		const lang = content.lang.lang;
-
-		const [year, faculty, degree] = user.d.degree;
-		const path = user.d.path;
-
-		const _fetch = (values: string[]) =>
-			fetch(['/_catalogs', ...values, lang].join('/')).then((r) => r.text());
-
-		const _yearName = _fetch([year]);
-		const _facultyName = _fetch([year, faculty]);
-		const _degreeName = _fetch([year, faculty, degree]);
-
-		if (path === undefined) {
-			const [yearName, facultyName, degreeName] = await Promise.all([
-				_yearName,
-				_facultyName,
-				_degreeName
-			]);
-			return `${facultyName} (${catalogName} ${yearName}) - ${degreeName}`;
-		} else {
-			const [yearName, facultyName, degreeName, pathName] = await Promise.all([
-				_yearName,
-				_facultyName,
-				_degreeName,
-				_fetch([year, faculty, degree, 'requirement', path])
-			]);
-			return `${facultyName} (${catalogName} ${yearName}) - ${degreeName} ${pathName}`;
-		}
-	});
 </script>
 
 <div class="mt-3">
@@ -97,14 +58,14 @@
 				class="mb-1 me-3 ms-3 flex flex-row items-baseline text-base font-medium text-content-primary"
 			>
 				<div class="me-2 flex flex-row flex-wrap items-start gap-y-1">
-					{#await degreeName}
+					{#await degreeName()}
 						{content.lang.common.loading}
-						{catalogName}
+						{content.lang.common.catalog}
 						<div class="me-1 inline h-5 w-5">
 							<Spinner />
 						</div>
-					{:then degreeName}
-						{degreeName}
+					{:then d}
+						{d}
 					{/await}
 				</div>
 			</h1>

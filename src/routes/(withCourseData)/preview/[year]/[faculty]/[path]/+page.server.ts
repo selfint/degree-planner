@@ -1,7 +1,6 @@
-import { loadCatalog } from '$lib/requirements';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ params, url, fetch }) => {
+export const load: PageServerLoad = async ({ params, url }) => {
 	const { year, faculty, path } = params;
 
 	const semesters =

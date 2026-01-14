@@ -1,5 +1,5 @@
 import { browser } from '$app/environment';
-import { loadCatalog, loadRequirement } from './requirements';
+import { loadRequirement } from './requirements';
 import { cms } from './content';
 
 function getLangPreference() {
@@ -25,7 +25,8 @@ function getLangPreference() {
 
 export let content = $state({ lang: getLangPreference() });
 
-const version = 3 as const;
+const version = 4 as const;
+const defaultSemesters = Array(12).fill([]);
 
 const loaders = [
 	function load_0(): UserDataV1 {
@@ -119,6 +120,37 @@ const loaders = [
 			degree: undefined,
 			path: undefined
 		};
+	},
+
+	function load_4(): UserData {
+		const userData = localStorage.getItem('userData');
+
+		if (userData !== null) {
+			try {
+				const data: UserData = JSON.parse(userData);
+
+				data.semesters = data.semesters.map((s) =>
+					s.filter((c) => (c as string) !== '')
+				);
+
+				if (data.semesters.length === 0) {
+					data.semesters = defaultSemesters;
+				}
+
+				return data;
+			} catch (error) {
+				console.error('Failed to load user data', error);
+			}
+		}
+
+		return {
+			exemptions: [],
+			semesters: defaultSemesters,
+			currentSemester: 0,
+			wishlist: [],
+			degree: undefined,
+			path: undefined
+		};
 	}
 ] as const;
 
@@ -201,22 +233,29 @@ const migrations = [
 		localStorage.setItem('userData', JSON.stringify(v3));
 
 		return v3;
+	},
+	function migrate_3_4(v3: UserDataV3): UserData {
+		// update version
+		localStorage.setItem('version', '4');
+
+		if (v3.semesters.length === 0) {
+			v3.semesters = defaultSemesters;
+		}
+
+		const v4: UserData = {
+			...v3
+		};
+
+		// save new user data
+		localStorage.setItem('userData', JSON.stringify(v4));
+
+		return v4;
 	}
 ] as const;
 
 export const user: { d: UserData } = $state({ d: readLocalStorage() });
 export function setUser(data: UserData) {
 	user.d = data;
-}
-
-let _catalog: Catalog | undefined = $state(undefined);
-export const catalog = () => _catalog;
-export function initCatalog(catalogs: Promise<Catalogs>): void {
-	if (user.d.degree !== undefined) {
-		loadCatalog(catalogs, user.d.degree, user.d.path).then(
-			(d) => (_catalog = d)
-		);
-	}
 }
 
 // decouple the user degree/path from the rest of the user object
@@ -241,11 +280,49 @@ const _requirement = $derived.by(() => {
 });
 export const requirement = () => _requirement;
 
+export const degreeName = () => _degreeName;
+const _degreeName = $derived.by(async () => {
+	if (_fineGrainedReactivityUserDegree === undefined) {
+		return undefined;
+	}
+
+	// parse serialized user degree
+	const [degreeString, path] = _fineGrainedReactivityUserDegree.split(';');
+	const [year, faculty, degree] = degreeString.split(':') as Degree;
+
+	const lang = content.lang.lang;
+	const catalogName = content.lang.common.catalog;
+
+	const _fetch = (values: string[]) =>
+		fetch(['/_catalogs', ...values, lang].join('/')).then((r) => r.text());
+
+	const _yearName = _fetch([year]);
+	const _facultyName = _fetch([year, faculty]);
+	const _degreeName = _fetch([year, faculty, degree]);
+
+	if (path === '-') {
+		const [yearName, facultyName, degreeName] = await Promise.all([
+			_yearName,
+			_facultyName,
+			_degreeName
+		]);
+		return `${facultyName} (${catalogName} ${yearName}) - ${degreeName}`;
+	} else {
+		const [yearName, facultyName, degreeName, pathName] = await Promise.all([
+			_yearName,
+			_facultyName,
+			_degreeName,
+			_fetch([year, faculty, degree, 'requirement', path])
+		]);
+		return `${facultyName} (${catalogName} ${yearName}) - ${degreeName} ${pathName}`;
+	}
+});
+
 function readLocalStorage(): UserData {
 	if (!browser) {
 		return {
 			exemptions: [],
-			semesters: [],
+			semesters: defaultSemesters,
 			currentSemester: 0,
 			wishlist: [],
 			degree: undefined,
@@ -262,6 +339,8 @@ function readLocalStorage(): UserData {
 
 	let user = loaders[localVersion]();
 	while (localVersion < version) {
+		// TODO: explicitly migrate versions not in a loop
+		// @ts-expect-error
 		user = migrations[localVersion](user);
 		localVersion++;
 	}

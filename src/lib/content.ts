@@ -4,6 +4,7 @@ export const cms = {
 		dir: 'ltr',
 		common: {
 			getStarted: 'Get Started',
+			catalog: 'Catalog',
 			seasons: ['Winter', 'Spring', 'Summer'],
 			na: 'N/A',
 			yes: 'Yes',
@@ -177,6 +178,7 @@ export const cms = {
 		dir: 'rtl',
 		common: {
 			getStarted: 'התחל',
+			catalog: 'קטלוג',
 			seasons: ['חורף', 'אביב', 'קיץ'],
 			na: 'לא זמין',
 			yes: 'כן',

@@ -13,7 +13,8 @@ function nestRequirements(name, requirements) {
 		'he',
 		'en',
 		'overflow',
-		'hook'
+		'hook',
+		'requirementsData.json'
 	];
 
 	const nonKeywords = Object.keys(requirements).filter(
@@ -57,6 +58,7 @@ function readDirectoryRecursively(directory, parents = []) {
 
 			if (file.startsWith('semester')) {
 			} else if (file === 'courses') {
+			} else if (file === 'requirementsData.json') {
 			} else if (file === 'hook.js') {
 			} else if (['count', 'amount', 'points'].includes(file)) {
 			} else {

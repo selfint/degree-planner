@@ -25,7 +25,6 @@ async function main() {
 	const courses = JSON.parse(readFileSync(COURSE_DATA, 'utf-8'));
 
 	for (const course of Object.values(courses)) {
-		console.log('Writing course:', course.code);
 		writeFileSync(join(DB_PATH, course.code), JSON.stringify(course));
 	}
 }

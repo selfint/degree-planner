@@ -1,0 +1,1 @@
+{"code":"00860865","about":"","points":3,"name":"ביצועי מערכות הנעה ואינטגרציה","tests":[{"year":2026,"monthIndex":7,"day":4},{"year":2026,"monthIndex":7,"day":26}],"connections":{"dependencies":[["00840312","00840220","00850407"]],"adjacent":[],"exclusive":[]},"seasons":["Winter","Spring","Summer"],"faculty":"הפקולטה להנדסת אווירונוטיקה וחלל","current":true}

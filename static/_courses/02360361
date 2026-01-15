@@ -1,0 +1,1 @@
+{"code":"02360361","about":"בקורס זה יכתב קומפיילר לשפה מסויימת. הסטודנטים יעבדו יחידים או בצוותים בפיקוח של אסיסטנט.","points":3,"name":"פרויקט בקומפילציה מ'","connections":{"dependencies":[["02360360"]],"adjacent":[],"exclusive":["02340302"]},"seasons":["Winter","Spring"],"faculty":"הפקולטה למדעי המחשב","current":false}

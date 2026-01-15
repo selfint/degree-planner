@@ -1,0 +1,1 @@
+{"code":"00340401","median":91.7,"about":"ניסויים בקינמטיקה, בקרה ותכנון של רובוטים. סימולציה של רובוטים. ציוד: רובוט תעשייתי AMUP ורובוט לימודי ONIHR, מערכת ראיה.","points":2.5,"name":"מעבדה מתקדמת לרובוטים","connections":{"dependencies":[["00350188","00350001"]],"adjacent":[],"exclusive":[]},"seasons":["Winter","Spring"],"faculty":"הפקולטה להנדסת מכונות","current":true}

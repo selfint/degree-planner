@@ -42,5 +42,5 @@ function parseDB(db_path) {
 
 const manifest = parseDB(DB_PATH);
 
-// writeFileSync(manifestPath, JSON.stringify(manifest));
-writeFileSync(MANIFEST_PATH, JSON.stringify(manifest, null, 2));
+writeFileSync(MANIFEST_PATH, JSON.stringify(manifest));
+// writeFileSync(MANIFEST_PATH, JSON.stringify(manifest, null, 2));

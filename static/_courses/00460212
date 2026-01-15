@@ -1,0 +1,1 @@
+{"code":"00460212","median":85.9,"about":"","points":3,"name":"מבוא לרובוטיקה ח'","tests":[{"year":2026,"monthIndex":1,"day":15},{"year":2026,"monthIndex":2,"day":17}],"connections":{"dependencies":[["00440131"]],"adjacent":[],"exclusive":["00350001","02360927"]},"seasons":["Winter"],"faculty":"הפקולטה להנדסת חשמל ומחשבים","current":false}

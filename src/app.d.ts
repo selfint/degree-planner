@@ -1,6 +1,5 @@
 import catalogs from '../static/catalogs.json';
-import catalogsHeader from '../static/catalogsHeader.json';
-import courseData from '../static/courseData.json';
+import courseData from '../static/courseDataStripped.json';
 
 // type gymnastics to get catalogs in a type-safe way
 // credit: https://chatgpt.com/share/67137b39-7de8-8002-a4aa-0556e0c86b5a
@@ -232,7 +231,6 @@ declare global {
 	};
 
 	type Catalogs = typeof catalogs;
-	type CatalogsHeader = typeof catalogsHeader;
 	type Degree = NestedKeys<Catalogs>;
 
 	type _CourseData = typeof courseData;
@@ -262,10 +260,13 @@ declare global {
 		points?: number;
 		median?: number;
 		connections?: CourseConnections;
-		about?: string;
 		tests?: [Test, Test | null];
 		seasons?: CourseSeasons;
 		current?: boolean;
+	};
+
+	type FullCourse = Course & {
+		about?: string;
 		faculty?: string;
 	};
 

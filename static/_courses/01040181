@@ -1,0 +1,1 @@
+{"code":"01040181","median":95,"about":"לימוד פרקים נבחרים באנליזה.","points":2,"name":"סמינר באנליזה להסמכה 1","connections":{"dependencies":[["01040142","01040282","01040285"],["01040285","01040295","01040142"]],"adjacent":[],"exclusive":[]},"seasons":["Winter","Spring"],"faculty":"הפקולטה למתמטיקה","current":true}

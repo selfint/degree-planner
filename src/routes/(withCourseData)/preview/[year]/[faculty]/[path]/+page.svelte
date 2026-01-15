@@ -7,18 +7,10 @@
 	import { user, content, setUser, writeStorage } from '$lib/stores.svelte';
 	import AsyncButton from '$lib/components/AsyncButton.svelte';
 	import Spinner from '$lib/components/Spinner.svelte';
+	import { loadDegreeName } from '$lib/requirements.js';
 
 	const { data } = $props();
 	const { getCourseData } = data;
-
-	function applyI18n(i18n: I18N): string {
-		let name = i18n.en;
-		if (content.lang.lang === 'he') {
-			name = i18n.he;
-		}
-
-		return name;
-	}
 
 	async function importPlan() {
 		if (user.d.semesters.length > 0) {
@@ -44,30 +36,13 @@
 		await goto('/plan');
 	}
 
-	async function getDegreeName(
-		degree: Degree,
-		userPath: string | undefined
-	): Promise<string> {
-		const response = await fetch('/catalogsHeader.json');
-		const catalogs: CatalogsHeader = await response.json();
-
-		let year = applyI18n(catalogs[degree[0]]);
-		let faculty = applyI18n(catalogs[degree[0]][degree[1]]);
-		// @ts-expect-error
-		let path = applyI18n(catalogs[degree[0]][degree[1]][degree[2]]);
-
-		if (userPath === undefined) {
-			return `${faculty} (${content.lang.preview.catalog} ${year}) - ${path}`;
-		}
-
-		// @ts-expect-error
-		let userPathNested = catalogs[degree[0]][degree[1]][
-			degree[2]
-		].requirement.nested.find((n: Requirement) => n.name === userPath);
-
-		const userPathName = applyI18n(userPathNested);
-
-		return `${faculty} (${content.lang.preview.catalog} ${year}) - ${path} ${userPathName}`;
+	function getDegreeName(degree: Degree, userPath?: string): Promise<string> {
+		return loadDegreeName(
+			content.lang.lang,
+			content.lang.common.catalog,
+			degree,
+			userPath
+		);
 	}
 </script>
 

@@ -145,3 +145,36 @@ export function getDegreeRequirementCourses(
 		requirement.nested?.flatMap((r) => _getRequirementCourses(r, [])) ?? []
 	);
 }
+
+export async function loadDegreeName(
+	lang: 'en' | 'he',
+	catalogName: string,
+	degree: Degree,
+	path?: string
+): Promise<string> {
+	const [year, faculty, _degree] = degree;
+
+	const _fetch = (values: string[]) =>
+		fetch(['/_catalogs', ...values, lang].join('/')).then((r) => r.text());
+
+	const _yearName = _fetch([year]);
+	const _facultyName = _fetch([year, faculty]);
+	const _degreeName = _fetch([year, faculty, _degree]);
+
+	if (path === undefined) {
+		const [yearName, facultyName, degreeName] = await Promise.all([
+			_yearName,
+			_facultyName,
+			_degreeName
+		]);
+		return `${facultyName} (${catalogName} ${yearName}) - ${degreeName}`;
+	} else {
+		const [yearName, facultyName, degreeName, pathName] = await Promise.all([
+			_yearName,
+			_facultyName,
+			_degreeName,
+			_fetch([year, faculty, _degree, 'requirement', path])
+		]);
+		return `${facultyName} (${catalogName} ${yearName}) - ${degreeName} ${pathName}`;
+	}
+}

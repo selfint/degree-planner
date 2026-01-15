@@ -1,5 +1,5 @@
 import { browser } from '$app/environment';
-import { loadRequirement } from './requirements';
+import { loadDegreeName, loadRequirement } from './requirements';
 import { cms } from './content';
 
 function getLangPreference() {
@@ -281,41 +281,27 @@ const _requirement = $derived.by(() => {
 export const requirement = () => _requirement;
 
 export const degreeName = () => _degreeName;
-const _degreeName = $derived.by(async () => {
+const _degreeName = $derived.by(() => {
 	if (_fineGrainedReactivityUserDegree === undefined) {
 		return undefined;
 	}
 
 	// parse serialized user degree
-	const [degreeString, path] = _fineGrainedReactivityUserDegree.split(';');
-	const [year, faculty, degree] = degreeString.split(':') as Degree;
+	let [degreeString, path] = _fineGrainedReactivityUserDegree.split(';') as [
+		string,
+		string | undefined
+	];
+
+	const degree = degreeString.split(':') as Degree;
+
+	if (path === '-') {
+		path = undefined;
+	}
 
 	const lang = content.lang.lang;
 	const catalogName = content.lang.common.catalog;
 
-	const _fetch = (values: string[]) =>
-		fetch(['/_catalogs', ...values, lang].join('/')).then((r) => r.text());
-
-	const _yearName = _fetch([year]);
-	const _facultyName = _fetch([year, faculty]);
-	const _degreeName = _fetch([year, faculty, degree]);
-
-	if (path === '-') {
-		const [yearName, facultyName, degreeName] = await Promise.all([
-			_yearName,
-			_facultyName,
-			_degreeName
-		]);
-		return `${facultyName} (${catalogName} ${yearName}) - ${degreeName}`;
-	} else {
-		const [yearName, facultyName, degreeName, pathName] = await Promise.all([
-			_yearName,
-			_facultyName,
-			_degreeName,
-			_fetch([year, faculty, degree, 'requirement', path])
-		]);
-		return `${facultyName} (${catalogName} ${yearName}) - ${degreeName} ${pathName}`;
-	}
+	return loadDegreeName(lang, catalogName, degree, path);
 });
 
 function readLocalStorage(): UserData {

@@ -1,0 +1,1 @@
+{"code":"00540407","median":97.3,"about":"הסטודנט ישלים בדרך כלל את המחקר שהתחיל במסגרת המקצוע \"מחקר גמר 1 \", ובתום הסמסטר ידווח על עבודתו וממצאיה בכתב ובתצוגת פוסטרים.","points":3,"name":"מחקר גמר 2","connections":{"dependencies":[["00540406"]],"adjacent":[],"exclusive":[]},"seasons":["Winter","Spring","Summer"],"faculty":"הפקולטה להנדסה כימית","current":true}

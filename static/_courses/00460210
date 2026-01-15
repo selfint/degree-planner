@@ -1,0 +1,1 @@
+{"code":"00460210","median":96.7,"about":"תרגול יישומי של עקרונות מערכות הפעלה בשפת C עם קריאות מערכת של UNIX","points":1,"name":"מעבדה במערכות הפעלה","connections":{"dependencies":[],"adjacent":[],"exclusive":["02340120","02340123"]},"seasons":["Winter","Spring","Summer"],"faculty":"הפקולטה להנדסת חשמל ומחשבים","current":true}

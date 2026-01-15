@@ -11,18 +11,19 @@
 		requirement
 	} from '$lib/stores.svelte';
 
-	import { getCourseLists, loadRequirement } from '$lib/requirements';
+	import { getCourseLists } from '$lib/requirements';
 	import { generateColor } from '$lib/colors';
 	import RequirementsElement from '$lib/components/RequirementsElement.svelte';
 	import CourseRow from '$lib/components/CourseRow.svelte';
 	import AsyncButton from '$lib/components/AsyncButton.svelte';
 	import Spinner from '$lib/components/Spinner.svelte';
+	import { goto } from '$app/navigation';
 
 	const { data: pageData } = $props();
 	const { getCourseData, courseData } = pageData;
+	const course = $derived.by(() => pageData.course);
 
 	const code = $derived(page.params.code as CourseCode);
-	const course = $derived(getCourseData(code));
 
 	const courseMemberRequirements = $derived.by(async () => {
 		const r = requirement();
@@ -465,7 +466,10 @@
 						</h2>
 						<div class="flex flex-row flex-wrap">
 							{#each dependants as course}
-								<a class="pb-4 pe-2" href={`/course/${course.code}`}>
+								<button
+									class="pb-4 pe-2"
+									onmousedown={() => goto(`/course/${course.code}`)}
+								>
 									<CourseElement code={course.code} {course}>
 										{#snippet note()}
 											{@const index = getCourseSemester(course.code)}
@@ -490,7 +494,7 @@
 											{/if}
 										{/snippet}
 									</CourseElement>
-								</a>
+								</button>
 							{/each}
 						</div>
 					{/if}

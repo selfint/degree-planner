@@ -1,0 +1,1 @@
+{"code":"02360376","median":87.1,"about":"","points":4,"name":"הנדסת מערכות הפעלה","tests":[{"year":2025,"monthIndex":6,"day":27},{"year":2025,"monthIndex":7,"day":24}],"connections":{"dependencies":[["02340123"],["00460210","00460209"]],"adjacent":[],"exclusive":[]},"seasons":["Winter","Spring","Summer"],"faculty":"הפקולטה למדעי המחשב","current":false}

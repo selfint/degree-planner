@@ -1,0 +1,1 @@
+{"code":"01140082","median":93.8,"about":"ניסויים בחשמל, בגלים (אור וקול) ובפיסיקה מודרנית.","points":1.5,"name":"מעבדה לפיסיקה 2","connections":{"dependencies":[["01140052","01140081"],["01140075","01140081","00440102"]],"adjacent":[],"exclusive":["01240611"]},"seasons":["Winter","Spring","Summer"],"faculty":"הפקולטה לפיזיקה","current":false}

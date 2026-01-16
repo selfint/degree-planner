@@ -25,7 +25,7 @@ function dirToJson(dir) {
 	const subDirs = [];
 	const files = [];
 	for (const child of fs.readdirSync(dir)) {
-		if (child === 'degree.json') {
+		if (child === 'requirementsData.json') {
 			continue;
 		}
 		const childPath = join(dir, child);

@@ -11,9 +11,10 @@
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import AsyncButton from '$lib/components/AsyncButton.svelte';
 	import { goto } from '$app/navigation';
+	import Spinner from '$lib/components/Spinner.svelte';
 
 	const { data: pageData } = $props();
-	const { getCourseData, firebase, catalogs } = pageData;
+	const { getCourseData, firebase, catalogs } = $derived(pageData);
 
 	async function onSignInWithGoogle() {
 		await signIn(firebase);
@@ -56,8 +57,14 @@
 		)
 	);
 
-	let currentUser = $state(firebase.auth.currentUser);
-	firebase.auth.onAuthStateChanged((u) => (currentUser = u));
+	let currentUser = $derived(firebase.auth.currentUser);
+	$effect(() => {
+		const unsubscribe = firebase.auth.onAuthStateChanged(
+			(u) => (currentUser = u)
+		);
+
+		return () => unsubscribe();
+	});
 
 	let buttonNamespace = $state('');
 </script>
@@ -112,15 +119,31 @@
 		{/if}
 	</div>
 	<div class="mb-4 ms-3">
-		<DegreeSection
-			{catalogs}
-			{userDegree}
-			{userPath}
-			{onChange}
-			onReset={() => {}}
-			recommended={undefined}
-			bind:buttonNamespace
-		/>
+		{#await catalogs}
+			<div class="me-3">
+				<h2
+					class="flex flex-row gap-x-1 text-base font-medium text-content-primary"
+				>
+					{content.lang.settings.degree}
+					<div class="h-6 w-6">
+						<Spinner />
+					</div>
+					<span class="text-content-secondary"
+						>{content.lang.common.loading}</span
+					>
+				</h2>
+			</div>
+		{:then catalogs}
+			<DegreeSection
+				{catalogs}
+				{userDegree}
+				{userPath}
+				{onChange}
+				onReset={() => {}}
+				recommended={undefined}
+				bind:buttonNamespace
+			/>
+		{/await}
 	</div>
 
 	{#if userDegree !== undefined}

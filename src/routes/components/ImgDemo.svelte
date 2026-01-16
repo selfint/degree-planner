@@ -1,8 +1,9 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import type { Picture } from 'imagetools-core';
 
 	type Props = {
-		src: string;
+		src: Picture;
 		title: string;
 		children: Snippet;
 	};

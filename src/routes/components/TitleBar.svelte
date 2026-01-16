@@ -75,7 +75,7 @@
 			>
 				<div
 					dir={content.lang.dir}
-					class="flex h-fit w-fit flex-row items-center justify-start rounded-md bg-card-primary p-1 ps-2 {textStyle}"
+					class="flex h-full w-fit flex-row items-center justify-start rounded-md bg-card-primary p-1 ps-2 {textStyle}"
 				>
 					<div class="min-w-3">
 						<SearchIcon class="h-3" />

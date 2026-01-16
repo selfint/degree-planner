@@ -30,10 +30,10 @@
 
 	type Year = keyof typeof catalogs;
 
-	let year: Year | undefined = $state(userDegree?.[0]);
-	let faculty: string | undefined = $state(userDegree?.[1]);
-	let degree: string | undefined = $state(userDegree?.[2]);
-	let path: string | undefined = $state(userPath);
+	let year: Year | undefined = $derived(userDegree?.[0]);
+	let faculty: string | undefined = $derived(userDegree?.[1]);
+	let degree: string | undefined = $derived(userDegree?.[2]);
+	let path: string | undefined = $derived(userPath);
 
 	const years = $derived(Object.keys(catalogs) as Year[]);
 	const faculties = $derived(getFaculties(year));

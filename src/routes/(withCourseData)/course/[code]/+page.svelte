@@ -20,7 +20,7 @@
 	import { goto } from '$app/navigation';
 
 	const { data: pageData } = $props();
-	const { getCourseData, courseData } = pageData;
+	const { getCourseData, courseData } = $derived(pageData);
 	const course = $derived.by(() => pageData.course);
 
 	const code = $derived(page.params.code as CourseCode);

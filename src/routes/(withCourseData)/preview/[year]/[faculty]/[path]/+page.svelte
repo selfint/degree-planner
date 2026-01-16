@@ -10,7 +10,7 @@
 	import { loadDegreeName } from '$lib/requirements.js';
 
 	const { data } = $props();
-	const { getCourseData } = data;
+	const { getCourseData } = $derived(data);
 
 	async function importPlan() {
 		if (user.d.semesters.length > 0) {

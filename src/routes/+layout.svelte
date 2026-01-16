@@ -28,17 +28,21 @@
 	inject();
 
 	const { data: pageData, children } = $props();
-	const { firebase } = pageData;
+	const { firebase } = $derived(pageData);
 
-	firebase.auth.onAuthStateChanged(async (u) => {
-		if (u !== null) {
-			setStorage(buildFirebaseStorage(firebase));
-			setUser(await readStorage());
-			return subscribeFirebase(firebase, setUser);
-		} else {
-			setStorage(localStorageMethod);
-			setUser(await readStorage());
-		}
+	$effect(() => {
+		const unsubscribe = firebase.auth.onAuthStateChanged(async (u) => {
+			if (u !== null) {
+				setStorage(buildFirebaseStorage(firebase));
+				setUser(await readStorage());
+				return subscribeFirebase(firebase, setUser);
+			} else {
+				setStorage(localStorageMethod);
+				setUser(await readStorage());
+			}
+		});
+
+		return () => unsubscribe();
 	});
 
 	function onchangeLang(newValue: (typeof cms)[keyof typeof cms]): void {
@@ -51,7 +55,7 @@
 		<TitleBar
 			started={user.d.degree !== undefined}
 			onGetStarted={async () => await goto('/settings')}
-			onSearch={(query) => goto(`/search?q=${query}`)}
+			onSearch={(query) => goto(`/search?q=${query}`, { replaceState: true })}
 		/>
 	</div>
 
@@ -105,6 +109,8 @@
 </div>
 
 <style lang="postcss">
+	@reference "tailwindcss";
+
 	:global(body) {
 		@apply bg-background;
 		overscroll-behavior-y: none;

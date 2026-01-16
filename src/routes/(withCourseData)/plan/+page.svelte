@@ -65,10 +65,10 @@
 	}
 </script>
 
-<div class="mb-3 mt-3">
+<div class="mt-3 mb-3">
 	<div class="mb-4 h-36 max-h-36 sm:h-28 sm:max-h-28">
-		<div class="mb-1 me-3 ms-3 flex flex-row justify-between">
-			<h1 class="text-base font-medium text-content-primary">
+		<div class="ms-3 me-3 mb-1 flex flex-row justify-between">
+			<h1 class="text-content-primary text-base font-medium">
 				{content.lang.plan.wishlist}
 			</h1>
 			<div class="flex flex-row items-center gap-x-2 text-sm">
@@ -147,7 +147,7 @@
 							);
 						}
 					}}
-					class="me-2 ms-2 flex min-h-fit flex-row justify-end gap-x-2"
+					class="ms-2 me-2 flex min-h-fit flex-row justify-end gap-x-2"
 				>
 					{#each wishlist as course}
 						<button
@@ -220,7 +220,7 @@
 						>
 							{#snippet children({ code, course })}
 								<button
-									class="touch-manipulation text-content-primary"
+									class="text-content-primary touch-manipulation"
 									data-code={code}
 									onclick={() => goto(`/course/${code}`)}
 								>
@@ -248,7 +248,9 @@
 </div>
 
 <style lang="postcss">
+	@reference "tailwindcss";
+
 	:global(.wishlist-ghost) {
-		@apply max-h-[118px] w-[29vw] min-w-[29vw] max-w-[220px] overflow-y-hidden sm:min-w-[220px];
+		@apply max-h-[118px] w-[29vw] max-w-[220px] min-w-[29vw] overflow-y-hidden sm:min-w-[220px];
 	}
 </style>

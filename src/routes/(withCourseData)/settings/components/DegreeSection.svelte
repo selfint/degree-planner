@@ -29,12 +29,12 @@
 	}: Props = $props();
 
 	type Year = keyof Awaited<typeof catalogs>;
-	const years = catalogs.then((c) => Object.keys(c) as Year[]);
+	const years = $derived(catalogs.then((c) => Object.keys(c) as Year[]));
 
-	let year: Year | undefined = $state(userDegree?.[0]);
-	let faculty: string | undefined = $state(userDegree?.[1]);
-	let degree: string | undefined = $state(userDegree?.[2]);
-	let path: string | undefined = $state(userPath);
+	let year: Year | undefined = $derived(userDegree?.[0]);
+	let faculty: string | undefined = $derived(userDegree?.[1]);
+	let degree: string | undefined = $derived(userDegree?.[2]);
+	let path: string | undefined = $derived(userPath);
 
 	$effect(() => {
 		year = userDegree?.[0];

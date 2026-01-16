@@ -4,9 +4,10 @@
 
 	import { content, user } from '$lib/stores.svelte';
 	import CourseElement from '$lib/components/CourseElement.svelte';
+	import Spinner from '$lib/components/Spinner.svelte';
 
 	const { data: pageData } = $props();
-	const { getCourseData, courseData } = pageData;
+	const { fullCourseData } = $derived(pageData);
 
 	const query = $derived.by(() => {
 		let q = (page.url.searchParams.get('q') ?? '').trim();
@@ -31,27 +32,28 @@
 		return { available };
 	});
 
-	function match(c: Course, query: string): boolean {
-		if (filters.available && !c.current) {
-			return false;
-		}
-
+	function match(c: FullCourse, query: string): boolean {
 		return (
-			c.name?.includes(query) ||
-			c.about?.includes(query) ||
-			c.code.includes(query)
+			c.code.includes(query) ||
+			(c.name?.includes(query) ?? false) ||
+			(c.about?.includes(query) ?? false)
 		);
 	}
 
-	const courses = $derived(
-		Object.values(courseData).toSorted((a, b) => {
-			return (b.median ?? 0) - (a.median ?? 0);
-		})
-	);
+	async function getResults(
+		query: string,
+		fullCourseData: Promise<FullCourse[]>
+	) {
+		const d = await fullCourseData;
 
-	const results = $derived.by(() =>
-		courses.filter((course) => match(course, query))
-	);
+		return d
+			.filter((course) => match(course, query))
+			.toSorted((a, b) => {
+				return (b.median ?? 0) - (a.median ?? 0);
+			});
+	}
+
+	const results = $derived(getResults(query, fullCourseData));
 
 	function getCourseSemester(course: Course): number | undefined {
 		const index = user.d.semesters.findIndex((s) => s.includes(course.code));
@@ -110,44 +112,57 @@
 	<h1 class="text-lg">
 		{content.lang.search.resultsFor} "{query}"
 	</h1>
-	<p class="mb-3 text-base text-content-secondary">
-		{results.length}
-		{content.lang.search.resultsFound}
-	</p>
+	<span class="mb-3 text-base text-content-secondary">
+		{#await results}
+			<div class="inline-block h-5 w-5">
+				<Spinner />
+			</div>
+			{content.lang.common.loading}
+		{:then results}
+			{results.length}
+			{content.lang.search.resultsFound}
+		{/await}
+	</span>
 
 	<ul class="flex flex-row flex-wrap">
-		{#each results as course (course.code)}
-			<li id={course.code} class="pb-4 pe-2">
-				<button
-					class:opacity-60={!course.current}
-					onclick={() => goto(`/course/${course.code}`)}
+		{#await results then results}
+			{#each results as course (course.code)}
+				<li
+					id={course.code}
+					class="pb-4 pe-2"
+					class:hidden={filters.available && !course.current}
 				>
-					<CourseElement {course}>
-						{#snippet note()}
-							{@const index = getCourseSemester(course)}
-							{#if index !== undefined}
-								<span>
-									{seasonEmojis[index % 3]}
-									<span class="hidden sm:inline">
-										{content.lang.common.seasons[index % 3]}
-										{Math.floor(index / 3) + 1}
+					<button
+						class:opacity-60={!course.current}
+						onclick={() => goto(`/course/${course.code}`)}
+					>
+						<CourseElement code={course.code} {course}>
+							{#snippet note()}
+								{@const index = getCourseSemester(course)}
+								{#if index !== undefined}
+									<span>
+										{seasonEmojis[index % 3]}
+										<span class="hidden sm:inline">
+											{content.lang.common.seasons[index % 3]}
+											{Math.floor(index / 3) + 1}
+										</span>
 									</span>
-								</span>
-							{:else if user.d.exemptions.includes(course.code)}
-								<span>✓</span>
-								<span class="hidden sm:inline">
-									{content.lang.catalog.exempt}
-								</span>
-							{:else if user.d.wishlist.includes(course.code)}
-								<span>🌟</span>
-								<span class="hidden sm:inline">
-									{formatName(content.lang.catalog.wishlist)}
-								</span>
-							{/if}
-						{/snippet}
-					</CourseElement>
-				</button>
-			</li>
-		{/each}
+								{:else if user.d.exemptions.includes(course.code)}
+									<span>✓</span>
+									<span class="hidden sm:inline">
+										{content.lang.catalog.exempt}
+									</span>
+								{:else if user.d.wishlist.includes(course.code)}
+									<span>🌟</span>
+									<span class="hidden sm:inline">
+										{formatName(content.lang.catalog.wishlist)}
+									</span>
+								{/if}
+							{/snippet}
+						</CourseElement>
+					</button>
+				</li>
+			{/each}
+		{/await}
 	</ul>
 </div>

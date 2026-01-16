@@ -9,15 +9,13 @@
 
 	let { value, value2, max, color, dir }: Props = $props();
 
-	if (max === 0) {
-		max = value2;
-	}
+	const effectiveMax = $derived(max === 0 ? value2 : max);
 
-	const p1 = $derived(Math.min(100, Math.floor((value / max) * 100)));
+	const p1 = $derived(Math.min(100, Math.floor((value / effectiveMax) * 100)));
 	const p2 = $derived(
 		value2 === undefined
 			? undefined
-			: Math.min(100, Math.floor((value2 / max) * 100))
+			: Math.min(100, Math.floor((value2 / effectiveMax) * 100))
 	);
 </script>
 

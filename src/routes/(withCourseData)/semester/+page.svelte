@@ -13,7 +13,7 @@
 	import Spinner from '$lib/components/Spinner.svelte';
 
 	const { data: pageData } = $props();
-	const { getCourseData, courseData } = pageData;
+	const { getCourseData, courseData } = $derived(pageData);
 
 	let disabled: string[] = $state([]);
 

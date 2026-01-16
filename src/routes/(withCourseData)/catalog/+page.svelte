@@ -8,7 +8,7 @@
 	import Spinner from '$lib/components/Spinner.svelte';
 
 	const { data: pageData } = $props();
-	const { getCourseData } = pageData;
+	const { getCourseData } = $derived(pageData);
 
 	const lists = $derived.by(async () => {
 		const r = requirement();

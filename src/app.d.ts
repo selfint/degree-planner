@@ -236,6 +236,7 @@ declare global {
 	type _CourseData = typeof courseData;
 	type CourseCode = keyof _CourseData;
 	type CourseData = Record<CourseCode, Course>;
+	type FullCourseData = Record<CourseCode, FullCourse>;
 
 	type CourseConnections = {
 		dependencies: CourseCode[][];

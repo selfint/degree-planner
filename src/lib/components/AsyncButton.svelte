@@ -18,7 +18,9 @@
 		name
 	}: Props = $props();
 
-	const bg = variant === 'primary' ? 'bg-accent-primary' : 'bg-card-secondary';
+	const bg = $derived(
+		variant === 'primary' ? 'bg-accent-primary' : 'bg-card-secondary'
+	);
 
 	let inProgress = $state(false);
 

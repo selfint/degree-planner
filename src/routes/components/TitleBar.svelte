@@ -1,5 +1,6 @@
 <script lang="ts">
-	import Logo from '$lib/assets/logo.webp';
+	import Logo from '$lib/assets/logo.webp?enhanced';
+	import Title from '$lib/assets/Title.svg?raw';
 
 	import SearchIcon from '$lib/components/SearchIcon.svelte';
 
@@ -38,14 +39,22 @@
 <header dir="ltr" class="touch-manipulation items-center pt-1">
 	<div class="flex flex-row items-center justify-between pe-3 ps-2">
 		<a href="/" class="flex h-12 min-w-12 flex-row items-center">
-			<img src={Logo} loading="lazy" alt="Logo" class="h-12 w-12" />
+			<enhanced:img
+				src={Logo}
+				loading="lazy"
+				alt="Logo"
+				class="h-12 min-w-5 max-w-12"
+			/>
 			{#if !started}
-				<span
-					class="border-b-2 border-background text-2xl font-semibold tracking-tight text-content-primary"
-					style="font-family: 'Pacifico', cursive;"
-				>
-					{content.lang.header.name}
+				<span class="min-w-20 text-content-primary">
+					{@html Title}
 				</span>
+			{:else}
+				<span class="hidden min-w-20 text-content-primary sm:inline">
+					{@html Title}
+				</span>
+			{/if}
+			<!-- {#if !started}
 			{:else}
 				<span
 					class="hidden border-b-2 border-background text-2xl font-semibold tracking-tight text-content-primary sm:inline"
@@ -53,7 +62,7 @@
 				>
 					{content.lang.header.name}
 				</span>
-			{/if}
+			{/if} -->
 		</a>
 		<div class="flex-grow"></div>
 		{#if !started}

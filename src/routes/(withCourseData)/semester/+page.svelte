@@ -13,7 +13,7 @@
 	import Spinner from '$lib/components/Spinner.svelte';
 
 	const { data: pageData } = $props();
-	const { getCourseData, courseData } = $derived(pageData);
+	const { getCourseData } = $derived(pageData);
 
 	let disabled: string[] = $state([]);
 
@@ -252,24 +252,6 @@
 		);
 
 		return canTake ? '' : styleOnCannotTake;
-	}
-
-	function formatName(requirements: Requirement[]): string {
-		let name = requirements.map((r) => r.name).join(' ');
-
-		if (content.lang.lang === 'he') {
-			name = requirements
-				.map((r) => r.he ?? r.name)
-				.join(' ')
-				.split('_')
-				.map((word) => word[0].toUpperCase() + word.slice(1))
-				.join(' ');
-		}
-
-		return name
-			.split('_')
-			.map((word) => word[0].toUpperCase() + word.slice(1))
-			.join(' ');
 	}
 
 	function toggleCourseDisabled(code: string) {

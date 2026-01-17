@@ -68,12 +68,12 @@
 		>
 			<div
 				dir={content.lang.dir}
-				class="flex max-h-10 w-fit flex-row items-center justify-start overflow-y-hidden rounded-md bg-card-primary p-1 ps-2 {textStyle}"
+				class="flex max-h-8 w-fit flex-row items-center justify-start overflow-y-hidden rounded-md bg-card-primary p-1 ps-2 {textStyle}"
 			>
-				<div class="h-fit max-h-10 min-w-3 overflow-y-hidden">
+				<div class="h-fit max-h-8 min-w-3 overflow-y-hidden">
 					<SearchIcon class="h-full" />
 				</div>
-				<form class="ms-1 h-10 max-h-10" {onsubmit}>
+				<form class="ms-1 h-8 max-h-8" {onsubmit}>
 					<input
 						type="text"
 						{placeholder}
@@ -86,7 +86,7 @@
 							placeholder = content.lang.header.searchPlaceholder;
 						}}
 						bind:value={query}
-						class="h-10 max-h-10 w-full max-w-28 resize-none border-none bg-transparent py-0 font-thin leading-10 {textStyle} focus:outline-none"
+						class="h-8 max-h-8 w-full max-w-28 resize-none border-none bg-transparent py-0 pe-1 font-thin leading-10 {textStyle} focus:outline-none"
 					/>
 				</form>
 			</div>

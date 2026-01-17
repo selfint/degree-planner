@@ -51,7 +51,7 @@
 </script>
 
 <div dir={content.lang.dir} class="flex h-full min-h-screen flex-col">
-	<div class="w-full border-b-2 border-border bg-background">
+	<div class="w-full border-b-[1px] border-border bg-background">
 		<TitleBar
 			started={user.d.degree !== undefined}
 			onGetStarted={async () => await goto('/settings')}

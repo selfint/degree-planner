@@ -4,10 +4,11 @@
 
 	type Props = {
 		variant: 'primary' | 'secondary';
-		onclick: () => Promise<void>;
+		onclick?: () => Promise<void>;
 		children: Snippet;
 		buttonNamespace?: string;
 		name?: string;
+		disabled?: boolean;
 	};
 
 	let {
@@ -15,7 +16,8 @@
 		onclick: _onclick,
 		children,
 		buttonNamespace: namespace = $bindable(),
-		name
+		name,
+		disabled: _disabled = false
 	}: Props = $props();
 
 	const bg = $derived(
@@ -32,7 +34,7 @@
 				namespace = name;
 			}
 
-			await _onclick();
+			await _onclick?.();
 		} finally {
 			inProgress = false;
 
@@ -43,6 +45,10 @@
 	}
 
 	let disabled = $derived.by(() => {
+		if (_disabled) {
+			return true;
+		}
+
 		if (namespace === undefined || name === undefined) {
 			return false;
 		}

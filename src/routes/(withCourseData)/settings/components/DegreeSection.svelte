@@ -35,9 +35,33 @@
 	let degree: string | undefined = $derived(userDegree?.[2]);
 	let path: string | undefined = $derived(userPath);
 
+	/**
+	 * hack to prevent paths being fetched with stale faculty / degree.
+	 *
+	 * Without this, if we bind the year value directly to 'year', then when
+	 * user selects year:
+	 *   1. year is updated
+	 *   2. paths is fetched (with state faculty / degree)
+	 *   3. faculty / degree set to undefined
+	 *   4. paths is updated to []
+	 *
+	 * With this:
+	 *   1. yearChoice is updated
+	 *   2. paths is **not** fetched, since year / faculty / degree have not changed
+	 *   3. year / faculty / degree is updated
+	 *   4. paths is updated to []
+	 *
+	 * TODO: There must be a better way to do this.
+	 */
+	let yearChoice = $derived(year);
+
 	const years = $derived(Object.keys(catalogs) as Year[]);
 	const faculties = $derived(getFaculties(year));
 	const degrees = $derived(getDegrees(year, faculty));
+	const paths = $derived(getPaths(year, faculty, degree));
+	const choiceIsValid = $derived(
+		_choiceIsValid(paths, year, faculty, degree, path)
+	);
 
 	$effect(() => {
 		year = userDegree?.[0];
@@ -59,11 +83,12 @@
 		)
 	);
 
-	async function choiceIsValid(
-		y: string | undefined,
-		f: string | undefined,
-		d: string | undefined,
-		p: string | undefined
+	async function _choiceIsValid(
+		paths: Promise<{ value: string; display: string }[]>,
+		y?: string,
+		f?: string,
+		d?: string,
+		p?: string
 	): Promise<boolean> {
 		let c = catalogs;
 
@@ -73,13 +98,13 @@
 			return false;
 		}
 
-		// @ts-expect-error
-		const paths = await getPaths(y, f, d);
-		if (paths.length === 0) {
+		const _paths = await paths;
+		if (_paths.length === 0) {
 			return true;
+		} else if (p === undefined) {
+			return false;
 		} else {
-			// @ts-expect-error
-			const r = paths.map((p) => p.value).includes(p);
+			const r = _paths.map((p) => p.value).includes(p);
 			return r;
 		}
 	}
@@ -140,10 +165,14 @@
 	}
 
 	async function getPaths(
-		year: Year,
-		faculty: string,
-		degree: string
+		year?: Year,
+		faculty?: string,
+		degree?: string
 	): Promise<{ value: string; display: string }[]> {
+		if ([year, faculty, degree].includes(undefined)) {
+			return [];
+		}
+
 		let r = await loadRequirement([year, faculty, degree] as Degree);
 
 		return (r.nested ?? [])
@@ -166,16 +195,17 @@
 			{content.lang.settings.year}
 		</span>
 		<Select
-			bind:value={year}
+			bind:value={yearChoice}
 			onchange={() => {
+				year = yearChoice;
 				faculty = undefined;
 				degree = undefined;
 				path = undefined;
 			}}
 		>
-			<option value={undefined} disabled
-				>{content.lang.settings.selectYear}</option
-			>
+			<option value={undefined} disabled>
+				{content.lang.settings.selectYear}
+			</option>
 			{#each years as yearSemester}
 				{@const [year, semester] = yearSemester.split('_')}
 				<option value={yearSemester}>
@@ -225,18 +255,15 @@
 		</Select>
 
 		{#if year !== undefined && faculty !== undefined && degree !== undefined}
-			{#await getPaths(year, faculty, degree)}
-				<span class="text-content-secondary">
-					{content.lang.settings.path}
-				</span>
-				<div class="h-7 w-7">
+			<span class="text-content-secondary">
+				{content.lang.settings.path}
+			</span>
+			{#await paths}
+				<div class="h-5 w-5">
 					<Spinner />
 				</div>
 			{:then paths}
 				{#if paths.length > 0}
-					<span class="text-content-secondary">
-						{content.lang.settings.path}
-					</span>
 					<Select bind:value={path}>
 						<option value={undefined} disabled>
 							{content.lang.settings.selectPath}
@@ -247,6 +274,13 @@
 							</option>
 						{/each}
 					</Select>
+				{:else}
+					<span class="text-content-secondary">
+						{content.lang.settings.noPath}
+					</span>
+					<!-- <div class="h-6 w-6">
+						<Spinner />
+					</div> -->
 				{/if}
 			{/await}
 		{/if}
@@ -254,24 +288,27 @@
 	<div class="mt-2">
 		{#if choiceIsChanged(year, faculty, degree, path, userDegree, userPath)}
 			<div class="flex flex-row items-center gap-x-1">
-				{#await choiceIsValid(year, faculty, degree, path) then isValid}
-					{#if isValid}
-						<AsyncButton
-							variant="primary"
-							onclick={async () => {
-								// @ts-expect-error We validated the choice in `choiceIsValid`
-								const didChange = await onChange([year, faculty, degree], path);
+				{#await choiceIsValid}
+					<AsyncButton disabled={true} variant="primary">
+						{content.lang.settings.save}
+					</AsyncButton>
+				{:then isValid}
+					<AsyncButton
+						disabled={!isValid}
+						variant="primary"
+						onclick={async () => {
+							// @ts-expect-error We validated the choice in `choiceIsValid`
+							const didChange = await onChange([year, faculty, degree], path);
 
-								if (!didChange) {
-									reset();
-								}
-							}}
-							bind:buttonNamespace
-							name="save-degree"
-						>
-							{content.lang.settings.save}
-						</AsyncButton>
-					{/if}
+							if (!didChange) {
+								reset();
+							}
+						}}
+						bind:buttonNamespace
+						name="save-degree"
+					>
+						{content.lang.settings.save}
+					</AsyncButton>
 				{/await}
 				<AsyncButton
 					variant="secondary"

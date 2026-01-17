@@ -134,7 +134,8 @@ export const cms = {
 			exemptions: 'Exemptions',
 			signInWith: 'Sign in with',
 			signOut: 'Sign out',
-			guest: 'Guest'
+			guest: 'Guest',
+			noPath: 'Degree has no paths'
 		},
 		plan: {
 			wishlist: 'Wish list'
@@ -328,7 +329,8 @@ export const cms = {
 			exemptions: 'זיכויים',
 			signInWith: 'התחבר דרך',
 			signOut: 'התנתק',
-			guest: 'אורח'
+			guest: 'אורח',
+			noPath: 'אין מסלולים בתואר'
 		},
 		plan: {
 			wishlist: 'רשימת משאלות'

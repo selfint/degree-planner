@@ -63,6 +63,15 @@ type FirestoreData =
 			wishlist: string[];
 			degree: [string, string, string] | null;
 			path: string | null;
+	  }
+	| {
+			version: 4;
+			exemptions: string[];
+			semesters: string[];
+			currentSemester: number;
+			wishlist: string[];
+			degree: [string, string, string] | null;
+			path: string | null;
 	  };
 
 export async function initFirebase(): Promise<FirebaseServices> {
@@ -107,9 +116,11 @@ function getUserDocRef(
 	const users = collection(firebase.firestore, 'users').withConverter({
 		toFirestore: (data: UserData) => {
 			const firestoreData: FirestoreData = {
-				version: 3,
+				version: 4,
 				exemptions: data.exemptions,
-				semesters: encodeSemesters(data.semesters),
+				semesters: encodeSemesters(
+					data.semesters.length > 0 ? data.semesters : Array(12).fill([])
+				),
 				currentSemester: data.currentSemester ?? 0,
 				wishlist: data.wishlist,
 				degree: data.degree ?? null,
@@ -133,6 +144,19 @@ function getUserDocRef(
 					};
 
 				case 3:
+					return {
+						exemptions: data.exemptions as CourseCode[],
+						semesters:
+							data.semesters.length === 0
+								? Array(12).fill([])
+								: decodeSemesters(data.semesters),
+						currentSemester: data.currentSemester,
+						wishlist: data.wishlist as CourseCode[],
+						degree: (data.degree ?? undefined) as Degree | undefined,
+						path: data.path ?? undefined
+					};
+
+				case 4:
 					return {
 						exemptions: data.exemptions as CourseCode[],
 						semesters: decodeSemesters(data.semesters),
@@ -187,7 +211,7 @@ export function buildFirebaseStorage(
 
 			return {
 				exemptions: [],
-				semesters: [],
+				semesters: Array(12).fill([]),
 				currentSemester: 0,
 				wishlist: [],
 				username: undefined,

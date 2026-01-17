@@ -283,7 +283,7 @@
 	const seasonEmojis = ['❄️', '🌿', '☀️'];
 </script>
 
-{#snippet courseNote(course: Course, se: Promise<ScheduleError>)}
+{#snippet courseNote(course: Course, se: Promise)}
 	{#if !course.current}
 		❌
 		<span dir={content.lang.dir} class="hidden sm:inline">
@@ -405,7 +405,20 @@
 					</h1>
 
 					<div class="sm:hidden">
-						<CourseRow {getCourseData} indent={1} {courses}>
+						<CourseRow
+							{getCourseData}
+							indent={1}
+							{courses}
+							checkScheduleError={(course) =>
+								getScheduleError(
+									getCourseData,
+									course,
+									user.d.exemptions,
+									user.d.semesters,
+									currentSemester + 1,
+									true
+								)}
+						>
 							{#snippet children({ code, course, scheduleError })}
 								<button onmousedown={() => goto(`/course/${code}`)}>
 									<CourseElement

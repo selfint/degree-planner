@@ -26,6 +26,7 @@
 				...user.d,
 				semesters: data.semesters as CourseCode[][],
 				degree: data.degree,
+				path: data.userPath,
 				currentSemester: user.d.currentSemester ?? 0,
 				wishlist: user.d.wishlist.filter(
 					(c) => !data.semesters.flat().includes(c)

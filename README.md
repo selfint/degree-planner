@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/selfint/degree-planner/refs/heads/main/static/favicon.png" alt="Technion degree planner logo" width="150"/>
+  <img src="https://raw.githubusercontent.com/selfint/degree-planner/refs/heads/main/static/favicon.webp" alt="Technion degree planner logo" width="150"/>
 </p>
 
 <p align="center">

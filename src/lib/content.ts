@@ -168,7 +168,15 @@ export const cms = {
 			resultsFor: 'Results for',
 			resultsFound: 'results found',
 			filters: 'Filters',
-			available: 'Available'
+			available: 'Available',
+			faculty: 'Faculty',
+			allFaculties: 'All faculties',
+			points: 'Points',
+			minPoints: 'Min points',
+			maxPoints: 'Max points',
+			median: 'Median',
+			displaying: 'Displaying',
+			of: 'of'
 		},
 		semester: {
 			wishlist: 'Wish list'
@@ -363,7 +371,15 @@ export const cms = {
 			resultsFor: 'תוצאות עבור',
 			resultsFound: 'תוצאות נמצאו',
 			filters: 'סינונים',
-			available: 'זמין'
+			available: 'זמין',
+			faculty: 'פקולטה',
+			allFaculties: 'כל הפקולטות',
+			points: 'נקודות',
+			minPoints: 'מינימום נקודות',
+			maxPoints: 'מקסימום נקודות',
+			median: 'חציון',
+			displaying: 'מוצגות',
+			of: 'מתוך'
 		},
 		semester: {
 			wishlist: 'רשימת משאלות'

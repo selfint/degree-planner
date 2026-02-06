@@ -29,7 +29,6 @@ const STRIPPED_COURSE_DATA = join(
  */
 function stripCourse(course) {
 	delete course.about;
-	delete course.faculty;
 
 	return course;
 }

@@ -12,10 +12,10 @@
 		getCourseData: GetCourseData;
 		index: number;
 		isCurrent: boolean;
-		semester: string[];
-		disabled?: string[];
+		semester: CourseCode[];
+		disabled?: CourseCode[];
 		children: Snippet<
-			[{ code: string; course: Promise<Course>; index: number }]
+			[{ code: CourseCode; course: Promise<Course>; index: number }]
 		>;
 		href?: string;
 		sortable?: Sortable.Options;

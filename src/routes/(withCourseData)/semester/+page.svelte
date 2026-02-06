@@ -13,9 +13,9 @@
 	import Spinner from '$lib/components/Spinner.svelte';
 
 	const { data: pageData } = $props();
-	const { getCourseData } = $derived(pageData);
+	const { getCourseData, courseData } = $derived(pageData);
 
-	let disabled: string[] = $state([]);
+	let disabled: CourseCode[] = $state([]);
 
 	const currentSemester = $derived.by(() => {
 		const current = page.url.searchParams.get('c');
@@ -58,6 +58,25 @@
 				courses: courses
 			}))
 		);
+	});
+
+	const facultyCourses = $derived.by(async () => {
+		const data = Object.entries(await courseData) as [CourseCode, Course][];
+		const map = new Map<string, CourseCode[]>();
+
+		for (const [code, course] of data) {
+			const faculty = course.faculty?.trim();
+			if (!faculty) {
+				continue;
+			}
+			const list = map.get(faculty) ?? [];
+			list.push(code);
+			map.set(faculty, list);
+		}
+
+		return Array.from(map.entries())
+			.map(([faculty, courses]) => [faculty, courses.toSorted()] as const)
+			.toSorted(([a], [b]) => a.localeCompare(b));
 	});
 
 	function getAvgMedian(courses: Course[]): number {
@@ -121,6 +140,20 @@
 			for (const { path, courses } of await requirementCourses) {
 				lists.push([path, courses, true]);
 			}
+		}
+
+		for (const [faculty, courses] of await facultyCourses) {
+			lists.push([
+				[
+					{
+						name: faculty,
+						en: faculty,
+						he: faculty
+					}
+				],
+				courses,
+				false
+			]);
 		}
 
 		return lists.filter(([_, courses]) => courses.length > 0);
@@ -254,7 +287,7 @@
 		return canTake ? '' : styleOnCannotTake;
 	}
 
-	function toggleCourseDisabled(code: string) {
+	function toggleCourseDisabled(code: CourseCode) {
 		if (disabled.includes(code)) {
 			disabled = disabled.filter((c) => c !== code);
 		} else {
@@ -265,7 +298,7 @@
 	const seasonEmojis = ['❄️', '🌿', '☀️'];
 </script>
 
-{#snippet courseNote(course: Course, se: Promise)}
+{#snippet courseNote(course: Course, se: Promise<ScheduleError>)}
 	{#if !course.current}
 		❌
 		<span dir={content.lang.dir} class="hidden sm:inline">
@@ -342,9 +375,6 @@
 						</span>
 						<span>
 							{getAvgMedian(effectiveSemester)}
-						</span>
-						<span>
-							{effectiveSemester.reduce((a, b) => a + (b.points ?? 0), 0)}
 						</span>
 					{/await}
 				</div>

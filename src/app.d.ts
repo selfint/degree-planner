@@ -264,11 +264,11 @@ declare global {
 		tests?: [Test, Test | null];
 		seasons?: CourseSeasons;
 		current?: boolean;
+		faculty?: string;
 	};
 
 	type FullCourse = Course & {
 		about?: string;
-		faculty?: string;
 	};
 
 	type CourseSeasons =

@@ -402,7 +402,7 @@
 
 	<div class="relative z-0 flex-1 overflow-x-auto">
 		{#await loLoCo}
-			<h2 class="flex flex-row text-content-primary">
+			<h2 class="ms-3 flex flex-row text-content-primary">
 				{content.lang.common.loading}
 				<div class="me-1 h-5 w-5">
 					<Spinner />

@@ -409,7 +409,7 @@
 			{@const filteredResults = results.filter((course) =>
 				matchesFilters(course, resolved)
 			)}
-			{filteredResults.length}
+			{results.length}
 			{#if filteredResults.length === results.length}
 				{content.lang.search.resultsFound}
 			{:else}

@@ -61,7 +61,10 @@
 	});
 
 	const facultyCourses = $derived.by(async () => {
-		const data = Object.entries(await courseData) as [CourseCode, Course][];
+		const data = Object.entries(await courseData) as [
+			CourseCode,
+			Course & { faculty?: string }
+		][];
 		const map = new Map<string, CourseCode[]>();
 
 		for (const [code, course] of data) {
@@ -142,13 +145,15 @@
 			}
 		}
 
+		const prefix = content.lang.catalog.freeChoicePrefix;
+
 		for (const [faculty, courses] of await facultyCourses) {
 			lists.push([
 				[
 					{
-						name: faculty,
-						en: faculty,
-						he: faculty
+						name: `${prefix}: ${faculty}`,
+						en: `${prefix}: ${faculty}`,
+						he: `${prefix}: ${faculty}`
 					}
 				],
 				courses,

@@ -142,7 +142,8 @@ export const cms = {
 		},
 		catalog: {
 			wishlist: 'Wish list',
-			exempt: 'Exempt'
+			exempt: 'Exempt',
+			freeChoicePrefix: 'Free choice'
 		},
 		course: {
 			median: 'Median',
@@ -345,7 +346,8 @@ export const cms = {
 		},
 		catalog: {
 			wishlist: 'רשימת משאלות',
-			exempt: 'פטור'
+			exempt: 'פטור',
+			freeChoicePrefix: 'בחירה חופשית'
 		},
 		course: {
 			median: 'חציון',

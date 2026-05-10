@@ -1777,13 +1777,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 22
+    "monthIndex": 7,
+    "day": 5
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 18
+    "day": 30
    }
   ],
   "connections": {
@@ -1822,13 +1822,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 21
+    "monthIndex": 7,
+    "day": 4
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 24
+    "monthIndex": 8,
+    "day": 4
    }
   ],
   "connections": {
@@ -1888,12 +1888,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 2
+    "day": 16
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 27
+    "monthIndex": 8,
+    "day": 8
    }
   ],
   "connections": {
@@ -1936,12 +1936,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 14
+    "day": 28
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 13
+    "day": 25
    }
   ],
   "connections": {
@@ -2041,13 +2041,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 26
+    "monthIndex": 7,
+    "day": 9
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 23
+    "monthIndex": 8,
+    "day": 3
    }
   ],
   "connections": {
@@ -2109,13 +2109,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 26
+    "monthIndex": 7,
+    "day": 9
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 21
+    "monthIndex": 8,
+    "day": 2
    }
   ],
   "connections": {
@@ -2369,13 +2369,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 30
+    "monthIndex": 7,
+    "day": 13
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 25
+    "monthIndex": 8,
+    "day": 6
    }
   ],
   "connections": {
@@ -2444,12 +2444,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 5
+    "day": 19
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 28
+    "monthIndex": 8,
+    "day": 9
    }
   ],
   "connections": {
@@ -2519,13 +2519,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 20
+    "monthIndex": 7,
+    "day": 3
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 20
+    "monthIndex": 8,
+    "day": 1
    }
   ],
   "connections": {
@@ -2572,13 +2572,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 28
+    "monthIndex": 7,
+    "day": 11
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 24
+    "monthIndex": 8,
+    "day": 4
    }
   ],
   "connections": {
@@ -3047,13 +3047,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 13
+    "monthIndex": 7,
+    "day": 11
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 12
+    "monthIndex": 8,
+    "day": 3
    }
   ],
   "connections": {
@@ -3386,12 +3386,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 17
+    "day": 31
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 16
+    "day": 27
    }
   ],
   "connections": {
@@ -3418,12 +3418,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 17
+    "day": 31
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 16
+    "day": 27
    }
   ],
   "connections": {
@@ -3449,12 +3449,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 13
+    "day": 27
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 12
+    "day": 24
    }
   ],
   "connections": {
@@ -3528,12 +3528,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 14
+    "day": 28
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 12
+    "day": 24
    }
   ],
   "connections": {
@@ -3800,12 +3800,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 4
+    "day": 18
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 28
+    "monthIndex": 8,
+    "day": 9
    }
   ],
   "connections": {
@@ -3906,12 +3906,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 6
+    "day": 20
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 30
+    "monthIndex": 8,
+    "day": 15
    }
   ],
   "connections": {
@@ -3940,13 +3940,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 19
+    "monthIndex": 7,
+    "day": 2
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 23
+    "monthIndex": 8,
+    "day": 3
    }
   ],
   "connections": {
@@ -4107,13 +4107,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 22
+    "monthIndex": 7,
+    "day": 5
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 20
+    "monthIndex": 8,
+    "day": 1
    }
   ],
   "connections": {
@@ -4314,13 +4314,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 31
+    "monthIndex": 7,
+    "day": 14
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 25
+    "monthIndex": 8,
+    "day": 6
    }
   ],
   "connections": {
@@ -4353,12 +4353,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 6
+    "day": 20
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 30
+    "monthIndex": 8,
+    "day": 15
    }
   ],
   "connections": {
@@ -4386,13 +4386,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 24
+    "monthIndex": 7,
+    "day": 7
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 23
+    "monthIndex": 8,
+    "day": 3
    }
   ],
   "connections": {
@@ -4655,12 +4655,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 5
+    "day": 19
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 28
+    "monthIndex": 8,
+    "day": 9
    }
   ],
   "connections": {
@@ -4895,12 +4895,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 15
+    "day": 29
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 13
+    "day": 25
    }
   ],
   "connections": {
@@ -4931,12 +4931,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 17
+    "day": 31
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 16
+    "day": 27
    }
   ],
   "connections": {
@@ -4963,13 +4963,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 19
+    "monthIndex": 7,
+    "day": 2
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 17
+    "day": 28
    }
   ],
   "connections": {
@@ -5070,13 +5070,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 30
+    "monthIndex": 7,
+    "day": 13
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 24
+    "monthIndex": 8,
+    "day": 4
    }
   ],
   "connections": {
@@ -5193,12 +5193,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 5
+    "day": 19
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 27
+    "monthIndex": 8,
+    "day": 8
    }
   ],
   "connections": {
@@ -5298,13 +5298,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 24
+    "monthIndex": 7,
+    "day": 7
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 20
+    "monthIndex": 8,
+    "day": 1
    }
   ],
   "connections": {
@@ -5372,12 +5372,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 14
+    "day": 28
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 12
+    "day": 24
    }
   ],
   "connections": {
@@ -5406,13 +5406,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 20
+    "monthIndex": 7,
+    "day": 3
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 18
+    "day": 30
    }
   ],
   "connections": {
@@ -5500,13 +5500,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 27
+    "monthIndex": 7,
+    "day": 10
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 20
+    "monthIndex": 8,
+    "day": 1
    }
   ],
   "connections": {
@@ -5539,12 +5539,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 4
+    "day": 18
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 27
+    "monthIndex": 8,
+    "day": 8
    }
   ],
   "connections": {
@@ -5728,12 +5728,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 14
+    "day": 28
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 13
+    "day": 25
    }
   ],
   "connections": {
@@ -5764,13 +5764,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 29
+    "monthIndex": 7,
+    "day": 12
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 24
+    "monthIndex": 8,
+    "day": 4
    }
   ],
   "connections": {
@@ -5843,13 +5843,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 30
+    "monthIndex": 7,
+    "day": 13
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 24
+    "monthIndex": 8,
+    "day": 4
    }
   ],
   "connections": {
@@ -5888,13 +5888,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 30
+    "monthIndex": 7,
+    "day": 13
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 25
+    "monthIndex": 8,
+    "day": 6
    }
   ],
   "connections": {
@@ -6273,12 +6273,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 28
+    "day": 27
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 23
+    "day": 24
    }
   ],
   "connections": {
@@ -6489,12 +6489,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 16
+    "day": 30
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 17
+    "monthIndex": 8,
+    "day": 6
    }
   ],
   "connections": {
@@ -6560,13 +6560,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 26
+    "monthIndex": 7,
+    "day": 9
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 21
+    "monthIndex": 8,
+    "day": 2
    }
   ],
   "connections": {
@@ -6600,13 +6600,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 21
+    "monthIndex": 7,
+    "day": 4
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 18
+    "day": 30
    }
   ],
   "connections": {
@@ -6640,13 +6640,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 22
+    "monthIndex": 7,
+    "day": 5
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 20
+    "monthIndex": 8,
+    "day": 1
    }
   ],
   "connections": {
@@ -6942,12 +6942,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 16
+    "day": 30
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 18
+    "day": 30
    }
   ],
   "connections": {
@@ -7141,13 +7141,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 30
+    "monthIndex": 7,
+    "day": 13
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 25
+    "day": 28
    }
   ],
   "connections": {
@@ -7203,13 +7203,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 26
+    "monthIndex": 7,
+    "day": 9
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 20
+    "monthIndex": 8,
+    "day": 1
    }
   ],
   "connections": {
@@ -7326,12 +7326,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 2
+    "day": 16
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 27
+    "monthIndex": 8,
+    "day": 8
    }
   ],
   "connections": {
@@ -7856,13 +7856,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 19
+    "monthIndex": 7,
+    "day": 2
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 16
+    "day": 27
    }
   ],
   "connections": {
@@ -8265,13 +8265,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 27
+    "monthIndex": 7,
+    "day": 10
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 19
+    "day": 31
    }
   ],
   "connections": {
@@ -10588,13 +10588,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 22
+    "monthIndex": 7,
+    "day": 5
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 18
+    "day": 30
    }
   ],
   "connections": {
@@ -10701,12 +10701,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 4
+    "day": 18
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 26
+    "monthIndex": 8,
+    "day": 7
    }
   ],
   "connections": {
@@ -10735,13 +10735,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 30
+    "monthIndex": 7,
+    "day": 13
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 20
+    "monthIndex": 8,
+    "day": 1
    }
   ],
   "connections": {
@@ -10779,12 +10779,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 5
+    "day": 19
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 30
+    "monthIndex": 8,
+    "day": 15
    }
   ],
   "connections": {
@@ -10881,12 +10881,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 16
+    "day": 30
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 12
+    "day": 24
    }
   ],
   "connections": {
@@ -10953,13 +10953,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 21
+    "monthIndex": 7,
+    "day": 4
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 19
+    "day": 31
    }
   ],
   "connections": {
@@ -10992,13 +10992,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 30
+    "monthIndex": 7,
+    "day": 13
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 19
+    "day": 31
    }
   ],
   "connections": {
@@ -11064,13 +11064,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 21
+    "monthIndex": 7,
+    "day": 4
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 16
+    "day": 27
    }
   ],
   "connections": {
@@ -11104,12 +11104,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 13
+    "day": 27
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 12
+    "day": 24
    }
   ],
   "connections": {
@@ -11310,13 +11310,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 26
+    "monthIndex": 7,
+    "day": 9
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 24
+    "monthIndex": 8,
+    "day": 4
    }
   ],
   "connections": {
@@ -11387,13 +11387,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 22
+    "monthIndex": 7,
+    "day": 5
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 13
+    "day": 25
    }
   ],
   "connections": {
@@ -11482,12 +11482,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 3
+    "day": 17
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 27
+    "monthIndex": 8,
+    "day": 8
    }
   ],
   "connections": {
@@ -11518,12 +11518,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 15
+    "day": 29
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 25
+    "monthIndex": 8,
+    "day": 6
    }
   ],
   "connections": {
@@ -11609,12 +11609,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 2
+    "day": 16
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 18
+    "day": 30
    }
   ],
   "connections": {
@@ -11664,12 +11664,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 16
+    "day": 30
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 16
+    "day": 27
    }
   ],
   "connections": {
@@ -12116,12 +12116,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 16
+    "day": 30
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 26
+    "monthIndex": 8,
+    "day": 7
    }
   ],
   "connections": {
@@ -12285,13 +12285,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 26
+    "monthIndex": 7,
+    "day": 9
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 23
+    "monthIndex": 8,
+    "day": 3
    }
   ],
   "connections": {
@@ -12480,13 +12480,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 20
+    "monthIndex": 7,
+    "day": 3
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 17
+    "day": 28
    }
   ],
   "connections": {
@@ -12511,7 +12511,7 @@
  },
  "00350035": {
   "code": "00350035",
-  "median": 85.6,
+  "median": 87.1,
   "about": "אנליזת סדרי גודל של משוואות נבייר-סטוקס ומספרים חסרי מימד במכניקת זורמים. תורת הכנף הדקה. סיכה הידרודינמית ומשוואת ריינולדס לזרימה זוחלת. מתח פנים גז-נוזל. יציבות שכבות גבול ותיאור אינטגרלי של שכבות גבול. מאמצי ריינולדס בזרימה טורבולנטית. זרימה טורבולנטית בצינור ושכבת גבול טורבולנטית. זרימה דחיסה חד מימדית. קונוס מך וגלי הלם ניצבים.",
   "points": 2.5,
   "name": "תורת הזרימה 2",
@@ -12655,12 +12655,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 14
+    "day": 28
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 13
+    "day": 25
    }
   ],
   "connections": {
@@ -12829,13 +12829,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 29
+    "monthIndex": 7,
+    "day": 12
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 25
+    "monthIndex": 8,
+    "day": 6
    }
   ],
   "connections": {
@@ -13000,13 +13000,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 19
+    "monthIndex": 7,
+    "day": 2
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 18
+    "day": 30
    }
   ],
   "connections": {
@@ -13035,12 +13035,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 4
+    "day": 2
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 27
+    "monthIndex": 8,
+    "day": 8
    }
   ],
   "connections": {
@@ -13108,13 +13108,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 29
+    "monthIndex": 7,
+    "day": 12
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 25
+    "monthIndex": 8,
+    "day": 6
    }
   ],
   "connections": {
@@ -13190,13 +13190,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 30
+    "monthIndex": 7,
+    "day": 13
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 26
+    "monthIndex": 8,
+    "day": 7
    }
   ],
   "connections": {
@@ -13241,13 +13241,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 28
+    "monthIndex": 7,
+    "day": 11
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 24
+    "monthIndex": 8,
+    "day": 4
    }
   ],
   "connections": {
@@ -13279,12 +13279,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 5
+    "day": 19
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 25
+    "monthIndex": 8,
+    "day": 6
    }
   ],
   "connections": {
@@ -13456,12 +13456,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 14
+    "day": 28
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 13
+    "day": 25
    }
   ],
   "connections": {
@@ -13601,7 +13601,7 @@
  },
  "00360015": {
   "code": "00360015",
-  "median": 89.3,
+  "median": 89.1,
   "about": "ניסוחים וריאציוניים, שיטות שקלול, עקרונות וריאציוניים ופתרונות מקורבים לבעיות תנאי שפה. אלמנטים חד מימדיים(C-1C0)שיטות לפתרון משוואות אלגבריות. אלמנטים איזופרמטריים רב מימדיים. מבנה אופיני של תוכניות מחשב ועיבוד ממוחשב של נתונים ותוצאות. הערכות שגיאה. שיטות אלמנטים גבוליים, רצועות סופיות ואלמנטים ספקטרליים.",
   "points": 3,
   "name": "שיטות אלמנטים סופיים בהנדסה 1",
@@ -13678,12 +13678,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 16
+    "day": 30
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 16
+    "day": 27
    }
   ],
   "connections": {
@@ -13784,13 +13784,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 27
+    "monthIndex": 7,
+    "day": 10
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 23
+    "monthIndex": 8,
+    "day": 3
    }
   ],
   "connections": {
@@ -13946,13 +13946,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 20
+    "monthIndex": 7,
+    "day": 3
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 12
+    "day": 24
    }
   ],
   "connections": {
@@ -14446,13 +14446,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 22
+    "monthIndex": 7,
+    "day": 5
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 19
+    "day": 31
    }
   ],
   "connections": {
@@ -14533,13 +14533,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 20
+    "monthIndex": 7,
+    "day": 3
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 16
+    "day": 27
    }
   ],
   "connections": {
@@ -14805,12 +14805,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 2
+    "day": 16
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 27
+    "monthIndex": 8,
+    "day": 8
    }
   ],
   "connections": {
@@ -15123,12 +15123,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 13
+    "day": 27
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 12
+    "day": 24
    }
   ],
   "connections": {
@@ -15263,7 +15263,7 @@
  },
  "00380717": {
   "code": "00380717",
-  "median": 91.8,
+  "median": 90.8,
   "about": "משוואת האנרגיה. שכבות גבול למינריות. בעית בלסיוס-פולהאוזן. שכבות גבול דחיסות. מעבר חום בסילונים. מעבר חום באיזור של נקודת סטגנציה. מודלים של טורבולנציה אמפיריים למחצה. מודל K-EPSILON. שכבת עירוב. הסעה טבעית לאורך לוח ובסילונים. אידוי - נוסחת קנודסן. רתיחה - בועותופילמים. עיבוי על לוח.\r\n",
   "points": 2,
   "name": "מעבר חום - הסעה",
@@ -15737,7 +15737,7 @@
  },
  "00440101": {
   "code": "00440101",
-  "median": 83.8,
+  "median": 83,
   "about": "השלמת נושאים בתכנות C: רשומות, ניהול זיכרון, פוינטרים לפונקציות, מודולים, מימוש מבני נתונים )רשימות מקושרות, מחסנית, עצי חיפוש(, תכנות מונחה עצמים )מחלקות, תבניות, הורשה, פולימורפיזם( STL ולימוד שפת ++C. סביבת UNIX, כלים ומנגנונים, מערכת הקבצים, תהליכים, תכנות בשפת BASH. מתודולוגיה של פיתוח ותחזוקת תוכנה.",
   "points": 3,
   "name": "מבוא למערכות תכנה",
@@ -16047,7 +16047,7 @@
  },
  "00440137": {
   "code": "00440137",
-  "median": 85.5,
+  "median": 85.6,
   "about": "מעגלים לוגיים, שולי רעש, זמני מיתוג והשהיות, שערים אידיאליים, שערי תמסורת, לוגיקה דינמית, הספק סטטי ודינמי, אופטימיזצית מהירות ומאמץ לוגי, תנאי תזמון, רגנרציה, סינכרון, מעגלי רגיסטרים, מעגלים סדרתיים, מטה-סטביליות, מעגלי זיכרון. עיבוד אנלוגי של אותות, דרגות הגבר,אות גדול ואות קטן, לינאריזציה ומעגלי תמורה, תגובת תדר, מגבר הפרש, מגברי שרת, משוב ויציבות, ניתוח רעש במעגלים, המרת אות אנלוגי לדיגיטלי.",
   "points": 5,
   "name": "מעגלים אלקטרוניים",
@@ -16105,7 +16105,7 @@
  },
  "00440139": {
   "code": "00440139",
-  "median": 86.1,
+  "median": 85.1,
   "about": "\"ממירים עם ובלי בידוד גלווני להעלאת המתח ולהורדת המתח, אופני עבודה, ניתוח ממירים במצב מתמיד. שיטות סימולציה של מערכות מיתוג. רכיביםמגנטיים. הפסדים במערכות מיתוג, נצילות. יציבות דינאמית של הממירים, חישוב ותכנון רשתות פיצוי. מבוא לאנרגיה \"ירוקה\", עקרונות מערכות סולאריות. \"",
   "points": 3,
   "name": "ממירי מתח ממותגים",
@@ -17895,7 +17895,7 @@
  },
  "00460042": {
   "code": "00460042",
-  "median": 89.6,
+  "median": 90,
   "about": "סקירת מבנה רשת ההספק, מקורות אנרגיה ומקורות מתחדשים. מושגי יסוד במערכות הספק, שנאים, גנרטור סינכרוני, חיבור מקבילי ולרשת קשיחה. קווי תמסורת זרימת ההספק במצב המתמיד בקרת הספק, תדר , מתח הספק עיוור, היבטים כלכליים, מבוא לרשת חכמה. תוצאות למידה: הדגש בקורס הוא על מערכת ההספק כמכלול. מטרת הקורס היא להקנות לסטודנטים: 1. זווית ראייה רחבה על מערכות הספק תוך דיון בעקרונות הבסיסיים של רשתות הספק והתקנים מרכזיים להמרת אנרגיה חשמלית. תוצאות למידה: מטרת הקורס היא להקנות לסטודנטים זווית ראיה רחבה על מערכות הספק תוך דיון בעקרונות הבסיסיים של רשתות הספק והתקנים מרכזיים להמרת אנרגיה חשמלית.",
   "points": 3.5,
   "name": "מבוא למערכות הספק ורשת חכמה",
@@ -18298,7 +18298,7 @@
  },
  "00460195": {
   "code": "00460195",
-  "median": 81.3,
+  "median": 81.8,
   "about": "קורס מבוא למערכות לומדות בהקשרן לעיבוד אותות, בינה מלאכותית ולמערכות בקרה. בעיות סיווג, רגרסיה ואישכול. רשתות עצביות: פרספטרונים רב-שכבתיים, פונקציות בסיס רדיאליות. עצי החלטה. יסודות בתורת הלמידה: הגישה הבייסיאנית, מרחבי השערות. הפחתת מימדיות בעזרת מיצוי רכיבים עיקריים. סיווג בשיטת וקטורי התמיכה. למידה על ידי חיזוקים. תוצאות למידה: בסיום הקורס הסטודנטים יכירו את יסודות התחום של מערכות לומדות,כולל מספר אלגוריתמים מרכזיים, וידעו לפהיעלם על בעיות מעשיות.",
   "points": 3.5,
   "name": "מערכות לומדות",
@@ -20557,7 +20557,7 @@
  },
  "00460881": {
   "code": "00460881",
-  "median": 90.5,
+  "median": 88.8,
   "about": "VERIFICATION -  בהדגש על שילוב התיאוריה והשימוש המתקדם בעולם האמתי עם הדגשים על  העקרונות והמתודולוגיות במטרה להתגבר על החסמים התיאורטיים של השיטות הפורמליות. חומר הקורס כולל מבוא לתכנון שבבים ואימות חומרה, סקירה של אלגוריתמי אימות פורמלי ומנועי חיפוש, שימוש בלוגיקה טמפורלית ושפת אפיון סטנדרטית SVA, שיטות צמצום ורדוקציה של מרחב החיפוש הפורמלי לאימות מערכות חומרה מסובכות, מבחר של אפליקציות פורמליות ושימושיהן בתהליך האימות, כמו שקילות לוגית, כיסוי לוגי, בטיחות ואבטחה של תכנון. מבוא ללמידה ובינה מלאכותית באימות הפורמלי. \r\n תוצאות למידה:\r\n עם השלמת הקורס בהצלחה, הסטודנטיות והסטודנטים יוכלו להשתמש ברעיונות ובשיטות שנלמדו להתמודד עם בעיות וריפיקציה קשות בתעשיי ה בעיקר בתחום הפורמלי. תהיה להם הבנה עמוקה ביישומים השונים וגם בכלים מודרניים בהם תעשייה משתמשת ובשיטות אימות מתקדמות. הידע הנרכש יהווה בסיס טוב להמשך מחקר ופיתוח של כלים ושיטות אימות במסגרת לימודי תארים מתקדמים.",
   "points": 3,
   "name": "אימות פורמלי לחומרה",
@@ -23328,13 +23328,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 21
+    "monthIndex": 7,
+    "day": 4
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 20
+    "monthIndex": 8,
+    "day": 1
    }
   ],
   "connections": {
@@ -23454,13 +23454,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 28
+    "monthIndex": 7,
+    "day": 11
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 23
+    "monthIndex": 8,
+    "day": 3
    }
   ],
   "connections": {
@@ -23697,12 +23697,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 16
+    "day": 30
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 14
+    "day": 26
    }
   ],
   "connections": {
@@ -23831,13 +23831,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 20
+    "monthIndex": 7,
+    "day": 3
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 18
+    "day": 30
    }
   ],
   "connections": {
@@ -23868,13 +23868,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 28
+    "monthIndex": 7,
+    "day": 11
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 23
+    "monthIndex": 8,
+    "day": 3
    }
   ],
   "connections": {
@@ -23914,13 +23914,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 28
+    "monthIndex": 7,
+    "day": 11
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 23
+    "monthIndex": 8,
+    "day": 3
    }
   ],
   "connections": {
@@ -23960,12 +23960,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 4
+    "day": 18
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 27
+    "monthIndex": 8,
+    "day": 8
    }
   ],
   "connections": {
@@ -24188,13 +24188,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 26
+    "monthIndex": 7,
+    "day": 9
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 17
+    "day": 28
    }
   ],
   "connections": {
@@ -24755,12 +24755,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 13
+    "day": 27
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 12
+    "day": 24
    }
   ],
   "connections": {
@@ -24824,13 +24824,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 21
+    "monthIndex": 7,
+    "day": 4
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 20
+    "monthIndex": 8,
+    "day": 1
    }
   ],
   "connections": {
@@ -25821,12 +25821,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 15
+    "day": 29
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 13
+    "day": 25
    }
   ],
   "connections": {
@@ -25954,7 +25954,7 @@
  },
  "00640106": {
   "code": "00640106",
-  "median": 82.3,
+  "median": 80.2,
   "about": "מושגי יסוד וחזרה על חוקי התרמודינמיקה, חישובי חום עבודה ושינויים בתכונות בתהליכים מנתיים ובתהליכי זרימה. הפיכות תהליכים וניצולת מכונות חום, תכונות תרמודינמיות של חומרים טהורים, ובפרט מים במצבי צבירה שונים. גזים אידיאליים וראליים, תהליכי דחיסה ותערובות גזים. תכונות תרמודינמיות של תערובות גז-אד, ובפרט של אויר ואדי מים (פסיכרומטריה) וניתוח תהליכי ייבוש והלחה. התנהגות מוצר באריזה קשיחה. משאבות חום ותהליכי קירור ומיזוג. מודל השריג והתאוריה הרגילה של התמיסות. שיווי משקל בין פאזות, פוגסיות, פוטנציאל כימי, תמיסות אידיאליות ואמיתיות, חוק ראול וחוק הנרי, ושינויים בהרכב הפאזות בעת איוד וזיקוק. תכונות קוליגטיביות, תהליכי קירור והקפאה.",
   "points": 4,
   "name": "תרמודינמיקה בהנדסת ביוטכנולוגיה ומזון",
@@ -26001,13 +26001,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 20
+    "monthIndex": 7,
+    "day": 3
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 17
+    "day": 28
    }
   ],
   "connections": {
@@ -26023,7 +26023,7 @@
  },
  "00640117": {
   "code": "00640117",
-  "median": 78.1,
+  "median": 77.7,
   "about": "אינטגרציה של חוק פוריה ( REIRUOF ) במצב יציב, מעבר חום בהולכה, משוואות דיפרנציאליות למעבר חום, מעבר חום בהסעה, מחליפי חום, מעבר חוםבקרינה, אינטגרציה של חוק פוריה ( REIRUOF ) במצב לא יציב, איוד ורתיחה, עיקור.",
   "points": 3,
   "name": "תופעות מעבר חום",
@@ -26066,13 +26066,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 26
+    "monthIndex": 7,
+    "day": 9
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 20
+    "monthIndex": 8,
+    "day": 1
    }
   ],
   "connections": {
@@ -26128,12 +26128,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 5
+    "day": 19
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 27
+    "monthIndex": 8,
+    "day": 8
    }
   ],
   "connections": {
@@ -26371,13 +26371,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 30
+    "monthIndex": 7,
+    "day": 13
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 24
+    "monthIndex": 8,
+    "day": 4
    }
   ],
   "connections": {
@@ -26410,13 +26410,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 20
+    "monthIndex": 7,
+    "day": 3
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 18
+    "day": 30
    }
   ],
   "connections": {
@@ -26444,13 +26444,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 26
+    "monthIndex": 7,
+    "day": 9
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 23
+    "monthIndex": 8,
+    "day": 3
    }
   ],
   "connections": {
@@ -26504,12 +26504,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 2
+    "day": 16
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 25
+    "monthIndex": 8,
+    "day": 6
    }
   ],
   "connections": {
@@ -26635,12 +26635,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 16
+    "day": 30
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 12
+    "day": 24
    }
   ],
   "connections": {
@@ -26692,12 +26692,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 13
+    "day": 27
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 13
+    "day": 25
    }
   ],
   "connections": {
@@ -26728,7 +26728,7 @@
  },
  "00640420": {
   "code": "00640420",
-  "median": 90.9,
+  "median": 91.3,
   "about": "מיקרואורגניזמים במזון ומים. מיקרוביולוגיה חיובית - תסיסה ע\"י שמרים. תסיסה ע\"י חידקים לקטיים. מיקרוביולוגיה שלילית - היבטים מיקרוביאליים של שימור וקילקול מזון. איפיון וקביעת מיקרואורגניזם במזון ומים. מק\"א גורמי מחלה במזון ובמים. תקנים ותקנות, שמירה על איכות מיקרוביאלית של מוצרי מזון במפעל.",
   "points": 3,
   "name": "מיקרוביולוגיה של מזון",
@@ -26806,12 +26806,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 13
+    "day": 27
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 13
+    "day": 25
    }
   ],
   "connections": {
@@ -27115,12 +27115,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 2
+    "day": 16
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 26
+    "monthIndex": 8,
+    "day": 7
    }
   ],
   "connections": {
@@ -27149,12 +27149,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 9
+    "day": 20
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 30
+    "monthIndex": 8,
+    "day": 16
    }
   ],
   "connections": {
@@ -27211,13 +27211,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 30
+    "monthIndex": 7,
+    "day": 13
    },
    {
     "year": 2026,
     "monthIndex": 8,
-    "day": 1
+    "day": 9
    }
   ],
   "connections": {
@@ -27463,13 +27463,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 22
+    "monthIndex": 7,
+    "day": 5
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 20
+    "monthIndex": 8,
+    "day": 1
    }
   ],
   "connections": {
@@ -27574,13 +27574,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 19
+    "monthIndex": 7,
+    "day": 2
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 16
+    "day": 27
    }
   ],
   "connections": {
@@ -27638,12 +27638,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 6
+    "day": 19
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 31
+    "monthIndex": 8,
+    "day": 15
    }
   ],
   "connections": {
@@ -27798,13 +27798,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 29
+    "monthIndex": 7,
+    "day": 12
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 25
+    "monthIndex": 8,
+    "day": 6
    }
   ],
   "connections": {
@@ -27905,13 +27905,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 10
+    "monthIndex": 6,
+    "day": 29
    },
    {
     "year": 2026,
-    "monthIndex": 8,
-    "day": 3
+    "monthIndex": 7,
+    "day": 28
    }
   ],
   "connections": {
@@ -28166,12 +28166,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 2
+    "day": 16
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 27
+    "monthIndex": 8,
+    "day": 8
    }
   ],
   "connections": {
@@ -28202,13 +28202,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 20
+    "monthIndex": 7,
+    "day": 3
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 19
+    "day": 31
    }
   ],
   "connections": {
@@ -28377,13 +28377,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 27
+    "monthIndex": 7,
+    "day": 10
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 21
+    "monthIndex": 8,
+    "day": 2
    }
   ],
   "connections": {
@@ -28465,12 +28465,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 16
+    "day": 30
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 16
+    "day": 27
    }
   ],
   "connections": {
@@ -28600,12 +28600,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 5
+    "day": 19
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 30
+    "monthIndex": 8,
+    "day": 15
    }
   ],
   "connections": {
@@ -28637,12 +28637,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 13
+    "day": 27
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 12
+    "day": 24
    }
   ],
   "connections": {
@@ -28881,13 +28881,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 30
+    "monthIndex": 7,
+    "day": 13
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 31
+    "monthIndex": 8,
+    "day": 15
    }
   ],
   "connections": {
@@ -29175,13 +29175,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 22
+    "monthIndex": 7,
+    "day": 5
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 18
+    "day": 30
    }
   ],
   "connections": {
@@ -29262,12 +29262,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 13
+    "day": 27
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 14
+    "day": 26
    }
   ],
   "connections": {
@@ -29750,13 +29750,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 22
+    "monthIndex": 7,
+    "day": 5
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 16
+    "day": 27
    }
   ],
   "connections": {
@@ -29793,12 +29793,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 15
+    "day": 29
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 12
+    "day": 24
    }
   ],
   "connections": {
@@ -29829,12 +29829,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 2
+    "day": 16
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 24
+    "monthIndex": 8,
+    "day": 4
    }
   ],
   "connections": {
@@ -29906,13 +29906,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 26
+    "monthIndex": 7,
+    "day": 9
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 23
+    "monthIndex": 8,
+    "day": 3
    }
   ],
   "connections": {
@@ -29946,12 +29946,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 16
+    "day": 30
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 12
+    "day": 24
    }
   ],
   "connections": {
@@ -30066,12 +30066,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 15
+    "day": 29
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 17
+    "day": 28
    }
   ],
   "connections": {
@@ -30582,13 +30582,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 29
+    "monthIndex": 7,
+    "day": 12
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 20
+    "monthIndex": 8,
+    "day": 1
    }
   ],
   "connections": {
@@ -30707,13 +30707,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 20
+    "monthIndex": 7,
+    "day": 3
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 16
+    "day": 27
    }
   ],
   "connections": {
@@ -30968,12 +30968,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 3
+    "day": 17
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 25
+    "monthIndex": 8,
+    "day": 6
    }
   ],
   "connections": {
@@ -31032,13 +31032,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 29
+    "monthIndex": 7,
+    "day": 12
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 23
+    "monthIndex": 8,
+    "day": 3
    }
   ],
   "connections": {
@@ -31148,13 +31148,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 21
+    "monthIndex": 7,
+    "day": 4
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 27
+    "monthIndex": 8,
+    "day": 8
    }
   ],
   "connections": {
@@ -31296,13 +31296,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 19
+    "monthIndex": 7,
+    "day": 2
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 17
+    "day": 28
    }
   ],
   "connections": {
@@ -31330,13 +31330,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 27
+    "monthIndex": 7,
+    "day": 10
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 19
+    "day": 31
    }
   ],
   "connections": {
@@ -31512,12 +31512,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 14
+    "day": 28
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 13
+    "day": 25
    }
   ],
   "connections": {
@@ -31604,12 +31604,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 4
+    "day": 18
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 26
+    "monthIndex": 8,
+    "day": 7
    }
   ],
   "connections": {
@@ -31728,18 +31728,6 @@
   "about": "יצוג המצב הזוויתי, קינמטיקה ודינמיקה סיבובית, סנסורים מפעילים ומומנטים מפריעים, ייצוב פאסיבי )סחרור וגרדיאנט גרביטציה(, גלגלי תנופהוגלגלי תנופה מגומבלים, בקרה לינארית של המצב הזוויתי, בקרה לא לינארית של המצב הזוויתי, שערוך סטטי של המצב הזוויתי, דוגמאות ויישומים לשערוך ובקרת מצב זוויתי. תוצאות למידה: בסיום הקורס, הסטודנטים והסטודנטיות יהיו מסוגלים:\r\n 1. לייצג את המצב הזוויתי בייצוגים שונים ולעבור בין ייצוגים שונים. 2. לכתוב ולנתח את משוואות התנועה של המצב הזוויתי עם מפעילים שונים 3. לתכנן ולנתח חוקי בקרה בסיסיים למצב הזוויתי בשיטות לינאריות ולא לינאריות.\r\n 4. לבצע שערוך סטטי של המצב הזוויתי במספר שיטות בסיסיות.",
   "points": 3,
   "name": "בקרת הכוון חלליות",
-  "tests": [
-   {
-    "year": 2026,
-    "monthIndex": 7,
-    "day": 10
-   },
-   {
-    "year": 2026,
-    "monthIndex": 7,
-    "day": 31
-   }
-  ],
   "connections": {
    "dependencies": [
     [
@@ -32258,12 +32246,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 16
+    "day": 30
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 14
+    "day": 26
    }
   ],
   "connections": {
@@ -32338,13 +32326,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 22
+    "monthIndex": 7,
+    "day": 5
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 13
+    "day": 25
    }
   ],
   "connections": {
@@ -32428,7 +32416,7 @@
  },
  "00940170": {
   "code": "00940170",
-  "median": 86.6,
+  "median": 86.3,
   "about": "הקורס דן במגוון שיטות בהנדסת תעשיה. ילמדו טכניקות לחקר תהליכים והצגתם, מדידת עבודה, ניהול רזה,  שש סיגמא, פיתוח זריז של תוכנה, ארגונומיה ועקרונות תכנון מוצר.ינתן דגש על יישום השיטות השונות בעזרת אמצעים מתקדמים הכוללים איסוף נתונים אוטומטי בעזרת חיישנים ושימוש באלגוריתמים ומערכות לומדות לצורך ניתוח הנתונים.",
   "points": 3.5,
   "name": "שיטות בהנדסת תעשיה",
@@ -32642,13 +32630,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 26
+    "monthIndex": 7,
+    "day": 9
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 16
+    "day": 27
    }
   ],
   "connections": {
@@ -32706,13 +32694,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 22
+    "monthIndex": 7,
+    "day": 5
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 14
+    "day": 26
    }
   ],
   "connections": {
@@ -32755,13 +32743,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 31
+    "monthIndex": 7,
+    "day": 14
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 23
+    "monthIndex": 8,
+    "day": 3
    }
   ],
   "connections": {
@@ -32823,12 +32811,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 5
+    "day": 19
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 26
+    "monthIndex": 8,
+    "day": 7
    }
   ],
   "connections": {
@@ -32874,7 +32862,7 @@
  },
  "00940241": {
   "code": "00940241",
-  "median": 80.7,
+  "median": 80.6,
   "about": "בקורס נלמדים נושאים בסיסיים בניהול מסדי נתונים יחסיים, כולל תיכון באמצעות DRE ונירמול, שאילתות בשפת LQS ומבוא לניהול תנועות. הסטודנט יתנסה בפיתוח ובניית מסד נתונים.",
   "points": 3,
   "name": "ניהול מסדי נתונים",
@@ -32882,12 +32870,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 10
+    "day": 26
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 12
+    "day": 24
    }
   ],
   "connections": {
@@ -32998,12 +32986,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 4
+    "day": 18
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 27
+    "monthIndex": 8,
+    "day": 8
    }
   ],
   "connections": {
@@ -33082,13 +33070,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 19
+    "monthIndex": 7,
+    "day": 2
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 16
+    "day": 27
    }
   ],
   "connections": {
@@ -33201,12 +33189,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 3
+    "day": 17
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 27
+    "monthIndex": 8,
+    "day": 8
    }
   ],
   "connections": {
@@ -33325,12 +33313,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 5
+    "day": 19
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 26
+    "monthIndex": 8,
+    "day": 7
    }
   ],
   "connections": {
@@ -33380,13 +33368,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 20
+    "monthIndex": 7,
+    "day": 3
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 26
+    "monthIndex": 8,
+    "day": 7
    }
   ],
   "connections": {
@@ -33426,20 +33414,20 @@
  },
  "00940423": {
   "code": "00940423",
-  "median": 84.5,
+  "median": 83.5,
   "about": "סטטיסטיקה תיאורית ושיטות גרפיות. יסודות דגימה.  אמידה נקודתית, רווחי סמך ובדיקת השערות. בדיקת טיב התאמה ואי תלות. רגרסיה לינארית פשוטה ומרובה.",
   "points": 3.5,
   "name": "מבוא לסטטיסטיקה",
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 22
+    "monthIndex": 7,
+    "day": 5
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 24
+    "monthIndex": 8,
+    "day": 4
    }
   ],
   "connections": {
@@ -33478,13 +33466,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 22
+    "monthIndex": 7,
+    "day": 5
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 24
+    "monthIndex": 8,
+    "day": 4
    }
   ],
   "connections": {
@@ -33526,12 +33514,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 13
+    "day": 27
    },
    {
     "year": 2026,
     "monthIndex": 8,
-    "day": 1
+    "day": 15
    }
   ],
   "connections": {
@@ -33576,12 +33564,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 14
+    "day": 28
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 20
+    "monthIndex": 8,
+    "day": 1
    }
   ],
   "connections": {
@@ -33793,13 +33781,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 26
+    "monthIndex": 7,
+    "day": 9
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 23
+    "monthIndex": 8,
+    "day": 3
    }
   ],
   "connections": {
@@ -33941,12 +33929,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 5
+    "day": 19
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 28
+    "monthIndex": 8,
+    "day": 9
    }
   ],
   "connections": {
@@ -34096,12 +34084,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 14
+    "day": 28
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 12
+    "day": 24
    }
   ],
   "connections": {
@@ -34161,12 +34149,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 14
+    "day": 28
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 17
+    "day": 28
    }
   ],
   "connections": {
@@ -34255,13 +34243,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 22
+    "monthIndex": 7,
+    "day": 5
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 12
+    "day": 24
    }
   ],
   "connections": {
@@ -34493,7 +34481,7 @@
  },
  "00950296": {
   "code": "00950296",
-  "median": 73.5,
+  "median": 70.3,
   "about": "השלמות באלגברה ליניארית )מרחבי מכפלה פנימית, נורמות, בסיסים אורתונורמלים, ערכים עצמיים ווקטורים עצמיים(, פירוקי מטריצות )משפט הפירוק הספקטרלי(, מערכות משוואות ליניאריות, ריבועים פחותים, שיטות איטרטיביות לפירוק מהיר של מטריצות, שיטות איטרטיביות לפתרון בעיות ריבועים פחות במימד גדול עם מידע דליל, משפטי פרטרובציה של פירוקי מטריצות, מבוא לטנזורים",
   "points": 4,
   "name": "שיטות אלגבריות בהנדסת נתונים",
@@ -34592,13 +34580,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 26
+    "monthIndex": 7,
+    "day": 9
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 19
+    "day": 31
    }
   ],
   "connections": {
@@ -34839,12 +34827,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 9
+    "day": 20
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 30
+    "monthIndex": 8,
+    "day": 15
    }
   ],
   "connections": {
@@ -34877,12 +34865,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 4
+    "day": 18
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 26
+    "monthIndex": 8,
+    "day": 7
    }
   ],
   "connections": {
@@ -34957,13 +34945,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 24
+    "monthIndex": 7,
+    "day": 7
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 18
+    "day": 30
    }
   ],
   "connections": {
@@ -35088,12 +35076,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 13
+    "day": 27
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 27
+    "monthIndex": 8,
+    "day": 8
    }
   ],
   "connections": {
@@ -35248,12 +35236,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 15
+    "day": 29
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 12
+    "day": 24
    }
   ],
   "connections": {
@@ -35343,13 +35331,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 30
+    "monthIndex": 7,
+    "day": 13
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 24
+    "monthIndex": 8,
+    "day": 4
    }
   ],
   "connections": {
@@ -35565,12 +35553,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 5
+    "day": 19
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 31
+    "monthIndex": 8,
+    "day": 15
    }
   ],
   "connections": {
@@ -35602,13 +35590,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 29
+    "monthIndex": 7,
+    "day": 12
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 20
+    "monthIndex": 8,
+    "day": 1
    }
   ],
   "connections": {
@@ -35820,12 +35808,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 15
+    "day": 29
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 23
+    "monthIndex": 8,
+    "day": 3
    }
   ],
   "connections": {
@@ -36056,7 +36044,7 @@
  },
  "00960475": {
   "code": "00960475",
-  "median": 93.7,
+  "median": 93.3,
   "about": "במקצוע זה יוצגו ניסויים מתוכננים נוספים לאלה שידונו במקצוע הקדם, סטטיסטיקה תעשייתית (096414). הנושאים יכללו: הסדרה N3 וניסויים חלקיים בסדרה זו, טיפול בגורמים אקראיים בנוסף לגורמים קבועים, מדידות חוזרות ( SERUSAEM DETAEPER ), ניתוח שונות רב משתני ( ( AVONAM וניתוחעם משתני לוואי.",
   "points": 2.5,
   "name": "תכנון ניסויים וניתוחם",
@@ -36203,13 +36191,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 19
+    "monthIndex": 7,
+    "day": 2
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 19
+    "day": 31
    }
   ],
   "connections": {
@@ -36259,12 +36247,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 2
+    "day": 16
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 27
+    "monthIndex": 8,
+    "day": 8
    }
   ],
   "connections": {
@@ -36684,12 +36672,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 16
+    "day": 30
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 16
+    "day": 27
    }
   ],
   "connections": {
@@ -36827,13 +36815,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 29
+    "monthIndex": 7,
+    "day": 12
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 25
+    "monthIndex": 8,
+    "day": 6
    }
   ],
   "connections": {
@@ -37191,13 +37179,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 27
+    "monthIndex": 7,
+    "day": 10
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 23
+    "monthIndex": 8,
+    "day": 3
    }
   ],
   "connections": {
@@ -37223,12 +37211,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 2
+    "day": 16
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 24
+    "monthIndex": 8,
+    "day": 4
    }
   ],
   "connections": {
@@ -37261,12 +37249,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 3
+    "day": 17
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 27
+    "monthIndex": 8,
+    "day": 8
    }
   ],
   "connections": {
@@ -37809,13 +37797,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 20
+    "monthIndex": 7,
+    "day": 3
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 28
+    "monthIndex": 8,
+    "day": 9
    }
   ],
   "connections": {
@@ -37887,13 +37875,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 22
+    "monthIndex": 7,
+    "day": 5
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 20
+    "monthIndex": 8,
+    "day": 1
    }
   ],
   "connections": {
@@ -38021,13 +38009,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 22
+    "monthIndex": 7,
+    "day": 5
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 13
+    "day": 25
    }
   ],
   "connections": {
@@ -38062,12 +38050,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 12
+    "day": 26
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 14
+    "day": 26
    }
   ],
   "connections": {
@@ -38100,12 +38088,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 13
+    "day": 27
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 27
+    "monthIndex": 8,
+    "day": 8
    }
   ],
   "connections": {
@@ -38383,13 +38371,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 21
+    "monthIndex": 7,
+    "day": 4
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 13
+    "day": 25
    }
   ],
   "connections": {
@@ -38724,13 +38712,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 24
+    "monthIndex": 7,
+    "day": 7
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 18
+    "day": 30
    }
   ],
   "connections": {
@@ -38992,12 +38980,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 14
+    "day": 28
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 13
+    "day": 25
    }
   ],
   "connections": {
@@ -40415,7 +40403,7 @@
  },
  "01040038": {
   "code": "01040038",
-  "median": 74.3,
+  "median": 72,
   "about": "שיטות לפתרון מערכות משוואות לינאריות: פירוק LU, נורמות של וקטורים ומטריצות, שיטות איטרטיביות. מרחבי מכפלה פנימית: אי שוויון קושי שוורץ, המשלים הניצב ותהליך גרם-שמידט, הטלות אורתוגונליות, בסיסים אורתונורמליים, אי שוויון בסל, פירוק QR.  אופרטורים במרחבי מכפלה פנימית:  פונקציונלים לינאריים, משפט ריס והאופרטור הצמוד, אופרטורים נורמליים, צמודים לעצמם, אוניטריים, חיוביים. משפט הפירוק הספקטרלי, לכסון אורתוגונלי, צורת ג ורדן, משפט הפירוק הפולרי, פירוק SVD ופירוק CHOLESKY. משפט המינ-מקס ומנת ריילי. תבניות בילינאריות וריבועיות, זהות הפולריזציה, מיון תבניות ריבועיות מעל הממשיים: חפיפת מטריצות, משפט ההתמדה של סילבסטר. אלגברה וחשבון של טנזורים",
   "points": 2.5,
   "name": "אלגברה 2מ",
@@ -40711,7 +40699,8 @@
    "adjacent": [],
    "exclusive": [
     "01040016",
-    "01040064"
+    "01040064",
+    "01040066"
    ]
   },
   "seasons": [
@@ -40742,6 +40731,7 @@
    "dependencies": [],
    "adjacent": [],
    "exclusive": [
+    "01040065",
     "01040167"
    ]
   },
@@ -41492,7 +41482,7 @@
  },
  "01040174": {
   "code": "01040174",
-  "median": 78.8,
+  "median": 77.3,
   "about": "חזרה על סכומים ישרים ומטריצה מיצגת. המטריצה הצמודה. תתי מרחבים שמורים וצמצום של אופרטור לינארי. הפולינום המינימלי והוכחת משפט קייליהמילטון. משפט הפרוק הפרימרי. אופרטורים נילפוטנטיים ואינדקס הנילפוטנטיות. צורת ג'ורדן ודמיון מטריצות מעל. C מרחבי מכפלה פנימית. המשלים הניצב ותהליך גרם - שמידט. האופרטור הצמוד. אופרטורים צמודים לעצמם. הטלות אורתוגונליות. אופרטורים אוניטריים ואיזומטריות. אופרטורים נורמליים. משפט הפרוק הספקטרלי ולכסון אורתוגונלי. אופרטורים חיוביים ומשפט הפרוק הפולרי. פונקציונליים לינאריים והמרחב הדואלי. תבניות בילינאריות ותבניות ריבועיות. חפיפה מטריצות. הדטרמיננטה כתבנית נפח. עוד נוספים ככל שירשה הזמן.",
   "points": 3.5,
   "name": "אלגברה במ'",
@@ -41922,20 +41912,7 @@
    }
   ],
   "connections": {
-   "dependencies": [
-    [
-     "01040013",
-     "01040136"
-    ],
-    [
-     "01040013",
-     "01040035"
-    ],
-    [
-     "01040013",
-     "01040135"
-    ]
-   ],
+   "dependencies": [],
    "adjacent": [],
    "exclusive": [
     "01040219",
@@ -42078,7 +42055,6 @@
    "exclusive": [
     "01040122",
     "01040214",
-    "01040276",
     "02340299"
    ]
   },
@@ -42146,7 +42122,6 @@
    "exclusive": [
     "01040030",
     "01040214",
-    "01040276",
     "02340299"
    ]
   },
@@ -42345,18 +42320,9 @@
    }
   ],
   "connections": {
-   "dependencies": [
-    [
-     "01040281",
-     "01040168",
-     "01040142"
-    ]
-   ],
+   "dependencies": [],
    "adjacent": [],
-   "exclusive": [
-    "01040221",
-    "01040223"
-   ]
+   "exclusive": []
   },
   "seasons": [
    "Spring"
@@ -42396,21 +42362,9 @@
   "points": 3.5,
   "name": "מבוא לאנליזה פונקציונלית",
   "connections": {
-   "dependencies": [
-    [
-     "01040166",
-     "01040142"
-    ],
-    [
-     "01040142",
-     "01040066"
-    ]
-   ],
+   "dependencies": [],
    "adjacent": [],
-   "exclusive": [
-    "01040221",
-    "01040223"
-   ]
+   "exclusive": []
   },
   "seasons": [
    "Winter",
@@ -44968,13 +44922,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 24
+    "monthIndex": 7,
+    "day": 7
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 23
+    "monthIndex": 8,
+    "day": 3
    }
   ],
   "connections": {
@@ -45061,12 +45015,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 13
+    "day": 27
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 12
+    "day": 24
    }
   ],
   "connections": {
@@ -45099,13 +45053,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 27
+    "monthIndex": 7,
+    "day": 10
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 21
+    "monthIndex": 8,
+    "day": 2
    }
   ],
   "connections": {
@@ -45140,20 +45094,20 @@
  },
  "01140054": {
   "code": "01140054",
-  "median": 92.3,
+  "median": 90.8,
   "about": "רקע ויסודות המכניקה הקונטית - תכונות חלקיקיות של אור, תכונות גליות של חומר, קונטיזציה של קרינה ואנרגיה. מודל האטום של בוהר, גילוי הגרעין ע\"י רתרפורד, פונקצית גל ומשואות שרדינגר - הגישה ההסתברותית, פתרון משואת שרדינגר לחלקיק חופשי ובנוכחות פוטנציאלים שונים. תאור קונטי של אטום המימן, אטומים רבי אלקטרונים והטבלה המחזורית. מצב מוצק - מבנה המוצק, מודל אלקטרונים חפשיים, מבנה פסים, מוליכים, מבדדים, ומוליכים למחצה. גרעין - מבנה הגרעין, כוחות גרעיניים ואנרגית קשר, רדיואקטיביות, ראקציות גרעיניות, ביקוע, מיזוג ואנרגיה גרעינית. חלקיקים יסודיים - חלקיקים ואנטי חלקיקים, חוקי שימור, מיון חלקיקים, הכוחות הבסיסיים בטבע. אסטרופיסיקה וקוסמולוגיה - התפתחות כוכבים ובריאת ה יקום.",
   "points": 3.5,
   "name": "פיסיקה 3",
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 27
+    "monthIndex": 7,
+    "day": 10
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 21
+    "monthIndex": 8,
+    "day": 2
    }
   ],
   "connections": {
@@ -45188,12 +45142,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 13
+    "day": 27
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 12
+    "day": 24
    }
   ],
   "connections": {
@@ -45228,12 +45182,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 9
+    "day": 21
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 31
+    "monthIndex": 8,
+    "day": 15
    }
   ],
   "connections": {
@@ -45336,13 +45290,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 27
+    "monthIndex": 7,
+    "day": 10
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 23
+    "monthIndex": 8,
+    "day": 3
    }
   ],
   "connections": {
@@ -45377,13 +45331,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 27
+    "monthIndex": 7,
+    "day": 10
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 23
+    "monthIndex": 8,
+    "day": 3
    }
   ],
   "connections": {
@@ -45456,13 +45410,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 27
+    "monthIndex": 7,
+    "day": 10
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 21
+    "monthIndex": 8,
+    "day": 2
    }
   ],
   "connections": {
@@ -45670,12 +45624,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 14
+    "day": 28
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 11
+    "day": 23
    }
   ],
   "connections": {
@@ -45829,13 +45783,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 19
+    "monthIndex": 7,
+    "day": 2
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 18
+    "day": 30
    }
   ],
   "connections": {
@@ -45915,13 +45869,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 27
+    "monthIndex": 7,
+    "day": 10
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 23
+    "monthIndex": 8,
+    "day": 3
    }
   ],
   "connections": {
@@ -46031,12 +45985,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 4
+    "day": 18
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 27
+    "monthIndex": 8,
+    "day": 8
    }
   ],
   "connections": {
@@ -46113,12 +46067,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 5
+    "day": 19
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 25
+    "monthIndex": 8,
+    "day": 6
    }
   ],
   "connections": {
@@ -46147,13 +46101,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 26
+    "monthIndex": 7,
+    "day": 9
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 16
+    "day": 27
    }
   ],
   "connections": {
@@ -46209,12 +46163,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 16
+    "day": 30
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 23
+    "monthIndex": 8,
+    "day": 3
    }
   ],
   "connections": {
@@ -46269,12 +46223,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 13
+    "day": 27
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 12
+    "day": 24
    }
   ],
   "connections": {
@@ -46707,13 +46661,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 30
+    "monthIndex": 7,
+    "day": 13
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 31
+    "monthIndex": 8,
+    "day": 15
    }
   ],
   "connections": {
@@ -46894,7 +46848,7 @@
  },
  "01170001": {
   "code": "01170001",
-  "median": 97.8,
+  "median": 97,
   "about": "מבוא לעקרונות הבסיסיים של תורת המיתרים. אלקטרומגנטיות וכבידה עם מימדים נוספים קומפקטים. החלקיק היחסותי. מיתרים יחסותיים:פעולת נמבו-גוטו, משוואות התנועה,סימטריות וחוקי שימור, משתני חרוט האור. מיתרים קוונטים: המיתר הפתוח, המיתר הסגור. יריעות דיריכלה ומטענים, מיתריםוחורים שחורים, דואליות.",
   "points": 3,
   "name": "תורת המיתרים למתחילים",
@@ -47516,13 +47470,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 19
+    "monthIndex": 7,
+    "day": 2
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 20
+    "monthIndex": 8,
+    "day": 1
    }
   ],
   "connections": {
@@ -48050,12 +48004,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 5
+    "day": 19
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 27
+    "monthIndex": 8,
+    "day": 8
    }
   ],
   "connections": {
@@ -48084,7 +48038,7 @@
  },
  "01240120": {
   "code": "01240120",
-  "median": 78.8,
+  "median": 76.8,
   "about": "אטומים, מולקולות ויונים. התורה הקוונטית והמבנה האלקטרוני של אטומים. הטבלה המחזורית. הקשר הכימי. גיאומטריה של מולקולות ואורביטלים מולקולרים. תרמוכימיה. מצב הצבירה הגזי. כוחות בין מולקולריים, נוזלים ומוצקים. תכונות פיסיקליות של תמיסות. קינטיקה כימית. שווי משקל כימי. חומצות ובסיסים. אלקטרוכימיה.",
   "points": 5,
   "name": "יסודות הכימיה",
@@ -48227,12 +48181,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 13
+    "day": 27
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 12
+    "day": 24
    }
   ],
   "connections": {
@@ -48296,12 +48250,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 16
+    "day": 30
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 14
+    "day": 26
    }
   ],
   "connections": {
@@ -48611,12 +48565,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 5
+    "day": 19
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 27
+    "monthIndex": 8,
+    "day": 8
    }
   ],
   "connections": {
@@ -48650,13 +48604,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 21
+    "monthIndex": 7,
+    "day": 4
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 17
+    "day": 28
    }
   ],
   "connections": {
@@ -48757,7 +48711,7 @@
  },
  "01240416": {
   "code": "01240416",
-  "median": 84.4,
+  "median": 83.3,
   "about": "אנאליזה וקטורית בסיסית, השדה האלקטרומגנטי ומשוואות מקסוול בואקום דיאלקטרי. אלקטרוסטטיקה של מטענים נקודתיים-אנרגית קוהזיה של גבישים יוניים. מולטיפולים חשמליים, אינטראקציות בין-מולקולריות:  אינטראקציה דיפול-דיפול. הקטבה (פולריזביליות) מולקולרית חשמלית, קיטוב חשמלי בחומרים דיאלקטריים, וקטורי הפולריזציה והעתק החשמליים. החזרה של גלים אלקטרומגנטיים ממתכת ומהיונוספירה, תדירות הפלסמה. תרמודינמיקה של תמיסות אלקטרוליטיות-תאריית דביי-היקל. נוזלים דיאלקטריים-נוסחת קלאוזיוס-מוסוטי. מוצקים דיאלקטריים- פרואלקטריות ופיזואלקטריות. מגנטו-סטטיקה, פוטנציאל וקטורי. מומנט מגנטי, אינטראקציה דיפולרית מגנטית, פרצסיה בשדה מגנטי, פרמגנטיות. תנועה ציקלוטרונית, דיאמגנטיות.",
   "points": 2.5,
   "name": "אלקטרומגנטיות וחומר",
@@ -48803,12 +48757,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 17
+    "day": 31
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 23
+    "monthIndex": 8,
+    "day": 4
    }
   ],
   "connections": {
@@ -49075,9 +49029,7 @@
   "connections": {
    "dependencies": [],
    "adjacent": [],
-   "exclusive": [
-    "01240618"
-   ]
+   "exclusive": []
   },
   "seasons": [
    "Winter",
@@ -49288,13 +49240,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 26
+    "monthIndex": 7,
+    "day": 9
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 19
+    "day": 31
    }
   ],
   "connections": {
@@ -49330,12 +49282,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 13
+    "day": 27
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 12
+    "day": 24
    }
   ],
   "connections": {
@@ -49426,13 +49378,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 31
+    "monthIndex": 7,
+    "day": 14
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 27
+    "monthIndex": 8,
+    "day": 8
    }
   ],
   "connections": {
@@ -49475,12 +49427,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 2
+    "day": 16
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 27
+    "monthIndex": 8,
+    "day": 8
    }
   ],
   "connections": {
@@ -49541,12 +49493,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 9
+    "day": 21
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 31
+    "monthIndex": 8,
+    "day": 15
    }
   ],
   "connections": {
@@ -49655,12 +49607,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 5
+    "day": 19
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 28
+    "monthIndex": 8,
+    "day": 9
    }
   ],
   "connections": {
@@ -49720,12 +49672,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 14
+    "day": 28
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 12
+    "day": 24
    }
   ],
   "connections": {
@@ -49749,12 +49701,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 5
+    "day": 19
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 27
+    "monthIndex": 8,
+    "day": 8
    }
   ],
   "connections": {
@@ -49935,31 +49887,9 @@
   "code": "01260603",
   "about": "שיטות חישוב של מצבים אלקטרונים במערכות כימיות, פונקציונל הצפיפות, פונקציונל הצפיפות התלוי בזמן, מכניקה מולקולרית, הרטרי-פוק וכו'. תרגול על ידי תוכנות חישוב וויזואליזציה מסחריות. אנליזת הקשר הכימי, מציאת קונפורמציות מולקולריות, חישוב מצבי מעבר וקואורדינטות תגובה, חישוב ספקטרה RI ו- RMN. חישוב מצבים מעוררים אלקטרונית.",
   "points": 3,
-  "name": "כימיה חישובית יישומית",
+  "name": "מעבדה מתקדמת בכימיה חישובית",
   "connections": {
-   "dependencies": [
-    [
-     "01240400"
-    ],
-    [
-     "01250001"
-    ],
-    [
-     "01240120"
-    ],
-    [
-     "01150203"
-    ],
-    [
-     "01240117"
-    ],
-    [
-     "00460241"
-    ],
-    [
-     "01240408"
-    ]
-   ],
+   "dependencies": [],
    "adjacent": [],
    "exclusive": []
   },
@@ -50057,13 +49987,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 27
+    "monthIndex": 7,
+    "day": 10
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 14
+    "day": 26
    }
   ],
   "connections": {
@@ -50332,12 +50262,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 15
+    "day": 29
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 13
+    "day": 25
    }
   ],
   "connections": {
@@ -50383,7 +50313,7 @@
  },
  "01270427": {
   "code": "01270427",
-  "median": 83,
+  "median": 83.3,
   "about": "סריגים גבישיים, דיפרקציה מגביש, הסריג ההופכי. מודל דרודה להולכה במתכות, מוליכות חשמלית ומוליכות חום. התיקון של זומרפלד - גז אידאלי של פרמיונים, קיבול חום אלקטרוני. תורת ההולכה הקוונטית - משפט בלוך, פסי אנרגיה, אלקטרונים וחורים, מסה אפקטיבית, משטח פרמי, דינמיקה אלקטרונית בשדה מגנטי, מבנה פסים של מוליכים למחצה - המצב האינטרינסי. סטטיסטיקה של נושאי מטען, רמות סיגים, תכונות אופטיות - אקסיטונים. דינמיקת סריג-פונונים. קיבול חום, תכונות אופטיות של גבישים יוניים.",
   "points": 3.5,
   "name": "מצב מוצק לכימאים (מורחב)",
@@ -50789,13 +50719,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 31
+    "monthIndex": 7,
+    "day": 14
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 23
+    "monthIndex": 8,
+    "day": 3
    }
   ],
   "connections": {
@@ -50861,13 +50791,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 22
+    "monthIndex": 7,
+    "day": 5
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 20
+    "monthIndex": 8,
+    "day": 1
    }
   ],
   "connections": {
@@ -51529,12 +51459,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 16
+    "day": 30
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 14
+    "day": 26
    }
   ],
   "connections": {
@@ -51578,13 +51508,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 31
+    "monthIndex": 7,
+    "day": 14
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 30
+    "monthIndex": 8,
+    "day": 15
    }
   ],
   "connections": {
@@ -51644,18 +51574,6 @@
   "about": "מבנה הצמח והתא הצמחי, כלים למחקר במדעי הצמח, יחסי צמח-מים, גדילה והתפתחות, מסלולי העברת אותות בתגובה להורמונים (אוקסין, ציטוקינין, גיברלין, חומצה אבציסית, אתילן), פוטוסינתזה, שלבי האור, מעגל קלוין, איכות האור כאות המבקר תהליכים פיזיולוגים והתפתחותיים, טרופיזם, פוטופריודיזם, שעון צירקאדי, פריחה, תגובת הצמח לעקות ביוטית.",
   "points": 3,
   "name": "פיזיולוגיה מוליקולרית של הצמח",
-  "tests": [
-   {
-    "year": 2026,
-    "monthIndex": 6,
-    "day": 19
-   },
-   {
-    "year": 2026,
-    "monthIndex": 7,
-    "day": 16
-   }
-  ],
   "connections": {
    "dependencies": [
     [
@@ -51709,12 +51627,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 3
+    "day": 17
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 25
+    "monthIndex": 8,
+    "day": 6
    }
   ],
   "connections": {
@@ -51923,13 +51841,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 26
+    "monthIndex": 7,
+    "day": 9
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 19
+    "day": 31
    }
   ],
   "connections": {
@@ -51959,13 +51877,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 29
+    "monthIndex": 7,
+    "day": 12
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 25
+    "monthIndex": 8,
+    "day": 6
    }
   ],
   "connections": {
@@ -51999,12 +51917,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 13
+    "day": 27
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 13
+    "day": 25
    }
   ],
   "connections": {
@@ -52166,12 +52084,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 2
+    "day": 16
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 28
+    "monthIndex": 8,
+    "day": 9
    }
   ],
   "connections": {
@@ -52234,12 +52152,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 13
+    "day": 27
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 12
+    "day": 24
    }
   ],
   "connections": {
@@ -52291,12 +52209,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 14
+    "day": 28
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 14
+    "day": 26
    }
   ],
   "connections": {
@@ -52548,13 +52466,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 24
+    "monthIndex": 7,
+    "day": 7
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 17
+    "day": 28
    }
   ],
   "connections": {
@@ -52724,13 +52642,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 29
+    "monthIndex": 7,
+    "day": 12
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 25
+    "monthIndex": 8,
+    "day": 6
    }
   ],
   "connections": {
@@ -52949,6 +52867,18 @@
   "about": "בקורס נלמד איך לתאר מערכות ביולוגיות כמערכות לעיבוד מידע, ואיך לנתח אותן מתמטית על מנת להבין את תפקידן. נלמד כיצד לנתח דינמיקה של רשתות ביולוגיות, נלמד על מוטיבים ברשת ותפקידם, וננתח מערכות חישה ושינויים קוולנטיים. נדון בתהליכים ביולוגיים שונים, כולל בקרת שעתוק, מעבר אותות, התמיינות במהלך התפתחות, עיבוד מידע בנוירונים, והסתגלות סנסורית, באמצעות דוגמאות מפאג'ים, בקטריות, שמרים, נמטודות, זבובי פירות, ותאי יונקים. הקורס פתוח לסטודנטים עם רקע של ביולוגיה, פיזיקה, כימיה, מדעי המחשב והנדסה. נדרש ידע בסיסי בחדו~א. נשתמש בתכנות ב- MATLAB, אך לא נדרש ניסיון קודם. הערכת הסטודנטים והסטודנטיות תעשה על בסיס תרגילי הבית ) 30 אחוז ( ומבחן ) 70 אחוז (. \r\n תוצאות למידה:  בסיום הקורס הסטודנטים והסטודנטיות יהיו מסוגלים:\r\n 1. לתכנת בMATLAB , באופן בסיסי, כולל  לפתור נומרית מד~ר._\r\n 2. להכיר מגוון מוטיבי רשת, כולל משוב עצמי, COHERENT/INCOHERENT FEEDFORWARD LOOP, ומשוב חיובי/שלילי.\r\n 3. לנתח מוטיבי רשת באופן אנליטי ונומרי.___\r\n 4. להבין את תפקידי מוטיבי הרשת, כמו יצירת השהיה תלוית סימן, זירוז או האטת תגובות, יצירת SPIKE, נטרול רעשי קלט, יצירת בי-סטביליות ועוד._\r\n 5. להכיר מודלים של מעבר אותות ומודלים של עיבוד מידע בנוירונים._\r\n 6. לדעת לאתגר את הנחות היסוד של המודלים וידע כיצד להשוות בין ביצועים שלמודלי",
   "points": 2.5,
   "name": "ביולוגיה מערכתית",
+  "tests": [
+   {
+    "year": 2026,
+    "monthIndex": 7,
+    "day": 4
+   },
+   {
+    "year": 2026,
+    "monthIndex": 8,
+    "day": 1
+   }
+  ],
   "connections": {
    "dependencies": [
     [
@@ -52973,12 +52903,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 15
+    "day": 29
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 13
+    "day": 25
    }
   ],
   "connections": {
@@ -53333,12 +53263,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 13
+    "day": 27
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 11
+    "day": 23
    }
   ],
   "connections": {
@@ -54680,13 +54610,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 13
+    "monthIndex": 6,
+    "day": 30
    },
    {
     "year": 2026,
-    "monthIndex": 8,
-    "day": 4
+    "monthIndex": 7,
+    "day": 24
    }
   ],
   "connections": {
@@ -54715,13 +54645,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 7
+    "monthIndex": 6,
+    "day": 24
    },
    {
     "year": 2026,
-    "monthIndex": 8,
-    "day": 3
+    "monthIndex": 7,
+    "day": 23
    }
   ],
   "connections": {
@@ -55355,13 +55285,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 13
+    "monthIndex": 6,
+    "day": 30
    },
    {
     "year": 2026,
-    "monthIndex": 8,
-    "day": 4
+    "monthIndex": 7,
+    "day": 24
    }
   ],
   "connections": {
@@ -55760,12 +55690,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 19
+    "day": 5
    },
    {
     "year": 2026,
-    "monthIndex": 8,
-    "day": 7
+    "monthIndex": 7,
+    "day": 26
    }
   ],
   "connections": {
@@ -60162,12 +60092,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 17
+    "day": 3
    },
    {
     "year": 2026,
-    "monthIndex": 8,
-    "day": 1
+    "monthIndex": 7,
+    "day": 20
    }
   ],
   "connections": {
@@ -61247,12 +61177,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 30
+    "day": 16
    },
    {
     "year": 2026,
-    "monthIndex": 8,
-    "day": 9
+    "monthIndex": 7,
+    "day": 28
    }
   ],
   "connections": {
@@ -61350,12 +61280,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 14
+    "day": 28
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 18
+    "monthIndex": 8,
+    "day": 1
    }
   ],
   "connections": {
@@ -61378,12 +61308,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 14
+    "day": 28
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 18
+    "monthIndex": 8,
+    "day": 1
    }
   ],
   "connections": {
@@ -61405,13 +61335,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 14
+    "monthIndex": 7,
+    "day": 4
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 18
+    "monthIndex": 8,
+    "day": 1
    }
   ],
   "connections": {
@@ -61433,13 +61363,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 21
+    "monthIndex": 7,
+    "day": 4
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 18
+    "monthIndex": 8,
+    "day": 1
    }
   ],
   "connections": {
@@ -61461,13 +61391,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 14
+    "monthIndex": 7,
+    "day": 4
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 18
+    "monthIndex": 8,
+    "day": 1
    }
   ],
   "connections": {
@@ -61739,9 +61669,7 @@
   "connections": {
    "dependencies": [],
    "adjacent": [],
-   "exclusive": [
-    "02140209"
-   ]
+   "exclusive": []
   },
   "seasons": [
    "Winter"
@@ -61778,10 +61706,7 @@
   "connections": {
    "dependencies": [],
    "adjacent": [],
-   "exclusive": [
-    "02140203",
-    "02140235"
-   ]
+   "exclusive": []
   },
   "seasons": [
    "Winter"
@@ -62024,9 +61949,7 @@
   "connections": {
    "dependencies": [],
    "adjacent": [],
-   "exclusive": [
-    "02140407"
-   ]
+   "exclusive": []
   },
   "seasons": [
    "Winter",
@@ -63075,6 +62998,18 @@
   "about": "הקורס יתמקד בשילוב כלי בינה מלאכותית בכלל ובינה מלאכותית יוצרת בפרט בשלבים שונים של החינוך למדע והנדסה, מבית הספר ועד לתואר מחקרי. בפרט, ילמדו מושגי יסוד בבינה מלאכותית, ימופו כלי בינה מלאכותית לשמוש במחקר וחינוך במדע והנדסה, וינותחו כישורים הנדרשים לשילוב בינה מלאכותית בחינוך למדע והנדסה, הן מצד מורים, חוקרים ולומדים. תשומת לב מיוחדת תוקדש לשיקולים אתיים בעת שילוב בינה מלאכותית יוצרת במחקר וחינוך בכלל ובהקשר לחינוך למדע והנדסה בפרט.\r\n תוצאות למידה: בסיום הקורס הסטודנטיות והסטודנטים יהיו מסוגלים:\r\n 1. להסביר מושגי יסוד בבינה מלאכותית בהתאם לרקע הלומדים.\r\n 2. למפות שימושים שונים של כלי בינה מלאכותית בחינוך למדע והנדסה.\r\n 3. להעריך את איכות תוצריהם של כלי בי נה מלאכותית יוצרת.\r\n 4. לשלב באופן מושכל כלי בינה מלאכותית בתהליכי חינוך למדע והנדסה.\r\n 5. לתכנן מערכי הוראה בשילוב בינה מלאכותית.\r\n 6. ליישם שיקולים אתיים בהקשר לשימוש בבינה מלאכותית בחינוך למדע והנדסה. 7. לשלב כלי בינה מלאכותית יוצרת במחקר בחינוך למדע והנדסה.\r\n",
   "points": 2.5,
   "name": "בינה מלאכותית בחינוך למדע והנדסה",
+  "tests": [
+   {
+    "year": 2026,
+    "monthIndex": 7,
+    "day": 11
+   },
+   {
+    "year": 2026,
+    "monthIndex": 8,
+    "day": 8
+   }
+  ],
   "connections": {
    "dependencies": [],
    "adjacent": [],
@@ -63111,9 +63046,7 @@
   "connections": {
    "dependencies": [],
    "adjacent": [],
-   "exclusive": [
-    "02140911"
-   ]
+   "exclusive": []
   },
   "seasons": [
    "Winter"
@@ -63211,13 +63144,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 21
+    "monthIndex": 7,
+    "day": 4
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 18
+    "monthIndex": 8,
+    "day": 8
    }
   ],
   "connections": {
@@ -63658,12 +63591,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 3
+    "day": 17
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 28
+    "monthIndex": 8,
+    "day": 9
    }
   ],
   "connections": {
@@ -63703,12 +63636,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 3
+    "day": 17
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 28
+    "monthIndex": 8,
+    "day": 9
    }
   ],
   "connections": {
@@ -63747,12 +63680,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 4
+    "day": 18
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 27
+    "monthIndex": 8,
+    "day": 8
    }
   ],
   "connections": {
@@ -63789,13 +63722,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 21
+    "monthIndex": 7,
+    "day": 4
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 16
+    "day": 27
    }
   ],
   "connections": {
@@ -63830,13 +63763,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 24
+    "monthIndex": 7,
+    "day": 7
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 24
+    "monthIndex": 8,
+    "day": 4
    }
   ],
   "connections": {
@@ -63875,12 +63808,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 2
+    "day": 16
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 28
+    "monthIndex": 8,
+    "day": 9
    }
   ],
   "connections": {
@@ -63932,7 +63865,7 @@
  },
  "02340128": {
   "code": "02340128",
-  "median": 74.6,
+  "median": 75,
   "about": "הקורס מיועד לכלל הסטודנטים בטכניון. מבנה המחשב. חומרה ותכנה. ייצוג נתונים. מושגי יסוד ותכנות בשפת פייתון: ערכים, משתנים, ביטויים, טיפוסי נתונים בפייתון, התניות, חוגים (לולאות), פונקציות, רקורסיה, קלט.פלט (טקסטואלי וגרפי). סביבת הפיתוח של פייתון: שטח העבודה, הרצת תוכניות, ניפוי שגיאות. פיתוח מובנה של תוכניות, ארגון מידע במחשב. אלגוריתמים: פיתוח מונחה נכונות וסיבוכיות בסיסית. פתרונות אלגוריתמיםלמיון, חיפוש, בעיות במספרים שלמים.",
   "points": 4,
   "name": "מבוא למחשב שפת פייתון",
@@ -63940,12 +63873,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 7
+    "day": 21
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 30
+    "monthIndex": 8,
+    "day": 15
    }
   ],
   "connections": {
@@ -63981,13 +63914,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 29
+    "monthIndex": 7,
+    "day": 12
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 25
+    "monthIndex": 8,
+    "day": 6
    }
   ],
   "connections": {
@@ -64063,13 +63996,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 29
+    "monthIndex": 7,
+    "day": 12
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 26
+    "monthIndex": 8,
+    "day": 7
    }
   ],
   "connections": {
@@ -64145,12 +64078,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 17
+    "day": 31
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 21
+    "monthIndex": 8,
+    "day": 2
    }
   ],
   "connections": {
@@ -64199,12 +64132,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 7
+    "day": 20
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 30
+    "monthIndex": 8,
+    "day": 15
    }
   ],
   "connections": {
@@ -64275,12 +64208,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 13
+    "day": 27
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 12
+    "day": 24
    }
   ],
   "connections": {
@@ -64318,12 +64251,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 15
+    "day": 29
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 16
+    "day": 27
    }
   ],
   "connections": {
@@ -64390,13 +64323,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 26
+    "monthIndex": 7,
+    "day": 9
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 18
+    "day": 30
    }
   ],
   "connections": {
@@ -64436,9 +64369,7 @@
   "connections": {
    "dependencies": [],
    "adjacent": [],
-   "exclusive": [
-    "02360323"
-   ]
+   "exclusive": []
   },
   "seasons": [
    "Winter",
@@ -64591,11 +64522,7 @@
   "connections": {
    "dependencies": [],
    "adjacent": [],
-   "exclusive": [
-    "00350003",
-    "00440345",
-    "00460345"
-   ]
+   "exclusive": []
   },
   "seasons": [
    "Winter",
@@ -65015,13 +64942,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 21
+    "monthIndex": 7,
+    "day": 4
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 19
+    "day": 31
    }
   ],
   "connections": {
@@ -65141,13 +65068,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 21
+    "monthIndex": 7,
+    "day": 4
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 18
+    "day": 30
    }
   ],
   "connections": {
@@ -65247,12 +65174,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 4
+    "day": 18
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 27
+    "monthIndex": 8,
+    "day": 8
    }
   ],
   "connections": {
@@ -65603,12 +65530,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 5
+    "day": 19
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 31
+    "monthIndex": 8,
+    "day": 15
    }
   ],
   "connections": {
@@ -65634,20 +65561,20 @@
  },
  "02360271": {
   "code": "02360271",
-  "median": 86.4,
+  "median": 86.6,
   "about": "הקורס יילקח במקביל לקורס \"פרויקט פיתוח מבוסס אנדרואיד\" ובמסגרתו ילמדו הסטודנטים את עקרונות הפיתוח באנדרואיד, משלב תכנון ועיצוב היישומון (האפליקציה), אל שלב המימוש. בנוסף הקורס ילמד עקרונות פיתוח גמישים \n(AGILE SOFTWARE DEVELOPMENT) \nהנחוצים לעבודת צוות על בסיס השיטות SCRUM: \nתוצאות למידה: בסיום הקורס הסטודנטיות והסטודנטים יהיו מסוגלים:\n 1. לתכנן אפליקציית אנדרואיד לפי עקרונות\n .MATERIAL  DESIGN \n2. לממש אפליקציית אנדרואיד המשלבת גישה לרכיבי חומרה ותוכנה בטלפון ובענן. \n3. להסביר את תהליך ניהול הפרויקט האג'ילי SCRUM.\n\n",
   "points": 2,
   "name": "פיתוח מבוסס אנדרואיד",
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 26
+    "monthIndex": 7,
+    "day": 9
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 18
+    "day": 30
    }
   ],
   "connections": {
@@ -65919,13 +65846,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 30
+    "monthIndex": 7,
+    "day": 13
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 25
+    "monthIndex": 8,
+    "day": 6
    }
   ],
   "connections": {
@@ -66118,13 +66045,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 21
+    "monthIndex": 7,
+    "day": 4
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 20
+    "monthIndex": 8,
+    "day": 1
    }
   ],
   "connections": {
@@ -66177,12 +66104,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 14
+    "day": 28
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 17
+    "day": 28
    }
   ],
   "connections": {
@@ -66234,7 +66161,7 @@
  },
  "02360334": {
   "code": "02360334",
-  "median": 83.9,
+  "median": 84.3,
   "about": "הקורס עוסק בעקרונות בסיסיים של רשתות תקשורת מחשבים ורשת האינטרנט. הנושאים הנלמדים בקורס: מודל השכבות, רשתות מקומיות ופרוטוקול Ethernet, רשתות IP, מבוא לשכבת התובלה ו-TCP, ארכיטקטורה של ראוטרים, רשתות סלולריות, רשתות WiFi, בקרת הגישה לערוצים משותפים, פרוטוקולי ARQ, תורת התורים, קודים לגילוי ולתיקון שגיאות.",
   "points": 3,
   "name": "מבוא לרשתות מחשבים",
@@ -66295,7 +66222,7 @@
  },
  "02360340": {
   "code": "02360340",
-  "median": 92.2,
+  "median": 93.3,
   "about": "מטרת הפרויקט להעמיק את הידע של הסטודנטים בפרוטוקולי תקשורת ולאפשר להם להתנסות במחקר ובפיתוח של פרוטוקולים אלה. הסטודנטים יבצעו פרויקט מקיף וחדשני בתחומים שהם בקדמת הטכנולוגיה של רשתות תקשורת מחשבים והאינטרנט. הפרויקט יבוצע בד\"כ על פלטפורמת XUNIL תוך שימוש בכלים מתקדמים לסימולציה של רשתות. תוצאות למידה: בסיום הפרויקט הסטודנט יהיה מסוגל לבצע מטלות תכנותיות מורכבות הקשורות לפרוטוקולי תקשורת וטכנולוגיות רשת חדשניות.",
   "points": 3,
   "name": "פרויקט בתקשורת מחשבים",
@@ -66326,12 +66253,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 15
+    "day": 29
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 26
+    "monthIndex": 8,
+    "day": 7
    }
   ],
   "connections": {
@@ -66404,12 +66331,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 17
+    "day": 31
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 23
+    "monthIndex": 8,
+    "day": 3
    }
   ],
   "connections": {
@@ -66531,13 +66458,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 21
+    "monthIndex": 7,
+    "day": 4
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 17
+    "day": 28
    }
   ],
   "connections": {
@@ -66721,13 +66648,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 30
+    "monthIndex": 7,
+    "day": 13
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 25
+    "monthIndex": 8,
+    "day": 6
    }
   ],
   "connections": {
@@ -67117,12 +67044,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 13
+    "day": 27
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 12
+    "day": 24
    }
   ],
   "connections": {
@@ -67175,13 +67102,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 28
+    "monthIndex": 7,
+    "day": 11
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 27
+    "monthIndex": 8,
+    "day": 8
    }
   ],
   "connections": {
@@ -67635,12 +67562,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 14
+    "day": 28
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 12
+    "day": 24
    }
   ],
   "connections": {
@@ -67702,7 +67629,7 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 5
+    "day": 19
    },
    null
   ],
@@ -68527,13 +68454,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 28
+    "monthIndex": 7,
+    "day": 11
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 18
+    "day": 30
    }
   ],
   "connections": {
@@ -68556,13 +68483,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 28
+    "monthIndex": 7,
+    "day": 11
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 21
+    "monthIndex": 8,
+    "day": 2
    }
   ],
   "connections": {
@@ -69411,12 +69338,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 2
+    "day": 16
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 26
+    "monthIndex": 8,
+    "day": 7
    }
   ],
   "connections": {
@@ -69706,9 +69633,7 @@
   "connections": {
    "dependencies": [],
    "adjacent": [],
-   "exclusive": [
-    "02740119"
-   ]
+   "exclusive": []
   },
   "seasons": [
    "Winter",
@@ -69827,13 +69752,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 30
+    "monthIndex": 7,
+    "day": 13
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 20
+    "monthIndex": 8,
+    "day": 1
    }
   ],
   "connections": {
@@ -69865,13 +69790,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 21
+    "monthIndex": 7,
+    "day": 4
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 17
+    "day": 27
    }
   ],
   "connections": {
@@ -70009,12 +69934,7 @@
   "connections": {
    "dependencies": [],
    "adjacent": [],
-   "exclusive": [
-    "00940493",
-    "01340154",
-    "02740182",
-    "02780305"
-   ]
+   "exclusive": []
   },
   "seasons": [
    "Winter",
@@ -70063,9 +69983,7 @@
   "connections": {
    "dependencies": [],
    "adjacent": [],
-   "exclusive": [
-    "02740258"
-   ]
+   "exclusive": []
   },
   "seasons": [
    "Winter",
@@ -70315,11 +70233,7 @@
   "connections": {
    "dependencies": [],
    "adjacent": [],
-   "exclusive": [
-    "00640419",
-    "01340121",
-    "02740331"
-   ]
+   "exclusive": []
   },
   "seasons": [
    "Winter",
@@ -70338,12 +70252,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 16
+    "day": 30
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 12
+    "day": 24
    }
   ],
   "connections": {
@@ -70389,10 +70303,7 @@
   "connections": {
    "dependencies": [],
    "adjacent": [],
-   "exclusive": [
-    "01340121",
-    "02740332"
-   ]
+   "exclusive": []
   },
   "seasons": [
    "Winter",
@@ -70411,11 +70322,7 @@
   "connections": {
    "dependencies": [],
    "adjacent": [],
-   "exclusive": [
-    "02740230",
-    "02740261",
-    "02760413"
-   ]
+   "exclusive": []
   },
   "seasons": [
    "Winter",
@@ -70433,9 +70340,7 @@
   "connections": {
    "dependencies": [],
    "adjacent": [],
-   "exclusive": [
-    "01360105"
-   ]
+   "exclusive": []
   },
   "seasons": [
    "Winter",
@@ -70453,13 +70358,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 22
+    "monthIndex": 7,
+    "day": 5
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 20
+    "monthIndex": 8,
+    "day": 1
    }
   ],
   "connections": {
@@ -70495,13 +70400,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 19
+    "monthIndex": 7,
+    "day": 2
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 16
+    "day": 27
    }
   ],
   "connections": {
@@ -70542,13 +70447,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 30
+    "monthIndex": 7,
+    "day": 13
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 25
+    "monthIndex": 8,
+    "day": 6
    }
   ],
   "connections": {
@@ -70592,9 +70497,7 @@
   "connections": {
    "dependencies": [],
    "adjacent": [],
-   "exclusive": [
-    "02740114"
-   ]
+   "exclusive": []
   },
   "seasons": [
    "Winter",
@@ -70613,9 +70516,7 @@
   "connections": {
    "dependencies": [],
    "adjacent": [],
-   "exclusive": [
-    "02740234"
-   ]
+   "exclusive": []
   },
   "seasons": [
    "Winter",
@@ -70755,13 +70656,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 21
+    "monthIndex": 7,
+    "day": 4
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 16
+    "day": 27
    }
   ],
   "connections": {
@@ -70797,13 +70698,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 26
+    "monthIndex": 7,
+    "day": 9
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 23
+    "monthIndex": 8,
+    "day": 3
    }
   ],
   "connections": {
@@ -70881,12 +70782,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 5
+    "day": 19
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 27
+    "monthIndex": 8,
+    "day": 8
    }
   ],
   "connections": {
@@ -70919,12 +70820,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 13
+    "day": 27
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 18
+    "day": 30
    }
   ],
   "connections": {
@@ -70961,12 +70862,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 5
+    "day": 18
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 27
+    "monthIndex": 8,
+    "day": 8
    }
   ],
   "connections": {
@@ -71025,13 +70926,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 26
+    "monthIndex": 7,
+    "day": 9
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 25
+    "monthIndex": 8,
+    "day": 6
    }
   ],
   "connections": {
@@ -71067,12 +70968,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 16
+    "day": 30
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 13
+    "day": 25
    }
   ],
   "connections": {
@@ -71254,13 +71155,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 30
+    "monthIndex": 7,
+    "day": 13
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 23
+    "monthIndex": 8,
+    "day": 3
    }
   ],
   "connections": {
@@ -71374,10 +71275,7 @@
   "connections": {
    "dependencies": [],
    "adjacent": [],
-   "exclusive": [
-    "02740218",
-    "02740361"
-   ]
+   "exclusive": []
   },
   "seasons": [
    "Winter",
@@ -71395,9 +71293,7 @@
   "connections": {
    "dependencies": [],
    "adjacent": [],
-   "exclusive": [
-    "00660418"
-   ]
+   "exclusive": []
   },
   "seasons": [
    "Winter",
@@ -71507,9 +71403,7 @@
   "connections": {
    "dependencies": [],
    "adjacent": [],
-   "exclusive": [
-    "02740182"
-   ]
+   "exclusive": []
   },
   "seasons": [
    "Winter",
@@ -71527,9 +71421,7 @@
   "connections": {
    "dependencies": [],
    "adjacent": [],
-   "exclusive": [
-    "02740338"
-   ]
+   "exclusive": []
   },
   "seasons": [
    "Winter"
@@ -71546,9 +71438,7 @@
   "connections": {
    "dependencies": [],
    "adjacent": [],
-   "exclusive": [
-    "02740261"
-   ]
+   "exclusive": []
   },
   "seasons": [
    "Winter",
@@ -71567,12 +71457,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 4
+    "day": 19
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 27
+    "monthIndex": 8,
+    "day": 8
    }
   ],
   "connections": {
@@ -71671,12 +71561,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 9
+    "day": 21
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 30
+    "monthIndex": 8,
+    "day": 15
    }
   ],
   "connections": {
@@ -71724,9 +71614,7 @@
   "connections": {
    "dependencies": [],
    "adjacent": [],
-   "exclusive": [
-    "02740335"
-   ]
+   "exclusive": []
   },
   "seasons": [
    "Winter"
@@ -71868,12 +71756,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 13
+    "day": 27
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 18
+    "day": 30
    }
   ],
   "connections": {
@@ -71896,9 +71784,7 @@
   "connections": {
    "dependencies": [],
    "adjacent": [],
-   "exclusive": [
-    "02740425"
-   ]
+   "exclusive": []
   },
   "faculty": "הפקולטה לרפואה",
   "current": false
@@ -72197,7 +72083,7 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 10
+    "day": 26
    },
    null
   ],
@@ -72261,7 +72147,7 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 7
+    "day": 21
    },
    null
   ],
@@ -72753,7 +72639,7 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 7
+    "day": 21
    },
    null
   ],
@@ -72953,7 +72839,7 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 7
+    "day": 21
    },
    null
   ],
@@ -73802,8 +73688,8 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 16
+    "monthIndex": 7,
+    "day": 5
    },
    null
   ],
@@ -74155,12 +74041,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 13
+    "day": 27
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 12
+    "day": 24
    }
   ],
   "connections": {
@@ -74373,12 +74259,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 14
+    "day": 28
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 13
+    "day": 25
    }
   ],
   "connections": {
@@ -74452,12 +74338,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 2
+    "day": 16
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 30
+    "monthIndex": 8,
+    "day": 15
    }
   ],
   "connections": {
@@ -74490,13 +74376,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 21
+    "monthIndex": 7,
+    "day": 4
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 16
+    "day": 27
    }
   ],
   "connections": {
@@ -74557,7 +74443,7 @@
  },
  "03140532": {
   "code": "03140532",
-  "median": 88.5,
+  "median": 87.6,
   "about": "עקרונות אלקטרוכימיים ותרמודינמיים של תהליכי קורוזיה: פוטנציאל אלקטרודה, זרם החלפה, קיטוב, פוטנציאל מעורב, תאי קורוזיה, דיאגרמות XIABRUOP, מנגנון תהליכי קורוזיה, פסיביות. הגורמים המשפיעים על קצב הקורוזיה ושיטות למדידת הקצב. עמידות סגסוגות שונות בתנאי קורוזיה. תהליכי קורוזיה אופיינים, גימום ( GNITTIP ), קורוזיה בין גרעינית, קורוזית מאמצים. שיטות למניעת קורוזיה: שיטות אלקטרוכימיות, הגנה קתודית ואנודית, טיפול בפני השטח: פסיבציה. טיפול בסביבה הקורוזיבית: אינהיביטורים, סילוק חמצן, בחירת חומרים ותכנון הנדסי מאספקט הקורוזיה.",
   "points": 2.5,
   "name": "אלקטרוכימיה, קורוזיה ושיטות הגנה",
@@ -74604,13 +74490,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 28
+    "monthIndex": 7,
+    "day": 2
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 23
+    "day": 24
    }
   ],
   "connections": {
@@ -74765,12 +74651,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 17
+    "day": 31
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 14
+    "day": 26
    }
   ],
   "connections": {
@@ -74799,13 +74685,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 26
+    "monthIndex": 7,
+    "day": 9
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 21
+    "monthIndex": 8,
+    "day": 2
    }
   ],
   "connections": {
@@ -75012,12 +74898,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 5
+    "day": 19
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 27
+    "monthIndex": 8,
+    "day": 8
    }
   ],
   "connections": {
@@ -75151,13 +75037,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 29
+    "monthIndex": 7,
+    "day": 12
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 25
+    "monthIndex": 8,
+    "day": 6
    }
   ],
   "connections": {
@@ -75314,13 +75200,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 19
+    "monthIndex": 7,
+    "day": 2
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 26
+    "monthIndex": 8,
+    "day": 7
    }
   ],
   "connections": {
@@ -75458,13 +75344,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 30
+    "monthIndex": 7,
+    "day": 13
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 25
+    "monthIndex": 8,
+    "day": 6
    }
   ],
   "connections": {
@@ -75608,7 +75494,7 @@
  },
  "03150059": {
   "code": "03150059",
-  "median": 88.7,
+  "median": 88.8,
   "about": "כיצד ניתן להפוך חומר להתקן-בכדי להשיב על שאלה מסקרנת זו, בקורס נכיר את התכונות הפונקציונליות הבסיסיות של חומרים: דיאלקטריות ,מגנטיות, אופטיות. נלמד כיצד מבנה החומר משפיע על תכונות אלו, ואף נלמד את עקרונות הפעולה של מספר התקנים וטכנולוגיות המבוססים על תכונות אלו (למשל, התקני זיכרון, IRM וגלאים שונים- אופטיים, מגנטיים, ביולוגיים).",
   "points": 2.5,
   "name": "חומרים פונקציונלים-תכונות והתקנים",
@@ -75646,12 +75532,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 16
+    "day": 30
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 18
+    "day": 30
    }
   ],
   "connections": {
@@ -75938,13 +75824,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 27
+    "monthIndex": 7,
+    "day": 10
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 23
+    "monthIndex": 8,
+    "day": 3
    }
   ],
   "connections": {
@@ -77389,12 +77275,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 12
+    "day": 26
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 11
+    "day": 23
    }
   ],
   "connections": {
@@ -77439,12 +77325,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 12
+    "day": 26
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 11
+    "day": 23
    }
   ],
   "connections": {
@@ -77644,12 +77530,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 10
+    "day": 26
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 11
+    "day": 23
    }
   ],
   "connections": {
@@ -77763,12 +77649,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 12
+    "day": 26
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 11
+    "day": 23
    }
   ],
   "connections": {
@@ -77913,12 +77799,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 14
+    "day": 28
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 17
+    "day": 28
    }
   ],
   "connections": {
@@ -77944,12 +77830,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 9
+    "day": 26
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 11
+    "day": 23
    }
   ],
   "connections": {
@@ -78004,12 +77890,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 10
+    "day": 26
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 11
+    "day": 23
    }
   ],
   "connections": {
@@ -78311,7 +78197,7 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 10
+    "day": 26
    },
    null
   ],
@@ -78388,12 +78274,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 12
+    "day": 26
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 11
+    "day": 23
    }
   ],
   "connections": {
@@ -78439,9 +78325,7 @@
   "connections": {
    "dependencies": [],
    "adjacent": [],
-   "exclusive": [
-    "03240868"
-   ]
+   "exclusive": []
   },
   "seasons": [
    "Winter",
@@ -78673,12 +78557,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 14
+    "day": 28
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 17
+    "day": 28
    }
   ],
   "connections": {
@@ -78897,7 +78781,7 @@
  },
  "03240513": {
   "code": "03240513",
-  "median": 98,
+  "median": 97.4,
   "about": "הקורס מיועד לסטודנטים שמעוניינים לקחת חלק במופע תיאטרלי. מטרת הקורס, לאפשר התנסות חווייתית בתהליכי עבודה באמצעותם נבנה אירוע תיאטרוני. העבודה היצירתית תתבסס על הכירות עם  בין מרכיבי היצירה הבימתית  ויחסי הגומלין ביניהם שחקן, במאי, טקסט ,חלל וקהל. נתנסה במגוון טכניקות מופע ונעבד קטעים ספרותיים  מתוך מחזות ספרים וסרטים, ונשלב ביצירה חומרים מעולמם הרגשי. אישי והתרבותי של המשתתפים. מתוך כך יבנה אנסמבל קשוב וחקרני שיצור מופע תיאטרוני ייחודי. המופע יעלה במחלקה בסוף הסמסטר.",
   "points": 1.5,
   "name": "מחזה-הצגה-מופע",
@@ -79036,7 +78920,7 @@
  },
  "03240536": {
   "code": "03240536",
-  "median": 93.5,
+  "median": 94,
   "about": "הקורס יסקור את ענף ההיי-טק הישראלי: ראשית יוצג מבנהו, הדינמיקה הפנימית בו, עוצמותיו וחולשותיו, והכוחות המאקרו-כלכליים המעצבים אותו.בהמשך, ידון הקורס בהשפעתה של הממשלה ובכלים העומדים לרשותה ולרשות המגזר הפרטי בכדי לשמר את מעמדו המוביל בעולם של הענף. לבסוף ידונו הקשיים והאתגרים העומדים בפני הענף בעידן הנוכחי ובעתיד.",
   "points": 2,
   "name": "הייטק בישראל: כיצד להוביל עולמית",
@@ -79082,12 +78966,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 12
+    "day": 26
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 11
+    "day": 23
    }
   ],
   "connections": {
@@ -79183,12 +79067,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 12
+    "day": 26
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 11
+    "day": 23
    }
   ],
   "connections": {
@@ -79214,12 +79098,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 12
+    "day": 26
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 11
+    "day": 23
    }
   ],
   "connections": {
@@ -79317,12 +79201,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 10
+    "day": 26
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 11
+    "day": 23
    }
   ],
   "connections": {
@@ -79414,12 +79298,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 12
+    "day": 26
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 11
+    "day": 23
    }
   ],
   "connections": {
@@ -79481,12 +79365,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 10
+    "day": 26
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 11
+    "day": 23
    }
   ],
   "connections": {
@@ -79542,12 +79426,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 9
+    "day": 26
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 11
+    "day": 23
    }
   ],
   "connections": {
@@ -79748,20 +79632,20 @@
  },
  "03240879": {
   "code": "03240879",
-  "median": 97.8,
+  "median": 97,
   "about": "קורס זה נלמד באנגלית. בשיעור יידונו נושאים בעלי עניין חברתי בישראל: עליה וקליטה, מבנה חברתי ומעמדי, בעית עדות ומיעוטים, סוציאליזציהוחינוך, בעיות דת, תרבות וזהות, המשפחה ומעמד האשה, תנועות פוליטיות, הקיבוץ, הצבא, סטיה ועבריינות, משק ותעסוקה.",
   "points": 2,
   "name": "סוגיות נבחרות בחברה הישראלית-מרכז בינ\"ל",
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 19
+    "monthIndex": 7,
+    "day": 2
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 13
+    "day": 25
    }
   ],
   "connections": {
@@ -80252,7 +80136,7 @@
  },
  "03250005": {
   "code": "03250005",
-  "median": 97,
+  "median": 96,
   "about": "הקורס מורכב מהרצאות שבועיות הניתנות על ידי יזמים מנוסים ומובילים בתחומם - החולקים עם התלמידים מניסיונם, הצלחות לצד כישלונות והנלמד מהם. בין הנושאים הנלמדים, חדשנות בטכניון, האקו-סיסטם היזמי,  שיווק וגיוס כספים, כלים להרצאה אפקטיבית, כתיבת תוכנית עסקית למיזם חדש ועוד. ההרצאות בדגש על לקחים ליזם המתחיל ויישומם בתרגיל מסכם בסוף הקורס.",
   "points": 2,
   "name": "יזמות מפי היזמים",
@@ -80359,12 +80243,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 9
+    "day": 26
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 11
+    "day": 23
    }
   ],
   "connections": {
@@ -80485,12 +80369,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 12
+    "day": 26
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 11
+    "day": 23
    }
   ],
   "connections": {
@@ -80628,12 +80512,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 12
+    "day": 26
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 11
+    "day": 23
    }
   ],
   "connections": {
@@ -80731,12 +80615,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 10
+    "day": 26
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 11
+    "day": 23
    }
   ],
   "connections": {
@@ -80797,12 +80681,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 12
+    "day": 26
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 11
+    "day": 23
    }
   ],
   "connections": {
@@ -80865,12 +80749,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 12
+    "day": 26
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 11
+    "day": 23
    }
   ],
   "connections": {
@@ -81129,12 +81013,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 10
+    "day": 26
    },
    {
     "year": 2026,
     "monthIndex": 8,
-    "day": 4
+    "day": 15
    }
   ],
   "connections": {
@@ -81409,13 +81293,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 20
+    "monthIndex": 7,
+    "day": 3
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 12
+    "day": 24
    }
   ],
   "connections": {
@@ -81451,10 +81335,7 @@
   "connections": {
    "dependencies": [],
    "adjacent": [],
-   "exclusive": [
-    "03350001",
-    "03350002"
-   ]
+   "exclusive": []
   },
   "seasons": [
    "Winter",
@@ -81557,12 +81438,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 14
+    "day": 28
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 17
+    "day": 28
    }
   ],
   "connections": {
@@ -81593,12 +81474,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 6
+    "day": 20
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 30
+    "monthIndex": 8,
+    "day": 8
    }
   ],
   "connections": {
@@ -81649,13 +81530,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 19
+    "monthIndex": 7,
+    "day": 2
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 19
+    "day": 31
    }
   ],
   "connections": {
@@ -81766,13 +81647,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 27
+    "monthIndex": 7,
+    "day": 10
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 30
+    "monthIndex": 8,
+    "day": 10
    }
   ],
   "connections": {
@@ -81806,13 +81687,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 26
+    "monthIndex": 7,
+    "day": 9
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 30
+    "monthIndex": 8,
+    "day": 10
    }
   ],
   "connections": {
@@ -81861,13 +81742,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 27
+    "monthIndex": 7,
+    "day": 10
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 30
+    "monthIndex": 8,
+    "day": 10
    }
   ],
   "connections": {
@@ -81900,13 +81781,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 27
+    "monthIndex": 7,
+    "day": 10
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 30
+    "monthIndex": 8,
+    "day": 10
    }
   ],
   "connections": {
@@ -82574,13 +82455,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 22
+    "monthIndex": 7,
+    "day": 5
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 13
+    "day": 25
    }
   ],
   "connections": {
@@ -82718,12 +82599,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 13
+    "day": 27
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 12
+    "day": 24
    }
   ],
   "connections": {
@@ -82999,12 +82880,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 4
+    "day": 18
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 25
+    "monthIndex": 8,
+    "day": 6
    }
   ],
   "connections": {
@@ -83097,13 +82978,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 28
+    "monthIndex": 7,
+    "day": 11
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 19
+    "day": 31
    }
   ],
   "connections": {
@@ -83165,12 +83046,12 @@
    {
     "year": 2026,
     "monthIndex": 6,
-    "day": 16
+    "day": 30
    },
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 16
+    "day": 27
    }
   ],
   "connections": {
@@ -83224,12 +83105,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 2
+    "day": 16
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 24
+    "monthIndex": 8,
+    "day": 4
    }
   ],
   "connections": {
@@ -83263,13 +83144,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 30
+    "monthIndex": 7,
+    "day": 13
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 31
+    "monthIndex": 8,
+    "day": 15
    }
   ],
   "connections": {
@@ -83353,13 +83234,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 30
+    "monthIndex": 7,
+    "day": 13
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 27
+    "monthIndex": 8,
+    "day": 15
    }
   ],
   "connections": {
@@ -83526,12 +83407,12 @@
    {
     "year": 2026,
     "monthIndex": 7,
-    "day": 6
+    "day": 20
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 27
+    "monthIndex": 8,
+    "day": 8
    }
   ],
   "connections": {
@@ -83565,13 +83446,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 19
+    "monthIndex": 7,
+    "day": 2
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 20
+    "monthIndex": 8,
+    "day": 1
    }
   ],
   "connections": {
@@ -83768,13 +83649,13 @@
   "tests": [
    {
     "year": 2026,
-    "monthIndex": 6,
-    "day": 30
+    "monthIndex": 7,
+    "day": 13
    },
    {
     "year": 2026,
-    "monthIndex": 7,
-    "day": 30
+    "monthIndex": 8,
+    "day": 15
    }
   ],
   "connections": {

@@ -1037,6 +1037,24 @@
   "faculty": "מדע יישומי (ג'ייקובס-קורנל)",
   "current": false
  },
+ "61080024": {
+  "code": "61080024",
+  "about": "המקצוע ניתן במסגרת התכנית הבין יחידתית למדע יישומי, בשיתוף עם המכון לחדשנות טכניוןו-קורנל. הסילבוס המלא מפורסם בקובץ המקצועות באנגלית.",
+  "points": 1.5,
+  "name": "מבוא לאס קיו אל",
+  "connections": {
+   "dependencies": [],
+   "adjacent": [],
+   "exclusive": []
+  },
+  "seasons": [
+   "Winter",
+   "Spring",
+   "Summer"
+  ],
+  "faculty": "מדע יישומי (ג'ייקובס-קורנל)",
+  "current": false
+ },
  "61080025": {
   "code": "61080025",
   "about": "המקצוע ניתן במסגרת התכנית הבין יחידתית למדע יישומי בשיתוף עם המכון לחדשנות טכניון-קורנל. הסילוס המלא מפורסם בקובץ המקצועות באנגלית.",
@@ -1573,6 +1591,240 @@
   },
   "seasons": [
    "Spring"
+  ],
+  "faculty": "מדע יישומי (ג'ייקובס-קורנל)",
+  "current": false
+ },
+ "61080124": {
+  "code": "61080124",
+  "about": " Catalog Description The goal of the course is to provide you with a foundational understanding of US privacy and cybersecurity laws and regulations as applied in a business environment. We will cover: key privacy laws impacting the use of consumer data in the business world, the obligations created by these laws, and the strategies used by companies to use this data in a compliant manner.  We will also discuss the changes in privacy law, how the U.S. privacy scheme compares to those in other parts of the world, including the EU. We will cover data analytics and digital and online privacy issues (including AI). We will cover privacy notices and disclosures as well and privacy issues in vendor relationships and agreements. Finally, we will dedicate several sessions to understanding the laws and regulations governing data breaches and cybersecurity, looking at businesses' obligations to manage cybersecurity risks generally, both in and outside the context of personal data.  Student Outcomes 1.\tAn understanding of the evolution of money from a gold standard to current fiat to stablecoins to central bank digital currencies 2.\tAn understanding of lending, derivatives, structured finance",
+  "points": 1,
+  "name": "פרטיות נתוני הצרכן",
+  "connections": {
+   "dependencies": [],
+   "adjacent": [],
+   "exclusive": []
+  },
+  "seasons": [
+   "Winter",
+   "Spring",
+   "Summer"
+  ],
+  "faculty": "מדע יישומי (ג'ייקובס-קורנל)",
+  "current": false
+ },
+ "61080126": {
+  "code": "61080126",
+  "about": "This course will conduct a detailed examination of the key aspects of a venture-backed Series A funding round, including the business and legal relationships and interactions between founders, board members, and investors in considering and negotiating the key documents/provisions of the Series A funding round. Mr. Bixler will use his experiences representing startups, investors and other key stakeholders in both internal and outside counsel roles to review real-world examples and illustrate the various perspectives of the key parties and their respective negotiation strategies on critical points. Students will work in teams to create mark-ups of key Series A financing transaction documents, and negotiate on behalf of their respective client(s) toward a successful Series A closing.  Student Outcomes 1.\tGain a deeper understanding the evolving technologies (NFTs) 2.\tLearn current debates and critiques 3.\tUnderstand their potential to create and drive value in the future",
+  "points": 2,
+  "name": "מימון מיזם בשלב מוקדם",
+  "connections": {
+   "dependencies": [],
+   "adjacent": [],
+   "exclusive": []
+  },
+  "seasons": [
+   "Winter",
+   "Spring",
+   "Summer"
+  ],
+  "faculty": "מדע יישומי (ג'ייקובס-קורנל)",
+  "current": false
+ },
+ "61080127": {
+  "code": "61080127",
+  "about": "The purpose of this class is to increase students’ chances of success in their early stage ventures by helping them avoid common team-related mistakes. We explore specific dilemmas that founders face—decisions that arrive early on, can be uncomfortable, and that need to be made with minimal information—but that can have far-reaching consequences. Whether the founding team stays together, whether the venture achieves an attractive exit, and the extent to which the founder(s) share in those rewards can all be largely determined by early-stage choices.  Student Outcomes 1.\tGeneral understanding of the venture capital mindset and business process. 2.\tUnderstanding of essential terms and clauses (and alternatives) for key venture funding agreements and/or documents. 3.\tAppreciation and understanding of the various roles, expectations and incentives for the key players in a venture funding round transaction. 4.\tExtensive practice with writing, drafting and negotiating Series A funding documents.",
+  "points": 1.5,
+  "name": "דילמות במימון מיזמים חדשים",
+  "connections": {
+   "dependencies": [],
+   "adjacent": [],
+   "exclusive": []
+  },
+  "seasons": [
+   "Winter",
+   "Spring",
+   "Summer"
+  ],
+  "faculty": "מדע יישומי (ג'ייקובס-קורנל)",
+  "current": false
+ },
+ "61080130": {
+  "code": "61080130",
+  "about": " This course will offer a short tutorial on the basics of cryptography and explore its applications to cryptocurrencies and blockchains. The course will also focus on smart contracts, programs that execute on blockchains and allow the creation of new types of financial assets and agreements.  Student Outcomes: 1.\tEnhance Self-Awareness: Understand different communication styles and personality types to better navigate interpersonal dynamics. The goal is to be able to adjust communication and interaction strategies to suit different people and contexts effectively. This includes active listening, clear and effective speaking, and the ability to interpret and use body language to enhance how messages are given and received. 2.\tMaster Persuasion Techniques: techniques for influencing others by understanding the principles of persuasion, learning how to craft compelling arguments, and knowing how to motivate others toward a common goal. 3.\tPractical Application: Through case studies, role-playing, and real- world exercises, enable students to apply learned skills in varied scenarios, helping to cement these skills through practice.          1.\tEnhance Self-Awareness: Understand differe",
+  "points": 1.5,
+  "name": "מטבעות קריפטו ומערכות בלוקצ'יין",
+  "connections": {
+   "dependencies": [],
+   "adjacent": [],
+   "exclusive": []
+  },
+  "seasons": [
+   "Winter",
+   "Spring",
+   "Summer"
+  ],
+  "faculty": "מדע יישומי (ג'ייקובס-קורנל)",
+  "current": false
+ },
+ "61080133": {
+  "code": "61080133",
+  "about": " This is a course modeled on a \"core curriculum\" comprising foundational texts that provide a comprehensive and shared base of knowledge that enables students to critically examine the role of technology, and by extension, their own role as leaders in the current social, economic, and political context. Like any 'Great Books' course, this course aims to prepare informed and active leaders for the greater good in the digital era. The books we will read in this seminar-style, discussion- based course are both cheerleaders and challengers of technology and business and the classroom discussions of the merits and demerits of the arguments in these books will help students learn about both the impact of technology on business and in society as well as how to mitigate the negative and augment the positive consequences. It will also build students' abilities to analyze topics and construct and articulate arguments. Student Outcomes: Students will be able to: 1.\tAccess the key organization threats 2.\tHave a foundational knowledge on how to build more defensible and resilient organizations that can operate in the current digital landscape 3.\tKnow to exercise ethical decision making with reg",
+  "points": 1.5,
+  "name": "חיים בעולם הדיגיטלי",
+  "connections": {
+   "dependencies": [],
+   "adjacent": [],
+   "exclusive": []
+  },
+  "seasons": [
+   "Winter",
+   "Spring",
+   "Summer"
+  ],
+  "faculty": "מדע יישומי (ג'ייקובס-קורנל)",
+  "current": false
+ },
+ "61080134": {
+  "code": "61080134",
+  "about": "The purpose of this class is to introduce you to fundamental concepts in data science & machine learning (ML) and prepare you for your career path as an entrepreneur or various business roles (e.g. product manager, marketing, operations, consulting…etc) in for-profit & non-profit organizations. This course differs from the classes offered from the engineer side in that we will use a business-centric approach, where we first begin with the business problem to be solved, and then we cover the technical methodologies to solve the context-specific use cases. Throughout the course you will learn a decision-making framework to unite the various disparate use cases under a common thread. You will learn how to use this framework using a mixture of business case studies, real-world context data sets, lectures, and guest speakers.  Student Outcomes: 1.\tCritically analyze foundational texts to evaluate the social, economic, and political impacts of technology and its implications for leadership. 2.\tEngage in seminar-style discussions to assess and articulate arguments about the merits and challenges of technology in business and society. 3.\tDevelop skills to construct and present well-reasone",
+  "points": 1.5,
+  "name": "יישומי למידת מכונה בעסקים",
+  "connections": {
+   "dependencies": [],
+   "adjacent": [],
+   "exclusive": []
+  },
+  "seasons": [
+   "Winter",
+   "Spring",
+   "Summer"
+  ],
+  "faculty": "מדע יישומי (ג'ייקובס-קורנל)",
+  "current": false
+ },
+ "61080135": {
+  "code": "61080135",
+  "about": " The field of Revenue Management (RM) deals with selling a product at the right price, at the right time to the right person. Many industries use revenue management tools to maximize the return on their limited supply of products including e-retail, manufacturing, transportation, entertainment, advertising, etc. For example, e-retailers use RM to decide what assortment of products to show to the customers. Airlines use RM to decide what fare classes should remain open and what fare classes should be closed. Hotels use Revenue management to choose the room rates and to decide how much to overbook. The course will cover different quantitative models in pricing analytics and revenue management including newsvendor models, demand forecasting, network revenue management, choice modeling, assortment optimization, service operations and auctions. We will present ideas and models in the context of different application settings.  Student Outcomes: 1.\tBeing able to articulate the difference between data, insights, and decisions in a business context. 2.\tDemonstrate the ability to use a data-driven making framework and apply real-world inspired data to description, predictive or prescriptive",
+  "points": 3,
+  "name": "ניתוח תמחור וניהול הכנסות",
+  "connections": {
+   "dependencies": [],
+   "adjacent": [],
+   "exclusive": []
+  },
+  "seasons": [
+   "Winter",
+   "Spring",
+   "Summer"
+  ],
+  "faculty": "מדע יישומי (ג'ייקובס-קורנל)",
+  "current": false
+ },
+ "61080136": {
+  "code": "61080136",
+  "about": "This course provides an in-depth exploration of data science, tracing its evolution from traditional data analysis to its current role as a critical interdisciplinary field at the intersection of computer science, statistics, and domain expertise. As data science continues to drive innovation across technology, healthcare, and finance, this course emphasizes the importance of not only extracting meaningful insights from complex datasets but also ensuring that these insights are trustworthy and relevant to the specific context in which they are applied. Through the concept of veridical data science, which integrates human judgment and domain knowledge, students will learn to produce data-driven results that are not only accurate but also reliable and ethical, addressing real-world challenges with robust and context-sensitive solutions.  Student Outcomes: 1.\tUnderstand and apply quantitative models in pricing analytics and revenue management, including newsvendor models, demand forecasting, and network revenue management. 2.\tAnalyze and optimize strategies for revenue management in various industries, such as e-retail, transportation, and hospitality. 3.\tDevelop skills to model and s",
+  "points": 3,
+  "name": "עקרונות סטטיסטיים למדעי הנתונים",
+  "connections": {
+   "dependencies": [],
+   "adjacent": [],
+   "exclusive": []
+  },
+  "seasons": [
+   "Winter",
+   "Spring",
+   "Summer"
+  ],
+  "faculty": "מדע יישומי (ג'ייקובס-קורנל)",
+  "current": false
+ },
+ "61080137": {
+  "code": "61080137",
+  "about": " This is an introductory course in how software works and what it can do. It covers the basics of programming, databases, and web applications. There is a strong emphasis on learning by doing and the course includes programming assignments in Python every 2-3 weeks. The course will consist of a mix of in person lecture and asynchronous videos and coding assignments.  Student Outcomes: 1.\tThe goal is to provide students with a rigorous perspective on, and a technical toolbox for, the design of better democratic systems. 2.\tTechnical tools will include the axiomatic method, notions of fairness and proportionality, mathematical programming, social welfare functions, measures of power in weighted voting games, and measuring the quality of voting rules through distortion.",
+  "points": 2,
+  "name": "יסודות התוכנה המודרנית",
+  "connections": {
+   "dependencies": [],
+   "adjacent": [],
+   "exclusive": []
+  },
+  "seasons": [
+   "Winter",
+   "Spring",
+   "Summer"
+  ],
+  "faculty": "מדע יישומי (ג'ייקובס-קורנל)",
+  "current": false
+ },
+ "61080138": {
+  "code": "61080138",
+  "about": "Algorithms increasingly guide high-stakes decision-making across many domains. This has potential upsides, since algorithms can improve decision-making, but also serious risks, since recent years have showcased the many ways that algorithms can be biased. This course will teach you principles for designing fair algorithms, emphasizing accessibility to a broad audience via practical takeaways which are directly relevant to the real world through case studies and guest speakers. Case studies will be drawn from diverse settings where algorithms are applied, such as large language models, speech recognition systems, healthcare, criminal justice, sustainability, and education. Students will come away with a strong understanding of how algorithm-related choices can have widespread societal impact.  Student Outcomes: 1.\tWrite code in Python to computationally demonstrate biases in end- to-end algorithmic systems based on choices of data, variables, modeling, and outcomes. 2.\tApply mathematical definitions of fairness to real-world case studies to explain decisions made by both humans and algorithms. 3.\tEnumerate challenges to practitioners in algorithmic-guided decision-making (including",
+  "points": 3,
+  "name": "תכן אלגוריתמים הוגנים",
+  "connections": {
+   "dependencies": [],
+   "adjacent": [],
+   "exclusive": []
+  },
+  "seasons": [
+   "Winter",
+   "Spring",
+   "Summer"
+  ],
+  "faculty": "מדע יישומי (ג'ייקובס-קורנל)",
+  "current": false
+ },
+ "61080139": {
+  "code": "61080139",
+  "about": "As industrial competition continues to accelerate AI innovations, this course will focus on the fundamentals of what has made these innovations possible, by investigating the complex roles of data, compute, and algorithms.  Unlike most AI courses which focus only on algorithmic advancement, the course will take a balanced approach and include in our survey the varied ways in which data, data analysis, and human computing has been a key part of the progress, as well as the availability of compute with scalable architectures - all three have played equally important roles in the advancement of AI. Student Outcomes 1.\tTo survey the history of AI from the perspective of how we got to where we are today, large generative models capable of completing tasks that 5 years ago were considered decades off.",
+  "points": 1,
+  "name": "בינה מלאכותית עמוקה: נתוני חישוב",
+  "connections": {
+   "dependencies": [],
+   "adjacent": [],
+   "exclusive": []
+  },
+  "seasons": [
+   "Winter",
+   "Spring",
+   "Summer"
+  ],
+  "faculty": "מדע יישומי (ג'ייקובס-קורנל)",
+  "current": false
+ },
+ "61080143": {
+  "code": "61080143",
+  "about": "Designing products and experiences for head-mounted displays, often involving novel inputs such as hands and eyes, introduces new challenges for designers when compared to traditional devices and user interfaces. This course presents the theoretical and practical foundations of the field of 3D User Interfaces (3DUIs) and 3D Interaction Design for virtual and augmented reality applications. The course will highlight the differences between 2D and 3D interaction design, introduce design principles, best practices for prototyping, and case studies. Students will be tasked with designing, implementing, and evaluating interaction prototypes of different fidelities for 3DUI tasks such as selection and manipulation, travel, and system control. Product design case studies incorporating head-mounted displays, wearables, and novel input devices will be introduced in the context of 3DUIs.  Student Outcomes 1.\tUnderstand and articulate the principles of model interpretability and explainability in machine learning. 2.\tAnalyze and apply various interpretable modeling techniques, such as prototype-based approaches, sparse linear models, rule-based techniques, and generalized additive models. 3.\t",
+  "points": 3,
+  "name": "תכן אינטראקציה תלת-מימדית",
+  "connections": {
+   "dependencies": [],
+   "adjacent": [],
+   "exclusive": []
+  },
+  "seasons": [
+   "Winter",
+   "Spring",
+   "Summer"
+  ],
+  "faculty": "מדע יישומי (ג'ייקובס-קורנל)",
+  "current": false
+ },
+ "61080144": {
+  "code": "61080144",
+  "about": " Catalog Description This collaborative workshop brings together graduate students from Cornell Tech and Weill Cornell CTSC to prototype solutions for real- world problems, focusing on the potential of digital fabrication. It introduces key concepts and methods in design, making, and interaction design, equipping participants to address specific needs identified by MakerLAB’s partner organizations through innovative and impactful solutions. Student Outcomes 1.\tIt will provide an introduction to behavioral science theories and approaches to understanding the use of current information technologies, to identify needs that are not currently being met, and to inform the design of future IT. 2.\tIt will introduce students to common research methods and statistical techniques used in the behavioral sciences, with a focus on being able to understand research reports using these methods and statistics. 3.\tIt will provide practice in conducting and reporting behavioral science research",
+  "points": 3,
+  "name": "עיצוב משתף בעשייה ספרתית",
+  "connections": {
+   "dependencies": [],
+   "adjacent": [],
+   "exclusive": []
+  },
+  "seasons": [
+   "Winter",
+   "Spring",
+   "Summer"
   ],
   "faculty": "מדע יישומי (ג'ייקובס-קורנל)",
   "current": false
@@ -2290,7 +2542,7 @@
  },
  "00140143": {
   "code": "00140143",
-  "median": 73.5,
+  "median": 75.1,
   "about": "ניסוח של שיטות הגמישות והקשיחות לפתרון מחשב. מטריצ גמישות וקשיחות של מוט פריזמטי. הרכבה שיטתית של מטריצת קשיחות של מבנה. תכנית מחשבלפתרון קורות נמשכות, מסבכים ומסגרות. מטריצת גמישות וקשיחות של מוט לא פריזמטי. מבוא לשיטת אלמנטים סופיים.",
   "points": 3,
   "name": "שיטות מחשב בסטטיקת מבנים",
@@ -2325,7 +2577,7 @@
  },
  "00140145": {
   "code": "00140145",
-  "median": 71.6,
+  "median": 72.2,
   "about": "קריסה, קריסת עמודים, קריסת מסגרות, סימטריה בקריסת מסגרות, פתרון קריסה במחשב. קורות לחוצות צירית (קורת עמוד). אנרגיה במבנים, אנרגיה אלסטית, העמסה קוזיסטטית. שימור אנרגיה, מינימום אנרגיה, משפט קסטליאנו, שיטת ריץ. כפיפה משופעת, טרנספורמצית מומנטי אינרציה.  קורות לא הומוגניות. קריטריוני כניעה, התנהגות פלסטית של חתכים, אנליזה פלסטית של קורות ומסגרות, גרעין החתך.",
   "points": 5,
   "name": "תורת החוזק 2",
@@ -2360,7 +2612,7 @@
  },
  "00140146": {
   "code": "00140146",
-  "median": 75.2,
+  "median": 75.1,
   "about": "מבוא: חוקי יסוד, משוואות התנועה הקווית והסיבובית. תנודות במערכת דרגת חופש אחת: מערכות עם ובלי ריסון. תנודות עצמיות ותנודות מאולצות:עומס הרמוני פשוט, עומס מחזורי, עומס רצוני, אימפולס. שיטות דיסקרטיות בפתרון תגובת מבנה לעמיסה כלשהיא. אפיון ומדידת רעידת אדמה, ספקטרום תגובה לינארי. תנודות במערכות בעלות N דרגות חופש, מערכות ללא ריסון. תנודות עצמיות - תדירויות ומודים עצמיים, תנודות מאולצות - אנליזה מודלית. התנהגות מבנים חד קומתיים לא סימטריים. מקדמי השתתפות מודאליים, אנליזה מודאלית ספקטרלית. מערכות רציפות ואיפיון פרמטרים מודליים. מערכות אקוולנטיות - מעבר ממערכות רציפות ובדידות למערכות אקוויוולנטית.",
   "points": 4.5,
   "name": "מבוא לדינמיקת מבנים ורעידות אדמה",
@@ -2434,7 +2686,7 @@
  },
  "00140148": {
   "code": "00140148",
-  "median": 81.3,
+  "median": 78.3,
   "about": "תהליך תכן בנין ותפקיד מהנדס הקונסטרוקציה. יציבות אנכית - מערכת תמיכה. עומסים, רכיבים קוויים ומישוריים, הערכת מידות הרכיבים. שילוב רכיבים ליצירת מערכות מבנה יציבות. סכימות סטטיות למבנה וניתוח תהליך זרימת הכוחות במבנה. בחינת אלטרנטיבות שונות והשפעת הביצוע על בחירת הפתרון. יציבות אופקית - מערכת הקשחה.",
   "points": 3,
   "name": "עקרי תכן מבנים",
@@ -2474,7 +2726,7 @@
  },
  "00140149": {
   "code": "00140149",
-  "median": 69.2,
+  "median": 69.4,
   "about": "תכן אלמנטים לחוצים (תמירות), חישוב חתכים לכפיפה דו-צירית עם ובלי כח צירי, פיתול, חדירה, טבלות מצולבות: המשוואה הדיפרנציאלית של טבלות מצולבות, פתרונות המשוואה למקרים מיוחדים, עומס סכין. מומנט סכומי, טבלות מצולבות נמשכות (חישוב ותכן), חישוב פלסטי של טבלות מצולבות, טבלות שטוחות ללא קורות, תקרת צלעות, תקרת ערוגות.",
   "points": 4.5,
   "name": "מבני בטון 2",
@@ -2510,7 +2762,7 @@
  },
  "00140150": {
   "code": "00140150",
-  "median": 71.6,
+  "median": 67.2,
   "about": "התכונות של פלדות מבנים, חישוב רכיבים ובכלל זה: מתיחה, לחיצה מסבכים, כפיפה, עמוד-קורה, עקרונות תכן מחברים ואמצעי חיבור יציבות, הקשחתמבני פלדה.",
   "points": 4.5,
   "name": "מבני פלדה 1",
@@ -3922,18 +4174,6 @@
   "about": "שיטות להשוואה כלכלית של חלופות הנדסיות, החלטות כלכליות הקשורות בציוד ונכסים, ניתוח השפעת האינפלציה והמיסוי על השוואת חלופות. שיווי משקל תחרותי - ביקוש והיצע.",
   "points": 2.5,
   "name": "כלכלה הנדסית",
-  "tests": [
-   {
-    "year": 2026,
-    "monthIndex": 7,
-    "day": 20
-   },
-   {
-    "year": 2026,
-    "monthIndex": 8,
-    "day": 15
-   }
-  ],
   "connections": {
    "dependencies": [],
    "adjacent": [],
@@ -3950,7 +4190,7 @@
    "Summer"
   ],
   "faculty": "הפקולטה להנדסה אזרחית וסביבתית",
-  "current": false
+  "current": true
  },
  "00140609": {
   "code": "00140609",
@@ -4121,7 +4361,7 @@
  },
  "00140618": {
   "code": "00140618",
-  "median": 82.6,
+  "median": 82.5,
   "about": "קביעת הציון על פי מעקב במשך הסמסטר, עבודות בית, תרגיל מסכם ובחינה סופית.\nמגמות בענף הבנייה ומאפייניו, שיטות התקשורת מכרזים חוזים, עקרונות חישוב כמויות, תכנון לוח זמנים בשיטת רשת, בפרויקטים קויים ומחזוריים. תחשיבי עלויות בנייה, עקרונות בטיחות בבניה, התארגנות באתר, איכות וציוד בניה, מגמות חדשנות בבניה, BIM, תיעוש, הדפסה בתלת מימד, הרכבת יחידות מודולריות.",
   "points": 4,
   "name": "מבוא לניהול ובטיחות בבנייה",
@@ -8849,6 +9089,29 @@
   "faculty": "הפקולטה להנדסה אזרחית וסביבתית",
   "current": false
  },
+ "00180143": {
+  "code": "00180143",
+  "about": "יסודות רשתות עצביות ולמידה עמוקה; Forward Propagation, פונקציות הפסד Backpropagation ואופטימיזציה מבוססת גרדיאנט; בניית תהליכי אימון, תיקוף ובדיקה; הכללה, רגולריזציה, אוגמנטציה והערכת ביצועים; אופטימיזציה וייצוב של רשתות עמוקות; רשתות קונבולוציה לעיבוד תמונה; מודלים רקורנטיים ולמידה עמוקה לנתוני חיישנים ולסדרות זמן; למידת ייצוגים, אוטואינקודר וזיהוי חריגות; מנגנוני attention וטרנספורמרים.‏Transfer Learning ו-Fine-Tuning בתנאי מחסור בנתונים הנדסיים; הסברתיות, אי-ודאות, עמידות, יכולת שחזור, ניטור ומימוש בסיסי. היישומים יתמקדו בבדיקת תשתיות, זיהוי נזקים, ניטור סביבתי ומבני ובבעיות נוספות בהנדסה אזרחית הכוללות נתונים מורכבים ורבי-ממדים. תוצאות למידה: בסיום  הקורס הסטודנטיות והסטודנטים יהיו מסוגלים: 1. לנסח בעיה מחקרית או הנדסית בתחום ההנדסה האזרחית והסביבתית כבעיית למידה עמוקה, לבחור ארכיטקטורה מתאימה, להכין נתונים, לממש, לאמן ולהעריך מודלים עבור תמונות, אותות, סדרות זמן ונתוני חיישנים. 2. לנתח את הביצועים, יכולת ההכללה, האמינות והמגבלות של מודלי למידה עמוקה ולהציע פתרון הנדסי שלם הכולל רגולריזציה, הסברתיות, הערכת אי-ודאות, שחזור ניסויים והטמעהבסיסית במערכת הנדסית.",
+  "points": 3,
+  "name": "נושאים נבחרים בלמידה עמוקה להנדסה אזרחית וסביבתית",
+  "connections": {
+   "dependencies": [
+    [
+     "00140003",
+     "01040019",
+     "02340128"
+    ]
+   ],
+   "adjacent": [],
+   "exclusive": []
+  },
+  "seasons": [
+   "Winter",
+   "Spring"
+  ],
+  "faculty": "הפקולטה להנדסה אזרחית וסביבתית",
+  "current": true
+ },
  "00180222": {
   "code": "00180222",
   "about": "חזרה על נושאים בסיסיים (משוואות זרימה, תיאוריה לינארית) תכונות לא לינאריות של גלים, סטטיסטיקה של גלי רוח וניתוח ספקטראלי, ניסוי במדידת גלי ים (ביצוע ברצף), מדידה באמצעות מערכי גלים חודרים ומערכי מדי לחץ תת מימיים. הניסוי ילווה בתצפיות איכותיות של סחף פני המים, תנועה אורביטלית. משוואות בוסינסק ו-VDK. יחסי גלים-זורמים, שיטות מדידה מתקדמות, הבדלי גישה בין עבודת מעבדה וים פתוח, חישה מרחוק, פיזור כיווני אנרגיית גלים. ניתוח תוצאות מדידה תוך הסתכלות על שיטות למציאת ספקטרום כיווני (תדירות.מספר גל), סיכום. תוצאות למידה: עם סיום הקורס הסטודנט: 1. ירכוש ידע בתיאוריות ושיטות פתרון נומריות בנושא גלי מים לא לינאריים. 2. ירכוש ידע בתהליכי ייצור והתפתחות של גלי ים תחת  השפעת רוח הנושבת מעל. 3. ירכוש נסיון בבניית מערכי ניסוי, תפעולן , ועיבוד תוצאות במגוון פרמטרים הקשורים להתפתחות שדות גלי ים לא לינאריים במעבדה ובים פתוח. 4. ירכוש ידע ונסיון בעיבוד סטטיסטי של נתוני ניסוי בנושא גלי ים הכוללים אנליזה ספקטראלית, ספקטרום מספרי גל, פיזור כיווני של אנרגיה. 5. יפתח כלים אנליטיים, חישוביים וניסויים לביצוע מחקר עצמאי בנושאי גלי ים, אינטראקציות לא לינאריות בין גלים, יחסי גומלין גלים-רוח וגלים-זרם.",
@@ -9104,7 +9367,7 @@
    "Summer"
   ],
   "faculty": "הפקולטה להנדסה אזרחית וסביבתית",
-  "current": false
+  "current": true
  },
  "00180601": {
   "code": "00180601",
@@ -10012,7 +10275,7 @@
    "Summer"
   ],
   "faculty": "הפקולטה להנדסה אזרחית וסביבתית",
-  "current": false
+  "current": true
  },
  "00190326": {
   "code": "00190326",
@@ -10659,7 +10922,7 @@
  },
  "00340010": {
   "code": "00340010",
-  "median": 81.5,
+  "median": 79.9,
   "about": "קינמטיקה: קינמטיקה של חלקיק, תאור תנועה בקואורדינטות שונות, מהירות זויתית, מערכת קוארדינטות נעה, מהירויות ותאוצות יחסיות, קינמטיקה של גוף קשיח. דינמיקה של חלקיק: פתרון משוואת תנועה במקרים שונים, שיטות אנרגיה, תנע ותקיפה. מערכת חלקיקים: משוואת התנועה, מרכז מסה, מאזני תנע קווי וזוויתי, כוח ומומנט שקול, אנרגיה קינטית ופוטנציאלית, מאזן אנרגיה ומערכות משמרות, התנגשויות. דינמיקה של גוף קשיח: טנזור אינרציה, תנע זויתי, אנרגיה קינטית, משוואת תנועה. מתקף, תנועה מישורית טהורה, תנועה מרחבית, איזון דינמי, משוואות טוילר, תופעות  ג'ירוסקופיות.",
   "points": 5,
   "name": "דינמיקה",
@@ -10939,7 +11202,7 @@
  },
  "00340032": {
   "code": "00340032",
-  "median": 75.9,
+  "median": 74.9,
   "about": "מבוא-אותות ומערכות, אלגברה לינארית - רענון, מידול מערכות. מרחב המצב - מערכות רציפות ובדידות, מימושים קנוניים, ליניאריזציה, פונקציותשל מטריצות, פתרון משואות מצב בציר הזמן, אופני תנועה, תגובת הלם, שחזור תנאי התחלה, מערכות דגימה. פתרון משוואות המצב באמצעות התמרות -התמרת לפלס, התמרת ,Z התמרת פוריה. אינטגרל וסכום הקונבולציה, מטריצות תמסורת, נורמים של אותות ומערכות,  חיבורים של מערכות, יציבות מערכות, תגובת התדר של מערכות ליניאריות,תאורים גרפיים, אנליזה מודאלית של מערכות מכניות תונדות.",
   "points": 4,
   "name": "מערכות ליניאריות מ'",
@@ -11015,7 +11278,7 @@
  },
  "00340034": {
   "code": "00340034",
-  "median": 90.9,
+  "median": 90.5,
   "about": "מעגלים מגנטיים. שנאים. התקנים אלקטרומגנטיים. מנועי זרם ישר: עקרון פעולה, מעגל תמורה, התנהגות דינמית, אלקטרוניקת דרייברים. מנועי צעד: עקרון פעולה, התנהגות דינמית, אלקטרוניקת דרייברים. מנועי זרם-ישר ללא מברשות. שקולים בבחירת מנועים קטנים. מנועי זרם חילופין: יצירת שדה מסתובב, מנועים סנכרוניים, מנועי השראה תלת-פאזיים, מעגל תמורה, אפין מכני, עקרונות בבחירת מנוע. בקרת מיקום ומהירות של מנועי זרם ישרוזרם חילופין.",
   "points": 2.5,
   "name": "הנע חשמלי",
@@ -11054,7 +11317,7 @@
  },
  "00340035": {
   "code": "00340035",
-  "median": 74.4,
+  "median": 76.1,
   "about": "מושגי יסוד, מערכת, תכונות, מצב, תהליך, חוק האפס והחוק הראשון. אנרגיה. אנתלפיה. שימושים בחוק הראשון למערכות סגורות ופתוחות. נפח בקרה. חומר טהור: נוזל-אד ומערכות חד-פזיות. גז אידאלי. החוק השני: עקרון קרנו, טמפרטורה תרמודינמית. אנטרופיה. החוק השני לנפח בקרה. מחזורי עבודה: מחזורי אדים וגז. מחזורי קרור. תערובות גזים.",
   "points": 4,
   "name": "תרמודינמיקה 1",
@@ -11210,7 +11473,7 @@
  },
  "00340043": {
   "code": "00340043",
-  "median": null,
+  "median": 88.8,
   "about": "מושגים בסיסיים בתיב\"ם פרמטרי אסוציאטיבי. מבוא לכוונת תכן. עקרונות מידול חלקים תלת-ממדיים בתיב\"ם. נושאים בשרטוט חלקים במחשב. עקרונותבסיסיים בשרטוט הרכבות תלת ממדיים במחשב. מתן מידות ואילוצים במחשב.",
   "points": 2.5,
   "name": "שרטוט הנדסי ממוחשב",
@@ -11449,7 +11712,7 @@
  },
  "00340053": {
   "code": "00340053",
-  "median": 63.2,
+  "median": 63.7,
   "about": "מאמצים, עיבורים, קשרי מאמץ -עיבור (חוק הוק), קריטריוני כניעה וכשל, מבוא לאלסטיות ליניארית (משוואות שיווי משקל, משוואות ההתאמה, פתרונות קלאסיים) , מומנטי אינרציה, מאמצים נורמליים ומאמצי גזירה בכפיפה, דפורמציות אלסטיות בכפיפה, שיטות אנרגיה לחישוב הזזות, קריסת עמודים.",
   "points": 5,
   "name": "מכניקת מוצקים 2מ",
@@ -11543,7 +11806,7 @@
  },
  "00340055": {
   "code": "00340055",
-  "median": 82.8,
+  "median": 81.4,
   "about": "מבוא: רצף, מאמץ, זורם, צמיגות. נפח בקרה ותאור אינטגרלי: משוואות שימור מסה, תנע קווי, תנע זוויתי ואנרגיה האינטגרליות ויישומים. משוואת ברנולי. אנליזה ממדית וחוקי דמויות. קינמטיקה: קווי מסלול, קווי זרם וקווי חלקיק. פונקציית זרם ונגזרת מלווה. תיאור דיפרנציאלי: משוואתהרציפות ומשוואות התנע. הידרוסטטיקה. זורמים ניוטוניים ,משוואות נוויה-סטוקס ותנאי שפה. נרמול של משוואות ,מספרי חסרי ממד ואנליזת סדרי גודל. פתרונות מדויקים. מתח פנים: זווית מגע, משוואת יאנג-לפלס ועלייה קפילרית. משואות סטוקס. משוואות אוילר וזרימה פוטנציאלית. שכבות גבול: משוואות שכבת הגבול דיפרנציאליות ואינטגרליות, פתרונות מוקרבים, כוחות גזירה וגרר. זרימה למינארית וטורבולנטית בצינור: ניסוי ריינולדס , טורבולנציה, דיאגרמת מודי, הפסדים ומשוואת ברנולי הנדסית. התנסות במכניקת זורמים במסגרת פרויקט אישי או קבוצתי.",
   "points": 5,
   "name": "תורת הזרימה 1מ'",
@@ -11728,6 +11991,7 @@
  },
  "00340061": {
   "code": "00340061",
+  "median": 94,
   "about": "הקורס מקנה את יסודות הגיאומטריה התיאורית והשרטוט ההנדסי תוך שימוש בכלי CAD . הדגש בקורס על תכנון רכיבים מכניים תוך הבנת המידול הגיאומטרי, היטלים, חתכים, מתן מידות, סיבולות ואפיצויות ודרישות הייצור והרכבות. המטרה היא להקנות לסטודנטים מיומנויות בתכנון הנדסי באמצעותתרגולים מעשיים.",
   "points": 3.5,
   "name": "מבוא לגרפיקה ותכנון הנדסי",
@@ -11899,7 +12163,7 @@
  },
  "00340379": {
   "code": "00340379",
-  "median": 95.8,
+  "median": 95.4,
   "about": "פרויקט הנדסי הינו פרויקט גמר בפקולטה להנדסת מכונות בתחומים שונים כדלקמן: אנרגיה, רובוטיקה, תיב\"ם, מכניקת חומרים ומיקרומערכות, (ביו-)מכניקה, אדריכלות ימית, מערכות אופטיות, מכטרוניקה, בקרה או שילוב ביניהם. פרויקט הגמר מהווה סינתזה של כל החומר הנלמד בשלושת השנים הראשונות של הלימודים. בנוסף ישנם קדמים רלוונטים לפי קבוצות הפרויקטים השונות אשר יפורסמו מראש במודל.",
   "points": 3,
   "name": "פרויקט הנדסי 1",
@@ -11927,7 +12191,7 @@
  },
  "00340380": {
   "code": "00340380",
-  "median": 94.8,
+  "median": 95.2,
   "about": "פרויקט הנדסי הינו פרויקט גמר בפקולטה להנדסת מכונות בתחומים שונים כדלקמן: אנרגיה, רובוטיקה, תיב\"ם, מכניקת חומרים ומיקרומערכות, (ביו-)מכניקה, אדריכלות ימית, מערכות אופטיות, מכטרוניקה, בקרה או שילוב ביניהם. פרויקט הגמר מהווה סינתזה של כל החומר הנלמד בשלושת השנים הראשונות של הלימודים. בנוסף ישנם קדמים רלוונטים לפי קבוצות הפרויקטים השונות אשר יפורסמו מראש במודל.",
   "points": 3,
   "name": "פרויקט הנדסי 2",
@@ -11998,7 +12262,7 @@
  },
  "00340401": {
   "code": "00340401",
-  "median": 94.8,
+  "median": 95.8,
   "about": "ניסויים בקינמטיקה, בקרה ותכנון של רובוטים. סימולציה של רובוטים. ציוד: רובוט תעשייתי AMUP ורובוט לימודי ONIHR, מערכת ראיה.",
   "points": 2.5,
   "name": "מעבדה מתקדמת לרובוטים",
@@ -12544,7 +12808,7 @@
  },
  "00350034": {
   "code": "00350034",
-  "median": 92.6,
+  "median": 92.5,
   "about": "הגדרת הכשל, כשל בעומס יתר, שבר לינארי אלסטי, נוקשות לשבר, הדגמת הקריטריון לדליפה לפני פצוץ, התעייפות (גבוהה ונמוכת מחזורים), חוק SIRAP, מעבר משיך-פריך, השפעות סביבתיות, מיקרו-מבנה ונוקשות לשבר, מנגנוני כשל וניתוח פרקטוגרפי, ניתוח מקרי כשל. מעבדות: קביעת נוקשות לשבר. ניתוח פרקטוגרפי של מנגנוני כשל.",
   "points": 2.5,
   "name": "כשל חמרים",
@@ -12714,6 +12978,18 @@
   "about": "וקטור הזזה. טנזור גרדיאנט ההזזה. טרנספורמציה של טנזורים. טנזורי עיבורים ומאמצים. משואות שיווי משקל דיפרנציאליות. הטרחות ותנאי שפה. אנרגיית עיבורים ועבודת כוחות חיצוניים. משוואות קונסטיטוטיביות. משוואות ההתאמה. פתרונות אנליטיים ונומריים של בעיות נבחרות בתורת האלסטיות.",
   "points": 3,
   "name": "מבוא לתורת האלסטיות",
+  "tests": [
+   {
+    "year": 2027,
+    "monthIndex": 1,
+    "day": 23
+   },
+   {
+    "year": 2027,
+    "monthIndex": 2,
+    "day": 17
+   }
+  ],
   "connections": {
    "dependencies": [
     [
@@ -13038,7 +13314,7 @@
  },
  "00350062": {
   "code": "00350062",
-  "median": 91.8,
+  "median": 93.8,
   "about": "שיטות אנליזה במבנים: עבודה וירטואלית, אנרגיה פוטנציאלית, אנרגיה משלימה, משפט קסטלינו, שיטות מטריציות, משפט ההדדיות. קריסה אלסטית ופלסטית של קורות ומסבכים, תוך שימוש בשיטות אנרגיה. פרקים פלסטיים, עומס הרס במבנים. כפיפת טבלות וקריסתם. שיטות מקורבות לחישוב קריסת טבלות בתחום הפלסטי. תגובה ממברנית של קליפות. טבלות מחוזקות.",
   "points": 2.5,
   "name": "אנליזה של מבנים",
@@ -13997,7 +14273,7 @@
  },
  "00360044": {
   "code": "00360044",
-  "median": 95,
+  "median": 94.8,
   "about": "הצגת מרחב הקונפיגורציה כבסיס עיקרי לאלגוריתמי תכנון ברובוטיקה. סקירת השיטות החשובות לתכנון מסלולים. תכנון תנועה מונחית חיישנים עבורסביבות דו-מימדיות. תכנון תנועת רובוטים כלליים מרובי מפרקים המנווטים בעזרת חיישני מרחק תוך איסוף אינפורמציה בזמן אמת. יישום השיטות עבור רכבים רובוטים.",
   "points": 3,
   "name": "תכן תנועת רובוטים וניווט ע\"י חיישנים",
@@ -14954,6 +15230,7 @@
  },
  "00360105": {
   "code": "00360105",
+  "median": 95,
   "about": "מבוא לחומרים מרוכבים! יישומים של חומרים מרוכבים במבנים! טכנולוגיות ייצור עיקריות! מיקרומכניקה! אינטראקציה בין סיב לחומר המאגד והממשק ביניהם! מנגנוני כשל מיקרומכאניים! התפתחות נזק וכשל בשכבה בודדת. מודלים מתמטיים לחישוב שדה המאמצים בחומרים מרוכבים! השפעת סדר השכבות על התנהגות המבנה והחומר. תיאורית הקליפות! קבועים אלסטיים אפקטיבים. השפעות של טמפרטורה ולחות. מנגנוני כשל והתפתחות נזק בחומר מרוכבהעשוי מספר שכבות! מכניקת השבר בחומרים מרוכבים! תיאוריות כשל. שיטות ניסויי ואפיון מתקדמות! דוגמאות מעשיות מניסויים הכוללות שימוש בכלייאגנוסטיקה מתקדמים. שימושים בשיטות נומריות  לחיזוי כשל של חומרים מרוכבים! השוואת סימולציות לניסויים._\r\n תוצאות למידה: בסיום הקורס הסטו דנטיות והסטודנטים יהיו מסוגלים:\r\n 1. להבין מהו חומר מרוכב! יתרונותיו ומגבלות השימוש בו._\r\n 2. לבחור ולהתאים את הסוג והמבנה של החומרהמרוכב לאפליקציה ההנדסיתהרלוונטית._\r\n 3. להבין מהם מנגנוני הכשל השונים בחומרים מרוכבים! וכיצד הם מושפעים מהמבנה המיקרומכאני של החומר.\r\n 4. לבצע תכן ראשוני למבנה החומר המרוכב! לחשב ולהעריך את התנהגות החומר תחת מעטפת העומסים הצפויה! ולנסות להעריך את האזורים במבנה בהםיכולת החיזוי היא מוגבלת. \r\n 5. להבין את הפערים  בין תיאוריות הכשל השונות! ולהתאים את התכן בהתאם לאי הוודאויות ופערי הידע._\r\n 6. לתכנןמערך ניסוי",
   "points": 3,
   "name": "חוזק וכשל של חומרים מרוכבים",
@@ -15106,7 +15383,7 @@
  },
  "00360112": {
   "code": "00360112",
-  "median": 92,
+  "median": 92.5,
   "about": "למידת מכונה (Machine Learning) היא תחום מתפתח במהירות, בעל השפעה עמוקה על מדע והנדסה. קורס זה מהווה מבוא שיטתי ללמידת מכונה יישומית עם דגש על שימושים הנדסיים ומדעיים. נושאים עיקריים כוללים למידה מונחית ובלתי מונחית, רשתות נוירונים רדודות ועמוקות, פונקציות עלות, התאמת מודלים, חישוב גרדיאנטים ואופטימיזציה, שיטות רגולריזציה, רשתות קונבולוציוניות (CNN), למידת חיזוק (RL) וכן רשתות נוירונים פיזיקליות (PINNs). הקורס יעסוק גם באלגוריתמים גנרטיביים כגון GANs, אוטואנקודרים, מודלי דיפוזיה, וגרפים נוירוניים. עבודות הבית משלבות תרגולים חישוביים (Python/Jupyter) לצד משימות חישוביות ידניות.\nתוצאות למידה: בסיום הקורס הסטודנטיות והסטודנטים יהיו מסוגלים: \n1. להסביר את ההבדלים העיקריים בין למידה מונחית, בלתי מונחית ולמידת חיזוק, ואת תחומי היישום של כל אחת מהן. \n2. ליישם ולבצע אופטימיזציה של רשתות נוירונים רדודות ועמוקות (כולל CNNs) תוך שימוש בפונקציות עלות, גרדיאנטים ורגולריזציה. \n3. להשתמש בשיטות מתקדמות כגון רשתות פיזיקליות מונחות (PINNs) לצורך פתרון בעיות מדעיות או הנדסיות. 4. לתכנת אלגוריתמים של למידת מכונה בשפת Python תוך שימוש בספריות נפוצות (כגון TensorFlow, PyTorch, Scikit-Learn). \n5. להעריך את ביצועי המודלים באמצעות מדדים סטטיסטיים שונים ולבצע שיפורים בהתאם.\n 6. להבין וליישם אלגוריתמים גנרטי",
   "points": 3.5,
   "name": "נושאים נבחרים בלמידת מכונה יישומית למדענים ומהנדסים",
@@ -15931,7 +16208,11 @@
     "monthIndex": 10,
     "day": 26
    },
-   null
+   {
+    "year": 2026,
+    "monthIndex": 11,
+    "day": 2
+   }
   ],
   "connections": {
    "dependencies": [],
@@ -16091,7 +16372,7 @@
  },
  "00440127": {
   "code": "00440127",
-  "median": 83.6,
+  "median": 83.1,
   "about": "מושגי יסוד בפיזיקה קוונטית: גביש, פסי אנרגיה, אלקטרונים וחורים. סיגים, חמרים סוג N+P. ניידות ומוליכות חשמלית, דיפוזיה, ניסוי HALL. משואת הרציפות, דוגמאות. צפיפות מצבים ורמת פרמי. צומת P-N. אופין זרם של דיודה ונקודת עבודה, התנגדות וקיבול דיפרנציאלי. דיודה ראלית, פריצה. טרנזיסטור ביפולרי, עקרון פעולה, הגבר. משואת אברמס-מול. סכימת תמורה פיסיקלית לאות קטן. מרכיבי אלפא, תלות אלפא וביתא בתדר. קבל MOS. טרנזיסטור MOS: משואת זרם. טרנזיסטור MOS - אות קטן. טרנזיסטור JEFT וסכמת תמורה לאות קטן.",
   "points": 3.5,
   "name": "יסודות התקני מוליכים למחצה",
@@ -19166,7 +19447,7 @@
  },
  "00460225": {
   "code": "00460225",
-  "median": 78.6,
+  "median": 78,
   "about": "\"ריכוזי אלקטרונים וחורים במל\"מ. FREEZEOUT. IMPURITY BANDS. הולכה אמביפולרית, תהליכי התאחדות. התאחדות באזור המיחסור של צומת PN. קואזי רמת פרמי. תנאי בולצמן. IMPACT IONIZATION. צומת מתכת-מל\"מ. HETEROJUNCTION. פליטה תרמיונית. תופעות תלויות זמן - קיבול דיפוזיה. \"",
   "points": 3,
   "name": "עקרונות פיזיקליים של התקני מל\"מ",
@@ -25302,7 +25583,7 @@
   "median": 88,
   "about": "הקורס עוסק באפיון חומרים רכים על ידי מיקרוסקופית אלקטרונים סורקת ומיקרוסקופית אלקטרונים חודרת וכולל:  הכרת הרכיבים השונים במיקרוסקופ אלקטרונים סורק ומיקרוסקופ אלקטרונים חודר, עקרונות יצירת תמונה במיקרוסקופיית אלקטרונים, האינטראקציה בין קרן האלקטרונים לדגם, שיטות להכנת דגמים למיקרוסקופית אלקטרונים של חומרים רכים עם דגש על מיקרוסקופית אלקטרונים בטמפרטורות קריוגניות, אפיון תלת-ממדי באמצעות טומוגרפיית אלקטרונים, אפיון הרכב כימי במיקרוסקופית אלקטרונים, יישומים. תוצאות למידה: בסיום הקורס הסטודנט יהיה מסוגל:\r\n 1. לתאר את המרכיביםהעיקריים של מיקרוסקופ אלקטרונים חודר ומיקרוסקופ אלקטרונים סורק, ולהבין כיצד הם תורמים ליצירת תמונה בשיטות הדימות השונות וע\"י הגלאים השונים במיקרוסקופים. 2. להבין את העקרונות שקובעים את הניגודיות ואת הרזולוציה במיקרוסקופית אלקטרונים. 3. להכיר מגוון שיטות הכנת דגמים למיקרוסקופית אלקטרונים של חומרים רכים עם דגש על מיקרוסקופית אלקטרונים בטמפרטורות קריוגניות, כולל מגבלות, ארטיפקטים ונזק הנגרם מקרןהאלקטרונים.\r\n 4. להבין את העקרונות המשמשים לאפיון תלת-ממדי במיקרוסקופ אלקטרונים חוזר.",
   "points": 2,
-  "name": "מיקרוספית אלקטרוניים של חומר רך",
+  "name": "מיקרוספית אלקטרונים של חומר רך",
   "tests": [
    {
     "year": 2027,
@@ -25949,7 +26230,7 @@
    "Summer"
   ],
   "faculty": "הפקולטה להנדסה כימית",
-  "current": false
+  "current": true
  },
  "00580003": {
   "code": "00580003",
@@ -29397,7 +29678,11 @@
    }
   ],
   "connections": {
-   "dependencies": [],
+   "dependencies": [
+    [
+     "00840737"
+    ]
+   ],
    "adjacent": [],
    "exclusive": [
     "00840735"
@@ -30490,7 +30775,7 @@
  },
  "00860201": {
   "code": "00860201",
-  "median": 83.8,
+  "median": 83.9,
   "about": "דינאמיקה של כלים בליסטיים - רקטות, קליעים וכיו\"ב. הקנית הידע הנדרש לחיזוי המסלול של גופים אלו דרך הבנת הדינאמיקה הבסיסית והקניית יכולת להבנה ולגזירה מקורבת של הגורמים המשפיעים (זווית שיגור, רוח וכיו\"ב). תוצאות למידה: בסיום הקורס הסטודנט ידע: 1. לחשב במדויק מסלול דו-ממדי של נקודת מסה בואקום. 2. לחשב במדויק דרך של נקודת מסה בתנועה ישרה עם גרר וכבידה. 3. לחשב בקרוב מסלול דו-ממדי של נקודת מסה עם גרר וכבידה. 4. להשתמש בטבלאות בליסטיות לחישוב מסלולים אטמוספריים. 5. לבצע תיקוני קוריולס. 6. לפתור בקרוב משוואות דינאמיות מלאות בשלבהמעוף החופי. 7. לפתור בקרוב משוואות האצה רקטית בואקום ובאטמוספירה. 8. לחשב פונקציות רגישות עבור הפרות בשלב ההאצה הרקטית. 9. לחבר את שלב ההאצה עם שלב המסלול החופשי. 01. לבדוק תנאי יציבות לקליעים מסתחררים.",
   "points": 3,
   "name": "בליסטיקה חיצונית ודינמיקת קליעים.",
@@ -31886,7 +32171,7 @@
  },
  "00860761": {
   "code": "00860761",
-  "median": 92,
+  "median": 92.6,
   "about": "ניווט אינרציאלי, היתוך מידע הסתברותי ממגוון חיישנים, ניווט מבוסס ראייה ממוחשבת ( NAV ), לוקליזציה ומיפוי ( MALS ), סיכום מדידות UMI( NOITARGETNI-ERP UMI ), אופטימיזציית TNEMTSUJDA ELDNUB תוך שימוש במדידים אינרציאליים ותמונות, ניווט ו-MALS מרובה פלטפורמות, שיערוךמצב אקטיבי ותכנון תנועה במרחב הסתברותי ( GNINNALP ECAPS FEILEB ). תוצאות למידה: בסיום הקורס הסטודנט ידע: 1. לפתח ולממש אלגוריתמים בניווט מבוסס ראייה ממוחשבת ו- MALS 2. לפתח ולממש גישות הסתברותיות להיתוך מידע, ניווט מבוסס ראייה ממוחשבת ו- MALS בבעיות מרובות פלטפורמה. 3. לממש ולפתור אופטימיזציית TNEMTSUJDA ELDNUB תוך שימוש בתמונות אמיתיות. 4. לפתח אלגוריתמים לתכנון במרחב הסתברותי.                                ( GNINNALP ECAPS FEILEB )",
   "points": 3,
   "name": "ניווט ומיפוי מבוסס ראיה ממוחשבת",
@@ -33438,7 +33723,7 @@
  },
  "00940288": {
   "code": "00940288",
-  "median": 95.5,
+  "median": 95.2,
   "about": "בקורס נבחן סוגיות במערכות נתונים שמשלבות בין עולמות המשפט, האתיקה והטכנולוגיה. נשתמש בניתוחי אירוע בנושאים כגון אחריות, אפליה, פרטיות וניהול להטמיע את הצורך בדיאלוג בין עולמות אלו. ניתוחי האירוע מניחים את הבסיס ליצירת שפה משותפת בה הצדדים מסוגלים לזהות בשלב מוקדםאת נקודות המפגש הפוטנציאליות ביניהם.",
   "points": 2.5,
   "name": "נושאים אתיים באחריות בנתונים",
@@ -33483,7 +33768,7 @@
  },
  "00940295": {
   "code": "00940295",
-  "median": 94.8,
+  "median": 94.3,
   "about": "מתודולוגיה ופרקטיקה של בניית מערכות המבצעות אנליזה של מידע בנפחים גבוהים באמצעות כלים סטטיסטיים (לדוגמא רגרסיה) וכלי למידה ( NOITACIFISSALC , GNIRETSULC ). שימוש במתודולוגיית ECUDER PAM לניתוח נתונים, ואינטגרציה של כלים דוגמת מנועי חיפוש ובסיסי נתונים. יודגמו פרדיגמות תצוגה של מידע שהוא תוצר האנליזה.",
   "points": 3,
   "name": "מעבדה בניתוח והצגת נתונים",
@@ -33893,7 +34178,7 @@
  },
  "00940412": {
   "code": "00940412",
-  "median": 75.3,
+  "median": 73.4,
   "about": "תורת ההסתברות כמודל מתמטי לתופעות מקריות, מרחבי הסתברות, הסתברות מותנית, אי תלות, משתנים מקריים ופונקציות התפלגות, התפלגויות נפוצותבשימושים: בינומית, גיאומטרית, פואסונית, אחידה, אקספוננציאלית, גאמא, נורמלית ובאטא. תוחלת ומומנטים. התפלגויות רב ממדיות, קוויריאנס, סטטיסטי הסדר, פונקציות של משתנים מקריים, ההתפלגות הנורמלית הרב מימדית, התמרות ושימושיהן בתורת ההסתברות, סכום של משתנים מקריים, חוק המספרים הגדולים, משפט הגבול המרכזי ושימושו לקרובים.",
   "points": 4,
   "name": "הסתברות מ",
@@ -34305,7 +34590,7 @@
  },
  "00940591": {
   "code": "00940591",
-  "median": 85.5,
+  "median": 86.5,
   "about": "בקוש והצע:  שווי המשקל בשוק, מדיניות הממשלה בתחום המיקרו והשפעתה על שווי המשקל. פונקצית העלויות וגזירת עקומת ההצע. התנהגות בתנאי שוק שונים:  מונופול ותחרות בלתי משוכללת. המשק הלאומי:  החשבונות הלאומיים. קביעת התוצר המקומי במשק. שער הריבית והשפעתו על ההשקעה. הבקושלכסף. הבנקים המסחריים, הבנק המרכזי והצע הכסף. שווי משקל בשוק הכסף ושווי משקל כללי. מדיניות הממשלה בתחום המאקרו והשפעתה על התוצר, שער הריבית ושעור האינפלציה.",
   "points": 3.5,
   "name": "מבוא לכלכלה",
@@ -35098,7 +35383,7 @@
  },
  "00950622": {
   "code": "00950622",
-  "median": 91.5,
+  "median": 91.3,
   "about": "נדבך עיקרי בחקר מדעי הקוגניציה הינו השימוש בכלי מחקר מוחיים להבנת הקשר בין מנגנונים מוחיים לתהליכים קוגניטיביים. קורס זה ייתן מבוא לחקר מוח הקוגניטיבי בשיטות לא פולשניות, בדגש על EEG, MRI, וגרייה חשמלית. הקורס יעסוק בדרכים בהן שיטות אלו משמשות לחקור תופעות קוגניטיביות שונות, כגון תפיסה, שפה, זיכרון, יצירתיות ועוד.",
   "points": 2,
   "name": "מבוא למדעי המוח הקוגניטיביים",
@@ -35424,7 +35709,7 @@
  },
  "00960224": {
   "code": "00960224",
-  "median": 89,
+  "median": 89.2,
   "about": "נושאים בניהול מידע מבוזר (כגון, תכן ביזוריות, עיבוד ואופטימיזציית שאילתות מבוזרות וניהול תנועות מבוזרות). סוגיות אמינות מידע מבוזר ושילוב נתונים. פיתוח כלים למחקר שילוב נתונים. נושאים מחזית הטכנולוגיה במיחשוב ענן. תוצאות למידה: בסיום הקורס הסטודנט ידע 1. לתכנן מסד נתונים 2. להציע תוכנית שאילתא בסביבה מבוזרת. 3. לתכנן פרוטוקול התאוששות מתקלות בניהול טרנזקציות מבוזרות 4. לממש אלגוריתמי שילוב נתונים. 5. לתכנן ולבצע ניסויים בסביבת שילוב נתונים. שילוב נתונים.",
   "points": 3,
   "name": "ניהול מידע מבוזר",
@@ -35577,6 +35862,7 @@
  },
  "00960237": {
   "code": "00960237",
+  "median": 90,
   "about": "הקורס מספק היכרות מעמיקה ויישומית עם בינה מלאכותית גנרטיבית, תוך התמקדות בפיתוח והטמעה של סוכני בינה מלאכותית אוטונומיים. הסטודנטיםילמדו את עקרונות העבודה עם מודלי יסוד (Foundation Models), את ההבדלים מול מודלים מכווננים, ואת שיטות הכיוונון המתקדמות (כגון LoRA וכיוונון הוראות). בנוסף, הקורס ידגיש את הצורך ב־RAG  למציאות נתונים ולהפחתת הזיות, לצד עבודת פרומפטינג מתקדמת.\nהקורס מציג את סוגי סוכני ה-AI המרכזיים, סוכנים ריאקטיביים, סוכני תכנון, סוכנים המשתמשים בכלים, ומערכות רב־סוכנים. הסטודנטים יעמיקו בעבודה עם LangChain, ‏LangGraph, ‏ReAct, ו־MCP (Model Context Protocol), המאפשר שיתוף הקשר דינמי ותיאום בין סוכנים. דגש מרכזי יינתן ליכולת של מספר סוכנים לת קשר, לשתף פעולה, לחלק משימות ולבצע תהליכים מורכבים במקביל.במהלך הקורס הסטודנטים ילמדו לעבוד עם OpenAI API,  לבנות Embeddings, להשתמש ב־Tools, ליצור כלי פעולה מותאמים, ולפתח סוכנים המסוגלים לתכנן, לאסוף מידע, ולפעול בעולם האמיתי. מקרי בוחן עדכניים כמו Harvey ו־Lilli ישמשו כדי להראות כיצד מערכות AI פועלות בתעשייה. בסיום הקורס, כל צוות יפתח סוכן אוטונומי מלא לפתרון בעיה אמיתית.\nתוצאות למידה: בסיום הקורס, הסטודנטיות והסטודנטים יהיו מסוגלים:\n1. להסביר את היסודות של בינה גנרטיבית ומודלים בסיסיים כגון GPT, BERT ו-DALL·E.\n2. ליישם טכניקות כמו",
   "points": 2.5,
   "name": "מערכות סוכני בינה מלאכותית",
@@ -36489,6 +36775,7 @@
  },
  "00960426": {
   "code": "00960426",
+  "median": 97,
   "about": "ניתוח הישרדות מתמקד בניתוח הזמן עד לאירוע מסוים, כגון מוות של אורגניזם או כשל של מערכת. האתגר העיקרי בניתוח הישרדות הוא התמודדות עםנתונים מצונזרים, שבהם זמני אירועים מדויקים אינם נצפים במלואם, דבר שעלול להוביל להטיה אם מטפלים בהם בשיטות סטנדרטיות. הקורס יכסה מושגי הישרדות בסיסיים ומודלים סטטיסטיים קלאסיים, כולל פונקציות הישרדות וסיכון, מודלי רגרסיה וטכניקות לטיפול בנתונים מצונזרים. בהתבסס עלבסיס זה, נחקור גם גישות מודרניות של למידת מכונה, כגון שיטות אנסמבל, מודלי רגרסיה עם רגולריזציה ולמידה עמוקה, שנועדו לשפר את דיוק החיזוי ולטפל במבני נתונים מורכבים. הסטודנטים יהיו מצוידים הן בהבנה מתודולוגית והן במיומנויות מעשיות ליישם טכניקות ניתוח הישרדות מסורתיו ת ומתקדמות על מערכי נתונים מהעולם האמיתי. רשימת הנושאים שיילמדו כוללת בסוף הקורס:\nצנזור וקטימה: צנזור מימין, צנזור משמאל, צנזור באינטרוול, קטימה, פונקציית הנראות עבור נתונים מצונזרים ו/או קטומים \nכמויות בסיסיות ומודלים: פונק' ההישרדות, פונק' הסיכון, זמני הישרדות ממוצעים (מותנים או קטומים), מודלים פרמטריים ומודלי רגרסיה\nאמידה: אמדים לא-פרמטריים כגון קפלן-מאייר ונלסון-אלן, ושיטות נראות מירבית למודלים פרמטריים\nמודלים סמי-פרמטריים: מודל קוקס (סיכונים פרופורציונליים) ומודלי זמן-כשל מואץ \nסיכונים מתחרים\nמודלי רגרסיה עם רגולריזציה לניתוח נתונ",
   "points": 2.5,
   "name": "ניתוח הישרדות בשיטות למידת מכונה",
@@ -38529,7 +38816,7 @@
  },
  "00970414": {
   "code": "00970414",
-  "median": 80.6,
+  "median": 81.8,
   "about": "הקורס יעסוק במגוון נושאים של תאוריה סטטיסטית בשילוב עם ניתוח נתונים. נושאי הקורס כוללים רגרסיה מרובת משתנים, רגרסיה מוכללת, סטטיסטיקה לא פרמטרית ושיטות דגימה מחדש, תורת ההחלטות, סטטיסטיקה בייסיאנית ושיטות לטיפול בנתונים החסרים. \r\n תוצאות למידה: בסיום הקורס התלמידים ידעו: 1. להפעיל שיטות רגרסיה שונות. 2. לבצע הסקה סטטיסטית על מאגרי נתונים מסוגים שונים כולל טיפול בנתונים חסרים.",
   "points": 3,
   "name": "סטטיסטיקה 2",
@@ -38569,7 +38856,7 @@
  },
  "00970447": {
   "code": "00970447",
-  "median": 78.9,
+  "median": 77.3,
   "about": "הקורס מספק מבוא לתורת החישוביות והסיבוכיות. הנושאים שיילמדו כוללים: אוטומט סופי דטרמיניסטי ושפות רגולריות, אוטומט לא דטרמיניסטי, שפות נטולות הקשר ואוטומט מחסנית, אלגוריתמים על אוטומטים, מכונות טיורינג, מושג הכריעות. במסגרת סיבוכיות ילמדו המחלקות ,DRAH-PN ,PN ,P                                                .ECAPSP ,ETELPMOC-PN תוצאות למידה: בסיום הקורס הסטודנטים: 1. יכירו מושגי יסוד בחישוביות, כולל תורת האוטומטים, מכונות טיורינג, שפות רגולריות וכריעות. 2.  יכירו מושגי יסוד בתורת הסיבוכיות, כולל המחלקות המרכזיות ,PN,P                           .ECAPSP ,C-PN 3.  ידעו להוכיח חברות של בעיה במחלקת סיבוכיות, וידעו להוכיח כר יעות או אי כריעות של בעיה. 4.  יכירו את המשפט המראה שמספר הבעיות הכריעות הוא בר מניה, בעוד שמספר הבעיות הבלתי כריעות הוא לא בר מניה.",
   "points": 2.5,
   "name": "מבוא לחישוביות וסיבוכיות",
@@ -40336,7 +40623,7 @@
  },
  "01040012": {
   "code": "01040012",
-  "median": 70.6,
+  "median": 70.9,
   "about": "המספרים הממשיים סדרות אינסופיות של מספרים ממשיים. פונקציה ממשית של משתנה יחיד:גבולות ורציפות, רציפות על קטע סגור פונקציות מונוטוניות ופונקציות הפוכות. גזירות והמשפטים היסודיים של החשבון הדיפרנציאלי. כלל לופיטל, משפט טיילור. נקודות קיצון, קמירות, חקירת פונקציה, פונקציה קדומה ושיטות אינטגרציה - אינטגרל מסויים ותכונותיו, פונקציות אינטגרביליות, משפטים יסודיים של החשבון האינטגרלי, הגדרת פונקציה בצורת אינטגרל. אינטגרל מוכלל. מבוא לטורים של מספרים חיוביים בלבד.",
   "points": 5.5,
   "name": "חשבון דיפרנציאלי ואינטגרלי 1ת'",
@@ -40384,7 +40671,7 @@
  },
  "01040013": {
   "code": "01040013",
-  "median": 71.6,
+  "median": 72.2,
   "about": "וקטורים וגיאומטריה מרחבית. תכונות יסודיות של פונקציות ממשיות של כמה משתנים. הגרדיאנט, דיפרנציאביליות וכלל השרשרת. פונקציות סתומות. הפולינום של טיילור ונקודותקיצון. נקודות קיצון תחת אילוצים. אינטגרלים מרובים. אנליזה וקטורית, אינטגרלים קוויים ומשטחיים, משפטי גרין גאוס וסטוקס. יתכן שבפועל הנושאים הנ\"ל ילמדו בסדר אחר.",
   "points": 5.5,
   "name": "חשבון דיפרנציאלי ואינטגרלי 2ת'",
@@ -40459,7 +40746,7 @@
  },
  "01040016": {
   "code": "01040016",
-  "median": 68.1,
+  "median": 68.6,
   "about": "שדות, מספרים מרוכבים. וקטורים ב-R3 מערכות משוואות לינאריות ומטריצות, שיטת החילוץ, מטריצה הפיכה, דטרמיננטים. מרחבים לינאריים, בסיס וממד. טרנספורמציות לינאריות, ייצוג ע\"י מטריצות, דמיון. ערכים עצמיים, לכסון, משפט קיילי-המילטון.",
   "points": 5,
   "name": "אלגברה 1/מורחב",
@@ -40494,7 +40781,7 @@
  },
  "01040018": {
   "code": "01040018",
-  "median": 66.8,
+  "median": 66.3,
   "about": "המספרים הממשיים. סדרות אינסופיות של מספרים ממשיים. פונקציה ממשית של משתנה יחיד: גבולות ורציפות, רציפות על קטע סגור פונקציות מונוטוניות ופונקציות הפוכות. גזירות והמשפטים היסודיים של החשבון הדיפרנציאלי. כלל לופיטל, משפט טיילור, חקירת פונקציה. פונקציה קדומה ושיטות אינטגרציה - אינטגרל מסויים ותכונותיו, פונקציות אינטגרביליות, משפטים יסודיים של החשבון האינטגרלי, אינטגרל מוכלל. הגדרת פונקציה בצורת אינטגרל. טורים מספריים. סדרות פונקציות, טורי פונקציות וטורי חזקות. הערה: הקורס נבדל מהקורס  1040003 בהעמקה נוספת תיאורטית ויישומית כאחד.",
   "points": 5,
   "name": "חשבון דיפרנציאלי ואינטגרלי 1מ'",
@@ -40829,7 +41116,7 @@
  },
  "01040034": {
   "code": "01040034",
-  "median": 72.2,
+  "median": 73.8,
   "about": "מרחבי הסתברות, אקסיומות, הסתברות מותנית. מאורעות בלתי תלויים. ניסויי ברנולי. משתנים מקריים בדידים, רציפים ומעורבים. פונקציות התפלגות, צפיפות והסתברות. התפלגויות חשובות. תוחלת ומומנטים. טרנספורמציות. האי שוויון של ינסן. וקטורים אקראיים. התפלגויות משותפות ומותנות. קורלציה, וקטורים, גאוסים. פונקציה אופיינית. האי שוויון של צ'בישב. חוק המספרים הגדולים. משפט הגבול המרכזי.",
   "points": 3.5,
   "name": "מבוא להסתברות ח'",
@@ -40953,7 +41240,7 @@
  },
  "01040038": {
   "code": "01040038",
-  "median": 72.4,
+  "median": 72.8,
   "about": "שיטות לפתרון מערכות משוואות לינאריות: פירוק LU, נורמות של וקטורים ומטריצות, שיטות איטרטיביות. מרחבי מכפלה פנימית: אי שוויון קושי שוורץ, המשלים הניצב ותהליך גרם-שמידט, הטלות אורתוגונליות, בסיסים אורתונורמליים, אי שוויון בסל, פירוק QR.  אופרטורים במרחבי מכפלה פנימית:  פונקציונלים לינאריים, משפט ריס והאופרטור הצמוד, אופרטורים נורמליים, צמודים לעצמם, אוניטריים, חיוביים. משפט הפירוק הספקטרלי, לכסון אורתוגונלי, צורת ג ורדן, משפט הפירוק הפולרי, פירוק SVD ופירוק CHOLESKY. משפטהמינ-מקס ומנת ריילי. תבניות בילינאריות וריבועיות, זהותהפולריזציה, מיון תבניותריבועיות מעל הממשיים: חפיפת מטריצות, משפט ההתמדה של סילבסטר. אלגברה וחשבון של טנזורים",
   "points": 2.5,
   "name": "אלגברה 2מ",
@@ -41150,7 +41437,7 @@
  "01040043": {
   "code": "01040043",
   "median": 74.6,
-  "about": "הערה: מקצועות מכילים: 1040282 + 1040281. וקטורים וגיאומטריה מרחבית. תכונות יסודיות של פונקציות ממשיות של כמה משתנים. חקירת פונקציות של כמה משתנים. פונקציות סתומות. אינטגרלים מרובים. אנליזה וקטורית. אינטגרלים קוויים ומשטחיים. הקורס נבדל מהקורס  1040004 בהעמקה נוספת תיאורטית ויישומית כאחד.\nמקצועות צמודים: 1040016, 1040019, 1040064, 1040065, 1040166",
+  "about": "הערה: מקצועות מכילים: 1040282 + 1040281. וקטורים וגיאומטריה מרחבית. תכונות יסודיות של פונקציות ממשיות של כמה משתנים. חקירת פונקציותשל כמה משתנים. פונקציות סתומות. אינטגרלים מרובים. אנליזה וקטורית. אינטגרלים קוויים ומשטחיים. הקורס נבדל מהקורס  1040004 בהעמקה נוספת תיאורטית ויישומית כאחד.\nמקצועות צמודים: 1040016, 1040019, 1040064, 1040065, 1040166",
   "points": 5,
   "name": "חשבון דיפרנציאלי ואינטגרלי 2מ1",
   "connections": {
@@ -41163,6 +41450,9 @@
     ],
     [
      "01040041"
+    ],
+    [
+     "01040047"
     ]
    ],
    "adjacent": [],
@@ -41636,7 +41926,7 @@
  },
  "01040131": {
   "code": "01040131",
-  "median": 70.4,
+  "median": 70.1,
   "about": "מקצועות קדם: אחד מהמקצועות (1040003 ,1040018) ואחד מהמקצועות (1040166 ,1040019,1040016, 1040064, 1040065). מבוא. דוגמאות ושימושים למשוואות דיפרנציאליות. משוואות מסדר ראשון: משוואות ניתנות להפרדה, משוואות לינאריות, שיטות אד-הוק. משפט קיום ויחידות לבעיות התחלה. משוואות לינאריות מסדר שניומעלה: בסיס, ורונסקיאן, משוואות עם מקדמים קבועים, משוואות אי-הומוגניות, השוואת מקדמים, וריאציה של פרמטרים. פתרון בעזרת טורי חזקות, מערכות של משוואות, מושגי היציבות, מערכות אי-הומוגניות. התמרת לפלס, קיום ושימושים.",
   "points": 2.5,
   "name": "משוואות דיפרנציאליות רגילות/ח",
@@ -41847,7 +42137,7 @@
  },
  "01040136": {
   "code": "01040136",
-  "median": 68.4,
+  "median": 69.8,
   "about": "סדרות וטורים של פונקציות, התכנסות נקודתית ובמידה שווה, אינטגרציה וגזירה איבר-איבר, תחום ההתכנסות של טור חזקות, פיתוח פונקציות לטור חזקות. מד~ר: מבוא, דוגמאותושימושים למשוואות דיפרנציאליות. משוואות מסדר ראשון: משוואות לינאריות, משוואות ניתנות להפרדה, שיטות אד-הוק,שדה הכיוונים, משפט קיום ויחידות לבעיות התחלה, יציבות. משוואות לינאריות מסדר שני ומעלה: בסיס, ורונסקיאן, משוואות עם מקדמים קבועים,יציבות, משוואות אי-הומוגניות: השוואת מקדמים, וריאצית פרמטרים. מערכות של משוואות דיפרנציאליות עם תנאי התחלה, מערכות עם מקדמים קבועים.יסודות התיאוריה האיכותית:יציבות, מישור הפאזה. פתרון בעזרת טורי חזקות. תורת שטורם-ליוביל: תכונות הערכים העצמיים והפונקציות העצמיות.",
   "points": 4,
   "name": "משוואות דיפרנציאליות רגילות מ",
@@ -42197,7 +42487,7 @@
  },
  "01040166": {
   "code": "01040166",
-  "median": 64.8,
+  "median": 69.8,
   "about": "קדם: בגרות במתמטיקה 5 יח\"ל עם ציון 70 מעלה או ציון עובר בבחינת סיווג במתמטיקה.הקדם לא יופעל עבור סטודנטים הלומדים במסגרת אפיק המעברהמקצור מלימודי חוץ בשנת הלימודים הנוכחית. \nהגדרת המושג שדה ודוגמאות לשדות, בפרט שדות סופיים (מודולו P).מספרים מרוכבים ופולינומים במספרים מרוכבים. מטריצות ופעולות חשבון בין מטריצות. פעולות אלמנטריות על שורות מטריצה ומטריצות אלמנטריות, דרוג מטריצות. מערכות משוואות לינאריות. מרחבים וקטוריים ותתי מרחבים. תת המרחב הנפרש ע\"י קבוצת וקטורים ואי תלות בין וקטורים. בסיס ומימד של מרחב וקטורי. מטריצות הפיכות. שינוי בסיס ומטריצתמעבר בין בסיסים. העתקות לינאריות מטריצה מיצגת של אופרטור לינארי ודמיון מטריצות. דטרמיננטים. ערכים עצמיים ווקטו",
   "points": 5.5,
   "name": "אלגברה אמ'",
@@ -42280,7 +42570,7 @@
  },
  "01040174": {
   "code": "01040174",
-  "median": 77.3,
+  "median": 77.2,
   "about": "חזרה על סכומים ישרים ומטריצה מיצגת. המטריצה הצמודה. תתי מרחבים שמורים וצמצום של אופרטור לינארי. הפולינום המינימלי והוכחת משפט קייליהמילטון. משפט הפרוק הפרימרי. אופרטורים נילפוטנטיים ואינדקס הנילפוטנטיות. צורת ג'ורדן ודמיון מטריצות מעל. C מרחבי מכפלה פנימית. המשלים הניצב ותהליך גרם - שמידט. האופרטור הצמוד. אופרטורים צמודים לעצמם. הטלות אורתוגונליות. אופרטורים אוניטריים ואיזומטריות. אופרטורים נורמליים. משפט הפרוק הספקטרלי ולכסון אורתוגונלי. אופרטורים חיוביים ומשפט הפרוק הפולרי. פונקציונליים לינאריים והמרחב הדואלי. תבניות בילינאריות ותבניות ריבועיות. חפיפה מטריצות. הדטרמיננטה כתבנית נפח. עוד נוספים ככל שירשה הזמן.",
   "points": 3.5,
   "name": "אלגברה במ'",
@@ -42523,7 +42813,7 @@
  },
  "01040192": {
   "code": "01040192",
-  "median": 79.8,
+  "median": 83.6,
   "about": "בנית המודלים. אנליזת מימדים. שיטות דמיות. מבוא לתורת ההפרעות. מבוא לתורה האיכותית של משוואות דיפרנציאליות רגילות. יציבות של מערכות לינאריות. מערכות לא לינאריות מסדר שני. מישור פאזה. יציבות של שיווי משקל. פתרונות מחזוריים. (הסתעפויות). מבוא לטורי פורייה. טורי פורייה בדידים. התמרת פורייה מהירה. (מבוא לשיטות ספקטרליות בעיבוד אותות). הערה: קדמים נוספים אפשריים: 104285 ו- 104135 ,104022 ו- 104022,104035 ו- 104022, או 104131 ו- 104282, או 104131 ו- 104013, 104131 ו- 104131 ,104033 ו- 104022, או 104285 ו- 104011, או 104285 ו- 104014, או 104135 ו- 104011, או 104135 ו- 104014, או 104035 ו- 104014, או 104035 ו-  104011, או 104131 ו- 104011, או 104131 ו- 104014.",
   "points": 3,
   "name": "מבוא למתמטיקה שמושית",
@@ -42720,7 +43010,7 @@
  },
  "01040215": {
   "code": "01040215",
-  "median": 73.9,
+  "median": 72.3,
   "about": "מספרים מרוכבים. פונקציות מרוכבות, גזירות ואנליטיות, משוואות קושי-רימן. פונקציות הרמוניות. המישור הקומפלקסי המורחב, מושג הקונפורמיות. אינטגרל על מסילה של פונקציה קומפלקסית, משפט קושי. משפט ליוביל והמשפט היסודי של האלגברה. נוסחת קושי לפונקציה ונגזרותיה, טורי חזקות,רדיוס התכנסות, טורי לורן.  אפסים, נקודות סינגולאריות ומיונן. משפט השארית וחישוב  שאריות. שימוש לחישוב אינטגרלים ממשיים. עקרון הארגומנט ומשפט רושה.",
   "points": 2.5,
   "name": "פונקציות מרוכבות א'",
@@ -42860,7 +43150,7 @@
  },
  "01040222": {
   "code": "01040222",
-  "median": 82.8,
+  "median": 76.4,
   "about": "מרחבי הסתברות, מאורעות, אקסיומות ההסתברות. קומבינטוריקה, מאורעות תלויים ובלתי תלויים. הסתברות מותנית, משפט ביס. משתנה מקרי - המקרה הבדיד והמקרה הרציף. פונקצית התפלגות וצפיפות. תוחלת, שונות ומומנטים יותר גבוהים. ההתפלגויות הקלסיות, אי-שיוויונות  צ'בישף וינסן. סכומים של משתנים מקריים בלתי תלויים, החוק החלש של המספרים הגדולים ויישום למשפט קירוב של ווירשטרס, ווקטורים אקראיים, תוחלת מותנית וקו התסוגה, פונקציות יוצרות. משפט הגבול המרכזי, הילוכים מקריים.",
   "points": 3.5,
   "name": "תורת ההסתברות",
@@ -43187,7 +43477,7 @@
  },
  "01040277": {
   "code": "01040277",
-  "median": 86.8,
+  "median": 87.4,
   "about": "גרפים וגרפים מישוריים. דואליות בגרפים מישוריים. נוסחת אוילר ושימושיה. שילושים, פאונים תלת ממדיים. עקרונות של צפידות. משטחים מגנוס גבוה. יסודות של גיאומטריה פרויקטיבית. סימטריה והרמוניה (במישור ובמרחב). ריצופים במשטחים דו-ממדיים.",
   "points": 3,
   "name": "נושאים במתמטיקה לתלמידי ארכיטקט.",
@@ -43257,7 +43547,7 @@
  },
  "01040280": {
   "code": "01040280",
-  "median": 80.5,
+  "median": 82,
   "about": "חוגי שברים, חוגים אוקלידיים. מודולים מעל חוגים, תת-מודולים, מודול מנה. משפט המבנה של מודול סופית מעל חוג אוקלידי. צורת ג'ורדן וצורהקנונית רציונלית של מטריצות. פרוק לתת-מרכיבים ציקליים אינווריאנטיים. משפט הבסיס של חבורות אבליות נוצרות סופית. פעולת חבורה על קבוצה.משפטי סילו. סדרות הרכב.",
   "points": 3,
   "name": "מודולים, חוגים וחבורות",
@@ -44032,7 +44322,7 @@
  },
  "01060156": {
   "code": "01060156",
-  "median": 79.8,
+  "median": 82.2,
   "about": "הלוגיקה כתיאור של דרך החשיבה המתמטית וההוכחה המתמטית. תחשיב הפסוקים: הגדרת הקשרים, האינפטרפרציה שלהם בלוחות אמת. נוסחאות בנויות היטב. מערכת הוכחה. השלמות של המערכת הזאת. תחשיב היחסים: נוסחאות בנויות היטב. מבנים, השמות, מודלים. מערכת הוכחה. שלמות. משפט השלמות של גדל. אלף-0 ואלף-1 קטגוריות. תורת המספרים: מערכת אקסיומות לתורת המספרים (מערכת פאנו או מערכת אחרת). מודלים לא סטנדרטיים לתורת המספרים.משפט אי השלמות של גדל. כריעות, רקורסיביות, התיזה של צ'רץ'.",
   "points": 3,
   "name": "לוגיקה מתמטית",
@@ -45604,7 +45894,7 @@
  },
  "01140014": {
   "code": "01140014",
-  "median": 85,
+  "median": 83.2,
   "about": "מכניקה: וקטורים: חיבור, חיסור מכפלה סקלרית ווקטורית. קינמטיקה: וקטור מקום, מהירות ותאוצה, תנועה בהשפעת כוח הכובד, תנועה מעגלית. סטטיקה: כוחות ומומנטים בשווי משקל. דינמיקה: חוקי התנועה של ניוטון לגופים נקודתיים, עבודה אנרגיה והספק, מתקף ותנע קווי. מערכות יחוס: אינרציאליות, מאיצות ומסתובבות, כוחות מדומים. תנועה הרמונית: תנועה הרמונית במטוטלת מתמטית ובקפיץ, אלסטיות, תנודות מרוסנות ומאולצות. דינמיקה של גוף קשיח: מרכז מסה, משוואת התנועה לגוף קשיח, מומנט אינרציה, תנע זוויתי.גלים: סוגים ומאפיינים: גלי אורך וגלי רוחב, אורך גל, תדירות, עוצמה. תופעות: מעבר מתווך לתווך - שבירה והחזרה, התאבכות ועקיפה, גל עומד במיתר. גלי קול: התקדמות בחומרים שונים, תכונות אקוסטיות",
   "points": 3,
   "name": "מכניקה וגלים",
@@ -45662,7 +45952,7 @@
  },
  "01140021": {
   "code": "01140021",
-  "median": 93.4,
+  "median": 92.7,
   "about": "נסויים בשטח של בליסטיקה של אלקטרונים בשדות אלקטרומגנטיים, מעגלים חשמליים בזרם חלופין (תנודות מרוסנות, זמן ריסון, תהודה, איפנון, התנהגות לא-ליניארית).",
   "points": 1.5,
   "name": "מעבדה לפיסיקה  2מ",
@@ -46224,7 +46514,7 @@
  },
  "01140076": {
   "code": "01140076",
-  "median": 80.8,
+  "median": 78.7,
   "about": "Electrostatics - charge and fields, the electric potential, electrical fields around conductors, electric currents, the fields of moving charge, the magnetic field, electromagnetic induction, alternating current circuits, Maxwell's equations and electromagnetic waves, electric fields in matter, magnetic fields in matter.",
   "points": 5,
   "name": "פיסיקה 2פ'",
@@ -48787,6 +49077,30 @@
   ],
   "faculty": "הפקולטה לפיזיקה",
   "current": false
+ },
+ "01180149": {
+  "code": "01180149",
+  "about": "הקורס יעסוק במושגים התאורטיים והמעשיים הדרושים לתכנון ולביצוע ניסויים בפיזיקה בטמפרטורות נמוכות. הנושאים יכללו את עקרונות הפעולה שלמקררים קריוגניים ומערכות מקוררות בהליום, נוזלים קריוגניים, מקררי הליום־3, מקררי דילול ושיטות קירור נוספות. כמו כן, יידונו היבטים ניסויים נוספים, ובהם מערכות ואקום, רעידות ורעש, צימוד תרמי, מדידת טמפרטורה ובטיחות. בהתאם לזמן ולעניין, ייתכן שייכללו גם נושאים כגון דה־מגנטיזציה אדיאבטית, התקני SQUID ויישומים נבחרים. תוצאות למידה: בסיום הקורס הסטודנטיות והסטודנטים יהיו מסוגלים: 1 לתכנן ניסויים בטמפרטורות נמוכות ולהציע שינויים במערכות ניסוי על בסיס הבנת עקרונות פעולתן. 2 לפרש תוצאות מדידה באופן ביקורתי, תוך זיהוי הגודל הנמדד בפו על, ההנחות ואי־הוודאויות שבבסיס המדידה. 3 להעריך את מגבלות הניסוי, להבחין בין מגבלות פיזיקליות למגבלות הנדסיות ולהציע דרכים להרחבת יכולות המדידה.\n",
+  "points": 2,
+  "name": "נושאים נבחרים בפיזיקה של טמפרטורות נמוכות",
+  "connections": {
+   "dependencies": [
+    [
+     "01150203",
+     "01140036",
+     "01160217"
+    ]
+   ],
+   "adjacent": [],
+   "exclusive": []
+  },
+  "seasons": [
+   "Winter",
+   "Spring",
+   "Summer"
+  ],
+  "faculty": "הפקולטה לפיזיקה",
+  "current": true
  },
  "01230015": {
   "code": "01230015",
@@ -55340,7 +55654,7 @@
  },
  "02040000": {
   "code": "02040000",
-  "median": 87,
+  "median": 87.2,
   "about": "דיון בתפיסות ובדילמות מרכזיות באדריכלות נוף והשקה עם תחומי ידע אחרים, היכרות ראשונית עם אדריכלי נוף בארץ ובעולם, חשיפה לנושאים ולכלים הייחודיים של אדריכלי נוף בעיצוב סביבות חדשות, בשימור ובשיקום סביבות קיימות.",
   "points": 2,
   "name": "מבוא לאדריכלות נוף",
@@ -56228,7 +56542,7 @@
  },
  "02050012": {
   "code": "02050012",
-  "median": 84.5,
+  "median": 85.4,
   "about": "הקורס ידון במסכת של סוגיות, פרקים היסטוריים ורעיונות מתחום מדעי הרוח והחברה כמבוא ללימודים בתחומים אלה בפקולטה לארכיטקטורה.",
   "points": 3,
   "name": "מבוא לחברה ורוח בארכיטקטורה",
@@ -56344,7 +56658,7 @@
  },
  "02050102": {
   "code": "02050102",
-  "median": 90.6,
+  "median": 91,
   "about": "הקורס סוקר את הצורות, טיפוסי הבניין והרעיונות הארכיטקטוניים מן העת העתיקה עד העת החדשה בהקשרם ההיסטורי והתרבותי. הקורס ידון בבנייניהמופת והאתרים הנודעים מן התקופות הרלבנטיות, ובה בעת ינסה לאפיין באופן כללי שיטות בנייה טיפוסיות וגישות לעיצוב ארכיטקטוני ולתכנון ערים. ידונו דוגמאות מן הפרקים ההיסטוריים הבאים: מסופוטמיה, מצרים, העולם היווני, האימפריה הרומית, הנצרות הקדומה, האסלאם, הרומנסק, הגותיקה, הרנסאנס, המנייריזם והבארוק.",
   "points": 4,
   "name": "תולדות אדר' מהעת העתיקה לעת החדשה",
@@ -56663,7 +56977,7 @@
  },
  "02050430": {
   "code": "02050430",
-  "median": 85.4,
+  "median": 85.5,
   "about": "הקורס עוסק בפרויקט סמסטריאלי בראיה אינטגרטיבית של אדריכלות, הנדסה ותעשיה. במסגרת הקורס מוצעת בחירה בין קבוצות העוסקות בנושאים שונים.",
   "points": 2.5,
   "name": "סדנה טכנולוגית הנדסית 1א'",
@@ -56964,7 +57278,7 @@
  },
  "02050574": {
   "code": "02050574",
-  "median": 85.5,
+  "median": 85.6,
   "about": "הקורס מהווה מבואה לעולם המקצועי. עוסק בהקניית ארגז כלים ראשוני להכרת מושג החלל, דרך תרגילים רעיוניים ומעשיים בסוגיות חומר, צורה תפקוד וחוויה. הקורס כולל הרצאות, סיורים לימודיים, הנחייה והדרכה במהלך פיתוח התרגלים.",
   "points": 6,
   "name": "פרויקט סטודיו 1",
@@ -56984,7 +57298,7 @@
  },
  "02050575": {
   "code": "02050575",
-  "median": 86.5,
+  "median": 86.4,
   "about": "הקורס יתמקד במעבר בין רעיון לצורה תוך התנסות בבחינת מערכים אדריכליים קיימים, תיעוד וניתוח אתר ובחינת דרכי התערבות. פיתוח רעיון להתערבות אדריכלית יגובש תוך לימוד והעמקה בנושאים כגון חוץ ופנים, פרטי וציבורי וכדומה.",
   "points": 6,
   "name": "פרויקט סטודיו 2",
@@ -57785,7 +58099,7 @@
  },
  "02050818": {
   "code": "02050818",
-  "median": 91.2,
+  "median": 91,
   "about": "הקורס מחולק לשלושה חלקים, בכל שליש ניתן יהיה לבחור סדנה מרוכזת של כלים ומיומנויות מתוך מגוון נושאים, ביניהם: רישום, שרטוט אדריכלי, מידול תלת ממדי, בניית מודלים, ייצור מבוסס מחשב- חיתוך לייזר, סריקה תלת ממדית, גרפיקה- בסיסי.",
   "points": 1,
   "name": "סדנאות מדיה 1ב'",
@@ -57808,7 +58122,7 @@
  },
  "02050819": {
   "code": "02050819",
-  "median": 91.4,
+  "median": 92,
   "about": "הקורס מחולק לשלושה חלקים, בכל שליש ניתן יהיה לבחור סדנה מרוכזת של כלים ומיומנויות מתוך מגוון נושאים, ביניהם: רישום, שרטוט אדריכלי, מידול תלת ממדי, בניית מודלים, ייצור מבוסס מחשב- חיתוך לייזר, סריקה תלת ממדית, גרפיקה- בסיסי.",
   "points": 1,
   "name": "סדנאות מדיה 1ג'",
@@ -57832,7 +58146,7 @@
  },
  "02050822": {
   "code": "02050822",
-  "median": 91.8,
+  "median": 92,
   "about": "הקורס מחולק לשלושה חלקים, בכל שליש ניתן יהיה לבחור סדנה מרוכזת של כלים ומיומנויות מתוך מגוון נושאים, ביניהם: רישום, שרטוט אדריכלי, מידול תלת ממדי, בניית מודלים, ייצור מבוסס מחשב- חיתוך לייזר, סריקה תלת ממדית, גרפיקה- בסיסי.",
   "points": 1,
   "name": "סדנאות מדיה 1 ו'",
@@ -62386,18 +62700,6 @@
   "about": "נושאים: קביעות בסיסיות בכלכלה עירונית, התפיסה הכלכלית של ערים, הסברים לקיומן של ערים, נגישות וכלכלת תחבורה, מבנה מרחבי של ערים, דינאמיקה מרחבית וביזור, תיאוריות של צמיחה עירונית, דיור עירוני ועוני, מורכבות וערים.",
   "points": 3,
   "name": "כלכלה עירונית",
-  "tests": [
-   {
-    "year": 2026,
-    "monthIndex": 6,
-    "day": 16
-   },
-   {
-    "year": 2026,
-    "monthIndex": 7,
-    "day": 28
-   }
-  ],
   "connections": {
    "dependencies": [],
    "adjacent": [],
@@ -62411,7 +62713,7 @@
    "Summer"
   ],
   "faculty": "הפקולטה לארכיטקטורה ובינוי ערים",
-  "current": false
+  "current": true
  },
  "02090100": {
   "code": "02090100",
@@ -64865,7 +65167,7 @@
  },
  "02340117": {
   "code": "02340117",
-  "median": 74,
+  "median": 72.2,
   "about": "הקורס מיועד לסטודנטים של הנדסת חשמל. מבנה המחשב. גישה אלגוריתמית לפתרון בעיות. מושגי יסוד ותכנות בשפת C. פיתוח תכניות מלמעלה למטה. תכנות מבני. כתיבה ובדיקה מלמטה למעלה. ניפוי שגיאות. תכנון הדפסות ביקורת. הוכחת נכונות חלקית ושלמה של תוכניות. מדדים ליעילות האלגוריתם: סיבוכיות זמן וזכרון. סיבוכיות פולינומיאלית ואקספוננציאלית. דוגמאות לאלגוריתמים אקראיים. בעיות שלא ניתנות להכרעה. מחסנית. תור. יצוגים של ביטויים אריתמטיים ומימוש חישובם באמצעות מחסנית. רקורסיה ומימושה. חיפש לעומק. מיון יעיל.",
   "points": 4,
   "name": "מבוא למדעי המחשב ח'",
@@ -64909,7 +65211,7 @@
  },
  "02340118": {
   "code": "02340118",
-  "median": 81.8,
+  "median": 82.6,
   "about": "תכנות מערכות מתקדם: המחשב מרמת האסמבלי ועד רמת סביבת תכנות מתקדמת. מבנה המחשב: זיכרון ערימה, מחסנית. מבוא לשפת אסמבלי. הידור ובניה של פרויקט מרובה קבצים, קישור וטעינה. ניהול זכרון דינמי מתקדם: מצביעים חכמים, מערכות הקצאת זכרון. מבנה אובייקטים בזכרון, סדר הקצאה ושחרור. ניהול משאבים. עבודה סינכרונית ואסינכרונית. הצגה של עמוד בדפדפן.",
   "points": 3,
   "name": "ארגון ותכנות המחשב",
@@ -64952,7 +65254,7 @@
  },
  "02340123": {
   "code": "02340123",
-  "median": 77.6,
+  "median": 77.4,
   "about": "הקורס מלמד נושאים מרכזיים במערכות הפעלה מודרניות ועונה על השאלה כיצד מחשב פועל. בין הנושאים הנלמדים: תפקידיו של הגרעין במערכת ההפעלה והתמיכה מהחומרה שהוא מקבל, ניהול ואבסטרקציה של משאבים, תהליכים וחוטים, סיגנלים ופסיקות, תזמון, דפדוף, סנכרון משימות מקביליות, ניהול זיכרון בחומרה ובתוכנה, מערכות קבצים, תקשורת ווירטואליזציה.\n",
   "points": 4.5,
   "name": "מערכות הפעלה",
@@ -65437,7 +65739,7 @@
  },
  "02340247": {
   "code": "02340247",
-  "median": 75,
+  "median": 75.2,
   "about": "הקורס עוסק בשיטות בסיסיות לתיכון וניתוח אלגוריתמים, כולל שיטות סריקה, אלגוריתמים חמדנים, תכנון דינמי, רדוקציות, מסלולים משפרים, אלגוריתמים הסתברותיים, ושיטות אלגבריות. בקורס מציגים אלגוריתמים יעילים לשאלות יסוד בתורת הגרפים ובתחומים אחרים. בין השאר דנים בנושאים הבאים: סריקה לרוחב, סריקה לעומק, עץ פורש מינימום, מסלולים קלים ביותר, זרימה ברשתות, חתכים, התאמת מחרוזות, בעיות גיאומטריות ואלגבריות.הקורס מיועד לסטודנטים של מדעי המחשב.",
   "points": 3,
   "name": "אלגוריתמים 1",
@@ -65541,7 +65843,7 @@
  },
  "02340292": {
   "code": "02340292",
-  "median": 79.3,
+  "median": 79,
   "about": "תחשיב הפסוקים ותחשיב היחסים: הגדרת התחשיבים, סמנטיקה, מערכות הוכחה, משפטי שלמות ונאותות, משפטי קומפקטיות ושימושיהם.",
   "points": 3,
   "name": "לוגיקה למדעי המחשב",
@@ -66138,7 +66440,7 @@
  },
  "02360012": {
   "code": "02360012",
-  "median": 93,
+  "median": 94.3,
   "about": "מערכות מבוזרות פותרות משימות הכוללות מספר מעבדים או שרתים. חישוב מבוזר שימושי במיוחד כאשר יש יותר מדי נתונים או שהחישוב כבד מדי עבור שרת אחד! או ששרתים עלולים להכשל. קורס זה יכסה את ההתקדמויות האחרונות במערכות מבוזרות! הן תיאורטיות והן מעשיות. התלמידים ילמדו לקרוא! לנתח ולבקר מאמרים אקדמיים! ויקבלו הבנה של שאלות מחקר מרכזיות בתחום! כמו גם טכניקות נפוצות המשמשות להתמודדות עם בעיות מסוג זה.\r\n התלמידים יצופו לקרוא את כל המאמרים שנדונו בכיתה! ויוערכו על השתתפות בכיתה ופרזנטציות. \r\n תוצאות למידה: בסיום הקורס הסטודנטיות והסטודנטים יהיו מסוגלים:\r\n 1. לזהות שאלות מחקר מעניינות באלגוריתמים מבוזרים.\r\n 2. לקרוא בביקורתיות ולהעריך עבודות מחקר.\r\n 3. להבין כלים חשובים וט כניקות שימושיות בתחום.\r\n 4. לפתח ולשפר כישורי הצגה ותקשורת.\r\n",
   "points": 2,
   "name": "נושאים במערכות מקביליות ומובזרות",
@@ -66290,7 +66592,7 @@
  },
  "02360020": {
   "code": "02360020",
-  "median": 94.8,
+  "median": 94.3,
   "about": "רשתות חברתיות ממלאות תפקיד מהותי בכל היבטי החיים המודרניים. בקורס זה נלמד מגוון שיטות למידול רשתות חברתיות\nוניתוחן, במטרה להבין את המבנה של רשתות חברתיות, וכיצד מבנה זה משפיע על התנהגות משתמשים ברשת החברתית.\nהקורס ישים דגש על אלגוריתמים לבעיות מרכזיות בתחום זה, כגון איפיון ומציאת קהילות או מציאת משתמשים מרכזיים ומשפיעים ברשת, לצד דיון בשימושיהם של אלגוריתמים אלו. \nלצד ההיבט התיאורטי של מידול וניתוח רשתות חברתיות, הקורס ישלב גם היבט פרקטי: הסטודנטים בין השאר יממשו אלגוריתמים בשפת פייתון וישתמשו בחבילות תוכנה לפתרון בעיות פרקטיות, כולל על ידי ניתוח מידע מדאטאסטים ציבוריים.\nתוצאות למידה: בסיום הקורס הסטודנטיות והסטודנטים יהיו מסוגלים: \n1.\tלהכיר את המאפיינים הבסיסיים של רשתות חברתיות בעולם האמיתי, לצד מודלים תיאורטיים לרשתות אלו.\n2.\tלתכנן אלגוריתמים לבעיות טיפוסיות ברשתות חברתיות, כגון אפיון קהילות או מציאת משתמשים משפיעים.\n3.\tלממש אלגוריתמים בשפת פייתון, כולל שימוש בחבילות ייעודיות לניתוח גרפים.\n",
   "points": 3,
   "name": "נושאים ברשתות חברתיות: אלגוריתמים ושימושיהם",
@@ -66645,7 +66947,7 @@
  },
  "02360201": {
   "code": "02360201",
-  "median": 85.4,
+  "median": 85.3,
   "about": "הקורס עוסק בשיטות בסיסיות לעיבוד וניתוח מידע בכלים דטרמיניסטיים והסתברותיים. נושאי הקורס: אפיון אותות ןמערכות בשריג בדיד, ניתוח פורייה למערכות ליניאריות קבועות בזמן, ייצוג ועיבוד מידע במרחבים אלגבריים, שערוך סטטיסטי, יסודות באותות אקראיים, מושג הקונבולציה, רעש אקראי, מודלים פרמטריים של תהליכים אקראיים ושערוכם, חיזוי ליניארי ואלגוריתמים אדפטיביים. הוכחת אופטימליות ויחידות של ייצוגי פורייה קצוצים, קירוב לבעיית האשכול, ומבוא למיפויים פונקציונליים. תוצאות למידה: בסיום הקורס הסטודנט ידע: 1. לאפיין מערכת ליניארית קבועה בזמן ולקשור את ניתוחה לתחום התדר. 2. להציג עיבוד מידע כמטריצות המייצגות מערכות ליניאריות ווקטורים המייצגים אותות. 3. להפעיל כלי שערוך סטטיסטי , פרמטרי וישיר למגוון בעיות יסוד בעיבוד מידע. 4. להפעיל אופרטורים ליניאריים לניקוי מידע אקראי רועש.",
   "points": 3,
   "name": "מבוא לייצוג ועיבוד מידע",
@@ -66833,7 +67135,7 @@
  },
  "02360267": {
   "code": "02360267",
-  "median": 82.8,
+  "median": 83.3,
   "about": "מדדי ביצועים והקשר בינם לבין ארכיטקטורות, שיטות למדידת ביצועים. תלויות בקרה וחיזוי קפיצות. עקרון זרם מידע (WOLFATAD), שבירת תלויות מדומות. מעבדים סופרסקלרים ( WILV ,REDRO-FO-TUO).  מערכת הזיכרון ומערכת האחסון. טכנולוגיות זיכרון ומגבלותיהן,  זיכרונות מטמון, היררכיית מטמונים, קוהרנטיות מטמונים וקונסיסטנטיות זיכרון. זיכרון מדומה, תרגום מהיר של כתובות ,(BLT) הרחבות למכונות וירטואליות. ריבוי חוטיםבחומרה ( UPGPG ,TMS). מעבדים בעלי קונפיגורציה משתנה (.(ARGC , AGPF תוצאות למידה: בסיום הקורס, הסטודנט יהיה מסוגל להבין:\r\n 1. את אבניהבניין של המחשב, את אופן העבודה של מעבדים מודרנים, ושיטות לתכנון.\r\n 2. מדדים לביצועי מעבדים ומערכת המחשב.\r\n 3. חשיבה ביקורתית בתכנון מ עבדים ושיקולי תכנון מערכתיים.\r\n 4. הקשרים וההשפעות ההדדיות בין רכיבי המעבד ומערכת המחשב.",
   "points": 3,
   "name": "מבנה מחשבים",
@@ -67631,7 +67933,7 @@
  },
  "02360343": {
   "code": "02360343",
-  "median": 76.4,
+  "median": 77.7,
   "about": "מכונות טורינג, מודלי חישוב שונים ושקילותם למכונות טורינג. התזה של צ'רץ. מושג המכונה האוניברסלית. בעיות בלתי כריעות. סיבוכיות זמן וסיבוכיות מקום. מושג הרדוקציה והרדוקציה הפולינומית. חסמים לחישוב דטרמיניסטי ולא דטרמיניסטי והקשר ביניהם. משפט קוק.",
   "points": 3,
   "name": "תורת החישוביות",
@@ -68193,7 +68495,11 @@
     "monthIndex": 1,
     "day": 11
    },
-   null
+   {
+    "year": 2027,
+    "monthIndex": 2,
+    "day": 7
+   }
   ],
   "connections": {
    "dependencies": [
@@ -68403,7 +68709,7 @@
  },
  "02360501": {
   "code": "02360501",
-  "median": 87,
+  "median": 86.4,
   "about": "שיטות יוריסטיות לחיפוש במרחבי מצבים. חיפוש בעצי משחק. שיטות ליצוג ידע באמצעות: לוגיקה, רשתות סמנטיות, מערכות מסגרת, רשתות הסתברותיות. נושאים נוספים לפי בחירת המרצה: מערכות לומדות, עיבוד שפות טבעיות, מערכות מומחה, תכנון.",
   "points": 3,
   "name": "מבוא לבינה מלאכותית",
@@ -69652,7 +69958,7 @@
  },
  "02360755": {
   "code": "02360755",
-  "median": 90.9,
+  "median": 91.3,
   "about": "תכנון אלגוריתמים למערכות מרובות-מעבדים, ניתוח הסיבוכיות והבעיות הבסיסיות במערכות אלה, חסמים תחתונים ותוצאות אי-אפשרות. מניעה הדדית והקצאת משאבים, בעיות הסכמה (בעיית הגנרלים הביזנטיים, הסכמה מקורבת), סנכרון שעונים ושעונים לוגיים, בעיות הפצה (,(TSACITLUM DNA TSACDAORB סנכרון ללא מנעולים ומבני נתונים מבוזרים. תוצרי למידה: בסוף הקורס, הסטודנט יהיה מסוגל: 1. להבין את המודלים העיקריים עבור מערכות מבוזרות ולהכיר את עקרונות התכנון שלהן. \r\n 2. לתכנן אלגוריתמים מבוזרים ולהוכיח את נכונותם. \r\n 3. להוכיח חסמים תחתונים ותוצאות אי-אפשרות לפתרון בעיות מרכזיות בחישוב מבוזר.",
   "points": 3,
   "name": "אלגוריתמים מבוזרים",
@@ -69796,8 +70102,31 @@
   "faculty": "הפקולטה למדעי המחשב",
   "current": false
  },
+ "02360764": {
+  "code": "02360764",
+  "about": "סמינר זה יתמקד במערכות הפעלה ותוכנה. במסגרת הסמינר יידונו נושאים כגון ניהול זיכרון במערכות הפעלה, ארכיטקטורת אבטחת מערכות תוכנה, וכן מדידה ואופטימיזציה של ביצועים וצריכת משאבים. הסמינר ידגיש את האתגרים והפתרונות לנושאים “חמים” בתחום, ובמסגרתו יידונו מאמרים עדכניים מתוך כנסים אקדמיים מובילים. \nתוצאות למידה: בסיום הקורס הסטודנטיות והסטודנטים יהיו מסוגלים:\n1. לרכוש הבנה מעמיקה של אחד מהעבודות (המאמרים) בקורס ויציגו אותו בסמינר. \n2. להתאמן ולשפר את כישורי ההצגה שלהם, בדגש על הצגת עבודה מדעית. \n3. ללמוד את סוגיות בוערות בתחום מערכות ההפעלה ואת שיטות מחקר הנהוגות.\n",
+  "points": 2,
+  "name": "סמינר במערכות הפעלה",
+  "connections": {
+   "dependencies": [
+    [
+     "02340123"
+    ]
+   ],
+   "adjacent": [],
+   "exclusive": []
+  },
+  "seasons": [
+   "Winter",
+   "Spring",
+   "Summer"
+  ],
+  "faculty": "הפקולטה למדעי המחשב",
+  "current": true
+ },
  "02360765": {
   "code": "02360765",
+  "median": 92,
   "about": "הקורס יוקדש להבנת ההיבטים החישוביים של קבלת החלטות סדרתית בסביבות בינה מלאכותית. המוקד יהיה בייעול התנהגותם של סוכנים עם משימות מורכבות תחת אי וודאות. בקורס נכיר שיטות AI מגוונות לקבלת החלטות כולל גישות לתכנון אוטומטי, למצבים בהם מודל הסביבה ידוע, ולמידת חיזוק, למצבים בהם המודל ידוע רק באופן חלקי.הקורס יכלול הן למידה של האספקטים התאורטיים של הגישות השונות והן בחינה מעשית של האלגוריתמים הנלמדים בסביבות שונות.   \nתוצאות למידה:  בסיום הקורס הסטודנטיות והסטודנטים יהיו מסוגלים:\n1. להכיר מגוון גישות למידול של מערכות AI, תוך דגשעל גישות לתכנון ולמידת חיזוק.\n2. להבין ההבטחות התיאורטיות והמגבלות של אלגוריתמי  AI שונים.\n3.  לרכוש נסיון פרקטי בעבודה עם כלי AI ויי שומם בסביבות AI שונות.\n\n",
   "points": 3,
   "name": "תכנון ולמידת חיזוק במערכות AI\n\n",
@@ -69828,7 +70157,7 @@
  },
  "02360766": {
   "code": "02360766",
-  "median": 83.3,
+  "median": 82.8,
   "about": "STATISTICAL METHODS FOR DATA CLASSIFICATION BY EXAMPLES! PAC LEARNING! VC DIMENSION! NEAREST NEIGHBORS ALGORITHM! DECISION TREES !LLINEAR SEPARATORS! SVM ALGORITHM AND THE KERNEL METHOD! CONVEX OPTIMIZATION WITH GRADIENT DESCENT AND STOCHASTIC GRADIENT DESCENT! VALIDATION AND MODEL SELECTION! GENERATIVE MODELS AND NAIVE BAYES! ENSEMBLE METHODS! FEATURE GENERATION AND SELECTION! NEURAL NETS!UNSUPERVISED LEARNING: DIMENSIONALITY REDUCTION! CLUSTERING._\r\n 1. להכין נתונים לצורך לימוד מכונה.\r\n 2. לממש אלגוריתמים בסיסיים של למידתמכונה.\r\n 3. להשתמש באלגוריתמי למידה מונחית ולשערך את הצלחתם! תוך שימוש בספריות תוכנה סטנדרטיות והתנסות בנתונים.\r\n 4. לנתח תכונות של אל גוריתמי למידה! כגון סיבוכיות מספר דוגמאות! סיבוכיות חישובית! התאמת-יתר והתאמת-חסר! למידת PAC ומימד VC! וכן להסביר את המגבלות של תיאוריות אלה.\r\n",
   "points": 3.5,
   "name": "מבוא ללמידת מכונה",
@@ -70188,7 +70517,7 @@
    "Spring"
   ],
   "faculty": "הפקולטה למדעי המחשב",
-  "current": false
+  "current": true
  },
  "02360805": {
   "code": "02360805",
@@ -70715,7 +71044,7 @@
  },
  "02360873": {
   "code": "02360873",
-  "median": 86.5,
+  "median": 85,
   "about": "תהליכי הדמיה, ייצוג ואנליזה של צורות דו-ממדיות, זיהוי קצוות, סגמנטציה, X-MORF-EPAHS ,OERETS , זיהוי וניתוח תנועה, מבוא לתהליכי למידה, זיהוי עצמים.",
   "points": 3,
   "name": "ראיה ממוחשבת",
@@ -74837,7 +75166,7 @@
    "Spring"
   ],
   "faculty": "הפקולטה לרפואה",
-  "current": false
+  "current": true
  },
  "02780467": {
   "code": "02780467",
@@ -74853,7 +75182,7 @@
    "Winter"
   ],
   "faculty": "הפקולטה לרפואה",
-  "current": false
+  "current": true
  },
  "02780468": {
   "code": "02780468",
@@ -74893,7 +75222,7 @@
    "Winter"
   ],
   "faculty": "הפקולטה לרפואה",
-  "current": false
+  "current": true
  },
  "02780470": {
   "code": "02780470",
@@ -75604,7 +75933,7 @@
  },
  "03140011": {
   "code": "03140011",
-  "median": 82.6,
+  "median": 84,
   "about": "קשרים בין אטומים, המבנה הגבישי, פגמים במיקרומבנה. דיפוזיה. התנהגות מכנית של חומרים, נקעים ומנגנוני חיזוק. החלמה, גיבוש מחדש וגידול גרעינים. תופעות כשל מכני. דיאגרמת פאזות, מעברי פאזה. קורוזיה. חומרים פולימרים ומרוכבים. תכונות חשמליות.",
   "points": 4,
   "name": "מבנה ותכונות של חומרים הנדסיים",
@@ -75940,7 +76269,7 @@
  },
  "03140312": {
   "code": "03140312",
-  "median": 83,
+  "median": 83.2,
   "about": "הגדרות, מנגנוני ותהליכי פילמור, משקלים מולקולריים, פולימרים אמורפיים וגבישיים, אפיונים תרמיים, ויסקואלסטיות, תכונות מכניות, ראולוגיה, עיבוד, בחירת חומרים פולימריים.",
   "points": 2.5,
   "name": "מבוא לחומרים פולימריים",
@@ -76341,7 +76670,7 @@
  },
  "03150014": {
   "code": "03150014",
-  "median": 95.7,
+  "median": 95.9,
   "about": "הסטודנטים יבצעו מחקר ניסויי או עיוני באחד מתחומי הנדסת החומרים בהנחיית חבר סגל (אפשרי בשיתוף עם התעשייה). על הסטודנט למצוא נושא מחקר לפני תחילת הסמסטר. היקף המחקר הינו 8 שעות שבועיות במשך סמסטר אחד. בסוף הסמסטר על הסטודנטים להציג את עבודתם בפוסטר באירוע כלל פקולטי ולהגיש דו\"ח מסכם.",
   "points": 4,
   "name": "פרויקט מתקדם בחומרים",
@@ -76487,7 +76816,7 @@
  },
  "03150030": {
   "code": "03150030",
-  "median": 87.8,
+  "median": 87.2,
   "about": "מבוא. הולכה חשמלית במתכות: מוליכות חשמלית, תלות בטמפרטורה, במיקרומבנה ובפגמים. מוליכים למחצה: מבנה פסי אנרגיה, ריכוז נושאי מטען בשווי משקל, מוליכות חשמלית ומוביליות, זרמי סחיפה ודיפוזיה, גנרציה ורקומבינציה של נושאי מטען, נושאי מטען בעודף. פגמים במבנה הגבישי והשפעתם על התכונות החשמליות של מוליכים למחצה. צמתים: מגע מתכת-מוליך למחצה, צמת N-P, טרניזיסטור .TEFJ תכונות אופטו-אלקטרוניות של מוליכים למחצה: בליעה, פוטומוליכות, פוטווולטאיות.",
   "points": 2.5,
   "name": "תכונות חומרים אלקטרונים",
@@ -77484,7 +77813,7 @@
  },
  "03160240": {
   "code": "03160240",
-  "median": 82,
+  "median": 82.3,
   "about": "סימטריה של גבישים: במרחב ממשי ובמרחב הפכי. השלכת סטראוגרפית וחישובים קריסטלוגרפים. אלמנטים של סימטריה לוקלית וקבוצות נקודתיות. סימטרית של טראנסלציות וסריגי בראווה. סידור אטומי ומספר קורדינאציה. שילוב בין אלמנטים סימטריה לוקלית וטראנסלציות: צירי בורגי ומישורי החלקה. קבוצות מרחביות. סימטריה ותכונות פיזיקליות של גבישים.\r\n",
   "points": 2,
   "name": "יסודות הקריסטלוגרפיה",
@@ -77775,6 +78104,7 @@
  },
  "03180221": {
   "code": "03180221",
+  "median": 92,
   "about": "מבוא, אפיון פני השטח בעזרת אלומת אלקטרונים,  דיפרקצית אלקטרונים מהשטח- RHEER ,DEEL. ספקטרוסקופית אוג'ר. SLEE: ספקטרוסקופית אבודי אנרגיה של אלקטרונים. חקירת פני השטח בעזרת אלומת יונים - פיזור יונים, פיזור רתרפורד, תעול ( GNILENNAHC ), התזת (  - GNIRETTUPS )  SMIS ספקטרומטרית מסות של יונים משניים. חקירת פני השטח בעזרת פוטונים: SPX - ספקטרוסקופית פוטואלקטרונים הנוצרים עקב הקרנה בקרני-X , SPU ספקטרוסקופית פוטואלקטרונים הנוצרים עקב הקרנה באור אולטרא-סגול. מיקרוסקופית פני השטח ברזולוציה אטומית: MFA - מיקרוסקופית כוח אטומי, MTS - מיקרוסקופית מנהור ( GNILENNUT ) סורקת.",
   "points": 2,
   "name": "מבנה והרכב פני שטח מוצקים",
@@ -77918,7 +78248,7 @@
  },
  "03180525": {
   "code": "03180525",
-  "median": 92,
+  "median": 92.3,
   "about": "מבוא, מבנה מיקרוסקופ אלקטרונים חודר, יתרונות, חסרונות, מיגבלות. טכניקות להכנת דגמים. אופן יצירת דמויות ומירקמי דיפרקצית אלקטרונים. יסודות קריסטלוגרפיה הכרחיים לפיענוח דיפרקצית אלקטרונים. תאוריה קינמטית של דיפרקצית אלקטרונים. איפיון וזיהוי מיקרומבנה באמצעות דיפרקצית אלקטרונים. תאוריה קינמטית של קונטרסט דמות. תאוריה דינמית של קונטרסט דמות. זיהוי ואיפיון פגמים במבנה. תאוריה של קונטרסט פאזה. קבלתדמות סריג. שילוב של טכניקות אנאליטיות נוספות במיקרוסקופ אלקטרונים חודר.\r\n",
   "points": 2,
   "name": "מיקרוסקופית אלקטרונים חודרת",
@@ -80603,7 +80933,7 @@
  },
  "03240513": {
   "code": "03240513",
-  "median": 97.4,
+  "median": 96.8,
   "about": "הקורס מיועד לסטודנטים שמעוניינים לקחת חלק במופע תיאטרלי. מטרת הקורס, לאפשר התנסות חווייתית בתהליכי עבודה באמצעותם נבנה אירוע תיאטרוני. העבודה היצירתית תתבסס על הכירות עם  בין מרכיבי היצירה הבימתית  ויחסי הגומלין ביניהם שחקן, במאי, טקסט ,חלל וקהל. נתנסה במגוון טכניקות מופע ונעבד קטעים ספרותיים  מתוך מחזות ספרים וסרטים, ונשלב ביצירה חומרים מעולמם הרגשי. אישי והתרבותי של המשתתפים. מתוך כך יבנה אנסמבל קשוב וחקרני שיצור מופע תיאטרוני ייחודי. המופע יעלה במחלקה בסוף הסמסטר.",
   "points": 1.5,
   "name": "מחזה-הצגה-מופע",
@@ -80622,7 +80952,7 @@
  },
  "03240518": {
   "code": "03240518",
-  "median": 95,
+  "median": 95.3,
   "about": "הקורס יעסוק בחשיבותם של תהליכי שינוי וחדשנות, ועל המאפיינים של יצירתיות. הקורסיחשוף את הסטודנטים לתחום המחקר של הפסיכולוגיה החיוביתולגורמים המשפיעים על אושר אישי. תבחן השפעת נושאים אלו על ביצועים והצלחה.",
   "points": 2,
   "name": "חדשנות, יצירתיות ואושר",
@@ -80792,7 +81122,7 @@
  },
  "03240539": {
   "code": "03240539",
-  "median": 89.6,
+  "median": 89.7,
   "about": "מטרתו העיקרית של הקורס היא לחשוף את הסטודנטים לתהליך מובנה של חקר שווקים. במסגרת הקורס יילמדו הנושאים: הגדרת בעיית המחקר, תכנון המחקר, שיטות לאיסוף נתונים, תכנון שאלון, שיטות דגימה וניתוח נתונים",
   "points": 2,
   "name": "מחקרי שוק",
@@ -81420,7 +81750,7 @@
  },
  "03240697": {
   "code": "03240697",
-  "median": 94.6,
+  "median": 94.4,
   "about": "הקורס עוסק בעקרונות של עיבוד ותיקון צילומים, בעזרת תוכנות עיבוד תמונה. במהלכו יחשפו הסטודנטים למגוון נושאים אשר יעניקו יכולות מקצועיות מתקדמות בתחום עיבוד התמונה, תוך מתן דגש על גישות נכונות לשיפור צילומים והצגת הכלים אותם צריך צלם בעבודתו, וכן כלים לעיבוד תמונה בתחום הכנת צילומים למאמרים ולפוסטרים אקדמיים.",
   "points": 2,
   "name": "עקרונות מעשיים לעיבוד תמונה",
@@ -82805,7 +83135,7 @@
  },
  "03260005": {
   "code": "03260005",
-  "median": 94.4,
+  "median": 94,
   "about": "הקורס יחקור את ההיסטוריה של המתמטיקה והקשר שלה לפילוסופיה באמצעות סדרה של נקודות ציון, החל מגילוי חוסר-אמת-המידה-המשותפת )INCOMMENSURABILITY( של הפיתגוראים ועד משפט אי-השלמות של גדל. נושא שיחזור על עצמו לאורך הקורס הוא האופן שבו מושג האינסוף אתגר את גבולות ההבנה האנושית._\r\n תוצאות למידה:\r\n 1. ידע בסיסי בהיסטוריה של המתמטיקה._\r\n 2. ידע בסיסי בפילוסופיה של המתמטיקה._\r\n 3. הבנה של תוצאות פורצותדרך בהיסטוריה של המתמטיקה._\r\n 4. הבנה של האופנים השונים שבהם ההיסטוריה של המתמטיקה עיצבה את המתמטיקה המודרנית.\r\n 5. הערכה עמוקה יותר של המתמטיקה ושל מקומה במדע, בטכנולוגיה ובפילוסופיה.\r\n 6. עיון בטבעם של מושג האמת ומושג הידיעה.",
   "points": 2,
   "name": "פריצות דרך בתולדות החשיבה המתמטית",
@@ -84453,18 +84783,6 @@
   "about": "רקע ומושגי יסוד בביו-הדפסה, עקרונות בביו-הדפסה מבוססת אקסטרוזיה, עקרונות בביו-הדפסה מבוססת אור, שיטות הדפסה מתקדמות (FDM, DLP, SLA, SLS, 2-photon, light-sheet, ultrasound, volumetric), חומרים סינטטיים וטבעיים לביו-הדפסה, ביו-הדפסה מרובת חומרים, ביו-הדפסה 4 ממדית, מידול וסימולציות לביו-הדפסה, ביו-הדפסה ישירה בגוף המטופל, יישומים של ביו-הדפסה בביו-רפואה, סדנא בביו-הדפסה.  \nתוצאות למידה: בסיום הקורס הסטודנטיות והסטודנטים יהיו מסוגלים:\n\n1.\tלהכיר את מושגי היסוד בביו-הדפסה, שיטות ההדפסה השונות, חומרים ויישומים.\n2.\tלרכוש כלים אנליטיים למידול ואופטימיזציה תהליכי ההדפסה והרכב החומרים המתאים.\n3.\tלהבין ולהתנסות בתהליך העבודה השלם בביו-הדפסה – אפיון הצורך, מידול,  שיטת הדפסה, בחירת חומרים, פרמטרי הדפסה, ולידציה.\n\n\n",
   "points": 2.5,
   "name": "נושאים נבחרים בביו-הדפסה בתלת ממד: עקרונות ויישומים",
-  "tests": [
-   {
-    "year": 2026,
-    "monthIndex": 7,
-    "day": 5
-   },
-   {
-    "year": 2026,
-    "monthIndex": 7,
-    "day": 25
-   }
-  ],
   "connections": {
    "dependencies": [
     [
@@ -84483,7 +84801,7 @@
    "Summer"
   ],
   "faculty": "הפקולטה להנדסה ביו-רפואית",
-  "current": false
+  "current": true
  },
  "03360036": {
   "code": "03360036",
@@ -85736,18 +86054,6 @@
   "about": "נושאים:דיפוזיה, אוסמוזה, שיווי משקל יוני, חדירות והעברה דרך קרומים, תופעות ביו-חשמליות, קרומים אקסיטביליים, האימפולס העיצבי, משוואות הודג'קין-הקסלי, סימולציה של פוטנציאל הפעולה, העברה סינפטית, נוירוטרנסמיטרים, נוירומודולטורים, הפעילות החשמלית והמכנית של תאי שריר שלד, עקרונות אירגוניים של המוח.: תהיה בחירה בנושא אחד מתוך הנושאים\r\n מערכות חישה- עקרונות התמרה וייצוג מידע מרכזי, מערכת הראיה, מערכתהשמיעה, עקרונות פעולה של המערכת המוטורית, דימות פונקציונלי.\r\n תוצאות  למידה:\r\n בסיום הקורס הסטודנט ידע: 1. לבנות מודלים בסיסיים בפיזיקה של התא.\r\n 2. לאפיין פעילות חשמלית של תא עצב.\r\n 3. להבין כיצד מערכת העצבים מתקשרת עם שאר מערכות הגוף.\r\n",
   "points": 2.5,
   "name": "ביופיסיקה ונוירופיסיקה למהנדסים",
-  "tests": [
-   {
-    "year": 2026,
-    "monthIndex": 7,
-    "day": 13
-   },
-   {
-    "year": 2026,
-    "monthIndex": 8,
-    "day": 15
-   }
-  ],
   "connections": {
    "dependencies": [
     [
@@ -85764,7 +86070,7 @@
    "Summer"
   ],
   "faculty": "הפקולטה להנדסה ביו-רפואית",
-  "current": false
+  "current": true
  },
  "03370002": {
   "code": "03370002",

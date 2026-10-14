@@ -16,6 +16,16 @@ suite(
 				[
 				  {
 				    "IsCurrent": 0,
+				    "PiqSession": "200",
+				    "PiqYear": "2026",
+				  },
+				  {
+				    "IsCurrent": -1,
+				    "PiqSession": "202",
+				    "PiqYear": "2025",
+				  },
+				  {
+				    "IsCurrent": -1,
 				    "PiqSession": "201",
 				    "PiqYear": "2025",
 				  },
@@ -2665,6 +2675,34 @@ suite(
 				              "uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmOfferedPeriodSet(SmOtjid='SM01040031',CurrentPeryr='2024',Peryr='2025',CurrentPerid='200',Perid='201')",
 				            },
 				          },
+				          {
+				            "CurrentPerid": "200",
+				            "CurrentPeryr": "2024",
+				            "Perid": "200",
+				            "Perit": "חורף",
+				            "Peryr": "2026",
+				            "Peryt": "תשפ"ז",
+				            "SmOtjid": "SM01040031",
+				            "__metadata": {
+				              "id": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmOfferedPeriodSet(SmOtjid='SM01040031',CurrentPeryr='2024',Peryr='2026',CurrentPerid='200',Perid='200')",
+				              "type": "NVIAS_CDIR_DATA_SRV.SmOfferedPeriod",
+				              "uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmOfferedPeriodSet(SmOtjid='SM01040031',CurrentPeryr='2024',Peryr='2026',CurrentPerid='200',Perid='200')",
+				            },
+				          },
+				          {
+				            "CurrentPerid": "200",
+				            "CurrentPeryr": "2024",
+				            "Perid": "201",
+				            "Perit": "אביב",
+				            "Peryr": "2026",
+				            "Peryt": "תשפ"ז",
+				            "SmOtjid": "SM01040031",
+				            "__metadata": {
+				              "id": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmOfferedPeriodSet(SmOtjid='SM01040031',CurrentPeryr='2024',Peryr='2026',CurrentPerid='200',Perid='201')",
+				              "type": "NVIAS_CDIR_DATA_SRV.SmOfferedPeriod",
+				              "uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmOfferedPeriodSet(SmOtjid='SM01040031',CurrentPeryr='2024',Peryr='2026',CurrentPerid='200',Perid='201')",
+				            },
+				          },
 				        ],
 				      },
 				      "SmPrereq": {
@@ -2754,6 +2792,11 @@ suite(
 				            "StudyContentDescription": "",
 				            "StudyContentHeadline": "",
 				            "Unit": "",
+				            "WeeklyHours": {
+				              "__deferred": {
+				                "uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM01040003',Peryr='2024',Perid='200',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/WeeklyHours",
+				              },
+				            },
 				            "ZzAcademicLevel": "0001",
 				            "ZzAcademicLevelText": "",
 				            "ZzCgOtjid": "",
@@ -2859,6 +2902,11 @@ suite(
 				            "StudyContentDescription": "",
 				            "StudyContentHeadline": "",
 				            "Unit": "",
+				            "WeeklyHours": {
+				              "__deferred": {
+				                "uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM01040010',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/WeeklyHours",
+				              },
+				            },
 				            "ZzAcademicLevel": "0000",
 				            "ZzAcademicLevelText": "",
 				            "ZzCgOtjid": "",
@@ -2964,6 +3012,11 @@ suite(
 				            "StudyContentDescription": "",
 				            "StudyContentHeadline": "",
 				            "Unit": "",
+				            "WeeklyHours": {
+				              "__deferred": {
+				                "uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM01040012',Peryr='2024',Perid='200',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/WeeklyHours",
+				              },
+				            },
 				            "ZzAcademicLevel": "0001",
 				            "ZzAcademicLevelText": "",
 				            "ZzCgOtjid": "",
@@ -3069,6 +3122,11 @@ suite(
 				            "StudyContentDescription": "",
 				            "StudyContentHeadline": "",
 				            "Unit": "",
+				            "WeeklyHours": {
+				              "__deferred": {
+				                "uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM01040017',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/WeeklyHours",
+				              },
+				            },
 				            "ZzAcademicLevel": "0000",
 				            "ZzAcademicLevelText": "",
 				            "ZzCgOtjid": "",
@@ -3174,6 +3232,11 @@ suite(
 				            "StudyContentDescription": "",
 				            "StudyContentHeadline": "",
 				            "Unit": "",
+				            "WeeklyHours": {
+				              "__deferred": {
+				                "uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM01040018',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/WeeklyHours",
+				              },
+				            },
 				            "ZzAcademicLevel": "0000",
 				            "ZzAcademicLevelText": "",
 				            "ZzCgOtjid": "",
@@ -3279,6 +3342,11 @@ suite(
 				            "StudyContentDescription": "",
 				            "StudyContentHeadline": "",
 				            "Unit": "",
+				            "WeeklyHours": {
+				              "__deferred": {
+				                "uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM01040036',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/WeeklyHours",
+				              },
+				            },
 				            "ZzAcademicLevel": "0000",
 				            "ZzAcademicLevelText": "",
 				            "ZzCgOtjid": "",
@@ -3384,6 +3452,11 @@ suite(
 				            "StudyContentDescription": "",
 				            "StudyContentHeadline": "",
 				            "Unit": "",
+				            "WeeklyHours": {
+				              "__deferred": {
+				                "uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM01040041',Peryr='2024',Perid='200',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/WeeklyHours",
+				              },
+				            },
 				            "ZzAcademicLevel": "0001",
 				            "ZzAcademicLevelText": "",
 				            "ZzCgOtjid": "",
@@ -3489,6 +3562,11 @@ suite(
 				            "StudyContentDescription": "",
 				            "StudyContentHeadline": "",
 				            "Unit": "",
+				            "WeeklyHours": {
+				              "__deferred": {
+				                "uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM01040042',Peryr='2024',Perid='200',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/WeeklyHours",
+				              },
+				            },
 				            "ZzAcademicLevel": "0001",
 				            "ZzAcademicLevelText": "",
 				            "ZzCgOtjid": "",
@@ -3594,6 +3672,11 @@ suite(
 				            "StudyContentDescription": "",
 				            "StudyContentHeadline": "",
 				            "Unit": "",
+				            "WeeklyHours": {
+				              "__deferred": {
+				                "uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM01040087',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/WeeklyHours",
+				              },
+				            },
 				            "ZzAcademicLevel": "0000",
 				            "ZzAcademicLevelText": "",
 				            "ZzCgOtjid": "",
@@ -3699,6 +3782,11 @@ suite(
 				            "StudyContentDescription": "",
 				            "StudyContentHeadline": "",
 				            "Unit": "",
+				            "WeeklyHours": {
+				              "__deferred": {
+				                "uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM01040090',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/WeeklyHours",
+				              },
+				            },
 				            "ZzAcademicLevel": "0000",
 				            "ZzAcademicLevelText": "",
 				            "ZzCgOtjid": "",
@@ -3804,6 +3892,11 @@ suite(
 				            "StudyContentDescription": "",
 				            "StudyContentHeadline": "",
 				            "Unit": "",
+				            "WeeklyHours": {
+				              "__deferred": {
+				                "uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM01040093',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/WeeklyHours",
+				              },
+				            },
 				            "ZzAcademicLevel": "0000",
 				            "ZzAcademicLevelText": "",
 				            "ZzCgOtjid": "",
@@ -3909,6 +4002,11 @@ suite(
 				            "StudyContentDescription": "",
 				            "StudyContentHeadline": "",
 				            "Unit": "",
+				            "WeeklyHours": {
+				              "__deferred": {
+				                "uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM01040195',Peryr='2024',Perid='200',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/WeeklyHours",
+				              },
+				            },
 				            "ZzAcademicLevel": "0001",
 				            "ZzAcademicLevelText": "",
 				            "ZzCgOtjid": "",
@@ -6849,6 +6947,48 @@ suite(
 				              "uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmOfferedPeriodSet(SmOtjid='SM02340114',CurrentPeryr='2024',Peryr='2025',CurrentPerid='200',Perid='201')",
 				            },
 				          },
+				          {
+				            "CurrentPerid": "200",
+				            "CurrentPeryr": "2024",
+				            "Perid": "202",
+				            "Perit": "קיץ",
+				            "Peryr": "2025",
+				            "Peryt": "תשפ"ו",
+				            "SmOtjid": "SM02340114",
+				            "__metadata": {
+				              "id": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmOfferedPeriodSet(SmOtjid='SM02340114',CurrentPeryr='2024',Peryr='2025',CurrentPerid='200',Perid='202')",
+				              "type": "NVIAS_CDIR_DATA_SRV.SmOfferedPeriod",
+				              "uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmOfferedPeriodSet(SmOtjid='SM02340114',CurrentPeryr='2024',Peryr='2025',CurrentPerid='200',Perid='202')",
+				            },
+				          },
+				          {
+				            "CurrentPerid": "200",
+				            "CurrentPeryr": "2024",
+				            "Perid": "200",
+				            "Perit": "חורף",
+				            "Peryr": "2026",
+				            "Peryt": "תשפ"ז",
+				            "SmOtjid": "SM02340114",
+				            "__metadata": {
+				              "id": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmOfferedPeriodSet(SmOtjid='SM02340114',CurrentPeryr='2024',Peryr='2026',CurrentPerid='200',Perid='200')",
+				              "type": "NVIAS_CDIR_DATA_SRV.SmOfferedPeriod",
+				              "uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmOfferedPeriodSet(SmOtjid='SM02340114',CurrentPeryr='2024',Peryr='2026',CurrentPerid='200',Perid='200')",
+				            },
+				          },
+				          {
+				            "CurrentPerid": "200",
+				            "CurrentPeryr": "2024",
+				            "Perid": "201",
+				            "Perit": "אביב",
+				            "Peryr": "2026",
+				            "Peryt": "תשפ"ז",
+				            "SmOtjid": "SM02340114",
+				            "__metadata": {
+				              "id": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmOfferedPeriodSet(SmOtjid='SM02340114',CurrentPeryr='2024',Peryr='2026',CurrentPerid='200',Perid='201')",
+				              "type": "NVIAS_CDIR_DATA_SRV.SmOfferedPeriod",
+				              "uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmOfferedPeriodSet(SmOtjid='SM02340114',CurrentPeryr='2024',Peryr='2026',CurrentPerid='200',Perid='201')",
+				            },
+				          },
 				        ],
 				      },
 				      "SmPrereq": {
@@ -6938,6 +7078,11 @@ suite(
 				            "StudyContentDescription": "",
 				            "StudyContentHeadline": "",
 				            "Unit": "",
+				            "WeeklyHours": {
+				              "__deferred": {
+				                "uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM00940704',Peryr='2024',Perid='200',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/WeeklyHours",
+				              },
+				            },
 				            "ZzAcademicLevel": "0001",
 				            "ZzAcademicLevelText": "",
 				            "ZzCgOtjid": "",
@@ -7043,6 +7188,11 @@ suite(
 				            "StudyContentDescription": "",
 				            "StudyContentHeadline": "",
 				            "Unit": "",
+				            "WeeklyHours": {
+				              "__deferred": {
+				                "uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM01040814',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/WeeklyHours",
+				              },
+				            },
 				            "ZzAcademicLevel": "0000",
 				            "ZzAcademicLevelText": "",
 				            "ZzCgOtjid": "",
@@ -7148,6 +7298,11 @@ suite(
 				            "StudyContentDescription": "",
 				            "StudyContentHeadline": "",
 				            "Unit": "",
+				            "WeeklyHours": {
+				              "__deferred": {
+				                "uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM02340102',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/WeeklyHours",
+				              },
+				            },
 				            "ZzAcademicLevel": "0000",
 				            "ZzAcademicLevelText": "",
 				            "ZzCgOtjid": "",
@@ -7253,6 +7408,11 @@ suite(
 				            "StudyContentDescription": "",
 				            "StudyContentHeadline": "",
 				            "Unit": "",
+				            "WeeklyHours": {
+				              "__deferred": {
+				                "uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM02340104',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/WeeklyHours",
+				              },
+				            },
 				            "ZzAcademicLevel": "0000",
 				            "ZzAcademicLevelText": "",
 				            "ZzCgOtjid": "",
@@ -7358,6 +7518,11 @@ suite(
 				            "StudyContentDescription": "",
 				            "StudyContentHeadline": "",
 				            "Unit": "",
+				            "WeeklyHours": {
+				              "__deferred": {
+				                "uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM02340106',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/WeeklyHours",
+				              },
+				            },
 				            "ZzAcademicLevel": "0000",
 				            "ZzAcademicLevelText": "",
 				            "ZzCgOtjid": "",
@@ -7463,6 +7628,11 @@ suite(
 				            "StudyContentDescription": "",
 				            "StudyContentHeadline": "",
 				            "Unit": "",
+				            "WeeklyHours": {
+				              "__deferred": {
+				                "uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM02340108',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/WeeklyHours",
+				              },
+				            },
 				            "ZzAcademicLevel": "0000",
 				            "ZzAcademicLevelText": "",
 				            "ZzCgOtjid": "",
@@ -7568,6 +7738,11 @@ suite(
 				            "StudyContentDescription": "",
 				            "StudyContentHeadline": "",
 				            "Unit": "",
+				            "WeeklyHours": {
+				              "__deferred": {
+				                "uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM02340109',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/WeeklyHours",
+				              },
+				            },
 				            "ZzAcademicLevel": "0000",
 				            "ZzAcademicLevelText": "",
 				            "ZzCgOtjid": "",
@@ -7673,6 +7848,11 @@ suite(
 				            "StudyContentDescription": "",
 				            "StudyContentHeadline": "",
 				            "Unit": "",
+				            "WeeklyHours": {
+				              "__deferred": {
+				                "uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM02340111',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/WeeklyHours",
+				              },
+				            },
 				            "ZzAcademicLevel": "0000",
 				            "ZzAcademicLevelText": "",
 				            "ZzCgOtjid": "",
@@ -7778,6 +7958,11 @@ suite(
 				            "StudyContentDescription": "",
 				            "StudyContentHeadline": "",
 				            "Unit": "",
+				            "WeeklyHours": {
+				              "__deferred": {
+				                "uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM02340112',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/WeeklyHours",
+				              },
+				            },
 				            "ZzAcademicLevel": "0000",
 				            "ZzAcademicLevelText": "",
 				            "ZzCgOtjid": "",
@@ -7883,6 +8068,11 @@ suite(
 				            "StudyContentDescription": "",
 				            "StudyContentHeadline": "",
 				            "Unit": "",
+				            "WeeklyHours": {
+				              "__deferred": {
+				                "uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM02340117',Peryr='2024',Perid='200',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/WeeklyHours",
+				              },
+				            },
 				            "ZzAcademicLevel": "0001",
 				            "ZzAcademicLevelText": "",
 				            "ZzCgOtjid": "",
@@ -7988,6 +8178,11 @@ suite(
 				            "StudyContentDescription": "",
 				            "StudyContentHeadline": "",
 				            "Unit": "",
+				            "WeeklyHours": {
+				              "__deferred": {
+				                "uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM02340126',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/WeeklyHours",
+				              },
+				            },
 				            "ZzAcademicLevel": "0000",
 				            "ZzAcademicLevelText": "",
 				            "ZzCgOtjid": "",
@@ -8093,6 +8288,11 @@ suite(
 				            "StudyContentDescription": "",
 				            "StudyContentHeadline": "",
 				            "Unit": "",
+				            "WeeklyHours": {
+				              "__deferred": {
+				                "uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM02340127',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/WeeklyHours",
+				              },
+				            },
 				            "ZzAcademicLevel": "0000",
 				            "ZzAcademicLevelText": "",
 				            "ZzCgOtjid": "",
@@ -8198,6 +8398,11 @@ suite(
 				            "StudyContentDescription": "",
 				            "StudyContentHeadline": "",
 				            "Unit": "",
+				            "WeeklyHours": {
+				              "__deferred": {
+				                "uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM02340128',Peryr='2024',Perid='200',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/WeeklyHours",
+				              },
+				            },
 				            "ZzAcademicLevel": "0001",
 				            "ZzAcademicLevelText": "",
 				            "ZzCgOtjid": "",
@@ -8303,6 +8508,11 @@ suite(
 				            "StudyContentDescription": "",
 				            "StudyContentHeadline": "",
 				            "Unit": "",
+				            "WeeklyHours": {
+				              "__deferred": {
+				                "uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM02340130',Peryr='0000',Perid='000',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/WeeklyHours",
+				              },
+				            },
 				            "ZzAcademicLevel": "0000",
 				            "ZzAcademicLevelText": "",
 				            "ZzCgOtjid": "",
@@ -8408,6 +8618,11 @@ suite(
 				            "StudyContentDescription": "",
 				            "StudyContentHeadline": "",
 				            "Unit": "",
+				            "WeeklyHours": {
+				              "__deferred": {
+				                "uri": "https://portalex.technion.ac.il:443/sap/opu/odata/sap/Z_CM_EV_CDIR_DATA_SRV/SmObjectSet(Otjid='SM02340221',Peryr='2024',Perid='200',ZzCgOtjid='',ZzPoVersion='',ZzScOtjid='')/WeeklyHours",
+				              },
+				            },
 				            "ZzAcademicLevel": "0001",
 				            "ZzAcademicLevelText": "",
 				            "ZzCgOtjid": "",
@@ -8653,13 +8868,13 @@ suite(
 			  },
 			  {
 			    "Name": {
-			      "en": "EDUCATION IN TECHNOLOGY AND SCIENCE",
+			      "en": "EDUCATION IN SCIENCE AND TECHNOLOGY",
 			      "he": "חינוך למדע וטכנולוגיה",
 			    },
 			    "PiqSession": "200",
 			    "PiqYear": "2024",
 			    "ZzOrgId": "00050066",
-			    "ZzOrgName": "EDUCATION IN TECHNOLOGY AND SCIENCE",
+			    "ZzOrgName": "EDUCATION IN SCIENCE AND TECHNOLOGY",
 			  },
 			  {
 			    "Name": {
@@ -9046,6 +9261,7 @@ suite(
 				                "children": undefined,
 				                "courses": [
 				                  "SM01340163",
+				                  "SM02060972",
 				                  "SM02070953",
 				                  "SM02140120",
 				                  "SM02160003",
@@ -9061,6 +9277,7 @@ suite(
 				                  "SM03240298",
 				                  "SM03240299",
 				                  "SM03240305",
+				                  "SM03240307",
 				                  "SM03240314",
 				                  "SM03240397",
 				                  "SM03240432",
@@ -9699,24 +9916,6 @@ suite(
 				                "children": [
 				                  {
 				                    "Name": {
-				                      "en": "Core Courses List",
-				                      "he": "רשימת קורסי ליבה",
-				                    },
-				                    "Otjid": "CG00004779",
-				                    "children": undefined,
-				                    "courses": [
-				                      "SM00940423",
-				                      "SM02360299",
-				                      "SM02360363",
-				                      "SM02360370",
-				                      "SM02360501",
-				                      "SM02360667",
-				                      "SM02360860",
-				                      "SM02360781",
-				                    ],
-				                  },
-				                  {
-				                    "Name": {
 				                      "en": "List Projects in Computer Science",
 				                      "he": "רשימת פרויקטים במדעי המחשב",
 				                    },
@@ -9758,7 +9957,7 @@ suite(
 				          {
 				            "Name": {
 				              "en": "Path: Computer Science and Bioinformatic",
-				              "he": "Path: Computer Science and Bioinformatic",
+				              "he": "נתיב: מדעי מחשב עם ביואינפורמטיקה",
 				            },
 				            "Otjid": "CG00006222",
 				            "children": [

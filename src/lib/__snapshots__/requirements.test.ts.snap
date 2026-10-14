@@ -130,6 +130,7 @@ exports[`Requirements > should parse requirements 1`] = `
         {
           "courses": [
             "01340163",
+            "02060972",
             "02070953",
             "02140120",
             "02160003",
@@ -145,6 +146,7 @@ exports[`Requirements > should parse requirements 1`] = `
             "03240298",
             "03240299",
             "03240305",
+            "03240307",
             "03240314",
             "03240397",
             "03240432",
@@ -195,7 +197,7 @@ exports[`Requirements > should parse requirements 1`] = `
     },
     {
       "en": "Path: Computer Science and Bioinformatic",
-      "he": "Path: Computer Science and Bioinformatic",
+      "he": "נתיב: מדעי מחשב עם ביואינפורמטיקה",
       "name": "CG00006222",
       "nested": [
         {
@@ -1047,7 +1049,7 @@ exports[`Requirements > should provide a list of requirements and their courses 
     ],
   },
   {
-    "courses": 56,
+    "courses": 58,
     "path": [
       "CG00000170",
       "CG00010092",

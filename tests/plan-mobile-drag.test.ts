@@ -153,6 +153,28 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 					await page.locator('footer select').selectOption({ label: 'עב' });
 				}
 				const touch = await context.newCDPSession(page);
+				await page.evaluate(() => {
+					document.addEventListener(
+						'pointermove',
+						(event) => {
+							document.body.dataset.lastPointer = JSON.stringify({
+								x: event.clientX,
+								y: event.clientY
+							});
+						},
+						true
+					);
+					document.addEventListener(
+						'touchmove',
+						(event) => {
+							document.body.dataset.lastTouch = JSON.stringify({
+								x: event.touches[0]?.clientX,
+								y: event.touches[0]?.clientY
+							});
+						},
+						true
+					);
+				});
 				const scroller = page.getByTestId('semester-scroller');
 				const rect = (await page
 					.locator('[data-code="10400001"]')
@@ -219,6 +241,59 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 						y: start.y + 5
 					}
 				);
+				console.info(
+					'edge-drag-diagnostics',
+					language,
+					await page.evaluate(
+						({ x, y }) => {
+							const chain = [];
+							let element = document.elementFromPoint(
+								x,
+								y
+							) as HTMLElement | null;
+							while (element) {
+								chain.push({
+									tag: element.tagName,
+									testId: element.dataset.testid,
+									overflow: getComputedStyle(element).overflowX,
+									scroll: element.scrollLeft,
+									width: element.clientWidth,
+									scrollWidth: element.scrollWidth,
+									rect: element.getBoundingClientRect().toJSON()
+								});
+								element = element.parentElement;
+							}
+							const column = document.querySelector('[data-semester="0"]')!;
+							const instance = Object.entries(column).find(([key]) =>
+								key.startsWith('Sortable')
+							)?.[1] as
+								| {
+										options: {
+											forceFallback: boolean;
+											supportPointer: boolean;
+										};
+										nativeDraggable: boolean;
+								  }
+								| undefined;
+							return {
+								chain,
+								pointer: document.body.dataset.lastPointer,
+								touch: document.body.dataset.lastTouch,
+								ghost: document
+									.querySelector('.sortable-fallback')
+									?.getBoundingClientRect()
+									.toJSON(),
+								options: instance?.options && {
+									forceFallback: instance.options.forceFallback,
+									supportPointer: instance.options.supportPointer
+								},
+								native: instance?.nativeDraggable
+							};
+						},
+						{ x: language === 'he' ? viewport.width - 4 : 4, y: start.y + 5 }
+					)
+				);
+
 				await expect
 					.poll(async () =>
 						Math.abs(

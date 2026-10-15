@@ -77,7 +77,10 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 				);
 
 				for (const offset of [-30, -70, -120, -50, -100]) {
-					const point = { x: start.x + 20, y: start.y + offset };
+					const point = {
+						x: start.x + (language === 'he' ? -20 : 20),
+						y: start.y + offset
+					};
 					await touch.send('Input.dispatchTouchEvent', {
 						type: 'touchMove',
 						touchPoints: [point]
@@ -209,6 +212,68 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 			await expect(page.locator('[data-code]')).toHaveCount(3);
 		});
 
+		test('empty and occupied columns accept touch drops at the bottom, including an empty wishlist', async ({
+			page,
+			context
+		}) => {
+			const touch = await context.newCDPSession(page);
+			const secondSemester = page.locator('[data-semester="1"]');
+			const wishlist = page.getByTestId('plan-wishlist');
+			const second = (await secondSemester.boundingBox())!;
+			expect(second.height).toBeGreaterThan(250);
+			const bottom = {
+				x: second.x + second.width / 2,
+				y: second.y + second.height - 20
+			};
+			await dragTo(page, touch, '10400003', bottom);
+			await expect(
+				secondSemester.locator('[data-code="10400003"]')
+			).toHaveCount(1);
+			await expect(wishlist.locator('[data-code]')).toHaveCount(0);
+			await dragTo(page, touch, '10400001', bottom);
+			await expect(secondSemester.locator('[data-code]')).toHaveCount(2);
+			const emptyWish = (await wishlist.boundingBox())!;
+			expect(emptyWish.width).toBeGreaterThan(300);
+			expect(emptyWish.height).toBeGreaterThan(80);
+			await dragTo(page, touch, '10400002', {
+				x: emptyWish.x + 30,
+				y: emptyWish.y + emptyWish.height - 12
+			});
+			await expect(wishlist.locator('[data-code="10400002"]')).toHaveCount(1);
+			await page.getByRole('button', { name: 'Save', exact: true }).click();
+			await page.reload();
+			await expect(secondSemester.locator('[data-code]')).toHaveCount(2);
+			await expect(wishlist.locator('[data-code="10400002"]')).toHaveCount(1);
+			await expect(page.locator('[data-code]')).toHaveCount(3);
+		});
+
+		test('drop zones remain usable on a short mobile screen without a giant scroll area', async ({
+			page,
+			context
+		}) => {
+			await page.setViewportSize({ width: 360, height: 540 });
+			const touch = await context.newCDPSession(page);
+			const secondSemester = page.locator('[data-semester="1"]');
+			const rect = (await secondSemester.boundingBox())!;
+			expect(rect.height).toBeGreaterThanOrEqual(128);
+			expect(rect.y + rect.height).toBeLessThan(540);
+			const documentHeight = await page.evaluate(
+				() => document.documentElement.scrollHeight
+			);
+			expect(documentHeight).toBeLessThanOrEqual(550);
+			await dragTo(page, touch, '10400001', {
+				x: rect.x + rect.width / 2,
+				y: rect.y + rect.height - 15
+			});
+			await expect(
+				secondSemester.locator('[data-code="10400001"]')
+			).toHaveCount(1);
+			await page.getByRole('button', { name: 'Cancel', exact: true }).click();
+			await expect(
+				page.locator('[data-semester="0"] [data-code="10400001"]')
+			).toHaveCount(1);
+		});
+
 		test('dropping a touch drag outside the lists preserves the course', async ({
 			page,
 			context
@@ -220,3 +285,47 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 		});
 	});
 }
+
+test.describe('mouse drop zones', () => {
+	test.use({
+		viewport: { width: 1280, height: 800 },
+		hasTouch: false,
+		isMobile: false
+	});
+	test('empty semesters and the empty wishlist accept mouse drops throughout their area', async ({
+		page
+	}) => {
+		const secondSemester = page.locator('[data-semester="1"]');
+		const wishlist = page.getByTestId('plan-wishlist');
+		const second = (await secondSemester.boundingBox())!;
+		expect(second.height).toBeGreaterThan(250);
+		await page
+			.locator('[data-code="10400003"]')
+			.dragTo(secondSemester, {
+				targetPosition: { x: second.width / 2, y: second.height - 20 }
+			});
+		await expect(secondSemester.locator('[data-code="10400003"]')).toHaveCount(
+			1
+		);
+		await page
+			.locator('[data-code="10400001"]')
+			.dragTo(secondSemester, {
+				targetPosition: { x: second.width / 2, y: second.height - 20 }
+			});
+		await expect(secondSemester.locator('[data-code]')).toHaveCount(2);
+		const emptyWish = (await wishlist.boundingBox())!;
+		expect(emptyWish.width).toBeGreaterThan(1200);
+		expect(emptyWish.height).toBeGreaterThan(60);
+		await page
+			.locator('[data-code="10400002"]')
+			.dragTo(wishlist, {
+				targetPosition: { x: 40, y: emptyWish.height - 10 }
+			});
+		await expect(wishlist.locator('[data-code="10400002"]')).toHaveCount(1);
+		await page.getByRole('button', { name: 'Cancel', exact: true }).click();
+		await expect(page.locator('[data-semester="0"] [data-code]')).toHaveCount(
+			2
+		);
+		await expect(wishlist.locator('[data-code="10400003"]')).toHaveCount(1);
+	});
+});

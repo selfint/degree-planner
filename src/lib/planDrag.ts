@@ -23,7 +23,6 @@ export function startPlanDrag(
 	const [grabX, grabY] = getComputedStyle(ghost)
 		.transformOrigin.split(' ')
 		.map(parseFloat);
-	const contentHeight = document.documentElement.scrollHeight;
 	ghost.style.position = 'absolute';
 	ghost.style.left = `${rect.left}px`;
 	ghost.style.top = `${rect.top}px`;
@@ -66,8 +65,12 @@ export function startPlanDrag(
 					Math.min(innerWidth, bounds.right)
 				) * distance;
 		}
-		// Long plans remain reachable, but a preview can never extend this bound.
-		const maxY = Math.max(0, contentHeight - innerHeight);
+		// The contained overlay contributes no scrollable overflow. Re-read real
+		// content height because cross-list insertion can lengthen a semester.
+		const maxY = Math.max(
+			0,
+			document.documentElement.scrollHeight - innerHeight
+		);
 		const nextY = Math.max(
 			0,
 			Math.min(maxY, scrollY + edge(point.y, 0, innerHeight) * distance)

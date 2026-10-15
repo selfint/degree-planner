@@ -54,41 +54,50 @@ test('restores light mode even before the app scripts load', async ({
 	);
 });
 
-test('uses the Hebrew label and fits the mobile header', async ({ page }) => {
-	await page.setViewportSize({ width: 320, height: 740 });
-	await page.addInitScript(() => {
-		localStorage.setItem('lang', 'he');
-		localStorage.setItem('version', '4');
-		localStorage.setItem(
-			'userData',
-			JSON.stringify({
-				degree: ['2026_200', '00002330', 'SC00001356_CG00011002'],
-				exemptions: [],
-				semesters: [[], []],
-				currentSemester: 0,
-				wishlist: []
-			})
+for (const { language, label, direction } of [
+	{ language: 'he', label: 'מצב בהיר', direction: 'rtl' },
+	{ language: 'en', label: 'Light mode', direction: 'ltr' }
+]) {
+	test(`uses the ${language} label and fits the mobile footer`, async ({
+		page
+	}) => {
+		await page.setViewportSize({ width: 320, height: 740 });
+		await page.addInitScript((language) => {
+			localStorage.setItem('lang', language);
+			localStorage.setItem('version', '4');
+			localStorage.setItem(
+				'userData',
+				JSON.stringify({
+					degree: ['2026_200', '00002330', 'SC00001356_CG00011002'],
+					exemptions: [],
+					semesters: [[], []],
+					currentSemester: 0,
+					wishlist: []
+				})
+			);
+		}, language);
+		await page.goto(origin + '/plan');
+		const footer = page.locator('footer');
+		const toggle = footer.getByRole('button', { name: label, exact: true });
+		await toggle.click();
+		await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+		await expect(page.locator('main').locator('..')).toHaveAttribute(
+			'dir',
+			direction
 		);
+		expect(
+			await footer.evaluate(
+				(element) => element.scrollWidth <= element.clientWidth
+			)
+		).toBe(true);
+		const box = await toggle.boundingBox();
+		expect(box?.width).toBeGreaterThanOrEqual(44);
+		expect(box?.height).toBeGreaterThanOrEqual(44);
+		await expect(
+			page.locator('header').getByRole('button', { name: label, exact: true })
+		).toHaveCount(0);
 	});
-	await page.goto(origin + '/plan');
-	const toggle = page.getByRole('button', { name: 'מצב בהיר', exact: true });
-	await toggle.click();
-	await expect(toggle).toHaveAttribute('aria-pressed', 'true');
-	await expect(page.locator('main').locator('..')).toHaveAttribute(
-		'dir',
-		'rtl'
-	);
-	const header = page.locator('header');
-	expect(
-		await header.evaluate(
-			(element) => element.scrollWidth <= element.clientWidth
-		)
-	).toBe(true);
-	const box = await toggle.boundingBox();
-	expect(box?.width).toBeGreaterThanOrEqual(44);
-	expect(box?.height).toBeGreaterThanOrEqual(44);
-	await expect(page.locator('nav')).toBeVisible();
-});
+}
 
 test('syncs a preference changed in another tab', async ({ page, context }) => {
 	await page.addInitScript(() => localStorage.setItem('lang', 'en'));

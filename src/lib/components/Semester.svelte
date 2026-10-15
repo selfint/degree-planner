@@ -52,7 +52,13 @@
 	function makeSortable(column: HTMLDivElement) {
 		if (sortable !== undefined) {
 			const instance = new Sortable(column, sortable);
-			return { destroy: () => instance.destroy() };
+			return {
+				destroy: () => {
+					// Sortable's destroy() cancels the drag but leaves its body-level preview.
+					Sortable.ghost?.remove();
+					instance.destroy();
+				}
+			};
 		}
 	}
 </script>

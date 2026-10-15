@@ -57,7 +57,13 @@
 
 	function makeSortable(el: HTMLElement, options: Sortable.Options) {
 		const sortable = new Sortable(el, options);
-		return { destroy: () => sortable.destroy() };
+		return {
+			destroy: () => {
+				// Sortable's destroy() cancels the drag but leaves its body-level preview.
+				Sortable.ghost?.remove();
+				sortable.destroy();
+			}
+		};
 	}
 </script>
 

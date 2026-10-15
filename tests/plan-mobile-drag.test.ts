@@ -274,12 +274,81 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 			).toHaveCount(1);
 		});
 
+		test('navigating away during a touch drag removes its preview without losing courses', async ({
+			page,
+			context
+		}) => {
+			const rect = (await page
+				.locator('[data-code="10400001"]')
+				.boundingBox())!;
+			const point = { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 };
+			const touch = await context.newCDPSession(page);
+			await touch.send('Input.dispatchTouchEvent', {
+				type: 'touchStart',
+				touchPoints: [point]
+			});
+			await page.waitForTimeout(200);
+			await touch.send('Input.dispatchTouchEvent', {
+				type: 'touchMove',
+				touchPoints: [{ x: point.x, y: point.y - 5 }]
+			});
+			await expect(page.locator('.sortable-fallback')).toHaveCount(1);
+			// Browser Back unmounts the plan without ending the gesture first.
+			await page.goBack();
+			await expect(page).toHaveURL(/\/$/);
+			await expect(page.locator('.sortable-fallback')).toHaveCount(0);
+			await touch.send('Input.dispatchTouchEvent', {
+				type: 'touchCancel',
+				touchPoints: []
+			});
+			await page.locator('a[href="/plan"]').click();
+			await expect(page.locator('[data-code]')).toHaveCount(3);
+		});
+
+		test('long semesters grow their drop zones with the course list', async ({
+			page,
+			context
+		}) => {
+			await page.evaluate(() => {
+				const data = JSON.parse(localStorage.getItem('userData')!);
+				data.semesters[0].push(
+					...Array.from({ length: 12 }, (_, i) => String(10410000 + i))
+				);
+				localStorage.setItem('userData', JSON.stringify(data));
+			});
+			await page.reload();
+			const lastCard = page.locator('[data-code="10410011"]');
+			await lastCard.scrollIntoViewIfNeeded();
+			const first = (await page.locator('[data-semester="0"]').boundingBox())!;
+			const secondSemester = page.locator('[data-semester="1"]');
+			const second = (await secondSemester.boundingBox())!;
+			const last = (await lastCard.boundingBox())!;
+			expect(first.height).toBeGreaterThan(page.viewportSize()!.height);
+			expect(second.height).toBeCloseTo(first.height, 0);
+			expect(last.y + last.height).toBeLessThanOrEqual(
+				first.y + first.height + 1
+			);
+			const touch = await context.newCDPSession(page);
+			await dragTo(page, touch, '10410011', {
+				x: second.x + second.width / 2,
+				y: last.y + last.height / 2
+			});
+			await expect(
+				secondSemester.locator('[data-code="10410011"]')
+			).toHaveCount(1);
+			await expect(page.locator('[data-code]')).toHaveCount(15);
+			await page.getByRole('button', { name: 'Cancel', exact: true }).click();
+			await expect(
+				page.locator('[data-semester="0"] [data-code="10410011"]')
+			).toHaveCount(1);
+		});
+
 		test('dropping a touch drag outside the lists preserves the course', async ({
 			page,
 			context
 		}) => {
 			const touch = await context.newCDPSession(page);
-			await dragTo(page, touch, '10400001', { x: 200, y: 600 });
+			await dragTo(page, touch, '10400001', { x: 200, y: 20 });
 			await expect(page.locator('[data-code="10400001"]')).toHaveCount(1);
 			await expect(page.locator('[data-code]')).toHaveCount(3);
 		});
@@ -299,28 +368,22 @@ test.describe('mouse drop zones', () => {
 		const wishlist = page.getByTestId('plan-wishlist');
 		const second = (await secondSemester.boundingBox())!;
 		expect(second.height).toBeGreaterThan(250);
-		await page
-			.locator('[data-code="10400003"]')
-			.dragTo(secondSemester, {
-				targetPosition: { x: second.width / 2, y: second.height - 20 }
-			});
+		await page.locator('[data-code="10400003"]').dragTo(secondSemester, {
+			targetPosition: { x: second.width / 2, y: second.height - 20 }
+		});
 		await expect(secondSemester.locator('[data-code="10400003"]')).toHaveCount(
 			1
 		);
-		await page
-			.locator('[data-code="10400001"]')
-			.dragTo(secondSemester, {
-				targetPosition: { x: second.width / 2, y: second.height - 20 }
-			});
+		await page.locator('[data-code="10400001"]').dragTo(secondSemester, {
+			targetPosition: { x: second.width / 2, y: second.height - 20 }
+		});
 		await expect(secondSemester.locator('[data-code]')).toHaveCount(2);
 		const emptyWish = (await wishlist.boundingBox())!;
 		expect(emptyWish.width).toBeGreaterThan(1200);
 		expect(emptyWish.height).toBeGreaterThan(60);
-		await page
-			.locator('[data-code="10400002"]')
-			.dragTo(wishlist, {
-				targetPosition: { x: 40, y: emptyWish.height - 10 }
-			});
+		await page.locator('[data-code="10400002"]').dragTo(wishlist, {
+			targetPosition: { x: 40, y: emptyWish.height - 10 }
+		});
 		await expect(wishlist.locator('[data-code="10400002"]')).toHaveCount(1);
 		await page.getByRole('button', { name: 'Cancel', exact: true }).click();
 		await expect(page.locator('[data-semester="0"] [data-code]')).toHaveCount(

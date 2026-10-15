@@ -61,9 +61,10 @@
 	}
 </script>
 
-<div class="mb-3 mt-3">
-	<div class="mb-4 h-36 max-h-36 sm:h-28 sm:max-h-28">
-		<div class="mb-1 me-3 ms-3 flex flex-row justify-between">
+<!-- Reserve space for the app header/footer while letting long plans grow. -->
+<div class="mb-3 mt-3 flex min-h-[calc(100dvh-9rem)] flex-col">
+	<div class="mb-4 flex h-36 max-h-36 shrink-0 flex-col sm:h-28 sm:max-h-28">
+		<div class="mb-1 me-3 ms-3 flex shrink-0 flex-row justify-between">
 			<h1 class="text-base font-medium text-content-primary">
 				{content.lang.plan.wishlist}
 			</h1>
@@ -97,7 +98,7 @@
 		</div>
 		<div
 			dir="ltr"
-			class="flex flex-row overflow-x-auto overflow-y-hidden rtl:flex-row-reverse"
+			class="flex min-h-0 flex-1 flex-row overflow-x-auto overflow-y-hidden rtl:flex-row-reverse"
 		>
 			{#key wishlist.join(' ')}
 				<div
@@ -146,7 +147,7 @@
 							);
 						}
 					}}
-					class="me-2 ms-2 flex min-h-fit flex-row justify-end gap-x-2"
+					class="me-2 ms-2 flex min-h-full min-w-[calc(100%-1rem)] shrink-0 flex-row items-start justify-end gap-x-2"
 				>
 					{#each wishlist as course}
 						<button
@@ -161,12 +162,12 @@
 			{/key}
 		</div>
 	</div>
-	<div style="transform: rotateX(180deg)" class="overflow-x-auto">
-		<div style="transform: rotateX(180deg)" class="flex flex-row">
+	<div style="transform: rotateX(180deg)" class="flex flex-1 overflow-x-auto">
+		<div style="transform: rotateX(180deg)" class="flex flex-1 flex-row">
 			<div class="ms-3"></div>
 			{#key semesters.map((s) => s.join('-')).join(',')}
 				{#each semesters as semester, semesterIndex}
-					<div class="pe-2">
+					<div class="flex pe-2">
 						<Semester
 							{getCourseData}
 							index={semesterIndex}

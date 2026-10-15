@@ -17,6 +17,8 @@ test.beforeEach(async ({ page }) => {
 			'userData',
 			JSON.stringify({
 				exemptions: [],
+				degree: ['2024_200', '00002120', 'SC00001320_CG00006382'],
+				path: 'CG00006246',
 				semesters: [['10400001', '10400002'], [], [], [], [], []],
 				currentSemester: 0,
 				wishlist: ['10400003']
@@ -26,7 +28,10 @@ test.beforeEach(async ({ page }) => {
 	await page.route('**/courseDataStripped.json', (route) =>
 		route.fulfill({ json: courses })
 	);
-	await page.goto('/plan');
+	// Navigate client-side so the fixture replaces the course-data request,
+	// rather than the real catalog being inlined by server-side rendering.
+	await page.goto('/');
+	await page.locator('a[href="/plan"]').click();
 	await expect(page.getByText('First course')).toBeVisible();
 });
 

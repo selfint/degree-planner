@@ -397,6 +397,78 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 			expect(await page.evaluate(() => scrollY)).toBe(stoppedY);
 		});
 
+		test('a wishlist course can reach the end of a long semester during the same drag', async ({
+			page,
+			context
+		}) => {
+			await page.evaluate(() => {
+				const data = JSON.parse(localStorage.getItem('userData')!);
+				data.semesters[0].push(
+					...Array.from({ length: 24 }, (_, i) => String(10410000 + i))
+				);
+				localStorage.setItem('userData', JSON.stringify(data));
+			});
+			await page.reload();
+			const wish = (await page
+				.locator('[data-code="10400003"]')
+				.boundingBox())!;
+			const first = page.locator('[data-semester="0"]');
+			const column = (await first.boundingBox())!;
+			const start = { x: wish.x + wish.width / 2, y: wish.y + wish.height / 2 };
+			const bottom = {
+				x: column.x + column.width / 2,
+				y: page.viewportSize()!.height - 4
+			};
+			const touch = await context.newCDPSession(page);
+			await touch.send('Input.dispatchTouchEvent', {
+				type: 'touchStart',
+				touchPoints: [start]
+			});
+			await page.waitForTimeout(200);
+			await touch.send('Input.dispatchTouchEvent', {
+				type: 'touchMove',
+				touchPoints: [{ x: start.x, y: start.y + 5 }]
+			});
+			await expect(page.locator('.sortable-fallback')).toHaveCount(1);
+			await moveTouch(page, touch, start, bottom);
+			await expect
+				.poll(
+					() =>
+						page.evaluate(() =>
+							Math.abs(
+								scrollY - (document.documentElement.scrollHeight - innerHeight)
+							)
+						),
+					{ timeout: 15000 }
+				)
+				.toBeLessThan(2);
+			expect(await page.evaluate(() => scrollY)).toBeGreaterThan(100);
+			const last = (await page
+				.locator('[data-code="10410023"]')
+				.boundingBox())!;
+			await touch.send('Input.dispatchTouchEvent', {
+				type: 'touchMove',
+				touchPoints: [{ x: bottom.x, y: last.y + last.height - 2 }]
+			});
+			await page.waitForTimeout(300);
+			await touch.send('Input.dispatchTouchEvent', {
+				type: 'touchEnd',
+				touchPoints: []
+			});
+			await expect(first.locator('[data-code]').last()).toHaveAttribute(
+				'data-code',
+				'10400003'
+			);
+			await expect(page.locator('[data-plan-drag-overlay]')).toHaveCount(0);
+			await page.getByRole('button', { name: 'Save', exact: true }).click();
+			await page.reload();
+			await expect(first.locator('[data-code]').last()).toHaveAttribute(
+				'data-code',
+				'10400003'
+			);
+			await expect(page.locator('[data-code]')).toHaveCount(27);
+		});
+
 		test('wishlist edge drags stay inside its scroller in both page directions', async ({
 			page,
 			context

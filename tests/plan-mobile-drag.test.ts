@@ -233,6 +233,7 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 					touchPoints: []
 				});
 				await expect(page.locator('.sortable-fallback')).toHaveCount(0);
+				await expect(page.locator('[data-plan-drag-overlay]')).toHaveCount(0);
 				await expect(page.locator('[data-code]')).toHaveCount(3);
 				await page.locator('footer select').selectOption({ label: 'en' });
 				const cancel = page.getByRole('button', {
@@ -284,7 +285,9 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 					viewportY: window.visualViewport?.offsetTop ?? 0
 				}));
 				expect(after.height).toBeLessThanOrEqual(before.height + 1);
-				expect(after.y).toBeCloseTo(before.y, 0);
+				expect(after.y).toBeLessThanOrEqual(
+					Math.max(0, before.height - page.viewportSize()!.height) + 1
+				);
 				expect(after.viewportY).toBe(0);
 				const ghost = (await page.locator('.sortable-fallback').boundingBox())!;
 				expect(ghost.y + ghost.height / 2).toBeCloseTo(bottom.y, 0);
@@ -293,9 +296,106 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 					touchPoints: []
 				});
 				await expect(page.locator('.sortable-fallback')).toHaveCount(0);
+				await expect(page.locator('[data-plan-drag-overlay]')).toHaveCount(0);
 				await expect(page.locator('[data-code]')).toHaveCount(3);
 			});
 		}
+
+		test('one activating touch move immediately positions the preview under the finger', async ({
+			page,
+			context
+		}) => {
+			const rect = (await page
+				.locator('[data-code="10400001"]')
+				.boundingBox())!;
+			const start = { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 };
+			const target = { x: start.x + 30, y: start.y + 100 };
+			const touch = await context.newCDPSession(page);
+			await touch.send('Input.dispatchTouchEvent', {
+				type: 'touchStart',
+				touchPoints: [start]
+			});
+			await page.waitForTimeout(200);
+			await touch.send('Input.dispatchTouchEvent', {
+				type: 'touchMove',
+				touchPoints: [target]
+			});
+			await expect(page.locator('.sortable-fallback')).toHaveCount(1);
+			await expect
+				.poll(async () => {
+					const ghost = (await page
+						.locator('.sortable-fallback')
+						.boundingBox())!;
+					return (
+						Math.abs(ghost.x + ghost.width / 2 - target.x) +
+						Math.abs(ghost.y + ghost.height / 2 - target.y)
+					);
+				})
+				.toBeLessThan(1);
+			await touch.send('Input.dispatchTouchEvent', {
+				type: 'touchCancel',
+				touchPoints: []
+			});
+			await expect(page.locator('[data-plan-drag-overlay]')).toHaveCount(0);
+		});
+
+		test('active drags can scroll a long plan in both vertical directions without extending it', async ({
+			page,
+			context
+		}) => {
+			await page.evaluate(() => {
+				const data = JSON.parse(localStorage.getItem('userData')!);
+				data.semesters[0].push(
+					...Array.from({ length: 24 }, (_, i) => String(10410000 + i))
+				);
+				localStorage.setItem('userData', JSON.stringify(data));
+			});
+			await page.reload();
+			const card = page.locator('[data-code="10400001"]');
+			await card.scrollIntoViewIfNeeded();
+			const rect = (await card.boundingBox())!;
+			const start = { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 };
+			const height = await page.evaluate(
+				() => document.documentElement.scrollHeight
+			);
+			const touch = await context.newCDPSession(page);
+			await touch.send('Input.dispatchTouchEvent', {
+				type: 'touchStart',
+				touchPoints: [start]
+			});
+			await page.waitForTimeout(200);
+			await touch.send('Input.dispatchTouchEvent', {
+				type: 'touchMove',
+				touchPoints: [{ x: start.x, y: start.y + 5 }]
+			});
+			await expect(page.locator('.sortable-fallback')).toHaveCount(1);
+			const bottom = { x: start.x, y: page.viewportSize()!.height - 4 };
+			await moveTouch(page, touch, start, bottom);
+			await expect
+				.poll(() => page.evaluate(() => scrollY))
+				.toBeGreaterThan(100);
+			const downY = await page.evaluate(() => scrollY);
+			const ghost = (await page.locator('.sortable-fallback').boundingBox())!;
+			expect(ghost.y + ghost.height / 2).toBeCloseTo(bottom.y, 0);
+			expect(
+				await page.evaluate(() => document.documentElement.scrollHeight)
+			).toBeLessThanOrEqual(height + 1);
+			await moveTouch(page, touch, bottom, { x: start.x, y: 4 });
+			await expect
+				.poll(() => page.evaluate(() => scrollY))
+				.toBeLessThan(downY - 20);
+			await touch.send('Input.dispatchTouchEvent', {
+				type: 'touchCancel',
+				touchPoints: []
+			});
+			await expect(page.locator('[data-plan-drag-overlay]')).toHaveCount(0);
+			await expect(page.locator('.sortable-fallback')).toHaveCount(0);
+			await expect(page.locator('[data-plan-drag-overlay]')).toHaveCount(0);
+			await expect(page.locator('[data-code]')).toHaveCount(27);
+			const stoppedY = await page.evaluate(() => scrollY);
+			await page.waitForTimeout(200);
+			expect(await page.evaluate(() => scrollY)).toBe(stoppedY);
+		});
 
 		test('wishlist edge drags stay inside its scroller in both page directions', async ({
 			page,
@@ -380,6 +480,7 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 					touchPoints: []
 				});
 				await expect(page.locator('.sortable-fallback')).toHaveCount(0);
+				await expect(page.locator('[data-plan-drag-overlay]')).toHaveCount(0);
 				await expect(page.locator('[data-code]')).toHaveCount(10);
 				expect(
 					await page.locator('body').evaluate((element) => ({
@@ -426,6 +527,7 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 				touchPoints: []
 			});
 			await expect(page.locator('.sortable-fallback')).toHaveCount(0);
+			await expect(page.locator('[data-plan-drag-overlay]')).toHaveCount(0);
 			await expect(page.locator(`[data-code="${code}"]`)).toHaveCount(1);
 			await expect(page).toHaveURL(/\/plan$/);
 		}
@@ -576,6 +678,7 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 			await page.goBack();
 			await expect(page).toHaveURL(/\/$/);
 			await expect(page.locator('.sortable-fallback')).toHaveCount(0);
+			await expect(page.locator('[data-plan-drag-overlay]')).toHaveCount(0);
 			await touch.send('Input.dispatchTouchEvent', {
 				type: 'touchCancel',
 				touchPoints: []

@@ -11,6 +11,7 @@
 	import { getScheduleError } from '$lib/schedule';
 	import AsyncButton from '$lib/components/AsyncButton.svelte';
 	import Sortable from 'sortablejs';
+	import { startPlanDrag, endPlanDrag } from '$lib/planDrag';
 
 	const { data: pageData } = $props();
 	const { getCourseData } = $derived(pageData);
@@ -58,11 +59,6 @@
 		setUser(await writeStorage({ ...user.d, wishlist, semesters }));
 	}
 
-	function containDragPreview() {
-		// iOS uses an absolute body-level preview; keep it from widening the page.
-		Sortable.ghost?.classList.add('plan-drag-preview');
-	}
-
 	function initializeSemesterScroll(el: HTMLElement, direction: string) {
 		function update(direction: string) {
 			// Sortable's edge scrolling assumes nonnegative scrollLeft. Keep the
@@ -78,6 +74,7 @@
 		return {
 			destroy: () => {
 				// Sortable's destroy() cancels the drag but leaves its body-level preview.
+				endPlanDrag();
 				Sortable.ghost?.remove();
 				sortable.destroy();
 			}
@@ -122,6 +119,7 @@
 		</div>
 		<div
 			data-testid="wishlist-scroller"
+			data-plan-scroll
 			dir="ltr"
 			class="flex min-h-0 flex-1 flex-row overflow-x-auto overflow-y-hidden rtl:flex-row-reverse"
 		>
@@ -133,7 +131,9 @@
 						// Keep the touch preview outside transformed/clipped scrollers.
 						fallbackOnBody: true,
 						forceFallback: touchDrag,
-						onStart: containDragPreview,
+						onStart: startPlanDrag,
+						onEnd: endPlanDrag,
+						scroll: !touchDrag,
 						bubbleScroll: false,
 						sort: true,
 						direction: 'horizontal',
@@ -192,6 +192,7 @@
 	</div>
 	<div
 		data-testid="semester-scroller"
+		data-plan-scroll
 		dir="ltr"
 		use:initializeSemesterScroll={content.lang.dir}
 		style="transform: rotateX(180deg)"
@@ -217,7 +218,9 @@
 								// Keep the touch preview outside transformed/clipped scrollers.
 								fallbackOnBody: true,
 								forceFallback: touchDrag,
-								onStart: containDragPreview,
+								onStart: startPlanDrag,
+								onEnd: endPlanDrag,
+								scroll: !touchDrag,
 								bubbleScroll: false,
 								dataIdAttr: 'data-code',
 								sort: true,
@@ -297,15 +300,5 @@
 
 	:global(.wishlist-ghost) {
 		@apply max-h-[118px] w-[29vw] min-w-[29vw] max-w-[220px] overflow-y-hidden sm:min-w-[220px];
-	}
-	/* Clip only at the page edge, never at the semester/wishlist boundary.
-	   Both boxes are needed so body overflow cannot widen the root viewport. */
-	:global(html:has(.plan-drag-preview)),
-	:global(body:has(.plan-drag-preview)) {
-		overflow-x: clip;
-	}
-
-	:global(body:has(.plan-drag-preview)) {
-		position: relative;
 	}
 </style>

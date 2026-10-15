@@ -2,6 +2,7 @@
 	import type { Snippet } from 'svelte';
 
 	import Sortable from 'sortablejs';
+	import { endPlanDrag } from '$lib/planDrag';
 
 	import CourseWidth from './CourseWidth.svelte';
 	import StudyDaysComponent from './StudyDaysComponent.svelte';
@@ -55,6 +56,7 @@
 			return {
 				destroy: () => {
 					// Sortable's destroy() cancels the drag but leaves its body-level preview.
+					endPlanDrag();
 					Sortable.ghost?.remove();
 					instance.destroy();
 				}

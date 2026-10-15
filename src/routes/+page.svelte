@@ -13,9 +13,16 @@
 	import AsyncButton from '$lib/components/AsyncButton.svelte';
 	import CourseExplanation from '$lib/components/CourseExplanation.svelte';
 	import ImgDemo from './components/ImgDemo.svelte';
+	import { landingParallax } from './components/landingParallax';
 </script>
 
-<div dir={content.lang.dir} class="circle flex flex-grow flex-col items-center">
+<div
+	dir={content.lang.dir}
+	class="landing flex flex-grow flex-col items-center"
+>
+	<div class="landing-background" aria-hidden="true">
+		<div class="landing-gradient" use:landingParallax></div>
+	</div>
 	<div
 		class="flex h-fit flex-col items-start justify-center p-3 sm:max-w-[1024px] lg:mt-20 lg:flex-row"
 	>
@@ -110,7 +117,22 @@
 </div>
 
 <style lang="postcss">
-	:global([dir='ltr'] .circle) {
+	.landing {
+		position: relative;
+		isolation: isolate;
+	}
+
+	.landing-background {
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		overflow: hidden;
+		pointer-events: none;
+	}
+
+	.landing-gradient {
+		position: absolute;
+		inset: 0;
 		background-image: radial-gradient(
 			ellipse 70% 20% at 100% 15%,
 			rgb(var(--landing-glow)) 1%,
@@ -118,7 +140,7 @@
 		);
 	}
 
-	:global([dir='rtl'] .circle) {
+	.landing[dir='rtl'] .landing-gradient {
 		background-image: radial-gradient(
 			ellipse 70% 20% at 0% 15%,
 			rgb(var(--landing-glow)) 1%,
@@ -126,8 +148,8 @@
 		);
 	}
 
-	@media (min-width: 640px) {
-		:global([dir='ltr'] .circle) {
+	@media (min-width: 40rem) {
+		.landing-gradient {
 			background-image: radial-gradient(
 				ellipse 90% 65% at 0% 50%,
 				rgb(var(--landing-glow)) 1%,
@@ -135,12 +157,19 @@
 			);
 		}
 
-		:global([dir='rtl'] .circle) {
+		.landing[dir='rtl'] .landing-gradient {
 			background-image: radial-gradient(
 				ellipse 90% 65% at 100% 50%,
 				rgb(var(--landing-glow)) 1%,
 				transparent 70%
 			);
+		}
+	}
+
+	@media (prefers-reduced-motion: no-preference) {
+		.landing-gradient {
+			transform: translate3d(0, var(--landing-parallax-offset, 0rem), 0);
+			will-change: transform;
 		}
 	}
 </style>

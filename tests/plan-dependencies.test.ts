@@ -36,6 +36,15 @@ test.beforeEach(async ({ page }) => {
 	await page.route('**/courseDataStripped.json', (route) =>
 		route.fulfill({ json: courses })
 	);
+	// Hydration otherwise reuses the real course data embedded by server rendering.
+	await page.route('**/plan', async (route) => {
+		const response = await route.fetch();
+		const body = (await response.text()).replace(
+			/<script[^>]*data-sveltekit-fetched[^>]*data-url="\/courseDataStripped\.json"[^>]*>.*?<\/script>/s,
+			''
+		);
+		await route.fulfill({ response, body });
+	});
 	await page.goto('/plan');
 });
 

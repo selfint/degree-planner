@@ -18,6 +18,7 @@
 	import { cms } from '$lib/content';
 
 	import TitleBar from './components/TitleBar.svelte';
+	import ThemeToggle from '$lib/components/ThemeToggle.svelte';
 	import Select from '$lib/components/Select.svelte';
 	import {
 		buildFirebaseStorage,
@@ -64,7 +65,7 @@
 	</main>
 
 	<footer
-		class="flex flex-row items-baseline justify-between border-t-2 border-border bg-background p-3 text-sm"
+		class="flex flex-row flex-wrap items-center justify-between gap-x-4 gap-y-2 border-t-2 border-border bg-background p-3 text-sm"
 	>
 		<p class="text-content-secondary sm:flex-row sm:space-x-2">
 			{content.lang.footer.createdBy}
@@ -77,7 +78,8 @@
 			</a>
 		</p>
 
-		<div>
+		<div class="flex items-center gap-x-2">
+			<ThemeToggle />
 			<Select bind:value={content.lang} onchange={onchangeLang}>
 				<option value={cms.en}>en</option>
 				<option value={cms.he}>עב</option>

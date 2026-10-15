@@ -260,7 +260,10 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 			const documentHeight = await page.evaluate(
 				() => document.documentElement.scrollHeight
 			);
-			expect(documentHeight).toBeLessThanOrEqual(550);
+			// A wrapped footer may extend below a short screen; the planner itself
+			// must fit without creating another viewport of blank scrolling.
+			const footerHeight = (await page.locator('footer').boundingBox())!.height;
+			expect(documentHeight).toBeLessThanOrEqual(540 + footerHeight);
 			await dragTo(page, touch, '10400001', {
 				x: rect.x + rect.width / 2,
 				y: rect.y + rect.height - 15
@@ -293,6 +296,15 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 				touchPoints: [{ x: point.x, y: point.y - 5 }]
 			});
 			await expect(page.locator('.sortable-fallback')).toHaveCount(1);
+			const lastCard = (await page
+				.locator('[data-code="10400002"]')
+				.boundingBox())!;
+			await touch.send('Input.dispatchTouchEvent', {
+				type: 'touchMove',
+				touchPoints: [{ x: point.x, y: lastCard.y + lastCard.height + 20 }]
+			});
+			// Let normal drag-over hit testing finish before interrupting the gesture.
+			await page.waitForTimeout(150);
 			// Browser Back unmounts the plan without ending the gesture first.
 			await page.goBack();
 			await expect(page).toHaveURL(/\/$/);
@@ -302,6 +314,7 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 				touchPoints: []
 			});
 			await page.locator('a[href="/plan"]').click();
+			await expect(page).toHaveURL(/\/plan$/);
 			await expect(page.locator('[data-code]')).toHaveCount(3);
 		});
 
@@ -312,12 +325,12 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 			await page.evaluate(() => {
 				const data = JSON.parse(localStorage.getItem('userData')!);
 				data.semesters[0].push(
-					...Array.from({ length: 12 }, (_, i) => String(10410000 + i))
+					...Array.from({ length: 24 }, (_, i) => String(10410000 + i))
 				);
 				localStorage.setItem('userData', JSON.stringify(data));
 			});
 			await page.reload();
-			const lastCard = page.locator('[data-code="10410011"]');
+			const lastCard = page.locator('[data-code="10410023"]');
 			await lastCard.scrollIntoViewIfNeeded();
 			const first = (await page.locator('[data-semester="0"]').boundingBox())!;
 			const secondSemester = page.locator('[data-semester="1"]');
@@ -329,17 +342,17 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 				first.y + first.height + 1
 			);
 			const touch = await context.newCDPSession(page);
-			await dragTo(page, touch, '10410011', {
+			await dragTo(page, touch, '10410023', {
 				x: second.x + second.width / 2,
 				y: last.y + last.height / 2
 			});
 			await expect(
-				secondSemester.locator('[data-code="10410011"]')
+				secondSemester.locator('[data-code="10410023"]')
 			).toHaveCount(1);
-			await expect(page.locator('[data-code]')).toHaveCount(15);
+			await expect(page.locator('[data-code]')).toHaveCount(27);
 			await page.getByRole('button', { name: 'Cancel', exact: true }).click();
 			await expect(
-				page.locator('[data-semester="0"] [data-code="10410011"]')
+				page.locator('[data-semester="0"] [data-code="10410023"]')
 			).toHaveCount(1);
 		});
 

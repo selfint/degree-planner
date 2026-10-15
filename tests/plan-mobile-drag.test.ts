@@ -153,28 +153,6 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 					await page.locator('footer select').selectOption({ label: 'עב' });
 				}
 				const touch = await context.newCDPSession(page);
-				await page.evaluate(() => {
-					document.addEventListener(
-						'pointermove',
-						(event) => {
-							document.body.dataset.lastPointer = JSON.stringify({
-								x: event.clientX,
-								y: event.clientY
-							});
-						},
-						true
-					);
-					document.addEventListener(
-						'touchmove',
-						(event) => {
-							document.body.dataset.lastTouch = JSON.stringify({
-								x: event.touches[0]?.clientX,
-								y: event.touches[0]?.clientY
-							});
-						},
-						true
-					);
-				});
 				const scroller = page.getByTestId('semester-scroller');
 				const rect = (await page
 					.locator('[data-code="10400001"]')
@@ -241,58 +219,6 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 						y: start.y + 5
 					}
 				);
-				console.info(
-					'edge-drag-diagnostics',
-					language,
-					await page.evaluate(
-						({ x, y }) => {
-							const chain = [];
-							let element = document.elementFromPoint(
-								x,
-								y
-							) as HTMLElement | null;
-							while (element) {
-								chain.push({
-									tag: element.tagName,
-									testId: element.dataset.testid,
-									overflow: getComputedStyle(element).overflowX,
-									scroll: element.scrollLeft,
-									width: element.clientWidth,
-									scrollWidth: element.scrollWidth,
-									rect: element.getBoundingClientRect().toJSON()
-								});
-								element = element.parentElement;
-							}
-							const column = document.querySelector('[data-semester="0"]')!;
-							const instance = Object.entries(column).find(([key]) =>
-								key.startsWith('Sortable')
-							)?.[1] as
-								| {
-										options: {
-											forceFallback: boolean;
-											supportPointer: boolean;
-										};
-										nativeDraggable: boolean;
-								  }
-								| undefined;
-							return {
-								chain,
-								pointer: document.body.dataset.lastPointer,
-								touch: document.body.dataset.lastTouch,
-								ghost: document
-									.querySelector('.sortable-fallback')
-									?.getBoundingClientRect()
-									.toJSON(),
-								options: instance?.options && {
-									forceFallback: instance.options.forceFallback,
-									supportPointer: instance.options.supportPointer
-								},
-								native: instance?.nativeDraggable
-							};
-						},
-						{ x: language === 'he' ? viewport.width - 4 : 4, y: start.y + 5 }
-					)
-				);
 
 				await expect
 					.poll(async () =>
@@ -317,6 +243,57 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 				await expect(
 					page.locator('[data-semester="0"] [data-code]')
 				).toHaveCount(2);
+			});
+		}
+
+		for (const language of ['en', 'he']) {
+			test(`downward drags do not create blank page space (${language})`, async ({
+				page,
+				context
+			}) => {
+				if (language === 'he')
+					await page.locator('footer select').selectOption({ label: 'עב' });
+				const touch = await context.newCDPSession(page);
+				const rect = (await page
+					.locator('[data-code="10400001"]')
+					.boundingBox())!;
+				const start = {
+					x: rect.x + rect.width / 2,
+					y: rect.y + rect.height / 2
+				};
+				const before = await page.evaluate(() => ({
+					height: document.documentElement.scrollHeight,
+					y: window.scrollY
+				}));
+				await touch.send('Input.dispatchTouchEvent', {
+					type: 'touchStart',
+					touchPoints: [start]
+				});
+				await page.waitForTimeout(200);
+				await touch.send('Input.dispatchTouchEvent', {
+					type: 'touchMove',
+					touchPoints: [{ x: start.x, y: start.y + 5 }]
+				});
+				await expect(page.locator('.sortable-fallback')).toHaveCount(1);
+				const bottom = { x: start.x, y: page.viewportSize()!.height - 4 };
+				await moveTouch(page, touch, start, bottom);
+				await page.waitForTimeout(1500);
+				const after = await page.evaluate(() => ({
+					height: document.documentElement.scrollHeight,
+					y: window.scrollY,
+					viewportY: window.visualViewport?.offsetTop ?? 0
+				}));
+				expect(after.height).toBeLessThanOrEqual(before.height + 1);
+				expect(after.y).toBeCloseTo(before.y, 0);
+				expect(after.viewportY).toBe(0);
+				const ghost = (await page.locator('.sortable-fallback').boundingBox())!;
+				expect(ghost.y + ghost.height / 2).toBeCloseTo(bottom.y, 0);
+				await touch.send('Input.dispatchTouchEvent', {
+					type: 'touchCancel',
+					touchPoints: []
+				});
+				await expect(page.locator('.sortable-fallback')).toHaveCount(0);
+				await expect(page.locator('[data-code]')).toHaveCount(3);
 			});
 		}
 

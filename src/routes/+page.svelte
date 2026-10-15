@@ -29,7 +29,7 @@
 		<h1
 			class="mb-6 text-5xl text-content-primary md:text-6xl lg:me-20 lg:text-7xl"
 		>
-			<span class="text-nowrap">{content.lang.landing.catchphrase[0]}</span>
+			<span class="sm:text-nowrap">{content.lang.landing.catchphrase[0]}</span>
 			<br class="hidden lg:block" />
 			<span
 				class="bg-gradient-to-b from-content-primary from-30% to-accent-primary bg-clip-text text-transparent"

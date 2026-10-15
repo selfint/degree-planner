@@ -4,7 +4,8 @@ const origin = 'http://localhost:4173';
 
 for (const viewport of [
 	{ width: 1280, height: 800 },
-	{ width: 390, height: 844 }
+	{ width: 390, height: 844 },
+	{ width: 320, height: 740 }
 ]) {
 	for (const { language, theme } of [
 		{ language: 'en', theme: 'dark' },
@@ -12,7 +13,7 @@ for (const viewport of [
 	]) {
 		test(`parallax preserves ${theme} ${language} layout at ${viewport.width}`, async ({
 			page
-		}) => {
+		}, testInfo) => {
 			await page.setViewportSize(viewport);
 			await page.emulateMedia({ reducedMotion: 'no-preference' });
 			await page.addInitScript(
@@ -35,6 +36,7 @@ for (const viewport of [
 			const initialHeight = await page.evaluate(
 				() => document.documentElement.scrollHeight
 			);
+			await page.screenshot({ path: testInfo.outputPath('landing-top.png') });
 			await page.mouse.wheel(0, 600);
 			await expect
 				.poll(() =>
@@ -68,6 +70,9 @@ for (const viewport of [
 				'pointer-events',
 				'none'
 			);
+			await page.screenshot({
+				path: testInfo.outputPath('landing-scrolled.png')
+			});
 			await page.keyboard.press('Home');
 			await page
 				.locator('main')

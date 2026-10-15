@@ -26,7 +26,7 @@ test('defaults to dark and supports keyboard switching with persistence', async 
 	await page.reload();
 	await expect(toggle).toHaveAttribute('aria-pressed', 'true');
 	await page
-		.getByRole('button', { name: 'Get Started', exact: true })
+		.getByRole('link', { name: 'Get Started', exact: true })
 		.first()
 		.click();
 	await expect(page).toHaveURL(/\/settings/);

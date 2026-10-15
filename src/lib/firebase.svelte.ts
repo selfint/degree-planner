@@ -1,4 +1,5 @@
 import { initializeApp, type FirebaseApp } from 'firebase/app';
+import { browser } from '$app/environment';
 import {
 	getAuth,
 	connectAuthEmulator,
@@ -80,11 +81,6 @@ export async function initFirebase(): Promise<FirebaseServices> {
 	const auth = getAuth(app);
 	const firestore = getFirestore(app);
 
-	let analytics = undefined;
-	if (await isSupported()) {
-		analytics = getAnalytics(app);
-	}
-
 	if (!import.meta.env.PROD) {
 		connectAuthEmulator(auth, 'http://127.0.0.1:9099');
 		connectFirestoreEmulator(firestore, '127.0.0.1', 8080);
@@ -92,7 +88,20 @@ export async function initFirebase(): Promise<FirebaseServices> {
 
 	await auth.setPersistence(browserLocalPersistence);
 
-	return { app, auth, firestore, analytics };
+	const services: FirebaseServices = { app, auth, firestore };
+	if (browser) {
+		// Analytics can stall on IndexedDB or fail in restricted browsers. It is
+		// optional and must never hold up hydration or planner navigation.
+		void isSupported()
+			.then((supported) => {
+				if (supported) services.analytics = getAnalytics(app);
+			})
+			.catch(() => {
+				// Planning and authentication remain available without analytics.
+			});
+	}
+
+	return services;
 }
 
 function getUserDocRef(

@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
 	import { content } from '$lib/stores.svelte';
 
 	import settingsPic from '$lib/assets/settings-pic.webp?enhanced';
@@ -10,7 +9,7 @@
 	import sharePic from '$lib/assets/share-pic.webp?enhanced';
 	import searchPic from '$lib/assets/search-pic.webp?enhanced';
 
-	import AsyncButton from '$lib/components/AsyncButton.svelte';
+	import GetStartedLink from '$lib/components/GetStartedLink.svelte';
 	import CourseExplanation from '$lib/components/CourseExplanation.svelte';
 	import ImgDemo from './components/ImgDemo.svelte';
 </script>
@@ -37,12 +36,7 @@
 			</p>
 
 			<div class="h-9">
-				<AsyncButton
-					variant="primary"
-					onclick={async () => await goto('/settings')}
-				>
-					{content.lang.common.getStarted}
-				</AsyncButton>
+				<GetStartedLink />
 			</div>
 		</div>
 	</div>

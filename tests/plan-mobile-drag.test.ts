@@ -221,6 +221,95 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 			});
 		}
 
+		test('wishlist edge drags stay inside its scroller in both page directions', async ({
+			page,
+			context
+		}) => {
+			const touch = await context.newCDPSession(page);
+			for (const language of ['en', 'he']) {
+				await page.evaluate((language) => {
+					const data = JSON.parse(localStorage.getItem('userData')!);
+					data.wishlist = Array.from({ length: 8 }, (_, i) =>
+						String(10420000 + i)
+					);
+					localStorage.setItem('userData', JSON.stringify(data));
+					localStorage.setItem('lang', language);
+				}, language);
+				await page.reload();
+				const scroller = page.getByTestId('wishlist-scroller');
+				const card = page.locator('[data-code="10420000"]');
+				await expect(card).toBeVisible();
+				const rect = (await card.boundingBox())!;
+				const start = {
+					x: rect.x + rect.width / 2,
+					y: rect.y + rect.height / 2
+				};
+				const viewport = page.viewportSize()!;
+				const bodyStyle = await page.locator('body').evaluate((element) => ({
+					position: getComputedStyle(element).position,
+					overflowX: getComputedStyle(element).overflowX
+				}));
+				await touch.send('Input.dispatchTouchEvent', {
+					type: 'touchStart',
+					touchPoints: [start]
+				});
+				await page.waitForTimeout(200);
+				await touch.send('Input.dispatchTouchEvent', {
+					type: 'touchMove',
+					touchPoints: [{ x: start.x + 5, y: start.y }]
+				});
+				await expect(page.locator('.sortable-fallback')).toHaveCount(1);
+				for (let step = 1; step <= 10; step++) {
+					await touch.send('Input.dispatchTouchEvent', {
+						type: 'touchMove',
+						touchPoints: [
+							{
+								x: start.x + ((viewport.width - 4 - start.x) * step) / 10,
+								y: start.y
+							}
+						]
+					});
+					await page.waitForTimeout(30);
+				}
+				await expect
+					.poll(() => scroller.evaluate((element) => element.scrollLeft))
+					.toBeGreaterThan(60);
+				const forward = await scroller.evaluate(
+					(element) => element.scrollLeft
+				);
+				for (const x of [viewport.width - 4, 4]) {
+					await touch.send('Input.dispatchTouchEvent', {
+						type: 'touchMove',
+						touchPoints: [{ x, y: start.y }]
+					});
+					await page.waitForTimeout(300);
+					const documentSize = await page.evaluate(() => ({
+						width: document.documentElement.scrollWidth,
+						x: window.scrollX,
+						viewportX: window.visualViewport?.offsetLeft ?? 0
+					}));
+					expect(documentSize.width).toBeLessThanOrEqual(viewport.width + 1);
+					expect(Math.abs(documentSize.x)).toBeLessThan(1);
+					expect(Math.abs(documentSize.viewportX)).toBeLessThan(1);
+				}
+				await expect
+					.poll(() => scroller.evaluate((element) => element.scrollLeft))
+					.toBeLessThan(forward - 20);
+				await touch.send('Input.dispatchTouchEvent', {
+					type: 'touchEnd',
+					touchPoints: []
+				});
+				await expect(page.locator('.sortable-fallback')).toHaveCount(0);
+				await expect(page.locator('[data-code]')).toHaveCount(10);
+				expect(
+					await page.locator('body').evaluate((element) => ({
+						position: getComputedStyle(element).position,
+						overflowX: getComputedStyle(element).overflowX
+					}))
+				).toEqual(bodyStyle);
+			}
+		});
+
 		async function dragTo(
 			page: Page,
 			touch: CDPSession,

@@ -59,7 +59,7 @@
 		setUser(await writeStorage({ ...user.d, wishlist, semesters }));
 	}
 
-	function initializeSemesterScroll(el: HTMLElement, direction: string) {
+	function initializePlanScroll(el: HTMLElement, direction: string) {
 		function update(direction: string) {
 			// Sortable's edge scrolling assumes nonnegative scrollLeft. Keep the
 			// scroller LTR, but start at the right edge for the RTL course row.
@@ -120,8 +120,9 @@
 		<div
 			data-testid="wishlist-scroller"
 			data-plan-scroll
+			use:initializePlanScroll={content.lang.dir}
 			dir="ltr"
-			class="flex min-h-0 flex-1 flex-row overflow-x-auto overflow-y-hidden rtl:flex-row-reverse"
+			class="flex min-h-0 flex-1 flex-row overflow-x-auto overflow-y-hidden"
 		>
 			{#key wishlist.join(' ')}
 				<div
@@ -194,7 +195,7 @@
 		data-testid="semester-scroller"
 		data-plan-scroll
 		dir="ltr"
-		use:initializeSemesterScroll={content.lang.dir}
+		use:initializePlanScroll={content.lang.dir}
 		style="transform: rotateX(180deg)"
 		class="flex flex-1 overflow-x-auto"
 	>

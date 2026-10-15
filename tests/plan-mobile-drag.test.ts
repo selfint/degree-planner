@@ -197,9 +197,12 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 				});
 				await expect
 					.poll(async () =>
-						Math.abs(await scroller.evaluate((element) => element.scrollLeft))
+						Math.abs(
+							(await scroller.evaluate((element) => element.scrollLeft)) -
+								initialScroll
+						)
 					)
-					.toBeLessThan(Math.abs(forwardScroll) - 20);
+					.toBeLessThan(Math.abs(forwardScroll - initialScroll) - 20);
 				await touch.send('Input.dispatchTouchEvent', {
 					type: 'touchEnd',
 					touchPoints: []

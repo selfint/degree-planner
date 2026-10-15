@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { browser } from '$app/environment';
 
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import Semester from '$lib/components/Semester.svelte';
@@ -13,6 +14,8 @@
 
 	const { data: pageData } = $props();
 	const { getCourseData } = $derived(pageData);
+	// Touch drags need fallback listeners even where native HTML dragging exists.
+	const touchDrag = browser && navigator.maxTouchPoints > 0;
 
 	let wishlist = $state(user.d.wishlist);
 	let semesters = $state(user.d.semesters);
@@ -53,6 +56,21 @@
 	let buttonNamespace = $state('');
 	async function onSave() {
 		setUser(await writeStorage({ ...user.d, wishlist, semesters }));
+	}
+
+	function containDragPreview() {
+		// iOS uses an absolute body-level preview; keep it from widening the page.
+		Sortable.ghost?.classList.add('plan-drag-preview');
+	}
+
+	function initializeSemesterScroll(el: HTMLElement, direction: string) {
+		function update(direction: string) {
+			// Sortable's edge scrolling assumes nonnegative scrollLeft. Keep the
+			// scroller LTR, but start at the right edge for the RTL course row.
+			el.scrollLeft = direction === 'rtl' ? el.scrollWidth : 0;
+		}
+		update(direction);
+		return { update };
 	}
 
 	function makeSortable(el: HTMLElement, options: Sortable.Options) {
@@ -114,6 +132,9 @@
 						group: 'semesters',
 						// Keep the touch preview outside transformed/clipped scrollers.
 						fallbackOnBody: true,
+						forceFallback: touchDrag,
+						onStart: containDragPreview,
+						bubbleScroll: false,
 						sort: true,
 						direction: 'horizontal',
 						animation: 100,
@@ -171,10 +192,16 @@
 	</div>
 	<div
 		data-testid="semester-scroller"
+		dir="ltr"
+		use:initializeSemesterScroll={content.lang.dir}
 		style="transform: rotateX(180deg)"
 		class="flex flex-1 overflow-x-auto"
 	>
-		<div style="transform: rotateX(180deg)" class="flex flex-1 flex-row">
+		<div
+			dir={content.lang.dir}
+			style="transform: rotateX(180deg)"
+			class="flex flex-1 flex-row"
+		>
 			<div class="ms-3"></div>
 			{#key semesters.map((s) => s.join('-')).join(',')}
 				{#each semesters as semester, semesterIndex}
@@ -189,6 +216,9 @@
 								group: 'semesters',
 								// Keep the touch preview outside transformed/clipped scrollers.
 								fallbackOnBody: true,
+								forceFallback: touchDrag,
+								onStart: containDragPreview,
+								bubbleScroll: false,
 								dataIdAttr: 'data-code',
 								sort: true,
 								animation: 100,
@@ -267,5 +297,15 @@
 
 	:global(.wishlist-ghost) {
 		@apply max-h-[118px] w-[29vw] min-w-[29vw] max-w-[220px] overflow-y-hidden sm:min-w-[220px];
+	}
+	/* Clip only at the page edge, never at the semester/wishlist boundary.
+	   Both boxes are needed so body overflow cannot widen the root viewport. */
+	:global(html:has(.plan-drag-preview)),
+	:global(body:has(.plan-drag-preview)) {
+		overflow-x: clip;
+	}
+
+	:global(body:has(.plan-drag-preview)) {
+		position: relative;
 	}
 </style>

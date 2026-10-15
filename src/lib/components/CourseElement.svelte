@@ -51,7 +51,8 @@
 		course.then((c) => c.tests !== undefined && c.tests.length > 0)
 	);
 
-	let minimize = $state(false);
+	let minimize = $state(true);
+	let scheduleErrorButton: HTMLButtonElement | undefined = $state();
 	const _scheduleError = $derived.by(async () => {
 		if (scheduleError === undefined) {
 			return false;
@@ -77,7 +78,7 @@
 	{style}
 	class="relative h-fit w-fit select-none justify-between rounded-md bg-card-secondary"
 	onclick={(e) => {
-		if (minimize) {
+		if (minimize && scheduleErrorButton) {
 			e.preventDefault();
 			e.stopPropagation();
 			minimize = !minimize;
@@ -161,6 +162,8 @@
 			{:then _scheduleError}
 				{#if _scheduleError}
 					<button
+						bind:this={scheduleErrorButton}
+						aria-expanded={!minimize}
 						class="w-full"
 						onclick={(e) => {
 							e.preventDefault();

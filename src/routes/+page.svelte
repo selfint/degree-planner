@@ -25,7 +25,7 @@
 			<span class="text-nowrap">{content.lang.landing.catchphrase[0]}</span>
 			<br class="hidden lg:block" />
 			<span
-				class="bg-gradient-to-b from-white from-30% to-accent-primary bg-clip-text text-transparent"
+				class="bg-gradient-to-b from-content-primary from-30% to-accent-primary bg-clip-text text-transparent"
 			>
 				{content.lang.landing.catchphrase[1]}
 			</span>
@@ -113,7 +113,7 @@
 	:global([dir='ltr'] .circle) {
 		background-image: radial-gradient(
 			ellipse 70% 20% at 100% 15%,
-			theme('colors.accent-primary') 1%,
+			rgb(var(--landing-glow)) 1%,
 			transparent 70%
 		);
 	}
@@ -121,7 +121,7 @@
 	:global([dir='rtl'] .circle) {
 		background-image: radial-gradient(
 			ellipse 70% 20% at 0% 15%,
-			theme('colors.accent-primary') 1%,
+			rgb(var(--landing-glow)) 1%,
 			transparent 70%
 		);
 	}
@@ -130,7 +130,7 @@
 		:global([dir='ltr'] .circle) {
 			background-image: radial-gradient(
 				ellipse 90% 65% at 0% 50%,
-				theme('colors.accent-primary') 1%,
+				rgb(var(--landing-glow)) 1%,
 				transparent 70%
 			);
 		}
@@ -138,7 +138,7 @@
 		:global([dir='rtl'] .circle) {
 			background-image: radial-gradient(
 				ellipse 90% 65% at 100% 50%,
-				theme('colors.accent-primary') 1%,
+				rgb(var(--landing-glow)) 1%,
 				transparent 70%
 			);
 		}

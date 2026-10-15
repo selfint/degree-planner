@@ -21,6 +21,9 @@ export const cms = {
 		},
 		header: {
 			searchPlaceholder: 'Search',
+			lightMode: 'Light mode',
+			switchToLight: 'Switch to light mode',
+			switchToDark: 'Switch to dark mode',
 			catalog: 'Catalog',
 			plan: 'Plan',
 			progress: 'Progress',
@@ -195,6 +198,9 @@ export const cms = {
 			loading: 'טוען'
 		},
 		header: {
+			lightMode: 'מצב בהיר',
+			switchToLight: 'מעבר למצב בהיר',
+			switchToDark: 'מעבר למצב כהה',
 			searchPlaceholder: 'חיפוש',
 			catalog: 'קטלוג',
 			plan: 'תוכנית',

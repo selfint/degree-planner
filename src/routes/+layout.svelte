@@ -71,7 +71,7 @@
 			<a
 				href="https://github.com/selfint"
 				target="_blank"
-				class="text-blue-400 hover:text-content-primary"
+				class="text-link hover:text-content-primary"
 			>
 				{content.lang.footer.author}
 			</a>

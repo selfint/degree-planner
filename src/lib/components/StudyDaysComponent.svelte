@@ -84,7 +84,7 @@
 
 {#await Promise.all([days0, days1]) then [days0, days1]}
 	<div>
-		<div class="mb-1 flex flex-row flex-wrap text-content-primary">
+		<div class="mb-1 flex flex-row flex-wrap text-white">
 			{#if days0 !== undefined}
 				<div
 					style="background: {generateColor(days0.first[0].code)}"
@@ -108,7 +108,7 @@
 			{/if}
 		</div>
 
-		<div class="flex flex-row flex-wrap text-content-primary">
+		<div class="flex flex-row flex-wrap text-white">
 			{#if days1 !== undefined}
 				<div
 					style="background: {generateColor(days1.first[0].code)}"

@@ -20,13 +20,17 @@ export default {
 				'dark-200': 'rgb(46, 46, 50)',
 				'dark-100': 'rgb(49, 49, 53)',
 				'dark-50': 'rgb( 51, 51, 55)',
-				background: '#19191D',
-				'card-primary': '#28282C',
-				'card-secondary': '#4E4E55',
-				'content-primary': '#FFFFFF',
-				'content-secondary': '#868D8D',
-				'accent-primary': '#4CA9A1',
-				border: '#252529'
+				background: 'rgb(var(--color-background) / <alpha-value>)',
+				'card-primary': 'rgb(var(--color-card-primary) / <alpha-value>)',
+				'card-secondary': 'rgb(var(--color-card-secondary) / <alpha-value>)',
+				'content-primary': 'rgb(var(--color-content-primary) / <alpha-value>)',
+				'content-secondary':
+					'rgb(var(--color-content-secondary) / <alpha-value>)',
+				'accent-primary': 'rgb(var(--color-accent-primary) / <alpha-value>)',
+				border: 'rgb(var(--color-border) / <alpha-value>)',
+				'content-on-accent':
+					'rgb(var(--color-content-on-accent) / <alpha-value>)',
+				link: 'rgb(var(--color-link) / <alpha-value>)'
 			}
 		}
 	},

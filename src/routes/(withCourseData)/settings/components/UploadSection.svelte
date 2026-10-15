@@ -73,7 +73,7 @@
 	{#if transcript === undefined}
 		<div class="mb-4 ms-3 flex w-fit flex-row gap-x-2">
 			<div
-				class="h-full cursor-pointer rounded-md border border-transparent bg-accent-primary p-0.5 pl-3 pr-3 leading-tight text-content-primary"
+				class="h-full cursor-pointer rounded-md border border-transparent bg-accent-primary p-0.5 pl-3 pr-3 leading-tight text-content-on-accent"
 				class:opacity-50={uploading}
 			>
 				<label class="block h-full w-full cursor-pointer">

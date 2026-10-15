@@ -14,7 +14,7 @@
 <div class="sm:flex sm:max-w-[1024px] sm:flex-row">
 	<div class="flex-grow sm:me-4">
 		<div
-			class="w-full rounded-[15px] border border-white border-opacity-30 bg-white bg-opacity-10 p-2 bg-blend-color-burn backdrop-blur"
+			class="w-full rounded-[15px] border border-content-primary/30 bg-content-primary/10 p-2 bg-blend-color-burn backdrop-blur"
 		>
 			<enhanced:img
 				{src}

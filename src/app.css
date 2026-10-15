@@ -1,3 +1,37 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+	:root {
+		color-scheme: dark;
+		--color-background: 25 25 29;
+		--color-card-primary: 40 40 44;
+		--color-card-secondary: 78 78 85;
+		--color-content-primary: 255 255 255;
+		--color-content-secondary: 134 141 141;
+		--color-accent-primary: 76 169 161;
+		--color-content-on-accent: 255 255 255;
+		--color-border: 37 37 41;
+		--color-link: 96 165 250;
+		--landing-glow: 76 169 161;
+	}
+
+	:root[data-theme='light'] {
+		color-scheme: light;
+		--color-background: 248 250 252;
+		--color-card-primary: 235 240 244;
+		--color-card-secondary: 210 220 229;
+		--color-content-primary: 23 37 51;
+		--color-content-secondary: 67 82 97;
+		--color-accent-primary: 15 111 103;
+		--color-content-on-accent: 255 255 255;
+		--color-border: 197 209 220;
+		--color-link: 29 78 216;
+		--landing-glow: 202 235 230;
+	}
+
+	body {
+		@apply bg-background text-content-primary;
+	}
+}

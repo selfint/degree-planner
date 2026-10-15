@@ -2,6 +2,8 @@
 	import Logo from '$lib/assets/logo.webp?enhanced';
 	import Title from '$lib/assets/Title.svg?raw';
 
+	import ThemeToggle from '$lib/components/ThemeToggle.svelte';
+
 	import SearchIcon from '$lib/components/SearchIcon.svelte';
 
 	import Nav from './Nav.svelte';
@@ -38,7 +40,7 @@
 
 <header
 	dir="ltr"
-	class="flex max-h-14 touch-manipulation flex-row items-center justify-between pe-3 ps-2 pt-1"
+	class="flex min-h-14 touch-manipulation flex-row flex-wrap items-center justify-between gap-x-2 pe-3 ps-2 pt-1"
 >
 	<a href="/" class="flex h-12 min-w-12 flex-row items-center">
 		<enhanced:img
@@ -58,13 +60,14 @@
 		{/if}
 	</a>
 	<div class="flex-grow"></div>
+	<ThemeToggle />
 	{#if !started}
 		<AsyncButton variant="primary" onclick={onGetStarted}>
 			{content.lang.common.getStarted}
 		</AsyncButton>
 	{:else}
 		<nav
-			class="ms-2 flex h-12 flex-row items-center justify-end space-x-3 overflow-y-hidden md:space-x-8"
+			class="flex h-12 w-full flex-row items-center justify-end space-x-3 sm:ms-2 sm:w-auto md:space-x-8"
 		>
 			<div
 				dir={content.lang.dir}

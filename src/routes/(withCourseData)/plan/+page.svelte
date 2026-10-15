@@ -103,6 +103,7 @@
 			</div>
 		</div>
 		<div
+			data-testid="wishlist-scroller"
 			dir="ltr"
 			class="flex min-h-0 flex-1 flex-row overflow-x-auto overflow-y-hidden rtl:flex-row-reverse"
 		>
@@ -168,7 +169,11 @@
 			{/key}
 		</div>
 	</div>
-	<div style="transform: rotateX(180deg)" class="flex flex-1 overflow-x-auto">
+	<div
+		data-testid="semester-scroller"
+		style="transform: rotateX(180deg)"
+		class="flex flex-1 overflow-x-auto"
+	>
 		<div style="transform: rotateX(180deg)" class="flex flex-1 flex-row">
 			<div class="ms-3"></div>
 			{#key semesters.map((s) => s.join('-')).join(',')}

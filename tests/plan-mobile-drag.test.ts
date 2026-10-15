@@ -123,6 +123,101 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 			});
 		}
 
+		for (const language of ['en', 'he']) {
+			test(`edge dragging scrolls only the course region (${language})`, async ({
+				page,
+				context
+			}) => {
+				if (language === 'he') {
+					await page.locator('footer select').selectOption({ label: 'עב' });
+				}
+				const touch = await context.newCDPSession(page);
+				const scroller = page.getByTestId('semester-scroller');
+				const rect = (await page
+					.locator('[data-code="10400001"]')
+					.boundingBox())!;
+				const start = {
+					x: rect.x + rect.width / 2,
+					y: rect.y + rect.height / 2
+				};
+				const viewport = page.viewportSize()!;
+				const headerX = (await page.locator('header').boundingBox())!.x;
+				const initialScroll = await scroller.evaluate(
+					(element) => element.scrollLeft
+				);
+				await touch.send('Input.dispatchTouchEvent', {
+					type: 'touchStart',
+					touchPoints: [start]
+				});
+				await page.waitForTimeout(200);
+				await touch.send('Input.dispatchTouchEvent', {
+					type: 'touchMove',
+					touchPoints: [{ x: start.x, y: start.y + 5 }]
+				});
+				await expect(page.locator('.sortable-fallback')).toHaveCount(1);
+				const edgeX = language === 'he' ? 4 : viewport.width - 4;
+				for (let step = 1; step <= 10; step++) {
+					await touch.send('Input.dispatchTouchEvent', {
+						type: 'touchMove',
+						touchPoints: [
+							{ x: start.x + ((edgeX - start.x) * step) / 10, y: start.y + 5 }
+						]
+					});
+					await page.waitForTimeout(30);
+				}
+				await page.waitForTimeout(700);
+				const documentSize = await page.evaluate(() => ({
+					width: document.documentElement.scrollWidth,
+					x: window.scrollX,
+					viewportX: window.visualViewport?.offsetLeft ?? 0
+				}));
+				expect(documentSize.width).toBeLessThanOrEqual(viewport.width + 1);
+				expect(Math.abs(documentSize.x)).toBeLessThan(1);
+				expect(Math.abs(documentSize.viewportX)).toBeLessThan(1);
+				expect((await page.locator('header').boundingBox())!.x).toBeCloseTo(
+					headerX,
+					0
+				);
+				await expect
+					.poll(async () =>
+						Math.abs(
+							(await scroller.evaluate((element) => element.scrollLeft)) -
+								initialScroll
+						)
+					)
+					.toBeGreaterThan(30);
+				const forwardScroll = await scroller.evaluate(
+					(element) => element.scrollLeft
+				);
+				await touch.send('Input.dispatchTouchEvent', {
+					type: 'touchMove',
+					touchPoints: [
+						{ x: language === 'he' ? viewport.width - 4 : 4, y: start.y + 5 }
+					]
+				});
+				await expect
+					.poll(async () =>
+						Math.abs(await scroller.evaluate((element) => element.scrollLeft))
+					)
+					.toBeLessThan(Math.abs(forwardScroll) - 20);
+				await touch.send('Input.dispatchTouchEvent', {
+					type: 'touchEnd',
+					touchPoints: []
+				});
+				await expect(page.locator('.sortable-fallback')).toHaveCount(0);
+				await expect(page.locator('[data-code]')).toHaveCount(3);
+				await page.locator('footer select').selectOption({ label: 'en' });
+				const cancel = page.getByRole('button', {
+					name: 'Cancel',
+					exact: true
+				});
+				if (await cancel.count()) await cancel.click();
+				await expect(
+					page.locator('[data-semester="0"] [data-code]')
+				).toHaveCount(2);
+			});
+		}
+
 		async function dragTo(
 			page: Page,
 			touch: CDPSession,

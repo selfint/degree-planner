@@ -1,4 +1,8 @@
-import { devices, expect, test } from '@playwright/test';
+import {
+	devices,
+	expect,
+	test
+} from '@playwright/test';
 
 const { defaultBrowserType: _, ...mobile } = devices['Pixel 7'];
 test.use(mobile);
@@ -11,6 +15,7 @@ const courses = {
 
 test.beforeEach(async ({ page }) => {
 	await page.addInitScript(() => {
+		if (localStorage.getItem('userData')) return;
 		localStorage.setItem('lang', 'en');
 		localStorage.setItem('version', '4');
 		localStorage.setItem(
@@ -77,6 +82,21 @@ test('touch drag stays under the finger when leaving the semester scroller', asy
 				return Math.abs(rect.x + rect.width / 2 - point.x);
 			})
 			.toBeLessThan(3);
+		// A nonzero bounding box alone does not detect overflow clipping.
+		await expect
+			.poll(() =>
+				ghost.evaluate(
+					(element) =>
+						new Promise<number>((resolve) => {
+							const observer = new IntersectionObserver(([entry]) => {
+								observer.disconnect();
+								resolve(entry.intersectionRatio);
+							});
+							observer.observe(element);
+						})
+				)
+			)
+			.toBeGreaterThan(0.99);
 	}
 	await touch.send('Input.dispatchTouchEvent', {
 		type: 'touchEnd',
@@ -86,3 +106,5 @@ test('touch drag stays under the finger when leaving the semester scroller', asy
 	await expect(page.locator('[data-code="10400001"]')).toHaveCount(1);
 	await expect(page).toHaveURL(/\/plan$/);
 });
+
+

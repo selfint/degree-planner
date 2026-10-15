@@ -446,11 +446,61 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 			const last = (await page
 				.locator('[data-code="10410023"]')
 				.boundingBox())!;
+			console.info(
+				'long-end-before',
+				JSON.stringify(
+					await page.evaluate(
+						({ x, y }) => ({
+							x,
+							y,
+							hit: document
+								.elementFromPoint(x, y)
+								?.closest('[data-code]')
+								?.getAttribute('data-code'),
+							scrollY,
+							height: document.documentElement.scrollHeight,
+							codes: Array.from(
+								document.querySelectorAll('[data-semester="0"] [data-code]')
+							).map((e) => e.getAttribute('data-code')),
+							last: document
+								.querySelector('[data-code="10410023"]')
+								?.getBoundingClientRect()
+								.toJSON(),
+							dragged: document
+								.querySelector('.sortable-chosen')
+								?.getBoundingClientRect()
+								.toJSON()
+						}),
+						{ x: bottom.x, y: last.y + last.height - 2 }
+					)
+				)
+			);
+
 			await touch.send('Input.dispatchTouchEvent', {
 				type: 'touchMove',
 				touchPoints: [{ x: bottom.x, y: last.y + last.height - 2 }]
 			});
 			await page.waitForTimeout(300);
+			console.info(
+				'long-end-after',
+				JSON.stringify(
+					await page.evaluate(() => ({
+						scrollY,
+						codes: Array.from(
+							document.querySelectorAll('[data-semester="0"] [data-code]')
+						).map((e) => e.getAttribute('data-code')),
+						last: document
+							.querySelector('[data-code="10410023"]')
+							?.getBoundingClientRect()
+							.toJSON(),
+						dragged: document
+							.querySelector('.sortable-chosen')
+							?.getBoundingClientRect()
+							.toJSON()
+					}))
+				)
+			);
+
 			await touch.send('Input.dispatchTouchEvent', {
 				type: 'touchEnd',
 				touchPoints: []
@@ -487,11 +537,35 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 				const scroller = page.getByTestId('wishlist-scroller');
 				const card = page.locator('[data-code="10420000"]');
 				await expect(card).toBeVisible();
+				await card.scrollIntoViewIfNeeded();
 				const rect = (await card.boundingBox())!;
 				const start = {
 					x: rect.x + rect.width / 2,
 					y: rect.y + rect.height / 2
 				};
+
+				console.info(
+					'wishlist-start',
+					language,
+					JSON.stringify(
+						await page.evaluate(
+							({ x, y }) => ({
+								x,
+								y,
+								hit: document
+									.elementFromPoint(x, y)
+									?.closest('[data-code]')
+									?.getAttribute('data-code'),
+								scrollY,
+								box: document
+									.querySelector('[data-code="10420000"]')
+									?.getBoundingClientRect()
+									.toJSON()
+							}),
+							start
+						)
+					)
+				);
 				const viewport = page.viewportSize()!;
 				const bodyStyle = await page.locator('body').evaluate((element) => ({
 					position: getComputedStyle(element).position,

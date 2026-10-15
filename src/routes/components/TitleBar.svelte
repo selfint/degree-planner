@@ -8,15 +8,14 @@
 
 	import { content } from '$lib/stores.svelte';
 	import Settings from '$lib/components/Settings.svelte';
-	import AsyncButton from '$lib/components/AsyncButton.svelte';
+	import GetStartedLink from '$lib/components/GetStartedLink.svelte';
 
 	type Props = {
 		started: boolean;
-		onGetStarted: () => Promise<void>;
 		onSearch: (query: string) => void;
 	};
 
-	const { started, onGetStarted, onSearch }: Props = $props();
+	const { started, onSearch }: Props = $props();
 
 	let query = $state('');
 	let placeholder: string = $state(content.lang.header.searchPlaceholder);
@@ -59,9 +58,7 @@
 	</a>
 	<div class="flex-grow"></div>
 	{#if !started}
-		<AsyncButton variant="primary" onclick={onGetStarted}>
-			{content.lang.common.getStarted}
-		</AsyncButton>
+		<GetStartedLink />
 	{:else}
 		<nav
 			class="ms-2 flex h-12 flex-row items-center justify-end space-x-3 overflow-y-hidden md:space-x-8"

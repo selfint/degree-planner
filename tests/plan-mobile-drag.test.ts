@@ -12,6 +12,27 @@ const courses = {
 	'10400003': { code: '10400003', name: 'Wishlist course', points: 5 }
 };
 
+async function moveTouch(
+	page: Page,
+	touch: CDPSession,
+	from: { x: number; y: number },
+	to: { x: number; y: number }
+) {
+	// Continuous finger movement also crosses the scroller's narrow edge gutter.
+	for (let step = 1; step <= 24; step++) {
+		await touch.send('Input.dispatchTouchEvent', {
+			type: 'touchMove',
+			touchPoints: [
+				{
+					x: from.x + ((to.x - from.x) * step) / 24,
+					y: from.y + ((to.y - from.y) * step) / 24
+				}
+			]
+		});
+		await page.waitForTimeout(40);
+	}
+}
+
 test.beforeEach(async ({ page }) => {
 	await page.addInitScript(() => {
 		if (localStorage.getItem('userData')) return;
@@ -189,12 +210,15 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 				const forwardScroll = await scroller.evaluate(
 					(element) => element.scrollLeft
 				);
-				await touch.send('Input.dispatchTouchEvent', {
-					type: 'touchMove',
-					touchPoints: [
-						{ x: language === 'he' ? viewport.width - 4 : 4, y: start.y + 5 }
-					]
-				});
+				await moveTouch(
+					page,
+					touch,
+					{ x: edgeX, y: start.y + 5 },
+					{
+						x: language === 'he' ? viewport.width - 4 : 4,
+						y: start.y + 5
+					}
+				);
 				await expect
 					.poll(async () =>
 						Math.abs(
@@ -278,10 +302,14 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 					(element) => element.scrollLeft
 				);
 				for (const x of [viewport.width - 4, 4]) {
-					await touch.send('Input.dispatchTouchEvent', {
-						type: 'touchMove',
-						touchPoints: [{ x, y: start.y }]
-					});
+					if (x === 4) {
+						await moveTouch(
+							page,
+							touch,
+							{ x: viewport.width - 4, y: start.y },
+							{ x, y: start.y }
+						);
+					}
 					await page.waitForTimeout(300);
 					const documentSize = await page.evaluate(() => ({
 						width: document.documentElement.scrollWidth,

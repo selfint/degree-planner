@@ -1,11 +1,10 @@
 import {
 	devices,
 	expect,
-	test
+	test,
+	type Page,
+	type CDPSession
 } from '@playwright/test';
-
-const { defaultBrowserType: _, ...mobile } = devices['Pixel 7'];
-test.use(mobile);
 
 const courses = {
 	'10400001': { code: '10400001', name: 'First course', points: 5 },
@@ -40,71 +39,184 @@ test.beforeEach(async ({ page }) => {
 	await expect(page.getByText('First course')).toBeVisible();
 });
 
-test('touch drag stays under the finger when leaving the semester scroller', async ({
-	page,
-	context
-}) => {
-	const card = page.locator('[data-code="10400001"]');
-	const box = (await card.boundingBox())!;
-	const start = {
-		x: Math.round(box.x + box.width / 2),
-		y: Math.round(box.y + box.height / 2)
-	};
-	const touch = await context.newCDPSession(page);
-	await touch.send('Input.dispatchTouchEvent', {
-		type: 'touchStart',
-		touchPoints: [start]
-	});
-	// Sortable starts touch drags after its long-press delay.
-	await page.waitForTimeout(200);
-	await touch.send('Input.dispatchTouchEvent', {
-		type: 'touchMove',
-		touchPoints: [{ x: start.x, y: start.y - 5 }]
-	});
-	const ghost = page.locator('.sortable-fallback');
-	await expect(ghost).toBeVisible();
+for (const device of ['Pixel 7', 'iPhone 13']) {
+	test.describe(`${device} (Chromium touch emulation)`, () => {
+		const { defaultBrowserType: _, ...mobile } = devices[device];
+		test.use(mobile);
+		for (const language of ['en', 'he']) {
+			test(`touch drag stays visible under the finger outside the semester scroller (${language})`, async ({
+				page,
+				context
+			}) => {
+				if (language === 'he') {
+					await page.locator('footer select').selectOption({ label: 'עב' });
+				}
+				const card = page.locator('[data-code="10400001"]');
+				await card.scrollIntoViewIfNeeded();
+				const box = (await card.boundingBox())!;
+				const start = {
+					x: Math.round(box.x + box.width / 2),
+					y: Math.round(box.y + box.height / 2)
+				};
+				const touch = await context.newCDPSession(page);
+				await touch.send('Input.dispatchTouchEvent', {
+					type: 'touchStart',
+					touchPoints: [start]
+				});
+				// Sortable starts touch drags after its long-press delay.
+				await page.waitForTimeout(200);
+				await touch.send('Input.dispatchTouchEvent', {
+					type: 'touchMove',
+					touchPoints: [{ x: start.x, y: start.y - 5 }]
+				});
+				const ghost = page.locator('.sortable-fallback');
+				await expect(ghost).toBeVisible();
+				await expect(ghost).toHaveCSS(
+					'direction',
+					language === 'he' ? 'rtl' : 'ltr'
+				);
 
-	for (const offset of [-30, -70, -120, -50, -100]) {
-		const point = { x: start.x + 20, y: start.y + offset };
-		await touch.send('Input.dispatchTouchEvent', {
-			type: 'touchMove',
-			touchPoints: [point]
-		});
-		await expect
-			.poll(async () => {
-				const rect = (await ghost.boundingBox())!;
-				return Math.abs(rect.y + rect.height / 2 - point.y);
-			})
-			.toBeLessThan(3);
-		await expect
-			.poll(async () => {
-				const rect = (await ghost.boundingBox())!;
-				return Math.abs(rect.x + rect.width / 2 - point.x);
-			})
-			.toBeLessThan(3);
-		// A nonzero bounding box alone does not detect overflow clipping.
-		await expect
-			.poll(() =>
-				ghost.evaluate(
-					(element) =>
-						new Promise<number>((resolve) => {
-							const observer = new IntersectionObserver(([entry]) => {
-								observer.disconnect();
-								resolve(entry.intersectionRatio);
-							});
-							observer.observe(element);
+				for (const offset of [-30, -70, -120, -50, -100]) {
+					const point = { x: start.x + 20, y: start.y + offset };
+					await touch.send('Input.dispatchTouchEvent', {
+						type: 'touchMove',
+						touchPoints: [point]
+					});
+					await expect
+						.poll(async () => {
+							const rect = (await ghost.boundingBox())!;
+							return Math.abs(rect.y + rect.height / 2 - point.y);
 						})
-				)
-			)
-			.toBeGreaterThan(0.99);
-	}
-	await touch.send('Input.dispatchTouchEvent', {
-		type: 'touchEnd',
-		touchPoints: []
+						.toBeLessThan(3);
+					await expect
+						.poll(async () => {
+							const rect = (await ghost.boundingBox())!;
+							return Math.abs(rect.x + rect.width / 2 - point.x);
+						})
+						.toBeLessThan(3);
+					// A nonzero bounding box alone does not detect overflow clipping.
+					await expect
+						.poll(() =>
+							ghost.evaluate(
+								(element) =>
+									new Promise<number>((resolve) => {
+										const observer = new IntersectionObserver(([entry]) => {
+											observer.disconnect();
+											resolve(entry.intersectionRatio);
+										});
+										observer.observe(element);
+									})
+							)
+						)
+						.toBeGreaterThan(0.99);
+				}
+				await touch.send('Input.dispatchTouchEvent', {
+					type: 'touchEnd',
+					touchPoints: []
+				});
+				await expect(ghost).toHaveCount(0);
+				await expect(page.locator('[data-code="10400001"]')).toHaveCount(1);
+				await expect(page).toHaveURL(/\/plan$/);
+			});
+		}
+
+		async function dragTo(
+			page: Page,
+			touch: CDPSession,
+			code: string,
+			target: { x: number; y: number }
+		) {
+			const card = page.locator(`[data-code="${code}"]`);
+			const rect = (await card.boundingBox())!;
+			const start = {
+				x: Math.round(rect.x + rect.width / 2),
+				y: Math.round(rect.y + rect.height / 2)
+			};
+			await touch.send('Input.dispatchTouchEvent', {
+				type: 'touchStart',
+				touchPoints: [start]
+			});
+			await page.waitForTimeout(200);
+			for (let step = 1; step <= 10; step++) {
+				await touch.send('Input.dispatchTouchEvent', {
+					type: 'touchMove',
+					touchPoints: [
+						{
+							x: start.x + ((target.x - start.x) * step) / 10,
+							y: start.y + ((target.y - start.y) * step) / 10
+						}
+					]
+				});
+				// Give Sortable's touch hit-testing loop time to enter each drop zone.
+				await page.waitForTimeout(30);
+			}
+			await page.waitForTimeout(150);
+			await touch.send('Input.dispatchTouchEvent', {
+				type: 'touchEnd',
+				touchPoints: []
+			});
+			await expect(page.locator('.sortable-fallback')).toHaveCount(0);
+			await expect(page.locator(`[data-code="${code}"]`)).toHaveCount(1);
+			await expect(page).toHaveURL(/\/plan$/);
+		}
+
+		test('repeated touch moves between semesters and the wishlist can be saved or cancelled', async ({
+			page,
+			context
+		}) => {
+			const touch = await context.newCDPSession(page);
+			const secondSemester = page.locator('[data-semester="1"]');
+			const secondRect = (await secondSemester.boundingBox())!;
+			await dragTo(page, touch, '10400001', {
+				x: secondRect.x + secondRect.width / 2,
+				y: secondRect.y + 30
+			});
+			await expect(
+				secondSemester.locator('[data-code="10400001"]')
+			).toHaveCount(1);
+			await page.getByRole('button', { name: 'Save', exact: true }).click();
+			await expect(
+				page.getByRole('button', { name: 'Save', exact: true })
+			).toHaveCount(0);
+			await page.reload();
+			await expect(
+				secondSemester.locator('[data-code="10400001"]')
+			).toHaveCount(1);
+
+			const wishlist = page.getByTestId('plan-wishlist');
+			const wishRect = (await wishlist.boundingBox())!;
+			await dragTo(page, touch, '10400001', {
+				x: wishRect.x + wishRect.width / 2,
+				y: wishRect.y + wishRect.height / 2
+			});
+			await expect(wishlist.locator('[data-code="10400001"]')).toHaveCount(1);
+			await page.getByRole('button', { name: 'Cancel', exact: true }).click();
+			await expect(
+				secondSemester.locator('[data-code="10400001"]')
+			).toHaveCount(1);
+			await expect(wishlist.locator('[data-code="10400001"]')).toHaveCount(0);
+
+			// The keyed lists have now been recreated several times; another drag must work.
+			const firstSemester = page.locator('[data-semester="0"]');
+			const firstRect = (await firstSemester.boundingBox())!;
+			await dragTo(page, touch, '10400001', {
+				x: firstRect.x + firstRect.width / 2,
+				y: firstRect.y + 20
+			});
+			await expect(firstSemester.locator('[data-code="10400001"]')).toHaveCount(
+				1
+			);
+			await expect(page.locator('[data-code]')).toHaveCount(3);
+		});
+
+		test('dropping a touch drag outside the lists preserves the course', async ({
+			page,
+			context
+		}) => {
+			const touch = await context.newCDPSession(page);
+			await dragTo(page, touch, '10400001', { x: 200, y: 600 });
+			await expect(page.locator('[data-code="10400001"]')).toHaveCount(1);
+			await expect(page.locator('[data-code]')).toHaveCount(3);
+		});
 	});
-	await expect(ghost).toHaveCount(0);
-	await expect(page.locator('[data-code="10400001"]')).toHaveCount(1);
-	await expect(page).toHaveURL(/\/plan$/);
-});
-
-
+}

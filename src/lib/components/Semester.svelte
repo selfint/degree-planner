@@ -51,7 +51,8 @@
 
 	function makeSortable(column: HTMLDivElement) {
 		if (sortable !== undefined) {
-			new Sortable(column, sortable);
+			const instance = new Sortable(column, sortable);
+			return { destroy: () => instance.destroy() };
 		}
 	}
 </script>
@@ -120,6 +121,7 @@
 	<div
 		class="flex h-full min-h-32 flex-col space-y-1 bg-opacity-50 sm:space-y-1.5"
 		use:makeSortable
+		data-semester={index}
 	>
 		{#each semester as course, index}
 			{@render children({ code: course, course: getCourseData(course), index })}

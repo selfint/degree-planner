@@ -56,7 +56,8 @@
 	}
 
 	function makeSortable(el: HTMLElement, options: Sortable.Options) {
-		new Sortable(el, options);
+		const sortable = new Sortable(el, options);
+		return { destroy: () => sortable.destroy() };
 	}
 </script>
 
@@ -100,8 +101,11 @@
 		>
 			{#key wishlist.join(' ')}
 				<div
+					data-testid="plan-wishlist"
 					use:makeSortable={{
 						group: 'semesters',
+						// Keep the touch preview outside transformed/clipped scrollers.
+						fallbackOnBody: true,
 						sort: true,
 						direction: 'horizontal',
 						animation: 100,
@@ -147,6 +151,7 @@
 					{#each wishlist as course}
 						<button
 							data-code={course}
+							dir="ltr"
 							onclick={() => goto(`/course/${course}`)}
 						>
 							<CourseElement code={course} course={getCourseData(course)} />
@@ -170,6 +175,8 @@
 							href={`/semester?c=${semesterIndex}`}
 							sortable={{
 								group: 'semesters',
+								// Keep the touch preview outside transformed/clipped scrollers.
+								fallbackOnBody: true,
 								dataIdAttr: 'data-code',
 								sort: true,
 								animation: 100,
@@ -217,6 +224,7 @@
 								<button
 									class="touch-manipulation text-content-primary"
 									data-code={code}
+									dir={content.lang.dir}
 									onclick={() => goto(`/course/${code}`)}
 								>
 									<CourseElement

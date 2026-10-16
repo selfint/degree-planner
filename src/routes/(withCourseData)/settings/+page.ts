@@ -1,9 +1,8 @@
 import type { PageLoad } from './$types';
+import { loadPublicJson } from '$lib/publicData';
 
 export const load: PageLoad = ({ fetch }) => {
-	const catalogs: Promise<Catalogs> = fetch('/catalogs.json').then((c) =>
-		c.json()
-	);
+	const catalogs = loadPublicJson<Catalogs>('/catalogs.json', fetch);
 
 	return {
 		catalogs

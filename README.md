@@ -119,6 +119,41 @@ This is a representation migration, not a new live SAP scrape. Saved plans,
 localStorage migrations, Firestore versions, transcript imports, and preview
 link encoding are unchanged.
 
+## Public data cache
+
+Course maps, individual course details, the bilingual catalog index, and program
+requirements use the `degree-planner-public-data` IndexedDB database. Every key
+is an allowlisted static URL; a requirement key includes its catalog, faculty,
+and program IDs. English and Hebrew stay together in the same record. Selecting
+a path never mutates the complete cached requirement tree.
+
+- A valid cached response is returned immediately, including while offline.
+- After one hour, an online read refreshes in the background using ETag and
+  Last-Modified validators when available. Updated data appears on the next read.
+- HTTP errors, invalid JSON, incomplete translations, and incompatible payloads
+  never replace the last good snapshot. Cache records have their own schema
+  version, separate from saved-plan and Firestore versions.
+- Atomic revision checks stop a delayed request in one tab from overwriting a
+  newer cached response from another tab.
+- Blocked, denied, unavailable, or full IndexedDB falls back to the network.
+  Opening/transactions have bounded waits, and failed updates roll back atomically.
+- Up to 128 resources are retained, evicting the oldest validation timestamps.
+  Browser storage remains best-effort and may be cleared or evicted. A resource
+  never loaded successfully still needs a network connection.
+
+This cache contains public data only. Existing localStorage plans (including
+old/unknown course IDs), plan migrations, Firebase authentication, and Firestore
+sync are unchanged. Server rendering uses the supplied fetch without IndexedDB.
+A PWA app shell is a separate layer: IndexedDB alone cannot start the app offline
+if its HTML/JavaScript has never been available locally. The service worker must
+leave these public-data requests to this repository rather than maintain a
+second, potentially stale data cache.
+
+Run `npm run test:public-data` for cache refresh, validation, versioning, isolation,
+quota/blocked-open handling, and persistence tests. Browser tests additionally
+cover reloads with public-data requests blocked, language switching, course
+details, and unchanged saved plans.
+
 ## Acknowledgements
 
 - [Michael Maltsev](https://github.com/michael-maltsev) for data in

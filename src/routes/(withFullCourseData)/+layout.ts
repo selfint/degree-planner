@@ -1,9 +1,11 @@
 import type { LayoutLoad } from './$types';
+import { loadPublicJson } from '$lib/publicData';
 
 export const load: LayoutLoad = async ({ fetch }) => {
-	const fullCourseData: Promise<FullCourse[]> = fetch('/courseData.json')
-		.then((r) => r.json())
-		.then((c) => Object.values(c));
+	const fullCourseData = loadPublicJson<Record<string, FullCourse>>(
+		'/courseData.json',
+		fetch
+	).then((courses) => Object.values(courses));
 
 	return {
 		fullCourseData: fullCourseData

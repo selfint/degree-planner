@@ -1,3 +1,5 @@
+import { loadPublicJson } from './publicData';
+
 export async function loadRequirement(
 	userDegree: Degree,
 	path: string | undefined = undefined,
@@ -6,9 +8,10 @@ export async function loadRequirement(
 		init?: RequestInit
 	) => Promise<Response> = fetch
 ): Promise<Requirement> {
-	const requirement: Requirement = await _fetch(
-		['/_catalogs', ...userDegree, 'requirementsData.json'].join('/')
-	).then((r) => r.json());
+	const requirement = await loadPublicJson<Requirement>(
+		['/_catalogs', ...userDegree, 'requirementsData.json'].join('/'),
+		_fetch
+	);
 
 	let pathCatalog: Requirement | undefined = undefined;
 	if (path !== undefined) {
@@ -160,11 +163,7 @@ export async function loadDegreeName(
 	>;
 	const [catalogs, requirement]: [Manifest, Requirement | undefined] =
 		await Promise.all([
-			_fetch('/catalogs.json').then((response) => {
-				if (!response.ok)
-					throw new Error(`Failed to load catalogs (${response.status})`);
-				return response.json();
-			}),
+			loadPublicJson<Manifest>('/catalogs.json', _fetch),
 			path === undefined
 				? Promise.resolve(undefined)
 				: loadRequirement(degree, undefined, _fetch)

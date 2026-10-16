@@ -1,8 +1,7 @@
 import type { Preview } from '@storybook/sveltekit';
 import '../src/app.css';
 import './preview.css';
-import { cms } from '../src/lib/content';
-import { content } from './mocks/preferences.svelte';
+import StoryFrame from './StoryFrame.svelte';
 
 const preview: Preview = {
 	globalTypes: {
@@ -46,14 +45,13 @@ const preview: Preview = {
 		}
 	},
 	decorators: [
-		(story, context) => {
-			document.documentElement.dataset.theme =
-				context.globals.theme === 'light' ? 'light' : 'dark';
-			content.lang = context.globals.language === 'he' ? cms.he : cms.en;
-			document.documentElement.lang = content.lang.lang;
-			document.documentElement.dir = content.lang.dir;
-			return story();
-		}
+		(_story, context) => ({
+			Component: StoryFrame,
+			props: {
+				theme: context.globals.theme,
+				language: context.globals.language
+			}
+		})
 	]
 };
 

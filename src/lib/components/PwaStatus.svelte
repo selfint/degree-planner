@@ -210,7 +210,9 @@
 				: 'preparing'}
 	class="text-sm text-content-secondary"
 >
-	<p role="status" class="sr-only">{allReady ? text.ready : ''}</p>
+	<p role="status" class="sr-only start-0 top-0 m-0">
+		{allReady ? text.ready : ''}
+	</p>
 	{#if updateReady}
 		<div
 			role="status"

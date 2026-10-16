@@ -2,13 +2,22 @@ import { expect, test } from '@playwright/test';
 
 const origin = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:4173';
 
-for (const region of ['header', 'main']) {
+for (const region of [
+	'header',
+	'main',
+	'[data-testid="landing-install-info"]'
+]) {
 	test(`${region} Start link works before JavaScript loads`, async ({
 		page
 	}) => {
 		await page.route('**/_app/**/*.js', (route) => route.abort());
 		await page.goto(origin);
-		const start = page.locator(`${region} a[href="/app/"]`);
+		const start = page.locator(region).getByRole('link', {
+			name:
+				region === '[data-testid="landing-install-info"]'
+					? /^(Open PlanIt|פתיחת PlanIt)$/
+					: /^(Get Started|התחל)$/
+		});
 		await expect(start).toBeVisible();
 		await start.click();
 		await expect(page).toHaveURL(/\/app\/?$/);
@@ -20,7 +29,10 @@ test('Start works with JavaScript disabled', async ({ browser }) => {
 	try {
 		const page = await context.newPage();
 		await page.goto(origin);
-		await page.locator('main a[href="/app/"]').click();
+		await page
+			.locator('main')
+			.getByRole('link', { name: /^(Get Started|התחל)$/ })
+			.click();
 		await expect(page).toHaveURL(/\/app\/?$/);
 	} finally {
 		await context.close();

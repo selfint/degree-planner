@@ -75,14 +75,14 @@ Measured the completed migration client source on 2026-10-16, after the `/app/` 
 
 | Before → after route          | Before raw / gzip bytes | After raw / gzip bytes | Raw reduction | Gzip reduction |
 | ----------------------------- | ----------------------: | ---------------------: | ------------: | -------------: |
-| `/` → `/`                     |       566,100 / 196,531 |   **183,625 / 76,927** |     **67.6%** |      **60.9%** |
-| `/plan` → `/app/plan`         |       575,093 / 198,609 |      561,254 / 196,042 |          2.4% |          1.29% |
-| `/search` → `/app/search`     |       536,448 / 183,718 |      521,256 / 180,580 |          2.8% |          1.71% |
-| `/settings` → `/app/settings` |       589,768 / 203,229 |      576,713 / 200,844 |          2.2% |          1.17% |
+| `/` → `/`                     |       566,100 / 196,531 |   **183,625 / 76,933** |     **67.6%** |      **60.9%** |
+| `/plan` → `/app/plan`         |       575,093 / 198,609 |      561,272 / 196,060 |          2.4% |          1.28% |
+| `/search` → `/app/search`     |       536,448 / 183,718 |      521,274 / 180,598 |          2.8% |          1.70% |
+| `/settings` → `/app/settings` |       589,768 / 203,229 |      576,731 / 200,860 |          2.2% |          1.17% |
 
 The landing's initial graph has 27 files versus 25 previously. Splitting the application lowers bytes substantially; it does not reduce the number of emitted files. These are graph file counts, not observed browser requests.
 
-The final `/en` graph is 126,574 raw / 53,529 gzip bytes before its navigation to `/`; it is not the total English landing session. The `/app` entry graph is 496,170 / 171,302 before redirecting to settings or a saved plan, so use the destination-route rows above when assessing the console's working UI.
+The final `/en` graph is 126,574 raw / 53,534 gzip bytes before its navigation to `/`; it is not the total English landing session. The `/app` entry graph is 496,188 / 171,320 before redirecting to settings or a saved plan, so use the destination-route rows above when assessing the console's working UI.
 
 ### What changed
 

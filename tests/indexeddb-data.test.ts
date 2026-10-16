@@ -3,7 +3,7 @@ import { expect, test, type Page } from '@playwright/test';
 const origin = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:4173';
 const degree = ['2024_200', '00002120', 'SC00001314_CG00006245'];
 const programUrl = `/_catalogs/${degree.join('/')}/requirementsData.json`;
-const previewUrl = `/preview/${degree.join('/')}?path=CG00006253&semesters=00234114~00104031`;
+const previewUrl = `/preview/${degree.join('/')}?path=CG00006253&semesters=01140052~00104031`;
 const savedPlan = {
 	degree,
 	path: 'CG00006253',
@@ -105,7 +105,7 @@ for (const language of ['en', 'he'] as const) {
 		const courses = await (
 			await request.get(origin + '/courseDataStripped.json')
 		).json();
-		const courseName = courses['00104031'].name;
+		const courseName = courses['01140052'].name;
 		const pathName = requirement.nested.find(
 			(item: { name: string }) => item.name === 'CG00006253'
 		)[language];

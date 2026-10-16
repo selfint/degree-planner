@@ -215,7 +215,7 @@ test('keeps filters when submitting a new query and encodes reserved characters'
 test('renders labeled Hebrew controls without horizontal overflow on mobile', async ({
 	page
 }) => {
-	await page.setViewportSize({ width: 375, height: 812 });
+	await page.setViewportSize({ width: 320, height: 812 });
 	await page.goto('/search?q=104184&medianMin=85');
 	await expect(
 		page.getByRole('heading', { name: 'תוצאות עבור "01040184"' })
@@ -227,11 +227,19 @@ test('renders labeled Hebrew controls without horizontal overflow on mobile', as
 	await expect(
 		page.getByRole('spinbutton', { name: 'חציון מינימלי' })
 	).toHaveValue('85');
-	expect(
-		await page.evaluate(
-			() => document.documentElement.scrollWidth <= innerWidth
-		)
-	).toBe(true);
+	const layout = await page.evaluate(() => ({
+		width: innerWidth,
+		scrollWidth: document.documentElement.scrollWidth,
+		overflow: Array.from(document.querySelectorAll('body *'))
+			.filter((element) => {
+				const rect = element.getBoundingClientRect();
+				return rect.width > 0 && (rect.left < 0 || rect.right > innerWidth);
+			})
+			.map((element) => `${element.tagName}#${element.id}.${element.className}`)
+	}));
+	expect(layout.scrollWidth, JSON.stringify(layout)).toBeLessThanOrEqual(
+		layout.width
+	);
 });
 
 test('supports precise decimal fields on mobile with slider, URL, reload, and history sync', async ({
@@ -277,11 +285,19 @@ test('supports precise decimal fields on mobile with slider, URL, reload, and hi
 	await expect(
 		page.getByRole('list', { name: 'Results for' }).locator(':scope > li')
 	).toHaveCount(expected.length);
-	expect(
-		await page.evaluate(
-			() => document.documentElement.scrollWidth <= innerWidth
-		)
-	).toBe(true);
+	const layout = await page.evaluate(() => ({
+		width: innerWidth,
+		scrollWidth: document.documentElement.scrollWidth,
+		overflow: Array.from(document.querySelectorAll('body *'))
+			.filter((element) => {
+				const rect = element.getBoundingClientRect();
+				return rect.width > 0 && (rect.left < 0 || rect.right > innerWidth);
+			})
+			.map((element) => `${element.tagName}#${element.id}.${element.className}`)
+	}));
+	expect(layout.scrollWidth, JSON.stringify(layout)).toBeLessThanOrEqual(
+		layout.width
+	);
 	await page.reload();
 	await expect(minInput).toHaveValue('2.25');
 	await expect(maxInput).toHaveValue('4.75');

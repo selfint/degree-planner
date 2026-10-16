@@ -88,7 +88,10 @@
 	}
 </script>
 
-<fieldset disabled={pending} class="mb-3 text-base text-content-secondary">
+<fieldset
+	disabled={pending}
+	class="mb-3 min-w-0 text-base text-content-secondary"
+>
 	<legend class="mb-2 text-lg text-content-primary"
 		>{content.lang.search.filters}</legend
 	>

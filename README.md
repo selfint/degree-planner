@@ -172,7 +172,7 @@ replacement, validators, storage denial, and cross-tab revision coverage.
 
 The service worker precaches all compiled route JavaScript/CSS, the manifest,
 icons, and a data-free `/offline` HTML shell. First opening automatically saves
-all courses and the catalog index in IndexedDB. Wait for **Ready offline** before
+all courses and the catalog index in IndexedDB. Wait for **All courses ready offline** before
 disconnecting: readiness requires durable public data, the controlling worker's
 matching app version, and every shell asset actually present in its cache.
 A never-visited course can then open and reload offline. Degree requirements
@@ -212,3 +212,8 @@ checks do not replace browser verification of registration, waiting activation,
 offline deep-link boot, saving, auth transitions or physical-device installation.
 The dedicated `pwa-browsers` CI job runs real Chromium offline/install/update
 checks with service workers enabled, followed by bundled-worker VM tests; Firebase preview sign-in also needs an authorized hostname.
+
+The separate `offline-webkit-data` CI job checks course bootstrap, IndexedDB
+persistence, and warm-route offline navigation in desktop/mobile WebKit.
+Playwright service-worker automation is Chromium-only; these checks do not
+verify a physical iOS installed app, offline cold-start, or Google login.

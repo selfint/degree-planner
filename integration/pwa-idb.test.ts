@@ -651,6 +651,17 @@ describe('production SW shell readiness and repair handshake (VM)', () => {
 		expect(sw.skipWaiting).not.toHaveBeenCalled();
 	});
 
+	it('rejects an HTML fallback for a missing route chunk without claiming readiness', async () => {
+		const sw = harness();
+		const { cache, lazyAsset } = await installedShell(sw);
+		await cache.delete(lazyAsset);
+		sw.network.mockImplementation(async () => shellResponse());
+		expect(await shellStatus(sw)).toMatchObject({ status: 'unavailable' });
+		expect(await cache.match(lazyAsset)).toBeUndefined();
+		sw.network.mockImplementation(shellNetwork);
+		expect(await shellStatus(sw)).toMatchObject({ status: 'ready' });
+	});
+
 	const rejectedShells = [
 		{
 			name: 'HTML from another build',

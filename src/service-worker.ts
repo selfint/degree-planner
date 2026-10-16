@@ -41,6 +41,11 @@ function prepareShell(): Promise<void> {
 					)
 				)
 					throw new Error('App asset is unavailable for offline storage');
+				if (
+					path !== SHELL &&
+					/text\/html/i.test(response.headers.get('content-type') ?? '')
+				)
+					throw new Error('An app asset returned an HTML fallback');
 				if (path === SHELL) {
 					const html = await response.clone().text();
 					// An old active worker may be repairing after a newer deployment.

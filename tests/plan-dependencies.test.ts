@@ -33,7 +33,8 @@ test.beforeEach(async ({ page }) => {
 			})
 		);
 	});
-	await page.route('**/courseDataStripped.json', (route) =>
+	// Startup now syncs the canonical full dataset; both views use this fixture.
+	await page.route(/\/courseData(?:Stripped)?\.json(?:\?.*)?$/, (route) =>
 		route.fulfill({ json: courses })
 	);
 	// Hydration otherwise reuses the real course data embedded by server rendering.

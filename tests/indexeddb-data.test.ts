@@ -36,19 +36,39 @@ async function resources(
 		() =>
 			new Promise((resolve, reject) => {
 				const request = indexedDB.open('degree-planner-public-data', 1);
-				request.onerror = () => reject(request.error);
+				let createdByProbe = false;
+				request.onupgradeneeded = () => {
+					// Observing before hydration must never create an empty app database.
+					createdByProbe = true;
+					request.transaction?.abort();
+				};
+				request.onerror = () => {
+					if (createdByProbe && request.error?.name === 'AbortError')
+						resolve([]);
+					else reject(request.error);
+				};
 				request.onsuccess = () => {
 					const db = request.result;
-					const tx = db.transaction('resources', 'readonly');
-					const result = tx.objectStore('resources').getAll();
-					tx.oncomplete = () => {
+					if (!db.objectStoreNames.contains('resources')) {
 						db.close();
-						resolve(result.result);
-					};
-					tx.onabort = () => {
+						resolve([]);
+						return;
+					}
+					try {
+						const tx = db.transaction('resources', 'readonly');
+						const result = tx.objectStore('resources').getAll();
+						tx.oncomplete = () => {
+							db.close();
+							resolve(result.result);
+						};
+						tx.onabort = () => {
+							db.close();
+							reject(tx.error);
+						};
+					} catch (error) {
 						db.close();
-						reject(tx.error);
-					};
+						reject(error);
+					}
 				};
 			})
 	);
@@ -82,6 +102,10 @@ for (const language of ['en', 'he'] as const) {
 	}) => {
 		await seed(page, language);
 		const requirement = await (await request.get(origin + programUrl)).json();
+		const courses = await (
+			await request.get(origin + '/courseDataStripped.json')
+		).json();
+		const courseName = courses['00104031'].name;
 		const pathName = requirement.nested.find(
 			(item: { name: string }) => item.name === 'CG00006253'
 		)[language];
@@ -100,6 +124,7 @@ for (const language of ['en', 'he'] as const) {
 			(route) => route.abort()
 		);
 		await page.reload();
+		await expect(page.locator('main')).toContainText(courseName);
 		await expect(page.locator('main h1').first()).toContainText(pathName);
 		await expect(page.locator('main h1').first()).toContainText(
 			requirement[language]
@@ -118,6 +143,7 @@ for (const language of ['en', 'he'] as const) {
 			language === 'en' ? 'he' : 'en'
 		);
 		await page.reload();
+		await expect(page.locator('main')).toContainText(courseName);
 		await expect(page.locator('main h1').first()).toContainText(
 			requirement[language === 'en' ? 'he' : 'en']
 		);

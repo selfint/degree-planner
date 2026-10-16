@@ -65,10 +65,11 @@ function course(value: unknown, code: string): boolean {
 		const connections = value.connections;
 		if (
 			!object(connections) ||
-			!Array.isArray(connections.dependencies) ||
-			!connections.dependencies.every(codes) ||
-			!codes(connections.adjacent) ||
-			!codes(connections.exclusive)
+			(connections.dependencies !== undefined &&
+				(!Array.isArray(connections.dependencies) ||
+					!connections.dependencies.every(codes))) ||
+			(connections.adjacent !== undefined && !codes(connections.adjacent)) ||
+			(connections.exclusive !== undefined && !codes(connections.exclusive))
 		)
 			return false;
 	}

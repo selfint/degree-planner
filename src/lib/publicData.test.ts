@@ -419,6 +419,20 @@ describe('public JSON wire compatibility', () => {
 		expect(count).toBe(1183);
 	});
 
+	it('preserves optional connection lists used by historical data and dependency cards', () => {
+		const data = {
+			'10400001': {
+				code: '10400001',
+				name: 'Advanced course',
+				points: 5,
+				connections: { dependencies: [['10400002']] }
+			},
+			'10400002': { code: '10400002', name: 'Prerequisite course', points: 5 }
+		};
+		expect(isPublicData('/courseDataStripped.json', data)).toBe(true);
+		expect(isPublicData('/_courses/10400001', data['10400001'])).toBe(true);
+	});
+
 	it('rejects empty/invalid payloads but accepts valid per-course data and bilingual manifest', () => {
 		expect(isPublicData('/catalogs.json', manifest)).toBe(true);
 		expect(isPublicData('/catalogs.json', {})).toBe(false);
@@ -428,6 +442,12 @@ describe('public JSON wire compatibility', () => {
 		expect(isPublicDataUrl('/_courses/00104031')).toBe(true);
 		expect(
 			isPublicData('/_courses/00104031', { code: '00104031', connections: {} })
+		).toBe(true);
+		expect(
+			isPublicData('/_courses/00104031', {
+				code: '00104031',
+				connections: { dependencies: '00104031' }
+			})
 		).toBe(false);
 		expect(
 			isPublicData('/_courses/00104031', { code: '00104031', points: {} })

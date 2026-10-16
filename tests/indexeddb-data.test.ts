@@ -190,6 +190,96 @@ test('keeps full course data and per-course details across reloads', async ({
 	).toEqual(savedPlan);
 });
 
+test('identifies a cold course route failure when the whole browser goes offline', async ({
+	page,
+	context
+}) => {
+	await seed(page);
+	await page.goto(origin + previewUrl);
+	const courseButton = page.locator('button').filter({ hasText: '01140052' });
+	await expect(courseButton).toBeVisible();
+	await expect
+		.poll(async () =>
+			(await resources(page)).some(
+				(entry) => entry.key === '/courseDataStripped.json'
+			)
+		)
+		.toBe(true);
+	expect(
+		(await resources(page)).some((entry) => entry.key === '/_courses/01140052')
+	).toBe(false);
+	const failures: { path: string; error: string | undefined }[] = [];
+	const serverDataRequests: string[] = [];
+	page.on('requestfailed', (request) => {
+		failures.push({
+			path: new URL(request.url()).pathname,
+			error: request.failure()?.errorText
+		});
+	});
+	page.on('request', (request) => {
+		if (request.url().includes('/__data.json'))
+			serverDataRequests.push(request.url());
+	});
+	// Unlike blockPublicData(), this also blocks lazy route JS, HTML and CSS.
+	// Preview cards are buttons, so hovering them does not preload the course route.
+	await context.setOffline(true);
+	expect(await page.evaluate(() => navigator.onLine)).toBe(false);
+	await courseButton.click();
+	await expect(page).toHaveURL(origin + '/course/01140052');
+	await expect(
+		page.getByText('404 - Page Not Found', { exact: true })
+	).toBeVisible();
+	expect(
+		failures.some(({ path }) => /^\/_app\/immutable\/.*\.js$/.test(path))
+	).toBe(true);
+	expect(serverDataRequests).toEqual([]);
+	console.log('Cold offline course navigation:', JSON.stringify(failures));
+});
+
+test('reopens an exact previously visited course offline in the same document', async ({
+	page,
+	context,
+	request
+}) => {
+	await seed(page);
+	const course = await (
+		await request.get(origin + '/_courses/01140052')
+	).json();
+	const about = course.about.trim().slice(0, 60);
+	await page.goto(origin + previewUrl);
+	const courseButton = page.locator('button').filter({ hasText: '01140052' });
+	await courseButton.click();
+	await expect(page.locator('main h1').first()).toContainText(course.name);
+	await expect(page.locator('main')).toContainText(about);
+	await expect
+		.poll(async () =>
+			(await resources(page)).some(
+				(entry) => entry.key === '/_courses/01140052'
+			)
+		)
+		.toBe(true);
+	await page.goBack();
+	await expect(courseButton).toBeVisible();
+	const navigationRequests: string[] = [];
+	page.on('request', (request) => {
+		if (
+			request.resourceType() === 'document' ||
+			request.url().includes('/__data.json')
+		)
+			navigationRequests.push(request.url());
+	});
+	await context.setOffline(true);
+	expect(await page.evaluate(() => navigator.onLine)).toBe(false);
+	await courseButton.click();
+	await expect(page).toHaveURL(origin + '/course/01140052');
+	await expect(page.locator('main h1').first()).toContainText(course.name);
+	await expect(page.locator('main')).toContainText(about);
+	expect(navigationRequests).toEqual([]);
+	expect(
+		await page.evaluate(() => JSON.parse(localStorage.getItem('userData')!))
+	).toEqual(savedPlan);
+});
+
 for (const failure of ['denied', 'blocked'] as const) {
 	test(`falls back to the network when the public IndexedDB cache is ${failure}`, async ({
 		page

@@ -117,7 +117,7 @@ test('combines filters, counts only displayed courses, and restores state after 
 	await expect(max).toHaveValue('4');
 	await expect(
 		page.getByRole('spinbutton', { name: 'Min median' })
-	).toHaveValue('85');
+	).toHaveValue('85.0');
 	await expect(page.locator('main p[role="status"]')).toHaveText(
 		`${expected.length} results found (of ${matches.length})`
 	);
@@ -138,7 +138,7 @@ test('commits a slider gesture once, clears filters without losing the query, an
 	await expect(page).toHaveURL(original);
 	await expect(
 		page.getByRole('spinbutton', { name: 'Min points' })
-	).toHaveValue('2');
+	).toHaveValue('2.0');
 	await slider.dispatchEvent('change');
 	await expect(page).toHaveURL(/pointsMin=2/);
 	expect(await page.evaluate(() => history.length)).toBe(historyLength + 1);
@@ -180,7 +180,7 @@ test('handles malformed URLs, zero median, and an empty result set', async ({
 	await page.getByRole('spinbutton', { name: 'Min median' }).press('Tab');
 	await expect(
 		page.getByRole('spinbutton', { name: 'Min median' })
-	).toHaveValue('100');
+	).toHaveValue('100.0');
 	await expect(page).toHaveURL(/medianMin=100/);
 	await page.goto(`/search?q=${query}&faculty=Unknown`);
 	await expect(page.getByLabel('Faculty', { exact: true })).toHaveValue(
@@ -245,7 +245,7 @@ test('renders labeled Hebrew controls without horizontal overflow on mobile', as
 	).toBeVisible();
 	await expect(
 		page.getByRole('spinbutton', { name: 'חציון מינימלי' })
-	).toHaveValue('85');
+	).toHaveValue('85.0');
 	const layout = await page.evaluate(() => ({
 		width: innerWidth,
 		scrollWidth: document.documentElement.scrollWidth,
@@ -274,7 +274,10 @@ test('supports precise decimal fields on mobile with slider, URL, reload, and hi
 	for (const input of [minInput, maxInput, medianInput]) {
 		await expect(input).toHaveAttribute('type', 'number');
 		await expect(input).toHaveAttribute('inputmode', 'decimal');
-		await expect(input).toHaveAttribute('step', 'any');
+		await expect(input).toHaveAttribute(
+			'step',
+			input === medianInput ? 'any' : '0.5'
+		);
 		await expectRemSizedNumberField(input);
 		await input.locator('..').click({ position: { x: 2, y: 2 } });
 		await expect(input).toBeFocused();
@@ -288,21 +291,21 @@ test('supports precise decimal fields on mobile with slider, URL, reload, and hi
 	await expect(minSlider).toHaveValue('2.25');
 	await expect(page).toHaveURL(originalUrl);
 	await minInput.press('Enter');
-	await expect(page).toHaveURL(/pointsMin=2.25/);
+	await expect(page).toHaveURL(/pointsMin=2.3/);
 	await maxInput.fill('4.75');
 	await maxInput.press('Tab');
-	await expect(page).toHaveURL(/pointsMax=4.75/);
+	await expect(page).toHaveURL(/pointsMax=4.8/);
 	await medianInput.fill('85.125');
 	await medianInput.press('Enter');
-	await expect(page).toHaveURL(/medianMin=85.125/);
-	await expect(maxSlider).toHaveValue('4.75');
+	await expect(page).toHaveURL(/medianMin=85.1/);
+	await expect(maxSlider).toHaveValue('4.8');
 	const expected = matches.filter(
 		(course) =>
 			course.points !== undefined &&
-			course.points >= 2.25 &&
-			course.points <= 4.75 &&
+			course.points >= 2.3 &&
+			course.points <= 4.8 &&
 			course.median !== undefined &&
-			course.median >= 85.125
+			course.median >= 85.1
 	);
 	await expect(
 		page.getByRole('list', { name: 'Results for' }).locator(':scope > li')
@@ -321,31 +324,31 @@ test('supports precise decimal fields on mobile with slider, URL, reload, and hi
 		layout.width
 	);
 	await page.reload();
-	await expect(minInput).toHaveValue('2.25');
-	await expect(maxInput).toHaveValue('4.75');
-	await expect(medianInput).toHaveValue('85.125');
-	await expect(minSlider).toHaveValue('2.25');
-	await expect(maxSlider).toHaveValue('4.75');
-	await setRange(minSlider, '2.5');
+	await expect(minInput).toHaveValue('2.3');
+	await expect(maxInput).toHaveValue('4.8');
+	await expect(medianInput).toHaveValue('85.1');
+	await expect(minSlider).toHaveValue('2.3');
+	await expect(maxSlider).toHaveValue('4.8');
+	await setRange(minSlider, '2.6');
 	await expect(minInput).toHaveValue('2.5');
 	await minSlider.dispatchEvent('change');
 	await expect(page).toHaveURL(/pointsMin=2.5/);
 	await page.goBack();
-	await expect(minInput).toHaveValue('2.25');
-	await expect(minSlider).toHaveValue('2.25');
+	await expect(minInput).toHaveValue('2.3');
+	await expect(minSlider).toHaveValue('2.3');
 	await page.goForward();
 	await expect(minInput).toHaveValue('2.5');
 	await page.getByRole('button', { name: 'Clear filters' }).click();
-	await expect(minInput).toHaveValue('0');
-	await expect(maxInput).toHaveValue(String(maxPoints));
-	await expect(medianInput).toHaveValue('0');
+	await expect(minInput).toHaveValue('0.0');
+	await expect(maxInput).toHaveValue(maxPoints.toFixed(1));
+	await expect(medianInput).toHaveValue('0.0');
 });
 
 test('normalizes numeric fields only when committed and handles empty, invalid, and crossed bounds', async ({
 	page
 }) => {
 	await page.goto(
-		`/search?q=${query}&pointsMin=1.25&pointsMax=4.75&medianMin=90.5`
+		`/search?q=${query}&pointsMin=1.3&pointsMax=4.8&medianMin=90.5`
 	);
 	const minInput = page.getByRole('spinbutton', { name: 'Min points' });
 	const maxInput = page.getByRole('spinbutton', { name: 'Max points' });
@@ -361,41 +364,41 @@ test('normalizes numeric fields only when committed and handles empty, invalid, 
 	).toBe(true);
 	await expect(page).toHaveURL(originalUrl);
 	await minInput.press('Tab');
-	await expect(minInput).toHaveValue('1.25');
-	await expect(minSlider).toHaveValue('1.25');
+	await expect(minInput).toHaveValue('1.3');
+	await expect(minSlider).toHaveValue('1.3');
 	await expect(page).toHaveURL(originalUrl);
 	await minInput.fill('');
 	await expect(minInput).toHaveValue('');
 	await expect(page).toHaveURL(originalUrl);
 	await minInput.press('Tab');
-	await expect(minInput).toHaveValue('0');
+	await expect(minInput).toHaveValue('0.0');
 	await expect(page).not.toHaveURL(/pointsMin=/);
 	await minInput.fill('999');
 	await expect(minInput).toHaveValue('999');
 	await expect(page).not.toHaveURL(/pointsMin=/);
 	await minInput.press('Enter');
-	await expect(minInput).toHaveValue('4.75');
-	await expect(minSlider).toHaveValue('4.75');
-	await expect(page).toHaveURL(/pointsMin=4.75/);
+	await expect(minInput).toHaveValue('4.8');
+	await expect(minSlider).toHaveValue('4.8');
+	await expect(page).toHaveURL(/pointsMin=4.8/);
 	await maxInput.fill('-2');
 	await maxInput.press('Tab');
-	await expect(maxInput).toHaveValue('4.75');
+	await expect(maxInput).toHaveValue('4.8');
 	await minInput.fill('-3.5');
 	await minInput.press('Tab');
-	await expect(minInput).toHaveValue('0');
+	await expect(minInput).toHaveValue('0.0');
 	await maxInput.fill('');
 	await expect(maxInput).toHaveValue('');
 	await maxInput.press('Enter');
-	await expect(maxInput).toHaveValue(String(maxPoints));
+	await expect(maxInput).toHaveValue(maxPoints.toFixed(1));
 	await expect(page).not.toHaveURL(/pointsMax=/);
 	await medianInput.fill('150.5');
 	await medianInput.press('Tab');
-	await expect(medianInput).toHaveValue('100');
+	await expect(medianInput).toHaveValue('100.0');
 	await medianInput.fill('');
 	await expect(medianInput).toHaveValue('');
 	await expect(page).toHaveURL(/medianMin=100/);
 	await medianInput.press('Tab');
-	await expect(medianInput).toHaveValue('0');
+	await expect(medianInput).toHaveValue('0.0');
 	await expect(page).not.toHaveURL(/medianMin=/);
 });
 
@@ -434,3 +437,57 @@ for (const language of ['English', 'Hebrew']) {
 		}
 	});
 }
+
+test('formats one decimal and snaps credit gestures and steppers to half points', async ({
+	page
+}) => {
+	await page.setViewportSize({ width: 320, height: 812 });
+	await page.goto(
+		'/search?q=1040&pointsMin=3.04&pointsMax=5.01&medianMin=85.04'
+	);
+	const min = page.getByRole('spinbutton', { name: 'Min points' });
+	const max = page.getByRole('spinbutton', { name: 'Max points' });
+	const median = page.getByRole('spinbutton', { name: 'Min median' });
+	const slider = page.getByRole('slider', { name: 'Min points' });
+	await expect(min).toHaveValue('3.0');
+	await expect(max).toHaveValue('5.0');
+	await expect(median).toHaveValue('85.0');
+	await min.fill('3.24');
+	await expect(min).toHaveValue('3.24');
+	await min.press('Enter');
+	await expect(min).toHaveValue('3.2');
+	await expect(slider).toHaveValue('3.2');
+	await expect(page).toHaveURL(/pointsMin=3.2/);
+	await max.press('ArrowDown');
+	await max.press('Enter');
+	await expect(max).toHaveValue('4.5');
+	await expect(page).toHaveURL(/pointsMax=4.5/);
+	await max.fill('5');
+	await max.press('Enter');
+	await expect(max).toHaveValue('5.0');
+	await min.press('ArrowUp');
+	await min.press('Enter');
+	await expect(min).toHaveValue('3.5');
+	await expect(page).toHaveURL(/pointsMin=3.5/);
+	await min.press('ArrowDown');
+	await min.press('Enter');
+	await expect(min).toHaveValue('3.0');
+	await expect(page).toHaveURL(/pointsMin=3(?:&|$)/);
+	await slider.press('ArrowRight');
+	await expect(min).toHaveValue('3.5');
+	await expect(page).toHaveURL(/pointsMin=3.5/);
+	await setRange(slider, '3.8');
+	await expect(slider).toHaveValue('4');
+	await expect(min).toHaveValue('4.0');
+	await slider.dispatchEvent('change');
+	await expect(page).toHaveURL(/pointsMin=4(?:&|$)/);
+	await page.goBack();
+	await expect(min).toHaveValue('3.5');
+	await min.fill('3.14');
+	await min.press('Enter');
+	await expect(min).toHaveValue('3.1');
+	await expect(page).toHaveURL(/pointsMin=3.1/);
+	await page.reload();
+	await expect(min).toHaveValue('3.1');
+	await expect(slider).toHaveValue('3.1');
+});

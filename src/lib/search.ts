@@ -24,6 +24,39 @@ function clamp(value: number, min: number, max: number): number {
 	return Math.min(Math.max(value, min), max);
 }
 
+function roundedFilterNumber(value: number, min: number, max: number): number {
+	return clamp(Math.round(clamp(value, min, max) * 10) / 10, min, max);
+}
+
+/** Snap a slider gesture to a half-point grid without quantizing typed tenths. */
+export function snapPointSliderValue(
+	value: number,
+	min: number,
+	max: number
+): number {
+	const lower = Math.ceil(min * 2) / 2;
+	const upper = Math.floor(max * 2) / 2;
+	if (lower > upper) return clamp(value, min, max);
+	return clamp(Math.round(value * 2) / 2, lower, upper);
+}
+
+export function stepPointSliderValue(
+	value: number,
+	direction: 1 | -1,
+	min: number,
+	max: number
+): number {
+	const next =
+		direction === 1
+			? (Math.floor(value * 2) + 1) / 2
+			: (Math.ceil(value * 2) - 1) / 2;
+	const snapped = snapPointSliderValue(next, min, max);
+	// A manually typed endpoint must not jump backwards when its next grid point is out of range.
+	if (direction === 1 ? snapped < value : snapped > value)
+		return clamp(value, min, max);
+	return snapped;
+}
+
 /** Normalize a committed number field, keeping unfinished typing local to the input. */
 export function resolveNumericFilterInput(
 	value: string,
@@ -36,7 +69,9 @@ export function resolveNumericFilterInput(
 	if (badInput) return previousValue;
 	if (value.trim() === '') return clamp(emptyValue, min, max);
 	const number = Number(value);
-	return Number.isFinite(number) ? clamp(number, min, max) : previousValue;
+	return Number.isFinite(number)
+		? roundedFilterNumber(number, min, max)
+		: previousValue;
 }
 
 export function normalizeSearchQuery(query: string): string {
@@ -72,12 +107,12 @@ export function readSearchFilters(
 	params: URLSearchParams,
 	maxPoints: number
 ): SearchFilters {
-	let pointsMin = clamp(
+	let pointsMin = roundedFilterNumber(
 		finiteNumber(params.get('pointsMin')) ?? 0,
 		0,
 		maxPoints
 	);
-	let pointsMax = clamp(
+	let pointsMax = roundedFilterNumber(
 		finiteNumber(params.get('pointsMax')) ?? maxPoints,
 		0,
 		maxPoints
@@ -88,7 +123,11 @@ export function readSearchFilters(
 		faculty: params.get('faculty')?.trim() ?? '',
 		pointsMin,
 		pointsMax,
-		medianMin: clamp(finiteNumber(params.get('medianMin')) ?? 0, 0, 100)
+		medianMin: roundedFilterNumber(
+			finiteNumber(params.get('medianMin')) ?? 0,
+			0,
+			100
+		)
 	};
 }
 

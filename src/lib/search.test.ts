@@ -7,6 +7,8 @@ import {
 	normalizeSearchQuery,
 	readSearchFilters,
 	resolveNumericFilterInput,
+	snapPointSliderValue,
+	stepPointSliderValue,
 	searchCourses,
 	searchFilterKeys,
 	writeSearchFilters
@@ -194,10 +196,10 @@ describe('course filtering', () => {
 });
 
 describe('committed numeric filter fields', () => {
-	it('preserves floats without integer or half-point rounding', () => {
-		expect(resolveNumericFilterInput('2.25', 0, 20, 0, 1)).toBe(2.25);
-		expect(resolveNumericFilterInput('85.125', 0, 100, 0, 80)).toBe(85.125);
-		expect(resolveNumericFilterInput('0.05', 0, 20, 0, 1)).toBe(0.05);
+	it('rounds committed floats to tenths without quantizing to half points', () => {
+		expect(resolveNumericFilterInput('2.25', 0, 20, 0, 1)).toBe(2.3);
+		expect(resolveNumericFilterInput('85.125', 0, 100, 0, 80)).toBe(85.1);
+		expect(resolveNumericFilterInput('0.05', 0, 20, 0, 1)).toBe(0.1);
 	});
 	it('resets empty committed fields to their individual defaults', () => {
 		expect(resolveNumericFilterInput('', 0, 20, 0, 2.25)).toBe(0);
@@ -214,8 +216,44 @@ describe('committed numeric filter fields', () => {
 	it('clamps values to both the course bounds and the other range endpoint', () => {
 		expect(resolveNumericFilterInput('-1.5', 0, 20, 0, 2)).toBe(0);
 		expect(resolveNumericFilterInput('999', 0, 20, 0, 2)).toBe(20);
-		expect(resolveNumericFilterInput('6', 0, 4.75, 0, 2)).toBe(4.75);
-		expect(resolveNumericFilterInput('1', 2.25, 20, 20, 4)).toBe(2.25);
+		expect(resolveNumericFilterInput('6', 0, 4.8, 0, 2)).toBe(4.8);
+		expect(resolveNumericFilterInput('1', 2.3, 20, 20, 4)).toBe(2.3);
 		expect(resolveNumericFilterInput('100.5', 0, 100, 0, 85)).toBe(100);
+	});
+});
+
+describe('one-decimal filter state and half-point slider gestures', () => {
+	it('normalizes URL decimals to the same precision as committed fields', () => {
+		expect(
+			readSearchFilters(
+				new URLSearchParams('pointsMin=2.25&pointsMax=4.75&medianMin=85.125'),
+				20
+			)
+		).toEqual({
+			available: false,
+			faculty: '',
+			pointsMin: 2.3,
+			pointsMax: 4.8,
+			medianMin: 85.1
+		});
+	});
+	it('keeps manually entered tenths instead of forcing half points', () => {
+		expect(resolveNumericFilterInput('3.14', 0, 20, 0, 1)).toBe(3.1);
+		expect(resolveNumericFilterInput('3.16', 0, 20, 0, 1)).toBe(3.2);
+	});
+	it('snaps slider movement to a half-point grid within bounds', () => {
+		expect(snapPointSliderValue(3.24, 0, 20)).toBe(3);
+		expect(snapPointSliderValue(3.26, 0, 20)).toBe(3.5);
+		expect(snapPointSliderValue(4.8, 0, 4.8)).toBe(4.5);
+		expect(snapPointSliderValue(3, 3.2, 20)).toBe(3.5);
+		expect(snapPointSliderValue(3.2, 3.2, 3.2)).toBe(3.2);
+	});
+	it('steps keyboard gestures to the next grid point without reversing at bounds', () => {
+		expect(stepPointSliderValue(3.2, 1, 0, 20)).toBe(3.5);
+		expect(stepPointSliderValue(3.2, -1, 0, 20)).toBe(3);
+		expect(stepPointSliderValue(3.5, 1, 0, 20)).toBe(4);
+		expect(stepPointSliderValue(3.5, -1, 0, 20)).toBe(3);
+		expect(stepPointSliderValue(4.8, 1, 0, 4.8)).toBe(4.8);
+		expect(stepPointSliderValue(3.2, -1, 3.2, 20)).toBe(3.2);
 	});
 });

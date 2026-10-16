@@ -3,6 +3,8 @@
 	import {
 		hasSearchFilters,
 		resolveNumericFilterInput,
+		snapPointSliderValue,
+		stepPointSliderValue,
 		type SearchFilters
 	} from '$lib/search';
 
@@ -18,14 +20,14 @@
 		$props();
 	let pointsMin = $state(0);
 	let pointsMax = $state(0);
-	let pointsMinText = $state('0');
-	let pointsMaxText = $state('0');
+	let pointsMinText = $state('0.0');
+	let pointsMaxText = $state('0.0');
 
 	$effect(() => {
 		pointsMin = filters.pointsMin;
 		pointsMax = filters.pointsMax;
-		pointsMinText = String(filters.pointsMin);
-		pointsMaxText = String(filters.pointsMax);
+		pointsMinText = filters.pointsMin.toFixed(1);
+		pointsMaxText = filters.pointsMax.toFixed(1);
 	});
 
 	function previewPoints(
@@ -64,14 +66,14 @@
 			filters[field],
 			input.validity.badInput
 		);
-		input.value = String(value);
+		input.value = value.toFixed(1);
 		if (field === 'pointsMin') {
 			pointsMin = value;
-			pointsMinText = String(value);
+			pointsMinText = value.toFixed(1);
 		}
 		if (field === 'pointsMax') {
 			pointsMax = value;
-			pointsMaxText = String(value);
+			pointsMaxText = value.toFixed(1);
 		}
 		onchange({ ...filters, [field]: value });
 	}
@@ -81,6 +83,66 @@
 			event.preventDefault();
 			(event.currentTarget as HTMLInputElement).blur();
 		}
+	}
+
+	function stepNumber(event: KeyboardEvent, field: 'pointsMin' | 'pointsMax') {
+		if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') {
+			commitOnEnter(event);
+			return;
+		}
+		event.preventDefault();
+		const input = event.currentTarget as HTMLInputElement;
+		const min = field === 'pointsMin' ? 0 : filters.pointsMin;
+		const max = field === 'pointsMin' ? filters.pointsMax : maxPoints;
+		const current = Number.isFinite(input.valueAsNumber)
+			? input.valueAsNumber
+			: filters[field];
+		const next = stepPointSliderValue(
+			current,
+			event.key === 'ArrowUp' ? 1 : -1,
+			min,
+			max
+		);
+		input.value = next.toFixed(1);
+		previewPoints(input, field);
+	}
+
+	// step="any" lets the range represent typed tenths; user gestures snap to the half-point grid.
+	function previewSlider(
+		input: HTMLInputElement,
+		field: 'pointsMin' | 'pointsMax'
+	) {
+		const min = field === 'pointsMin' ? 0 : pointsMin;
+		const max = field === 'pointsMin' ? pointsMax : maxPoints;
+		const value = snapPointSliderValue(input.valueAsNumber, min, max);
+		input.value = String(value);
+		if (field === 'pointsMin') {
+			pointsMin = value;
+			pointsMinText = value.toFixed(1);
+		} else {
+			pointsMax = value;
+			pointsMaxText = value.toFixed(1);
+		}
+	}
+
+	function stepSlider(event: KeyboardEvent, field: 'pointsMin' | 'pointsMax') {
+		const input = event.currentTarget as HTMLInputElement;
+		const rtl = getComputedStyle(input).direction === 'rtl';
+		let direction: 1 | -1;
+		if (event.key === 'ArrowUp') direction = 1;
+		else if (event.key === 'ArrowDown') direction = -1;
+		else if (event.key === 'ArrowRight') direction = rtl ? -1 : 1;
+		else if (event.key === 'ArrowLeft') direction = rtl ? 1 : -1;
+		else return;
+		event.preventDefault();
+		const min = field === 'pointsMin' ? 0 : pointsMin;
+		const max = field === 'pointsMin' ? pointsMax : maxPoints;
+		const current = field === 'pointsMin' ? pointsMin : pointsMax;
+		const next = stepPointSliderValue(current, direction, min, max);
+		if (next === current) return;
+		input.value = String(next);
+		previewSlider(input, field);
+		updatePoints();
 	}
 
 	function updatePoints() {
@@ -135,8 +197,9 @@
 				min="0"
 				max={pointsMax}
 				step="any"
-				bind:value={pointsMin}
-				oninput={(e) => (pointsMinText = e.currentTarget.value)}
+				value={pointsMin}
+				oninput={(e) => previewSlider(e.currentTarget, 'pointsMin')}
+				onkeydown={(e) => stepSlider(e, 'pointsMin')}
 				onchange={updatePoints}
 				class="h-2 w-24 cursor-pointer accent-accent-primary"
 			/>
@@ -150,11 +213,11 @@
 					inputmode="decimal"
 					min="0"
 					max={filters.pointsMax}
-					step="any"
+					step="0.5"
 					value={pointsMinText}
 					oninput={(e) => previewPoints(e.currentTarget, 'pointsMin')}
 					onblur={(e) => commitNumber(e.currentTarget, 'pointsMin')}
-					onkeydown={commitOnEnter}
+					onkeydown={(e) => stepNumber(e, 'pointsMin')}
 					class="h-8 w-16 rounded-md border border-border bg-background px-1 py-1 text-center text-base text-content-secondary focus-visible:outline-accent-primary"
 				/>
 			</label>
@@ -170,8 +233,9 @@
 				min={pointsMin}
 				max={maxPoints}
 				step="any"
-				bind:value={pointsMax}
-				oninput={(e) => (pointsMaxText = e.currentTarget.value)}
+				value={pointsMax}
+				oninput={(e) => previewSlider(e.currentTarget, 'pointsMax')}
+				onkeydown={(e) => stepSlider(e, 'pointsMax')}
 				onchange={updatePoints}
 				class="h-2 w-24 cursor-pointer accent-accent-primary"
 			/>
@@ -185,11 +249,11 @@
 					inputmode="decimal"
 					min={filters.pointsMin}
 					max={maxPoints}
-					step="any"
+					step="0.5"
 					value={pointsMaxText}
 					oninput={(e) => previewPoints(e.currentTarget, 'pointsMax')}
 					onblur={(e) => commitNumber(e.currentTarget, 'pointsMax')}
-					onkeydown={commitOnEnter}
+					onkeydown={(e) => stepNumber(e, 'pointsMax')}
 					class="h-8 w-16 rounded-md border border-border bg-background px-1 py-1 text-center text-base text-content-secondary focus-visible:outline-accent-primary"
 				/>
 			</label>
@@ -201,7 +265,7 @@
 				min="0"
 				max="100"
 				step="any"
-				value={filters.medianMin}
+				value={filters.medianMin.toFixed(1)}
 				inputmode="decimal"
 				onblur={(e) => commitNumber(e.currentTarget, 'medianMin')}
 				onkeydown={commitOnEnter}

@@ -30,14 +30,12 @@ For fun, this is an interesting project to work on.
 
 1. It's hard to iterate on entire degree plan:
    These are the current solutions:
-
    - [Sogrim](https://students.sogrim.org/) doesn't take into account course prerequisites.
    - [CheeseFork](https://cheesefork.cf/) only supports current and previous semesters.
 
    Both solutions also don't support **rapid** course re-ordering.
 
 1. It's hard to find interesting courses that also have high median grades:
-
    - [Sogrim](https://students.sogrim.org/) has no course search capabilities
      (other than course code -> name translation).
 
@@ -154,6 +152,53 @@ named after requirements to complete the degree. A requirement directory can als
   their degree planner.
 
 - Big thanks to the beta testers for their feedback:
-
   - [Almog Levy](https://github.com/Almoglevy2k)
   - [Yotam Freund](https://github.com/freundyotam)
+
+## Refreshing SAP data
+
+Run `node scripts/refreshSAPData.mjs`, then
+`node scripts/generateCatalogsStatic.mjs`. The scheduled Data workflow uses this
+path. Fetch, validation, or write failures exit nonzero and fail the workflow;
+later generation, push, and PR steps do not run. There is no old-data fallback.
+After validation, `static/courseData.json` and `catalogs.json` are written directly,
+without staging or rollback. The PR workflow gates publication of generated data.
+
+The client already retried transport/SAP failures. It now also validates the
+response envelope, inner HTTP status, query identity, required course expansions,
+and matching English/Hebrew records inside that retry path. A translation is
+matched within its exact faculty/track/parent, year, and semester query. There is
+no English fallback or silent skip when a required counterpart is missing.
+
+- Up to three attempts per failed query, in sequential chunks of at most 100.
+  Successful subqueries are retained rather than fetched again.
+- Each HTTP request, including its response body, has a 10-second abort timeout.
+  Each chunk has a 30-second total deadline including retry backoff. A full
+  multi-chunk/tree refresh may take longer; this is not a global refresh deadline.
+- Inline counts and continuation links are checked when supplied. A partial page
+  fails closed; automatic continuation fetching is not implemented. Explicit
+  `getCourses(semesters, top)` calls below 10,000 may intentionally request a subset.
+- Empty faculty/degree lists, tree leaves, and course expansion lists can be
+  valid. An empty response for a specific known course or translation is not.
+  Ordinary dataset shrinkage is allowed. During generation, a previously
+  populated semester/faculty/track that is still being queried cannot suddenly
+  return no faculties/degrees/tree children: its empty response is retried, then
+  held for manual verification of a possible upstream removal. Baselines come
+  from prior raw catalogs or existing static catalog directories and are used
+  only for completeness validation, never as replacement data. Completely
+  wiping an established output is also held for review, not declared proof of an
+  SAP outage. Individual removed IDs and newly empty scopes remain allowed.
+- Diagnostics identify the endpoint, language, query, and SAP error code without
+  dumping response bodies or internal SAP traces. Persistent RFC/shared-memory
+  failures still require the SAP operator to resolve the backend problem; client
+  retries cannot rebuild SAP buffers, and an empty result alone does not identify
+  its server-side cause.
+
+Run the deterministic regressions without SAP access:
+
+```sh
+npx vitest run scripts/SAPClient.regression.test.mjs scripts/refreshSAPData.test.mjs
+```
+
+The existing `scripts/SAPClient.test.mjs` remains a live integration check. Do not
+update its snapshots to bless empty or incomplete upstream responses.

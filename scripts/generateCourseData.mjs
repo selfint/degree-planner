@@ -1,6 +1,8 @@
 /// <reference path="../src/app.d.ts"/>
 
 import * as sap from './SAPClient.mjs';
+import { resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { getMedian } from './HistogramsClient.mjs';
 
 /**
@@ -235,7 +237,7 @@ async function parseCourse(course, current) {
 		console.error(msg);
 		if (attempt === retries) {
 			throw new Error(
-				`Failed to parse course ${code} after ${retries} attempts: ${msg}\n${JSON.stringify(course)}`
+				`Failed to parse course ${code} after ${retries} attempts: ${msg}`
 			);
 		}
 
@@ -252,7 +254,7 @@ async function parseCourse(course, current) {
  * @param {number} top
  * @returns {Promise<string>}
  */
-async function main(top) {
+export async function generateCourseData(top = 10000) {
 	const semesterYears = await sap.getSemesterYears();
 	console.error(
 		semesterYears.length,
@@ -303,11 +305,6 @@ async function main(top) {
 	const courseData = [];
 	for (let index = 0; index < rawData.length; index++) {
 		const raw = rawData[index];
-		const current =
-			currentYear !== undefined &&
-			raw.Peryr === currentYear.Peryr &&
-			raw.Perid === currentYear.Perid;
-
 		const course = await parseCourse(raw, currentYear);
 		courseData.push(course);
 	}
@@ -329,11 +326,17 @@ async function main(top) {
 	return Object.fromEntries(courseDataMap);
 }
 
-const args = process.argv.slice(2);
-const top = parseInt(args[0], 10);
-
-if (isNaN(top)) {
-	throw new Error('Invalid arguments');
+if (
+	process.argv[1] &&
+	import.meta.url === pathToFileURL(resolve(process.argv[1])).href
+) {
+	try {
+		const top = Number(process.argv[2]);
+		if (!Number.isSafeInteger(top) || top < 1)
+			throw new Error('Invalid course limit');
+		console.log(JSON.stringify(await generateCourseData(top), null, 1));
+	} catch (error) {
+		console.error(error.message);
+		process.exitCode = 1;
+	}
 }
-
-console.log(JSON.stringify(await main(top), null, 1));

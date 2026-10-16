@@ -161,9 +161,24 @@
 	}
 
 	@media (prefers-reduced-motion: no-preference) {
-		.landing-gradient {
+		.landing-gradient:global([data-parallax='fallback']) {
 			transform: translate3d(0, var(--landing-parallax-offset, 0rem), 0);
 			will-change: transform;
+		}
+
+		.landing-gradient:global([data-parallax='native']) {
+			animation: landing-parallax 1s linear both;
+			/* Explicit root: the clipping wrapper must not become the timeline. */
+			animation-timeline: scroll(root y);
+		}
+	}
+
+	@keyframes landing-parallax {
+		from {
+			transform: translate3d(0, 0, 0);
+		}
+		to {
+			transform: translate3d(0, var(--landing-parallax-travel, 0rem), 0);
 		}
 	}
 </style>

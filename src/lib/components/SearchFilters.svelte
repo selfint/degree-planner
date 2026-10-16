@@ -140,19 +140,24 @@
 				onchange={updatePoints}
 				class="h-2 w-24 cursor-pointer accent-accent-primary"
 			/>
-			<input
-				id="search-points-min-input"
-				type="number"
-				inputmode="decimal"
-				min="0"
-				max={filters.pointsMax}
-				step="any"
-				value={pointsMinText}
-				oninput={(e) => previewPoints(e.currentTarget, 'pointsMin')}
-				onblur={(e) => commitNumber(e.currentTarget, 'pointsMin')}
-				onkeydown={commitOnEnter}
-				class="min-h-11 w-20 rounded-md border border-border bg-background p-2 text-base text-content-secondary focus-visible:outline-accent-primary"
-			/>
+			<label
+				for="search-points-min-input"
+				class="inline-flex min-h-11 cursor-text items-center"
+			>
+				<input
+					id="search-points-min-input"
+					type="number"
+					inputmode="decimal"
+					min="0"
+					max={filters.pointsMax}
+					step="any"
+					value={pointsMinText}
+					oninput={(e) => previewPoints(e.currentTarget, 'pointsMin')}
+					onblur={(e) => commitNumber(e.currentTarget, 'pointsMin')}
+					onkeydown={commitOnEnter}
+					class="h-8 w-16 rounded-md border border-border bg-background px-1 py-1 text-center text-base text-content-secondary focus-visible:outline-accent-primary"
+				/>
+			</label>
 		</div>
 		<div class="inline-flex max-w-full flex-wrap items-center gap-x-2 gap-y-1">
 			<label id="search-points-max-label" for="search-points-max-input"
@@ -170,21 +175,26 @@
 				onchange={updatePoints}
 				class="h-2 w-24 cursor-pointer accent-accent-primary"
 			/>
-			<input
-				id="search-points-max-input"
-				type="number"
-				inputmode="decimal"
-				min={filters.pointsMin}
-				max={maxPoints}
-				step="any"
-				value={pointsMaxText}
-				oninput={(e) => previewPoints(e.currentTarget, 'pointsMax')}
-				onblur={(e) => commitNumber(e.currentTarget, 'pointsMax')}
-				onkeydown={commitOnEnter}
-				class="min-h-11 w-20 rounded-md border border-border bg-background p-2 text-base text-content-secondary focus-visible:outline-accent-primary"
-			/>
+			<label
+				for="search-points-max-input"
+				class="inline-flex min-h-11 cursor-text items-center"
+			>
+				<input
+					id="search-points-max-input"
+					type="number"
+					inputmode="decimal"
+					min={filters.pointsMin}
+					max={maxPoints}
+					step="any"
+					value={pointsMaxText}
+					oninput={(e) => previewPoints(e.currentTarget, 'pointsMax')}
+					onblur={(e) => commitNumber(e.currentTarget, 'pointsMax')}
+					onkeydown={commitOnEnter}
+					class="h-8 w-16 rounded-md border border-border bg-background px-1 py-1 text-center text-base text-content-secondary focus-visible:outline-accent-primary"
+				/>
+			</label>
 		</div>
-		<label class="inline-flex items-center gap-x-2">
+		<label class="inline-flex min-h-11 cursor-text items-center gap-x-2">
 			<span>{content.lang.search.minMedian}</span>
 			<input
 				type="number"
@@ -195,7 +205,7 @@
 				inputmode="decimal"
 				onblur={(e) => commitNumber(e.currentTarget, 'medianMin')}
 				onkeydown={commitOnEnter}
-				class="min-h-11 w-20 rounded-md border border-border bg-background p-2 text-base text-content-secondary focus-visible:outline-accent-primary"
+				class="h-8 w-16 rounded-md border border-border bg-background px-1 py-1 text-center text-base text-content-secondary focus-visible:outline-accent-primary"
 			/>
 		</label>
 		<button
@@ -208,3 +218,16 @@
 		</button>
 	</div>
 </fieldset>
+
+<style>
+	/* Keep decimal values readable in compact fields without desktop spin buttons. */
+	input[type='number'] {
+		appearance: textfield;
+	}
+
+	input[type='number']::-webkit-inner-spin-button,
+	input[type='number']::-webkit-outer-spin-button {
+		-webkit-appearance: none;
+		margin: 0;
+	}
+</style>

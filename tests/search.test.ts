@@ -256,6 +256,18 @@ test('supports precise decimal fields on mobile with slider, URL, reload, and hi
 		await expect(input).toHaveAttribute('type', 'number');
 		await expect(input).toHaveAttribute('inputmode', 'decimal');
 		await expect(input).toHaveAttribute('step', 'any');
+		const dimensions = await input.evaluate((element) => ({
+			width: element.getBoundingClientRect().width,
+			height: element.getBoundingClientRect().height,
+			fontSize: getComputedStyle(element).fontSize,
+			targetHeight: element.closest('label')!.getBoundingClientRect().height
+		}));
+		expect(dimensions.width).toBe(64);
+		expect(dimensions.height).toBe(32);
+		expect(dimensions.fontSize).toBe('16px');
+		expect(dimensions.targetHeight).toBeGreaterThanOrEqual(44);
+		await input.locator('..').click({ position: { x: 2, y: 2 } });
+		await expect(input).toBeFocused();
 	}
 	const originalUrl = page.url();
 	await minInput.fill('');

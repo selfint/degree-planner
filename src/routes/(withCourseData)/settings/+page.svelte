@@ -7,6 +7,11 @@
 	import UploadSection from './components/UploadSection.svelte';
 
 	import { signIn } from '$lib/firebase.svelte';
+	import {
+		signInErrorKind,
+		type SignInErrorKind
+	} from '$lib/pwa/sign-in-error';
+	import { pwaMessages } from '$lib/pwa/messages';
 	import CourseRow from '$lib/components/CourseRow.svelte';
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import AsyncButton from '$lib/components/AsyncButton.svelte';
@@ -16,8 +21,16 @@
 	const { data: pageData } = $props();
 	const { getCourseData, firebase, catalogs } = $derived(pageData);
 
+	let signInError = $state<SignInErrorKind | undefined>();
+	let signInHostname = $state('');
 	async function onSignInWithGoogle() {
-		await signIn(firebase);
+		signInError = undefined;
+		signInHostname = location.hostname;
+		try {
+			await signIn(firebase);
+		} catch (error) {
+			signInError = signInErrorKind(error);
+		}
 	}
 
 	const userDegree = $derived(user.d.degree);
@@ -75,7 +88,7 @@
 			{currentUser?.displayName ?? content.lang.settings.guest}
 		</h1>
 		{#if currentUser === null}
-			<Button variant="secondary" onclick={onSignInWithGoogle}>
+			<AsyncButton variant="secondary" onclick={onSignInWithGoogle}>
 				<span
 					class="flex h-fit w-fit flex-row items-center gap-x-2 pb-0.5 pt-0.5"
 				>
@@ -87,7 +100,7 @@
 						class="h-5 w-5"
 					/>
 				</span>
-			</Button>
+			</AsyncButton>
 		{:else}
 			<AsyncButton
 				variant="secondary"
@@ -118,6 +131,16 @@
 			</AsyncButton>
 		{/if}
 	</div>
+	{#if signInError}
+		<p
+			role="alert"
+			class="mx-3 mb-4 text-content-primary"
+			data-testid="sign-in-error"
+		>
+			{pwaMessages[content.lang.lang].signInErrors[signInError]}
+			{#if signInError === 'domain'}<span dir="ltr">{signInHostname}</span>{/if}
+		</p>
+	{/if}
 	<div class="mb-4 ms-3">
 		{#await catalogs}
 			<div class="me-3">

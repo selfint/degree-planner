@@ -84,6 +84,140 @@ function response(data: unknown, headers?: HeadersInit) {
 }
 
 describe('public JSON repository', () => {
+	it.each(['private', 'no-store', 'PRIVATE, max-age=0'])(
+		'does not persist a response marked %s or advance its cached freshness',
+		async (policy) => {
+			const { store, values } = memoryStore([entry()]);
+			const updated = { ...requirement, points: 130 };
+			const repository = createPublicDataRepository({ store, now: () => 200 });
+			expect(
+				await repository.revalidate(url, async () =>
+					response(updated, { 'cache-control': policy })
+				)
+			).toEqual(updated);
+			expect(values.get(url)).toEqual(entry());
+			expect(store.put).not.toHaveBeenCalled();
+			const cold = memoryStore();
+			expect(
+				await createPublicDataRepository({ store: cold.store }).get(
+					url,
+					async () => response(updated, { 'cache-control': policy })
+				)
+			).toEqual(updated);
+			expect(cold.values.size).toBe(0);
+		}
+	);
+
+	it('does not let no-store 304 renew a persisted timestamp', async () => {
+		const { store, values } = memoryStore([entry()]);
+		await createPublicDataRepository({ store, now: () => 500 }).revalidate(
+			url,
+			async () =>
+				new Response(null, {
+					status: 304,
+					headers: { 'cache-control': 'no-store' }
+				})
+		);
+		expect(values.get(url)).toEqual(entry());
+	});
+
+	it.each(['redirected', 'html'])(
+		'rejects an unexpected %s response without replacing a valid snapshot',
+		async (kind) => {
+			const { store, values } = memoryStore([entry()]);
+			const fetched = response(
+				requirement,
+				kind === 'html' ? { 'content-type': 'text/html' } : {}
+			);
+			if (kind === 'redirected')
+				Object.defineProperty(fetched, 'redirected', { value: true });
+			await expect(
+				createPublicDataRepository({ store }).revalidate(
+					url,
+					async () => fetched
+				)
+			).rejects.toThrow('Unexpected');
+			expect(values.get(url)).toEqual(entry());
+		}
+	);
+
+	it('bypasses legacy controlling workers without changing canonical persistent keys', async () => {
+		const { store, values } = memoryStore();
+		const fetcher = vi.fn<typeof fetch>(async () => response(requirement));
+		await createPublicDataRepository({
+			store,
+			bypassServiceWorker: () => true
+		}).get(url, fetcher);
+		expect(fetcher.mock.calls[0][0]).toBe(`${url}?__planit_idb=1`);
+		expect(fetcher.mock.calls[0][1]).toMatchObject({
+			redirect: 'error',
+			credentials: 'omit'
+		});
+		expect([...values.keys()]).toEqual([url]);
+	});
+
+	it('warms both boot resources into persistent storage before declaring offline readiness', async () => {
+		const { store, values } = memoryStore();
+		const fetcher = vi.fn<typeof fetch>(async (key) =>
+			response(key === '/catalogs.json' ? manifest : courses)
+		);
+		const repository = createPublicDataRepository({ store });
+		expect(await repository.warmCore(fetcher)).toBe(true);
+		expect([...values.keys()].sort()).toEqual([
+			'/catalogs.json',
+			'/courseDataStripped.json'
+		]);
+		const offline = vi.fn<typeof fetch>(async () => {
+			throw new Error('offline');
+		});
+		expect(
+			await createPublicDataRepository({
+				store,
+				isOnline: () => false
+			}).warmCore(offline)
+		).toBe(true);
+		expect(offline).not.toHaveBeenCalled();
+	});
+
+	it('does not confuse a successful network load with persisted offline readiness', async () => {
+		const { store } = memoryStore();
+		store.put = async () => {
+			throw new DOMException('Quota', 'QuotaExceededError');
+		};
+		expect(
+			await createPublicDataRepository({ store }).warmCore(async (key) =>
+				response(key === '/catalogs.json' ? manifest : courses)
+			)
+		).toBe(false);
+		expect(
+			await createPublicDataRepository({ store: memoryStore().store }).warmCore(
+				async () => {
+					throw new Error('offline');
+				}
+			)
+		).toBe(false);
+	});
+
+	it('keeps network fallback available when service-worker access is denied', async () => {
+		vi.stubGlobal('navigator', {
+			get serviceWorker() {
+				throw new DOMException('Denied', 'SecurityError');
+			}
+		});
+		try {
+			const fetcher = vi.fn<typeof fetch>(async () => response(requirement));
+			expect(
+				await createPublicDataRepository({ store: memoryStore().store }).get(
+					url,
+					fetcher
+				)
+			).toEqual(requirement);
+			expect(fetcher.mock.calls[0][0]).toBe(url);
+		} finally {
+			vi.unstubAllGlobals();
+		}
+	});
+
 	it('does not access guarded SvelteKit response headers during SSR', async () => {
 		const fetched = response(courses, { etag: '"server"' });
 		Object.defineProperty(fetched, 'headers', {

@@ -1,5 +1,11 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import { getContext } from 'svelte';
+	import { PERSONAL_PLAN_READY } from '$lib/pwa/plan-visibility';
+	import { pwaMessages } from '$lib/pwa/messages';
+	const personalPlanReady =
+		getContext<() => boolean>(PERSONAL_PLAN_READY) ?? (() => false);
+	const showPersonalPlan = $derived(personalPlanReady());
 
 	import CourseElement from '$lib/components/CourseElement.svelte';
 
@@ -26,6 +32,7 @@
 	const code = $derived(page.params.code as CourseCode);
 
 	const courseMemberRequirements = $derived.by(async () => {
+		if (!showPersonalPlan) return [];
 		const r = requirement();
 		if (r === undefined) {
 			return [];
@@ -63,6 +70,7 @@
 	let buttonNamespace = $state('');
 
 	async function planCourse(): Promise<void> {
+		if (!personalPlanReady()) return;
 		setUser(
 			await writeStorage({
 				...user.d,
@@ -75,6 +83,7 @@
 	}
 
 	async function removeCourseFromSemesters(): Promise<void> {
+		if (!personalPlanReady()) return;
 		setUser(
 			await writeStorage({
 				...user.d,
@@ -84,6 +93,7 @@
 	}
 
 	async function addCourseToExemptions(): Promise<void> {
+		if (!personalPlanReady()) return;
 		setUser(
 			await writeStorage({
 				...user.d,
@@ -93,6 +103,7 @@
 	}
 
 	async function removeCourseFromExemptions(): Promise<void> {
+		if (!personalPlanReady()) return;
 		setUser(
 			await writeStorage({
 				...user.d,
@@ -102,6 +113,7 @@
 	}
 
 	async function addCourseToWishlist(): Promise<void> {
+		if (!personalPlanReady()) return;
 		setUser(
 			await writeStorage({
 				...user.d,
@@ -111,6 +123,7 @@
 	}
 
 	async function removeCourseFromWishlist(): Promise<void> {
+		if (!personalPlanReady()) return;
 		setUser(
 			await writeStorage({
 				...user.d,
@@ -135,6 +148,7 @@
 
 	type CourseState = 'planned' | 'wished' | 'exempt' | 'none';
 	const courseState = $derived.by((): CourseState => {
+		if (!showPersonalPlan) return 'none';
 		if (user.d.semesters.flat().includes(code)) {
 			return 'planned';
 		}
@@ -151,6 +165,7 @@
 	});
 
 	function getCourseSemester(code: CourseCode): number | undefined {
+		if (!showPersonalPlan) return undefined;
 		const index = user.d.semesters.findIndex((s) => s.includes(code));
 
 		if (index === -1) {
@@ -199,66 +214,81 @@
 		</p>
 	{/await}
 
-	<div class="ml-3 mr-3 flex flex-row items-center gap-x-1">
-		{#if courseState === 'planned'}
-			<AsyncButton
-				variant="secondary"
-				onclick={removeCourseFromSemesters}
-				bind:buttonNamespace
-				name="un-plan"
-			>
-				{content.lang.course.removeFromSemester}
-				{getSeasonAndIndex(user.d.semesters.findIndex((s) => s.includes(code)))}
-			</AsyncButton>
-		{:else}
-			<AsyncButton
-				variant="primary"
-				onclick={planCourse}
-				bind:buttonNamespace
-				name="plan"
-			>
-				{content.lang.course.plan}
-			</AsyncButton>
-			{#if courseState === 'wished'}
+	{#if showPersonalPlan}
+		<div
+			class="ml-3 mr-3 flex flex-row items-center gap-x-1"
+			data-testid="course-plan-actions"
+		>
+			{#if courseState === 'planned'}
 				<AsyncButton
 					variant="secondary"
-					onclick={removeCourseFromWishlist}
+					onclick={removeCourseFromSemesters}
 					bind:buttonNamespace
-					name="un-wish"
+					name="un-plan"
 				>
-					{content.lang.course.removeFromWishlist}
-				</AsyncButton>
-			{:else if courseState === 'exempt'}
-				<AsyncButton
-					variant="secondary"
-					onclick={removeCourseFromExemptions}
-					bind:buttonNamespace
-					name="un-exempt"
-				>
-					{content.lang.course.removeFromExemption}
+					{content.lang.course.removeFromSemester}
+					{getSeasonAndIndex(
+						user.d.semesters.findIndex((s) => s.includes(code))
+					)}
 				</AsyncButton>
 			{:else}
 				<AsyncButton
-					variant="secondary"
-					onclick={addCourseToWishlist}
+					variant="primary"
+					onclick={planCourse}
 					bind:buttonNamespace
-					name="wish"
+					name="plan"
 				>
-					{content.lang.course.wishlist}
+					{content.lang.course.plan}
 				</AsyncButton>
-				<AsyncButton
-					variant="secondary"
-					onclick={addCourseToExemptions}
-					bind:buttonNamespace
-					name="exempt"
-				>
-					{content.lang.course.exempt}
-				</AsyncButton>
+				{#if courseState === 'wished'}
+					<AsyncButton
+						variant="secondary"
+						onclick={removeCourseFromWishlist}
+						bind:buttonNamespace
+						name="un-wish"
+					>
+						{content.lang.course.removeFromWishlist}
+					</AsyncButton>
+				{:else if courseState === 'exempt'}
+					<AsyncButton
+						variant="secondary"
+						onclick={removeCourseFromExemptions}
+						bind:buttonNamespace
+						name="un-exempt"
+					>
+						{content.lang.course.removeFromExemption}
+					</AsyncButton>
+				{:else}
+					<AsyncButton
+						variant="secondary"
+						onclick={addCourseToWishlist}
+						bind:buttonNamespace
+						name="wish"
+					>
+						{content.lang.course.wishlist}
+					</AsyncButton>
+					<AsyncButton
+						variant="secondary"
+						onclick={addCourseToExemptions}
+						bind:buttonNamespace
+						name="exempt"
+					>
+						{content.lang.course.exempt}
+					</AsyncButton>
+				{/if}
 			{/if}
-		{/if}
-	</div>
+		</div>
+	{:else}
+		<p
+			role="status"
+			class="m-3 text-content-secondary"
+			data-testid="course-plan-unavailable"
+		>
+			{pwaMessages[content.lang.lang].courseActionsUnavailable}
+		</p>
+	{/if}
 
-	{#if courseMemberRequirements !== undefined}
+	{#if showPersonalPlan && courseMemberRequirements !== undefined}
 		<div class="ms-3 mt-4">
 			{#await courseMemberRequirements}
 				<h2 class="text-lg font-medium text-content-primary">
@@ -353,12 +383,12 @@
 															{Math.floor(index / 3) + 1}
 														</span>
 													</span>
-												{:else if user.d.exemptions.includes(code)}
+												{:else if showPersonalPlan && user.d.exemptions.includes(code)}
 													<span>✓</span>
 													<span class="hidden sm:inline">
 														{content.lang.catalog.exempt}
 													</span>
-												{:else if user.d.wishlist.includes(code)}
+												{:else if showPersonalPlan && user.d.wishlist.includes(code)}
 													<span>🌟</span>
 													<span class="hidden sm:inline">
 														{content.lang.catalog.wishlist}
@@ -397,12 +427,12 @@
 														{Math.floor(index / 3) + 1}
 													</span>
 												</span>
-											{:else if user.d.exemptions.includes(code)}
+											{:else if showPersonalPlan && user.d.exemptions.includes(code)}
 												<span>✓</span>
 												<span class="hidden sm:inline">
 													{content.lang.catalog.exempt}
 												</span>
-											{:else if user.d.wishlist.includes(code)}
+											{:else if showPersonalPlan && user.d.wishlist.includes(code)}
 												<span>🌟</span>
 												<span class="hidden sm:inline">
 													{content.lang.catalog.wishlist}
@@ -439,12 +469,12 @@
 													{Math.floor(index / 3) + 1}
 												</span>
 											</span>
-										{:else if user.d.exemptions.includes(code)}
+										{:else if showPersonalPlan && user.d.exemptions.includes(code)}
 											<span>✓</span>
 											<span class="hidden sm:inline">
 												{content.lang.catalog.exempt}
 											</span>
-										{:else if user.d.wishlist.includes(code)}
+										{:else if showPersonalPlan && user.d.wishlist.includes(code)}
 											<span>🌟</span>
 											<span class="hidden sm:inline">
 												{content.lang.catalog.wishlist}
@@ -481,12 +511,12 @@
 														{Math.floor(index / 3) + 1}
 													</span>
 												</span>
-											{:else if user.d.exemptions.includes(course.code)}
+											{:else if showPersonalPlan && user.d.exemptions.includes(course.code)}
 												<span>✓</span>
 												<span class="hidden sm:inline">
 													{content.lang.catalog.exempt}
 												</span>
-											{:else if user.d.wishlist.includes(course.code)}
+											{:else if showPersonalPlan && user.d.wishlist.includes(course.code)}
 												<span>🌟</span>
 												<span class="hidden sm:inline">
 													{content.lang.catalog.wishlist}

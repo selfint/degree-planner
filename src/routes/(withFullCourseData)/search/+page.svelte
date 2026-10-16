@@ -6,6 +6,10 @@
 	} from '$lib/searchNavigation.svelte';
 	const navigation = getContext<SearchNavigation>(searchNavigationContext);
 	import { goto } from '$app/navigation';
+	import { PERSONAL_PLAN_READY } from '$lib/pwa/plan-visibility';
+	const personalPlanReady =
+		getContext<() => boolean>(PERSONAL_PLAN_READY) ?? (() => false);
+	const showPersonalPlan = $derived(personalPlanReady());
 
 	import { content, user } from '$lib/stores.svelte';
 	import CourseElement from '$lib/components/CourseElement.svelte';
@@ -95,25 +99,27 @@
 					>
 						<CourseElement code={course.code} {course}>
 							{#snippet note()}
-								{@const index = getCourseSemester(course)}
-								{#if index !== undefined}
-									<span>
-										{seasonEmojis[index % 3]}
-										<span class="hidden sm:inline">
-											{content.lang.common.seasons[index % 3]}
-											{Math.floor(index / 3) + 1}
+								{#if showPersonalPlan}
+									{@const index = getCourseSemester(course)}
+									{#if index !== undefined}
+										<span>
+											{seasonEmojis[index % 3]}
+											<span class="hidden sm:inline">
+												{content.lang.common.seasons[index % 3]}
+												{Math.floor(index / 3) + 1}
+											</span>
 										</span>
-									</span>
-								{:else if user.d.exemptions.includes(course.code)}
-									<span>✓</span>
-									<span class="hidden sm:inline">
-										{content.lang.catalog.exempt}
-									</span>
-								{:else if user.d.wishlist.includes(course.code)}
-									<span>🌟</span>
-									<span class="hidden sm:inline">
-										{formatName(content.lang.catalog.wishlist)}
-									</span>
+									{:else if user.d.exemptions.includes(course.code)}
+										<span>✓</span>
+										<span class="hidden sm:inline">
+											{content.lang.catalog.exempt}
+										</span>
+									{:else if user.d.wishlist.includes(course.code)}
+										<span>🌟</span>
+										<span class="hidden sm:inline">
+											{formatName(content.lang.catalog.wishlist)}
+										</span>
+									{/if}
 								{/if}
 							{/snippet}
 						</CourseElement>

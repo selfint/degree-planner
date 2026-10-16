@@ -18,8 +18,20 @@ export interface PublicDataStore {
 
 const STORE = 'resources';
 const VALIDATED_AT = 'validatedAt';
+const BOOT_RESOURCES = new Set([
+	'/catalogs.json',
+	'/courseDataStripped.json',
+	'/courseData.json'
+]);
+const COURSE_DETAIL = /^\/_courses\/\d{8}$/;
 
-/** Best-effort storage for public resources only; callers own validation/fallback. */
+/**
+ * Best-effort storage for public resources only; callers own validation/fallback.
+ * maxEntries bounds the total, except that the three fixed boot resources are
+ * never evicted. If they alone exceed maxEntries, only those resources remain:
+ * total <= max(maxEntries, 3). Course details are evicted before other resources,
+ * including program requirements, oldest validatedAt first within each group.
+ */
 export function createIndexedDbStore(
 	options: {
 		factory?: IDBFactory;
@@ -198,14 +210,29 @@ export function createIndexedDbStore(
 					count.onsuccess = handle(() => {
 						let excess = count.result - maxEntries;
 						if (excess <= 0) return;
-						// The update and oldest-entry eviction commit or roll back together.
-						const cursor = store.index(VALIDATED_AT).openCursor();
-						cursor.onsuccess = handle(() => {
-							if (!cursor.result || excess <= 0) return;
-							cursor.result.delete();
-							excess -= 1;
-							if (excess > 0) cursor.result.continue();
-						});
+						// Both passes and the write commit or roll back together. Do not
+						// let browsing details displace offline catalog boot dependencies.
+						const evict = (detailsOnly: boolean) => {
+							// Scan keys without cloning the large aggregate data payloads.
+							const cursor = store.index(VALIDATED_AT).openKeyCursor();
+							cursor.onsuccess = handle(() => {
+								const entry = cursor.result;
+								if (!entry) {
+									if (detailsOnly && excess > 0) evict(false);
+									return;
+								}
+								const key = String(entry.primaryKey);
+								if (
+									!BOOT_RESOURCES.has(key) &&
+									(!detailsOnly || COURSE_DETAIL.test(key))
+								) {
+									store.delete(entry.primaryKey);
+									excess -= 1;
+								}
+								if (excess > 0) entry.continue();
+							});
+						};
+						evict(true);
 					});
 				};
 				if (expectedRevision === undefined) {

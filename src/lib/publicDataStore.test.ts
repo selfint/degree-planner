@@ -1,9 +1,4 @@
-import {
-	IDBCursor,
-	IDBDatabase,
-	IDBFactory,
-	IDBObjectStore
-} from 'fake-indexeddb';
+import { IDBDatabase, IDBFactory, IDBObjectStore } from 'fake-indexeddb';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createIndexedDbStore, type CachedResource } from './publicDataStore';
 
@@ -35,6 +30,32 @@ function openRaw(version = 1): Promise<IDBDatabase> {
 		request.onsuccess = () => resolve(request.result);
 		request.onerror = () => reject(request.error);
 	});
+}
+
+async function storedKeys(): Promise<IDBValidKey[]> {
+	const connection = await openRaw();
+	try {
+		return await new Promise((resolve, reject) => {
+			const request = connection
+				.transaction('resources')
+				.objectStore('resources')
+				.getAllKeys();
+			request.onsuccess = () => resolve(request.result);
+			request.onerror = () => reject(request.error);
+		});
+	} finally {
+		connection.close();
+	}
+}
+
+const bootResources = [
+	'/catalogs.json',
+	'/courseDataStripped.json',
+	'/courseData.json'
+];
+
+function courseKey(index: number): string {
+	return `/_courses/${String(index).padStart(8, '0')}`;
 }
 
 function controlledOpen() {
@@ -152,14 +173,15 @@ describe('IndexedDB public data store', () => {
 	);
 
 	it('does not write or evict anything when the expected revision mismatches', async () => {
-		const firstTab = create({ maxEntries: 2 });
+		const firstTab = create({ maxEntries: 5 });
 		const secondTab = create({ maxEntries: 1 });
 		const current = { ...resource('program', 1), revision: 'current' };
+		for (const key of bootResources) await firstTab.put(resource(key));
 		await firstTab.put(current);
-		await firstTab.put(resource('other', 2));
+		await firstTab.put(resource(courseKey(1), 2));
 		const put = vi.spyOn(IDBObjectStore.prototype, 'put');
 		const count = vi.spyOn(IDBObjectStore.prototype, 'count');
-		const remove = vi.spyOn(IDBCursor.prototype, 'delete');
+		const remove = vi.spyOn(IDBObjectStore.prototype, 'delete');
 		expect(
 			await secondTab.put(
 				{ ...resource('program', 3), revision: 'new' },
@@ -170,7 +192,11 @@ describe('IndexedDB public data store', () => {
 		expect(count).not.toHaveBeenCalled();
 		expect(remove).not.toHaveBeenCalled();
 		expect(await firstTab.get('program')).toEqual(current);
-		expect(await firstTab.get('other')).toEqual(resource('other', 2));
+		expect(await firstTab.get(courseKey(1))).toEqual(resource(courseKey(1), 2));
+		for (const key of bootResources) {
+			expect(await firstTab.get(key)).toEqual(resource(key));
+		}
+		expect(await storedKeys()).toHaveLength(5);
 	});
 
 	it('resolves a failed comparison only after its transaction completes', async () => {
@@ -217,7 +243,7 @@ describe('IndexedDB public data store', () => {
 			)
 		).rejects.toMatchObject({ name: 'QuotaExceededError' });
 		expect(await firstTab.get('saved')).toEqual(saved);
-		vi.spyOn(IDBCursor.prototype, 'delete').mockImplementationOnce(() => {
+		vi.spyOn(IDBObjectStore.prototype, 'delete').mockImplementationOnce(() => {
 			throw new DOMException('Storage is full', 'QuotaExceededError');
 		});
 		const newest = { ...resource('new', 3), revision: 'new-revision' };
@@ -289,18 +315,122 @@ describe('IndexedDB public data store', () => {
 		expect(await store.get('key-0')).toBeUndefined();
 		expect(await store.get('key-1')).toBeDefined();
 		expect(await store.get('key-128')).toBeDefined();
+		expect(await storedKeys()).toHaveLength(128);
+	});
+
+	it('retains boot resources and requirements after more than 128 course details', async () => {
+		const store = create();
+		const requirements = [
+			'/_catalogs/2025_001/1/10/requirementsData.json',
+			'/_catalogs/2026_001/1/10/requirementsData.json'
+		];
+		for (const key of [...bootResources, ...requirements]) {
+			await store.put(resource(key, 0));
+		}
+		for (let i = 0; i < 140; i++) {
+			await store.put(resource(courseKey(i), i + 1));
+		}
+		for (const key of [...bootResources, ...requirements]) {
+			expect(await store.get(key)).toEqual(resource(key, 0));
+		}
+		// Five retained dependencies leave room for the newest 123 details.
+		for (let i = 0; i < 17; i++) {
+			expect(await store.get(courseKey(i))).toBeUndefined();
+		}
+		expect(await store.get(courseKey(17))).toEqual(resource(courseKey(17), 18));
+		expect(await store.get(courseKey(139))).toEqual(
+			resource(courseKey(139), 140)
+		);
+		expect(await storedKeys()).toHaveLength(128);
+	});
+
+	it('evicts requirements by age only after course details are exhausted', async () => {
+		const store = create({ maxEntries: 3 });
+		const oldest = '/_catalogs/2025_001/1/10/requirementsData.json';
+		const retained = '/_catalogs/2026_001/1/10/requirementsData.json';
+		const newest = '/_catalogs/2026_001/2/20/requirementsData.json';
+		await store.put(resource('/catalogs.json', 0));
+		await store.put(resource(oldest, 1));
+		await store.put(resource(courseKey(1), 100));
+		await store.put(resource(retained, 2));
+		expect(await store.get(courseKey(1))).toBeUndefined();
+		expect(await store.get(oldest)).toEqual(resource(oldest, 1));
+		await store.put(resource(newest, 3));
+		expect(await store.get(oldest)).toBeUndefined();
+		expect(await store.get(retained)).toEqual(resource(retained, 2));
+		expect(await store.get(newest)).toEqual(resource(newest, 3));
+		expect(await store.get('/catalogs.json')).toEqual(
+			resource('/catalogs.json', 0)
+		);
+		expect(await storedKeys()).toHaveLength(3);
+	});
+
+	it.each([1, 2])(
+		'only exceeds a cap of %s for the fixed three boot resources',
+		async (maxEntries) => {
+			const store = create({ maxEntries });
+			for (const key of bootResources) await store.put(resource(key, 0));
+			for (let i = 0; i < 5; i++) {
+				await store.put(resource(courseKey(i), i + 1));
+				await store.put(
+					resource(`/_catalogs/2026_001/1/${i}/requirementsData.json`, i + 1)
+				);
+				expect((await storedKeys()).sort()).toEqual([...bootResources].sort());
+			}
+			await store.put(resource('/catalogs.json', 10));
+			expect(await store.get('/catalogs.json')).toEqual(
+				resource('/catalogs.json', 10)
+			);
+			for (const key of bootResources.slice(1)) {
+				expect(await store.get(key)).toEqual(resource(key, 0));
+			}
+			expect(await storedKeys()).toHaveLength(3);
+		}
+	);
+
+	it('rolls back guarded detail eviction without disturbing boot resources or requirements', async () => {
+		const store = create({ maxEntries: 5 });
+		const requirements = '/_catalogs/2026_001/1/10/requirementsData.json';
+		const retained = [...bootResources, requirements, courseKey(1)];
+		for (const key of retained) await store.put(resource(key, 1));
+		const newest = { ...resource(courseKey(2), 2), revision: 'new' };
+		vi.spyOn(IDBObjectStore.prototype, 'put').mockImplementationOnce(() => {
+			throw new DOMException('Storage is full', 'QuotaExceededError');
+		});
+		const originalDelete = IDBObjectStore.prototype.delete;
+		const remove = vi.spyOn(IDBObjectStore.prototype, 'delete');
+		await expect(store.put(newest, null)).rejects.toMatchObject({
+			name: 'QuotaExceededError'
+		});
+		expect(remove).not.toHaveBeenCalled();
+		remove.mockImplementationOnce(function (this: IDBObjectStore, key) {
+			const request = originalDelete.call(this, key);
+			const transaction = this.transaction;
+			request.addEventListener('success', () => transaction.abort());
+			return request;
+		});
+		await expect(store.put(newest, null)).rejects.toThrow(/abort/i);
+		for (const key of retained) {
+			expect(await store.get(key)).toEqual(resource(key, 1));
+		}
+		expect(await store.get(newest.key)).toBeUndefined();
+		expect(await storedKeys()).toHaveLength(5);
+		expect(await store.put(newest, null)).toBe(true);
+		expect(await store.get(courseKey(1))).toBeUndefined();
+		expect(await store.get(newest.key)).toEqual(newest);
+		expect(await storedKeys()).toHaveLength(5);
 	});
 
 	it('rolls back the new entry and eviction together after a late transaction failure', async () => {
 		const store = create({ maxEntries: 2 });
 		await store.put(resource('oldest', 1));
 		await store.put(resource('retained', 2));
-		const originalDelete = IDBCursor.prototype.delete;
+		const originalDelete = IDBObjectStore.prototype.delete;
 		const deleteEntry = vi
-			.spyOn(IDBCursor.prototype, 'delete')
-			.mockImplementationOnce(function (this: IDBCursor) {
-				const request = originalDelete.call(this);
-				const transaction = (this.source as IDBIndex).objectStore.transaction;
+			.spyOn(IDBObjectStore.prototype, 'delete')
+			.mockImplementationOnce(function (this: IDBObjectStore, key) {
+				const request = originalDelete.call(this, key);
+				const transaction = this.transaction;
 				request.addEventListener('success', () => transaction.abort());
 				return request;
 			});
@@ -329,7 +459,7 @@ describe('IndexedDB public data store', () => {
 	it('rejects and rolls back a failure while scheduling eviction', async () => {
 		const store = create({ maxEntries: 1 });
 		await store.put(resource('saved', 1));
-		vi.spyOn(IDBCursor.prototype, 'delete').mockImplementationOnce(() => {
+		vi.spyOn(IDBObjectStore.prototype, 'delete').mockImplementationOnce(() => {
 			throw new DOMException('Storage is full', 'QuotaExceededError');
 		});
 		await expect(store.put(resource('new', 2))).rejects.toMatchObject({

@@ -1,0 +1,31 @@
+{
+	"id": "/",
+	"name": "PlanIt - Technion Degree Planner",
+	"short_name": "PlanIt",
+	"description": "Plan your Technion degree, explore courses, and track your progress.",
+	"start_url": "/plan",
+	"scope": "/",
+	"display": "standalone",
+	"background_color": "#15252e",
+	"theme_color": "#15252e",
+	"icons": [
+		{
+			"src": "/icons/icon-192.png",
+			"sizes": "192x192",
+			"type": "image/png",
+			"purpose": "any"
+		},
+		{
+			"src": "/icons/icon-512.png",
+			"sizes": "512x512",
+			"type": "image/png",
+			"purpose": "any"
+		},
+		{
+			"src": "/icons/maskable-512.png",
+			"sizes": "512x512",
+			"type": "image/png",
+			"purpose": "maskable"
+		}
+	]
+}

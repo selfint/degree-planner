@@ -73,3 +73,27 @@ jobs:
           name: search-browser-failures
           path: test-results/
           retention-days: 7
+
+  pwa-browsers:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install PWA browser test dependencies
+        run: npm ci && npx playwright install --with-deps chromium
+      - name: Test install, offline cold routes, account guards and safe updates
+        run: npx playwright test tests/pwa.test.ts --workers=1
+      - name: Test the built worker and IndexedDB ownership boundary
+        run: npx vitest run --config vitest.integration.config.ts
+      - name: Upload PWA failure evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pwa-browser-failures
+          path: test-results/
+          retention-days: 7

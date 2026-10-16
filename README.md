@@ -121,49 +121,38 @@ link encoding are unchanged.
 
 ## Public data cache
 
-Course maps, individual course details, the bilingual catalog index, and program
-requirements use the `degree-planner-public-data` IndexedDB database. Every key
-is an allowlisted static URL; a requirement key includes its catalog, faculty,
-and program IDs. English and Hebrew stay together in the same record. Selecting
-a path never mutates the complete cached requirement tree.
+Like [Planit](https://github.com/selfint/planit), opening the production app
+synchronizes the existing full `courseData.json` and bilingual `catalogs.json`.
+There is no new aggregate format or generated offline bundle.
 
-- A valid cached response is returned immediately, including while offline.
-- After one hour, an online read refreshes in the background using ETag and
-  Last-Modified validators when available. Updated data appears on the next read.
-- HTTP errors, invalid JSON, incomplete translations, and incompatible payloads
-  never replace the last good snapshot. Cache records have their own schema
-  version, separate from saved-plan and Firestore versions.
-- Atomic revision checks stop a delayed request in one tab from overwriting a
-  newer cached response from another tab.
-- Blocked, denied, unavailable, or full IndexedDB falls back to the network.
-  Opening/transactions have bounded waits, and failed updates roll back atomically.
-- Up to 128 resources are retained, evicting the oldest validation timestamps.
-  Browser storage remains best-effort and may be cleared or evicted. A resource
-  never loaded successfully still needs a network connection.
+- Full courses live as individual records keyed by code in the public-only
+  `degree-planner-courses` IndexedDB database. The complete dataset and its
+  metadata commit atomically. Courses are not subject to a 128-item eviction cap.
+- Course pages read those full records, including courses never opened before.
+  Search and stripped-course views derive from the same dataset. Old or unknown
+  codes retain the existing compatible lookup/placeholder behavior.
+- The catalog index and selected program requirements use
+  `degree-planner-public-data`. Requirement keys include catalog, faculty and
+  program; English and Hebrew stay together. Opening a degree saves its complete
+  requirement tree. Other degrees' requirements are **not** downloaded at startup.
+- Requests use ETag and Last-Modified validators when available. Reads use a valid
+  saved record immediately, then refresh stale records online. Atomic revision
+  checks prevent a delayed tab from overwriting a newer snapshot.
+- Invalid, failed, private/no-store, or redirected responses cannot replace the
+  last good data. A failed refresh can leave old data available offline without
+  claiming it is current. Storage denial or quota failure preserves online use.
+- The selected-resource cache retains up to 128 resources, protecting core data
+  and preferring program requirements over legacy per-course responses. Browser
+  storage remains best-effort and can be cleared or evicted.
 
-This cache contains public data only. Existing localStorage plans (including
-old/unknown course IDs), plan migrations, Firebase authentication, and Firestore
-sync are unchanged. Server rendering uses the supplied fetch without IndexedDB.
-A PWA app shell is a separate layer. IndexedDB does not cache HTML, JavaScript,
-or CSS. Even in an open app, the first visit to a different route can need a
-JavaScript chunk that has not been downloaded. Offline startup, reloads, and
-first-time route navigation are therefore not guaranteed by this cache.
-The service worker must leave public-data requests to this repository rather
-than maintain a second, potentially stale data cache.
+The service worker does not cache public JSON. Authentication, private plans,
+Firestore sync, localStorage migrations, and shared-link encoding are separate.
+Server rendering continues to use the supplied fetch without IndexedDB.
 
-To test cached course data with airplane mode, first open that exact course
-online and wait for its details, go back using in-app/browser navigation, then
-switch offline and reopen the same course in the same tab without reloading.
-Seeing a course card in search or a plan does not mean its individual details
-or course-page JavaScript have been loaded. Storage must be available and the
-cached record must not have been cleared or evicted.
-
-Run `npm run test:public-data` for cache refresh, validation, versioning, isolation,
-quota/blocked-open handling, and persistence tests. Browser tests additionally
-cover reloads with only public-data requests blocked, language switching, course
-details, and unchanged saved plans. Separate whole-browser offline tests verify
-warm same-document course navigation and the explicit error for an uncached
-route chunk. These do not establish PWA/offline-shell support.
+Run `npm run test:public-data` and the course-data tests for refresh, atomic
+replacement, validators, storage denial, and cross-tab revision coverage.
+`tests/indexeddb-data.test.ts` checks the data layer with service workers blocked;
+`tests/pwa.test.ts` checks the installed shell and whole-browser offline behavior.
 
 ## Acknowledgements
 
@@ -178,3 +167,48 @@ route chunk. These do not establish PWA/offline-shell support.
 - Big thanks to the beta testers for their feedback:
   - [Almog Levy](https://github.com/Almoglevy2k)
   - [Yotam Freund](https://github.com/freundyotam)
+
+## Installable app and offline use
+
+The service worker precaches all compiled route JavaScript/CSS, the manifest,
+icons, and a data-free `/offline` HTML shell. First opening automatically saves
+all courses and the catalog index in IndexedDB. Wait for **Ready offline** before
+disconnecting: readiness requires durable public data, the controlling worker's
+matching app version, and every shell asset actually present in its cache.
+A never-visited course can then open and reload offline. Degree requirements
+remain selected/on-demand: open the relevant degree online once first.
+
+Missing shell assets are repaired on reconnect. A waiting old worker or an
+incomplete/denied cache cannot claim readiness. Shell repairs verify the HTML's
+exact compiled entry URLs so a newer deployment's HTML cannot be mixed with an
+older worker's scripts. Public data is never duplicated in the worker cache.
+
+Install from your browser's menu (on iPhone/iPad, Share → Add to Home Screen;
+on macOS Safari, File → Add to Dock). Browser and installed-app storage can be
+separate, especially on iOS; verify your plan before switching or clearing data.
+
+Saved guest plans remain in existing localStorage. Account plans and sync still
+require internet; this is not a private-plan IndexedDB migration. Editable planner
+routes remain guarded during account loading/failure. Public search and course details stay usable offline, including for signed-in
+users. Course plan actions, selected-degree membership, and personal
+semester/exemption/wishlist annotations remain hidden until the correct
+guest/account plan is ready. Open drafts stay mounted across reconnects.
+
+Updates still wait for all app windows to close; there is no forced activation
+or automatic reload. Controlled pages use a stable internal query marker on
+public requests to bypass older workers' CacheStorage fallback during this waiting
+period. Canonical persistent keys and public resource URLs do not change. Safe
+activation removes only retired app-shell caches and the known legacy
+`planit-public-data-v1` cache; it does not clear IDB, localStorage or unrelated caches.
+
+Private/no-store responses are never persisted. Redirect/HTML responses are
+rejected. Failed, invalid, 404 or 410 refreshes never advance a last-good record's
+freshness: old valid data remains available offline, but it is not represented as
+verified current. An absent or invalid record still requires a successful fetch.
+
+Local integration validation includes real bundled-worker VM tests for cache
+ownership, old-worker overlap, two shell versions and storage retention. Those
+checks do not replace browser verification of registration, waiting activation,
+offline deep-link boot, saving, auth transitions or physical-device installation.
+The dedicated `pwa-browsers` CI job runs real Chromium offline/install/update
+checks with service workers enabled, followed by bundled-worker VM tests; Firebase preview sign-in also needs an authorized hostname.

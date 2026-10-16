@@ -21,7 +21,8 @@
 		"script:db": "tsx src/lib/server/scripts/db.ts",
 		"update-catalogs": "node scripts/generateCatalogsRaw.mjs && node scripts/generateCatalogData.mjs",
 		"test:catalogs": "vitest run scripts/catalogData.test.mjs src/lib/requirements.test.ts",
-		"test:public-data": "vitest run src/lib/publicData.test.ts src/lib/publicDataStore.test.ts"
+		"test:public-data": "vitest run src/lib/publicData.test.ts src/lib/publicDataStore.test.ts",
+		"test:pwa-integration": "npm run build && vitest run --config vitest.integration.config.ts"
 	},
 	"devDependencies": {
 		"@playwright/test": "^1.57.0",

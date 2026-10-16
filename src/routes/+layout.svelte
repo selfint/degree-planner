@@ -11,6 +11,10 @@
 		onNavigate
 	} from '$app/navigation';
 	import { setContext } from 'svelte';
+	import {
+		PERSONAL_PLAN_READY,
+		canShowPersonalPlan
+	} from '$lib/pwa/plan-visibility';
 	import { page } from '$app/state';
 	import {
 		createSearchNavigation,
@@ -39,14 +43,15 @@
 		content,
 		setStorage,
 		localStorageMethod,
-		readStorage,
 		setUser
 	} from '$lib/stores.svelte';
 
 	import { cms } from '$lib/content';
+	import { pwaMessages } from '$lib/pwa/messages';
 
 	import TitleBar from './components/TitleBar.svelte';
 	import ThemeToggle from '$lib/components/ThemeToggle.svelte';
+	import PwaStatus from '$lib/components/PwaStatus.svelte';
 	import Select from '$lib/components/Select.svelte';
 	import {
 		buildFirebaseStorage,
@@ -59,19 +64,88 @@
 	const { data: pageData, children } = $props();
 	const { firebase } = $derived(pageData);
 
+	let authReady = $state(false);
+	let offline = $state(false);
+	let signedIn = $state(false);
+	let cloudPlanUnavailable = $state(false);
+	let retryAccount = () => {};
+	const plannerRoute = $derived(
+		/^\/(plan|settings|catalog|semester|preview)(\/|$)/.test(page.url.pathname)
+	);
+	const cloudPlanBlocked = $derived(
+		plannerRoute && signedIn && (offline || cloudPlanUnavailable)
+	);
+	const authPending = $derived(plannerRoute && !authReady);
+	const planBlocked = $derived(authPending || cloudPlanBlocked);
+	setContext(PERSONAL_PLAN_READY, () =>
+		canShowPersonalPlan({ authReady, signedIn, offline, cloudPlanUnavailable })
+	);
+
 	$effect(() => {
+		authReady = false;
+		let generation = 0;
+		let stopSnapshot: (() => void) | undefined;
+
+		async function loadAccount() {
+			const current = ++generation;
+			const storage = buildFirebaseStorage(firebase);
+			setStorage(storage);
+			cloudPlanUnavailable = true;
+			try {
+				const data = await storage.read();
+				if (current !== generation) return;
+				setUser(data);
+				cloudPlanUnavailable = false;
+				stopSnapshot?.();
+				stopSnapshot = subscribeFirebase(firebase, (data) => {
+					if (current === generation) setUser(data);
+				});
+			} catch {
+				// Never expose the initially loaded guest plan as the account plan.
+				// Keep existing components mounted so a connection change cannot
+				// discard an in-memory draft. Retry account loading on reconnect.
+			}
+		}
+
+		retryAccount = () => {
+			if (firebase.auth.currentUser) void loadAccount();
+		};
+		const connectionChanged = () => {
+			offline = !navigator.onLine;
+			if (!offline && firebase.auth.currentUser && cloudPlanUnavailable)
+				void loadAccount();
+		};
+		offline = !navigator.onLine;
+		window.addEventListener('online', connectionChanged);
+		window.addEventListener('offline', connectionChanged);
 		const unsubscribe = firebase.auth.onAuthStateChanged(async (u) => {
+			authReady = false;
+			generation++;
+			stopSnapshot?.();
+			stopSnapshot = undefined;
+			signedIn = u !== null;
 			if (u !== null) {
-				setStorage(buildFirebaseStorage(firebase));
-				setUser(await readStorage());
-				return subscribeFirebase(firebase, setUser);
+				authReady = true;
+				await loadAccount();
 			} else {
+				cloudPlanUnavailable = false;
 				setStorage(localStorageMethod);
-				setUser(await readStorage());
+				const current = generation;
+				const data = await localStorageMethod.read();
+				if (current === generation) {
+					setUser(data);
+					authReady = true;
+				}
 			}
 		});
 
-		return () => unsubscribe();
+		return () => {
+			generation++;
+			unsubscribe();
+			stopSnapshot?.();
+			window.removeEventListener('online', connectionChanged);
+			window.removeEventListener('offline', connectionChanged);
+		};
 	});
 
 	function onchangeLang(newValue: (typeof cms)[keyof typeof cms]): void {
@@ -91,13 +165,41 @@
 		/>
 	</div>
 
-	<main class="flex-grow">
+	{#if authPending}
+		<p role="status" class="m-5 flex-grow text-content-primary">
+			{content.lang.common.loading}…
+		</p>
+	{:else if cloudPlanBlocked}
+		<p
+			role="status"
+			class="m-5 flex-grow text-content-primary"
+			data-testid="pwa-account-unavailable"
+		>
+			{pwaMessages[content.lang.lang].accountUnavailable}
+			<button
+				type="button"
+				class="ms-2 underline disabled:opacity-50"
+				disabled={offline}
+				onclick={() => retryAccount()}
+				>{pwaMessages[content.lang.lang].retry}</button
+			>
+			<button
+				type="button"
+				class="ms-2 underline"
+				onclick={() => firebase.auth.signOut()}
+				>{content.lang.settings.signOut}</button
+			>
+		</p>
+	{/if}
+	<main class="flex-grow" class:hidden={planBlocked} inert={planBlocked}>
 		{@render children()}
 	</main>
 
 	<footer
 		class="flex flex-row flex-wrap items-center justify-between gap-x-4 gap-y-2 border-t-2 border-border bg-background p-3 text-sm"
 	>
+		<PwaStatus />
+
 		<p class="text-content-secondary sm:flex-row sm:space-x-2">
 			{content.lang.footer.createdBy}
 			<a

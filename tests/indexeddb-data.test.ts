@@ -1,5 +1,8 @@
 import { expect, test, type Page } from '@playwright/test';
 
+// These tests isolate IndexedDB. Real airplane-mode shell coverage lives in pwa.test.ts.
+test.use({ serviceWorkers: 'block' });
+
 const origin = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:4173';
 const degree = ['2024_200', '00002120', 'SC00001314_CG00006245'];
 const programUrl = `/_catalogs/${degree.join('/')}/requirementsData.json`;
@@ -74,6 +77,103 @@ async function resources(
 	);
 }
 
+type CourseSnapshot = {
+	count: number;
+	metadata?: {
+		key: string;
+		schemaVersion: number;
+		count: number;
+		validatedAt: number;
+		revision: string;
+	};
+	courses?: { code: string; [field: string]: unknown }[];
+	courseKeyPath?: string | string[] | null;
+	metaKeyPath?: string | string[] | null;
+};
+
+async function courseSnapshot(
+	page: Page,
+	includeCourses = false
+): Promise<CourseSnapshot> {
+	return page.evaluate(
+		(includeCourses) =>
+			new Promise<CourseSnapshot>((resolve, reject) => {
+				const request = indexedDB.open('degree-planner-courses', 1);
+				let createdByProbe = false;
+				request.onupgradeneeded = () => {
+					createdByProbe = true;
+					request.transaction?.abort();
+				};
+				request.onerror = () => {
+					if (createdByProbe && request.error?.name === 'AbortError')
+						resolve({ count: 0 });
+					else reject(request.error);
+				};
+				request.onsuccess = () => {
+					const db = request.result;
+					if (
+						!db.objectStoreNames.contains('courses') ||
+						!db.objectStoreNames.contains('meta')
+					) {
+						db.close();
+						resolve({ count: 0 });
+						return;
+					}
+					try {
+						const tx = db.transaction(['courses', 'meta'], 'readonly');
+						const courses = tx.objectStore('courses');
+						const meta = tx.objectStore('meta');
+						const count = courses.count();
+						const metadata = meta.get('courses');
+						const allCourses = includeCourses ? courses.getAll() : undefined;
+						tx.oncomplete = () => {
+							db.close();
+							resolve({
+								count: count.result,
+								metadata: metadata.result,
+								courses: allCourses?.result,
+								courseKeyPath: courses.keyPath,
+								metaKeyPath: meta.keyPath
+							});
+						};
+						tx.onabort = () => {
+							db.close();
+							reject(tx.error);
+						};
+					} catch (error) {
+						db.close();
+						reject(error);
+					}
+				};
+			}),
+		includeCourses
+	);
+}
+
+async function expectCoursesReady(page: Page, count?: number) {
+	await expect
+		.poll(
+			async () => {
+				const snapshot = await courseSnapshot(page);
+				return (
+					snapshot.metadata?.key === 'courses' &&
+					snapshot.metadata.schemaVersion === 1 &&
+					snapshot.metadata.count === snapshot.count &&
+					(count === undefined ? snapshot.count > 0 : snapshot.count === count)
+				);
+			},
+			{ timeout: 15000 }
+		)
+		.toBe(true);
+}
+
+async function expectSavedPlanUnchanged(page: Page) {
+	// Compare bytes as well as values: caching must never rewrite the user's plan.
+	expect(await page.evaluate(() => localStorage.getItem('userData'))).toBe(
+		JSON.stringify(savedPlan)
+	);
+}
+
 async function blockPublicData(page: Page) {
 	await page.route(publicData, (route) => route.abort('internetdisconnected'));
 	// Keep the app shell available while emulating unavailable public data. Remove
@@ -103,7 +203,7 @@ for (const language of ['en', 'he'] as const) {
 		await seed(page, language);
 		const requirement = await (await request.get(origin + programUrl)).json();
 		const courses = await (
-			await request.get(origin + '/courseDataStripped.json')
+			await request.get(origin + '/courseData.json')
 		).json();
 		const courseName = courses['01140052'].name;
 		const pathName = requirement.nested.find(
@@ -115,9 +215,9 @@ for (const language of ['en', 'he'] as const) {
 			.poll(async () => (await resources(page)).map((entry) => entry.key))
 			.toEqual([
 				'/_catalogs/2024_200/00002120/SC00001314_CG00006245/requirementsData.json',
-				'/catalogs.json',
-				'/courseDataStripped.json'
+				'/catalogs.json'
 			]);
+		await expectCoursesReady(page, Object.keys(courses).length);
 		await blockPublicData(page);
 		await page.route(
 			/https:\/\/[^/]*(googleapis\.com|firebaseio\.com|firebaseapp\.com)\//,
@@ -129,9 +229,7 @@ for (const language of ['en', 'he'] as const) {
 		await expect(page.locator('main h1').first()).toContainText(
 			requirement[language]
 		);
-		expect(
-			await page.evaluate(() => JSON.parse(localStorage.getItem('userData')!))
-		).toEqual(savedPlan);
+		await expectSavedPlanUnchanged(page);
 		expect(
 			(await resources(page)).every(
 				(entry) => entry.schemaVersion === 1 && publicData.test(entry.key)
@@ -150,44 +248,68 @@ for (const language of ['en', 'he'] as const) {
 	});
 }
 
-test('keeps full course data and per-course details across reloads', async ({
+test('downloads every canonical course on opening the site and serves a never-visited course with JSON offline', async ({
 	page,
 	request
 }) => {
 	await seed(page);
-	const course = await (
-		await request.get(origin + '/_courses/01140052')
-	).json();
+	const courses = await (await request.get(origin + '/courseData.json')).json();
+	const code = '01140052';
+	const course = courses[code];
 	expect(course.about.trim().length).toBeGreaterThan(20);
 	const about = course.about.trim().slice(0, 60);
-	await page.goto(origin + '/search');
-	await expect
-		.poll(async () =>
-			(await resources(page)).some((entry) => entry.key === '/courseData.json')
+	const visitedCourseUrls: string[] = [];
+	page.on('request', (request) => {
+		if (/\/(?:course|_courses)\/\d{8}$/.test(new URL(request.url()).pathname)) {
+			visitedCourseUrls.push(request.url());
+		}
+	});
+	// Opening the landing page is sufficient; no search/detail route warms the data.
+	await page.goto(origin + '/');
+	await expectCoursesReady(page, Object.keys(courses).length);
+	const snapshot = await courseSnapshot(page, true);
+	expect(snapshot.courseKeyPath).toBe('code');
+	expect(snapshot.metaKeyPath).toBe('key');
+	expect(snapshot.metadata).toMatchObject({
+		key: 'courses',
+		schemaVersion: 1,
+		count: Object.keys(courses).length,
+		validatedAt: expect.any(Number),
+		revision: expect.any(String)
+	});
+	expect(
+		Object.fromEntries(snapshot.courses!.map((course) => [course.code, course]))
+	).toEqual(courses);
+	expect(visitedCourseUrls).toEqual([]);
+	expect(
+		(await resources(page)).some(
+			(entry) =>
+				entry.key === '/courseData.json' ||
+				entry.key === '/courseDataStripped.json' ||
+				(entry.key.startsWith('/_courses/') &&
+					entry.key.slice('/_courses/'.length) in courses)
 		)
-		.toBe(true);
-	await page.goto(origin + '/course/01140052');
-	await expect
-		.poll(async () =>
-			(await resources(page)).some(
-				(entry) => entry.key === '/_courses/01140052'
-			)
-		)
-		.toBe(true);
-	await expect(page.locator('main h1').first()).toContainText(course.name);
+	).toBe(false);
+	await expectSavedPlanUnchanged(page);
+
 	await blockPublicData(page);
+	// The document and route chunks remain online, while SSR-embedded JSON is
+	// removed. A never-visited detail must now be reconstructed from entity records.
+	await page.goto(origin + `/course/${code}`);
+	await expect(page.locator('main h1').first()).toContainText(course.name);
+	await expect(page.locator('main')).toContainText(about);
 	await page.reload();
 	await expect(page.locator('main h1').first()).toContainText(course.name);
 	await expect(page.locator('main')).toContainText(about);
-	const cached = (await resources(page)).find(
-		(entry) => entry.key === '/_courses/01140052'
-	);
-	expect(cached?.data).toMatchObject({ code: '01140052' });
-	await page.goto(origin + '/search?q=01140052');
+	await page.goto(origin + `/search?q=${code}`);
 	await expect(page.locator('main')).toContainText(course.name);
+	const afterReload = await courseSnapshot(page, true);
 	expect(
-		await page.evaluate(() => JSON.parse(localStorage.getItem('userData')!))
-	).toEqual(savedPlan);
+		Object.fromEntries(
+			afterReload.courses!.map((course) => [course.code, course])
+		)
+	).toEqual(courses);
+	await expectSavedPlanUnchanged(page);
 });
 
 test('identifies a cold course route failure when the whole browser goes offline', async ({
@@ -198,13 +320,7 @@ test('identifies a cold course route failure when the whole browser goes offline
 	await page.goto(origin + previewUrl);
 	const courseButton = page.locator('button').filter({ hasText: '01140052' });
 	await expect(courseButton).toBeVisible();
-	await expect
-		.poll(async () =>
-			(await resources(page)).some(
-				(entry) => entry.key === '/courseDataStripped.json'
-			)
-		)
-		.toBe(true);
+	await expectCoursesReady(page);
 	expect(
 		(await resources(page)).some((entry) => entry.key === '/_courses/01140052')
 	).toBe(false);
@@ -257,23 +373,15 @@ test('reopens an exact previously visited course offline in the same document', 
 	const about = course.about.trim().slice(0, 60);
 	await page.goto(origin + previewUrl);
 	const courseButton = page.locator('button').filter({ hasText: '01140052' });
-	await expect
-		.poll(async () =>
-			(await resources(page)).some(
-				(entry) => entry.key === '/courseDataStripped.json'
-			)
-		)
-		.toBe(true);
+	await expectCoursesReady(page);
 	await courseButton.click();
 	await expect(page.locator('main h1').first()).toContainText(course.name);
 	await expect(page.locator('main')).toContainText(about);
-	await expect
-		.poll(async () =>
-			(await resources(page)).some(
-				(entry) => entry.key === '/_courses/01140052'
-			)
+	expect(
+		(await courseSnapshot(page, true)).courses?.find(
+			(record) => record.code === '01140052'
 		)
-		.toBe(true);
+	).toEqual(course);
 	await page.goBack();
 	await expect(courseButton).toBeVisible();
 	const navigationRequests: string[] = [];
@@ -291,9 +399,7 @@ test('reopens an exact previously visited course offline in the same document', 
 	await expect(page.locator('main h1').first()).toContainText(course.name);
 	await expect(page.locator('main')).toContainText(about);
 	expect(navigationRequests).toEqual([]);
-	expect(
-		await page.evaluate(() => JSON.parse(localStorage.getItem('userData')!))
-	).toEqual(savedPlan);
+	await expectSavedPlanUnchanged(page);
 });
 
 for (const [language, notFound] of [
@@ -322,9 +428,7 @@ test('keeps unknown course IDs as code-only course placeholders', async ({
 	await expect(
 		page.getByText('404 - Page Not Found', { exact: true })
 	).toHaveCount(0);
-	expect(
-		await page.evaluate(() => JSON.parse(localStorage.getItem('userData')!))
-	).toEqual(savedPlan);
+	await expectSavedPlanUnchanged(page);
 });
 
 for (const failure of ['denied', 'blocked'] as const) {
@@ -335,7 +439,11 @@ for (const failure of ['denied', 'blocked'] as const) {
 		await page.addInitScript((failure) => {
 			const open = indexedDB.open.bind(indexedDB);
 			indexedDB.open = (name, ...args) => {
-				if (name === 'degree-planner-public-data') {
+				if (
+					['degree-planner-public-data', 'degree-planner-courses'].includes(
+						name
+					)
+				) {
 					if (failure === 'denied')
 						throw new DOMException('Denied for test', 'SecurityError');
 					return {} as IDBOpenDBRequest;
@@ -348,8 +456,6 @@ for (const failure of ['denied', 'blocked'] as const) {
 			'Computer Science',
 			{ timeout: 10000 }
 		);
-		expect(
-			await page.evaluate(() => JSON.parse(localStorage.getItem('userData')!))
-		).toEqual(savedPlan);
+		await expectSavedPlanUnchanged(page);
 	});
 }

@@ -737,6 +737,11 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 			page,
 			context
 		}) => {
+			// Build real in-console history: Back must unmount the plan via the
+			// client router, rather than leaving the console for a new document.
+			await page.goto('/app/search');
+			await page.locator('a[href="/app/plan"]').click();
+			await expect(page.getByText('First course')).toBeVisible();
 			const rect = (await page
 				.locator('[data-code="10400001"]')
 				.boundingBox())!;
@@ -763,7 +768,7 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 			await page.waitForTimeout(150);
 			// Browser Back unmounts the plan without ending the gesture first.
 			await page.goBack();
-			await expect(page).toHaveURL(/\/$/);
+			await expect(page).toHaveURL(/\/app\/search$/);
 			await expect(page.locator('.sortable-fallback')).toHaveCount(0);
 			await expect(page.locator('[data-plan-drag-overlay]')).toHaveCount(0);
 			await touch.send('Input.dispatchTouchEvent', {

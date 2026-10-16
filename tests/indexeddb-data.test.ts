@@ -6,7 +6,7 @@ test.use({ serviceWorkers: 'block' });
 const origin = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:4173';
 const degree = ['2024_200', '00002120', 'SC00001314_CG00006245'];
 const programUrl = `/_catalogs/${degree.join('/')}/requirementsData.json`;
-const previewUrl = `/preview/${degree.join('/')}?path=CG00006253&semesters=01140052~00104031`;
+const previewUrl = `/app/preview/${degree.join('/')}?path=CG00006253&semesters=01140052~00104031`;
 const savedPlan = {
 	degree,
 	path: 'CG00006253',
@@ -196,7 +196,7 @@ async function blockPublicData(page: Page) {
 }
 
 for (const language of ['en', 'he'] as const) {
-	test(`reloads cached course/catalog/requirements in ${language} with all public data requests blocked`, async ({
+	test(`reloads cached course/app/catalog/requirements in ${language} with all public data requests blocked`, async ({
 		page,
 		request
 	}) => {
@@ -264,8 +264,8 @@ test('downloads every canonical course on opening the site and serves a never-vi
 			visitedCourseUrls.push(request.url());
 		}
 	});
-	// Opening the landing page is sufficient; no search/detail route warms the data.
-	await page.goto(origin + '/');
+	// Opening the console is sufficient; no search/detail route warms the data.
+	await page.goto(origin + '/app/');
 	await expectCoursesReady(page, Object.keys(courses).length);
 	const snapshot = await courseSnapshot(page, true);
 	expect(snapshot.courseKeyPath).toBe('code');
@@ -295,13 +295,13 @@ test('downloads every canonical course on opening the site and serves a never-vi
 	await blockPublicData(page);
 	// The document and route chunks remain online, while SSR-embedded JSON is
 	// removed. A never-visited detail must now be reconstructed from entity records.
-	await page.goto(origin + `/course/${code}`);
+	await page.goto(origin + `/app/course/${code}`);
 	await expect(page.locator('main h1').first()).toContainText(course.name);
 	await expect(page.locator('main')).toContainText(about);
 	await page.reload();
 	await expect(page.locator('main h1').first()).toContainText(course.name);
 	await expect(page.locator('main')).toContainText(about);
-	await page.goto(origin + `/search?q=${code}`);
+	await page.goto(origin + `/app/search?q=${code}`);
 	await expect(page.locator('main')).toContainText(course.name);
 	const afterReload = await courseSnapshot(page, true);
 	expect(
@@ -341,7 +341,7 @@ test('identifies a cold course route failure when the whole browser goes offline
 	await context.setOffline(true);
 	expect(await page.evaluate(() => navigator.onLine)).toBe(false);
 	await courseButton.click();
-	await expect(page).toHaveURL(origin + '/course/01140052');
+	await expect(page).toHaveURL(origin + '/app/course/01140052');
 	await expect(
 		page.getByRole('heading', {
 			name: '500 - Unable to load this page',
@@ -395,7 +395,7 @@ test('reopens an exact previously visited course offline in the same document', 
 	await context.setOffline(true);
 	expect(await page.evaluate(() => navigator.onLine)).toBe(false);
 	await courseButton.click();
-	await expect(page).toHaveURL(origin + '/course/01140052');
+	await expect(page).toHaveURL(origin + '/app/course/01140052');
 	await expect(page.locator('main h1').first()).toContainText(course.name);
 	await expect(page.locator('main')).toContainText(about);
 	expect(navigationRequests).toEqual([]);
@@ -422,7 +422,7 @@ test('keeps unknown course IDs as code-only course placeholders', async ({
 	page
 }) => {
 	await seed(page);
-	const response = await page.goto(origin + '/course/99999999');
+	const response = await page.goto(origin + '/app/course/99999999');
 	expect(response?.status()).toBe(200);
 	await expect(page.locator('main h1').first()).toContainText('99999999');
 	await expect(

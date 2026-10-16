@@ -89,6 +89,17 @@ function prepareShell(): Promise<void> {
 }
 
 worker.addEventListener('install', (event) => {
+	// An old registration automatically checks this same script URL. Keep its
+	// previous offline start route intact until the page verifies /app/ and
+	// explicitly installs the redirect-only compatibility worker at root.
+	if (worker.registration?.scope === `${worker.location.origin}/`) {
+		event.waitUntil(
+			Promise.reject(
+				new Error('Legacy root scope requires the verified console transition')
+			)
+		);
+		return;
+	}
 	event.waitUntil(prepareShell());
 	// Do not skipWaiting: another tab may contain unsaved work or pending writes.
 });

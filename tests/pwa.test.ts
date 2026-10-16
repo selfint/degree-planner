@@ -8,6 +8,8 @@ let server: Server;
 let origin: string;
 let revision = 0;
 let originDisconnected = false;
+let serveLegacyWorker = false;
+let denyConsoleShell = false;
 
 // Other suites mock network responses and block service workers globally.
 test.use({ serviceWorkers: 'allow' });
@@ -23,12 +25,21 @@ test.beforeAll(async () => {
 			return;
 		}
 		try {
+			if (denyConsoleShell && request.url === '/app/offline') {
+				response.writeHead(503);
+				response.end();
+				return;
+			}
 			if (request.url === '/service-worker.js') {
 				response.writeHead(200, {
 					'content-type': 'application/javascript',
 					'cache-control': 'no-store'
 				});
-				response.end(`${worker}\n// Test deployment ${revision}\n`);
+				response.end(
+					serveLegacyWorker
+						? "self.addEventListener('activate', event => event.waitUntil(self.clients.claim()));"
+						: `${worker}\n// Test deployment ${revision}\n`
+				);
 				return;
 			}
 			const upstream = await fetch(`http://localhost:4173${request.url}`);
@@ -56,6 +67,8 @@ test.afterAll(async () => {
 
 test.afterEach(() => {
 	originDisconnected = false;
+	serveLegacyWorker = false;
+	denyConsoleShell = false;
 });
 
 test.beforeEach(async ({ page }, testInfo) => {
@@ -81,7 +94,7 @@ test.beforeEach(async ({ page }, testInfo) => {
 });
 
 async function ready(page: Page) {
-	await page.goto(`${origin}/plan`);
+	await page.goto(`${origin}/app/plan`);
 	await page.waitForFunction(() => navigator.serviceWorker.controller !== null);
 	await expect(page.locator('[data-code="02340124"]')).toBeVisible();
 	await expect(page.getByTestId('pwa-ready')).toBeVisible({ timeout: 20000 });
@@ -97,8 +110,8 @@ test('manifest and correctly sized icons support installation', async ({
 	).json();
 	expect(manifest).toMatchObject({
 		id: '/',
-		start_url: '/plan',
-		scope: '/',
+		start_url: '/app/',
+		scope: '/app/',
 		display: 'standalone'
 	});
 	for (const icon of manifest.icons) {
@@ -123,7 +136,7 @@ test('manifest and correctly sized icons support installation', async ({
 	);
 });
 
-test('a never-visited course loads by client navigation offline and guest edits survive reload', async ({
+test('a never-visited course loads offline while guest plan editing stays read-only', async ({
 	page,
 	context
 }) => {
@@ -134,12 +147,12 @@ test('a never-visited course loads by client navigation offline and guest edits 
 		requests.push(new URL(request.url()).pathname)
 	);
 	await ready(page);
-	expect(requests).not.toContain('/course/02340124');
+	expect(requests).not.toContain('/app/course/02340124');
 	expect(requests).not.toContain('/_courses/02340124');
 	const timeOrigin = await page.evaluate(() => performance.timeOrigin);
 	await context.setOffline(true);
 	await page.locator('[data-code="02340124"]').click();
-	await expect(page).toHaveURL(`${origin}/course/02340124`);
+	await expect(page).toHaveURL(`${origin}/app/course/02340124`);
 	await expect(page.locator('main')).toContainText(course.name);
 	// The route JS was not loaded before disconnecting: navigation stays client-side.
 	expect(await page.evaluate(() => performance.timeOrigin)).toBe(timeOrigin);
@@ -149,15 +162,16 @@ test('a never-visited course loads by client navigation offline and guest edits 
 	await expect(
 		page.getByRole('button', { name: 'Plan', exact: true })
 	).toBeVisible();
-	await page.getByRole('button', { name: 'Plan', exact: true }).click();
-	await expect
-		.poll(() =>
-			page.evaluate(
-				() => JSON.parse(localStorage.getItem('userData')!).semesters[0]
-			)
+	await expect(
+		page.getByRole('button', { name: 'Plan', exact: true })
+	).toBeDisabled();
+	await expect(page.getByTestId('plan-read-only')).toBeVisible();
+	expect(
+		await page.evaluate(
+			() => JSON.parse(localStorage.getItem('userData')!).semesters[0]
 		)
-		.toEqual(['02340124']);
-	await page.goto(`${origin}/plan`);
+	).toEqual([]);
+	await page.goto(`${origin}/app/plan`);
 	await expect(page.locator('[data-code="02340124"]')).toBeVisible();
 	await page.reload();
 	await expect(page.locator('[data-code="02340124"]')).toBeVisible();
@@ -172,7 +186,7 @@ test('updates wait without reloading unsaved plan edits or other tabs', async ({
 }) => {
 	await ready(page);
 	const otherTab = await context.newPage();
-	await otherTab.goto(`${origin}/plan`);
+	await otherTab.goto(`${origin}/app/plan`);
 	// Reorder the wishlist without saving to exercise actual in-memory draft state.
 	const first = page.locator('[data-code="02340124"]');
 	const second = page.locator('[data-code="02340141"]');
@@ -225,7 +239,7 @@ test('updates wait without reloading unsaved plan edits or other tabs', async ({
 	).toBe('installed');
 	await otherTab.close();
 	const reopened = await context.newPage();
-	await reopened.goto(`${origin}/plan`);
+	await reopened.goto(`${origin}/app/plan`);
 	await expect
 		.poll(() =>
 			reopened.evaluate(
@@ -239,12 +253,12 @@ test('updates wait without reloading unsaved plan edits or other tabs', async ({
 test('caches contain only public assets and do not delete unrelated storage', async ({
 	page
 }) => {
-	await page.goto(`${origin}/offline`);
+	await page.goto(`${origin}/app/offline`);
 	await page.evaluate(async () => {
 		await caches.open('another-app-cache');
 	});
 	await page.waitForFunction(() => navigator.serviceWorker.controller !== null);
-	await page.goto(`${origin}/plan?private=never-cache-this-query`);
+	await page.goto(`${origin}/app/plan?private=never-cache-this-query`);
 	const cacheEntries = await page.evaluate(async () => {
 		const entries: string[] = [];
 		for (const name of await caches.keys()) {
@@ -265,7 +279,7 @@ test('caches contain only public assets and do not delete unrelated storage', as
 		cacheEntries.some(
 			(url) =>
 				/private=|googleapis|firebase/.test(url) ||
-				new URL(url).pathname === '/plan'
+				new URL(url).pathname === '/app/plan'
 		)
 	).toBe(false);
 	expect(await page.evaluate(() => caches.keys())).toContain(
@@ -287,7 +301,7 @@ for (const language of ['en', 'he'] as const) {
 		const courses = JSON.parse(
 			await readFile('static/courseData.json', 'utf8')
 		);
-		await page.goto(`${origin}/`);
+		await page.goto(`${origin}/app/`);
 		await expect(page.getByTestId('pwa-ready')).toBeVisible({ timeout: 20000 });
 		await expect(page.getByTestId('pwa-update')).toHaveCount(0);
 		if (browserName === 'webkit') {
@@ -298,7 +312,7 @@ for (const language of ['en', 'he'] as const) {
 			server.closeAllConnections();
 			await expect(fetch(`${origin}/offline-outage-probe`)).rejects.toThrow();
 		} else await context.setOffline(true);
-		const navigation = await page.goto(`${origin}/course/02340141`);
+		const navigation = await page.goto(`${origin}/app/course/02340141`);
 		expect(navigation?.fromServiceWorker()).toBe(true);
 		await expect(page.locator('main')).toContainText(courses['02340141'].name);
 		if (browserName !== 'webkit')
@@ -317,7 +331,7 @@ test('evicted shell assets remove readiness offline and are repaired on reconnec
 	await ready(page);
 	const deleted = await page.evaluate(async () => {
 		const name = (await caches.keys()).find((name) =>
-			name.startsWith('planit-shell-')
+			name.startsWith('planit-console-shell-')
 		)!;
 		const cache = await caches.open(name);
 		const asset = (await cache.keys()).find(
@@ -352,7 +366,7 @@ test('denied IDB leaves online use available without claiming offline setup succ
 			return open(name, ...args);
 		};
 	});
-	await page.goto(`${origin}/plan`);
+	await page.goto(`${origin}/app/plan`);
 	await page.waitForFunction(() => navigator.serviceWorker.controller !== null);
 	await expect(page.getByTestId('pwa-incomplete')).toBeVisible();
 	await expect(page.locator('[data-code="02340124"]')).toBeVisible();
@@ -392,7 +406,7 @@ test('signed-in offline users can read an unvisited course without exposing or e
 			})
 		);
 	}, apiKey);
-	await page.goto(`${origin}/course/02340141`);
+	await page.goto(`${origin}/app/course/02340141`);
 	await expect(page.locator('main')).toContainText(courses['02340141'].name);
 	await expect(page.getByTestId('course-plan-unavailable')).toBeVisible();
 	await expect(page.getByTestId('course-plan-actions')).toHaveCount(0);
@@ -410,7 +424,143 @@ test('signed-in offline users can read an unvisited course without exposing or e
 	);
 	// Prove the SDK actually restored a signed-in account, rather than silently
 	// testing the guest path: private planner views remain explicitly blocked.
-	await page.goto(`${origin}/plan`);
+	await page.goto(`${origin}/app/plan`);
 	await expect(page.getByTestId('pwa-account-unavailable')).toBeVisible();
 	await expect(page.locator('main')).toBeHidden();
+});
+
+test('console scope upgrades legacy installed launches without clearing open-tab caches', async ({
+	page,
+	context
+}) => {
+	serveLegacyWorker = true;
+	await page.goto(origin);
+	await page.evaluate(async () => {
+		await navigator.serviceWorker.register('/service-worker.js', {
+			scope: '/'
+		});
+		await navigator.serviceWorker.ready;
+		const cache = await caches.open('planit-shell-legacy-open-tab');
+		await cache.put('/legacy-draft-support.js', new Response('legacy asset'));
+	});
+	await page.waitForFunction(() => navigator.serviceWorker.controller !== null);
+	const oldTab = await context.newPage();
+	await oldTab.goto(origin);
+	const oldTime = await oldTab.evaluate(() => performance.timeOrigin);
+	serveLegacyWorker = false;
+	await ready(page);
+	await expect
+		.poll(() =>
+			page.evaluate(async () =>
+				(await navigator.serviceWorker.getRegistrations()).map(
+					(r) => new URL(r.scope).pathname
+				)
+			)
+		)
+		.toEqual(['/', '/app/']);
+	expect(
+		await page.evaluate(async () =>
+			(await caches.open('planit-shell-legacy-open-tab'))
+				.match('/legacy-draft-support.js')
+				.then(Boolean)
+		)
+	).toBe(true);
+	expect(await oldTab.evaluate(() => performance.timeOrigin)).toBe(oldTime);
+	await oldTab.close();
+	await expect
+		.poll(() =>
+			page.evaluate(
+				async () =>
+					(await navigator.serviceWorker.getRegistrations()).find(
+						(r) => new URL(r.scope).pathname === '/'
+					)?.active?.scriptURL
+			)
+		)
+		.toBe(`${origin}/legacy-service-worker.js`);
+	await context.setOffline(true);
+	await page.goto(`${origin}/plan?source=installed#legacy`);
+	await expect(page).toHaveURL(`${origin}/app/plan?source=installed#legacy`);
+	await expect(page.locator('[data-code="02340124"]')).toBeVisible();
+	await expect(page.getByTestId('plan-read-only')).toBeVisible();
+});
+
+test('disconnecting preserves the current draft but blocks saving and new drags until reconnect', async ({
+	page,
+	context
+}) => {
+	await ready(page);
+	await page
+		.locator('[data-code="02340124"]')
+		.dragTo(page.locator('[data-code="02340141"]'), {
+			targetPosition: { x: 5, y: 5 }
+		});
+	const save = page.getByRole('button', { name: 'Save', exact: true });
+	await expect(save).toBeEnabled();
+	const order = await page
+		.locator('[data-code]')
+		.evaluateAll((cards) =>
+			cards.map((card) => card.getAttribute('data-code'))
+		);
+	const saved = await page.evaluate(() => localStorage.getItem('userData'));
+	await context.setOffline(true);
+	await expect(save).toBeDisabled();
+	await expect(page.getByTestId('plan-read-only')).toBeVisible();
+	await page
+		.locator('[data-code="02340124"]')
+		.dragTo(page.locator('[data-code="02340141"]'), {
+			targetPosition: { x: 5, y: 5 }
+		});
+	expect(
+		await page
+			.locator('[data-code]')
+			.evaluateAll((cards) =>
+				cards.map((card) => card.getAttribute('data-code'))
+			)
+	).toEqual(order);
+	expect(await page.evaluate(() => localStorage.getItem('userData'))).toBe(
+		saved
+	);
+	await context.setOffline(false);
+	await expect(save).toBeEnabled();
+	await save.click();
+	await expect(save).toHaveCount(0);
+	expect(await page.evaluate(() => localStorage.getItem('userData'))).not.toBe(
+		saved
+	);
+});
+
+test('a failed console shell install keeps the existing root registration', async ({
+	page
+}) => {
+	test.setTimeout(60_000);
+	serveLegacyWorker = true;
+	await page.goto(origin);
+	await page.evaluate(async () => {
+		await navigator.serviceWorker.register('/service-worker.js', {
+			scope: '/'
+		});
+		await navigator.serviceWorker.ready;
+	});
+	await page.waitForFunction(() => navigator.serviceWorker.controller !== null);
+	serveLegacyWorker = false;
+	denyConsoleShell = true;
+	await page.goto(`${origin}/app/plan`);
+	await expect(page.locator('[data-code="02340124"]')).toBeVisible();
+	await expect(page.getByTestId('pwa-incomplete')).toBeVisible({
+		timeout: 35_000
+	});
+	const root = await page.evaluate(async () => {
+		const registration = (
+			await navigator.serviceWorker.getRegistrations()
+		).find((r) => new URL(r.scope).pathname === '/');
+		return {
+			active: registration?.active?.scriptURL,
+			waiting: registration?.waiting?.scriptURL
+		};
+	});
+	expect(root).toEqual({
+		active: `${origin}/service-worker.js`,
+		waiting: undefined
+	});
+	await expect(page.getByTestId('pwa-ready')).toHaveCount(0);
 });

@@ -81,7 +81,7 @@ for (const language of ['en', 'he'] as const) {
 				} else await route.continue();
 			});
 
-			await page.goto(origin);
+			await page.goto(new URL(language === 'en' ? '/en' : '/', origin).href);
 			await expect(page.locator('.landing')).toHaveAttribute(
 				'dir',
 				language === 'he' ? 'rtl' : 'ltr'

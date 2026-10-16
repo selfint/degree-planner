@@ -111,7 +111,7 @@ for (const language of ['en', 'he']) {
 				(lang) => localStorage.setItem('lang', lang),
 				language
 			);
-			await page.goto(`/search?q=${q}`);
+			await page.goto(`/app/search?q=${q}`);
 			await waitForSearchReady(page);
 			const state: State = {
 				q,

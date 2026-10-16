@@ -42,7 +42,7 @@ for (const language of ['en', 'he']) {
 			(node: { name: string }) => node.name === 'CG00006253'
 		);
 		await page.goto(
-			`${origin}/preview/${degree.join('/')}?path=CG00006253&semesters=00234114~00104031`
+			`${origin}/app/preview/${degree.join('/')}?path=CG00006253&semesters=00234114~00104031`
 		);
 		await expect(page.locator('main h1').first()).toContainText(
 			selectedPath[language]

@@ -51,13 +51,13 @@ test.beforeEach(async ({ page }) => {
 		);
 	});
 	// Startup now syncs the canonical full dataset; both views use this fixture.
-	await page.route(/\/courseData(?:Stripped)?\.json(?:\?.*)?$/, (route) =>
+	await page.route(/\/app\/courseData(?:Stripped)?\.json(?:\?.*)?$/, (route) =>
 		route.fulfill({ json: courses })
 	);
 	// Navigate client-side so the fixture replaces the course-data request,
 	// rather than the real catalog being inlined by server-side rendering.
 	await page.goto('/');
-	await page.locator('a[href="/plan"]').click();
+	await page.locator('a[href="/app/plan"]').click();
 	await expect(page.getByText('First course')).toBeVisible();
 });
 
@@ -141,7 +141,7 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 				});
 				await expect(ghost).toHaveCount(0);
 				await expect(page.locator('[data-code="10400001"]')).toHaveCount(1);
-				await expect(page).toHaveURL(/\/plan$/);
+				await expect(page).toHaveURL(/\/app\/plan$/);
 			});
 		}
 
@@ -617,7 +617,7 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 			await expect(page.locator('.sortable-fallback')).toHaveCount(0);
 			await expect(page.locator('[data-plan-drag-overlay]')).toHaveCount(0);
 			await expect(page.locator(`[data-code="${code}"]`)).toHaveCount(1);
-			await expect(page).toHaveURL(/\/plan$/);
+			await expect(page).toHaveURL(/\/app\/plan$/);
 		}
 
 		test('repeated touch moves between semesters and the wishlist can be saved or cancelled', async ({
@@ -771,8 +771,8 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 				type: 'touchCancel',
 				touchPoints: []
 			});
-			await page.locator('a[href="/plan"]').click();
-			await expect(page).toHaveURL(/\/plan$/);
+			await page.locator('a[href="/app/plan"]').click();
+			await expect(page).toHaveURL(/\/app\/plan$/);
 			await expect(page.locator('[data-code]')).toHaveCount(3);
 		});
 

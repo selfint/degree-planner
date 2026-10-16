@@ -119,7 +119,7 @@ test.beforeEach(async ({ page }, testInfo) => {
 test('preserves every filter when slider changes and availability arrive before navigation settles', async ({
 	page
 }) => {
-	await page.goto('/search?q=1040&pointsMin=1&pointsMax=6');
+	await page.goto('/app/search?q=1040&pointsMin=1&pointsMax=6');
 	await expect(page.locator('#search-points-min')).toHaveValue('1');
 	// A synchronous burst deliberately exercises the interval that waiting for each URL hides.
 	await page.locator('fieldset').evaluate((fieldset) => {
@@ -171,7 +171,7 @@ for (const language of ['English', 'Hebrew']) {
 		}) => {
 			if (language === 'Hebrew')
 				await page.setViewportSize({ width: 320, height: 812 });
-			await page.goto('/search?q=1040');
+			await page.goto('/app/search?q=1040');
 			let state = defaults();
 			await expectState(page, state);
 			const history = [{ ...state }];
@@ -264,7 +264,9 @@ for (const language of ['English', 'Hebrew']) {
 				'query',
 				'clear'
 			] as const) {
-				await page.goto('/search?q=1040&pointsMin=1&pointsMax=6&medianMin=80');
+				await page.goto(
+					'/app/search?q=1040&pointsMin=1&pointsMax=6&medianMin=80'
+				);
 				const state = {
 					...defaults(),
 					pointsMin: 1,
@@ -309,7 +311,7 @@ for (const language of ['English', 'Hebrew']) {
 test('rapid mixed changes, query, clear and later edits never restore a stale snapshot', async ({
 	page
 }) => {
-	await page.goto('/search?q=1040&pointsMin=1&pointsMax=6');
+	await page.goto('/app/search?q=1040&pointsMin=1&pointsMax=6');
 	await expect(page.locator('#search-points-min')).toHaveValue('1');
 	await page.locator('body').evaluate((body, faculty) => {
 		const number = (selector: string, value: string) => {
@@ -353,7 +355,7 @@ test('rapid mixed changes, query, clear and later edits never restore a stale sn
 test('Back and Forward discard an unfinished draft even when the committed points are identical', async ({
 	page
 }) => {
-	await page.goto('/search?q=1040&pointsMin=3&pointsMax=5');
+	await page.goto('/app/search?q=1040&pointsMin=3&pointsMax=5');
 	let state = { ...defaults(), pointsMin: 3, pointsMax: 5 };
 	await expectState(page, state);
 	await page.locator('fieldset input[type="checkbox"]').check();
@@ -369,7 +371,7 @@ test('Back and Forward discard an unfinished draft even when the committed point
 test('an unrelated checkbox update cannot reset an unfinished slider gesture', async ({
 	page
 }) => {
-	await page.goto('/search?q=1040&pointsMin=3&pointsMax=5');
+	await page.goto('/app/search?q=1040&pointsMin=3&pointsMax=5');
 	await expectState(page, { ...defaults(), pointsMin: 3, pointsMax: 5 });
 	const slider = page.locator('#search-points-min');
 	await slider.evaluate((input: HTMLInputElement) => {
@@ -397,7 +399,7 @@ test('Clear accepts the first click when only an unfinished numeric draft is act
 		'#search-points-max-input',
 		'fieldset input[type="number"]:last-of-type'
 	]) {
-		await page.goto('/search?q=1040');
+		await page.goto('/app/search?q=1040');
 		await expectState(page, defaults());
 		const input = selector.startsWith('fieldset')
 			? page.locator('fieldset input[type="number"]').last()
@@ -418,7 +420,7 @@ test('same-batch numeric and slider edits followed by Clear restore every native
 	page
 }) => {
 	for (const mode of ['number', 'range']) {
-		await page.goto('/search?q=1040&available');
+		await page.goto('/app/search?q=1040&available');
 		await expectState(page, { ...defaults(), available: true });
 		await page.locator('fieldset').evaluate((fieldset, mode) => {
 			const inputs = Array.from(
@@ -444,7 +446,9 @@ for (const language of ['English', 'Hebrew']) {
 		page
 	}) => {
 		const systems = 'הנדסת מערכות';
-		await page.goto(`/search?q=1040&faculty=${encodeURIComponent(systems)}`);
+		await page.goto(
+			`/app/search?q=1040&faculty=${encodeURIComponent(systems)}`
+		);
 		const input = page.locator('header input[type="text"]');
 		const state = { ...defaults(), faculty: systems };
 		await expect(input).toHaveValue('1040');
@@ -515,7 +519,9 @@ for (const inputMode of ['mouse', 'touch'] as const) {
 					page,
 					context
 				}) => {
-					await page.goto('/search?q=1040&available&pointsMin=1&pointsMax=12');
+					await page.goto(
+						'/app/search?q=1040&available&pointsMin=1&pointsMax=12'
+					);
 					const state = {
 						...defaults(),
 						available: true,

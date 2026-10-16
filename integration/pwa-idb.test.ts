@@ -34,7 +34,7 @@ const bundlePath = resolve('.svelte-kit/output/client/service-worker.js');
 // Fail loudly if no production build is present; never silently skip this gate.
 const bundle = readFileSync(bundlePath, 'utf8');
 const offlineHtml = readFileSync(
-	resolve('.svelte-kit/output/prerendered/pages/offline.html'),
+	resolve('.svelte-kit/output/prerendered/pages/app/offline.html'),
 	'utf8'
 );
 const { version: appVersion } = JSON.parse(
@@ -106,7 +106,7 @@ function shellResponse(html = offlineHtml, init: ResponseInit = {}) {
 
 async function shellNetwork(request: Request) {
 	const pathname = new URL(request.url).pathname;
-	return pathname === '/offline'
+	return pathname === '/app/offline'
 		? shellResponse()
 		: new Response(`network:${pathname}`);
 }
@@ -123,6 +123,7 @@ function harness(
 	options: {
 		source?: string;
 		filename?: string;
+		scope?: string;
 		entries?: Map<string, Map<string, Response>>;
 	} = {}
 ) {
@@ -183,6 +184,7 @@ function harness(
 	const workerLocation = new URL('/service-worker.js', origin);
 	const worker = {
 		location: workerLocation,
+		registration: { scope: options.scope ?? `${origin}/app/` },
 		skipWaiting,
 		clients: { claim, matchAll: vi.fn(async () => []) },
 		addEventListener(type: string, listener: Listener) {
@@ -281,7 +283,7 @@ async function shellStatus(
 
 async function installedShell(sw: ReturnType<typeof harness>) {
 	await sw.install();
-	const name = `planit-shell-${appVersion}`;
+	const name = `planit-console-shell-${appVersion}`;
 	expect(await sw.caches.keys()).toContain(name);
 	const cache = await sw.caches.open(name);
 	const lazyAsset = (await cache.keys()).find((request) =>
@@ -321,7 +323,7 @@ describe('production SW + real public repository ownership boundary (VM)', () =>
 		const paths = sw.network.mock.calls.map(
 			([request]) => new URL(request.url).pathname
 		);
-		expect(paths).toContain('/offline');
+		expect(paths).toContain('/app/offline');
 		expect(paths.some((path) => path.startsWith('/_app/immutable/'))).toBe(
 			true
 		);
@@ -435,13 +437,13 @@ describe('production SW + real public repository ownership boundary (VM)', () =>
 		}
 	});
 
-	it('removes the retired v1 public-data CacheStorage cache on activation', async () => {
+	it('preserves legacy caches for still-open root-scope windows during migration', async () => {
 		const sw = harness();
 		await (
 			await sw.caches.open(legacyDataCache)
 		).put(requirementUrl, json(oldData));
 		await sw.activate();
-		expect(await sw.caches.keys()).not.toContain(legacyDataCache);
+		expect(await sw.caches.keys()).toContain(legacyDataCache);
 	});
 });
 
@@ -458,10 +460,10 @@ describe('production SW shell/privacy/lifecycle guards (VM)', () => {
 		sw.network.mockClear();
 		sw.network.mockRejectedValue(new TypeError('offline'));
 		for (const path of [
-			'/plan',
-			'/settings',
-			'/course/00104031',
-			'/preview/2024_200/00002120/SC00001314_CG00006245'
+			'/app/plan',
+			'/app/settings',
+			'/app/course/00104031',
+			'/app/preview/2024_200/00002120/SC00001314_CG00006245'
 		]) {
 			const event = sw.dispatch('fetch', { request: navigation(path) });
 			expect(await (await event.response)!.text()).toBe(offlineHtml);
@@ -488,7 +490,7 @@ describe('production SW shell/privacy/lifecycle guards (VM)', () => {
 				method: 'POST',
 				body: 'synthetic-test-only'
 			}),
-			requestFor('/plan', {
+			requestFor('/app/plan', {
 				headers: { authorization: 'Bearer synthetic-test-only' }
 			}),
 			requestFor('/users/synthetic-test-only/plan')
@@ -530,11 +532,11 @@ describe('production SW shell/privacy/lifecycle guards (VM)', () => {
 			const sw = harness(factory);
 			await sw.install();
 			const currentShell = (await sw.caches.keys()).find((name) =>
-				name.startsWith('planit-shell-')
+				name.startsWith('planit-console-shell-')
 			)!;
 			await (
-				await sw.caches.open('planit-shell-obsolete-test')
-			).put('/offline', new Response('old shell'));
+				await sw.caches.open('planit-console-shell-obsolete-test')
+			).put('/app/offline', new Response('old shell'));
 			await (
 				await sw.caches.open('unrelated-cache')
 			).put('/sentinel', new Response('keep me'));
@@ -544,7 +546,7 @@ describe('production SW shell/privacy/lifecycle guards (VM)', () => {
 			await sw.activate();
 			const keys = await sw.caches.keys();
 			expect(keys).toContain(currentShell);
-			expect(keys).not.toContain('planit-shell-obsolete-test');
+			expect(keys).not.toContain('planit-console-shell-obsolete-test');
 			expect(
 				await (await sw.caches.match('/sentinel', {
 					cacheName: 'unrelated-cache'
@@ -575,7 +577,7 @@ describe('production SW shell readiness and repair handshake (VM)', () => {
 		expect(shellEntryPaths.length).toBeGreaterThanOrEqual(2);
 		for (const entry of shellEntryPaths)
 			expect(await cache.match(entry)).toBeDefined();
-		expect(await (await cache.match('/offline'))!.text()).toBe(offlineHtml);
+		expect(await (await cache.match('/app/offline'))!.text()).toBe(offlineHtml);
 		sw.network.mockClear();
 		sw.network.mockRejectedValue(new TypeError('offline'));
 		expect(await shellStatus(sw)).toEqual({
@@ -642,7 +644,7 @@ describe('production SW shell readiness and repair handshake (VM)', () => {
 		});
 		expect(sw.network).toHaveBeenCalledOnce();
 		expect(await cache.match(lazyAsset)).toBeUndefined();
-		expect(await (await cache.match('/offline'))!.text()).toBe(offlineHtml);
+		expect(await (await cache.match('/app/offline'))!.text()).toBe(offlineHtml);
 		sw.network.mockClear();
 		sw.network.mockImplementation(shellNetwork);
 		expect(await shellStatus(sw)).toMatchObject({ status: 'ready' });
@@ -733,7 +735,7 @@ describe('production SW shell readiness and repair handshake (VM)', () => {
 		async ({ response }) => {
 			const sw = harness();
 			const { cache, lazyAsset } = await installedShell(sw);
-			await cache.delete('/offline');
+			await cache.delete('/app/offline');
 			sw.network.mockClear();
 			sw.network.mockImplementation(async () => response());
 			expect(await shellStatus(sw)).toMatchObject({
@@ -742,14 +744,16 @@ describe('production SW shell readiness and repair handshake (VM)', () => {
 			});
 			expect(sw.network).toHaveBeenCalledOnce();
 			expect(new URL(sw.network.mock.calls[0][0].url).pathname).toBe(
-				'/offline'
+				'/app/offline'
 			);
-			expect(await cache.match('/offline')).toBeUndefined();
+			expect(await cache.match('/app/offline')).toBeUndefined();
 			expect(await cache.match(lazyAsset)).toBeDefined();
 			// A rejected repair must not leave a permanently rejected preparation promise.
 			sw.network.mockImplementation(shellNetwork);
 			expect(await shellStatus(sw)).toMatchObject({ status: 'ready' });
-			expect(await (await cache.match('/offline'))!.text()).toBe(offlineHtml);
+			expect(await (await cache.match('/app/offline'))!.text()).toBe(
+				offlineHtml
+			);
 			expect(sw.skipWaiting).not.toHaveBeenCalled();
 		}
 	);
@@ -919,7 +923,7 @@ describe('legacy-controller transition using its saved production bundle (VM)', 
 });
 
 describe('two actual production worker versions sharing CacheStorage (VM)', () => {
-	it('keeps the prior shell until explicit activation, then removes its namespace and retains current assets', async () => {
+	it('keeps the root-scope prior shell through console activation and serves current assets', async () => {
 		const factory = new IDBFactory();
 		const store = createIndexedDbStore({ factory });
 		try {
@@ -947,13 +951,15 @@ describe('two actual production worker versions sharing CacheStorage (VM)', () =
 			).put('/sentinel', new Response('unchanged'));
 			const current = harness(factory, { entries: old.entries });
 			current.network.mockImplementation(async (request) =>
-				new URL(request.url).pathname === '/offline'
+				new URL(request.url).pathname === '/app/offline'
 					? shellResponse()
 					: new Response(`new:${new URL(request.url).pathname}`)
 			);
 			await current.install();
-			const bothShells = (await current.caches.keys()).filter((name) =>
-				name.startsWith('planit-shell-')
+			const bothShells = (await current.caches.keys()).filter(
+				(name) =>
+					name.startsWith('planit-console-shell-') ||
+					name.startsWith('planit-shell-')
 			);
 			expect(bothShells).toHaveLength(2);
 			const currentShell = bothShells.find((name) => name !== oldShell)!;
@@ -970,13 +976,13 @@ describe('two actual production worker versions sharing CacheStorage (VM)', () =
 			// Explicit test dispatch controls activation; this is not proof of a
 			// browser's waiting/controller lifecycle or of multi-tab behavior.
 			await current.activate();
-			expect(await current.caches.keys()).not.toContain(oldShell);
-			expect(await current.caches.keys()).not.toContain(legacyDataCache);
+			expect(await current.caches.keys()).toContain(oldShell);
+			expect(await current.caches.keys()).toContain(legacyDataCache);
 			expect(await current.caches.keys()).toContain(currentShell);
 			for (const request of oldAssets)
 				expect(
 					await current.caches.match(request, { cacheName: oldShell })
-				).toBeUndefined();
+				).toBeDefined();
 			const currentAssets = await (
 				await current.caches.open(currentShell)
 			).keys();
@@ -994,7 +1000,7 @@ describe('two actual production worker versions sharing CacheStorage (VM)', () =
 			}
 			expect(current.network).not.toHaveBeenCalled();
 			const navigationEvent = current.dispatch('fetch', {
-				request: navigation('/plan')
+				request: navigation('/app/plan')
 			});
 			expect(await (await navigationEvent.response)!.text()).toBe(offlineHtml);
 			expect(
@@ -1009,4 +1015,15 @@ describe('two actual production worker versions sharing CacheStorage (VM)', () =
 			store.close();
 		}
 	});
+});
+
+it('rejects automatic root-scope updates before touching caches or the network', async () => {
+	const sw = harness(new IDBFactory(), { scope: `${origin}/` });
+	const cache = await sw.caches.open('planit-shell-existing');
+	await cache.put('/offline', new Response('old durable shell'));
+	await expect(sw.install()).rejects.toThrow('Legacy root scope');
+	expect(sw.network).not.toHaveBeenCalled();
+	expect(await (await cache.match('/offline'))?.text()).toBe(
+		'old durable shell'
+	);
 });

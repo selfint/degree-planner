@@ -112,6 +112,8 @@ jobs:
         run: npm install && npx playwright install --with-deps webkit
       - name: Test WebKit course persistence and warm offline navigation
         run: npx playwright test --config=playwright.offline-webkit.config.ts --workers=1
+      - name: Test isolated landing and console bootstrap on mobile and desktop WebKit
+        run: npx playwright test tests/console-startup.test.ts tests/console-routing.test.ts --browser=webkit --workers=1
       - name: Test WebKit first-opening offline deep links and reloads
         run: npx playwright test tests/pwa.test.ts --browser=webkit --grep 'first opening' --workers=1
       - name: Upload WebKit offline-data failure evidence

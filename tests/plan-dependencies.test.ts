@@ -34,19 +34,19 @@ test.beforeEach(async ({ page }) => {
 		);
 	});
 	// Startup now syncs the canonical full dataset; both views use this fixture.
-	await page.route(/\/courseData(?:Stripped)?\.json(?:\?.*)?$/, (route) =>
+	await page.route(/\/app\/courseData(?:Stripped)?\.json(?:\?.*)?$/, (route) =>
 		route.fulfill({ json: courses })
 	);
 	// Hydration otherwise reuses the real course data embedded by server rendering.
-	await page.route('**/plan', async (route) => {
+	await page.route('**/app/plan', async (route) => {
 		const response = await route.fetch();
 		const body = (await response.text()).replace(
-			/<script[^>]*data-sveltekit-fetched[^>]*data-url="\/courseDataStripped\.json"[^>]*>.*?<\/script>/s,
+			/<script[^>]*data-sveltekit-fetched[^>]*data-url="\/app\/courseDataStripped\.json"[^>]*>.*?<\/script>/s,
 			''
 		);
 		await route.fulfill({ response, body });
 	});
-	await page.goto('/plan');
+	await page.goto('/app/plan');
 });
 
 test('course dependencies start closed and can be opened and closed repeatedly', async ({
@@ -64,7 +64,7 @@ test('course dependencies start closed and can be opened and closed repeatedly',
 		await expect(toggle).toHaveAttribute('aria-expanded', 'true');
 		await expect(dependencies).toBeVisible();
 		await expect(card.getByText('Prerequisite course')).toBeVisible();
-		await expect(page).toHaveURL(/\/plan$/);
+		await expect(page).toHaveURL(/\/app\/plan$/);
 
 		await toggle.click();
 		await expect(toggle).toHaveAttribute('aria-expanded', 'false');
@@ -74,7 +74,7 @@ test('course dependencies start closed and can be opened and closed repeatedly',
 	// The existing whole-card shortcut still opens a collapsed warning.
 	await card.getByText('Advanced course').click();
 	await expect(dependencies).toBeVisible();
-	await expect(page).toHaveURL(/\/plan$/);
+	await expect(page).toHaveURL(/\/app\/plan$/);
 
 	await page.reload();
 	await expect(toggle).toHaveAttribute('aria-expanded', 'false');
@@ -88,10 +88,10 @@ test('a planned course without warnings still opens on the first click', async (
 	await expect(card.getByText('Prerequisite course')).toBeVisible();
 	await expect(card.locator('button[aria-expanded]')).toHaveCount(0);
 	await card.getByText('Prerequisite course').click();
-	await expect(page).toHaveURL(/\/course\/10400002$/);
+	await expect(page).toHaveURL(/\/app\/course\/10400002$/);
 });
 
 test('a wishlist course still opens on the first click', async ({ page }) => {
 	await page.locator('[data-code="10400003"]').click();
-	await expect(page).toHaveURL(/\/course\/10400003$/);
+	await expect(page).toHaveURL(/\/app\/course\/10400003$/);
 });

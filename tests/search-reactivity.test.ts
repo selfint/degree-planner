@@ -439,6 +439,45 @@ test('same-batch numeric and slider edits followed by Clear restore every native
 	}
 });
 
+for (const language of ['English', 'Hebrew']) {
+	test(`${language} deep-link query is visible beside faculty filters and stays in sync with history`, async ({
+		page
+	}) => {
+		const systems = 'הנדסת מערכות';
+		await page.goto(`/search?q=1040&faculty=${encodeURIComponent(systems)}`);
+		const input = page.locator('header input[type="text"]');
+		const state = { ...defaults(), faculty: systems };
+		await expect(input).toHaveValue('1040');
+		await expectState(page, state);
+		await expect(page.locator('main ul > li')).toHaveCount(0);
+		await page.reload();
+		await expect(input).toHaveValue('1040');
+		await input.fill('');
+		await input.press('Enter');
+		state.q = '';
+		await expectState(page, state);
+		await expect(page.locator('main ul > li')).not.toHaveCount(0);
+		await expect(input).toHaveValue('');
+		await input.fill('unfinished query');
+		await page.locator('fieldset input[type="checkbox"]').click();
+		state.available = true;
+		await expectState(page, state);
+		await expect(input).toHaveValue('unfinished query');
+		await page.goBack();
+		state.available = false;
+		await expectState(page, state);
+		await expect(input).toHaveValue('');
+		await page.goBack();
+		state.q = '1040';
+		await expectState(page, state);
+		await expect(input).toHaveValue('1040');
+		await page.goForward();
+		state.q = '';
+		await expectState(page, state);
+		await expect(input).toHaveValue('');
+	});
+}
+
 async function sliderPosition(page: Page, id: string, value?: number) {
 	const slider = page.locator(`#${id}`);
 	await slider.scrollIntoViewIfNeeded();

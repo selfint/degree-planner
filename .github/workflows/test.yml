@@ -85,7 +85,7 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - name: Install PWA browser test dependencies
-        run: npm ci && npx playwright install --with-deps chromium
+        run: npm install && npx playwright install --with-deps chromium
       - name: Test install, offline cold routes, account guards and safe updates
         run: npx playwright test tests/pwa.test.ts --workers=1
       - name: Test the built worker and IndexedDB ownership boundary

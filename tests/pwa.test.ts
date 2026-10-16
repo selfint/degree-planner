@@ -49,23 +49,26 @@ test.afterAll(async () => {
 	await new Promise<void>((resolve) => server?.close(() => resolve()));
 });
 
-test.beforeEach(async ({ page }) => {
-	await page.addInitScript(() => {
-		if (localStorage.getItem('userData')) return;
-		localStorage.setItem('lang', 'en');
-		localStorage.setItem('version', '4');
-		localStorage.setItem(
-			'userData',
-			JSON.stringify({
-				exemptions: [],
-				degree: ['2024_200', '00002120', 'SC00001320_CG00006382'],
-				path: 'CG00006246',
-				semesters: [[], []],
-				currentSemester: 0,
-				wishlist: ['02340124', '02340141']
-			})
-		);
-	});
+test.beforeEach(async ({ page }, testInfo) => {
+	await page.addInitScript(
+		(language) => {
+			if (localStorage.getItem('userData')) return;
+			localStorage.setItem('lang', language);
+			localStorage.setItem('version', '4');
+			localStorage.setItem(
+				'userData',
+				JSON.stringify({
+					exemptions: [],
+					degree: ['2024_200', '00002120', 'SC00001320_CG00006382'],
+					path: 'CG00006246',
+					semesters: [[], []],
+					currentSemester: 0,
+					wishlist: ['02340124', '02340141']
+				})
+			);
+		},
+		testInfo.title.includes('[he]') ? 'he' : 'en'
+	);
 });
 
 async function ready(page: Page) {
@@ -261,21 +264,30 @@ test('caches contain only public assets and do not delete unrelated storage', as
 	);
 });
 
-test('first opening the landing page saves every course before an unvisited offline deep link', async ({
-	page,
-	context
-}) => {
-	const courses = JSON.parse(await readFile('static/courseData.json', 'utf8'));
-	await page.goto(`${origin}/`);
-	await expect(page.getByTestId('pwa-ready')).toBeVisible({ timeout: 20000 });
-	await context.setOffline(true);
-	await page.goto(`${origin}/course/02340141`);
-	await expect(page.locator('main')).toContainText(courses['02340141'].name);
-	await expect(page.getByTestId('pwa-offline')).toBeVisible();
-	await page.reload();
-	await expect(page.locator('main')).toContainText(courses['02340141'].name);
-	await expect(page.getByTestId('pwa-ready')).toBeVisible();
-});
+for (const language of ['en', 'he'] as const) {
+	test(`first opening saves all courses before an unvisited offline deep link [${language}]`, async ({
+		page,
+		context
+	}) => {
+		await page.setViewportSize(
+			language === 'he'
+				? { width: 390, height: 844 }
+				: { width: 1280, height: 800 }
+		);
+		const courses = JSON.parse(
+			await readFile('static/courseData.json', 'utf8')
+		);
+		await page.goto(`${origin}/`);
+		await expect(page.getByTestId('pwa-ready')).toBeVisible({ timeout: 20000 });
+		await context.setOffline(true);
+		await page.goto(`${origin}/course/02340141`);
+		await expect(page.locator('main')).toContainText(courses['02340141'].name);
+		await expect(page.getByTestId('pwa-offline')).toBeVisible();
+		await page.reload();
+		await expect(page.locator('main')).toContainText(courses['02340141'].name);
+		await expect(page.getByTestId('pwa-ready')).toBeVisible();
+	});
+}
 
 test('evicted shell assets remove readiness offline and are repaired on reconnect', async ({
 	page,

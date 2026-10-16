@@ -51,3 +51,25 @@ jobs:
           name: parallax-browser-recordings
           path: test-results/
           retention-days: 7
+
+  search-browsers:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install browser test dependencies
+        run: npm install && npx playwright install --with-deps chromium webkit
+      - name: Test native faculty selection in Chromium and WebKit
+        run: npx playwright test --config=playwright.search.config.ts
+      - name: Upload search failure traces
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: search-browser-failures
+          path: test-results/
+          retention-days: 7

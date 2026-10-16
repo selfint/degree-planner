@@ -12,12 +12,21 @@
 
 	type Props = {
 		started: boolean;
+		searchQuery: string;
+		searchRevision: number;
 		onSearch: (query: string) => void;
 	};
 
-	const { started, onSearch }: Props = $props();
+	const { started, searchQuery, searchRevision, onSearch }: Props = $props();
 
 	let query = $state('');
+	const committedQuery = $derived(searchQuery);
+	$effect(() => {
+		// A filter-only navigation must not overwrite an unfinished query draft.
+		// History/external navigation does discard drafts, even when q is unchanged.
+		searchRevision;
+		query = committedQuery;
+	});
 	let placeholder: string = $state(content.lang.header.searchPlaceholder);
 
 	$effect(() => {

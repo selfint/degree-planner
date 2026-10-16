@@ -4,7 +4,35 @@
 
 	import '../app.css';
 
-	import { goto } from '$app/navigation';
+	import {
+		afterNavigate,
+		beforeNavigate,
+		goto,
+		onNavigate
+	} from '$app/navigation';
+	import { setContext } from 'svelte';
+	import { page } from '$app/state';
+	import {
+		createSearchNavigation,
+		searchNavigationContext
+	} from '$lib/searchNavigation.svelte';
+
+	const searchNavigation = createSearchNavigation(
+		() => page.url,
+		(url) => goto(url, { noScroll: true, keepFocus: true })
+	);
+	setContext(searchNavigationContext, searchNavigation);
+	beforeNavigate(({ to, type }) =>
+		searchNavigation.observeNavigation(to?.url, type)
+	);
+	// Kit can skip beforeNavigate during an existing navigation. onNavigate runs
+	// before teardown/focus emits blur; afterNavigate releases the draft guard.
+	onNavigate(({ to, type }) =>
+		searchNavigation.observeNavigation(to?.url, type)
+	);
+	afterNavigate(({ to, type }) =>
+		searchNavigation.observeNavigation(to?.url, type, true)
+	);
 
 	import {
 		user,
@@ -55,7 +83,11 @@
 	<div class="w-full border-b-[1px] border-border bg-background">
 		<TitleBar
 			started={user.d.degree !== undefined}
-			onSearch={(query) => goto(`/search?q=${query}`, { replaceState: true })}
+			searchQuery={searchNavigation.url.pathname === '/search'
+				? (searchNavigation.url.searchParams.get('q') ?? '')
+				: ''}
+			searchRevision={searchNavigation.externalRevision}
+			onSearch={searchNavigation.search}
 		/>
 	</div>
 

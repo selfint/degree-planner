@@ -171,7 +171,17 @@ export const cms = {
 			resultsFor: 'Results for',
 			resultsFound: 'results found',
 			filters: 'Filters',
-			available: 'Available'
+			available: 'Available',
+			faculty: 'Faculty',
+			allFaculties: 'All faculties',
+			minPoints: 'Min points',
+			maxPoints: 'Max points',
+			minMedian: 'Min median',
+			clearFilters: 'Clear filters',
+			of: 'of',
+			noResults:
+				'No courses match this search. Try changing or clearing the filters.',
+			loadError: 'Could not load courses. Please reload the page to try again.'
 		},
 		semester: {
 			wishlist: 'Wish list'
@@ -369,7 +379,17 @@ export const cms = {
 			resultsFor: 'תוצאות עבור',
 			resultsFound: 'תוצאות נמצאו',
 			filters: 'סינונים',
-			available: 'זמין'
+			available: 'זמין',
+			faculty: 'פקולטה',
+			allFaculties: 'כל הפקולטות',
+			minPoints: 'מינימום נקודות',
+			maxPoints: 'מקסימום נקודות',
+			minMedian: 'חציון מינימלי',
+			clearFilters: 'נקה סינונים',
+			of: 'מתוך',
+			noResults:
+				'לא נמצאו קורסים שמתאימים לחיפוש. נסו לשנות או לנקות את הסינונים.',
+			loadError: 'לא ניתן לטעון את הקורסים. נסו לרענן את הדף.'
 		},
 		semester: {
 			wishlist: 'רשימת משאלות'

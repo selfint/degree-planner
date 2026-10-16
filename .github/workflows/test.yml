@@ -7,6 +7,53 @@ on:
     branches: 'main'
 
 jobs:
+  deployed-console-mobile:
+    # Only our migration branch owns this preview alias. Never test a fork or a
+    # newer branch build while labelling it as the PR event's exact head.
+    if: github.event_name == 'pull_request' && github.head_ref == 'feat/console-migration' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    permissions:
+      contents: read
+      statuses: read
+    env:
+      PREVIEW_URL: ${{ vars.DEGREE_PLANNER_PREVIEW_URL || 'https://degree-planner-git-feat-console-migration-selfints-projects.vercel.app/' }}
+      PREVIEW_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      PREVIEW_HEAD_REF: ${{ github.head_ref }}
+    steps:
+      - name: Checkout the exact PR head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install focused browser test dependencies
+        run: npm ci && npx playwright install --with-deps chromium
+      - name: Wait for the current head's Vercel deployment
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/waitForPreview.mjs
+      - name: Test the published console on mobile
+        run: npx playwright test --config=playwright.preview.config.ts
+      - name: Verify the preview branch was not superseded during QA
+        if: success() || failure()
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/waitForPreview.mjs --verify-only
+      - name: Upload sanitized deployed-preview QA and screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployed-console-mobile-${{ github.event.pull_request.head.sha }}
+          path: |
+            test-results/deployed-preview/
+            test-results/deployed-preview-gate/
+          if-no-files-found: ignore
+          retention-days: 7
+
   test:
     runs-on: ubuntu-latest
     steps:

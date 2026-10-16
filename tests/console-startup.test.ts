@@ -183,9 +183,18 @@ for (const language of ['en', 'he'] as const) {
 		}) => {
 			test.setTimeout(60_000);
 			await page.setViewportSize({ width, height: 844 });
+			// Mobile exercises light-mode continuity; desktop retains dark coverage.
+			const theme = width === 390 ? 'light' : 'dark';
+			const background =
+				theme === 'light' ? 'rgb(248, 250, 252)' : 'rgb(25, 25, 29)';
+			const foreground =
+				theme === 'light' ? 'rgb(23, 37, 51)' : 'rgb(255, 255, 255)';
 			await page.addInitScript(
-				(language) => localStorage.setItem('lang', language),
-				language
+				({ language, theme }) => {
+					localStorage.setItem('lang', language);
+					localStorage.setItem('theme', theme);
+				},
+				{ language, theme }
 			);
 			const { requests } = startupNetwork;
 			// Record provider attempts without sending analytics or authentication
@@ -203,6 +212,10 @@ for (const language of ['en', 'he'] as const) {
 			await expect(page.locator('.landing')).toHaveAttribute(
 				'dir',
 				language === 'he' ? 'rtl' : 'ltr'
+			);
+			await expect(page.locator('body')).toHaveCSS(
+				'background-color',
+				background
 			);
 			const start = page
 				.getByRole('link', {
@@ -262,6 +275,14 @@ for (const language of ['en', 'he'] as const) {
 					.toBe(true);
 				await expect.poll(() => courseRequested).toBe(true);
 				await expect(page.locator('#console-boot')).toBeVisible();
+				await expect(page.locator('#console-boot')).toHaveCSS(
+					'background-color',
+					background
+				);
+				await expect(page.locator('#console-boot')).toHaveCSS(
+					'color',
+					foreground
+				);
 				await expect(page.locator('#console-boot-detail')).toHaveText(
 					language === 'he' ? 'טוענים קורסים…' : 'Loading courses…'
 				);
@@ -286,8 +307,37 @@ for (const language of ['en', 'he'] as const) {
 				.poll(() => publicDataReady(page), { timeout: 20_000 })
 				.toBe(true);
 			await expect(page.locator('main')).toBeVisible();
+			await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
+			await expect(page.locator('body')).toHaveCSS(
+				'background-color',
+				background
+			);
 		});
 	}
+}
+
+for (const theme of ['dark', 'light'] as const) {
+	test(`${theme} console boot keeps its theme before scripts or styles load`, async ({
+		page
+	}) => {
+		await page.setViewportSize({ width: 390, height: 844 });
+		await page.addInitScript((theme) => {
+			localStorage.setItem('lang', 'en');
+			localStorage.setItem('theme', theme);
+		}, theme);
+		await page.route('**/_app/**', (route) => route.abort());
+		await page.goto(`${origin}/app/`);
+		const boot = page.locator('#console-boot');
+		await expect(boot).toBeVisible();
+		await expect(boot).toHaveCSS(
+			'background-color',
+			theme === 'light' ? 'rgb(248, 250, 252)' : 'rgb(25, 25, 29)'
+		);
+		await expect(boot).toHaveCSS(
+			'color',
+			theme === 'light' ? 'rgb(23, 37, 51)' : 'rgb(255, 255, 255)'
+		);
+	});
 }
 
 test.describe('warm cached console bootstrap', () => {

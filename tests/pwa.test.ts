@@ -166,6 +166,17 @@ test('a never-visited course loads offline while guest plan editing stays read-o
 		page.getByRole('button', { name: 'Plan', exact: true })
 	).toBeDisabled();
 	await expect(page.getByTestId('plan-read-only')).toBeVisible();
+	// Brand navigation stays inside the installed shell instead of opening the
+	// uncached marketing landing. It must retain the current client document.
+	const offlineTimeOrigin = await page.evaluate(() => performance.timeOrigin);
+	const home = page.locator('header a').first();
+	await expect(home).toHaveAttribute('href', '/app/');
+	await home.click();
+	await expect(page).toHaveURL(`${origin}/app/plan`);
+	expect(await page.evaluate(() => performance.timeOrigin)).toBe(
+		offlineTimeOrigin
+	);
+	await expect(page.locator('[data-code="02340124"]')).toBeVisible();
 	expect(
 		await page.evaluate(
 			() => JSON.parse(localStorage.getItem('userData')!).semesters[0]

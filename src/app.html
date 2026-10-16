@@ -44,8 +44,6 @@
 				place-content: center;
 				text-align: center;
 				padding: 24px;
-				background: #15252e;
-				color: #f4f6f8;
 				font-family: system-ui;
 			"
 		>
@@ -55,6 +53,10 @@
 		<script>
 			if (/^\/app(?:\/|$)/.test(location.pathname)) {
 				const boot = document.getElementById('console-boot');
+				const light = document.documentElement.dataset.theme === 'light';
+				// Match the selected theme even before the console CSS arrives.
+				boot.style.background = `rgb(var(--color-background, ${light ? '248 250 252' : '25 25 29'}))`;
+				boot.style.color = `rgb(var(--color-content-primary, ${light ? '23 37 51' : '255 255 255'}))`;
 				boot.hidden = false;
 				boot.style.display = 'grid';
 				try {

@@ -3,8 +3,8 @@
 ## Review stages
 
 One replacement PR preserves the direct-JSON, entity IndexedDB and PWA work
-from PRs 214, 217 and 218. Close those superseded PRs only after the replacement
-preview is verified. No merge is part of this work. SAP and CI PRs stay separate.
+from PRs 214, 217 and 218. Those superseded PRs were closed after the replacement
+preview was verified. No merge is part of this work. SAP and CI PRs stay separate.
 
 1. Move SvelteKit console routes under same-origin `/app/`; preserve public
    bookmarks/share links with redirects and unchanged query parameters.
@@ -42,3 +42,28 @@ manual device verification. Preview Google login also requires its exact hostnam
 in Firebase authorized domains; this migration does not change security settings.
 
 Existing root-scope installations receive a redirect-only compatibility worker after the /app/ shell and complete public course/catalog storage are verified. It preserves old installed /plan launches offline, does not cache landing or data, and waits for old tabs to close before activation. Fresh visits install only the /app/ worker.
+
+## Focused deployed mobile review
+
+Run the separate browser suite against a published HTTPS origin, without starting
+or substituting a local build:
+
+```sh
+PREVIEW_URL=https://degree-planner-git-feat-console-migration-selfints-projects.vercel.app/ \
+  npx playwright test --config=playwright.preview.config.ts
+```
+
+During this migration, CI runs this suite only for the same-repository
+`feat/console-migration` branch that owns the preview alias. Before and after
+browser checks it verifies the expected PR head is still current and has a
+successful Vercel status. The branch alias is mutable; the response bytes do not
+independently attest an immutable deployment SHA.
+
+The five isolated 390px Chromium journeys cover English/Hebrew preferences and
+loading, unvisited offline courses and reloads using the deployed worker, console
+home navigation and Back/Forward, read-only guest actions and reconnect writes,
+and iPhone-user-agent install guidance. Screenshots and sanitized QA JSON are
+uploaded even on failures. No real account is used. The deliberate course-data
+pause checks the loading screen, not natural startup speed. Physical iOS and
+live account login remain outside this emulation; old-install migration and
+controlled update transitions stay in the production-build proxy suite.

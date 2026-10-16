@@ -12,12 +12,19 @@
 
 	type Props = {
 		started: boolean;
+		homeHref?: '/' | '/app/';
 		searchQuery: string;
 		searchRevision: number;
 		onSearch: (query: string) => void;
 	};
 
-	const { started, searchQuery, searchRevision, onSearch }: Props = $props();
+	const {
+		started,
+		homeHref = '/',
+		searchQuery,
+		searchRevision,
+		onSearch
+	}: Props = $props();
 
 	let query = $state('');
 	const committedQuery = $derived(searchQuery);
@@ -49,8 +56,8 @@
 	class="flex max-h-14 touch-manipulation flex-row items-center justify-between pe-3 ps-2 pt-1"
 >
 	<a
-		href="/"
-		data-sveltekit-reload
+		href={homeHref}
+		data-sveltekit-reload={homeHref === '/' ? true : undefined}
 		class="flex h-12 min-w-12 flex-row items-center"
 	>
 		<enhanced:img

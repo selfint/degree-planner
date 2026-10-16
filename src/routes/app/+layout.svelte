@@ -167,7 +167,11 @@
 	});
 
 	function onchangeLang(newValue: (typeof cms)[keyof typeof cms]): void {
-		localStorage.setItem('lang', newValue.lang);
+		try {
+			localStorage.setItem('lang', newValue.lang);
+		} catch {
+			// The bound in-memory preference still works when storage is unavailable.
+		}
 	}
 </script>
 
@@ -180,6 +184,7 @@
 <div dir={content.lang.dir} class="flex h-full min-h-screen flex-col">
 	<div class="w-full border-b-[1px] border-border bg-background">
 		<TitleBar
+			homeHref="/app/"
 			started={user.d.degree !== undefined}
 			searchQuery={searchNavigation.url.pathname === '/app/search'
 				? (searchNavigation.url.searchParams.get('q') ?? '')

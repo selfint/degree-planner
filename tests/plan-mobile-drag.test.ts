@@ -54,10 +54,9 @@ test.beforeEach(async ({ page }) => {
 	await page.route(/\/courseData(?:Stripped)?\.json(?:\?.*)?$/, (route) =>
 		route.fulfill({ json: courses })
 	);
-	// Navigate client-side so the fixture replaces the course-data request,
-	// rather than the real catalog being inlined by server-side rendering.
-	await page.goto('/');
-	await page.locator('a[href="/app/plan"]').click();
+	// The console is client-rendered; the public fixture is never SSR-inlined.
+	// Landing deliberately no longer reads the user's plan or renders plan links.
+	await page.goto('/app/plan');
 	await expect(page.getByText('First course')).toBeVisible();
 });
 

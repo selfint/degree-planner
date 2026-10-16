@@ -369,7 +369,15 @@ for (const width of [390, 1280]) {
 					'data-parallax',
 					/native|fallback/
 				);
-				await page.evaluate(() => document.fonts.ready);
+				// WebKit's fonts.ready waits for pending document resources, including
+				// the images deliberately held by this test. Load used faces directly.
+				await page.evaluate(() =>
+					Promise.all([
+						document.fonts.load('400 1rem "Noto Sans Hebrew"', 'PlanIt תכנן'),
+						document.fonts.load('700 1rem "Noto Sans Hebrew"', 'PlanIt תכנן'),
+						document.fonts.load('400 1rem Pacifico')
+					])
+				);
 				const before = await page.evaluate(layoutSnapshot);
 				await testInfo.attach('layout-before-images', {
 					body: JSON.stringify(before, null, 2),
@@ -404,6 +412,13 @@ for (const width of [390, 1280]) {
 							)
 					)
 					.toBe(true);
+				await page
+					.locator('.landing img')
+					.evaluateAll((images) =>
+						Promise.all(
+							images.map((image) => (image as HTMLImageElement).decode())
+						)
+					);
 				const after = await page.evaluate(layoutSnapshot);
 				await testInfo.attach('layout-after-images', {
 					body: JSON.stringify(after, null, 2),
@@ -422,7 +437,7 @@ for (const width of [390, 1280]) {
 				}
 			} finally {
 				releaseImages();
-				await page.unrouteAll({ behavior: 'wait' });
+				if (!page.isClosed()) await page.unrouteAll({ behavior: 'wait' });
 			}
 		});
 	}

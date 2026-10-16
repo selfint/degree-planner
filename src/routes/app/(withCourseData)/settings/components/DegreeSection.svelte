@@ -1,5 +1,7 @@
 <script lang="ts">
 	import AsyncButton from '$lib/components/AsyncButton.svelte';
+	import PlanActionButton from '$lib/components/PlanActionButton.svelte';
+	import { planOnline } from '$lib/planAccess';
 
 	import Button from '$lib/components/Button.svelte';
 	import Select from '$lib/components/Select.svelte';
@@ -195,6 +197,7 @@
 			{content.lang.settings.year}
 		</span>
 		<Select
+			disabled={!$planOnline}
 			bind:value={yearChoice}
 			onchange={() => {
 				year = yearChoice;
@@ -219,6 +222,7 @@
 			{content.lang.settings.faculty}
 		</span>
 		<Select
+			disabled={!$planOnline}
 			bind:value={faculty}
 			onchange={() => {
 				degree = undefined;
@@ -239,6 +243,7 @@
 			{content.lang.settings.degree}
 		</span>
 		<Select
+			disabled={!$planOnline}
 			bind:value={degree}
 			onchange={() => {
 				path = undefined;
@@ -264,7 +269,7 @@
 				</div>
 			{:then paths}
 				{#if paths.length > 0}
-					<Select bind:value={path}>
+					<Select disabled={!$planOnline} bind:value={path}>
 						<option value={undefined} disabled>
 							{content.lang.settings.selectPath}
 						</option>
@@ -293,7 +298,7 @@
 						{content.lang.settings.save}
 					</AsyncButton>
 				{:then isValid}
-					<AsyncButton
+					<PlanActionButton
 						disabled={!isValid}
 						variant="primary"
 						onclick={async () => {
@@ -308,7 +313,7 @@
 						name="save-degree"
 					>
 						{content.lang.settings.save}
-					</AsyncButton>
+					</PlanActionButton>
 				{/await}
 				<AsyncButton
 					variant="secondary"
@@ -321,7 +326,7 @@
 			</div>
 		{:else if !onRecommended}
 			{#if recommended !== undefined}
-				<Button variant="secondary" onclick={onReset}>
+				<Button variant="secondary" disabled={!$planOnline} onclick={onReset}>
 					{content.lang.settings.revert}
 				</Button>
 			{/if}

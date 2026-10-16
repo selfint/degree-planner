@@ -10,8 +10,8 @@
 
 	import { getScheduleError } from '$lib/schedule';
 	import AsyncButton from '$lib/components/AsyncButton.svelte';
-	import Sortable from 'sortablejs';
-	import { startPlanDrag, endPlanDrag } from '$lib/planDrag';
+	import PlanActionButton from '$lib/components/PlanActionButton.svelte';
+	import { startPlanDrag, endPlanDrag, makePlanSortable } from '$lib/planDrag';
 
 	const { data: pageData } = $props();
 	const { getCourseData } = $derived(pageData);
@@ -68,18 +68,6 @@
 		update(direction);
 		return { update };
 	}
-
-	function makeSortable(el: HTMLElement, options: Sortable.Options) {
-		const sortable = new Sortable(el, options);
-		return {
-			destroy: () => {
-				// Sortable's destroy() cancels the drag but leaves its body-level preview.
-				endPlanDrag();
-				Sortable.ghost?.remove();
-				sortable.destroy();
-			}
-		};
-	}
 </script>
 
 <!-- Reserve space for the app header/footer while letting long plans grow. -->
@@ -99,14 +87,14 @@
 					>
 						{content.lang.settings.cancel}
 					</AsyncButton>
-					<AsyncButton
+					<PlanActionButton
 						variant="primary"
 						onclick={onSave}
 						bind:buttonNamespace
 						name="save"
 					>
 						{content.lang.settings.save}
-					</AsyncButton>
+					</PlanActionButton>
 				{/if}
 				{#if user.d.semesters.some((s) => s.length > 0)}
 					<a href={shareLink} target="_blank">
@@ -127,7 +115,7 @@
 			{#key wishlist.join(' ')}
 				<div
 					data-testid="plan-wishlist"
-					use:makeSortable={{
+					use:makePlanSortable={{
 						group: 'semesters',
 						// Keep the touch preview outside transformed/clipped scrollers.
 						fallbackOnBody: true,

@@ -5,7 +5,7 @@
 	import Semester from '$lib/components/Semester.svelte';
 
 	import { user, content, setUser, writeStorage } from '$lib/stores.svelte';
-	import AsyncButton from '$lib/components/AsyncButton.svelte';
+	import PlanActionButton from '$lib/components/PlanActionButton.svelte';
 	import Spinner from '$lib/components/Spinner.svelte';
 	import { loadDegreeName } from '$lib/requirements.js';
 
@@ -58,9 +58,9 @@
 				{name}
 			{/await}
 		</h1>
-		<AsyncButton variant="primary" onclick={importPlan}>
+		<PlanActionButton variant="primary" onclick={importPlan}>
 			{content.lang.preview.copy}
-		</AsyncButton>
+		</PlanActionButton>
 	</div>
 	<div style="transform: rotateX(180deg)" class="overflow-x-auto">
 		<div style="transform: rotateX(180deg)" class="flex flex-row">

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { isPlanWritable, planOnline } from '$lib/planAccess';
 	import type { Transcript } from '$lib/transcriptParser';
 	import * as TranscriptParser from '$lib/transcriptParser';
 	import { user, content, writeStorage, setUser } from '$lib/stores.svelte';
@@ -8,6 +9,7 @@
 	import { goto } from '$app/navigation';
 	import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 	import AsyncButton from '$lib/components/AsyncButton.svelte';
+	import PlanActionButton from '$lib/components/PlanActionButton.svelte';
 	import Spinner from '$lib/components/Spinner.svelte';
 
 	let transcript: Transcript | undefined = $state(undefined);
@@ -44,6 +46,7 @@
 
 	let uploading = $state(false);
 	async function handleFileUpload(event: unknown) {
+		if (!isPlanWritable()) return;
 		uploading = true;
 		try {
 			// @ts-expect-error
@@ -57,7 +60,7 @@
 				buffer,
 				pdfWorkerUrl
 			);
-			if (result !== undefined) {
+			if (result !== undefined && isPlanWritable()) {
 				transcript = result;
 			}
 		} finally {
@@ -74,13 +77,13 @@
 		<div class="mb-4 ms-3 flex w-fit flex-row gap-x-2">
 			<div
 				class="h-full cursor-pointer rounded-md border border-transparent bg-accent-primary p-0.5 pl-3 pr-3 leading-tight text-content-on-accent"
-				class:opacity-50={uploading}
+				class:opacity-50={uploading || !$planOnline}
 			>
 				<label class="block h-full w-full cursor-pointer">
 					{content.lang.settings.uploadLabel}
 					<input
 						type="file"
-						disabled={uploading}
+						disabled={uploading || !$planOnline}
 						accept="application/pdf"
 						onchange={handleFileUpload}
 						class="hidden"
@@ -96,14 +99,14 @@
 	{:else}
 		<div class="mb-4 ms-3 flex w-fit flex-row gap-x-1">
 			<div class="w-fit">
-				<AsyncButton
+				<PlanActionButton
 					variant="primary"
 					onclick={onSave}
 					bind:buttonNamespace
 					name="upload-save"
 				>
 					{content.lang.settings.save}
-				</AsyncButton>
+				</PlanActionButton>
 			</div>
 			<div class="w-fit">
 				<AsyncButton

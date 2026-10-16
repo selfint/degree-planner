@@ -5,9 +5,10 @@
 		variant: 'primary' | 'secondary';
 		onclick: () => void;
 		children: Snippet;
+		disabled?: boolean;
 	};
 
-	let { variant, onclick, children }: Props = $props();
+	let { variant, onclick, children, disabled = false }: Props = $props();
 
 	const bg = $derived(
 		variant === 'primary'
@@ -17,6 +18,8 @@
 </script>
 
 <button
+	{disabled}
+	class:opacity-50={disabled}
 	class="h-full rounded-md border border-transparent p-0.5 pl-3 pr-3 leading-tight {bg}"
 	{onclick}
 >

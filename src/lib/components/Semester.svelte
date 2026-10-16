@@ -1,8 +1,8 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 
-	import Sortable from 'sortablejs';
-	import { endPlanDrag } from '$lib/planDrag';
+	import type Sortable from 'sortablejs';
+	import { makePlanSortable } from '$lib/planDrag';
 
 	import CourseWidth from './CourseWidth.svelte';
 	import StudyDaysComponent from './StudyDaysComponent.svelte';
@@ -48,20 +48,6 @@
 		return medians.length > 0
 			? Math.round((medians.reduce((a, b) => a + b) / medians.length) * 10) / 10
 			: 0;
-	}
-
-	function makeSortable(column: HTMLDivElement) {
-		if (sortable !== undefined) {
-			const instance = new Sortable(column, sortable);
-			return {
-				destroy: () => {
-					// Sortable's destroy() cancels the drag but leaves its body-level preview.
-					endPlanDrag();
-					Sortable.ghost?.remove();
-					instance.destroy();
-				}
-			};
-		}
 	}
 </script>
 
@@ -128,7 +114,7 @@
 
 	<div
 		class="flex min-h-32 flex-1 flex-col space-y-1 bg-opacity-50 sm:space-y-1.5"
-		use:makeSortable
+		use:makePlanSortable={sortable}
 		data-semester={index}
 	>
 		{#each semester as course, index}

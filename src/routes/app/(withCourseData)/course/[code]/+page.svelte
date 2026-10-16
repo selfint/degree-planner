@@ -21,7 +21,7 @@
 	import { generateColor } from '$lib/colors';
 	import RequirementsElement from '$lib/components/RequirementsElement.svelte';
 	import CourseRow from '$lib/components/CourseRow.svelte';
-	import AsyncButton from '$lib/components/AsyncButton.svelte';
+	import PlanActionButton from '$lib/components/PlanActionButton.svelte';
 	import Spinner from '$lib/components/Spinner.svelte';
 	import { goto } from '$app/navigation';
 
@@ -220,7 +220,7 @@
 			data-testid="course-plan-actions"
 		>
 			{#if courseState === 'planned'}
-				<AsyncButton
+				<PlanActionButton
 					variant="secondary"
 					onclick={removeCourseFromSemesters}
 					bind:buttonNamespace
@@ -230,51 +230,51 @@
 					{getSeasonAndIndex(
 						user.d.semesters.findIndex((s) => s.includes(code))
 					)}
-				</AsyncButton>
+				</PlanActionButton>
 			{:else}
-				<AsyncButton
+				<PlanActionButton
 					variant="primary"
 					onclick={planCourse}
 					bind:buttonNamespace
 					name="plan"
 				>
 					{content.lang.course.plan}
-				</AsyncButton>
+				</PlanActionButton>
 				{#if courseState === 'wished'}
-					<AsyncButton
+					<PlanActionButton
 						variant="secondary"
 						onclick={removeCourseFromWishlist}
 						bind:buttonNamespace
 						name="un-wish"
 					>
 						{content.lang.course.removeFromWishlist}
-					</AsyncButton>
+					</PlanActionButton>
 				{:else if courseState === 'exempt'}
-					<AsyncButton
+					<PlanActionButton
 						variant="secondary"
 						onclick={removeCourseFromExemptions}
 						bind:buttonNamespace
 						name="un-exempt"
 					>
 						{content.lang.course.removeFromExemption}
-					</AsyncButton>
+					</PlanActionButton>
 				{:else}
-					<AsyncButton
+					<PlanActionButton
 						variant="secondary"
 						onclick={addCourseToWishlist}
 						bind:buttonNamespace
 						name="wish"
 					>
 						{content.lang.course.wishlist}
-					</AsyncButton>
-					<AsyncButton
+					</PlanActionButton>
+					<PlanActionButton
 						variant="secondary"
 						onclick={addCourseToExemptions}
 						bind:buttonNamespace
 						name="exempt"
 					>
 						{content.lang.course.exempt}
-					</AsyncButton>
+					</PlanActionButton>
 				{/if}
 			{/if}
 		</div>

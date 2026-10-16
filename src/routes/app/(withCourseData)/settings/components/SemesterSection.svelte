@@ -1,8 +1,10 @@
 <script lang="ts">
+	import { planOnline } from '$lib/planAccess';
 	import Select from '$lib/components/Select.svelte';
 
 	import { user, content, writeStorage, setUser } from '$lib/stores.svelte';
 	import AsyncButton from '$lib/components/AsyncButton.svelte';
+	import PlanActionButton from '$lib/components/PlanActionButton.svelte';
 
 	type Props = {
 		semesterChoice: number;
@@ -52,7 +54,7 @@
 			{content.lang.settings.current}
 		</span>
 		<div class="flex flex-row gap-x-1">
-			<Select bind:value={semesterChoice}>
+			<Select disabled={!$planOnline} bind:value={semesterChoice}>
 				{#each Array.from({ length: user.d.semesters.length }) as _, i}
 					<option value={i}>
 						{content.lang.common.seasons[i % 3]}
@@ -63,14 +65,14 @@
 
 			{#if semesterChoice !== user.d.currentSemester}
 				<div class="w-fit">
-					<AsyncButton
+					<PlanActionButton
 						variant="primary"
 						onclick={onUpdateCurrentSemester}
 						bind:buttonNamespace
 						name="save-semesters"
 					>
 						{content.lang.settings.save}
-					</AsyncButton>
+					</PlanActionButton>
 				</div>
 				<div class="w-fit">
 					<AsyncButton
@@ -90,7 +92,7 @@
 			{content.lang.settings.total}
 		</span>
 		<div class="flex flex-row gap-x-1">
-			<Select bind:value={totalSemestersChoice}>
+			<Select disabled={!$planOnline} bind:value={totalSemestersChoice}>
 				{#each validTotalValues as i}
 					<option value={i}>
 						{i}
@@ -101,14 +103,14 @@
 			</Select>
 			{#if totalSemestersChoice !== user.d.semesters.length}
 				<div class="w-fit">
-					<AsyncButton
+					<PlanActionButton
 						variant="primary"
 						onclick={onUpdateTotalSemesters}
 						bind:buttonNamespace
 						name="save-total"
 					>
 						{content.lang.settings.save}
-					</AsyncButton>
+					</PlanActionButton>
 				</div>
 				<div class="w-fit">
 					<AsyncButton

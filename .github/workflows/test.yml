@@ -31,15 +31,16 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - name: Install focused browser test dependencies
-        run: npm ci && npx playwright install --with-deps chromium
+        run: npm install && npx playwright install --with-deps chromium
       - name: Wait for the current head's Vercel deployment
+        id: preview-ready
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: node scripts/waitForPreview.mjs
       - name: Test the published console on mobile
         run: npx playwright test --config=playwright.preview.config.ts
       - name: Verify the preview branch was not superseded during QA
-        if: success() || failure()
+        if: (success() || failure()) && steps.preview-ready.outcome == 'success'
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: node scripts/waitForPreview.mjs --verify-only

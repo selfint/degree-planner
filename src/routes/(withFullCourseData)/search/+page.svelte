@@ -1,59 +1,55 @@
 <script lang="ts">
-	import { page, navigating } from '$app/state';
+	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 
 	import { content, user } from '$lib/stores.svelte';
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import Spinner from '$lib/components/Spinner.svelte';
+	import SearchFilters from '$lib/components/SearchFilters.svelte';
+	import {
+		normalizeSearchQuery,
+		getSearchOptions,
+		readSearchFilters,
+		writeSearchFilters,
+		searchFilterKeys,
+		searchCourses,
+		matchesSearchFilters,
+		type SearchFilters as SearchFiltersState
+	} from '$lib/search';
 
 	const { data: pageData } = $props();
 	const { fullCourseData } = $derived(pageData);
 
-	const query = $derived.by(() => {
-		let q = (page.url.searchParams.get('q') ?? '').trim();
+	const query = $derived(
+		normalizeSearchQuery(page.url.searchParams.get('q') ?? '')
+	);
+	const searchData = $derived(
+		fullCourseData.then((courses: FullCourse[]) => ({
+			courses,
+			...getSearchOptions(courses)
+		}))
+	);
+	let pending = $state(false);
 
-		// special case for backwards compatibility, convert 6 digit codes to 8 digit codes
-		// first, check if q is all numbers
-		const allNumbers = /^\d+$/.test(q);
-		const isSixDigit = q.length === 6;
-		if (allNumbers && isSixDigit) {
-			const p1 = q.slice(0, 3);
-			const p2 = q.slice(3);
-
-			return `0${p1}0${p2}`;
-		}
-
-		return q;
-	});
-
-	const filters = $derived.by(() => {
-		let available = page.url.searchParams.get('available') !== null;
-
-		return { available };
-	});
-
-	function match(c: FullCourse, query: string): boolean {
-		return (
-			c.code.includes(query) ||
-			(c.name?.includes(query) ?? false) ||
-			(c.about?.includes(query) ?? false)
-		);
-	}
-
-	async function getResults(
-		query: string,
-		fullCourseData: Promise<FullCourse[]>
+	async function updateFilters(
+		filters: SearchFiltersState | undefined,
+		maxPoints: number
 	) {
-		const d = await fullCourseData;
-
-		return d
-			.filter((course) => match(course, query))
-			.toSorted((a, b) => {
-				return (b.median ?? 0) - (a.median ?? 0);
-			});
+		if (pending) return;
+		const url = new URL(page.url);
+		if (filters) {
+			writeSearchFilters(url.searchParams, filters, maxPoints);
+		} else {
+			searchFilterKeys.forEach((key) => url.searchParams.delete(key));
+		}
+		if (url.href === page.url.href) return;
+		pending = true;
+		try {
+			await goto(url, { noScroll: true, keepFocus: true });
+		} finally {
+			pending = false;
+		}
 	}
-
-	const results = $derived(getResults(query, fullCourseData));
 
 	function getCourseSemester(course: Course): number | undefined {
 		const index = user.d.semesters.findIndex((s) => s.includes(course.code));
@@ -75,63 +71,43 @@
 	}
 </script>
 
-<div class="m-3 me-0 text-content-primary">
-	<h1 class="text-lg">
-		{content.lang.search.filters}
-	</h1>
-	<ul
-		class="mb-3 flex flex-row flex-wrap gap-x-3 text-base text-content-secondary"
-	>
-		<li class="inline-flex cursor-pointer items-center gap-x-1">
-			<input
-				id="available-checkbox"
-				type="checkbox"
-				disabled={navigating === null}
-				onchange={() => {
-					const params = new URLSearchParams(page.url.searchParams);
-
-					if (filters.available) {
-						params.delete('available');
-					} else {
-						params.set('available', '');
-					}
-
-					goto(`?${params.toString()}`, {
-						replaceState: false,
-						noScroll: true
-					});
-				}}
-				checked={filters.available}
-				class="h-4 w-4 cursor-pointer border-none bg-card-secondary accent-accent-primary"
-			/>
-			<label for="available-checkbox" class="cursor-pointer">
-				{content.lang.search.available}
-			</label>
-		</li>
-	</ul>
-	<h1 class="text-lg">
-		{content.lang.search.resultsFor} "{query}"
-	</h1>
-	<span class="mb-3 text-base text-content-secondary">
-		{#await results}
-			<div class="inline-block h-5 w-5">
-				<Spinner />
-			</div>
+<div class="m-3 text-content-primary">
+	{#await searchData}
+		<div role="status" class="flex items-center gap-2 text-content-secondary">
+			<div class="h-5 w-5"><Spinner /></div>
 			{content.lang.common.loading}
-		{:then results}
-			{results.length}
+		</div>
+	{:then { courses, faculties, maxPoints }}
+		{@const filters = readSearchFilters(page.url.searchParams, maxPoints)}
+		{@const results = searchCourses(courses, query)}
+		{@const filteredResults = results.filter((course) =>
+			matchesSearchFilters(course, filters, maxPoints)
+		)}
+		<SearchFilters
+			{filters}
+			{faculties}
+			{maxPoints}
+			{pending}
+			onchange={(next) => updateFilters(next, maxPoints)}
+			onclear={() => updateFilters(undefined, maxPoints)}
+		/>
+		<h1 class="text-lg">{content.lang.search.resultsFor} "{query}"</h1>
+		<p role="status" class="mb-3 text-base text-content-secondary">
+			{filteredResults.length}
 			{content.lang.search.resultsFound}
-		{/await}
-	</span>
-
-	<ul class="flex flex-row flex-wrap">
-		{#await results then results}
-			{#each results as course (course.code)}
-				<li
-					id={course.code}
-					class="pb-4 pe-2"
-					class:hidden={filters.available && !course.current}
-				>
+			{#if filteredResults.length !== results.length}
+				({content.lang.search.of} {results.length})
+			{/if}
+		</p>
+		{#if filteredResults.length === 0}
+			<p class="text-content-secondary">{content.lang.search.noResults}</p>
+		{/if}
+		<ul
+			class="flex flex-row flex-wrap"
+			aria-label={content.lang.search.resultsFor}
+		>
+			{#each filteredResults as course (course.code)}
+				<li id={course.code} class="pb-4 pe-2">
 					<button
 						class:opacity-60={!course.current}
 						onclick={() => goto(`/course/${course.code}`)}
@@ -163,6 +139,8 @@
 					</button>
 				</li>
 			{/each}
-		{/await}
-	</ul>
+		</ul>
+	{:catch}
+		<p role="alert">{content.lang.search.loadError}</p>
+	{/await}
 </div>

@@ -5,6 +5,8 @@
 	import '../app.css';
 
 	import { goto } from '$app/navigation';
+	import { page } from '$app/state';
+	import { createSearchUrl } from '$lib/search';
 
 	import {
 		user,
@@ -55,7 +57,7 @@
 	<div class="w-full border-b-[1px] border-border bg-background">
 		<TitleBar
 			started={user.d.degree !== undefined}
-			onSearch={(query) => goto(`/search?q=${query}`, { replaceState: true })}
+			onSearch={(query) => goto(createSearchUrl(page.url, query))}
 		/>
 	</div>
 

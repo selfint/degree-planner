@@ -12,9 +12,10 @@ test('deployed /storybook opens the real Storybook manager and survives a direct
 		maxRedirects: 0
 	});
 	expect(redirect.status()).toBe(307);
-	expect(redirect.headers().location).toBe(
-		`/storybook/index.html?path=/story/${controls}`
-	);
+	const target = new URL(redirect.headers().location, redirect.url());
+	expect(target.origin).toBe(new URL(redirect.url()).origin);
+	expect(target.pathname).toBe('/storybook/index.html');
+	expect(target.searchParams.get('path')).toBe(`/story/${controls}`);
 	const slash = await request.get('/storybook/');
 	expect(slash.ok()).toBe(true);
 	await page.goto(`/storybook?path=/story/${controls}`);

@@ -1,5 +1,10 @@
 <script lang="ts">
-	import { page } from '$app/state';
+	import { getContext } from 'svelte';
+	import {
+		searchNavigationContext,
+		type SearchNavigation
+	} from '$lib/searchNavigation.svelte';
+	const navigation = getContext<SearchNavigation>(searchNavigationContext);
 	import { goto } from '$app/navigation';
 
 	import { content, user } from '$lib/stores.svelte';
@@ -10,18 +15,15 @@
 		normalizeSearchQuery,
 		getSearchOptions,
 		readSearchFilters,
-		writeSearchFilters,
-		searchFilterKeys,
 		searchCourses,
-		matchesSearchFilters,
-		type SearchFilters as SearchFiltersState
+		matchesSearchFilters
 	} from '$lib/search';
 
 	const { data: pageData } = $props();
 	const { fullCourseData } = $derived(pageData);
 
 	const query = $derived(
-		normalizeSearchQuery(page.url.searchParams.get('q') ?? '')
+		normalizeSearchQuery(navigation.url.searchParams.get('q') ?? '')
 	);
 	const searchData = $derived(
 		fullCourseData.then((courses: FullCourse[]) => ({
@@ -29,28 +31,6 @@
 			...getSearchOptions(courses)
 		}))
 	);
-	let pending = $state(false);
-
-	async function updateFilters(
-		filters: SearchFiltersState | undefined,
-		maxPoints: number
-	) {
-		if (pending) return;
-		const url = new URL(page.url);
-		if (filters) {
-			writeSearchFilters(url.searchParams, filters, maxPoints);
-		} else {
-			searchFilterKeys.forEach((key) => url.searchParams.delete(key));
-		}
-		if (url.href === page.url.href) return;
-		pending = true;
-		try {
-			await goto(url, { noScroll: true, keepFocus: true });
-		} finally {
-			pending = false;
-		}
-	}
-
 	function getCourseSemester(course: Course): number | undefined {
 		const index = user.d.semesters.findIndex((s) => s.includes(course.code));
 
@@ -78,19 +58,20 @@
 			{content.lang.common.loading}
 		</div>
 	{:then { courses, faculties, maxPoints }}
-		{@const filters = readSearchFilters(page.url.searchParams, maxPoints)}
+		{@const filters = readSearchFilters(navigation.url.searchParams, maxPoints)}
 		{@const results = searchCourses(courses, query)}
 		{@const filteredResults = results.filter((course) =>
 			matchesSearchFilters(course, filters, maxPoints)
 		)}
-		<SearchFilters
-			{filters}
-			{faculties}
-			{maxPoints}
-			{pending}
-			onchange={(next) => updateFilters(next, maxPoints)}
-			onclear={() => updateFilters(undefined, maxPoints)}
-		/>
+		{#key navigation.externalRevision}
+			<SearchFilters
+				{filters}
+				{faculties}
+				{maxPoints}
+				onchange={(next) => navigation.updateFilters(next, maxPoints)}
+				onclear={() => navigation.updateFilters(undefined, maxPoints)}
+			/>
+		{/key}
 		<h1 class="text-lg">{content.lang.search.resultsFor} "{query}"</h1>
 		<p role="status" class="mb-3 text-base text-content-secondary">
 			{filteredResults.length}

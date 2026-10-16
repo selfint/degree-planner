@@ -12,28 +12,62 @@
 		filters: SearchFilters;
 		faculties: string[];
 		maxPoints: number;
-		pending: boolean;
-		onchange: (filters: SearchFilters) => void;
+		onchange: (filters: Partial<SearchFilters>) => void;
 		onclear: () => void;
 	};
-	const { filters, faculties, maxPoints, pending, onchange, onclear }: Props =
-		$props();
+	const { filters, faculties, maxPoints, onchange, onclear }: Props = $props();
 	let pointsMin = $state(0);
 	let pointsMax = $state(0);
 	let pointsMinText = $state('0.0');
 	let pointsMaxText = $state('0.0');
+	let medianText = $state('0.0');
+	let hasUncommittedInput = $state(false);
+	let facultyInput: HTMLSelectElement;
+	let fieldset: HTMLFieldSetElement;
+
+	const committedMin = $derived(filters.pointsMin);
+	const committedMax = $derived(filters.pointsMax);
+	const committedMedian = $derived(filters.medianMin);
+	// Unrelated filter updates must not overwrite unfinished number/slider drafts.
+	$effect(() => {
+		pointsMin = committedMin;
+		pointsMinText = committedMin.toFixed(1);
+	});
+	$effect(() => {
+		pointsMax = committedMax;
+		pointsMaxText = committedMax.toFixed(1);
+	});
 
 	$effect(() => {
-		pointsMin = filters.pointsMin;
-		pointsMax = filters.pointsMax;
-		pointsMinText = filters.pointsMin.toFixed(1);
-		pointsMaxText = filters.pointsMax.toFixed(1);
+		medianText = committedMedian.toFixed(1);
 	});
+
+	function clear() {
+		// A change and reset can happen before Svelte renders the intermediate value.
+		// Reset native controls too, even when their final prop equals the initial prop.
+		facultyInput.value = '';
+		for (const input of fieldset.querySelectorAll('input')) {
+			if (input.type === 'checkbox') input.checked = false;
+			else {
+				const value = input.id.startsWith('search-points-max') ? maxPoints : 0;
+				input.value =
+					input.type === 'number' ? value.toFixed(1) : String(value);
+			}
+		}
+		hasUncommittedInput = false;
+		pointsMin = 0;
+		pointsMax = maxPoints;
+		pointsMinText = '0.0';
+		pointsMaxText = maxPoints.toFixed(1);
+		medianText = '0.0';
+		onclear();
+	}
 
 	function previewPoints(
 		input: HTMLInputElement,
 		field: 'pointsMin' | 'pointsMax'
 	) {
+		hasUncommittedInput = true;
 		if (
 			input.value === '' ||
 			input.validity.badInput ||
@@ -50,10 +84,11 @@
 		input: HTMLInputElement,
 		field: 'pointsMin' | 'pointsMax' | 'medianMin'
 	) {
-		const min = field === 'pointsMax' ? filters.pointsMin : 0;
+		hasUncommittedInput = false;
+		const min = field === 'pointsMax' ? pointsMin : 0;
 		const max =
 			field === 'pointsMin'
-				? filters.pointsMax
+				? pointsMax
 				: field === 'pointsMax'
 					? maxPoints
 					: 100;
@@ -75,7 +110,8 @@
 			pointsMax = value;
 			pointsMaxText = value.toFixed(1);
 		}
-		onchange({ ...filters, [field]: value });
+		if (field === 'medianMin') medianText = value.toFixed(1);
+		onchange({ [field]: value });
 	}
 
 	function commitOnEnter(event: KeyboardEvent) {
@@ -92,8 +128,8 @@
 		}
 		event.preventDefault();
 		const input = event.currentTarget as HTMLInputElement;
-		const min = field === 'pointsMin' ? 0 : filters.pointsMin;
-		const max = field === 'pointsMin' ? filters.pointsMax : maxPoints;
+		const min = field === 'pointsMin' ? 0 : pointsMin;
+		const max = field === 'pointsMin' ? pointsMax : maxPoints;
 		const current = Number.isFinite(input.valueAsNumber)
 			? input.valueAsNumber
 			: filters[field];
@@ -112,6 +148,7 @@
 		input: HTMLInputElement,
 		field: 'pointsMin' | 'pointsMax'
 	) {
+		hasUncommittedInput = true;
 		const min = field === 'pointsMin' ? 0 : pointsMin;
 		const max = field === 'pointsMin' ? pointsMax : maxPoints;
 		const value = snapPointSliderValue(input.valueAsNumber, min, max);
@@ -146,12 +183,13 @@
 	}
 
 	function updatePoints() {
-		onchange({ ...filters, pointsMin, pointsMax });
+		hasUncommittedInput = false;
+		onchange({ pointsMin, pointsMax });
 	}
 </script>
 
 <fieldset
-	disabled={pending}
+	bind:this={fieldset}
 	class="mb-3 min-w-0 text-base text-content-secondary"
 >
 	<legend class="mb-2 text-lg text-content-primary"
@@ -162,8 +200,7 @@
 			<input
 				type="checkbox"
 				checked={filters.available}
-				onchange={(e) =>
-					onchange({ ...filters, available: e.currentTarget.checked })}
+				onchange={(e) => onchange({ available: e.currentTarget.checked })}
 				class="h-4 w-4 cursor-pointer accent-accent-primary"
 			/>
 			{content.lang.search.available}
@@ -172,9 +209,9 @@
 			<label for="search-faculty">{content.lang.search.faculty}</label>
 			<select
 				id="search-faculty"
+				bind:this={facultyInput}
 				value={filters.faculty}
-				onchange={(e) =>
-					onchange({ ...filters, faculty: e.currentTarget.value })}
+				onchange={(e) => onchange({ faculty: e.currentTarget.value })}
 				class="min-w-0 max-w-full rounded-md border border-border bg-background p-1 text-content-secondary focus-visible:outline-accent-primary"
 			>
 				<option value="">{content.lang.search.allFaculties}</option>
@@ -212,7 +249,7 @@
 					type="number"
 					inputmode="decimal"
 					min="0"
-					max={filters.pointsMax}
+					max={pointsMax}
 					step="0.5"
 					value={pointsMinText}
 					oninput={(e) => previewPoints(e.currentTarget, 'pointsMin')}
@@ -247,7 +284,7 @@
 					id="search-points-max-input"
 					type="number"
 					inputmode="decimal"
-					min={filters.pointsMin}
+					min={pointsMin}
 					max={maxPoints}
 					step="0.5"
 					value={pointsMaxText}
@@ -265,7 +302,8 @@
 				min="0"
 				max="100"
 				step="any"
-				value={filters.medianMin.toFixed(1)}
+				value={medianText}
+				oninput={() => (hasUncommittedInput = true)}
 				inputmode="decimal"
 				onblur={(e) => commitNumber(e.currentTarget, 'medianMin')}
 				onkeydown={commitOnEnter}
@@ -274,8 +312,8 @@
 		</label>
 		<button
 			type="button"
-			disabled={!hasSearchFilters(filters, maxPoints)}
-			onclick={onclear}
+			disabled={!hasSearchFilters(filters, maxPoints) && !hasUncommittedInput}
+			onclick={clear}
 			class="rounded-md border border-border px-2 py-1 text-content-primary hover:bg-card-primary disabled:cursor-default disabled:opacity-40"
 		>
 			{content.lang.search.clearFilters}

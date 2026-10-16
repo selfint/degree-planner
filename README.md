@@ -222,3 +222,29 @@ disconnects the test origin because older Playwright versions incorrectly reject
 SW responses with `setOffline` ([upstream issue](https://github.com/microsoft/playwright/issues/42775));
 Chromium uses full context offline emulation. These checks do not verify physical
 iOS airplane mode, an installed app's standalone cold-start, or Google login.
+
+## Component Storybook
+
+The real SvelteKit Storybook is available at `/storybook` on Vercel preview
+builds. Vercel production and unknown deployment environments omit its static
+assets and return 404 for the entry route. It is a design-review tool, not an
+access-controlled area; only fictional, local demo data belongs in stories.
+
+- `npm run storybook`: live component development at `http://localhost:6006`.
+- `npm run build-storybook`: standalone static build in `storybook-static/`.
+- `npm run build && npm run preview`: local deployed-route check at `/storybook`.
+- `npm run test:storybook`: build and browser-test the deployed route. Set
+  `STORYBOOK_TEST_BASE_URL` to test an already-running local or Vercel preview.
+
+Stories use the actual application controls and course cards. The toolbar
+switches dark/light themes, English/Hebrew reading direction, and mobile/desktop
+viewports; named stories cover loading, empty, disabled, and requirements states.
+Storybook-only mocks prevent access to saved plans and avoid changing the app's
+language/theme preferences. No Firebase, authentication, or catalog data is used.
+
+The deployment build runs Storybook **after** the application build and copies it
+under `storybook/` in the final static output. Its manager, iframe, and assets are
+therefore absent from the application bundle and service-worker precache. The
+`/storybook` entry redirects to the static `index.html`, preserving story query
+parameters and working on direct reloads. Generated Storybook files are ignored
+by Git and are removed on production builds, including reused workspaces.

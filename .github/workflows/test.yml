@@ -39,6 +39,11 @@ jobs:
         run: node scripts/waitForPreview.mjs
       - name: Test the published console on mobile
         run: npx playwright test --config=playwright.preview.config.ts
+      - name: Test the published Storybook route
+        if: (success() || failure()) && steps.preview-ready.outcome == 'success'
+        env:
+          STORYBOOK_TEST_BASE_URL: ${{ env.PREVIEW_URL }}
+        run: npm run test:storybook
       - name: Verify the preview branch was not superseded during QA
         if: (success() || failure()) && steps.preview-ready.outcome == 'success'
         env:
@@ -52,6 +57,7 @@ jobs:
           path: |
             test-results/deployed-preview/
             test-results/deployed-preview-gate/
+            test-results/storybook/
           if-no-files-found: ignore
           retention-days: 7
 

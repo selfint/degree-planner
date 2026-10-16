@@ -51,7 +51,7 @@ test.beforeEach(async ({ page }) => {
 		);
 	});
 	// Startup now syncs the canonical full dataset; both views use this fixture.
-	await page.route(/\/app\/courseData(?:Stripped)?\.json(?:\?.*)?$/, (route) =>
+	await page.route(/\/courseData(?:Stripped)?\.json(?:\?.*)?$/, (route) =>
 		route.fulfill({ json: courses })
 	);
 	// Navigate client-side so the fixture replaces the course-data request,

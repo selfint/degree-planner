@@ -26,6 +26,15 @@ const mechanical = 'הפקולטה להנדסת מכונות';
 const physics = 'הפקולטה לפיזיקה';
 const chemistry = 'הפקולטה לכימיה';
 
+async function waitForSearchReady(page: Page) {
+	// The document load event can precede hydration and async course-data rendering.
+	// Give full-page loads their own readiness budget, not the filter assertions.
+	await page.locator('#search-faculty').waitFor({
+		state: 'visible',
+		timeout: 30_000
+	});
+}
+
 async function expectResults(page: Page, state: State) {
 	const params: Record<string, string> = { q: state.q };
 	if (state.faculty) params.faculty = state.faculty;
@@ -103,6 +112,7 @@ for (const language of ['en', 'he']) {
 				language
 			);
 			await page.goto(`/search?q=${q}`);
+			await waitForSearchReady(page);
 			const state: State = {
 				q,
 				faculty: '',
@@ -127,6 +137,7 @@ for (const language of ['en', 'he']) {
 			state.faculty = physics;
 			await expectResults(page, state);
 			await page.reload();
+			await waitForSearchReady(page);
 			await expectResults(page, state);
 			await page.locator('fieldset button').click();
 			const cleared = {

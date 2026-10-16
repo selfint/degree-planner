@@ -33,25 +33,26 @@ jobs:
       - name: Update courseData.json
         run: node scripts/generateCourseData.mjs 10000 > static/courseData.json
 
-      - name: Update static/_catalogs
-        run: |
-            set -e
-            node scripts/generateCatalogsRaw.mjs
-            node scripts/generateCatalogsStatic.mjs
+      - name: Update catalog JSON
+        run: npm run update-catalogs
+
+      - name: Validate catalog snapshot
+        run: node scripts/validateCatalogData.mjs
 
       - name: Check if data has changed
         run: |
-            if git diff --quiet static/courseData.json && git diff --quiet static/_catalogs; then
-              echo "No changes to static/_catalogs or static/courseData.json, stopping the workflow."
-              gh run cancel ${{ github.run_id }}
-              gh run watch ${{ github.run_id }}
-            fi
+          if git diff --quiet -- static/courseData.json static/catalogs.json static/_catalogs; then
+            echo "No changes to course or catalog JSON, stopping the workflow."
+            gh run cancel ${{ github.run_id }}
+            gh run watch ${{ github.run_id }}
+          fi
 
       - name: Push changes to new branch
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add static/courseData.json
+          git add static/catalogs.json
           git add static/_catalogs
           git commit -m "[Automated] Update data"
           git push --force origin generate-data

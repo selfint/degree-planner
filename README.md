@@ -30,14 +30,12 @@ For fun, this is an interesting project to work on.
 
 1. It's hard to iterate on entire degree plan:
    These are the current solutions:
-
    - [Sogrim](https://students.sogrim.org/) doesn't take into account course prerequisites.
    - [CheeseFork](https://cheesefork.cf/) only supports current and previous semesters.
 
    Both solutions also don't support **rapid** course re-ordering.
 
 1. It's hard to find interesting courses that also have high median grades:
-
    - [Sogrim](https://students.sogrim.org/) has no course search capabilities
      (other than course code -> name translation).
 
@@ -47,101 +45,79 @@ For fun, this is an interesting project to work on.
      1. Course median doesn't take into account course prerequisites median
         (so you might find a high median course, but its prerequisites have low medians).
 
-## Data model
+## Data model and generation
 
-The `static/_catalogs` directory contains files representing degree and course information.
+The public catalog is a versioned Git snapshot of JSON, following Planit's
+simpler direct-generation approach. The app's routes and course, catalog,
+faculty, program, and path IDs are unchanged.
 
-The goal is to represent each degree requirements in a static file format that is easy
-to create from the catalog (currently manually, hopefull in the future automated), and easy to
-parse from code.
+- `static/catalogs.json`: bilingual catalog → faculty → program names.
+- `static/_catalogs/<catalog>/<faculty>/<program>/requirementsData.json`:
+  one complete requirement tree per program, including nested paths and courses.
+- `static/courseData.json`: canonical full course records.
+- `static/courseDataStripped.json` and `static/_courses/<code>`: derived course
+  views, still generated at build time for existing consumers.
 
-The benefit of this data model is that non-technical users can easily suggest fixes
-to wrong requirements. For example if the `3_year/core/points` requirement is wrong,
-(e.g. it's `84` and should be `84.5`) all that is required to fix it is changing the
-content of the file from `84` to `84.5`.
+There is no intermediate tree of tiny `en`, `he`, and `courses` files. Degree
+names come from the manifest and selected-path names come from requirement JSON.
+Existing shared `/preview/...` URLs and per-program JSON URLs continue to work.
+The former individual catalog text-file endpoints are no longer used or emitted.
 
-Generally, information in these files is unstructured, and parsed at runtime. Again
-the benefit here is that no technical knowledge is required to fix mistakes. If courses
-are missing from a requirement, all the is required is to copy paste text _containing_ the
-course codes, and pasting it in the file.
+### Normal development and builds (no SAP access needed)
 
-In the future data this might change, since there are also downsides to unstructured data:
+`npm run generate-catalogs` validates the checked-in catalog JSON and generates
+only the derived course views. `npm run build` runs this before building the app.
+A fresh checkout uses the complete committed JSON snapshot; raw SAP data is not
+needed for development, CI, deployment, or offline browsing.
 
-1. A lot of unnecessary data.
-2. Diffing files isn't very informative.
-3. Removing courses from a file is a bit harder (requires an automated find & replace tool).
-4. Technically slower that storing a deduplicated list of course codes, but this isn't a
-   big issue since we are dealing with very small amount of text (entire catalogs are just 10s of `kb`s).
+### Refreshing upstream data
 
-### Year
+`npm run update-catalogs` fetches the bilingual raw SAP catalog into
+`scripts/.cache/catalogs.raw.json`, then converts it directly to the public JSON
+files. The raw response is a local cache and is not committed. For an already
+saved response, run `node scripts/generateCatalogData.mjs <raw-file.json>`.
 
-Create a directory for each year. There are no connections between years.
+The daily data workflow commits the manifest, program JSON, and full course
+JSON together. The generator validates the complete input before writing and
+publishes the manifest after all referenced program files. Invalid or empty SAP
+responses fail the update rather than clearing the existing snapshot.
 
-### University-wide courses
+Updates retain historical programs and requirement nodes, matching the former
+additive directory pipeline. Matching nodes receive new labels and course lists;
+custom fields such as `points`, `count`, `amount`, `overflow`, and `hook` remain.
+This preserves existing degree/path selections when SAP omits an old program.
+Intentional catalog removals should be reviewed separately, not inferred from an
+incomplete upstream response.
 
-For course lists that are relevant for all degrees, like english and malag
-(general) courses, create a file with the list name in the year's `shared` directory.
+### Editing requirements
 
-### Degree
+Edit the relevant program's `requirementsData.json`. A requirement contains:
 
-Create a directory for each degree, in each year.
+- `name`: stable requirement/path ID
+- `en` and `he`: English and Hebrew labels
+- `courses`: course-code strings, preserving their leading zeroes
+- `nested`: child requirements
+- Optional `points`, `count`, `amount`, `overflow`, and `hook` fields for more
+  complex requirements, as described by `Requirement` in `src/app.d.ts`
 
-### Degree path
+Do not rename IDs to change a display label. Label changes belong in `en`/`he`.
+Regeneration refreshes SAP-sourced labels and course lists, so changes to those
+fields should also be corrected upstream where possible.
 
-For each way to complete the degree (path), create a directory inside the degree directory.
+### Compatibility checks
 
-#### Recommended semesters
+`npm run test:catalogs` compares direct generation with a frozen copy of the
+former filesystem pipeline using identical bilingual SAP fixtures. It also
+covers structure wrappers, duplicate groups, historical programs, custom fields,
+invalid input, repeat generation, both UI languages, and selected-path labels.
+Every committed program JSON is validated without network access.
 
-Each degree path has a `recommended` directory, create a file called `semesterX` where
-`X` is the semester number (start at `1`) containing the recommended semester courses.
-
-### Requirements
-
-Requirements can be complex, as such their representation has to be flexible, while sticking
-to plaintext files only\*.
-
-Each degree path has a `requirement` directory. This directory contains the subdirectories
-named after requirements to complete the degree. A requirement directory can also contain:
-
-1. `courses` file - A list of courses relevant to the requirement. If this file is missing,
-   the courses are taken recursively from `courses` files in subdirectories.
-1. `count` file - A file containing a single number specifying the **amount** of courses
-   from the `courses` file that are needed to fulfill the requirement.
-1. `points` file - A file containing a single float specifying the **points** of courses
-   from the `courses` file that are needed to fulfill the requirement.
-1. **subdirectory** - Each named after a sub-requirement needed
-   to complete the requirement, they are also requirements themselves.
-1. `amount` file - A file containing a single number specifying the **amount** of choices
-   from the subdirectories that are needed to fulfill the requirement.
-1. `overflow` file - A file containing a single line specifying the list to transfer
-   overflowing `points` **and** `count` requirements to.
-
-   > Point overflow - some lists (like the "science" list in the CS degree) have an amount
-   > of points required, with "overflowing" points transferred to a different list ("list b"
-   > in the CS degree's case). To achieve this, any condition that has overflow can add an
-   > "overflow" file, with the name of the requirement it overflows to.
-   >
-   > In the future we might need to more fine-grained control of overflow,
-   > such as "only points" or "only specific courses". Any of these should
-   > be possible by making overflow a directory analogous to a nested
-   > requirement.
-
-   Both the source requirement and the overflow requirement must have the same type
-   of requirement (either `points` or `count`), currently there is no support for
-   mixing the two.
-
-1. `hooks.js` file - A file containing JavaScript code that will be executed in the
-   from of `(<content>)(semesters, progress)`, where `semesters` are the courses the
-   student has taken, and `progress` is the progress object for the requirement
-   (see the `src/app.d.ts` file for the structure of the progress object).
-
-   > The hooks file can be used to implement complex requirements that can't be
-   > represented in the current data model. For example, in the 4 year CS degree
-   > the student must take 26 points from 3 specializations, but they can choose
-   > from 11 specializations. Without the hook, the points would be counted from
-   > all specializations the user took courses in. With a hook, we can sort the
-   > specializations by the amount of points taken, and take the points from the
-   > top 3 specializations.
+The initial migration was additionally checked against the complete output of
+the old build: all 1,183 programs and their bilingual manifest matched after
+reconstructing equivalent SAP-shaped input from the same directory snapshot.
+This is a representation migration, not a new live SAP scrape. Saved plans,
+localStorage migrations, Firestore versions, transcript imports, and preview
+link encoding are unchanged.
 
 ## Acknowledgements
 
@@ -154,6 +130,5 @@ named after requirements to complete the degree. A requirement directory can als
   their degree planner.
 
 - Big thanks to the beta testers for their feedback:
-
   - [Almog Levy](https://github.com/Almoglevy2k)
   - [Yotam Freund](https://github.com/freundyotam)

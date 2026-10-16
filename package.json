@@ -7,7 +7,7 @@
 	},
 	"scripts": {
 		"dev": "vite dev",
-		"generate-catalogs": "node scripts/generateCatalogsManifest.js && node scripts/generateRequirementsData.mjs && node scripts/generateCoursesStatic.mjs && node scripts/generateCourseDataStripped.mjs",
+		"generate-catalogs": "node scripts/validateCatalogData.mjs && node scripts/generateCoursesStatic.mjs && node scripts/generateCourseDataStripped.mjs",
 		"build": "npm run generate-catalogs && vite build",
 		"preview": "vite preview",
 		"start-firebase-emulators": "firebase emulators:start",
@@ -18,7 +18,9 @@
 		"format": "prettier --write .",
 		"test:integration": "playwright test",
 		"test:unit": "vitest",
-		"script:db": "tsx src/lib/server/scripts/db.ts"
+		"script:db": "tsx src/lib/server/scripts/db.ts",
+		"update-catalogs": "node scripts/generateCatalogsRaw.mjs && node scripts/generateCatalogData.mjs",
+		"test:catalogs": "vitest run scripts/catalogData.test.mjs src/lib/requirements.test.ts"
 	},
 	"devDependencies": {
 		"@playwright/test": "^1.57.0",

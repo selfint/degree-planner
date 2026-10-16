@@ -150,31 +150,32 @@ export async function loadDegreeName(
 	lang: 'en' | 'he',
 	catalogName: string,
 	degree: Degree,
-	path?: string
+	path?: string,
+	_fetch: typeof fetch = fetch
 ): Promise<string> {
-	const [year, faculty, _degree] = degree;
-
-	const _fetch = (values: string[]) =>
-		fetch(['/_catalogs', ...values, lang].join('/')).then((r) => r.text());
-
-	const _yearName = _fetch([year]);
-	const _facultyName = _fetch([year, faculty]);
-	const _degreeName = _fetch([year, faculty, _degree]);
-
-	if (path === undefined) {
-		const [yearName, facultyName, degreeName] = await Promise.all([
-			_yearName,
-			_facultyName,
-			_degreeName
+	const [year, faculty, program] = degree;
+	type Manifest = Record<
+		string,
+		I18N & Record<string, I18N & Record<string, I18N>>
+	>;
+	const [catalogs, requirement]: [Manifest, Requirement | undefined] =
+		await Promise.all([
+			_fetch('/catalogs.json').then((response) => {
+				if (!response.ok)
+					throw new Error(`Failed to load catalogs (${response.status})`);
+				return response.json();
+			}),
+			path === undefined
+				? Promise.resolve(undefined)
+				: loadRequirement(degree, undefined, _fetch)
 		]);
-		return `${facultyName} (${catalogName} ${yearName}) - ${degreeName}`;
-	} else {
-		const [yearName, facultyName, degreeName, pathName] = await Promise.all([
-			_yearName,
-			_facultyName,
-			_degreeName,
-			_fetch([year, faculty, _degree, 'requirement', path])
-		]);
-		return `${facultyName} (${catalogName} ${yearName}) - ${degreeName} ${pathName}`;
-	}
+	const yearName = catalogs[year][lang];
+	const facultyName = catalogs[year][faculty][lang];
+	const degreeName = catalogs[year][faculty][program][lang];
+	const title = `${facultyName} (${catalogName} ${yearName}) - ${degreeName}`;
+	if (path === undefined) return title;
+	const selectedPath = requirement?.nested?.find((node) => node.name === path);
+	if (selectedPath === undefined)
+		throw new Error(`Unknown degree path ${path}`);
+	return `${title} ${selectedPath[lang]}`;
 }

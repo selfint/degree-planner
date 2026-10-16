@@ -6,8 +6,9 @@ export function landingParallax(node: HTMLElement) {
 
 	function update() {
 		frame = undefined;
+		// Follow 80% of the scroll so the glow stays with the reader farther down.
 		// Scroll coordinates are pixels; keep the rendered distance in rem.
-		const offset = (Math.max(0, window.scrollY) * 0.16) / rootFontSize;
+		const offset = (Math.max(0, window.scrollY) * 0.8) / rootFontSize;
 		node.style.setProperty('--landing-parallax-offset', `${offset}rem`);
 	}
 

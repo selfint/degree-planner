@@ -55,7 +55,6 @@
 	<div class="w-full border-b-[1px] border-border bg-background">
 		<TitleBar
 			started={user.d.degree !== undefined}
-			onGetStarted={async () => await goto('/settings')}
 			onSearch={(query) => goto(`/search?q=${query}`, { replaceState: true })}
 		/>
 	</div>

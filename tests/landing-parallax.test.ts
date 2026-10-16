@@ -50,7 +50,7 @@ for (const viewport of [
 			const offset = await glow.evaluate(
 				(node) => new DOMMatrixReadOnly(getComputedStyle(node).transform).m42
 			);
-			expect(offset).toBeCloseTo(scroll * 0.16, 0);
+			expect(offset).toBeCloseTo(scroll * 0.8, 0);
 			const after = await landing.boundingBox();
 			expect(after?.height).toBe(initial?.height);
 			expect(after!.y + scroll).toBeCloseTo(initial!.y, 0);
@@ -73,6 +73,47 @@ for (const viewport of [
 			await page.screenshot({
 				path: testInfo.outputPath('landing-scrolled.png')
 			});
+			// Check the whole journey, not just the first scroll out of the hero.
+			for (const [label, progress] of [
+				['midpoint', 0.5],
+				['bottom', 1]
+			] as const) {
+				const target = Math.round((initialHeight - viewport.height) * progress);
+				await page.mouse.wheel(
+					0,
+					target - (await page.evaluate(() => scrollY))
+				);
+				await expect
+					.poll(() => page.evaluate(() => scrollY))
+					.toBeCloseTo(target, 0);
+				await expect
+					.poll(() =>
+						glow.evaluate((node) =>
+							Math.abs(
+								new DOMMatrixReadOnly(getComputedStyle(node).transform).m42 -
+									scrollY * 0.8
+							)
+						)
+					)
+					.toBeLessThan(0.1);
+				const bounds = await glow.boundingBox();
+				// The translated decoration still covers the visible landing area.
+				expect(bounds!.y).toBeLessThanOrEqual(0);
+				expect(bounds!.y + bounds!.height).toBeGreaterThanOrEqual(
+					viewport.height
+				);
+				expect(
+					await page.evaluate(() => document.documentElement.scrollHeight)
+				).toBe(initialHeight);
+				expect(
+					await page.evaluate(
+						() => document.documentElement.scrollWidth <= innerWidth
+					)
+				).toBe(true);
+				await page.screenshot({
+					path: testInfo.outputPath(`landing-${label}.png`)
+				});
+			}
 			await page.keyboard.press('Home');
 			await page
 				.locator('main')

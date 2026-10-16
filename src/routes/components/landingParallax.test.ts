@@ -55,7 +55,7 @@ describe('landing gradient parallax', () => {
 		state.window.dispatchEvent(new Event('scroll'));
 		expect(state.frames.size).toBe(1);
 		state.flush();
-		expect(state.style.get('--landing-parallax-offset')).toBe('3rem');
+		expect(state.style.get('--landing-parallax-offset')).toBe('15rem');
 		// Reading layout is only needed at setup/resize, never for each scroll.
 		expect(state.getComputedStyle).toHaveBeenCalledTimes(1);
 		action.destroy();
@@ -66,15 +66,25 @@ describe('landing gradient parallax', () => {
 		state.window.scrollY = 400;
 		const action = landingParallax(state.node);
 		state.flush();
-		expect(state.style.get('--landing-parallax-offset')).toBe('4rem');
+		expect(state.style.get('--landing-parallax-offset')).toBe('20rem');
 		state.getComputedStyle.mockReturnValue({ fontSize: '20px' });
 		state.window.dispatchEvent(new Event('resize'));
 		state.flush();
-		expect(state.style.get('--landing-parallax-offset')).toBe('3.2rem');
+		expect(state.style.get('--landing-parallax-offset')).toBe('16rem');
 		state.window.scrollY = -20;
 		state.window.dispatchEvent(new Event('scroll'));
 		state.flush();
 		expect(state.style.get('--landing-parallax-offset')).toBe('0rem');
+		action.destroy();
+	});
+
+	it('keeps following far down long pages without an early travel limit', () => {
+		const state = setup();
+		const action = landingParallax(state.node);
+		state.window.scrollY = 3600;
+		state.window.dispatchEvent(new Event('scroll'));
+		state.flush();
+		expect(state.style.get('--landing-parallax-offset')).toBe('180rem');
 		action.destroy();
 	});
 
@@ -103,7 +113,7 @@ describe('landing gradient parallax', () => {
 		state.media.dispatchEvent(new Event('change'));
 		state.window.scrollY = 600;
 		state.flush();
-		expect(state.style.get('--landing-parallax-offset')).toBe('6rem');
+		expect(state.style.get('--landing-parallax-offset')).toBe('30rem');
 		action.destroy();
 	});
 

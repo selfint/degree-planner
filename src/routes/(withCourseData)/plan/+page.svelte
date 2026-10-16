@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { browser } from '$app/environment';
 
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import Semester from '$lib/components/Semester.svelte';
@@ -10,9 +11,12 @@
 	import { getScheduleError } from '$lib/schedule';
 	import AsyncButton from '$lib/components/AsyncButton.svelte';
 	import Sortable from 'sortablejs';
+	import { startPlanDrag, endPlanDrag } from '$lib/planDrag';
 
 	const { data: pageData } = $props();
 	const { getCourseData } = $derived(pageData);
+	// Touch drags need fallback listeners even where native HTML dragging exists.
+	const touchDrag = browser && navigator.maxTouchPoints > 0;
 
 	let wishlist = $state(user.d.wishlist);
 	let semesters = $state(user.d.semesters);
@@ -55,14 +59,33 @@
 		setUser(await writeStorage({ ...user.d, wishlist, semesters }));
 	}
 
+	function initializePlanScroll(el: HTMLElement, direction: string) {
+		function update(direction: string) {
+			// Sortable's edge scrolling assumes nonnegative scrollLeft. Keep the
+			// scroller LTR, but start at the right edge for the RTL course row.
+			el.scrollLeft = direction === 'rtl' ? el.scrollWidth : 0;
+		}
+		update(direction);
+		return { update };
+	}
+
 	function makeSortable(el: HTMLElement, options: Sortable.Options) {
-		new Sortable(el, options);
+		const sortable = new Sortable(el, options);
+		return {
+			destroy: () => {
+				// Sortable's destroy() cancels the drag but leaves its body-level preview.
+				endPlanDrag();
+				Sortable.ghost?.remove();
+				sortable.destroy();
+			}
+		};
 	}
 </script>
 
-<div class="mb-3 mt-3">
-	<div class="mb-4 h-36 max-h-36 sm:h-28 sm:max-h-28">
-		<div class="mb-1 me-3 ms-3 flex flex-row justify-between">
+<!-- Reserve space for the app header/footer while letting long plans grow. -->
+<div class="mb-3 mt-3 flex min-h-[calc(100dvh-9rem)] flex-col">
+	<div class="mb-4 flex h-36 max-h-36 shrink-0 flex-col sm:h-28 sm:max-h-28">
+		<div class="mb-1 me-3 ms-3 flex shrink-0 flex-row justify-between">
 			<h1 class="text-base font-medium text-content-primary">
 				{content.lang.plan.wishlist}
 			</h1>
@@ -95,13 +118,24 @@
 			</div>
 		</div>
 		<div
+			data-testid="wishlist-scroller"
+			data-plan-scroll
+			use:initializePlanScroll={content.lang.dir}
 			dir="ltr"
-			class="flex flex-row overflow-x-auto overflow-y-hidden rtl:flex-row-reverse"
+			class="flex min-h-0 flex-1 flex-row overflow-x-auto overflow-y-hidden"
 		>
 			{#key wishlist.join(' ')}
 				<div
+					data-testid="plan-wishlist"
 					use:makeSortable={{
 						group: 'semesters',
+						// Keep the touch preview outside transformed/clipped scrollers.
+						fallbackOnBody: true,
+						forceFallback: touchDrag,
+						onStart: startPlanDrag,
+						onEnd: endPlanDrag,
+						scroll: !touchDrag,
+						bubbleScroll: false,
 						sort: true,
 						direction: 'horizontal',
 						animation: 100,
@@ -142,11 +176,12 @@
 							);
 						}
 					}}
-					class="me-2 ms-2 flex min-h-fit flex-row justify-end gap-x-2"
+					class="me-2 ms-2 flex min-h-full min-w-[calc(100%-1rem)] shrink-0 flex-row items-start justify-end gap-x-2"
 				>
 					{#each wishlist as course}
 						<button
 							data-code={course}
+							dir="ltr"
 							onclick={() => goto(`/course/${course}`)}
 						>
 							<CourseElement code={course} course={getCourseData(course)} />
@@ -156,12 +191,23 @@
 			{/key}
 		</div>
 	</div>
-	<div style="transform: rotateX(180deg)" class="overflow-x-auto">
-		<div style="transform: rotateX(180deg)" class="flex flex-row">
+	<div
+		data-testid="semester-scroller"
+		data-plan-scroll
+		dir="ltr"
+		use:initializePlanScroll={content.lang.dir}
+		style="transform: rotateX(180deg)"
+		class="flex flex-1 overflow-x-auto"
+	>
+		<div
+			dir={content.lang.dir}
+			style="transform: rotateX(180deg)"
+			class="flex flex-1 flex-row"
+		>
 			<div class="ms-3"></div>
 			{#key semesters.map((s) => s.join('-')).join(',')}
 				{#each semesters as semester, semesterIndex}
-					<div class="pe-2">
+					<div class="flex pe-2">
 						<Semester
 							{getCourseData}
 							index={semesterIndex}
@@ -170,6 +216,13 @@
 							href={`/semester?c=${semesterIndex}`}
 							sortable={{
 								group: 'semesters',
+								// Keep the touch preview outside transformed/clipped scrollers.
+								fallbackOnBody: true,
+								forceFallback: touchDrag,
+								onStart: startPlanDrag,
+								onEnd: endPlanDrag,
+								scroll: !touchDrag,
+								bubbleScroll: false,
 								dataIdAttr: 'data-code',
 								sort: true,
 								animation: 100,
@@ -217,6 +270,7 @@
 								<button
 									class="touch-manipulation text-content-primary"
 									data-code={code}
+									dir={content.lang.dir}
 									onclick={() => goto(`/course/${code}`)}
 								>
 									<CourseElement

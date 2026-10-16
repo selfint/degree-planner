@@ -2,6 +2,7 @@
 	import type { Snippet } from 'svelte';
 
 	import Sortable from 'sortablejs';
+	import { endPlanDrag } from '$lib/planDrag';
 
 	import CourseWidth from './CourseWidth.svelte';
 	import StudyDaysComponent from './StudyDaysComponent.svelte';
@@ -51,7 +52,15 @@
 
 	function makeSortable(column: HTMLDivElement) {
 		if (sortable !== undefined) {
-			new Sortable(column, sortable);
+			const instance = new Sortable(column, sortable);
+			return {
+				destroy: () => {
+					// Sortable's destroy() cancels the drag but leaves its body-level preview.
+					endPlanDrag();
+					Sortable.ghost?.remove();
+					instance.destroy();
+				}
+			};
 		}
 	}
 </script>
@@ -98,7 +107,7 @@
 	</div>
 {/snippet}
 
-<CourseWidth>
+<CourseWidth class={sortable === undefined ? '' : 'flex h-full flex-col'}>
 	<div class="mb-0.5 sm:mb-1.5">
 		{#if href !== undefined}
 			<a {href}>
@@ -118,8 +127,9 @@
 	{/await}
 
 	<div
-		class="flex h-full min-h-32 flex-col space-y-1 bg-opacity-50 sm:space-y-1.5"
+		class="flex min-h-32 flex-1 flex-col space-y-1 bg-opacity-50 sm:space-y-1.5"
 		use:makeSortable
+		data-semester={index}
 	>
 		{#each semester as course, index}
 			{@render children({ code: course, course: getCourseData(course), index })}

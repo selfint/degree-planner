@@ -144,15 +144,26 @@ a path never mutates the complete cached requirement tree.
 This cache contains public data only. Existing localStorage plans (including
 old/unknown course IDs), plan migrations, Firebase authentication, and Firestore
 sync are unchanged. Server rendering uses the supplied fetch without IndexedDB.
-A PWA app shell is a separate layer: IndexedDB alone cannot start the app offline
-if its HTML/JavaScript has never been available locally. The service worker must
-leave these public-data requests to this repository rather than maintain a
-second, potentially stale data cache.
+A PWA app shell is a separate layer. IndexedDB does not cache HTML, JavaScript,
+or CSS. Even in an open app, the first visit to a different route can need a
+JavaScript chunk that has not been downloaded. Offline startup, reloads, and
+first-time route navigation are therefore not guaranteed by this cache.
+The service worker must leave public-data requests to this repository rather
+than maintain a second, potentially stale data cache.
+
+To test cached course data with airplane mode, first open that exact course
+online and wait for its details, go back using in-app/browser navigation, then
+switch offline and reopen the same course in the same tab without reloading.
+Seeing a course card in search or a plan does not mean its individual details
+or course-page JavaScript have been loaded. Storage must be available and the
+cached record must not have been cleared or evicted.
 
 Run `npm run test:public-data` for cache refresh, validation, versioning, isolation,
 quota/blocked-open handling, and persistence tests. Browser tests additionally
-cover reloads with public-data requests blocked, language switching, course
-details, and unchanged saved plans.
+cover reloads with only public-data requests blocked, language switching, course
+details, and unchanged saved plans. Separate whole-browser offline tests verify
+warm same-document course navigation and the explicit error for an uncached
+route chunk. These do not establish PWA/offline-shell support.
 
 ## Acknowledgements
 

@@ -227,8 +227,17 @@ test('identifies a cold course route failure when the whole browser goes offline
 	await courseButton.click();
 	await expect(page).toHaveURL(origin + '/course/01140052');
 	await expect(
-		page.getByText('404 - Page Not Found', { exact: true })
+		page.getByRole('heading', {
+			name: '500 - Unable to load this page',
+			exact: true
+		})
 	).toBeVisible();
+	await expect(
+		page.getByText('Check your connection, then reload the page.')
+	).toBeVisible();
+	await expect(
+		page.getByText('404 - Page Not Found', { exact: true })
+	).toHaveCount(0);
 	expect(
 		failures.some(({ path }) => /^\/_app\/immutable\/.*\.js$/.test(path))
 	).toBe(true);
@@ -248,6 +257,13 @@ test('reopens an exact previously visited course offline in the same document', 
 	const about = course.about.trim().slice(0, 60);
 	await page.goto(origin + previewUrl);
 	const courseButton = page.locator('button').filter({ hasText: '01140052' });
+	await expect
+		.poll(async () =>
+			(await resources(page)).some(
+				(entry) => entry.key === '/courseDataStripped.json'
+			)
+		)
+		.toBe(true);
 	await courseButton.click();
 	await expect(page.locator('main h1').first()).toContainText(course.name);
 	await expect(page.locator('main')).toContainText(about);
@@ -275,6 +291,37 @@ test('reopens an exact previously visited course offline in the same document', 
 	await expect(page.locator('main h1').first()).toContainText(course.name);
 	await expect(page.locator('main')).toContainText(about);
 	expect(navigationRequests).toEqual([]);
+	expect(
+		await page.evaluate(() => JSON.parse(localStorage.getItem('userData')!))
+	).toEqual(savedPlan);
+});
+
+for (const [language, notFound] of [
+	['en', 'Page Not Found'],
+	['he', 'הדף לא נמצא']
+]) {
+	test(`keeps actual missing routes as 404 in ${language}`, async ({
+		page
+	}) => {
+		await seed(page, language);
+		const response = await page.goto(origin + '/this-route-does-not-exist');
+		expect(response?.status()).toBe(404);
+		await expect(
+			page.getByRole('heading', { name: `404 - ${notFound}`, exact: true })
+		).toBeVisible();
+	});
+}
+
+test('keeps unknown course IDs as code-only course placeholders', async ({
+	page
+}) => {
+	await seed(page);
+	const response = await page.goto(origin + '/course/99999999');
+	expect(response?.status()).toBe(200);
+	await expect(page.locator('main h1').first()).toContainText('99999999');
+	await expect(
+		page.getByText('404 - Page Not Found', { exact: true })
+	).toHaveCount(0);
 	expect(
 		await page.evaluate(() => JSON.parse(localStorage.getItem('userData')!))
 	).toEqual(savedPlan);

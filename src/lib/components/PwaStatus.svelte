@@ -13,6 +13,7 @@
 	} from '$lib/pwa/shell-readiness';
 	import { content } from '$lib/stores.svelte';
 	import { pwaMessages } from '$lib/pwa/messages';
+	import { replacesExistingWorker } from '$lib/pwa/service-worker-update';
 
 	interface InstallPrompt extends Event {
 		prompt(): Promise<void>;
@@ -128,12 +129,13 @@
 					const watchInstalling = () => {
 						const worker = registration.installing;
 						if (!worker) return;
+						const isUpdate = replacesExistingWorker(
+							worker,
+							registration.active,
+							navigator.serviceWorker.controller
+						);
 						const changed = () => {
-							if (
-								worker.state === 'installed' &&
-								navigator.serviceWorker.controller
-							)
-								updateReady = true;
+							if (worker.state === 'installed' && isUpdate) updateReady = true;
 							if (worker.state === 'redundant' && !registration.active)
 								shell = 'unavailable';
 						};

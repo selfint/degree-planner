@@ -81,8 +81,12 @@ async function chooseNativeFaculty(page: Page, faculty: string) {
 	expect(index).toBeGreaterThanOrEqual(0);
 	// Exercise the browser's actual picker/keyboard event sequence, not selectOption or synthetic change.
 	await select.click();
-	await page.keyboard.press('Home');
-	for (let i = 0; i < index; i++) await page.keyboard.press('ArrowDown');
+	const current = await select.evaluate(
+		(element: HTMLSelectElement) => element.selectedIndex
+	);
+	const direction = index >= current ? 'ArrowDown' : 'ArrowUp';
+	for (let i = 0; i < Math.abs(index - current); i++)
+		await page.keyboard.press(direction);
 	await page.keyboard.press('Enter');
 }
 
@@ -91,6 +95,9 @@ for (const language of ['en', 'he']) {
 		test(`native faculty ${language} query ${JSON.stringify(q)} survives drafts, availability, reset and history`, async ({
 			page
 		}) => {
+			// WebKit renders thousands of broad-query cards during resets and history traversal.
+			// Keep the per-assertion deadlines, but allow this whole multi-gesture scenario to finish.
+			test.setTimeout(90_000);
 			await page.addInitScript(
 				(lang) => localStorage.setItem('lang', lang),
 				language

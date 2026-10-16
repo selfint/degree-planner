@@ -13,6 +13,25 @@ async function setRange(slider: Locator, value: string) {
 	}, value);
 }
 
+async function expectRemSizedNumberField(input: Locator) {
+	const dimensions = await input.evaluate((element) => ({
+		rootFontSize: Number.parseFloat(
+			getComputedStyle(document.documentElement).fontSize
+		),
+		width: element.getBoundingClientRect().width,
+		height: element.getBoundingClientRect().height,
+		fontSize: Number.parseFloat(getComputedStyle(element).fontSize),
+		targetHeight: element.closest('label')!.getBoundingClientRect().height
+	}));
+	// CSSOM returns pixel measurements; compare against the current rem unit.
+	expect(dimensions.width / dimensions.rootFontSize).toBeCloseTo(4);
+	expect(dimensions.height / dimensions.rootFontSize).toBeCloseTo(2);
+	expect(dimensions.fontSize / dimensions.rootFontSize).toBeCloseTo(1);
+	expect(
+		dimensions.targetHeight / dimensions.rootFontSize
+	).toBeGreaterThanOrEqual(2.75);
+}
+
 const courses = Object.values(courseData) as {
 	code: string;
 	name?: string;
@@ -256,16 +275,7 @@ test('supports precise decimal fields on mobile with slider, URL, reload, and hi
 		await expect(input).toHaveAttribute('type', 'number');
 		await expect(input).toHaveAttribute('inputmode', 'decimal');
 		await expect(input).toHaveAttribute('step', 'any');
-		const dimensions = await input.evaluate((element) => ({
-			width: element.getBoundingClientRect().width,
-			height: element.getBoundingClientRect().height,
-			fontSize: getComputedStyle(element).fontSize,
-			targetHeight: element.closest('label')!.getBoundingClientRect().height
-		}));
-		expect(dimensions.width).toBe(64);
-		expect(dimensions.height).toBe(32);
-		expect(dimensions.fontSize).toBe('16px');
-		expect(dimensions.targetHeight).toBeGreaterThanOrEqual(44);
+		await expectRemSizedNumberField(input);
 		await input.locator('..').click({ position: { x: 2, y: 2 } });
 		await expect(input).toBeFocused();
 	}
@@ -388,3 +398,39 @@ test('normalizes numeric fields only when committed and handles empty, invalid, 
 	await expect(medianInput).toHaveValue('0');
 	await expect(page).not.toHaveURL(/medianMin=/);
 });
+
+for (const language of ['English', 'Hebrew']) {
+	test(`scales compact numeric fields with the root font on mobile in ${language}`, async ({
+		page
+	}) => {
+		await page.setViewportSize({ width: 320, height: 812 });
+		await page.goto('/search?q=104184');
+		const inputs = page.locator('fieldset input[type="number"]');
+		await expect(inputs).toHaveCount(3);
+		for (const input of await inputs.all())
+			await expectRemSizedNumberField(input);
+		const initialRootSize = await page.evaluate(() =>
+			Number.parseFloat(getComputedStyle(document.documentElement).fontSize)
+		);
+		await page.evaluate(() => {
+			document.documentElement.style.fontSize = '125%';
+		});
+		expect(
+			await page.evaluate(() =>
+				Number.parseFloat(getComputedStyle(document.documentElement).fontSize)
+			)
+		).toBeCloseTo(initialRootSize * 1.25);
+		for (const input of await inputs.all()) {
+			await expectRemSizedNumberField(input);
+			const bounds = await input.evaluate((element) => ({
+				left: element.getBoundingClientRect().left,
+				right: element.getBoundingClientRect().right,
+				viewport: innerWidth
+			}));
+			expect(bounds.left).toBeGreaterThanOrEqual(0);
+			expect(bounds.right).toBeLessThanOrEqual(bounds.viewport);
+			await input.locator('..').click({ position: { x: 2, y: 2 } });
+			await expect(input).toBeFocused();
+		}
+	});
+}

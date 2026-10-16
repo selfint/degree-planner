@@ -203,7 +203,9 @@ describe('search navigation', () => {
 				pageUrl = url;
 			}
 		);
-		const previous = new URL('https://example.com/app/search?q=1040&pointsMin=3');
+		const previous = new URL(
+			'https://example.com/app/search?q=1040&pointsMin=3'
+		);
 		navigation.observeNavigation(previous, 'popstate');
 		await navigation.updateFilters({ pointsMin: 4.2 }, 20);
 		expect(requests).toHaveLength(0);

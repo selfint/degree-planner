@@ -388,6 +388,17 @@ export async function loadPublicJson<T>(
 	return resources.get<T>(url, fetcher);
 }
 
+/** Inspect durable state without starting or waiting for network revalidation. */
+export async function readPublicCourseDataReadiness() {
+	if (typeof window === 'undefined') return { ready: false, courseCount: 0 };
+	const { resources, courses } = browserRepositories();
+	const metadata = await courses.metadata();
+	return {
+		ready: !!metadata && (await resources.has('/catalogs.json')),
+		courseCount: metadata?.count ?? 0
+	};
+}
+
 /** Synchronize existing JSON at startup; readiness describes durable offline data. */
 export async function preparePublicCourseData(fetcher: typeof fetch = fetch) {
 	if (typeof window === 'undefined') return { ready: false, courseCount: 0 };
@@ -401,11 +412,7 @@ export async function preparePublicCourseData(fetcher: typeof fetch = fetch) {
 		// Import a full legacy JSON cache if present; no network is needed when ready.
 		if (!(await courses.metadata())) await courses.all(fetcher).catch(() => {});
 	}
-	const metadata = await courses.metadata();
-	return {
-		ready: !!metadata && (await resources.has('/catalogs.json')),
-		courseCount: metadata?.count ?? 0
-	};
+	return readPublicCourseDataReadiness();
 }
 
 /** Best-effort warming reports actual persistent readiness, not just a live response. */

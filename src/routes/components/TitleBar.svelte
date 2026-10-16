@@ -48,7 +48,11 @@
 	dir="ltr"
 	class="flex max-h-14 touch-manipulation flex-row items-center justify-between pe-3 ps-2 pt-1"
 >
-	<a href="/" data-sveltekit-reload class="flex h-12 min-w-12 flex-row items-center">
+	<a
+		href="/"
+		data-sveltekit-reload
+		class="flex h-12 min-w-12 flex-row items-center"
+	>
 		<enhanced:img
 			src={Logo}
 			loading="lazy"

@@ -1,8 +1,11 @@
-import { expect, test, type Page } from '@playwright/test';
-
-// Allow workers here so accidental landing registration cannot be hidden by
-// Playwright's default block setting. Every test still starts in a fresh context.
-test.use({ serviceWorkers: 'allow' });
+import { mkdir, writeFile } from 'node:fs/promises';
+import { dirname } from 'node:path';
+import {
+	expect,
+	test as base,
+	type Page,
+	type Request
+} from '@playwright/test';
 
 const origin = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:4173';
 const publicData =
@@ -13,6 +16,126 @@ const analyticsEndpoint =
 	/(?:google-analytics\.|googletagmanager\.|analytics\.google\.|vercel-insights\.|vercel-scripts\.|\/_vercel\/(?:insights|speed-insights)\/|posthog\.)/i;
 const workerOrManifest =
 	/(?:service-worker\.js|manifest\.webmanifest)(?:[?#]|$)/;
+
+type StartupRequest = {
+	url: string;
+	resourceType: string;
+	category: string;
+	navigation: boolean;
+	phase: 'landing' | 'console-startup' | 'warm-reload';
+};
+
+type StartupNetwork = {
+	requests: StartupRequest[];
+	phase: StartupRequest['phase'];
+	dataDelay: {
+		armed: boolean;
+		requested: boolean;
+		released: boolean;
+		resources: string[];
+		description: string;
+	};
+};
+
+function safeRequestUrl(value: string) {
+	const url = new URL(value);
+	if (!['http:', 'https:'].includes(url.protocol))
+		return `${url.protocol}[omitted]`;
+	// Keep endpoint evidence without query tokens, credentials, fragments,
+	// request/response bodies, headers, account data, or browser storage.
+	if (firebaseEndpoint.test(value) || analyticsEndpoint.test(value)) {
+		return `${url.origin}/[provider-path-redacted]`;
+	}
+	return `${url.origin}${url.pathname}`;
+}
+
+function summarizeRequests(requests: StartupRequest[]) {
+	const byResourceType: Record<string, number> = {};
+	const byCategory: Record<string, number> = {};
+	for (const request of requests) {
+		byResourceType[request.resourceType] =
+			(byResourceType[request.resourceType] ?? 0) + 1;
+		byCategory[request.category] = (byCategory[request.category] ?? 0) + 1;
+	}
+	return { count: requests.length, byResourceType, byCategory, requests };
+}
+
+const test = base.extend<{ startupNetwork: StartupNetwork }>({
+	startupNetwork: async ({ context }, use, testInfo) => {
+		const network: StartupNetwork = {
+			requests: [],
+			phase: 'landing',
+			dataDelay: {
+				armed: false,
+				requested: false,
+				released: false,
+				resources: ['/courseData.json'],
+				description:
+					'The test deliberately withholds courseData.json until loading-screen assertions and a 1800ms analytics-ordering check finish.'
+			}
+		};
+		const recordRequest = (request: Request) => {
+			network.requests.push({
+				url: request.url(),
+				resourceType: request.resourceType(),
+				category: analyticsEndpoint.test(request.url())
+					? 'analytics'
+					: firebaseEndpoint.test(request.url())
+						? 'firebase'
+						: publicData.test(request.url())
+							? 'public-data'
+							: workerOrManifest.test(request.url())
+								? 'worker-or-manifest'
+								: 'other',
+				navigation: request.isNavigationRequest(),
+				phase: network.phase
+			});
+		};
+		context.on('request', recordRequest);
+		try {
+			await use(network);
+		} finally {
+			context.off('request', recordRequest);
+			const sanitized = network.requests.map((request) => ({
+				...request,
+				url: safeRequestUrl(request.url)
+			}));
+			// A real file survives list-only reporters; the attachment also exposes
+			// the same sanitized evidence in HTML reports, on passes and failures.
+			const diagnosticPath = testInfo.outputPath('startup-network.json');
+			const diagnostic = {
+				schemaVersion: 1,
+				test: testInfo.title,
+				status: testInfo.status,
+				observation:
+					'Attempted requests observed until the test ends, including intercepted or failed requests. Phases are set immediately before entering the console or starting a warm reload. Artificial delays make this diagnostic unsuitable for startup timing claims.',
+				artificialDataDelay: network.dataDelay,
+				landing: summarizeRequests(
+					sanitized.filter((request) => request.phase === 'landing')
+				),
+				consoleStartup: summarizeRequests(
+					sanitized.filter((request) => request.phase === 'console-startup')
+				),
+				warmReload: summarizeRequests(
+					sanitized.filter((request) => request.phase === 'warm-reload')
+				)
+			};
+			await mkdir(dirname(diagnosticPath), { recursive: true });
+			await writeFile(
+				diagnosticPath,
+				`${JSON.stringify(diagnostic, null, 2)}\n`
+			);
+			await testInfo.attach('startup-network.json', {
+				contentType: 'application/json',
+				path: diagnosticPath
+			});
+		}
+	}
+});
+
+// Allow workers so accidental landing registration cannot be hidden by the
+// default block setting. Every test starts in a fresh anonymous context.
+test.use({ serviceWorkers: 'allow' });
 
 async function publicDataReady(page: Page) {
 	return page.evaluate(async () => {
@@ -55,7 +178,8 @@ for (const language of ['en', 'he'] as const) {
 	for (const width of [390, 1280]) {
 		test(`${language} ${width}px: isolated landing, native console entry and visible data bootstrap`, async ({
 			page,
-			context
+			context,
+			startupNetwork
 		}) => {
 			test.setTimeout(60_000);
 			await page.setViewportSize({ width, height: 844 });
@@ -63,13 +187,7 @@ for (const language of ['en', 'he'] as const) {
 				(language) => localStorage.setItem('lang', language),
 				language
 			);
-			const requests: { url: string; navigation: boolean }[] = [];
-			context.on('request', (request) => {
-				requests.push({
-					url: request.url(),
-					navigation: request.isNavigationRequest()
-				});
-			});
+			const { requests } = startupNetwork;
 			// Record provider attempts without sending analytics or authentication
 			// traffic to real third parties during this anonymous startup test.
 			await context.route('**/*', async (route) => {
@@ -121,12 +239,15 @@ for (const language of ['en', 'he'] as const) {
 				releaseCourses = resolve;
 			});
 			let courseRequested = false;
+			startupNetwork.dataDelay.armed = true;
 			await page.route('**/courseData.json', async (route) => {
 				courseRequested = true;
+				startupNetwork.dataDelay.requested = true;
 				await coursesReleased;
 				await route.continue();
 			});
 			const beforeEntry = requests.length;
+			startupNetwork.phase = 'console-startup';
 			try {
 				await start.click({ noWaitAfter: true });
 				await expect
@@ -154,6 +275,7 @@ for (const language of ['en', 'he'] as const) {
 				).toEqual([]);
 				await expect(page.locator('#console-boot')).toBeVisible();
 			} finally {
+				startupNetwork.dataDelay.released = true;
 				releaseCourses();
 			}
 			await expect(page).toHaveURL(/\/app\/(?:settings|plan)(?:[?#]|$)/);
@@ -167,3 +289,77 @@ for (const language of ['en', 'he'] as const) {
 		});
 	}
 }
+
+test.describe('warm cached console bootstrap', () => {
+	// Isolate IndexedDB readiness from service-worker precaching/routing.
+	// Installed-shell offline behavior is exercised by the separate PWA suite.
+	test.use({ serviceWorkers: 'block' });
+
+	test('renders cached data while course and catalog refreshes remain stalled', async ({
+		page,
+		context,
+		startupNetwork
+	}) => {
+		test.setTimeout(60_000);
+		await page.addInitScript(() => localStorage.setItem('lang', 'en'));
+		await context.route('**/*', async (route) => {
+			if (
+				firebaseEndpoint.test(route.request().url()) ||
+				analyticsEndpoint.test(route.request().url())
+			) {
+				await route.abort();
+			} else await route.continue();
+		});
+		startupNetwork.phase = 'console-startup';
+		await page.goto(`${origin}/app/`);
+		await expect
+			.poll(() => publicDataReady(page), { timeout: 20_000 })
+			.toBe(true);
+		await expect(page.locator('main')).toBeVisible({ timeout: 20_000 });
+		await expect(page.locator('#console-boot')).toBeHidden();
+
+		let releaseRefreshes!: () => void;
+		const refreshesReleased = new Promise<void>((resolve) => {
+			releaseRefreshes = resolve;
+		});
+		const stalled = new Set<string>();
+		let resumed = 0;
+		startupNetwork.dataDelay = {
+			armed: true,
+			requested: false,
+			released: false,
+			resources: ['/courseData.json', '/catalogs.json'],
+			description:
+				'Warm-cache test deliberately withholds both background refreshes until cached UI readiness is asserted within a 5-second test timeout. This is a functional regression check, not a natural startup benchmark.'
+		};
+		await page.route(
+			/\/(?:courseData|catalogs)\.json(?:[?#].*)?$/,
+			async (route) => {
+				stalled.add(new URL(route.request().url()).pathname);
+				startupNetwork.dataDelay.requested = true;
+				await refreshesReleased;
+				resumed++;
+				await route.continue();
+			}
+		);
+		startupNetwork.phase = 'warm-reload';
+		try {
+			await page.reload({ waitUntil: 'domcontentloaded' });
+			await expect
+				.poll(
+					async () =>
+						stalled.has('/courseData.json') &&
+						stalled.has('/catalogs.json') &&
+						(await page.locator('main').isVisible()) &&
+						!(await page.locator('#console-boot').isVisible()),
+					{ timeout: 5000 }
+				)
+				.toBe(true);
+			expect(resumed).toBe(0);
+			expect(startupNetwork.dataDelay.released).toBe(false);
+		} finally {
+			startupNetwork.dataDelay.released = true;
+			releaseRefreshes();
+		}
+	});
+});

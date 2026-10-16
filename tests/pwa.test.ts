@@ -564,3 +564,55 @@ test('a failed console shell install keeps the existing root registration', asyn
 	});
 	await expect(page.getByTestId('pwa-ready')).toHaveCount(0);
 });
+
+test('a failed public-data persistence keeps the existing root registration even when the shell is ready', async ({
+	page
+}) => {
+	serveLegacyWorker = true;
+	await page.goto(origin);
+	await page.evaluate(async () => {
+		await navigator.serviceWorker.register('/service-worker.js', {
+			scope: '/'
+		});
+		await navigator.serviceWorker.ready;
+	});
+	await page.waitForFunction(() => navigator.serviceWorker.controller !== null);
+	serveLegacyWorker = false;
+	await page.addInitScript(() => {
+		const original = indexedDB.open.bind(indexedDB);
+		indexedDB.open = (name, ...args) => {
+			if (name.startsWith('degree-planner-'))
+				throw new DOMException('Test storage denied', 'QuotaExceededError');
+			return original(name, ...args);
+		};
+	});
+	await page.goto(`${origin}/app/plan`);
+	await expect(page.locator('[data-code="02340124"]')).toBeVisible();
+	await expect(page.getByTestId('pwa-incomplete')).toBeVisible();
+	await expect
+		.poll(() =>
+			page.evaluate(async () =>
+				(await navigator.serviceWorker.getRegistrations()).some(
+					(r) =>
+						new URL(r.scope).pathname === '/app/' &&
+						r.active?.state === 'activated'
+				)
+			)
+		)
+		.toBe(true);
+	await page.waitForTimeout(1500);
+	const root = await page.evaluate(async () => {
+		const registration = (
+			await navigator.serviceWorker.getRegistrations()
+		).find((r) => new URL(r.scope).pathname === '/');
+		return {
+			active: registration?.active?.scriptURL,
+			waiting: registration?.waiting?.scriptURL
+		};
+	});
+	expect(root).toEqual({
+		active: `${origin}/service-worker.js`,
+		waiting: undefined
+	});
+	await expect(page.getByTestId('pwa-ready')).toHaveCount(0);
+});

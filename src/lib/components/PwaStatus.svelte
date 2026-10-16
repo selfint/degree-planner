@@ -43,9 +43,47 @@
 		let disposed = false;
 		let checking = false;
 		let checkGeneration = 0;
+		async function upgradeLegacyScope() {
+			if (disposed || shell !== 'ready' || publicData.phase !== 'ready') return;
+			const controller = navigator.serviceWorker?.controller;
+			if (!controller) return;
+			// Generic ready can refer to the old root registration. Both the
+			// exact console shell and its public data must be durably usable.
+			try {
+				const registration = await navigator.serviceWorker.getRegistration(
+					location.href
+				);
+				if (
+					registration?.scope !== `${location.origin}/app/` ||
+					registration.active !== controller
+				)
+					return;
+				for (const old of await navigator.serviceWorker.getRegistrations()) {
+					if (
+						disposed ||
+						shell !== 'ready' ||
+						publicData.phase !== 'ready' ||
+						navigator.serviceWorker.controller !== controller
+					)
+						return;
+					if (
+						old.scope === `${location.origin}/` &&
+						old.active?.scriptURL === `${location.origin}/service-worker.js`
+					) {
+						await navigator.serviceWorker.register(
+							'/legacy-service-worker.js',
+							{ scope: '/', updateViaCache: 'none' }
+						);
+					}
+				}
+			} catch {
+				/* Preserve the old offline registration on an uncertain transition. */
+			}
+		}
 		const cleanups: (() => void)[] = [
 			subscribeOfflinePublicData((state) => {
 				publicData = state;
+				void upgradeLegacyScope();
 			})
 		];
 		const displayMode = window.matchMedia('(display-mode: standalone)');
@@ -69,33 +107,7 @@
 				return;
 			}
 			shell = result;
-			// ready may refer to an old root registration. Upgrade it only after
-			// the exact console controller has verified its complete shell.
-			if (result === 'ready') {
-				try {
-					const registration = await navigator.serviceWorker.getRegistration(
-						location.href
-					);
-					if (
-						disposed ||
-						registration?.scope !== `${location.origin}/app/` ||
-						registration.active !== controller
-					)
-						return;
-					for (const old of await navigator.serviceWorker.getRegistrations()) {
-						if (
-							old.scope === `${location.origin}/` &&
-							old.active?.scriptURL === `${location.origin}/service-worker.js`
-						)
-							await navigator.serviceWorker.register(
-								'/legacy-service-worker.js',
-								{ scope: '/', updateViaCache: 'none' }
-							);
-					}
-				} catch {
-					/* Preserve old registration on an uncertain transition. */
-				}
-			}
+			void upgradeLegacyScope();
 		};
 		verifyShell = () => {
 			void checkShell();

@@ -21,6 +21,14 @@ jobs:
         run: npm install && npx playwright install
       - name: test
         run: npm run test
+      - name: Upload console startup network evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: console-startup-network-chromium
+          path: test-results/**/*startup-network*.json
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Upload landing visual checks
         if: always()
         uses: actions/upload-artifact@v4
@@ -114,6 +122,14 @@ jobs:
         run: npx playwright test --config=playwright.offline-webkit.config.ts --workers=1
       - name: Test isolated landing and console bootstrap on mobile and desktop WebKit
         run: npx playwright test tests/console-startup.test.ts tests/console-routing.test.ts --browser=webkit --workers=1
+      - name: Upload WebKit startup network evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: console-startup-network-webkit
+          path: test-results/**/*startup-network*.json
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Test WebKit first-opening offline deep links and reloads
         run: npx playwright test tests/pwa.test.ts --browser=webkit --grep 'first opening' --workers=1
       - name: Upload WebKit offline-data failure evidence

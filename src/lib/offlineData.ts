@@ -1,4 +1,7 @@
-import { preparePublicCourseData } from './publicData';
+import {
+	preparePublicCourseData,
+	readPublicCourseDataReadiness
+} from './publicData';
 
 export type OfflinePublicDataState = {
 	phase: 'idle' | 'loading' | 'ready' | 'error';
@@ -29,8 +32,17 @@ function publish(next: OfflinePublicDataState) {
 /** Automatically called on first open and reconnect. No private data is fetched here. */
 export function prepareOfflinePublicData(): Promise<OfflinePublicDataState> {
 	if (preparing) return preparing;
-	publish({ phase: 'loading', courseCount: state.courseCount });
-	preparing = preparePublicCourseData()
+	preparing = (async () => {
+		if (state.phase === 'ready') {
+			const durable = await readPublicCourseDataReadiness().catch(() => ({
+				ready: false,
+				courseCount: 0
+			}));
+			if (!durable.ready)
+				publish({ phase: 'loading', courseCount: durable.courseCount });
+		} else publish({ phase: 'loading', courseCount: state.courseCount });
+		return preparePublicCourseData();
+	})()
 		.then(({ ready, courseCount }) =>
 			publish(
 				ready
@@ -53,4 +65,18 @@ export function prepareOfflinePublicData(): Promise<OfflinePublicDataState> {
 			preparing = undefined;
 		});
 	return preparing;
+}
+
+/** Open a complete cached console immediately, then revalidate in the background. */
+export async function bootstrapOfflinePublicData(): Promise<OfflinePublicDataState> {
+	const cached = await readPublicCourseDataReadiness().catch(() => ({
+		ready: false,
+		courseCount: 0
+	}));
+	if (cached.ready) {
+		const ready = publish({ phase: 'ready', courseCount: cached.courseCount });
+		void prepareOfflinePublicData();
+		return ready;
+	}
+	return prepareOfflinePublicData();
 }

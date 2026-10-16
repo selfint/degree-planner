@@ -12,7 +12,7 @@ preview is verified. No merge is part of this work. SAP and CI PRs stay separate
    no Firebase, public-data initialization, analytics or PWA registration.
 3. Bootstrap the client-first console with a visible loading screen and parallel
    authentication/public IndexedDB initialization. Download all courses and the
-   catalog index, retain cached public data offline, and refresh on reconnect.
+   catalog index, retain cached public data offline, and refresh on reconnect. Complete cached data opens immediately while the network refresh runs in the background.
    Degree requirements remain selected/on-demand.
 4. Scope installation and the service worker to `/app/`. Preserve legacy caches
    and old open windows during migration. Never force reload an unsaved draft.
@@ -41,4 +41,4 @@ Physical iOS airplane mode, standalone cold-start and live Google login need
 manual device verification. Preview Google login also requires its exact hostname
 in Firebase authorized domains; this migration does not change security settings.
 
-Existing root-scope installations receive a redirect-only compatibility worker after the /app/ shell is verified. It preserves old installed /plan launches offline, does not cache landing or data, and waits for old tabs to close before activation. Fresh visits install only the /app/ worker.
+Existing root-scope installations receive a redirect-only compatibility worker after the /app/ shell and complete public course/catalog storage are verified. It preserves old installed /plan launches offline, does not cache landing or data, and waits for old tabs to close before activation. Fresh visits install only the /app/ worker.

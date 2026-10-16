@@ -97,3 +97,25 @@ jobs:
           name: pwa-browser-failures
           path: test-results/
           retention-days: 7
+
+  offline-webkit-data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install WebKit test dependencies
+        run: npm install && npx playwright install --with-deps webkit
+      - name: Test WebKit course persistence and warm offline navigation
+        run: npx playwright test --config=playwright.offline-webkit.config.ts --workers=1
+      - name: Upload WebKit offline-data failure evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: offline-webkit-data-failures
+          path: test-results/
+          retention-days: 7

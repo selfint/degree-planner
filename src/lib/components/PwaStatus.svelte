@@ -206,26 +206,28 @@
 			>
 		</div>
 	{/if}
-	{#if allReady}
-		<p role="status" class="mb-2" data-testid="pwa-ready">{text.ready}</p>
-	{:else if shell === 'outdated'}
-		<p role="status" class="mb-2" data-testid="pwa-incomplete">
-			{text.shellOutdated}
-		</p>
-	{:else if unavailable}
-		<p role="status" class="mb-2" data-testid="pwa-incomplete">
-			{text.unavailable}
-			<button
-				type="button"
-				class="ms-2 underline"
-				onclick={() => retryOffline()}>{text.retry}</button
-			>
-		</p>
-	{:else}
-		<p role="status" class="mb-2" data-testid="pwa-downloading">
-			{text.downloading}
-		</p>
-	{/if}
+	<div class="min-h-12" data-testid="pwa-readiness">
+		{#if allReady}
+			<p role="status" class="mb-2" data-testid="pwa-ready">{text.ready}</p>
+		{:else if shell === 'outdated'}
+			<p role="status" class="mb-2" data-testid="pwa-incomplete">
+				{text.shellOutdated}
+			</p>
+		{:else if unavailable}
+			<p role="status" class="mb-2" data-testid="pwa-incomplete">
+				{text.unavailable}
+				<button
+					type="button"
+					class="ms-2 underline"
+					onclick={() => retryOffline()}>{text.retry}</button
+				>
+			</p>
+		{:else}
+			<p role="status" class="mb-2" data-testid="pwa-downloading">
+				{text.downloading}
+			</p>
+		{/if}
+	</div>
 	{#if !standalone}
 		<div class="flex flex-wrap items-baseline gap-3">
 			{#if prompt}

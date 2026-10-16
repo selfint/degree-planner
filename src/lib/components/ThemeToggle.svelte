@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { content } from '$lib/stores.svelte';
+	import { content } from '$lib/preferences.svelte';
 	import {
 		applyTheme,
 		parseTheme,

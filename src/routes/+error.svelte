@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { content } from '$lib/stores.svelte';
+	import { content } from '$lib/preferences.svelte';
 </script>
 
 <div class="m-5">

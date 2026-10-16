@@ -3,11 +3,18 @@ import { build, files, version } from '$service-worker';
 import { isAppNavigation } from './lib/pwa/cache-policy';
 
 const worker = self as unknown as ServiceWorkerGlobalScope;
-const SHELL_PREFIX = 'planit-shell-';
+const SHELL_PREFIX = 'planit-console-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${version}`;
-const LEGACY_DATA_CACHE = 'planit-public-data-v1';
-const SHELL = '/offline';
-const ASSETS = new Set([...build, ...files]);
+const SHELL = '/app/offline';
+// Landing demo screenshots are not required by the console.
+const ASSETS = new Set(
+	[...build, ...files].filter(
+		(path) =>
+			!/\/(?:catalog|course|plan|semester|settings|share|search)-pic\./.test(
+				path
+			)
+	)
+);
 
 const SHELL_RESOURCES = [...new Set([...ASSETS, SHELL])];
 const SHELL_ENTRIES = build.filter((path) =>
@@ -125,11 +132,7 @@ worker.addEventListener('activate', (event) => {
 			const keys = await caches.keys();
 			await Promise.all(
 				keys
-					.filter(
-						(key) =>
-							(key.startsWith(SHELL_PREFIX) && key !== SHELL_CACHE) ||
-							key === LEGACY_DATA_CACHE
-					)
+					.filter((key) => key.startsWith(SHELL_PREFIX) && key !== SHELL_CACHE)
 					.map((key) => caches.delete(key))
 			);
 			await worker.clients.claim();

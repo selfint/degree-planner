@@ -12,10 +12,7 @@
 			}
 		</script>
 		<link rel="icon" href="%sveltekit.assets%/favicon.webp" />
-		<link rel="manifest" href="%sveltekit.assets%/manifest.webmanifest" />
 		<meta name="theme-color" content="#15252e" />
-		<meta name="apple-mobile-web-app-capable" content="yes" />
-		<meta name="apple-mobile-web-app-title" content="PlanIt" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -35,6 +32,44 @@
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">
+		<!-- Static boot screen remains visible until the client-only console initializes. -->
+		<div
+			id="console-boot"
+			hidden
+			style="
+				position: fixed;
+				inset: 0;
+				z-index: 100;
+				display: none;
+				place-content: center;
+				text-align: center;
+				padding: 24px;
+				background: #15252e;
+				color: #f4f6f8;
+				font-family: system-ui;
+			"
+		>
+			<h1 style="font-size: 28px; margin: 0 0 12px">PlanIt</h1>
+			<p id="console-boot-detail" role="status">Loading courses…</p>
+		</div>
+		<script>
+			if (/^\/app(?:\/|$)/.test(location.pathname)) {
+				const boot = document.getElementById('console-boot');
+				boot.hidden = false;
+				boot.style.display = 'grid';
+				try {
+					if (localStorage.getItem('lang') !== 'en') {
+						boot.dir = 'rtl';
+						document.getElementById('console-boot-detail').textContent =
+							'טוענים קורסים…';
+					}
+				} catch {}
+			}
+		</script>
+		<noscript
+			>JavaScript is required to open the planner. The landing page remains
+			readable.</noscript
+		>
 		<div style="display: contents">%sveltekit.body%</div>
 	</body>
 </html>

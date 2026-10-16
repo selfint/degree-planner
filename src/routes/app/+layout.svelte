@@ -1,16 +1,11 @@
 <script lang="ts">
-	import { injectSpeedInsights } from '@vercel/speed-insights/sveltekit';
-	import { inject } from '@vercel/analytics';
-
-	import '../app.css';
-
 	import {
 		afterNavigate,
 		beforeNavigate,
 		goto,
 		onNavigate
 	} from '$app/navigation';
-	import { setContext } from 'svelte';
+	import { onMount, setContext } from 'svelte';
 	import {
 		PERSONAL_PLAN_READY,
 		canShowPersonalPlan
@@ -47,19 +42,40 @@
 	} from '$lib/stores.svelte';
 
 	import { cms } from '$lib/content';
+	import { planOnline } from '$lib/planAccess';
 	import { pwaMessages } from '$lib/pwa/messages';
 
-	import TitleBar from './components/TitleBar.svelte';
+	import TitleBar from '../components/TitleBar.svelte';
 	import ThemeToggle from '$lib/components/ThemeToggle.svelte';
 	import PwaStatus from '$lib/components/PwaStatus.svelte';
 	import Select from '$lib/components/Select.svelte';
 	import {
 		buildFirebaseStorage,
-		subscribeFirebase
+		subscribeFirebase,
+		startOptionalAnalytics
 	} from '$lib/firebase.svelte';
 
-	injectSpeedInsights();
-	inject();
+	onMount(() => {
+		let cancelled = false;
+		const timer = setTimeout(() => {
+			if (cancelled || !navigator.onLine) return;
+			void startOptionalAnalytics(firebase);
+			void import('@vercel/analytics')
+				.then(({ inject }) => {
+					if (!cancelled) inject();
+				})
+				.catch(() => {});
+			void import('@vercel/speed-insights/sveltekit')
+				.then(({ injectSpeedInsights }) => {
+					if (!cancelled) injectSpeedInsights();
+				})
+				.catch(() => {});
+		}, 1500);
+		return () => {
+			cancelled = true;
+			clearTimeout(timer);
+		};
+	});
 
 	const { data: pageData, children } = $props();
 	const { firebase } = $derived(pageData);
@@ -70,7 +86,9 @@
 	let cloudPlanUnavailable = $state(false);
 	let retryAccount = () => {};
 	const plannerRoute = $derived(
-		/^\/(plan|settings|catalog|semester|preview)(\/|$)/.test(page.url.pathname)
+		/^\/app\/(plan|settings|catalog|semester|preview)(\/|$)/.test(
+			page.url.pathname
+		)
 	);
 	const cloudPlanBlocked = $derived(
 		plannerRoute && signedIn && (offline || cloudPlanUnavailable)
@@ -153,6 +171,12 @@
 	}
 </script>
 
+<svelte:head>
+	<link rel="manifest" href="/manifest.webmanifest" />
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-title" content="PlanIt" />
+</svelte:head>
+
 <div dir={content.lang.dir} class="flex h-full min-h-screen flex-col">
 	<div class="w-full border-b-[1px] border-border bg-background">
 		<TitleBar
@@ -165,6 +189,17 @@
 		/>
 	</div>
 
+	{#if !$planOnline}
+		<p
+			role="status"
+			class="mx-3 my-2 rounded-md bg-card-primary p-3 text-content-primary"
+			data-testid="plan-read-only"
+		>
+			{content.lang.lang === 'he'
+				? 'מצב קריאה בלבד ללא אינטרנט. אפשר לעיין בקורסים ובתוכנית השמורה; התחברו כדי לערוך או לשמור.'
+				: 'Offline, read-only mode. Browse courses and your saved plan; reconnect to edit or save.'}
+		</p>
+	{/if}
 	{#if authPending}
 		<p role="status" class="m-5 flex-grow text-content-primary">
 			{content.lang.common.loading}…

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { content } from '$lib/stores.svelte';
+	import { content } from '$lib/preferences.svelte';
 
 	import settingsPic from '$lib/assets/settings-pic.webp?enhanced';
 	import planPic from '$lib/assets/plan-pic.webp?enhanced';

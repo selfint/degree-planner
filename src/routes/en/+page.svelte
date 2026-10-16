@@ -3,7 +3,7 @@
 
 	import { browser } from '$app/environment';
 
-	import { content } from '$lib/stores.svelte';
+	import { content } from '$lib/preferences.svelte';
 	import { cms } from '$lib/content';
 
 	if (browser) {

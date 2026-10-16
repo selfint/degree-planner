@@ -6,7 +6,7 @@
 
 	import Nav from './Nav.svelte';
 
-	import { content } from '$lib/stores.svelte';
+	import { content } from '$lib/preferences.svelte';
 	import Settings from '$lib/components/Settings.svelte';
 	import GetStartedLink from '$lib/components/GetStartedLink.svelte';
 
@@ -48,7 +48,7 @@
 	dir="ltr"
 	class="flex max-h-14 touch-manipulation flex-row items-center justify-between pe-3 ps-2 pt-1"
 >
-	<a href="/" class="flex h-12 min-w-12 flex-row items-center">
+	<a href="/" data-sveltekit-reload class="flex h-12 min-w-12 flex-row items-center">
 		<enhanced:img
 			src={Logo}
 			loading="lazy"

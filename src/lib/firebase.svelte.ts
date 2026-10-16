@@ -8,11 +8,8 @@ import {
 	GoogleAuthProvider,
 	browserLocalPersistence
 } from 'firebase/auth';
-import {
-	getAnalytics,
-	isSupported,
-	type Analytics as FirebaseAnalytics
-} from 'firebase/analytics';
+import type { Analytics as FirebaseAnalytics } from 'firebase/analytics';
+import { assertPlanWritable } from '$lib/planAccess';
 import {
 	getFirestore,
 	type Firestore as FirebaseFirestore,
@@ -89,19 +86,21 @@ export async function initFirebase(): Promise<FirebaseServices> {
 	await auth.setPersistence(browserLocalPersistence);
 
 	const services: FirebaseServices = { app, auth, firestore };
-	if (browser) {
-		// Analytics can stall on IndexedDB or fail in restricted browsers. It is
-		// optional and must never hold up hydration or planner navigation.
-		void isSupported()
-			.then((supported) => {
-				if (supported) services.analytics = getAnalytics(app);
-			})
-			.catch(() => {
-				// Planning and authentication remain available without analytics.
-			});
-	}
 
 	return services;
+}
+
+/** Optional instrumentation never delays console authentication or data boot. */
+export async function startOptionalAnalytics(
+	services: FirebaseServices
+): Promise<void> {
+	if (!browser || !navigator.onLine) return;
+	try {
+		const { isSupported, getAnalytics } = await import('firebase/analytics');
+		if (await isSupported()) services.analytics = getAnalytics(services.app);
+	} catch {
+		/* Planning remains available when instrumentation is blocked. */
+	}
 }
 
 function getUserDocRef(
@@ -192,6 +191,7 @@ async function writeFirebase(
 		return data;
 	}
 
+	assertPlanWritable();
 	await setDoc(userDoc, data);
 
 	return data;

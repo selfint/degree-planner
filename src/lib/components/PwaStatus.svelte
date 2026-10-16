@@ -69,6 +69,33 @@
 				return;
 			}
 			shell = result;
+			// ready may refer to an old root registration. Upgrade it only after
+			// the exact console controller has verified its complete shell.
+			if (result === 'ready') {
+				try {
+					const registration = await navigator.serviceWorker.getRegistration(
+						location.href
+					);
+					if (
+						disposed ||
+						registration?.scope !== `${location.origin}/app/` ||
+						registration.active !== controller
+					)
+						return;
+					for (const old of await navigator.serviceWorker.getRegistrations()) {
+						if (
+							old.scope === `${location.origin}/` &&
+							old.active?.scriptURL === `${location.origin}/service-worker.js`
+						)
+							await navigator.serviceWorker.register(
+								'/legacy-service-worker.js',
+								{ scope: '/', updateViaCache: 'none' }
+							);
+					}
+				} catch {
+					/* Preserve old registration on an uncertain transition. */
+				}
+			}
 		};
 		verifyShell = () => {
 			void checkShell();
@@ -109,8 +136,7 @@
 		window.addEventListener('beforeinstallprompt', offerInstall);
 		window.addEventListener('appinstalled', installed);
 
-		// Sync the full course dataset and catalog index on opening, like Planit.
-		void prepareOfflinePublicData().catch(() => {});
+		// The console layout owns initial bootstrap; reconnect/visibility refresh it.
 		if (import.meta.env.PROD && 'serviceWorker' in navigator) {
 			navigator.serviceWorker.addEventListener(
 				'controllerchange',
@@ -122,7 +148,10 @@
 			}, 30000);
 			cleanups.push(() => clearTimeout(timer));
 			void navigator.serviceWorker
-				.register('/service-worker.js', { updateViaCache: 'none' })
+				.register('/service-worker.js', {
+					scope: '/app/',
+					updateViaCache: 'none'
+				})
 				.then(async (registration) => {
 					if (disposed) return;
 					updateReady = !!registration.waiting;
@@ -132,7 +161,7 @@
 						const isUpdate = replacesExistingWorker(
 							worker,
 							registration.active,
-							navigator.serviceWorker.controller
+							registration.active ? navigator.serviceWorker.controller : null
 						);
 						const changed = () => {
 							if (worker.state === 'installed' && isUpdate) updateReady = true;

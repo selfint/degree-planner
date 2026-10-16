@@ -147,7 +147,10 @@ test('reduced motion stays static and updates when the preference changes', asyn
 	await expect(glow).toHaveCSS('transform', 'none');
 	await page.mouse.wheel(0, 600);
 	await expect(glow).toHaveCSS('transform', 'none');
-	await expect(glow).not.toHaveAttribute('style', /--landing-parallax-offset/);
+	await expect(glow).not.toHaveAttribute(
+		'style',
+		/--landing-parallax-(offset|travel)/
+	);
 	await page.emulateMedia({ reducedMotion: 'no-preference' });
 	await expect
 		.poll(() =>
@@ -158,5 +161,136 @@ test('reduced motion stays static and updates when the preference changes', asyn
 		.toBeGreaterThan(0);
 	await page.emulateMedia({ reducedMotion: 'reduce' });
 	await expect(glow).toHaveCSS('transform', 'none');
-	await expect(glow).not.toHaveAttribute('style', /--landing-parallax-offset/);
+	await expect(glow).not.toHaveAttribute(
+		'style',
+		/--landing-parallax-(offset|travel)/
+	);
+});
+
+// Mobile-sized, high-density rendering with rapid wheel input. Playwright's
+// mobile WebKit rejects wheel input, so this is not physical iOS fling coverage.
+// The dedicated browser job retains recordings for transient visual review.
+test.describe('rapid mobile scrolling', () => {
+	test.use({
+		hasTouch: true,
+		isMobile: false,
+		deviceScaleFactor: 3
+	});
+
+	for (const fallback of [false, true]) {
+		for (const { language, theme } of [
+			{ language: 'en', theme: 'dark' },
+			{ language: 'he', theme: 'light' }
+		]) {
+			test(`${fallback ? 'fallback' : 'native'} handles fast reversals in ${language}`, async ({
+				page
+			}, testInfo) => {
+				await page.setViewportSize({ width: 390, height: 844 });
+				await page.emulateMedia({ reducedMotion: 'no-preference' });
+				await page.addInitScript(
+					({ language, theme, fallback }) => {
+						localStorage.setItem('lang', language);
+						localStorage.setItem('theme', theme);
+						if (fallback) {
+							const supports = CSS.supports.bind(CSS);
+							CSS.supports = ((property: string, value?: string) =>
+								property === 'animation-timeline'
+									? false
+									: value === undefined
+										? supports(property)
+										: supports(property, value)) as typeof CSS.supports;
+						}
+					},
+					{ language, theme, fallback }
+				);
+				await page.goto(origin);
+				const glow = page.locator('.landing-gradient');
+				const native =
+					!fallback &&
+					(await page.evaluate(() =>
+						CSS.supports('animation-timeline', 'scroll(root y)')
+					));
+				await expect(glow).toHaveAttribute(
+					'data-parallax',
+					native ? 'native' : 'fallback'
+				);
+				if (native) {
+					await expect
+						.poll(() =>
+							glow.evaluate((node) =>
+								node
+									.getAnimations()
+									.some((animation) => animation.timeline !== document.timeline)
+							)
+						)
+						.toBe(true);
+				}
+
+				for (let burst = 0; burst < 3; burst++) {
+					for (const distance of [
+						1800, 1400, -900, 1600, -2100, -1800, 2400, -3200
+					]) {
+						await page.mouse.wheel(0, distance);
+						// Intentional short cadence: don't wait for the previous scroll to settle.
+						await page.waitForTimeout(40);
+					}
+				}
+				await page.mouse.wheel(0, 2200);
+				await expect
+					.poll(() =>
+						glow.evaluate((node) =>
+							Math.abs(
+								new DOMMatrixReadOnly(getComputedStyle(node).transform).m42 -
+									Math.min(
+										document.documentElement.scrollHeight -
+											document.documentElement.clientHeight,
+										Math.max(0, scrollY)
+									) *
+										0.8
+							)
+						)
+					)
+					.toBeLessThan(1);
+				if (native)
+					await expect(glow).not.toHaveAttribute(
+						'style',
+						/--landing-parallax-offset/
+					);
+				expect(
+					await page.evaluate(
+						() => document.documentElement.scrollWidth <= innerWidth
+					)
+				).toBe(true);
+				await page.screenshot({
+					path: testInfo.outputPath('landing-rapid-scroll.png')
+				});
+				await testInfo.attach('scroll-engine', {
+					body: JSON.stringify(
+						await page.evaluate(() => ({
+							userAgent: navigator.userAgent,
+							mode: document.querySelector<HTMLElement>('.landing-gradient')
+								?.dataset.parallax,
+							scroll: scrollY,
+							transform: getComputedStyle(
+								document.querySelector('.landing-gradient')!
+							).transform
+						})),
+						null,
+						2
+					),
+					contentType: 'application/json'
+				});
+
+				await page.emulateMedia({ reducedMotion: 'reduce' });
+				await expect(glow).toHaveCSS('transform', 'none');
+				await expect(glow).not.toHaveAttribute(
+					'style',
+					/--landing-parallax-(offset|travel)/
+				);
+				await expect
+					.poll(() => glow.evaluate((node) => node.getAnimations().length))
+					.toBe(0);
+			});
+		}
+	}
 });

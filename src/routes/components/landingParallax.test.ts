@@ -3,7 +3,7 @@ import { landingParallax } from './landingParallax';
 
 afterEach(() => vi.unstubAllGlobals());
 
-function setup(reduce = false) {
+function setup(reduce = false, native = false) {
 	const media = Object.assign(new EventTarget(), { matches: reduce });
 	const frames = new Map<number, FrameRequestCallback>();
 	let frameId = 0;
@@ -19,6 +19,7 @@ function setup(reduce = false) {
 	});
 	const style = new Map<string, string>();
 	const node = {
+		dataset: {} as DOMStringMap,
 		style: {
 			setProperty: (key: string, value: string) => style.set(key, value),
 			removeProperty: (key: string) => style.delete(key)
@@ -26,10 +27,29 @@ function setup(reduce = false) {
 	} as unknown as HTMLElement;
 	const getComputedStyle = vi.fn(() => ({ fontSize: '16px' }));
 	vi.stubGlobal('window', window);
-	vi.stubGlobal('document', { documentElement: {} });
+	const root = { scrollHeight: 5000, clientHeight: 800 };
+	let onResize: () => void = () => {};
+	const disconnect = vi.fn();
+	const observe = vi.fn();
+	vi.stubGlobal('CSS', { supports: () => native });
+	vi.stubGlobal(
+		'ResizeObserver',
+		class {
+			constructor(callback: () => void) {
+				onResize = callback;
+			}
+			observe = observe;
+			disconnect = disconnect;
+		}
+	);
+	vi.stubGlobal('document', { documentElement: root, body: {} });
 	vi.stubGlobal('getComputedStyle', getComputedStyle);
 	return {
 		window,
+		root,
+		disconnect,
+		observe,
+		resize: () => onResize(),
 		media,
 		node,
 		frames,
@@ -85,6 +105,58 @@ describe('landing gradient parallax', () => {
 		state.window.dispatchEvent(new Event('scroll'));
 		state.flush();
 		expect(state.style.get('--landing-parallax-offset')).toBe('180rem');
+		action.destroy();
+	});
+
+	it('clamps bottom overscroll and updates the fallback after content resize', () => {
+		const state = setup();
+		const action = landingParallax(state.node);
+		state.window.scrollY = 8000;
+		state.flush();
+		expect(state.style.get('--landing-parallax-offset')).toBe('210rem');
+		state.root.scrollHeight = 6000;
+		state.resize();
+		state.flush();
+		expect(state.style.get('--landing-parallax-offset')).toBe('260rem');
+		action.destroy();
+		expect(state.disconnect).toHaveBeenCalled();
+	});
+
+	it('lets native timelines own scroll frames and only measures layout changes', () => {
+		const state = setup(false, true);
+		const action = landingParallax(state.node);
+		expect(state.node.dataset.parallax).toBe('native');
+		expect(state.style.get('--landing-parallax-travel')).toBe('210rem');
+		for (const scroll of [3000, 1000, 4200, 0]) {
+			state.window.scrollY = scroll;
+			state.window.dispatchEvent(new Event('scroll'));
+		}
+		expect(state.requestAnimationFrame).not.toHaveBeenCalled();
+		expect(state.getComputedStyle).toHaveBeenCalledTimes(1);
+		expect(state.style.has('--landing-parallax-offset')).toBe(false);
+		state.root.scrollHeight = 6000;
+		state.getComputedStyle.mockReturnValue({ fontSize: '20px' });
+		state.resize();
+		expect(state.style.get('--landing-parallax-travel')).toBe('208rem');
+		action.destroy();
+		expect(state.disconnect).toHaveBeenCalled();
+		expect(state.style.size).toBe(0);
+		expect(state.node.dataset.parallax).toBeUndefined();
+	});
+
+	it('removes and restores native animation when reduced motion changes', () => {
+		const state = setup(true, true);
+		const action = landingParallax(state.node);
+		expect(state.style.size).toBe(0);
+		expect(state.observe).not.toHaveBeenCalled();
+		state.media.matches = false;
+		state.media.dispatchEvent(new Event('change'));
+		expect(state.node.dataset.parallax).toBe('native');
+		state.media.matches = true;
+		state.media.dispatchEvent(new Event('change'));
+		expect(state.node.dataset.parallax).toBeUndefined();
+		expect(state.style.size).toBe(0);
+		expect(state.disconnect).toHaveBeenCalled();
 		action.destroy();
 	});
 

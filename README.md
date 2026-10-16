@@ -214,6 +214,11 @@ The dedicated `pwa-browsers` CI job runs real Chromium offline/install/update
 checks with service workers enabled, followed by bundled-worker VM tests; Firebase preview sign-in also needs an authorized hostname.
 
 The separate `offline-webkit-data` CI job checks course bootstrap, IndexedDB
-persistence, and warm-route offline navigation in desktop/mobile WebKit.
-Playwright service-worker automation is Chromium-only; these checks do not
-verify a physical iOS installed app, offline cold-start, or Google login.
+persistence, and warm-route offline navigation in desktop/mobile WebKit. It also
+runs page-level first-opening, unvisited offline deep-link and reload cases in
+English and Hebrew at desktop/mobile viewport sizes. These use browser page APIs,
+not Playwright's Chromium-only service-worker inspection/routing APIs. WebKit
+disconnects the test origin because older Playwright versions incorrectly reject
+SW responses with `setOffline` ([upstream issue](https://github.com/microsoft/playwright/issues/42775));
+Chromium uses full context offline emulation. These checks do not verify physical
+iOS airplane mode, an installed app's standalone cold-start, or Google login.

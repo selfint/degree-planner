@@ -1,9 +1,9 @@
 import { defineConfig } from '@playwright/test';
 import config from './playwright.config';
 
-// Playwright supports service-worker automation on Chromium only. This separate
-// WebKit gate checks durable course data and already-loaded route navigation,
-// without claiming installed iOS PWA or offline shell lifecycle coverage.
+// This separate gate isolates durable course data and already-loaded navigation.
+// CI also runs page-level cold offline shell cases with WebKit in pwa.test.ts;
+// neither gate claims physical iOS installed-app or Google login coverage.
 export default defineConfig({
 	...config,
 	testMatch: 'indexeddb-data.test.ts',

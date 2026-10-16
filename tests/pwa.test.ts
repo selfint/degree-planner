@@ -7,6 +7,7 @@ import { readFile } from 'node:fs/promises';
 let server: Server;
 let origin: string;
 let revision = 0;
+let originDisconnected = false;
 
 // Other suites mock network responses and block service workers globally.
 test.use({ serviceWorkers: 'allow' });
@@ -17,6 +18,10 @@ test.beforeAll(async () => {
 		'utf8'
 	);
 	server = createServer(async (request, response) => {
+		if (originDisconnected) {
+			request.socket.destroy();
+			return;
+		}
 		try {
 			if (request.url === '/service-worker.js') {
 				response.writeHead(200, {
@@ -47,6 +52,10 @@ test.beforeAll(async () => {
 test.afterAll(async () => {
 	server?.closeAllConnections();
 	await new Promise<void>((resolve) => server?.close(() => resolve()));
+});
+
+test.afterEach(() => {
+	originDisconnected = false;
 });
 
 test.beforeEach(async ({ page }, testInfo) => {
@@ -267,7 +276,8 @@ test('caches contain only public assets and do not delete unrelated storage', as
 for (const language of ['en', 'he'] as const) {
 	test(`first opening saves all courses before an unvisited offline deep link [${language}]`, async ({
 		page,
-		context
+		context,
+		browserName
 	}) => {
 		await page.setViewportSize(
 			language === 'he'
@@ -279,11 +289,22 @@ for (const language of ['en', 'he'] as const) {
 		);
 		await page.goto(`${origin}/`);
 		await expect(page.getByTestId('pwa-ready')).toBeVisible({ timeout: 20000 });
-		await context.setOffline(true);
-		await page.goto(`${origin}/course/02340141`);
+		await expect(page.getByTestId('pwa-update')).toHaveCount(0);
+		if (browserName === 'webkit') {
+			// Older Playwright WebKit rejects even cache-only SW responses under
+			// setOffline (microsoft/playwright#42775). Disconnect the actual origin
+			// instead; this tests network-failure fallback, not an iOS airplane mode.
+			originDisconnected = true;
+			server.closeAllConnections();
+			await expect(fetch(`${origin}/offline-outage-probe`)).rejects.toThrow();
+		} else await context.setOffline(true);
+		const navigation = await page.goto(`${origin}/course/02340141`);
+		expect(navigation?.fromServiceWorker()).toBe(true);
 		await expect(page.locator('main')).toContainText(courses['02340141'].name);
-		await expect(page.getByTestId('pwa-offline')).toBeVisible();
-		await page.reload();
+		if (browserName !== 'webkit')
+			await expect(page.getByTestId('pwa-offline')).toBeVisible();
+		const reload = await page.reload();
+		expect(reload?.fromServiceWorker()).toBe(true);
 		await expect(page.locator('main')).toContainText(courses['02340141'].name);
 		await expect(page.getByTestId('pwa-ready')).toBeVisible();
 	});

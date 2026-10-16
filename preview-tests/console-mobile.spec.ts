@@ -228,6 +228,8 @@ for (const language of ['en', 'he'] as const) {
 		).toEqual({ language, theme });
 		await noHorizontalOverflow(page);
 		evidence.checkpoints.push('console-preferences-and-real-offline-readiness');
+		await page.locator('footer').scrollIntoViewIfNeeded();
+		await screenshot(page, testInfo, `console-footer-${language}-${theme}`);
 		// The context belongs only to this test; no state carries into the journeys.
 		expect(context.pages()).toHaveLength(1);
 	});

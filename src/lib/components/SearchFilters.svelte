@@ -1,6 +1,10 @@
 <script lang="ts">
 	import { content } from '$lib/stores.svelte';
-	import { hasSearchFilters, type SearchFilters } from '$lib/search';
+	import {
+		hasSearchFilters,
+		resolveNumericFilterInput,
+		type SearchFilters
+	} from '$lib/search';
 
 	type Props = {
 		filters: SearchFilters;
@@ -14,11 +18,70 @@
 		$props();
 	let pointsMin = $state(0);
 	let pointsMax = $state(0);
+	let pointsMinText = $state('0');
+	let pointsMaxText = $state('0');
 
 	$effect(() => {
 		pointsMin = filters.pointsMin;
 		pointsMax = filters.pointsMax;
+		pointsMinText = String(filters.pointsMin);
+		pointsMaxText = String(filters.pointsMax);
 	});
+
+	function previewPoints(
+		input: HTMLInputElement,
+		field: 'pointsMin' | 'pointsMax'
+	) {
+		if (
+			input.value === '' ||
+			input.validity.badInput ||
+			!Number.isFinite(input.valueAsNumber)
+		)
+			return;
+		if (field === 'pointsMin')
+			pointsMin = Math.max(0, Math.min(pointsMax, input.valueAsNumber));
+		else
+			pointsMax = Math.max(pointsMin, Math.min(maxPoints, input.valueAsNumber));
+	}
+
+	function commitNumber(
+		input: HTMLInputElement,
+		field: 'pointsMin' | 'pointsMax' | 'medianMin'
+	) {
+		const min = field === 'pointsMax' ? filters.pointsMin : 0;
+		const max =
+			field === 'pointsMin'
+				? filters.pointsMax
+				: field === 'pointsMax'
+					? maxPoints
+					: 100;
+		const empty = field === 'pointsMax' ? maxPoints : 0;
+		const value = resolveNumericFilterInput(
+			input.value,
+			min,
+			max,
+			empty,
+			filters[field],
+			input.validity.badInput
+		);
+		input.value = String(value);
+		if (field === 'pointsMin') {
+			pointsMin = value;
+			pointsMinText = String(value);
+		}
+		if (field === 'pointsMax') {
+			pointsMax = value;
+			pointsMaxText = String(value);
+		}
+		onchange({ ...filters, [field]: value });
+	}
+
+	function commitOnEnter(event: KeyboardEvent) {
+		if (event.key === 'Enter') {
+			event.preventDefault();
+			(event.currentTarget as HTMLInputElement).blur();
+		}
+	}
 
 	function updatePoints() {
 		onchange({ ...filters, pointsMin, pointsMax });
@@ -58,33 +121,65 @@
 				{/each}
 			</select>
 		</div>
-		<div class="inline-flex items-center gap-x-2">
-			<label for="search-points-min">{content.lang.search.minPoints}</label>
+		<div class="inline-flex max-w-full flex-wrap items-center gap-x-2 gap-y-1">
+			<label id="search-points-min-label" for="search-points-min-input"
+				>{content.lang.search.minPoints}</label
+			>
 			<input
 				id="search-points-min"
+				aria-labelledby="search-points-min-label"
 				type="range"
 				min="0"
 				max={pointsMax}
-				step="0.5"
+				step="any"
 				bind:value={pointsMin}
+				oninput={(e) => (pointsMinText = e.currentTarget.value)}
 				onchange={updatePoints}
 				class="h-2 w-24 cursor-pointer accent-accent-primary"
 			/>
-			<output for="search-points-min" class="min-w-8">{pointsMin}</output>
+			<input
+				id="search-points-min-input"
+				type="number"
+				inputmode="decimal"
+				min="0"
+				max={filters.pointsMax}
+				step="any"
+				value={pointsMinText}
+				oninput={(e) => previewPoints(e.currentTarget, 'pointsMin')}
+				onblur={(e) => commitNumber(e.currentTarget, 'pointsMin')}
+				onkeydown={commitOnEnter}
+				class="min-h-11 w-20 rounded-md border border-border bg-background p-2 text-base text-content-secondary focus-visible:outline-accent-primary"
+			/>
 		</div>
-		<div class="inline-flex items-center gap-x-2">
-			<label for="search-points-max">{content.lang.search.maxPoints}</label>
+		<div class="inline-flex max-w-full flex-wrap items-center gap-x-2 gap-y-1">
+			<label id="search-points-max-label" for="search-points-max-input"
+				>{content.lang.search.maxPoints}</label
+			>
 			<input
 				id="search-points-max"
+				aria-labelledby="search-points-max-label"
 				type="range"
 				min={pointsMin}
 				max={maxPoints}
-				step="0.5"
+				step="any"
 				bind:value={pointsMax}
+				oninput={(e) => (pointsMaxText = e.currentTarget.value)}
 				onchange={updatePoints}
 				class="h-2 w-24 cursor-pointer accent-accent-primary"
 			/>
-			<output for="search-points-max" class="min-w-8">{pointsMax}</output>
+			<input
+				id="search-points-max-input"
+				type="number"
+				inputmode="decimal"
+				min={filters.pointsMin}
+				max={maxPoints}
+				step="any"
+				value={pointsMaxText}
+				oninput={(e) => previewPoints(e.currentTarget, 'pointsMax')}
+				onblur={(e) => commitNumber(e.currentTarget, 'pointsMax')}
+				onkeydown={commitOnEnter}
+				class="min-h-11 w-20 rounded-md border border-border bg-background p-2 text-base text-content-secondary focus-visible:outline-accent-primary"
+			/>
 		</div>
 		<label class="inline-flex items-center gap-x-2">
 			<span>{content.lang.search.minMedian}</span>
@@ -94,16 +189,10 @@
 				max="100"
 				step="any"
 				value={filters.medianMin}
-				onchange={(e) => {
-					const input = e.currentTarget;
-					const medianMin = input.value === '' ? 0 : input.valueAsNumber;
-					if (Number.isFinite(medianMin)) {
-						const clamped = Math.max(0, Math.min(100, medianMin));
-						input.value = String(clamped);
-						onchange({ ...filters, medianMin: clamped });
-					}
-				}}
-				class="w-20 rounded-md border border-border bg-background p-1 text-content-secondary focus-visible:outline-accent-primary"
+				inputmode="decimal"
+				onblur={(e) => commitNumber(e.currentTarget, 'medianMin')}
+				onkeydown={commitOnEnter}
+				class="min-h-11 w-20 rounded-md border border-border bg-background p-2 text-base text-content-secondary focus-visible:outline-accent-primary"
 			/>
 		</label>
 		<button

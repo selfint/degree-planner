@@ -24,6 +24,21 @@ function clamp(value: number, min: number, max: number): number {
 	return Math.min(Math.max(value, min), max);
 }
 
+/** Normalize a committed number field, keeping unfinished typing local to the input. */
+export function resolveNumericFilterInput(
+	value: string,
+	min: number,
+	max: number,
+	emptyValue: number,
+	previousValue: number,
+	badInput = false
+): number {
+	if (badInput) return previousValue;
+	if (value.trim() === '') return clamp(emptyValue, min, max);
+	const number = Number(value);
+	return Number.isFinite(number) ? clamp(number, min, max) : previousValue;
+}
+
 export function normalizeSearchQuery(query: string): string {
 	const trimmed = query.trim();
 	// Keep links using the old six-digit course codes working.

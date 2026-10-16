@@ -6,6 +6,7 @@ const courseData = JSON.parse(
 );
 
 async function setRange(slider: Locator, value: string) {
+	await expect(slider).toBeEnabled();
 	await slider.evaluate((element, value) => {
 		(element as HTMLInputElement).value = value;
 		element.dispatchEvent(new Event('input', { bubbles: true }));
@@ -34,8 +35,12 @@ const mathFaculty = courses.find(
 	(course) => course.code === '01040184'
 )!.faculty!;
 
-test.beforeEach(async ({ page }) => {
-	await page.addInitScript(() => localStorage.setItem('lang', 'en'));
+test.beforeEach(async ({ page }, testInfo) => {
+	const language = testInfo.title.includes('Hebrew') ? 'he' : 'en';
+	await page.addInitScript(
+		(lang) => localStorage.setItem('lang', lang),
+		language
+	);
 });
 
 test('combines filters, counts only displayed courses, and restores state after reload', async ({
@@ -112,7 +117,9 @@ test('commits a slider gesture once, clears filters without losing the query, an
 	await setRange(slider, '1');
 	await setRange(slider, '2');
 	await expect(page).toHaveURL(original);
-	await expect(page.locator('output[for="search-points-min"]')).toHaveText('2');
+	await expect(
+		page.getByRole('spinbutton', { name: 'Min points' })
+	).toHaveValue('2');
 	await slider.dispatchEvent('change');
 	await expect(page).toHaveURL(/pointsMin=2/);
 	expect(await page.evaluate(() => history.length)).toBe(historyLength + 1);
@@ -209,7 +216,6 @@ test('renders labeled Hebrew controls without horizontal overflow on mobile', as
 	page
 }) => {
 	await page.setViewportSize({ width: 375, height: 812 });
-	await page.addInitScript(() => localStorage.setItem('lang', 'he'));
 	await page.goto('/search?q=104184&medianMin=85');
 	await expect(
 		page.getByRole('heading', { name: 'תוצאות עבור "01040184"' })
@@ -226,4 +232,131 @@ test('renders labeled Hebrew controls without horizontal overflow on mobile', as
 			() => document.documentElement.scrollWidth <= innerWidth
 		)
 	).toBe(true);
+});
+
+test('supports precise decimal fields on mobile with slider, URL, reload, and history sync', async ({
+	page
+}) => {
+	await page.setViewportSize({ width: 320, height: 812 });
+	await page.goto(`/search?q=${query}`);
+	const minInput = page.getByRole('spinbutton', { name: 'Min points' });
+	const maxInput = page.getByRole('spinbutton', { name: 'Max points' });
+	const medianInput = page.getByRole('spinbutton', { name: 'Min median' });
+	const minSlider = page.getByRole('slider', { name: 'Min points' });
+	const maxSlider = page.getByRole('slider', { name: 'Max points' });
+	for (const input of [minInput, maxInput, medianInput]) {
+		await expect(input).toHaveAttribute('type', 'number');
+		await expect(input).toHaveAttribute('inputmode', 'decimal');
+		await expect(input).toHaveAttribute('step', 'any');
+	}
+	const originalUrl = page.url();
+	await minInput.fill('');
+	await expect(minInput).toHaveValue('');
+	await expect(page).toHaveURL(originalUrl);
+	await minInput.pressSequentially('2.25');
+	await expect(minInput).toHaveValue('2.25');
+	await expect(minSlider).toHaveValue('2.25');
+	await expect(page).toHaveURL(originalUrl);
+	await minInput.press('Enter');
+	await expect(page).toHaveURL(/pointsMin=2.25/);
+	await maxInput.fill('4.75');
+	await maxInput.press('Tab');
+	await expect(page).toHaveURL(/pointsMax=4.75/);
+	await medianInput.fill('85.125');
+	await medianInput.press('Enter');
+	await expect(page).toHaveURL(/medianMin=85.125/);
+	await expect(maxSlider).toHaveValue('4.75');
+	const expected = matches.filter(
+		(course) =>
+			course.points !== undefined &&
+			course.points >= 2.25 &&
+			course.points <= 4.75 &&
+			course.median !== undefined &&
+			course.median >= 85.125
+	);
+	await expect(
+		page.getByRole('list', { name: 'Results for' }).locator(':scope > li')
+	).toHaveCount(expected.length);
+	expect(
+		await page.evaluate(
+			() => document.documentElement.scrollWidth <= innerWidth
+		)
+	).toBe(true);
+	await page.reload();
+	await expect(minInput).toHaveValue('2.25');
+	await expect(maxInput).toHaveValue('4.75');
+	await expect(medianInput).toHaveValue('85.125');
+	await expect(minSlider).toHaveValue('2.25');
+	await expect(maxSlider).toHaveValue('4.75');
+	await setRange(minSlider, '2.5');
+	await expect(minInput).toHaveValue('2.5');
+	await minSlider.dispatchEvent('change');
+	await expect(page).toHaveURL(/pointsMin=2.5/);
+	await page.goBack();
+	await expect(minInput).toHaveValue('2.25');
+	await expect(minSlider).toHaveValue('2.25');
+	await page.goForward();
+	await expect(minInput).toHaveValue('2.5');
+	await page.getByRole('button', { name: 'Clear filters' }).click();
+	await expect(minInput).toHaveValue('0');
+	await expect(maxInput).toHaveValue(String(maxPoints));
+	await expect(medianInput).toHaveValue('0');
+});
+
+test('normalizes numeric fields only when committed and handles empty, invalid, and crossed bounds', async ({
+	page
+}) => {
+	await page.goto(
+		`/search?q=${query}&pointsMin=1.25&pointsMax=4.75&medianMin=90.5`
+	);
+	const minInput = page.getByRole('spinbutton', { name: 'Min points' });
+	const maxInput = page.getByRole('spinbutton', { name: 'Max points' });
+	const medianInput = page.getByRole('spinbutton', { name: 'Min median' });
+	const minSlider = page.getByRole('slider', { name: 'Min points' });
+	const originalUrl = page.url();
+	await minInput.fill('');
+	await minInput.pressSequentially('1e');
+	expect(
+		await minInput.evaluate(
+			(input: HTMLInputElement) => input.validity.badInput
+		)
+	).toBe(true);
+	await expect(page).toHaveURL(originalUrl);
+	await minInput.press('Tab');
+	await expect(minInput).toHaveValue('1.25');
+	await expect(minSlider).toHaveValue('1.25');
+	await expect(page).toHaveURL(originalUrl);
+	await minInput.fill('');
+	await expect(minInput).toHaveValue('');
+	await expect(page).toHaveURL(originalUrl);
+	await minInput.press('Tab');
+	await expect(minInput).toHaveValue('0');
+	await expect(page).not.toHaveURL(/pointsMin=/);
+	await minInput.fill('999');
+	await expect(minInput).toHaveValue('999');
+	await expect(page).not.toHaveURL(/pointsMin=/);
+	await minInput.press('Enter');
+	await expect(minInput).toHaveValue('4.75');
+	await expect(minSlider).toHaveValue('4.75');
+	await expect(page).toHaveURL(/pointsMin=4.75/);
+	await maxInput.fill('-2');
+	await maxInput.press('Tab');
+	await expect(maxInput).toHaveValue('4.75');
+	await minInput.fill('-3.5');
+	await minInput.press('Tab');
+	await expect(minInput).toHaveValue('0');
+	await maxInput.fill('');
+	await expect(maxInput).toHaveValue('');
+	await maxInput.press('Enter');
+	await expect(maxInput).toHaveValue(String(maxPoints));
+	await expect(page).not.toHaveURL(/pointsMax=/);
+	await medianInput.fill('150.5');
+	await medianInput.press('Tab');
+	await expect(medianInput).toHaveValue('100');
+	await medianInput.fill('');
+	await expect(medianInput).toHaveValue('');
+	await expect(page).toHaveURL(/medianMin=100/);
+	await medianInput.press('Tab');
+	await expect(medianInput).toHaveValue('0');
+	await expect(page).not.toHaveURL(/medianMin=/);
 });

@@ -6,6 +6,7 @@ import {
 	matchesSearchFilters,
 	normalizeSearchQuery,
 	readSearchFilters,
+	resolveNumericFilterInput,
 	searchCourses,
 	searchFilterKeys,
 	writeSearchFilters
@@ -189,5 +190,32 @@ describe('course filtering', () => {
 		expect(normalizeSearchQuery(' 104184 ')).toBe('01040184');
 		expect(normalizeSearchQuery(' 01040184 ')).toBe('01040184');
 		expect(normalizeSearchQuery(' Algebra ')).toBe('Algebra');
+	});
+});
+
+describe('committed numeric filter fields', () => {
+	it('preserves floats without integer or half-point rounding', () => {
+		expect(resolveNumericFilterInput('2.25', 0, 20, 0, 1)).toBe(2.25);
+		expect(resolveNumericFilterInput('85.125', 0, 100, 0, 80)).toBe(85.125);
+		expect(resolveNumericFilterInput('0.05', 0, 20, 0, 1)).toBe(0.05);
+	});
+	it('resets empty committed fields to their individual defaults', () => {
+		expect(resolveNumericFilterInput('', 0, 20, 0, 2.25)).toBe(0);
+		expect(resolveNumericFilterInput(' ', 2.25, 20, 20, 4.75)).toBe(20);
+		expect(resolveNumericFilterInput('', 0, 100, 0, 85.5)).toBe(0);
+	});
+	it('retains the previous value for invalid or unfinished numeric input', () => {
+		for (const value of ['NaN', 'Infinity', 'abc', '1e', '-']) {
+			expect(resolveNumericFilterInput(value, 0, 20, 0, 2.25)).toBe(2.25);
+		}
+		// Native number inputs expose unfinished numeric text as empty with badInput set.
+		expect(resolveNumericFilterInput('', 0, 20, 0, 2.25, true)).toBe(2.25);
+	});
+	it('clamps values to both the course bounds and the other range endpoint', () => {
+		expect(resolveNumericFilterInput('-1.5', 0, 20, 0, 2)).toBe(0);
+		expect(resolveNumericFilterInput('999', 0, 20, 0, 2)).toBe(20);
+		expect(resolveNumericFilterInput('6', 0, 4.75, 0, 2)).toBe(4.75);
+		expect(resolveNumericFilterInput('1', 2.25, 20, 20, 4)).toBe(2.25);
+		expect(resolveNumericFilterInput('100.5', 0, 100, 0, 85)).toBe(100);
 	});
 });

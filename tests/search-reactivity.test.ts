@@ -438,3 +438,125 @@ test('same-batch numeric and slider edits followed by Clear restore every native
 		await expectState(page, defaults());
 	}
 });
+
+async function sliderPosition(page: Page, id: string, value?: number) {
+	const slider = page.locator(`#${id}`);
+	await slider.scrollIntoViewIfNeeded();
+	return slider.evaluate((input: HTMLInputElement, value) => {
+		const rect = input.getBoundingClientRect();
+		// Chromium's native thumb is one rem; its center traverses the remaining track.
+		const inset =
+			Number.parseFloat(getComputedStyle(document.documentElement).fontSize) /
+			2;
+		const min = Number(input.min),
+			max = Number(input.max);
+		const fraction = ((value ?? input.valueAsNumber) - min) / (max - min);
+		const rtl = getComputedStyle(input).direction === 'rtl';
+		return {
+			x:
+				rect.left +
+				inset +
+				(rect.width - 2 * inset) * (rtl ? 1 - fraction : fraction),
+			y: rect.top + rect.height / 2
+		};
+	}, value);
+}
+
+for (const inputMode of ['mouse', 'touch'] as const) {
+	test.describe(`native ${inputMode} slider release`, () => {
+		if (inputMode === 'touch')
+			test.use({
+				hasTouch: true,
+				isMobile: true,
+				viewport: { width: 390, height: 844 }
+			});
+		for (const language of ['English', 'Hebrew']) {
+			for (const delayedChange of [false, true]) {
+				test(`${language} ${delayedChange ? 'delayed-change' : 'native-change'} drag applies both point filters on release without blur`, async ({
+					page,
+					context
+				}) => {
+					await page.goto('/search?q=1040&available&pointsMin=1&pointsMax=12');
+					const state = {
+						...defaults(),
+						available: true,
+						pointsMin: 1,
+						pointsMax: 12
+					};
+					await expectState(page, state);
+					if (delayedChange) {
+						// Some mobile browsers defer change until blur. Do not synthesize a replacement event:
+						// exercise real input and release events while withholding only that native change.
+						await page.evaluate(() =>
+							document.addEventListener(
+								'change',
+								(event) => {
+									if (
+										event.target instanceof HTMLInputElement &&
+										event.target.type === 'range'
+									)
+										event.stopImmediatePropagation();
+								},
+								true
+							)
+						);
+					}
+					const touch =
+						inputMode === 'touch'
+							? await context.newCDPSession(page)
+							: undefined;
+					for (const [field, target] of [
+						['pointsMax', 4],
+						['pointsMin', 2]
+					] as const) {
+						const id =
+							field === 'pointsMax' ? 'search-points-max' : 'search-points-min';
+						const slider = page.locator(`#${id}`);
+						const from = await sliderPosition(page, id);
+						const to = await sliderPosition(page, id, target);
+						const historyLength = await page.evaluate(() => history.length);
+						if (touch)
+							await touch.send('Input.dispatchTouchEvent', {
+								type: 'touchStart',
+								touchPoints: [from]
+							});
+						else {
+							await page.mouse.move(from.x, from.y);
+							await page.mouse.down();
+						}
+						for (let step = 1; step <= 12; step++) {
+							const point = {
+								x: from.x + ((to.x - from.x) * step) / 12,
+								y: to.y
+							};
+							if (touch)
+								await touch.send('Input.dispatchTouchEvent', {
+									type: 'touchMove',
+									touchPoints: [point]
+								});
+							else await page.mouse.move(point.x, point.y);
+						}
+						if (touch)
+							await touch.send('Input.dispatchTouchEvent', {
+								type: 'touchEnd',
+								touchPoints: []
+							});
+						else await page.mouse.up();
+						const actual = Number(await slider.inputValue());
+						expect(actual).not.toBe(state[field]);
+						expect(actual * 2).toBe(Math.round(actual * 2));
+						state[field] = actual;
+						await expectState(page, state);
+						expect(await page.evaluate(() => history.length)).toBe(
+							historyLength + 1
+						);
+						// The range still owns focus: no Enter, blur, or another control was needed to apply it.
+						if (inputMode === 'mouse') await expect(slider).toBeFocused();
+					}
+					await page.reload();
+					await expectState(page, state);
+				});
+			}
+		}
+	});
+}

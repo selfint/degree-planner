@@ -182,6 +182,13 @@
 		updatePoints();
 	}
 
+	function beginSliderGesture(event: PointerEvent) {
+		// Keep the release even if the pointer leaves the narrow slider track.
+		(event.currentTarget as HTMLInputElement).setPointerCapture(
+			event.pointerId
+		);
+	}
+
 	function updatePoints() {
 		hasUncommittedInput = false;
 		onchange({ pointsMin, pointsMax });
@@ -237,6 +244,12 @@
 				value={pointsMin}
 				oninput={(e) => previewSlider(e.currentTarget, 'pointsMin')}
 				onkeydown={(e) => stepSlider(e, 'pointsMin')}
+				onpointerdown={beginSliderGesture}
+				onpointerup={updatePoints}
+				onpointercancel={updatePoints}
+				ontouchend={updatePoints}
+				ontouchcancel={updatePoints}
+				onkeyup={updatePoints}
 				onchange={updatePoints}
 				class="h-2 w-24 cursor-pointer accent-accent-primary"
 			/>
@@ -273,6 +286,12 @@
 				value={pointsMax}
 				oninput={(e) => previewSlider(e.currentTarget, 'pointsMax')}
 				onkeydown={(e) => stepSlider(e, 'pointsMax')}
+				onpointerdown={beginSliderGesture}
+				onpointerup={updatePoints}
+				onpointercancel={updatePoints}
+				ontouchend={updatePoints}
+				ontouchcancel={updatePoints}
+				onkeyup={updatePoints}
 				onchange={updatePoints}
 				class="h-2 w-24 cursor-pointer accent-accent-primary"
 			/>

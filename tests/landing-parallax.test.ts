@@ -2,6 +2,35 @@ import { expect, test } from '@playwright/test';
 
 const origin = 'http://localhost:4173';
 
+// Include enough layout state in CI artifacts to distinguish a scroll bug from
+// a late image/font reflow without weakening the document-height assertions.
+function layoutSnapshot() {
+	const box = (node: Element) => {
+		const { x, y, width, height } = node.getBoundingClientRect();
+		return { x, y: y + scrollY, width, height };
+	};
+	return {
+		scroll: scrollY,
+		height: document.documentElement.scrollHeight,
+		clientHeight: document.documentElement.clientHeight,
+		body: box(document.body),
+		fontStatus: document.fonts.status,
+		landing: box(document.querySelector('.landing')!),
+		footer: box(document.querySelector('footer')!),
+		images: Array.from(
+			document.querySelectorAll<HTMLImageElement>('.landing img')
+		).map((node) => ({
+			alt: node.alt,
+			complete: node.complete,
+			naturalWidth: node.naturalWidth,
+			section: box(
+				node.closest('picture')!.parentElement!.parentElement!.parentElement!
+			),
+			...box(node)
+		}))
+	};
+}
+
 for (const viewport of [
 	{ width: 1280, height: 800 },
 	{ width: 390, height: 844 },
@@ -32,28 +61,37 @@ for (const viewport of [
 			);
 			await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
 			await expect(glow).toHaveCSS('transform', 'matrix(1, 0, 0, 1, 0, 0)');
+			// Loaded web fonts can change text wrapping independently of parallax.
+			await page.evaluate(() => document.fonts.ready);
 			const initial = await landing.boundingBox();
 			const initialHeight = await page.evaluate(
 				() => document.documentElement.scrollHeight
 			);
+			await testInfo.attach('layout-top', {
+				body: JSON.stringify(await page.evaluate(layoutSnapshot), null, 2),
+				contentType: 'application/json'
+			});
 			await page.screenshot({ path: testInfo.outputPath('landing-top.png') });
 			await page.mouse.wheel(0, 600);
+			// WebKit animates wheel input. Wait for the requested position, then
+			// sample geometry and scroll in one frame rather than racing separate reads.
+			await expect.poll(() => page.evaluate(() => scrollY)).toBeCloseTo(600, 0);
 			await expect
 				.poll(() =>
-					glow.evaluate(
-						(node) =>
-							new DOMMatrixReadOnly(getComputedStyle(node).transform).m42
+					glow.evaluate((node) =>
+						Math.abs(
+							new DOMMatrixReadOnly(getComputedStyle(node).transform).m42 -
+								scrollY * 0.8
+						)
 					)
 				)
-				.toBeGreaterThan(0);
-			const scroll = await page.evaluate(() => window.scrollY);
-			const offset = await glow.evaluate(
-				(node) => new DOMMatrixReadOnly(getComputedStyle(node).transform).m42
-			);
-			expect(offset).toBeCloseTo(scroll * 0.8, 0);
-			const after = await landing.boundingBox();
-			expect(after?.height).toBe(initial?.height);
-			expect(after!.y + scroll).toBeCloseTo(initial!.y, 0);
+				.toBeLessThan(0.1);
+			const after = await landing.evaluate((node) => {
+				const { height, y } = node.getBoundingClientRect();
+				return { height, documentY: y + scrollY };
+			});
+			expect(after.height).toBe(initial?.height);
+			expect(after.documentY).toBeCloseTo(initial!.y, 0);
 			expect(
 				await page.evaluate(() => document.documentElement.scrollHeight)
 			).toBe(initialHeight);
@@ -96,6 +134,10 @@ for (const viewport of [
 						)
 					)
 					.toBeLessThan(0.1);
+				await testInfo.attach(`layout-${label}`, {
+					body: JSON.stringify(await page.evaluate(layoutSnapshot), null, 2),
+					contentType: 'application/json'
+				});
 				const bounds = await glow.boundingBox();
 				// The translated decoration still covers the visible landing area.
 				expect(bounds!.y).toBeLessThanOrEqual(0);
@@ -172,6 +214,7 @@ test('reduced motion stays static and updates when the preference changes', asyn
 // The dedicated browser job retains recordings for transient visual review.
 test.describe('rapid mobile scrolling', () => {
 	test.use({
+		viewport: { width: 390, height: 844 },
 		hasTouch: true,
 		isMobile: false,
 		deviceScaleFactor: 3
@@ -294,3 +337,108 @@ test.describe('rapid mobile scrolling', () => {
 		}
 	}
 });
+
+for (const width of [390, 1280]) {
+	for (const language of ['en', 'he']) {
+		test(`lazy demo images reserve space before decoding in ${language} at ${width}`, async ({
+			page
+		}, testInfo) => {
+			await page.setViewportSize({ width, height: 844 });
+			await page.addInitScript(
+				(language) => localStorage.setItem('lang', language),
+				language
+			);
+			let releaseImages!: () => void;
+			const imagesMayLoad = new Promise<void>((resolve) => {
+				releaseImages = resolve;
+			});
+			await page.route(
+				/-pic\.[^/]+\.(avif|webp|png)(?:\?.*)?$/,
+				async (route) => {
+					await imagesMayLoad;
+					await route.continue();
+				}
+			);
+			try {
+				await page.goto(origin, { waitUntil: 'domcontentloaded' });
+				await expect(page.locator('.landing')).toHaveAttribute(
+					'dir',
+					language === 'he' ? 'rtl' : 'ltr'
+				);
+				await expect(page.locator('.landing-gradient')).toHaveAttribute(
+					'data-parallax',
+					/native|fallback/
+				);
+				// WebKit's fonts.ready waits for pending document resources, including
+				// the images deliberately held by this test. Load used faces directly.
+				await page.evaluate(() =>
+					Promise.all([
+						document.fonts.load('400 1rem "Noto Sans Hebrew"', 'PlanIt תכנן'),
+						document.fonts.load('700 1rem "Noto Sans Hebrew"', 'PlanIt תכנן'),
+						document.fonts.load('400 1rem Pacifico')
+					])
+				);
+				const before = await page.evaluate(layoutSnapshot);
+				await testInfo.attach('layout-before-images', {
+					body: JSON.stringify(before, null, 2),
+					contentType: 'application/json'
+				});
+				expect(before.images).toHaveLength(7);
+				for (const image of before.images) {
+					expect(image.naturalWidth).toBe(0);
+					expect(image.width).toBeGreaterThan(0);
+					expect(image.height).toBeGreaterThan(0);
+				}
+				// Release the actual images only after recording the cold layout.
+				// Eager loading here makes the test deterministic without changing app policy.
+				await page
+					.locator('.landing img')
+					.evaluateAll((images) =>
+						images.forEach(
+							(image) => ((image as HTMLImageElement).loading = 'eager')
+						)
+					);
+				releaseImages();
+				await expect
+					.poll(() =>
+						page
+							.locator('.landing img')
+							.evaluateAll((images) =>
+								images.every(
+									(image) =>
+										(image as HTMLImageElement).complete &&
+										(image as HTMLImageElement).naturalWidth > 0
+								)
+							)
+					)
+					.toBe(true);
+				await page
+					.locator('.landing img')
+					.evaluateAll((images) =>
+						Promise.all(
+							images.map((image) => (image as HTMLImageElement).decode())
+						)
+					);
+				const after = await page.evaluate(layoutSnapshot);
+				await testInfo.attach('layout-after-images', {
+					body: JSON.stringify(after, null, 2),
+					contentType: 'application/json'
+				});
+				expect(after.height).toBe(before.height);
+				expect(after.landing).toEqual(before.landing);
+				expect(after.footer).toEqual(before.footer);
+				for (let i = 0; i < before.images.length; i++) {
+					for (const dimension of ['x', 'y', 'width', 'height'] as const) {
+						expect(after.images[i][dimension]).toBeCloseTo(
+							before.images[i][dimension],
+							1
+						);
+					}
+				}
+			} finally {
+				releaseImages();
+				if (!page.isClosed()) await page.unrouteAll({ behavior: 'wait' });
+			}
+		});
+	}
+}

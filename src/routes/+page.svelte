@@ -49,7 +49,7 @@
 	</div>
 
 	<div
-		class="mt-8 flex flex-col items-center gap-y-12 p-3 sm:mt-20 sm:max-w-[1024px]"
+		class="mt-8 flex w-full max-w-[64rem] flex-col items-center gap-y-12 p-3 sm:mt-20"
 	>
 		<div class="w-full sm:flex sm:max-w-[1024px] sm:flex-row">
 			<div

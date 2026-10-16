@@ -97,7 +97,11 @@ async function ready(page: Page) {
 	await page.goto(`${origin}/app/plan`);
 	await page.waitForFunction(() => navigator.serviceWorker.controller !== null);
 	await expect(page.locator('[data-code="02340124"]')).toBeVisible();
-	await expect(page.getByTestId('pwa-ready')).toBeVisible({ timeout: 20000 });
+	await expect(page.getByTestId('pwa-status')).toHaveAttribute(
+		'data-state',
+		'ready',
+		{ timeout: 20000 }
+	);
 }
 
 test('manifest and correctly sized icons support installation', async ({
@@ -105,6 +109,18 @@ test('manifest and correctly sized icons support installation', async ({
 	request
 }) => {
 	await ready(page);
+	await expect(page.locator('footer').getByTestId('pwa-status')).toHaveCount(0);
+	await expect(page.locator('footer details')).toHaveCount(0);
+	await expect(page.getByTestId('pwa-downloading')).toHaveCount(0);
+	expect(
+		await page
+			.getByTestId('pwa-status')
+			.evaluate((node) => node.getBoundingClientRect().height)
+	).toBe(0);
+	for (const link of await page.locator('footer a').all()) {
+		await expect(link).toHaveAttribute('target', '_blank');
+		await expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+	}
 	const manifest = await (
 		await request.get(`${origin}/manifest.webmanifest`)
 	).json();
@@ -158,7 +174,7 @@ test('a never-visited course loads offline while guest plan editing stays read-o
 	expect(await page.evaluate(() => performance.timeOrigin)).toBe(timeOrigin);
 	await page.reload();
 	await expect(page.locator('main')).toContainText(course.name);
-	await expect(page.getByTestId('pwa-offline')).toBeVisible();
+	await expect(page.getByTestId('plan-read-only')).toBeVisible();
 	await expect(
 		page.getByRole('button', { name: 'Plan', exact: true })
 	).toBeVisible();
@@ -186,9 +202,9 @@ test('a never-visited course loads offline while guest plan editing stays read-o
 	await expect(page.locator('[data-code="02340124"]')).toBeVisible();
 	await page.reload();
 	await expect(page.locator('[data-code="02340124"]')).toBeVisible();
-	await expect(page.getByTestId('pwa-offline')).toBeVisible();
+	await expect(page.getByTestId('plan-read-only')).toBeVisible();
 	await context.setOffline(false);
-	await expect(page.getByTestId('pwa-offline')).toHaveCount(0);
+	await expect(page.getByTestId('plan-read-only')).toHaveCount(0);
 });
 
 test('updates wait without reloading unsaved plan edits or other tabs', async ({
@@ -313,7 +329,11 @@ for (const language of ['en', 'he'] as const) {
 			await readFile('static/courseData.json', 'utf8')
 		);
 		await page.goto(`${origin}/app/`);
-		await expect(page.getByTestId('pwa-ready')).toBeVisible({ timeout: 20000 });
+		await expect(page.getByTestId('pwa-status')).toHaveAttribute(
+			'data-state',
+			'ready',
+			{ timeout: 20000 }
+		);
 		await expect(page.getByTestId('pwa-update')).toHaveCount(0);
 		if (browserName === 'webkit') {
 			// Older Playwright WebKit rejects even cache-only SW responses under
@@ -327,11 +347,14 @@ for (const language of ['en', 'he'] as const) {
 		expect(navigation?.fromServiceWorker()).toBe(true);
 		await expect(page.locator('main')).toContainText(courses['02340141'].name);
 		if (browserName !== 'webkit')
-			await expect(page.getByTestId('pwa-offline')).toBeVisible();
+			await expect(page.getByTestId('plan-read-only')).toBeVisible();
 		const reload = await page.reload();
 		expect(reload?.fromServiceWorker()).toBe(true);
 		await expect(page.locator('main')).toContainText(courses['02340141'].name);
-		await expect(page.getByTestId('pwa-ready')).toBeVisible();
+		await expect(page.getByTestId('pwa-status')).toHaveAttribute(
+			'data-state',
+			'ready'
+		);
 	});
 }
 
@@ -355,9 +378,16 @@ test('evicted shell assets remove readiness offline and are repaired on reconnec
 	expect(deleted).toContain('/nodes/');
 	await context.setOffline(true);
 	await expect(page.getByTestId('pwa-incomplete')).toBeVisible();
-	await expect(page.getByTestId('pwa-ready')).toHaveCount(0);
+	await expect(page.getByTestId('pwa-status')).not.toHaveAttribute(
+		'data-state',
+		'ready'
+	);
 	await context.setOffline(false);
-	await expect(page.getByTestId('pwa-ready')).toBeVisible({ timeout: 20000 });
+	await expect(page.getByTestId('pwa-status')).toHaveAttribute(
+		'data-state',
+		'ready',
+		{ timeout: 20000 }
+	);
 	expect(
 		await page.evaluate(async (url) => !!(await caches.match(url)), deleted)
 	).toBe(true);
@@ -573,7 +603,10 @@ test('a failed console shell install keeps the existing root registration', asyn
 		active: `${origin}/service-worker.js`,
 		waiting: undefined
 	});
-	await expect(page.getByTestId('pwa-ready')).toHaveCount(0);
+	await expect(page.getByTestId('pwa-status')).not.toHaveAttribute(
+		'data-state',
+		'ready'
+	);
 });
 
 test('a failed public-data persistence keeps the existing root registration even when the shell is ready', async ({
@@ -625,5 +658,8 @@ test('a failed public-data persistence keeps the existing root registration even
 		active: `${origin}/service-worker.js`,
 		waiting: undefined
 	});
-	await expect(page.getByTestId('pwa-ready')).toHaveCount(0);
+	await expect(page.getByTestId('pwa-status')).not.toHaveAttribute(
+		'data-state',
+		'ready'
+	);
 });

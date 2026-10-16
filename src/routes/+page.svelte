@@ -9,6 +9,7 @@
 	import sharePic from '$lib/assets/share-pic.webp?enhanced';
 	import searchPic from '$lib/assets/search-pic.webp?enhanced';
 
+	import LandingInstallInfo from '$lib/components/LandingInstallInfo.svelte';
 	import GetStartedLink from '$lib/components/GetStartedLink.svelte';
 	import CourseExplanation from '$lib/components/CourseExplanation.svelte';
 	import ImgDemo from './components/ImgDemo.svelte';
@@ -108,6 +109,7 @@
 			{content.lang.landing.search}
 		</ImgDemo>
 	</div>
+	<LandingInstallInfo />
 </div>
 
 <style lang="postcss">

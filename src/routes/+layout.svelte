@@ -3,10 +3,8 @@
 	import { onMount } from 'svelte';
 	import { page, navigating } from '$app/state';
 	import { content } from '$lib/preferences.svelte';
-	import { cms } from '$lib/content';
 	import TitleBar from './components/TitleBar.svelte';
-	import ThemeToggle from '$lib/components/ThemeToggle.svelte';
-	import Select from '$lib/components/Select.svelte';
+	import AppFooter from '$lib/components/AppFooter.svelte';
 	const { children } = $props();
 	const consoleRoute = $derived(/^\/app(?:\/|$)/.test(page.url.pathname));
 	const openingConsole = $derived(
@@ -15,13 +13,6 @@
 	onMount(() => {
 		document.getElementById('console-boot')?.remove();
 	});
-	function changeLanguage(value: (typeof cms)[keyof typeof cms]) {
-		try {
-			localStorage.setItem('lang', value.lang);
-		} catch {
-			/* In-memory preference still works. */
-		}
-	}
 </script>
 
 {#if consoleRoute}
@@ -37,27 +28,7 @@
 			/>
 		</div>
 		<main class="flex-grow">{@render children()}</main>
-		<footer
-			class="flex flex-wrap items-center justify-between gap-3 border-t-2 border-border bg-background p-3 text-sm"
-		>
-			<p class="text-content-secondary">
-				{content.lang.footer.createdBy}
-				<a class="text-link" href="https://github.com/selfint"
-					>{content.lang.footer.author}</a
-				>
-			</p>
-			<div class="flex items-center gap-2">
-				<ThemeToggle />
-				<Select bind:value={content.lang} onchange={changeLanguage}>
-					<option value={cms.en}>en</option><option value={cms.he}>עב</option>
-				</Select>
-			</div>
-			<a
-				class="text-content-secondary"
-				href="https://github.com/selfint/degree-planner/issues/new/choose"
-				>{content.lang.footer.reportIssue}</a
-			>
-		</footer>
+		<AppFooter />
 	</div>
 {/if}
 {#if openingConsole}

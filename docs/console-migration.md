@@ -30,11 +30,13 @@ is introduced. Measurements, not assumptions, determine the largest contributors
 ## Mobile review
 
 1. Open the preview landing, change language/theme, and choose Get Started.
-2. The address enters `/app/` and shows a loading screen. Wait for all courses
-   to be ready offline, then open a course you have not visited.
+2. The address enters `/app/` and shows a loading screen. Wait for loading and
+   offline preparation to finish, without an incomplete-setup warning, then open
+   a course you have not visited.
 3. Disconnect, open another course and reload. Plans must remain read-only.
 4. Reconnect before editing or saving. Existing saved data must remain present.
-5. Install from the console with Add to Home Screen. On iOS, browser and installed
+5. Find installation help at the bottom of the landing. Open the console, then
+   install using the browser menu or Add to Home Screen. On iOS, browser and installed
    app storage can differ; verify the expected plan before switching.
 
 Physical iOS airplane mode, standalone cold-start and live Google login need
@@ -62,7 +64,10 @@ independently attest an immutable deployment SHA.
 The five isolated 390px Chromium journeys cover English/Hebrew preferences and
 loading, unvisited offline courses and reloads using the deployed worker, console
 home navigation and Back/Forward, read-only guest actions and reconnect writes,
-and iPhone-user-agent install guidance. Screenshots and sanitized QA JSON are
+and iPhone-user-agent landing install guidance, including its no-service-startup
+boundary. The console footer contains only attribution, reporting and preferences.
+Readiness stays an internal shell/data condition; preparation, error and update
+notices appear above console content only when needed. Screenshots and sanitized QA JSON are
 uploaded even on failures. No real account is used. The deliberate course-data
 pause checks the loading screen, not natural startup speed. Physical iOS and
 live account login remain outside this emulation; old-install migration and

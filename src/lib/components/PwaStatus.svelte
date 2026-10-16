@@ -15,15 +15,8 @@
 	import { pwaMessages } from '$lib/pwa/messages';
 	import { replacesExistingWorker } from '$lib/pwa/service-worker-update';
 
-	interface InstallPrompt extends Event {
-		prompt(): Promise<void>;
-		userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
-	}
-
 	const text = $derived(pwaMessages[content.lang.lang]);
-	let prompt = $state<InstallPrompt | undefined>();
-	let standalone = $state(false);
-	let offline = $state(false);
+	let showPreparing = $state(false);
 	let updateReady = $state(false);
 	let shell = $state<ShellReadiness>('preparing');
 	let publicData = $state<OfflinePublicDataState>({
@@ -36,6 +29,15 @@
 	const unavailable = $derived(
 		shell === 'unavailable' || publicData.phase === 'error'
 	);
+
+	// Routine cache checks usually finish immediately. Do not flash a new row
+	// above the page on every navigation or tab-focus change.
+	$effect(() => {
+		showPreparing = false;
+		if (allReady || unavailable || shell === 'outdated') return;
+		const timer = setTimeout(() => (showPreparing = true), 750);
+		return () => clearTimeout(timer);
+	});
 
 	afterNavigate(() => verifyShell());
 
@@ -86,12 +88,6 @@
 				void upgradeLegacyScope();
 			})
 		];
-		const displayMode = window.matchMedia('(display-mode: standalone)');
-		const checkDisplay = () => {
-			standalone =
-				displayMode.matches ||
-				(navigator as Navigator & { standalone?: boolean }).standalone === true;
-		};
 		const checkShell = async () => {
 			if (disposed || checking) return;
 			const controller = navigator.serviceWorker?.controller;
@@ -123,30 +119,16 @@
 			void checkShell();
 		};
 		const checkNetwork = () => {
-			offline = !navigator.onLine;
 			// Verify existing durable state offline too. Reconnect resumes a partial download.
 			retryOffline();
 		};
 		const visible = () => {
 			if (document.visibilityState === 'visible') retryOffline();
 		};
-		const offerInstall = (event: Event) => {
-			event.preventDefault();
-			prompt = event as InstallPrompt;
-		};
-		const installed = () => {
-			standalone = true;
-			prompt = undefined;
-		};
-		checkDisplay();
-		offline = !navigator.onLine;
-		displayMode.addEventListener('change', checkDisplay);
 		window.addEventListener('online', checkNetwork);
 		window.addEventListener('offline', checkNetwork);
 		window.addEventListener('pageshow', retryOffline);
 		document.addEventListener('visibilitychange', visible);
-		window.addEventListener('beforeinstallprompt', offerInstall);
-		window.addEventListener('appinstalled', installed);
 
 		// The console layout owns initial bootstrap; reconnect/visibility refresh it.
 		if (import.meta.env.PROD && 'serviceWorker' in navigator) {
@@ -203,7 +185,6 @@
 			disposed = true;
 			checkGeneration++;
 			cleanups.forEach((cleanup) => cleanup());
-			displayMode.removeEventListener('change', checkDisplay);
 			window.removeEventListener('online', checkNetwork);
 			window.removeEventListener('offline', checkNetwork);
 			window.removeEventListener('pageshow', retryOffline);
@@ -212,79 +193,57 @@
 				'controllerchange',
 				controllerChanged
 			);
-			window.removeEventListener('beforeinstallprompt', offerInstall);
-			window.removeEventListener('appinstalled', installed);
 		};
 	});
-
-	async function install() {
-		const pending = prompt;
-		if (!pending) return;
-		prompt = undefined;
-		try {
-			await pending.prompt();
-			await pending.userChoice;
-		} catch {
-			// The browser menu and manual installation instructions remain available.
-		}
-	}
 </script>
 
-<div class="w-full text-sm text-content-secondary">
-	{#if offline}
-		<p role="status" class="mb-2" data-testid="pwa-offline">{text.offline}</p>
-	{/if}
+<!-- Lifecycle stays mounted in the console. Ready state takes no visual space;
+     only preparation, a failed setup, or an update needs an on-screen notice. -->
+<div
+	data-testid="pwa-status"
+	data-state={allReady
+		? 'ready'
+		: shell === 'outdated'
+			? 'outdated'
+			: unavailable
+				? 'error'
+				: 'preparing'}
+	class="text-sm text-content-secondary"
+>
+	<p role="status" class="sr-only">{allReady ? text.ready : ''}</p>
 	{#if updateReady}
 		<div
 			role="status"
-			class="mb-2 flex items-start gap-3"
+			class="mx-3 my-2 flex items-start gap-3 rounded-md bg-card-primary p-3"
 			data-testid="pwa-update"
 		>
-			<p>{text.update}</p>
+			<p class="flex-grow">{text.update}</p>
 			<button
 				type="button"
-				class="shrink-0 underline"
+				class="-m-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-md text-lg hover:bg-background"
 				aria-label={text.close}
 				onclick={() => (updateReady = false)}>×</button
 			>
 		</div>
 	{/if}
-	<div class="min-h-12" data-testid="pwa-readiness">
-		{#if allReady}
-			<p role="status" class="mb-2" data-testid="pwa-ready">{text.ready}</p>
-		{:else if shell === 'outdated'}
-			<p role="status" class="mb-2" data-testid="pwa-incomplete">
+	{#if !allReady}
+		{#if shell === 'outdated'}
+			<p role="status" class="mx-3 my-2" data-testid="pwa-incomplete">
 				{text.shellOutdated}
 			</p>
 		{:else if unavailable}
-			<p role="status" class="mb-2" data-testid="pwa-incomplete">
+			<p role="status" class="mx-3 my-2" data-testid="pwa-incomplete">
 				{text.unavailable}
 				<button
 					type="button"
-					class="ms-2 underline"
+					class="ms-2 min-h-11 underline"
 					onclick={() => retryOffline()}>{text.retry}</button
 				>
 			</p>
-		{:else}
-			<p role="status" class="mb-2" data-testid="pwa-downloading">
+		{:else if showPreparing}
+			<p role="status" class="mx-3 my-2" data-testid="pwa-downloading">
 				{text.downloading}
 			</p>
 		{/if}
-	</div>
-	{#if !standalone}
-		<div class="flex flex-wrap items-baseline gap-3">
-			{#if prompt}
-				<button
-					type="button"
-					class="font-medium text-content-primary underline"
-					onclick={install}>{text.install}</button
-				>
-			{/if}
-			<details class="min-w-0">
-				<summary class="cursor-pointer">{prompt ? 'ⓘ' : text.install}</summary>
-				<p class="mt-2 max-w-3xl">{text.installHelp}</p>
-				<p class="mt-2 max-w-3xl">{text.storageHelp}</p>
-			</details>
-		</div>
 	{/if}
 </div>

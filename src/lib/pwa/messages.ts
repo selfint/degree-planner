@@ -1,6 +1,5 @@
 export const pwaMessages = {
 	en: {
-		install: 'Install PlanIt',
 		retry: 'Try again',
 		ready: 'All courses ready offline',
 		downloading: 'Preparing offline access…',
@@ -20,10 +19,6 @@ export const pwaMessages = {
 			'Course details are available. Plan actions will return when your saved plan is ready; account changes need an internet connection.',
 		accountUnavailable:
 			'Your account plan needs an internet connection to load and sync. Reconnect to continue. Any open draft is kept in this window.',
-		installHelp:
-			'Use your browser’s install option. On iPhone or iPad, open the Share menu and choose Add to Home Screen (use Safari if the option is missing). On Mac, Safari also offers File → Add to Dock.',
-		storageHelp:
-			'All courses, app pages and the catalog index download automatically on opening. Keep this tab open until ready. Degree requirements download when you open that degree. Wait for “All courses ready offline” before disconnecting. If setup is incomplete, reconnect and retry; storage may be full or unavailable. For a pending app update, finish saving, close all PlanIt windows and reopen. Saved guest plans stay on this device. All plan editing and saving require internet; offline access is read-only. Account plans and syncing require internet. Browser and installed-app storage may be separate, especially on iOS; check your plan before switching.',
 		offline:
 			'You’re offline. All downloaded course and catalog data and saved guest plans remain available once offline setup is complete. Plan editing, saving, account plans, sign-in and syncing need internet. Keep this window open until account changes finish syncing.',
 		update:
@@ -32,7 +27,6 @@ export const pwaMessages = {
 		close: 'Dismiss update notice'
 	},
 	he: {
-		install: 'התקנת PlanIt',
 		retry: 'נסו שוב',
 		ready: 'כל הקורסים זמינים ללא אינטרנט',
 		downloading: 'הכנה לשימוש ללא אינטרנט…',
@@ -51,10 +45,6 @@ export const pwaMessages = {
 			'פרטי הקורס זמינים. פעולות התוכנית יחזרו כשהתוכנית השמורה תהיה מוכנה; שינויים בחשבון דורשים חיבור לאינטרנט.',
 		accountUnavailable:
 			'טעינה וסנכרון של התוכנית בחשבון דורשים חיבור לאינטרנט. התחברו מחדש כדי להמשיך. טיוטה פתוחה נשמרת בחלון הזה.',
-		installHelp:
-			'אפשר להתקין דרך תפריט הדפדפן. ב-iPhone או ב-iPad, פתחו את תפריט השיתוף ובחרו ״הוסף למסך הבית״ (אם האפשרות חסרה, נסו ב-Safari). ב-Mac אפשר לבחור ב-Safari: קובץ ← הוסף ל-Dock.',
-		storageHelp:
-			'כל הקורסים, דפי היישום ורשימת הקטלוגים יורדים אוטומטית בפתיחה. השאירו את הלשונית פתוחה עד לסיום. דרישות התואר יורדות כשפותחים את התואר. המתינו להודעה ״כל הקורסים זמינים ללא אינטרנט״ לפני הניתוק. אם ההכנה לא הושלמה, התחברו ונסו שוב; ייתכן שהאחסון מלא או אינו זמין. אם עדכון ממתין, סיימו לשמור, סגרו את כל חלונות PlanIt ופתחו מחדש. תוכניות אורח שמורות נשארות במכשיר הזה. עריכה ושמירה של תוכניות דורשות אינטרנט; ללא חיבור אפשר לקרוא בלבד. תוכניות בחשבון וסנכרון דורשים אינטרנט. ייתכן שהדפדפן והיישום המותקן משתמשים באחסון נפרד, במיוחד ב-iOS; בדקו שהתוכנית זמינה לפני המעבר.',
 		offline:
 			'אין חיבור לאינטרנט. לאחר השלמת ההכנה, נתוני הקורסים והקטלוגים שהורדו ותוכניות אורח שמורות זמינים. עריכת תוכניות, שמירה, תוכניות בחשבון, התחברות וסנכרון דורשים אינטרנט. השאירו את החלון פתוח עד לסיום סנכרון השינויים בחשבון.',
 		update:

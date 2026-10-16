@@ -34,6 +34,7 @@ const guest = {
 type Evidence = {
 	checkpoints: string[];
 	publicPaths: string[];
+	providerRequestCount: number;
 	artificialDelay: string | null;
 };
 
@@ -44,9 +45,9 @@ const test = base.extend<{ evidence: Evidence }>({
 			const evidence: Evidence = {
 				checkpoints: [],
 				publicPaths: [],
+				providerRequestCount: 0,
 				artificialDelay: null
 			};
-			let blockedProviderRequests = 0;
 			const byResourceType: Record<string, number> = {};
 			const record = (request: Request) => {
 				const url = new URL(request.url());
@@ -60,7 +61,7 @@ const test = base.extend<{ evidence: Evidence }>({
 			context.on('request', record);
 			await context.route('**/*', async (route) => {
 				if (providerRequest(route.request().url())) {
-					blockedProviderRequests++;
+					evidence.providerRequestCount++;
 					await route.abort();
 				} else await route.continue();
 			});
@@ -85,7 +86,7 @@ const test = base.extend<{ evidence: Evidence }>({
 							artificialDelay: evidence.artificialDelay,
 							requests: {
 								byResourceType,
-								blockedProviderRequests,
+								blockedProviderRequests: evidence.providerRequestCount,
 								publicPaths: [...new Set(evidence.publicPaths)].sort()
 							},
 							limitations: [
@@ -127,9 +128,25 @@ async function noHorizontalOverflow(page: Page) {
 async function ready(page: Page) {
 	await expect(page.locator('#console-boot')).toBeHidden({ timeout: 45_000 });
 	await expect(page.locator('main')).toBeVisible();
-	await expect(page.getByTestId('pwa-ready')).toBeVisible({ timeout: 45_000 });
+	await expect(page.getByTestId('pwa-status')).toHaveAttribute(
+		'data-state',
+		'ready',
+		{ timeout: 45_000 }
+	);
 	await page.waitForFunction(() => navigator.serviceWorker.controller !== null);
-	await expect(page.getByTestId('pwa-update')).toHaveCount(0);
+	await quietConsoleFooter(page);
+}
+
+async function quietConsoleFooter(page: Page) {
+	const footer = page.locator('footer');
+	await expect(
+		footer.locator(
+			'[data-testid^="pwa-"], [data-testid="landing-install-info"], details'
+		)
+	).toHaveCount(0);
+	await expect(footer).not.toContainText(
+		/Install PlanIt|התקנת PlanIt|All courses ready offline|כל הקורסים זמינים ללא אינטרנט/
+	);
 }
 
 for (const language of ['en', 'he'] as const) {
@@ -261,8 +278,8 @@ for (const language of ['en', 'he'] as const) {
 		const reload = await page.reload();
 		expect(reload?.fromServiceWorker()).toBe(true);
 		await expect(page.locator('main h1')).toContainText(courseName);
-		await expect(page.getByTestId('pwa-offline')).toBeVisible();
 		await expect(page.getByTestId('plan-read-only')).toBeVisible();
+		await quietConsoleFooter(page);
 		const action = page.getByRole('button', {
 			name: language === 'he' ? 'הוספה' : 'Plan',
 			exact: true
@@ -296,8 +313,8 @@ for (const language of ['en', 'he'] as const) {
 		);
 
 		await context.setOffline(false);
-		await expect(page.getByTestId('pwa-offline')).toHaveCount(0);
 		await expect(page.getByTestId('plan-read-only')).toHaveCount(0);
+		await quietConsoleFooter(page);
 		await expect(action).toBeEnabled();
 		// A real local guest-only write proves reconnect re-enables the action.
 		await action.click();
@@ -335,18 +352,16 @@ test.describe('iPhone-user-agent install guidance (Chromium emulation only)', ()
 			'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1'
 	});
 
-	test('install help opens and closes without changing route or preferences', async ({
+	test('landing install help stays lightweight and leaves the console footer clear', async ({
 		page,
 		evidence
 	}, testInfo) => {
 		await page.goto('/en');
-		await page
-			.getByRole('link', { name: 'Get Started', exact: true })
-			.first()
-			.click();
-		await ready(page);
+		await expect(page.locator('.landing')).toHaveAttribute('dir', 'ltr');
 		const route = page.url();
-		const help = page.locator('footer details');
+		const info = page.getByTestId('landing-install-info');
+		await expect(info).toBeVisible();
+		const help = info.locator('details');
 		await help.locator('summary').click();
 		await expect(help).toHaveAttribute('open', '');
 		await expect(help).toContainText('iPhone or iPad');
@@ -361,6 +376,35 @@ test.describe('iPhone-user-agent install guidance (Chromium emulation only)', ()
 		await expect(help).not.toHaveAttribute('open', '');
 		await expect(page).toHaveURL(route);
 		expect(await page.evaluate(() => localStorage.getItem('lang'))).toBe('en');
-		evidence.checkpoints.push('iphone-ua-install-help-and-dismissal');
+		// Include the console's 1500ms optional-provider delay in the observation
+		// window, so static guidance cannot accidentally start console services.
+		await page.waitForTimeout(1800);
+		expect(evidence.providerRequestCount).toBe(0);
+		expect(
+			evidence.publicPaths.filter((path) =>
+				/^\/(?:app(?:\/|$)|catalogs\.json$|courseData(?:Stripped)?\.json$|_courses\/|_catalogs\/|service-worker\.js$|manifest\.webmanifest$)/.test(
+					path
+				)
+			)
+		).toEqual([]);
+		expect(
+			await page.evaluate(
+				async () => (await navigator.serviceWorker.getRegistrations()).length
+			)
+		).toBe(0);
+		await expect(page.locator('link[rel="manifest"]')).toHaveCount(0);
+		await expect(page.getByTestId('pwa-status')).toHaveCount(0);
+		evidence.checkpoints.push(
+			'iphone-ua-landing-help-without-console-bootstrap'
+		);
+		await page
+			.getByRole('link', { name: 'Get Started', exact: true })
+			.first()
+			.click();
+		await ready(page);
+		await expect(info).toHaveCount(0);
+		evidence.checkpoints.push(
+			'console-footer-has-no-install-or-persistent-pwa-content'
+		);
 	});
 });

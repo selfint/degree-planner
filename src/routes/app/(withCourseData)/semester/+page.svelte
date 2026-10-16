@@ -309,7 +309,7 @@
 			{semester}
 			{disabled}
 			isCurrent={currentSemester === user.d.currentSemester}
-			href={'/plan'}
+			href={'/app/plan'}
 		>
 			{#snippet children({ code, course })}
 				<button
@@ -402,7 +402,7 @@
 								)}
 						>
 							{#snippet children({ code, course, scheduleError })}
-								<button onmousedown={() => goto(`/course/${code}`)}>
+								<button onmousedown={() => goto(`/app/course/${code}`)}>
 									<CourseElement
 										{code}
 										{course}
@@ -435,7 +435,7 @@
 								)}
 						>
 							{#snippet children({ code, course, scheduleError })}
-								<button onmousedown={() => goto(`/course/${code}`)}>
+								<button onmousedown={() => goto(`/app/course/${code}`)}>
 									<CourseElement
 										{code}
 										{course}

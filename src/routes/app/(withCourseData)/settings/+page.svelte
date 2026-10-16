@@ -194,10 +194,10 @@
 					<div
 						role="button"
 						tabindex={index}
-						onclick={() => goto(`/course/${code}`)}
+						onclick={() => goto(`/app/course/${code}`)}
 						onkeydown={(e) => {
 							if (e.key === 'Enter') {
-								goto(`/course/${code}`);
+								goto(`/app/course/${code}`);
 							}
 						}}
 					>

@@ -157,7 +157,7 @@
 	<div class="w-full border-b-[1px] border-border bg-background">
 		<TitleBar
 			started={user.d.degree !== undefined}
-			searchQuery={searchNavigation.url.pathname === '/search'
+			searchQuery={searchNavigation.url.pathname === '/app/search'
 				? (searchNavigation.url.searchParams.get('q') ?? '')
 				: ''}
 			searchRevision={searchNavigation.externalRevision}

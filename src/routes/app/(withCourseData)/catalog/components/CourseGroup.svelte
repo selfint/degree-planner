@@ -102,7 +102,7 @@
 			</h1>
 			<CourseRow {getCourseData} courses={group}>
 				{#snippet children({ course })}
-					<a href={`/course/${course.code}`}>
+					<a href={`/app/course/${course.code}`}>
 						<CourseElement {course}>
 							{#snippet note()}
 								{@const index = getCourseSemester(course)}

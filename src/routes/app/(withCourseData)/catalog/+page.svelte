@@ -123,7 +123,7 @@
 		</h1>
 		<CourseRow {getCourseData} courses={user.d.wishlist}>
 			{#snippet children({ code, course, index })}
-				<button onclick={() => goto(`/course/${code}`)}>
+				<button onclick={() => goto(`/app/course/${code}`)}>
 					<CourseElement
 						{code}
 						{course}
@@ -244,7 +244,7 @@
 						{#snippet children({ code, course, index })}
 							<button
 								class:opacity-60={false}
-								onclick={() => goto(`/course/${code}`)}
+								onclick={() => goto(`/app/course/${code}`)}
 							>
 								<CourseElement {code} {course} {index}>
 									{#snippet note(course)}

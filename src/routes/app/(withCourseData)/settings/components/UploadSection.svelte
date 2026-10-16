@@ -35,7 +35,7 @@
 			})
 		);
 
-		await goto('/plan');
+		await goto('/app/plan');
 	}
 
 	async function onCancel() {

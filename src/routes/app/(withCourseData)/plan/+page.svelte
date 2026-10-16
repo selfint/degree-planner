@@ -44,7 +44,7 @@
 		}
 		urlParams.append('semesters', semesters);
 
-		const link = `/preview/${year}/${faculty}/${degree}?${urlParams}`;
+		const link = `/app/preview/${year}/${faculty}/${degree}?${urlParams}`;
 
 		return link;
 	});
@@ -182,7 +182,7 @@
 						<button
 							data-code={course}
 							dir="ltr"
-							onclick={() => goto(`/course/${course}`)}
+							onclick={() => goto(`/app/course/${course}`)}
 						>
 							<CourseElement code={course} course={getCourseData(course)} />
 						</button>
@@ -213,7 +213,7 @@
 							index={semesterIndex}
 							{semester}
 							isCurrent={semesterIndex === user.d.currentSemester}
-							href={`/semester?c=${semesterIndex}`}
+							href={`/app/semester?c=${semesterIndex}`}
 							sortable={{
 								group: 'semesters',
 								// Keep the touch preview outside transformed/clipped scrollers.
@@ -271,7 +271,7 @@
 									class="touch-manipulation text-content-primary"
 									data-code={code}
 									dir={content.lang.dir}
-									onclick={() => goto(`/course/${code}`)}
+									onclick={() => goto(`/app/course/${code}`)}
 								>
 									<CourseElement
 										{code}

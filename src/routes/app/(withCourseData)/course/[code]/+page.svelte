@@ -371,7 +371,7 @@
 							{/if}
 							<div class="flex flex-col space-y-1">
 								{#each group as code}
-									<a class="pe-2" href={`/course/${code}`}>
+									<a class="pe-2" href={`/app/course/${code}`}>
 										<CourseElement {code} course={getCourseData(code)}>
 											{#snippet note()}
 												{@const index = getCourseSemester(code)}
@@ -415,7 +415,7 @@
 							courses={course.connections?.adjacent ?? []}
 						>
 							{#snippet children({ code, course })}
-								<a href={`/course/${code}`}>
+								<a href={`/app/course/${code}`}>
 									<CourseElement {code} {course}>
 										{#snippet note()}
 											{@const index = getCourseSemester(code)}
@@ -457,7 +457,7 @@
 						courses={course.connections?.exclusive ?? []}
 					>
 						{#snippet children({ code, course })}
-							<a href={`/course/${code}`}>
+							<a href={`/app/course/${code}`}>
 								<CourseElement {code} {course}>
 									{#snippet note()}
 										{@const index = getCourseSemester(code)}
@@ -498,7 +498,7 @@
 							{#each dependants as course}
 								<button
 									class="pb-4 pe-2"
-									onmousedown={() => goto(`/course/${course.code}`)}
+									onmousedown={() => goto(`/app/course/${course.code}`)}
 								>
 									<CourseElement code={course.code} {course}>
 										{#snippet note()}

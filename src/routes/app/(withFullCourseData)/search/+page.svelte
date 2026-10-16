@@ -95,7 +95,7 @@
 				<li id={course.code} class="pb-4 pe-2">
 					<button
 						class:opacity-60={!course.current}
-						onclick={() => goto(`/course/${course.code}`)}
+						onclick={() => goto(`/app/course/${course.code}`)}
 					>
 						<CourseElement code={course.code} {course}>
 							{#snippet note()}

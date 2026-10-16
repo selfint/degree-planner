@@ -34,7 +34,7 @@
 			})
 		);
 
-		await goto('/plan');
+		await goto('/app/plan');
 	}
 
 	function getDegreeName(degree: Degree, userPath?: string): Promise<string> {
@@ -76,7 +76,7 @@
 						{#snippet children({ code, course })}
 							<button
 								class="touch-manipulation text-content-primary"
-								onclick={() => goto(`/course/${code}`)}
+								onclick={() => goto(`/app/course/${code}`)}
 							>
 								<CourseElement {code} {course} squeeze={true} />
 							</button>

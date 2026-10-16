@@ -10,12 +10,12 @@
 	let { target, children }: Props = $props();
 
 	const border = $derived.by(() =>
-		'/' + target === page.url.pathname
+		'/app/' + target === page.url.pathname
 			? 'border-b-2 border-accent-primary'
 			: 'border-b-2 border-transparent'
 	);
 </script>
 
-<a href="/{target}" class="{border} w-fit text-lg text-content-primary">
+<a href="/app/{target}" class="{border} w-fit text-lg text-content-primary">
 	{@render children()}
 </a>

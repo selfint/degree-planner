@@ -3,11 +3,11 @@ export function isAppNavigation(pathname: string): boolean {
 		[
 			'/',
 			'/en',
-			'/plan',
-			'/settings',
-			'/catalog',
-			'/semester',
-			'/search',
+			'/app/plan',
+			'/app/settings',
+			'/app/catalog',
+			'/app/semester',
+			'/app/search',
 			'/offline'
 		].includes(pathname) ||
 		/^\/course\/\d{8}\/?$/.test(pathname) ||

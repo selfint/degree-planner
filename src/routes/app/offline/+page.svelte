@@ -5,5 +5,5 @@
 
 <div class="m-5 text-content-primary">
 	<p>{pwaMessages[content.lang.lang].offline}</p>
-	<a class="underline" href="/plan">{content.lang.header.plan}</a>
+	<a class="underline" href="/app/plan">{content.lang.header.plan}</a>
 </div>

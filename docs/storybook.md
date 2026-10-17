@@ -1,0 +1,73 @@
+# Storybook component inventory
+
+The preview deploy serves real Svelte Storybook at /storybook. Run `npm run storybook` locally or `npm run build-storybook` for static output. Production Vercel builds exclude it.
+
+## Coverage contract
+
+Every reusable component and visible route screen has independently browsable stories. Only the five nonvisual route/lifecycle files below are excluded. PwaStatus uses its extracted PwaStatusView, rendering the actual presentation without starting service workers or touching caches/storage. The inventory test scans every application Svelte file and fails on uncovered additions or stale entries.
+
+Theme, language and direction are global toolbar controls. Direction follows the selected language by default and can be overridden independently. The canvas uses the default available size; no viewport is forced and no light/dark/RTL/mobile stories are duplicated. Normal component sizing is preserved.
+
+All courses, catalogs, plans and authentication sessions are fictional and memory-only. Writes, transcript parsing, authentication and navigation are mocked. Only public brand files are exposed as static assets; product illustrations are bundled normally. Real Firebase, IndexedDB, public catalog loaders, PDF workers and service-worker lifecycle modules are excluded by the build guard. Footer preference persistence is disabled.
+
+Deployed tests wait for each story’s play function, inspect every emitted story for render errors, unexpected requests and planner storage changes, exercise real interactions, and verify global controls. They also check that Storybook assets never enter app HTML or its service-worker cache.
+
+## Rendered UI
+
+| Source                                                                       | Story group                       | Variants                                                                                                                      |
+| ---------------------------------------------------------------------------- | --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| src/lib/components/AppFooter.svelte                                          | Components/AppFooter              | Default                                                                                                                       |
+| src/lib/components/ConsoleAccountStatus.svelte                               | Components/ConsoleAccountStatus   | Ready, Offline, AuthPending, AccountUnavailable, OfflineAccountUnavailable                                                    |
+| src/lib/components/ConsoleLoading.svelte                                     | Components/ConsoleLoading         | Courses, Opening                                                                                                              |
+| src/lib/components/CourseElement.svelte                                      | Components/CourseElement          | Default, Compact, Loading, MissingDetails, NoExams, WithNote, StudyDays, CheckingRequirements, UnmetRequirements, Unavailable |
+| src/routes/app/(withCourseData)/catalog/components/CourseGroup.svelte        | Components/CourseGroup            | Default, Empty, Loading, Error, MultipleGroups                                                                                |
+| src/lib/components/CourseRow.svelte                                          | Components/CourseRow              | Default, Empty, Loading, Sortable, Indented                                                                                   |
+| src/routes/app/(withCourseData)/settings/components/DegreeSection.svelte     | Components/DegreeSection          | Default, Offline, Unselected, Recommended, LoadingPaths, WithPaths, SelectedPath                                              |
+| src/routes/components/ImgDemo.svelte                                         | Components/ImgDemo                | Default, LongText                                                                                                             |
+| src/lib/components/LandingInstallInfo.svelte                                 | Components/LandingInstallInfo     | Default, Expanded                                                                                                             |
+| src/routes/components/Nav.svelte                                             | Components/Nav                    | Default, Active                                                                                                               |
+| src/lib/components/PlanActionButton.svelte                                   | Components/PlanActionButton       | Primary, Secondary, Disabled, Offline, Loading                                                                                |
+| src/lib/components/PwaStatusView.svelte                                      | Components/PwaStatus              | Preparing, Initial, Ready, Unavailable, Outdated, Update                                                                      |
+| src/lib/components/PwaStatus.svelte                                          | Components/PwaStatus              | Preparing, Initial, Ready, Unavailable, Outdated, Update                                                                      |
+| src/lib/components/RequirementsElement.svelte                                | Components/RequirementsElement    | Default, Single, Empty, LastOnly, Truncated                                                                                   |
+| src/lib/components/ScheduleErrorComponent.svelte                             | Components/ScheduleErrorComponent | AllWarnings, NoWarnings, Season, Adjacent, Exclusive, SatisfiedPrerequisite                                                   |
+| src/lib/components/SearchFilters.svelte                                      | Components/SearchFilters          | Default, Selected, EmptyFaculties, UnknownFaculty                                                                             |
+| src/lib/components/Semester.svelte                                           | Components/Semester               | Default, Current, Summer, Empty, Loading, ExcludedFromSummary, Sortable, Linked                                               |
+| src/routes/app/(withCourseData)/settings/components/SemesterSection.svelte   | Components/SemesterSection        | Default, Offline, UnsavedChanges                                                                                              |
+| src/lib/components/StudyDaysComponent.svelte                                 | Components/StudyDaysComponent     | Default, Empty, Loading, SingleCourse, Highlighted                                                                            |
+| src/lib/components/ThemeToggle.svelte                                        | Components/ThemeToggle            | Default                                                                                                                       |
+| src/routes/components/TitleBar.svelte                                        | Components/TitleBar               | Default, Landing, Query                                                                                                       |
+| src/routes/app/(withCourseData)/settings/components/UploadSection.svelte     | Components/UploadSection          | Default, Offline, ParsedTranscript, Loading, UnrecognizedFile                                                                 |
+| src/lib/components/Arrow.svelte                                              | Components/Arrow                  | Collapsed, Expanded                                                                                                           |
+| src/lib/components/AsyncButton.svelte                                        | Components/AsyncButton            | Primary, Secondary, Disabled, Loading, SharedActionLock                                                                       |
+| src/lib/components/Button.svelte                                             | Components/Button                 | Primary, Secondary, DisabledPrimary, DisabledSecondary                                                                        |
+| src/lib/components/CourseExplanation.svelte                                  | Components/CourseExplanation      | Default                                                                                                                       |
+| src/lib/components/CourseWidth.svelte                                        | Components/CourseWidth            | Default, LongContent                                                                                                          |
+| src/lib/components/GetStartedLink.svelte                                     | Components/GetStartedLink         | Ready, Navigating                                                                                                             |
+| src/lib/components/LoadingCourseElement.svelte                               | Components/LoadingCourseElement   | Default, Squeezed, WithNote                                                                                                   |
+| src/lib/components/ProgressBar.svelte                                        | Components/ProgressBar            | InProgress, Empty, PlannedOnly, Complete, OverTarget, NoFixedTarget, CustomColor                                              |
+| src/lib/components/Search.svelte                                             | Components/Search                 | Empty, Focused, WithQuery, Submitted                                                                                          |
+| src/lib/components/SearchIcon.svelte                                         | Components/SearchIcon             | Default, Active                                                                                                               |
+| src/lib/components/Select.svelte                                             | Components/Select                 | Unselected, Selected, Disabled, EmptyOptions                                                                                  |
+| src/lib/components/Settings.svelte                                           | Components/Settings               | Default                                                                                                                       |
+| src/lib/components/Spinner.svelte                                            | Components/Spinner                | Compact, Large                                                                                                                |
+| src/routes/app/(withCourseData)/catalog/+page.svelte                         | Pages/Catalog                     | Default, EmptyPlan, Loading                                                                                                   |
+| src/routes/app/(withCourseData)/course/[code]/+page.svelte                   | Pages/Course                      | Default, Planned, Wishlisted, Exempt, ReadOnly, Loading, MissingDetails, UnavailableCourse, RelatedCourses                    |
+| src/routes/+error.svelte                                                     | Pages/Error                       | NotFound, LoadFailed, ServiceUnavailable                                                                                      |
+| src/routes/+page.svelte                                                      | Pages/Landing                     | Default, OpeningPlanner, InstallationDetails                                                                                  |
+| src/routes/app/offline/+page.svelte                                          | Pages/Offline                     | Default                                                                                                                       |
+| src/routes/app/(withCourseData)/plan/+page.svelte                            | Pages/Plan                        | Default, Empty, LoadingCourses, Offline, UnmetPrerequisites, LongPlan                                                         |
+| src/routes/app/(withFullCourseData)/search/+page.svelte                      | Pages/Search                      | Results, NoResults, FilteredResults, EmptyCatalog, Loading, LoadFailed, ReadOnly                                              |
+| src/routes/app/(withCourseData)/semester/+page.svelte                        | Pages/Semester                    | Default, Empty, Loading, FutureSemester, ExamSchedule                                                                         |
+| src/routes/app/(withCourseData)/settings/+page.svelte                        | Pages/Settings                    | Guest, SignedIn, ChooseDegree, EmptyPlan, CatalogLoading, ReadOnly, Exemptions, SignInFailed                                  |
+| src/routes/app/(withCourseData)/preview/[year]/[faculty]/[path]/+page.svelte | Pages/Shared plan                 | Default, Empty, Loading, ReadOnly                                                                                             |
+
+## Nonvisual exclusions
+
+- src/routes/+layout.svelte: Root routing and lifecycle scaffold; TitleBar, AppFooter, ConsoleLoading and route pages are covered separately.
+- src/routes/app/+layout.svelte: Console bootstrap, authentication, service worker and context lifecycle; inline account/offline/auth notices are extracted into ConsoleAccountStatus; all visible UI is covered without starting services.
+- src/routes/app/+page.svelte: Empty route entry; server/client loader redirects to a plan or settings.
+- src/routes/[...legacy]/+page.svelte: Empty legacy redirect placeholder.
+- src/routes/en/+page.svelte: Language-setting redirect without visible UI; importing it would write actual browser preferences.
+
+Inventory: 50 source files, 45 covered, 5 nonvisual exclusions; 44 story groups, 180 stories.

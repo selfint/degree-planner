@@ -42,7 +42,7 @@
 	} from '$lib/stores.svelte';
 
 	import { planOnline } from '$lib/planAccess';
-	import { pwaMessages } from '$lib/pwa/messages';
+	import ConsoleAccountStatus from '$lib/components/ConsoleAccountStatus.svelte';
 
 	import TitleBar from '../components/TitleBar.svelte';
 	import AppFooter from '$lib/components/AppFooter.svelte';
@@ -186,43 +186,15 @@
 
 	<PwaStatus />
 
-	{#if !$planOnline}
-		<p
-			role="status"
-			class="mx-3 my-2 rounded-md bg-card-primary p-3 text-content-primary"
-			data-testid="plan-read-only"
-		>
-			{content.lang.lang === 'he'
-				? 'מצב קריאה בלבד ללא אינטרנט. אפשר לעיין בקורסים ובתוכנית השמורה; התחברו כדי לערוך או לשמור.'
-				: 'Offline, read-only mode. Browse courses and your saved plan; reconnect to edit or save.'}
-		</p>
-	{/if}
-	{#if authPending}
-		<p role="status" class="m-5 flex-grow text-content-primary">
-			{content.lang.common.loading}…
-		</p>
-	{:else if cloudPlanBlocked}
-		<p
-			role="status"
-			class="m-5 flex-grow text-content-primary"
-			data-testid="pwa-account-unavailable"
-		>
-			{pwaMessages[content.lang.lang].accountUnavailable}
-			<button
-				type="button"
-				class="ms-2 underline disabled:opacity-50"
-				disabled={offline}
-				onclick={() => retryAccount()}
-				>{pwaMessages[content.lang.lang].retry}</button
-			>
-			<button
-				type="button"
-				class="ms-2 underline"
-				onclick={() => firebase.auth.signOut()}
-				>{content.lang.settings.signOut}</button
-			>
-		</p>
-	{/if}
+	<ConsoleAccountStatus
+		readOnly={!$planOnline}
+		{offline}
+		{authPending}
+		{cloudPlanBlocked}
+		onRetry={() => retryAccount()}
+		onSignOut={() => firebase.auth.signOut()}
+	/>
+
 	<main class="flex-grow" class:hidden={planBlocked} inert={planBlocked}>
 		{@render children()}
 	</main>

@@ -4,7 +4,7 @@
 
 One replacement PR preserves the direct-JSON, entity IndexedDB and PWA work
 from PRs 214, 217 and 218. Those superseded PRs were closed after the replacement
-preview was verified. No merge is part of this work. SAP and CI PRs stay separate.
+preview was verified. No merge is part of this work. The latest update integrates the already-merged SAP safeguards from main and the reviewed parallel CI work from PR 219, preserving every existing browser test family.
 
 1. Move SvelteKit console routes under same-origin `/app/`; preserve public
    bookmarks/share links with redirects and unchanged query parameters.
@@ -72,3 +72,9 @@ uploaded even on failures. No real account is used. The deliberate course-data
 pause checks the loading screen, not natural startup speed. Physical iOS and
 live account login remain outside this emulation; old-install migration and
 controlled update transitions stay in the production-build proxy suite.
+
+## Branded startup and component review
+
+The startup screen uses the existing PlanIt logo and wordmark, localized status text and an indeterminate progress line. It respects reduced motion, light/dark preferences, right-to-left layout and short screens. It does not invent a download percentage. The critical pre-hydration markup and hydrated component share tested styling; landing visits do not request the console brand assets.
+
+Storybook exposes 180 meaningful states across 44 groups. Every reusable component and visible route screen is inventoried; lifecycle-only wrappers use the same extracted presentation components without starting account or storage services. Theme, language and direction are global toolbar controls. The canvas keeps the default available size. See [the component inventory](storybook.md).

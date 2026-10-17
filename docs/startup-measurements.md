@@ -58,7 +58,7 @@ The JSON report separates actual emitted chunk bytes from `renderedModuleCharact
 
 - Landing makes no Firebase, auth, Firestore, analytics, course/catalog, manifest, service-worker, or console-navigation requests, including after hovering Get Started and waiting beyond the optional-analytics delay.
 - Get Started retains a native `/app/` link and `data-sveltekit-reload`.
-- Native entry shows the localized pre-hydration loading screen while full course JSON is deliberately delayed.
+- Native entry shows the localized pre-hydration loading screen while full course JSON is deliberately delayed. The real PlanIt logo/wordmark, narrow mobile and short landscape layouts, both themes/languages, and reduced-motion behavior are checked separately with application assets blocked.
 - Analytics stays inactive during blocked mandatory-data bootstrap.
 - After data is released, the console becomes visible and IndexedDB contains courses and catalogs.
 - A separate warm-cache regression blocks course and catalog refreshes after durable readiness has been established. On reload, both requests must remain stalled while the main UI is visible and the boot screen is gone within a 5-second assertion window. This isolates IndexedDB readiness with service workers blocked.
@@ -71,29 +71,29 @@ The measurement environment could not launch a browser: bundled Playwright binar
 
 ## Final comparison
 
-Measured the completed migration client source on 2026-10-16, after the `/app/` start-URL normalization, nonblocking warm-cache bootstrap, mobile boot theme, offline logo, denied-language-storage fixes and shared-footer cleanup. The final application graph was rechecked after adding preview-only Storybook; the Node version and direct application dependency versions remain the same as the instrumented baseline. Storybook is built separately after Vite and does not enter these graphs. The production measurement build passed. Worker-only compatibility changes do not alter the client route graph.
+Measured the completed migration client source on 2026-10-17, after the branded startup redesign, mainline SAP/CI integration and complete Storybook expansion. The final application graph was rechecked after the separate 180-story build. The Node version and direct application dependency versions remain the same as the instrumented baseline. Storybook is built separately after Vite and does not enter these graphs. The combined production build passed. These current graph sizes are measured without new module attribution; source-attribution observations below come from the instrumented migration comparison.
 
 | Before → after route          | Before raw / gzip bytes | After raw / gzip bytes | Raw reduction | Gzip reduction |
 | ----------------------------- | ----------------------: | ---------------------: | ------------: | -------------: |
-| `/` → `/`                     |       566,100 / 196,531 |   **183,625 / 76,933** |     **67.6%** |      **60.9%** |
-| `/plan` → `/app/plan`         |       575,093 / 198,609 |      561,272 / 196,060 |          2.4% |          1.28% |
-| `/search` → `/app/search`     |       536,448 / 183,718 |      521,274 / 180,598 |          2.8% |          1.70% |
-| `/settings` → `/app/settings` |       589,768 / 203,229 |      576,731 / 200,860 |          2.2% |          1.17% |
+| `/` → `/`                     |       566,100 / 196,531 |   **184,910 / 77,470** |     **67.3%** |      **60.6%** |
+| `/plan` → `/app/plan`         |       575,093 / 198,609 |      563,314 / 196,844 |          2.0% |          0.89% |
+| `/search` → `/app/search`     |       536,448 / 183,718 |      523,316 / 181,381 |          2.4% |          1.27% |
+| `/settings` → `/app/settings` |       589,768 / 203,229 |      578,773 / 201,647 |          1.9% |          0.78% |
 
 The landing's initial graph has 27 files versus 25 previously. Splitting the application lowers bytes substantially; it does not reduce the number of emitted files. These are graph file counts, not observed browser requests.
 
-The final `/en` graph is 126,574 raw / 53,534 gzip bytes before its navigation to `/`; it is not the total English landing session. The `/app` entry graph is 496,188 / 171,320 before redirecting to settings or a saved plan, so use the destination-route rows above when assessing the console's working UI.
+The final `/en` graph is 127,859 raw / 54,078 gzip bytes before its navigation to `/`; it is not the total English landing session. The `/app` entry graph is 498,230 / 172,089 before redirecting to settings or a saved plan, so use the destination-route rows above when assessing the console's working UI.
 
 ### What changed
 
 - The landing remains prerendered and hydrated for its existing interactive UI. Its static graph contains **no Firebase, Vercel Analytics, or Vercel Speed Insights modules**, and no non-route dynamic imports are reachable from that graph.
-- Firebase Auth and Firestore remain in the console's initial graph. Their shared chunk is 332,574 raw / 103,710 gzip bytes, with unchanged Firestore source attribution of 602,286 characters and Auth attribution of 245,617 characters.
+- Firebase Auth and Firestore remain in the console's initial graph. Their shared chunk is 332,574 raw / 103,711 gzip bytes, with unchanged Firestore source attribution of 602,286 characters and Auth attribution of 245,617 characters.
 - Firebase Analytics, Vercel Analytics, and Speed Insights are absent from the console's initial static graph. Three separate chunks contain 21,202 raw / 7,896 gzip bytes total. Their execution is scheduled 1,500ms after the console mounts; the provider choice is unchanged.
 - The largest emitted `.js` chunk is the PDF parser at 407,564 raw / 119,312 gzip bytes. It is a dynamic transcript-import dependency, not in these initial route graphs.
-- The landing-page node itself is 57,302 raw / 23,509 gzip bytes; the large saving comes from removing application services from the landing's dependency graph.
+- The landing-page node itself is 57,302 raw / 23,506 gzip bytes; the large saving comes from removing application services from the landing's dependency graph.
 
 The console's automatic service-worker preparation can still fetch dynamic chunks for offline use after mounting, including analytics modules and the PDF parser. The delayed imports establish execution ordering, not a guarantee that those bytes are absent from a cold PWA installation. Service-worker precaching, full course/catalog downloads, external provider traffic, and runtime startup timings require browser-network measurements and are not included in the table.
 
 **Conclusion:** the measured improvement is a substantially lighter landing and a clean service boundary. Console JavaScript is only modestly smaller, with Auth/Firestore still dominating its initial bundle. No evidence here supports claiming analytics was the largest dependency, promising a particular time-to-interactive improvement, or replacing providers without a separate comparison.
 
-Preview Storybook adds development dependencies and build output only. Its 19 fictional-data stories use isolated preference/theme mocks; the build rejects live planner storage and Firebase modules. Production Vercel builds omit and clean the Storybook files, while the application service worker and Vite asset manifest never include them. The default local Storybook CLI could not enumerate OS interfaces in this sandbox; its local build was checked using a temporary loopback-only metadata stub. No such stub is committed or used by Vercel/CI.
+Preview Storybook adds development dependencies and build output only. Its 180 fictional-data stories across 44 groups use isolated preference/theme mocks; the build rejects live planner storage and Firebase modules. Production Vercel builds omit and clean the Storybook files, while the application service worker and Vite asset manifest never include them. The default local Storybook CLI could not enumerate OS interfaces in this sandbox; its local build was checked using a temporary loopback-only metadata stub. No such stub is committed or used by Vercel/CI.

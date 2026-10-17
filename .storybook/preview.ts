@@ -14,42 +14,49 @@ const preview: Preview = {
 			}
 		},
 		language: {
-			description: 'Language and reading direction',
+			description: 'Application language',
 			toolbar: {
 				icon: 'globe',
 				items: [
-					{ value: 'en', title: 'English · LTR' },
-					{ value: 'he', title: 'עברית · RTL' }
+					{ value: 'en', title: 'English' },
+					{ value: 'he', title: 'עברית' }
+				],
+				dynamicTitle: true
+			}
+		},
+		direction: {
+			description: 'Reading direction',
+			toolbar: {
+				icon: 'transfer',
+				items: [
+					{ value: 'auto', title: 'Language default' },
+					{ value: 'ltr', title: 'Left to right' },
+					{ value: 'rtl', title: 'Right to left' }
 				],
 				dynamicTitle: true
 			}
 		}
 	},
-	initialGlobals: { theme: 'dark', language: 'en' },
+	initialGlobals: { theme: 'dark', language: 'en', direction: 'auto' },
 	parameters: {
 		layout: 'padded',
-		controls: { expanded: true },
-		viewport: {
-			options: {
-				mobile: {
-					name: 'Mobile (390px)',
-					styles: { width: '390px', height: '844px' },
-					type: 'mobile'
-				},
-				desktop: {
-					name: 'Desktop',
-					styles: { width: '1280px', height: '900px' },
-					type: 'desktop'
-				}
-			}
-		}
+		controls: { expanded: true }
+	},
+	afterEach: async ({ id }) => {
+		document
+			.querySelector('[data-story-ready]')
+			?.setAttribute('data-story-rendered', id);
 	},
 	decorators: [
 		(_story, context) => ({
 			Component: StoryFrame,
 			props: {
 				theme: context.globals.theme,
-				language: context.globals.language
+				language: context.globals.language,
+				direction: context.globals.direction,
+				storyId: context.id,
+				planner: context.parameters.planner ?? {},
+				pageUrl: context.parameters.sveltekit_experimental?.state?.page?.url
 			}
 		})
 	]

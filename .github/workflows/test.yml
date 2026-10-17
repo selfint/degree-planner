@@ -7,7 +7,42 @@ on:
     branches: 'main'
 
 jobs:
-  test:
+  browser:
+    name: Browser tests (${{ matrix.browser }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - browser: chromium
+            project: chromium
+          - browser: webkit
+            project: webkit*
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+      - name: Run browser tests
+        run: npm run test:integration -- --project="${{ matrix.project }}"
+      - name: Upload browser recordings, screenshots, and failure traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-results-${{ matrix.browser }}
+          path: test-results/
+          if-no-files-found: ignore
+          retention-days: 7
+
+  unit:
+    name: Unit tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -18,19 +53,14 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - name: Install dependencies
-        run: npm install && npx playwright install
-      - name: test
-        run: npm run test
-      - name: Upload landing visual checks
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: landing-parallax-visuals
-          path: test-results/**/landing-*.png
-          if-no-files-found: ignore
-          retention-days: 7
+        run: npm ci
+      - name: Prepare test data and SvelteKit
+        run: npm run generate-catalogs && npx svelte-kit sync
+      - name: Run unit tests
+        run: npm run test:unit -- --run
 
-  parallax-browsers:
+  sap:
+    name: Live SAP tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -40,36 +70,9 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: npm
-      - name: Install browser test dependencies
-        run: npm install && npx playwright install --with-deps chromium webkit
-      - name: Test parallax in Chromium and WebKit
-        run: npx playwright test --config=playwright.parallax.config.ts
-      - name: Upload scroll recordings and screenshots
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: parallax-browser-recordings
-          path: test-results/
-          retention-days: 7
-
-  search-browsers:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-          cache: npm
-      - name: Install browser test dependencies
-        run: npm install && npx playwright install --with-deps chromium webkit
-      - name: Test native faculty selection in Chromium and WebKit
-        run: npx playwright test --config=playwright.search.config.ts
-      - name: Upload search failure traces
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: search-browser-failures
-          path: test-results/
-          retention-days: 7
+      - name: Install dependencies
+        run: npm ci
+      - name: Prepare SvelteKit config
+        run: npx svelte-kit sync
+      - name: Run live SAP tests
+        run: npm run test:sap

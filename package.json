@@ -11,13 +11,14 @@
 		"build": "npm run generate-catalogs && vite build",
 		"preview": "vite preview",
 		"start-firebase-emulators": "firebase emulators:start",
-		"test": "npm run test:integration && npm run test:unit",
+		"test": "npm run test:integration && npm run test:unit -- --run && npm run test:sap",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"lint": "prettier --check . && eslint .",
 		"format": "prettier --write .",
 		"test:integration": "playwright test",
 		"test:unit": "vitest",
+		"test:sap": "vitest run --config vitest.sap.config.ts",
 		"script:db": "tsx src/lib/server/scripts/db.ts"
 	},
 	"devDependencies": {

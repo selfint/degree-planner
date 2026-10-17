@@ -1,3 +1,4 @@
+import { openSearchFilters } from './helpers/searchFilters';
 import { expect, test, type Page } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 
@@ -112,6 +113,7 @@ for (const language of ['en', 'he']) {
 				language
 			);
 			await page.goto(`/app/search?q=${q}`);
+			await openSearchFilters(page);
 			await waitForSearchReady(page);
 			const state: State = {
 				q,
@@ -137,6 +139,7 @@ for (const language of ['en', 'he']) {
 			state.faculty = physics;
 			await expectResults(page, state);
 			await page.reload();
+			await openSearchFilters(page);
 			await waitForSearchReady(page);
 			await expectResults(page, state);
 			await page.locator('fieldset button').click();

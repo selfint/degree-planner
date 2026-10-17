@@ -19,6 +19,7 @@
 		tests?: Promise<Course[]>;
 		index?: number;
 		styleOnCourse?: (course: Course) => Promise<string>;
+		onOpen?: () => void;
 	};
 
 	let {
@@ -29,7 +30,8 @@
 		scheduleError,
 		tests,
 		index = 0,
-		styleOnCourse
+		styleOnCourse,
+		onOpen
 	}: Props = $props();
 
 	const course = $derived.by(() => Promise.resolve(_course));
@@ -51,6 +53,7 @@
 		course.then((c) => c.tests !== undefined && c.tests.length > 0)
 	);
 
+	const warningId = $props.id();
 	let minimize = $state(true);
 	let scheduleErrorButton: HTMLButtonElement | undefined = $state();
 	const _scheduleError = $derived.by(async () => {
@@ -72,91 +75,99 @@
 	});
 </script>
 
-<!-- svelte-ignore a11y_click_events_have_key_events -->
-<!-- svelte-ignore a11y_no_static_element_interactions -->
+{#snippet body()}
+	<div class="course-body" class:course-body-squeezed={squeeze}>
+		<div
+			class="course-meta flex items-center justify-between gap-1 text-content-secondary"
+		>
+			<div class="flex min-w-0 items-center gap-1">
+				{#await hasTest}
+					<span
+						style="background: {color}"
+						class="course-marker"
+						aria-hidden="true"
+					></span>
+				{:then hasTest}
+					<span
+						style="background: {color}"
+						class="course-marker {hasTest ? 'rounded-full' : 'rounded-sm'}"
+						aria-hidden="true"
+					></span>
+				{/await}
+				{#if note !== undefined}
+					<span class="min-w-0 truncate">
+						{#await course then course}
+							{@render note(course)}
+						{/await}
+					</span>
+				{/if}
+			</div>
+			<div class="flex shrink-0 items-center gap-1.5 tabular-nums" dir="ltr">
+				{#await course then course}
+					{#if course.median !== undefined}
+						<span title={content.lang.course.median}>
+							<span class="sr-only"
+								>{content.lang.course.median}:
+							</span>{course.median}
+						</span>
+					{/if}
+					{#if course.median !== undefined && course.points !== undefined}
+						<span class="opacity-50" aria-hidden="true">·</span>
+					{/if}
+					{#if course.points !== undefined}
+						<span
+							class="font-semibold text-content-primary"
+							title={content.lang.course.points}
+						>
+							<span class="sr-only"
+								>{content.lang.course.points}:
+							</span>{course.points}
+						</span>
+					{/if}
+				{/await}
+			</div>
+		</div>
+
+		{#await course}
+			<div class="course-loading" aria-hidden="true">
+				<span></span><span></span>
+			</div>
+			<span class="sr-only">{content.lang.common.loading}</span>
+		{:then course}
+			<div class="course-copy text-start">
+				<div
+					class="course-name break-words font-medium text-content-primary"
+					dir="auto"
+				>
+					{course.name ?? content.lang.common.na}
+				</div>
+				<div class="course-code text-content-secondary" dir="ltr">
+					{course.code}
+				</div>
+			</div>
+		{/await}
+	</div>
+{/snippet}
+
 <div
 	{style}
 	class="course-card relative h-fit w-fit select-none bg-card-primary"
-	onclick={(e) => {
-		if (minimize && scheduleErrorButton) {
-			e.preventDefault();
-			e.stopPropagation();
-			minimize = !minimize;
-		}
-	}}
 >
 	<CourseWidth>
-		<div class="course-body" class:course-body-squeezed={squeeze}>
-			<div
-				class="course-meta flex items-center justify-between gap-1 text-content-secondary"
+		{#if onOpen}
+			<button
+				type="button"
+				class="course-open w-full text-start"
+				onclick={() => {
+					if (minimize && scheduleErrorButton) minimize = false;
+					else onOpen?.();
+				}}
 			>
-				<div class="flex min-w-0 items-center gap-1">
-					{#await hasTest}
-						<span
-							style="background: {color}"
-							class="course-marker"
-							aria-hidden="true"
-						></span>
-					{:then hasTest}
-						<span
-							style="background: {color}"
-							class="course-marker {hasTest ? 'rounded-full' : 'rounded-sm'}"
-							aria-hidden="true"
-						></span>
-					{/await}
-					{#if note !== undefined}
-						<span class="min-w-0 truncate">
-							{#await course then course}
-								{@render note(course)}
-							{/await}
-						</span>
-					{/if}
-				</div>
-				<div class="flex shrink-0 items-center gap-1.5 tabular-nums" dir="ltr">
-					{#await course then course}
-						{#if course.median !== undefined}
-							<span title={content.lang.course.median}>
-								<span class="sr-only"
-									>{content.lang.course.median}:
-								</span>{course.median}
-							</span>
-						{/if}
-						{#if course.median !== undefined && course.points !== undefined}
-							<span class="opacity-50" aria-hidden="true">·</span>
-						{/if}
-						{#if course.points !== undefined}
-							<span
-								class="font-semibold text-content-primary"
-								title={content.lang.course.points}
-							>
-								<span class="sr-only"
-									>{content.lang.course.points}:
-								</span>{course.points}
-							</span>
-						{/if}
-					{/await}
-				</div>
-			</div>
-
-			{#await course}
-				<div class="course-loading" aria-hidden="true">
-					<span></span><span></span>
-				</div>
-				<span class="sr-only">{content.lang.common.loading}</span>
-			{:then course}
-				<div class="course-copy text-start">
-					<div
-						class="course-name break-words font-medium text-content-primary"
-						dir="auto"
-					>
-						{course.name ?? content.lang.common.na}
-					</div>
-					<div class="course-code text-content-secondary" dir="ltr">
-						{course.code}
-					</div>
-				</div>
-			{/await}
-		</div>
+				{@render body()}
+			</button>
+		{:else}
+			{@render body()}
+		{/if}
 
 		{#if tests !== undefined}
 			<div class="course-footer">
@@ -176,9 +187,16 @@
 				</div>
 			{:then _scheduleError}
 				{#if _scheduleError}
+					{#if !minimize}
+						<div id={warningId} class="course-warning-details">
+							<ScheduleErrorComponent scheduleError={_scheduleError} />
+						</div>
+					{/if}
 					<button
+						type="button"
 						bind:this={scheduleErrorButton}
 						aria-expanded={!minimize}
+						aria-controls={minimize ? undefined : warningId}
 						aria-label={content.lang.lang === 'he'
 							? 'פרטי דרישות הקורס'
 							: 'Course requirement details'}
@@ -189,11 +207,8 @@
 							minimize = !minimize;
 						}}
 					>
-						{#if !minimize}
-							<ScheduleErrorComponent scheduleError={_scheduleError} />
-						{/if}
 						<div
-							class="flex min-h-8 items-center justify-center gap-1.5 text-xs"
+							class="flex min-h-11 items-center justify-center gap-1.5 text-xs"
 						>
 							<span aria-hidden="true" class="text-accent-primary">!</span>
 							<div class="w-3" class:rotate-180={!minimize}><Arrow /></div>
@@ -220,6 +235,13 @@
 		box-shadow:
 			inset 0 0 0 0.0625rem rgb(var(--color-accent-primary) / 0.6),
 			var(--shadow-card, 0 0.125rem 0.5rem rgb(0 0 0 / 0.06));
+	}
+
+	.course-open {
+		border-radius: var(--radius-card);
+	}
+	.course-warning-details {
+		border-block-start: 0.0625rem solid rgb(var(--color-border));
 	}
 
 	.course-body {

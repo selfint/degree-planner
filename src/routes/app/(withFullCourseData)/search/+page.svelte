@@ -26,6 +26,8 @@
 	const { data: pageData } = $props();
 	const { fullCourseData } = $derived(pageData);
 
+	// Keep the disclosure choice through filter/query history without persisting it.
+	let filtersExpanded = $state(false);
 	const query = $derived(
 		normalizeSearchQuery(navigation.url.searchParams.get('q') ?? '')
 	);
@@ -79,6 +81,7 @@
 		</p>
 		{#key navigation.externalRevision}
 			<SearchFilters
+				bind:expanded={filtersExpanded}
 				{filters}
 				{faculties}
 				{maxPoints}

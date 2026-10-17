@@ -65,11 +65,19 @@ export function makePlanSortable(el: HTMLElement, options?: Sortable.Options) {
 	});
 	return {
 		destroy() {
+			const interruptedFallback = !!activeDrag && !!Sortable.ghost;
 			unsubscribe();
 			endPlanDrag();
 			Sortable.ghost?.remove();
 			sortable.destroy();
 			if (activeDrag?.from === el) activeDrag = undefined;
+			if (interruptedFallback) {
+				// Sortable 1.15 leaves its document-level ignoreNextClick flag set
+				// when destroy() interrupts fallback dragging. Consume that stale
+				// guard on the inert document target, never on a link or control.
+				// The document target has no link or button activation behavior.
+				document.dispatchEvent(new MouseEvent('click', { cancelable: true }));
+			}
 		}
 	};
 }

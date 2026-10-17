@@ -1,4 +1,4 @@
-import type Sortable from 'sortablejs';
+import Sortable from 'sortablejs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocked = vi.hoisted(() => ({
@@ -70,6 +70,7 @@ beforeEach(() => {
 	events = new EventTarget();
 	vi.stubGlobal('navigator', network);
 	vi.stubGlobal('window', events);
+	Sortable.ghost = undefined as unknown as HTMLElement;
 });
 afterEach(() => {
 	cleanups.forEach((cleanup) => cleanup());
@@ -154,5 +155,65 @@ describe('offline plan drag protection', () => {
 		invoke(instance, 'onUpdate', event(new NodeStub(), new NodeStub()));
 		expect(onAdd).not.toHaveBeenCalled();
 		expect(onUpdate).not.toHaveBeenCalled();
+	});
+});
+
+describe('interrupted fallback drag cleanup', () => {
+	it('consumes a stale suppression guard without consuming the next navigation click', () => {
+		const document = new EventTarget();
+		vi.stubGlobal('document', document);
+		vi.stubGlobal('MouseEvent', Event);
+		let suppressNextClick = true;
+		const dispatched = vi.spyOn(document, 'dispatchEvent');
+		document.addEventListener(
+			'click',
+			(event) => {
+				if (suppressNextClick) {
+					event.preventDefault();
+					suppressNextClick = false;
+				}
+			},
+			true
+		);
+		const source = new NodeStub();
+		const course = new NodeStub();
+		source.insertBefore(course, null);
+		const onUpdate = vi.fn();
+		const instance = create(source, { onUpdate });
+		invoke(instance, 'onStart', event(course, source));
+		const removeGhost = vi.fn();
+		Sortable.ghost = { remove: removeGhost } as unknown as HTMLElement;
+
+		cleanups[0]();
+
+		expect(instance.destroy).toHaveBeenCalledOnce();
+		expect(removeGhost).toHaveBeenCalledOnce();
+		expect(onUpdate).not.toHaveBeenCalled();
+		expect(dispatched).toHaveBeenCalledOnce();
+		const cleanupClick = dispatched.mock.calls[0][0];
+		expect(cleanupClick.bubbles).toBe(false);
+		expect(cleanupClick.defaultPrevented).toBe(true);
+		expect(cleanupClick.target).toBe(document);
+		const nextClick = new Event('click', { cancelable: true });
+		document.dispatchEvent(nextClick);
+		expect(nextClick.defaultPrevented).toBe(false);
+	});
+
+	it('does not dispatch a click when idle or after a completed gesture', () => {
+		const document = new EventTarget();
+		vi.stubGlobal('document', document);
+		const dispatched = vi.spyOn(document, 'dispatchEvent');
+		create(new NodeStub());
+		cleanups[0]();
+		expect(dispatched).not.toHaveBeenCalled();
+		const source = new NodeStub();
+		const course = new NodeStub();
+		source.insertBefore(course, null);
+		const instance = create(source);
+		invoke(instance, 'onStart', event(course, source));
+		invoke(instance, 'onEnd', event(course, source));
+		Sortable.ghost = { remove: vi.fn() } as unknown as HTMLElement;
+		cleanups[1]();
+		expect(dispatched).not.toHaveBeenCalled();
 	});
 });

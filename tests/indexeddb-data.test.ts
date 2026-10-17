@@ -318,8 +318,8 @@ test('identifies a cold course route failure when the whole browser goes offline
 }) => {
 	await seed(page);
 	await page.goto(origin + previewUrl);
-	const courseButton = page.locator('button').filter({ hasText: '01140052' });
-	await expect(courseButton).toBeVisible();
+	const courseLink = page.getByRole('link').filter({ hasText: '01140052' });
+	await expect(courseLink).toBeVisible();
 	await expectCoursesReady(page);
 	expect(
 		(await resources(page)).some((entry) => entry.key === '/_courses/01140052')
@@ -337,10 +337,10 @@ test('identifies a cold course route failure when the whole browser goes offline
 			serverDataRequests.push(request.url());
 	});
 	// Unlike blockPublicData(), this also blocks lazy route JS, HTML and CSS.
-	// Preview cards are buttons, so hovering them does not preload the course route.
+	// No pointer interaction has occurred yet; the course route is still cold.
 	await context.setOffline(true);
 	expect(await page.evaluate(() => navigator.onLine)).toBe(false);
-	await courseButton.click();
+	await courseLink.click();
 	await expect(page).toHaveURL(origin + '/app/course/01140052');
 	await expect(
 		page.getByRole('heading', {
@@ -372,9 +372,9 @@ test('reopens an exact previously visited course offline in the same document', 
 	).json();
 	const about = course.about.trim().slice(0, 60);
 	await page.goto(origin + previewUrl);
-	const courseButton = page.locator('button').filter({ hasText: '01140052' });
+	const courseLink = page.getByRole('link').filter({ hasText: '01140052' });
 	await expectCoursesReady(page);
-	await courseButton.click();
+	await courseLink.click();
 	await expect(page.locator('main h1').first()).toContainText(course.name);
 	await expect(page.locator('main')).toContainText(about);
 	expect(
@@ -383,7 +383,7 @@ test('reopens an exact previously visited course offline in the same document', 
 		)
 	).toEqual(course);
 	await page.goBack();
-	await expect(courseButton).toBeVisible();
+	await expect(courseLink).toBeVisible();
 	const navigationRequests: string[] = [];
 	page.on('request', (request) => {
 		if (
@@ -394,7 +394,7 @@ test('reopens an exact previously visited course offline in the same document', 
 	});
 	await context.setOffline(true);
 	expect(await page.evaluate(() => navigator.onLine)).toBe(false);
-	await courseButton.click();
+	await courseLink.click();
 	await expect(page).toHaveURL(origin + '/app/course/01140052');
 	await expect(page.locator('main h1').first()).toContainText(course.name);
 	await expect(page.locator('main')).toContainText(about);

@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/sveltekit';
-import { userEvent, expect } from 'storybook/test';
 import Preview from './SearchFiltersPreview.svelte';
 const meta = {
 	title: 'Components/SearchFilters',
@@ -9,19 +8,11 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 export const Default: Story = {};
-export const Selected: Story = { args: { selected: true } };
-export const EmptyFaculties: Story = { args: { empty: true } };
+export const Selected: Story = { args: { selected: true, expanded: true } };
+export const EmptyFaculties: Story = { args: { empty: true, expanded: true } };
 export const UnknownFaculty: Story = {
-	args: { selected: true, unknownFaculty: true }
+	args: { selected: true, unknownFaculty: true, expanded: true }
 };
 
-const collapse: Story['play'] = async ({ canvasElement }) => {
-	const details = canvasElement.querySelector('details');
-	await userEvent.click(canvasElement.querySelector('summary')!);
-	await expect(details).not.toHaveAttribute('open');
-};
-export const Collapsed: Story = { play: collapse };
-export const CollapsedWithFilters: Story = {
-	args: { selected: true },
-	play: collapse
-};
+export const Expanded: Story = { args: { expanded: true } };
+export const CollapsedWithFilters: Story = { args: { selected: true } };

@@ -712,17 +712,33 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 			const secondSemester = page.locator('[data-semester="1"]');
 			const rect = (await secondSemester.boundingBox())!;
 			expect(rect.height).toBeGreaterThanOrEqual(128);
-			expect(rect.y + rect.height).toBeLessThan(540);
-			const documentHeight = await page.evaluate(
-				() => document.documentElement.scrollHeight
+			const lastOccupied = (await page
+				.locator('[data-semester="0"] [data-code]')
+				.last()
+				.boundingBox())!;
+			// Readable cards, a two-row header, and a visible readiness notice can
+			// require scrolling on a 540px screen. Empty columns must grow only as
+			// far as the real courses, never add another viewport of blank space.
+			expect(rect.y + rect.height).toBeLessThanOrEqual(
+				lastOccupied.y + lastOccupied.height + 16
 			);
-			// A wrapped footer may extend below a short screen; the planner itself
-			// must fit without creating another viewport of blank scrolling.
+			const pageSize = await page.evaluate(() => ({
+				height: document.documentElement.scrollHeight,
+				scrollY: window.scrollY
+			}));
 			const footerHeight = (await page.locator('footer').boundingBox())!.height;
-			expect(documentHeight).toBeLessThanOrEqual(540 + footerHeight);
+			expect(pageSize.height).toBeLessThanOrEqual(
+				Math.max(
+					540,
+					lastOccupied.y + lastOccupied.height + pageSize.scrollY + 32
+				) + footerHeight
+			);
+			await secondSemester.scrollIntoViewIfNeeded();
+			const visible = (await secondSemester.boundingBox())!;
+			expect(visible.y + visible.height).toBeLessThan(540);
 			await dragTo(page, touch, '10400001', {
-				x: rect.x + rect.width / 2,
-				y: rect.y + rect.height - 15
+				x: visible.x + visible.width / 2,
+				y: visible.y + visible.height - 15
 			});
 			await expect(
 				secondSemester.locator('[data-code="10400001"]')

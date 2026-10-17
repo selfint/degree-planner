@@ -182,10 +182,12 @@ test('theme, language and reading direction are global controls', async ({
 	await expect(page.getByRole('status')).toHaveText('Loading courses…');
 	await expect(page.getByRole('status')).toHaveCSS('clip-path', 'inset(50%)');
 	await page.goto(
-		`${storyUrl('components-searchfilters--default')}&globals=theme:light;language:en;direction:ltr`
+		`${storyUrl('components-searchfilters--expanded')}&globals=theme:light;language:en;direction:ltr`
 	);
 	await expect(page.locator('html')).toHaveAttribute('dir', 'ltr');
-	await expect(page.getByRole('group')).toBeVisible();
+	await expect(
+		page.getByRole('group', { name: 'Filters', exact: true })
+	).toBeVisible();
 });
 
 test('the app service worker and app HTML do not load Storybook', async ({
@@ -344,6 +346,10 @@ test('filter disclosure retains committed filters and keeps results before the f
 	await expect(summary.locator('.filter-count')).toHaveCount(0);
 	await expect(page.locator('#search-faculty')).toHaveValue('');
 	await page.goto(storyUrl('pages-search--results'));
+	await expect(page.locator('details.search-filters')).not.toHaveAttribute(
+		'open',
+		''
+	);
 	await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
 	await expect(page.locator('details.search-filters')).toBeVisible();
 	const positions = await page.evaluate(() => ({
@@ -368,6 +374,7 @@ test('console surfaces remain readable and usable at narrow and wide widths', as
 			'pages-settings--choose-degree',
 			'pages-course--default',
 			'pages-search--results',
+			'pages-search--expanded-filters',
 			'pages-catalog--default',
 			'pages-shared-plan--default'
 		]) {
@@ -401,4 +408,28 @@ test('console surfaces remain readable and usable at narrow and wide widths', as
 			});
 		}
 	}
+});
+
+test('course card body and requirement details are separate keyboard controls', async ({
+	page
+}) => {
+	await page.goto(storyUrl('components-courseelement--interactive-warning'));
+	const open = page.locator('.course-card button:not([aria-expanded])');
+	const warning = page.getByRole('button', {
+		name: 'Course requirement details'
+	});
+	await expect(warning).toHaveAttribute('aria-expanded', 'false');
+	await open.focus();
+	await open.press('Enter');
+	await expect(warning).toHaveAttribute('aria-expanded', 'true');
+	await expect(page.getByText('Demo course opens: 0')).toBeVisible();
+	await open.press('Enter');
+	await expect(page.getByText('Demo course opens: 1')).toBeVisible();
+	await warning.focus();
+	await warning.press('Space');
+	await expect(warning).toHaveAttribute('aria-expanded', 'false');
+	await expect(page.getByText('Demo course opens: 1')).toBeVisible();
+	await expect(
+		page.locator('button button, button a, a button, a a')
+	).toHaveCount(0);
 });

@@ -95,3 +95,31 @@ test('a wishlist course still opens on the first click', async ({ page }) => {
 	await page.locator('[data-code="10400003"]').click();
 	await expect(page).toHaveURL(/\/app\/course\/10400003$/);
 });
+
+test('planned course navigation and warnings are separate keyboard controls', async ({
+	page
+}) => {
+	const card = page.locator('[data-code="10400001"]');
+	await expect(card.locator('button button, a button, button a')).toHaveCount(
+		0
+	);
+	const toggle = card.getByRole('button', {
+		name: 'Course requirement details',
+		exact: true
+	});
+	await toggle.focus();
+	await page.keyboard.press('Enter');
+	await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+	await expect(
+		card.getByRole('heading', { name: 'Dependencies' })
+	).toBeVisible();
+	await page.keyboard.press('Space');
+	await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+	const open = card.locator('.course-open');
+	await open.focus();
+	await page.keyboard.press('Enter');
+	await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+	await expect(page).toHaveURL(/\/app\/plan$/);
+	await page.keyboard.press('Enter');
+	await expect(page).toHaveURL(/\/app\/course\/10400001$/);
+});

@@ -11,6 +11,7 @@
 	import AsyncButton from '$lib/components/AsyncButton.svelte';
 	import PlanActionButton from '$lib/components/PlanActionButton.svelte';
 	import { startPlanDrag, endPlanDrag, makePlanSortable } from '$lib/planDrag';
+	import { fitPlanToViewport } from '$lib/fitPlanToViewport';
 
 	const { data: pageData } = $props();
 	const { getCourseData } = $derived(pageData);
@@ -69,8 +70,8 @@
 	}
 </script>
 
-<!-- Reserve space for the app header/footer while letting long plans grow. -->
-<div class="plan-page mb-4 mt-4 flex min-h-[calc(100dvh-9rem)] flex-col">
+<!-- Fill the remaining viewport while letting long plans grow naturally. -->
+<div use:fitPlanToViewport class="plan-page mb-4 mt-4 flex flex-col">
 	<div class="mb-6 flex shrink-0 flex-col gap-2">
 		<div
 			class="me-3 ms-3 flex min-h-11 shrink-0 flex-row items-center justify-between gap-3 sm:me-5 sm:ms-5"
@@ -264,13 +265,13 @@
 							}}
 						>
 							{#snippet children({ code, course })}
-								<button
+								<div
 									class="touch-manipulation rounded-[var(--radius-card)] text-start text-content-primary"
 									data-code={code}
 									dir={content.lang.dir}
-									onclick={() => goto(`/app/course/${code}`)}
 								>
 									<CourseElement
+										onOpen={() => goto(`/app/course/${code}`)}
 										{code}
 										{course}
 										squeeze={true}
@@ -282,7 +283,7 @@
 											semesterIndex
 										)}
 									/>
-								</button>
+								</div>
 							{/snippet}
 						</Semester>
 					</div>

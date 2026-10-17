@@ -49,7 +49,7 @@ export const ReadOnly: Story = {
 	parameters: { planner: { personalPlanReady: false, online: false } }
 };
 
-export const FiltersCollapsed: Story = {
+export const ExpandedFilters: Story = {
 	play: async ({ canvasElement }) => {
 		await waitFor(() =>
 			expect(canvasElement.querySelector('summary')).not.toBeNull()

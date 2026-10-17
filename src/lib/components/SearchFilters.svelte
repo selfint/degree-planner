@@ -9,13 +9,21 @@
 	} from '$lib/search';
 
 	type Props = {
+		expanded?: boolean;
 		filters: SearchFilters;
 		faculties: string[];
 		maxPoints: number;
 		onchange: (filters: Partial<SearchFilters>) => void;
 		onclear: () => void;
 	};
-	const { filters, faculties, maxPoints, onchange, onclear }: Props = $props();
+	let {
+		filters,
+		faculties,
+		maxPoints,
+		onchange,
+		onclear,
+		expanded = $bindable(false)
+	}: Props = $props();
 	let pointsMin = $state(0);
 	let pointsMax = $state(0);
 	let pointsMinText = $state('0.0');
@@ -202,7 +210,7 @@
 	}
 </script>
 
-<details class="search-filters ui-panel" open>
+<details class="search-filters ui-panel" bind:open={expanded}>
 	<summary class="filter-summary">
 		<span>{content.lang.search.filters}</span>
 		{#if activeCount > 0}

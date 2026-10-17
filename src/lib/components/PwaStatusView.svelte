@@ -39,15 +39,11 @@
 		{allReady ? text.ready : ''}
 	</p>
 	{#if updateReady}
-		<div
-			role="status"
-			class="ui-notice flex items-start gap-3"
-			data-testid="pwa-update"
-		>
+		<div role="status" class="ui-notice pwa-notice" data-testid="pwa-update">
 			<p class="flex-grow">{text.update}</p>
 			<button
 				type="button"
-				class="-m-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-md text-lg hover:bg-background"
+				class="flex h-11 w-11 shrink-0 items-center justify-center rounded-md text-lg hover:bg-background"
 				aria-label={text.close}
 				onclick={onClose}>×</button
 			>
@@ -55,20 +51,45 @@
 	{/if}
 	{#if !allReady}
 		{#if shell === 'outdated'}
-			<p role="status" class="ui-notice" data-testid="pwa-incomplete">
+			<p
+				role="status"
+				class="ui-notice pwa-notice"
+				data-testid="pwa-incomplete"
+			>
 				{text.shellOutdated}
 			</p>
 		{:else if unavailable}
-			<p role="status" class="ui-notice" data-testid="pwa-incomplete">
-				{text.unavailable}
-				<button type="button" class="ms-2 min-h-11 underline" onclick={onRetry}
-					>{text.retry}</button
+			<p
+				role="status"
+				class="ui-notice pwa-notice"
+				data-testid="pwa-incomplete"
+			>
+				<span class="flex-grow">{text.unavailable}</span>
+				<button
+					type="button"
+					class="min-h-11 shrink-0 underline"
+					onclick={onRetry}>{text.retry}</button
 				>
 			</p>
 		{:else if showPreparing}
-			<p role="status" class="ui-notice" data-testid="pwa-downloading">
+			<p
+				role="status"
+				class="ui-notice pwa-notice"
+				data-testid="pwa-downloading"
+			>
 				{text.downloading}
 			</p>
 		{/if}
 	{/if}
 </div>
+
+<style>
+	.pwa-notice {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		min-block-size: 3.25rem;
+		margin-block: 0.25rem;
+		padding: 0.125rem 0.75rem;
+	}
+</style>

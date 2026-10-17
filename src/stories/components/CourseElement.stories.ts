@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/sveltekit';
+import { userEvent, waitFor, expect } from 'storybook/test';
 import Preview from './CourseComponentsPreview.svelte';
 const meta = {
 	title: 'Components/CourseElement',
@@ -18,3 +19,24 @@ export const StudyDays: Story = { args: { state: 'studyDays' } };
 export const CheckingRequirements: Story = { args: { state: 'checking' } };
 export const UnmetRequirements: Story = { args: { state: 'requirements' } };
 export const Unavailable: Story = { args: { state: 'unavailable' } };
+
+export const Interactive: Story = { args: { state: 'interactive' } };
+export const InteractiveWarning: Story = {
+	args: { state: 'interactiveRequirements' }
+};
+export const ExpandedRequirements: Story = {
+	args: { state: 'requirements' },
+	play: async ({ canvasElement }) => {
+		await waitFor(() =>
+			expect(
+				canvasElement.querySelector('button[aria-expanded]')
+			).not.toBeNull()
+		);
+		await userEvent.click(
+			canvasElement.querySelector('button[aria-expanded]')!
+		);
+		await expect(
+			canvasElement.querySelector('button[aria-expanded]')
+		).toHaveAttribute('aria-expanded', 'true');
+	}
+};

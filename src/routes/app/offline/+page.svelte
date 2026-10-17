@@ -3,7 +3,9 @@
 	import { pwaMessages } from '$lib/pwa/messages';
 </script>
 
-<div class="m-5 text-content-primary">
+<div class="ui-page text-content-primary">
 	<p>{pwaMessages[content.lang.lang].offline}</p>
-	<a class="underline" href="/app/plan">{content.lang.header.plan}</a>
+	<a class="ui-button ui-button--secondary mt-4" href="/app/plan"
+		>{content.lang.header.plan}</a
+	>
 </div>

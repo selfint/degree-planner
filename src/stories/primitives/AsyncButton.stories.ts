@@ -18,7 +18,7 @@ const startAction: Story['play'] = async ({ canvasElement }) => {
 	if (!button) throw new Error('The AsyncButton action is missing.');
 	button.click();
 	await tick();
-	if (!canvasElement.querySelector('[role="status"]')) {
+	if (button.getAttribute('aria-busy') !== 'true' || !button.disabled) {
 		throw new Error('The AsyncButton did not enter its loading state.');
 	}
 };

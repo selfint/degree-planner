@@ -55,7 +55,7 @@
 	}
 </script>
 
-<div class="m-3 text-content-primary">
+<div class="ui-page text-content-primary">
 	{#await searchData}
 		<div role="status" class="flex items-center gap-2 text-content-secondary">
 			<div class="h-5 w-5"><Spinner /></div>
@@ -67,6 +67,16 @@
 		{@const filteredResults = results.filter((course) =>
 			matchesSearchFilters(course, filters, maxPoints)
 		)}
+		<h1 class="ui-page-title break-words">
+			{content.lang.search.resultsFor} <bdi>“{query}”</bdi>
+		</h1>
+		<p role="status" class="mb-5 mt-2 text-sm text-content-secondary">
+			{filteredResults.length}
+			{content.lang.search.resultsFound}
+			{#if filteredResults.length !== results.length}
+				({content.lang.search.of} {results.length})
+			{/if}
+		</p>
 		{#key navigation.externalRevision}
 			<SearchFilters
 				{filters}
@@ -76,24 +86,19 @@
 				onclear={() => navigation.updateFilters(undefined, maxPoints)}
 			/>
 		{/key}
-		<h1 class="text-lg">{content.lang.search.resultsFor} "{query}"</h1>
-		<p role="status" class="mb-3 text-base text-content-secondary">
-			{filteredResults.length}
-			{content.lang.search.resultsFound}
-			{#if filteredResults.length !== results.length}
-				({content.lang.search.of} {results.length})
-			{/if}
-		</p>
 		{#if filteredResults.length === 0}
-			<p class="text-content-secondary">{content.lang.search.noResults}</p>
+			<p class="ui-panel p-6 text-content-secondary">
+				{content.lang.search.noResults}
+			</p>
 		{/if}
 		<ul
-			class="flex flex-row flex-wrap"
+			class="flex flex-wrap gap-3"
 			aria-label={content.lang.search.resultsFor}
 		>
 			{#each filteredResults as course (course.code)}
-				<li id={course.code} class="pb-4 pe-2">
+				<li id={course.code} class="min-w-0">
 					<button
+						class="block h-full rounded-xl text-start"
 						class:opacity-60={!course.current}
 						onclick={() => goto(`/app/course/${course.code}`)}
 					>
@@ -128,6 +133,6 @@
 			{/each}
 		</ul>
 	{:catch}
-		<p role="alert">{content.lang.search.loadError}</p>
+		<p role="alert" class="ui-notice">{content.lang.search.loadError}</p>
 	{/await}
 </div>

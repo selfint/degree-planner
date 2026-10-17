@@ -41,7 +41,7 @@
 	{#if updateReady}
 		<div
 			role="status"
-			class="mx-3 my-2 flex items-start gap-3 rounded-md bg-card-primary p-3"
+			class="ui-notice flex items-start gap-3"
 			data-testid="pwa-update"
 		>
 			<p class="flex-grow">{text.update}</p>
@@ -55,18 +55,18 @@
 	{/if}
 	{#if !allReady}
 		{#if shell === 'outdated'}
-			<p role="status" class="mx-3 my-2" data-testid="pwa-incomplete">
+			<p role="status" class="ui-notice" data-testid="pwa-incomplete">
 				{text.shellOutdated}
 			</p>
 		{:else if unavailable}
-			<p role="status" class="mx-3 my-2" data-testid="pwa-incomplete">
+			<p role="status" class="ui-notice" data-testid="pwa-incomplete">
 				{text.unavailable}
 				<button type="button" class="ms-2 min-h-11 underline" onclick={onRetry}
 					>{text.retry}</button
 				>
 			</p>
 		{:else if showPreparing}
-			<p role="status" class="mx-3 my-2" data-testid="pwa-downloading">
+			<p role="status" class="ui-notice" data-testid="pwa-downloading">
 				{text.downloading}
 			</p>
 		{/if}

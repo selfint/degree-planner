@@ -6,10 +6,11 @@
 	import TitleBar from './components/TitleBar.svelte';
 	import AppFooter from '$lib/components/AppFooter.svelte';
 	import ConsoleLoading from '$lib/components/ConsoleLoading.svelte';
+	import { shouldShowConsoleEntry } from '$lib/consoleNavigation';
 	const { children } = $props();
 	const consoleRoute = $derived(/^\/app(?:\/|$)/.test(page.url.pathname));
 	const openingConsole = $derived(
-		navigating.to?.url.pathname.startsWith('/app')
+		shouldShowConsoleEntry(page.url.pathname, navigating.to?.url.pathname)
 	);
 	onMount(() => {
 		document.getElementById('console-boot')?.remove();
@@ -33,7 +34,7 @@
 	</div>
 {/if}
 {#if openingConsole}
-	<div class="fixed inset-0 z-50">
+	<div class="fixed inset-0 z-50" data-testid="console-entry-loading">
 		<ConsoleLoading language={content.lang.lang} phase="opening" />
 	</div>
 {/if}

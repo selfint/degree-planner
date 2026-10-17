@@ -22,3 +22,12 @@ export const Loading: Story = {
 	parameters: { planner: { loading: true } },
 	args: { data: { ...baseRouteData, getCourseData: () => pending<Course>() } }
 };
+export const NoDegree: Story = {
+	parameters: {
+		planner: {
+			noDegree: true,
+			plan: 'empty',
+			user: { degree: undefined, path: undefined }
+		}
+	}
+};

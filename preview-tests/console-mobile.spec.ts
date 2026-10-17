@@ -117,6 +117,24 @@ async function screenshot(page: Page, testInfo: TestInfo, name: string) {
 	await testInfo.attach(name, { path, contentType: 'image/png' });
 }
 
+async function watchConsoleEntry(page: Page) {
+	await page.evaluate(() => {
+		document.documentElement.dataset.consoleEntrySeen = 'false';
+		new MutationObserver((records) => {
+			for (const record of records)
+				for (const node of record.addedNodes) {
+					if (
+						node instanceof Element &&
+						(node.matches('[data-testid="console-entry-loading"]') ||
+							node.querySelector('[data-testid="console-entry-loading"]'))
+					) {
+						document.documentElement.dataset.consoleEntrySeen = 'true';
+					}
+				}
+		}).observe(document.body, { childList: true, subtree: true });
+	});
+}
+
 async function noHorizontalOverflow(page: Page) {
 	expect(
 		await page.evaluate(
@@ -216,9 +234,12 @@ for (const language of ['en', 'he'] as const) {
 						.evaluate((image) => (image as HTMLImageElement).naturalWidth)
 				)
 				.toBeGreaterThan(0);
-			await expect(page.locator('#console-boot-title')).toHaveText(
-				language === 'he' ? 'מכינים את סביבת התכנון' : 'Preparing your planner'
-			);
+			await expect(
+				page.locator('#console-boot').getByRole('heading')
+			).toHaveCount(0);
+			await expect(
+				page.locator('#console-boot .console-loading__track')
+			).toBeVisible();
 			evidence.checkpoints.push(
 				'visible-theme-correct-branded-console-bootstrap'
 			);
@@ -241,6 +262,8 @@ for (const language of ['en', 'he'] as const) {
 		).toEqual({ language, theme });
 		await noHorizontalOverflow(page);
 		evidence.checkpoints.push('console-preferences-and-real-offline-readiness');
+		await page.evaluate(() => scrollTo(0, 0));
+		await screenshot(page, testInfo, `settings-${language}-${theme}`);
 		await page.locator('footer').scrollIntoViewIfNeeded();
 		await screenshot(page, testInfo, `console-footer-${language}-${theme}`);
 		// The context belongs only to this test; no state carries into the journeys.
@@ -268,9 +291,9 @@ for (const language of ['en', 'he'] as const) {
 		await expect(page.locator(`[data-code="${courseCode}"]`)).toBeVisible();
 		await noHorizontalOverflow(page);
 		await screenshot(page, testInfo, `console-ready-${language}`);
-		const logo = page.locator('header a').filter({
-			has: page.locator('img[alt="Logo"]')
-		});
+		const logo = page
+			.locator('header')
+			.getByRole('link', { name: 'PlanIt', exact: true });
 		await expect(logo).toHaveAttribute('href', '/app/');
 		const onlineTimeOrigin = await page.evaluate(() => performance.timeOrigin);
 		await logo.click();
@@ -279,6 +302,37 @@ for (const language of ['en', 'he'] as const) {
 			onlineTimeOrigin
 		);
 		evidence.checkpoints.push('online-logo-stays-in-console-without-reload');
+
+		await watchConsoleEntry(page);
+		for (const target of ['catalog', 'settings', 'plan']) {
+			await page.locator(`header a[href="/app/${target}"]`).click();
+			await expect(page).toHaveURL(new URL(`/app/${target}`, baseURL).href);
+			await expect(page.locator('main')).toBeVisible();
+			await noHorizontalOverflow(page);
+			await page.evaluate(() => scrollTo(0, 0));
+			await screenshot(page, testInfo, `${target}-${language}`);
+		}
+		const search = page.locator('header input[type="text"]');
+		await search.fill(courseCode);
+		await search.press('Enter');
+		await expect(page).toHaveURL(
+			new URL(`/app/search?q=${courseCode}`, baseURL).href
+		);
+		await expect(page.locator('main')).toContainText(courseName);
+		await noHorizontalOverflow(page);
+		await screenshot(page, testInfo, `search-${language}`);
+		await page.locator('header a[href="/app/plan"]').click();
+		await expect(page.locator(`[data-code="${courseCode}"]`)).toBeVisible();
+		await expect(page.locator('html')).toHaveAttribute(
+			'data-console-entry-seen',
+			'false'
+		);
+		expect(await page.evaluate(() => performance.timeOrigin)).toBe(
+			onlineTimeOrigin
+		);
+		evidence.checkpoints.push(
+			'polished-console-routes-without-startup-overlay-or-reload'
+		);
 
 		const coursePath = `/app/course/${courseCode}`;
 		expect(evidence.publicPaths).not.toContain(coursePath);
@@ -307,6 +361,7 @@ for (const language of ['en', 'he'] as const) {
 		await screenshot(page, testInfo, `offline-course-${language}`);
 
 		const offlineTimeOrigin = await page.evaluate(() => performance.timeOrigin);
+		await watchConsoleEntry(page);
 		await logo.click();
 		await expect(page).toHaveURL(/\/app\/plan$/);
 		await expect(page.locator(`[data-code="${courseCode}"]`)).toBeVisible();
@@ -323,8 +378,12 @@ for (const language of ['en', 'he'] as const) {
 		expect(await page.evaluate(() => localStorage.getItem('userData'))).toBe(
 			savedGuest
 		);
+		await expect(page.locator('html')).toHaveAttribute(
+			'data-console-entry-seen',
+			'false'
+		);
 		evidence.checkpoints.push(
-			'offline-logo-and-back-forward-preserve-synthetic-guest'
+			'offline-logo-and-back-forward-preserve-synthetic-guest-without-startup-overlay'
 		);
 
 		await context.setOffline(false);
@@ -376,9 +435,8 @@ test.describe('iPhone-user-agent install guidance (Chromium emulation only)', ()
 		const route = page.url();
 		const info = page.getByTestId('landing-install-info');
 		await expect(info).toBeVisible();
-		const help = info.locator('details');
-		await help.locator('summary').click();
-		await expect(help).toHaveAttribute('open', '');
+		const help = info;
+		await expect(info.locator('details, summary')).toHaveCount(0);
 		await expect(help).toContainText('iPhone or iPad');
 		await expect(help).toContainText('Add to Home Screen');
 		await expect(help).toContainText(
@@ -387,8 +445,6 @@ test.describe('iPhone-user-agent install guidance (Chromium emulation only)', ()
 		await noHorizontalOverflow(page);
 		await help.scrollIntoViewIfNeeded();
 		await screenshot(page, testInfo, 'iphone-install-help');
-		await help.locator('summary').click();
-		await expect(help).not.toHaveAttribute('open', '');
 		await expect(page).toHaveURL(route);
 		expect(await page.evaluate(() => localStorage.getItem('lang'))).toBe('en');
 		// Include the console's 1500ms optional-provider delay in the observation

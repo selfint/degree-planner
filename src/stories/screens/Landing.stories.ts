@@ -35,8 +35,3 @@ export const OpeningPlanner: Story = {
 		}
 	}
 };
-export const InstallationDetails: Story = {
-	play: async ({ canvasElement }) => {
-		canvasElement.querySelector('summary')?.click();
-	}
-};

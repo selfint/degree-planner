@@ -265,7 +265,7 @@
 	const seasonEmojis = ['❄️', '🌿', '☀️'];
 </script>
 
-{#snippet courseNote(course: Course, se: Promise)}
+{#snippet courseNote(course: Course, se: Promise<ScheduleError>)}
 	{#if !course.current}
 		❌
 		<span dir={content.lang.dir} class="hidden sm:inline">
@@ -299,9 +299,9 @@
 	{/if}
 {/snippet}
 
-<div class="items-start sm:mt-3 sm:flex sm:flex-row">
+<div class="semester-page items-start sm:mt-5 sm:flex sm:flex-row">
 	<div
-		class="sticky top-2 mb-3 mt-0 hidden max-h-screen touch-manipulation overflow-y-scroll pe-3 ps-3 sm:block"
+		class="semester-sidebar sticky top-3 mb-4 mt-0 hidden max-h-screen shrink-0 touch-manipulation overflow-y-auto pb-4 pe-4 ps-4 sm:block"
 	>
 		<Semester
 			{getCourseData}
@@ -313,7 +313,11 @@
 		>
 			{#snippet children({ code, course })}
 				<button
-					class={disabled.includes(code) ? 'opacity-50' : ''}
+					class="rounded-[var(--radius-card)] text-start {disabled.includes(
+						code
+					)
+						? 'opacity-50'
+						: ''}"
 					onmousedown={() => toggleCourseDisabled(code)}
 				>
 					<CourseElement {code} {course} />
@@ -322,30 +326,45 @@
 		</Semester>
 	</div>
 
-	<div class="sticky top-0 z-30 mb-5 bg-background pb-2 sm:hidden">
-		<div class="mb-2 me-3 mt-1 flex flex-row items-center justify-between pt-2">
+	<div
+		class="semester-mobile sticky top-0 z-30 mb-6 bg-background pb-3 sm:hidden"
+	>
+		<div
+			class="mb-3 me-3 mt-1 flex flex-row flex-wrap items-center justify-between gap-3 pt-3"
+		>
 			<div class="ms-3">
 				<h1
 					class="w-fit border-b-2 {currentSemester === user.d.currentSemester
 						? 'border-accent-primary'
-						: 'border-transparent'} text-base font-medium text-content-primary"
+						: 'border-transparent'} text-base font-semibold text-content-primary"
 				>
 					{content.lang.common.seasons[currentSemester % 3]}
 					{Math.floor(currentSemester / 3) + 1}
 				</h1>
-				<div class="text-content-secondary">
+				<div class="mobile-semester-summary">
 					{#await _effectiveSemester then effectiveSemester}
-						<span>
-							{effectiveSemester
-								.map((c) => c.tests)
-								.filter((t) => t !== undefined && t.length > 0).length}
-						</span>
-						<span>
-							{getAvgMedian(effectiveSemester)}
-						</span>
-						<span>
-							{effectiveSemester.reduce((a, b) => a + (b.points ?? 0), 0)}
-						</span>
+						<span
+							><strong
+								>{effectiveSemester
+									.map((c) => c.tests)
+									.filter((t) => t !== undefined && t.length > 0)
+									.length}</strong
+							>
+							{content.lang.lang === 'he' ? 'מבחנים' : 'exams'}</span
+						>
+						<span
+							><strong>{getAvgMedian(effectiveSemester)}</strong>
+							{content.lang.course.median}</span
+						>
+						<span
+							><strong
+								>{effectiveSemester.reduce(
+									(a, b) => a + (b.points ?? 0),
+									0
+								)}</strong
+							>
+							{content.lang.course.points}</span
+						>
 					{/await}
 				</div>
 			</div>
@@ -356,7 +375,11 @@
 		<CourseRow {getCourseData} courses={semester}>
 			{#snippet children({ code, course })}
 				<button
-					class={disabled.includes(code) ? 'opacity-50' : ''}
+					class="rounded-[var(--radius-card)] text-start {disabled.includes(
+						code
+					)
+						? 'opacity-50'
+						: ''}"
 					onmousedown={() => toggleCourseDisabled(code)}
 				>
 					<CourseElement {code} {course} />
@@ -365,7 +388,7 @@
 		</CourseRow>
 	</div>
 
-	<div class="relative z-0 flex-1 overflow-x-auto">
+	<div class="relative z-0 min-w-0 flex-1 overflow-x-auto sm:pe-4">
 		{#await loLoCo}
 			<h2 class="flex flex-row text-content-primary">
 				{content.lang.common.loading}
@@ -375,16 +398,24 @@
 			</h2>
 		{:then loLoCo}
 			{#each loLoCo as [titles, courses, colorize]}
-				<div class="mb-7">
-					<h1 class="mb-1.5 ms-3 font-medium text-content-primary sm:ms-0">
-						<div class="me-2 flex flex-row flex-wrap items-start gap-y-1">
-							{#each titles as title}
-								<span class="me-1 leading-none">
+				<div class="mb-8">
+					<h2
+						class="mb-3 ms-3 text-sm font-semibold text-content-primary sm:ms-0"
+					>
+						<div
+							class="me-2 flex flex-row flex-wrap items-start gap-x-1.5 gap-y-1"
+						>
+							{#each titles as title, titleIndex}
+								{#if titleIndex > 0}<span
+										class="text-content-secondary"
+										aria-hidden="true">/</span
+									>{/if}
+								<span class="leading-relaxed">
 									{content.lang.lang === 'he' ? title.he : title.en}
 								</span>
 							{/each}
 						</div>
-					</h1>
+					</h2>
 
 					<div class="sm:hidden">
 						<CourseRow
@@ -402,7 +433,10 @@
 								)}
 						>
 							{#snippet children({ code, course, scheduleError })}
-								<button onmousedown={() => goto(`/app/course/${code}`)}>
+								<button
+									class="rounded-[var(--radius-card)] text-start"
+									onmousedown={() => goto(`/app/course/${code}`)}
+								>
 									<CourseElement
 										{code}
 										{course}
@@ -435,7 +469,10 @@
 								)}
 						>
 							{#snippet children({ code, course, scheduleError })}
-								<button onmousedown={() => goto(`/app/course/${code}`)}>
+								<button
+									class="rounded-[var(--radius-card)] text-start"
+									onmousedown={() => goto(`/app/course/${code}`)}
+								>
 									<CourseElement
 										{code}
 										{course}
@@ -459,6 +496,26 @@
 </div>
 
 <style>
+	.semester-sidebar {
+		scrollbar-width: thin;
+	}
+	.semester-mobile {
+		border-block-end: 0.0625rem solid rgb(var(--color-border));
+	}
+	.mobile-semester-summary {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.25rem 0.75rem;
+		margin-block-start: 0.5rem;
+		color: rgb(var(--color-content-secondary));
+		font-size: 0.6875rem;
+	}
+	.mobile-semester-summary strong {
+		color: rgb(var(--color-content-primary));
+		font-weight: 600;
+		font-variant-numeric: tabular-nums;
+	}
+
 	:global(body) {
 		overscroll-behavior: none;
 	}

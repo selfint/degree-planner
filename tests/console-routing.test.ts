@@ -108,3 +108,65 @@ for (const errorName of ['SecurityError', 'QuotaExceededError']) {
 		expect(errors).toEqual([]);
 	});
 }
+
+for (const language of ['en', 'he'] as const) {
+	test(`${language}: repeated console tabs and history stay in the SPA without the startup overlay`, async ({
+		page
+	}) => {
+		test.setTimeout(60_000);
+		await page.setViewportSize({ width: 390, height: 844 });
+		await page.addInitScript((language) => {
+			localStorage.setItem('lang', language);
+			localStorage.setItem('version', '4');
+			localStorage.setItem(
+				'userData',
+				JSON.stringify({
+					degree: ['2024_200', '00002120', 'SC00001320_CG00006382'],
+					path: 'CG00006246',
+					exemptions: [],
+					semesters: [[], []],
+					currentSemester: 0,
+					wishlist: ['02340124']
+				})
+			);
+		}, language);
+		await page.goto(`${origin}/app/plan`);
+		await expect(page.locator('[data-code="02340124"]')).toBeVisible({
+			timeout: 20_000
+		});
+		await expect(page.locator('#console-boot')).toBeHidden();
+		const timeOrigin = await page.evaluate(() => performance.timeOrigin);
+		await page.evaluate(() => {
+			document.documentElement.dataset.consoleEntrySeen = 'false';
+			new MutationObserver((records) => {
+				for (const record of records)
+					for (const node of record.addedNodes) {
+						if (
+							node instanceof Element &&
+							(node.matches('[data-testid="console-entry-loading"]') ||
+								node.querySelector('[data-testid="console-entry-loading"]'))
+						)
+							document.documentElement.dataset.consoleEntrySeen = 'true';
+					}
+			}).observe(document.body, { childList: true, subtree: true });
+		});
+		for (const target of ['catalog', 'settings', 'plan', 'catalog', 'plan']) {
+			await page.locator(`header a[href="/app/${target}"]`).click();
+			await expect(page).toHaveURL(`${origin}/app/${target}`);
+			await expect(page.locator('main')).toBeVisible();
+			await expect(
+				page.locator(`header a[href="/app/${target}"]`)
+			).toHaveAttribute('aria-current', 'page');
+		}
+		await page.goBack();
+		await expect(page).toHaveURL(`${origin}/app/catalog`);
+		await page.goForward();
+		await expect(page).toHaveURL(`${origin}/app/plan`);
+		expect(await page.evaluate(() => performance.timeOrigin)).toBe(timeOrigin);
+		await expect(page.locator('html')).toHaveAttribute(
+			'data-console-entry-seen',
+			'false'
+		);
+		await expect(page.getByTestId('console-entry-loading')).toHaveCount(0);
+	});
+}

@@ -51,69 +51,147 @@
 	}
 </script>
 
-<header
-	dir="ltr"
-	class="flex max-h-14 touch-manipulation flex-row items-center justify-between pe-3 ps-2 pt-1"
->
+<header dir={content.lang.dir} class="title-bar" class:console={started}>
 	<a
 		href={homeHref}
 		data-sveltekit-reload={homeHref === '/' ? true : undefined}
-		class="flex h-12 min-w-12 flex-row items-center"
+		class="brand"
+		aria-label="PlanIt"
 	>
-		<enhanced:img
-			src={Logo}
-			loading="lazy"
-			alt="Logo"
-			class="h-12 min-w-5 max-w-12"
-		/>
-		{#if !started}
-			<span class="min-w-20 text-content-primary">
-				{@html Title}
-			</span>
-		{:else}
-			<span class="hidden min-w-20 text-content-primary sm:inline">
-				{@html Title}
-			</span>
-		{/if}
+		<enhanced:img src={Logo} loading="eager" alt="" class="brand-logo" />
+		<span class="brand-title">{@html Title}</span>
 	</a>
-	<div class="flex-grow"></div>
 	{#if !started}
 		<GetStartedLink />
 	{:else}
+		<form class="header-search" role="search" {onsubmit}>
+			<span class="search-icon" aria-hidden="true"><SearchIcon /></span>
+			<input
+				type="text"
+				aria-label={content.lang.header.searchPlaceholder}
+				{placeholder}
+				onfocus={() => {
+					selected = true;
+				}}
+				onblur={() => {
+					selected = false;
+				}}
+				bind:value={query}
+				class={textStyle}
+			/>
+		</form>
 		<nav
-			class="ms-2 flex h-12 flex-row items-center justify-end space-x-3 overflow-y-hidden md:space-x-8"
+			aria-label={content.lang.lang === 'he' ? 'ניווט ראשי' : 'Main navigation'}
 		>
-			<div
-				dir={content.lang.dir}
-				class="flex max-h-8 w-fit flex-row items-center justify-start overflow-y-hidden rounded-md bg-card-primary p-1 ps-2 {textStyle}"
-			>
-				<div class="h-fit max-h-8 min-w-3 overflow-y-hidden">
-					<SearchIcon class="h-full" />
-				</div>
-				<form class="ms-1 h-8 max-h-8" {onsubmit}>
-					<input
-						type="text"
-						{placeholder}
-						onfocus={() => {
-							selected = true;
-							placeholder = '';
-						}}
-						onblur={() => {
-							selected = false;
-							placeholder = content.lang.header.searchPlaceholder;
-						}}
-						bind:value={query}
-						class="h-8 max-h-8 w-full max-w-28 resize-none border-none bg-transparent py-0 pe-1 font-thin leading-10 {textStyle} focus:outline-none"
-					/>
-				</form>
-			</div>
 			<Nav target="catalog">{content.lang.header.catalog}</Nav>
 			<Nav target="plan">{content.lang.header.plan}</Nav>
 			<Nav target="settings">
-				<div class="p-0.5 pl-0 pr-0">
-					<Settings></Settings>
-				</div>
+				<span aria-hidden="true"><Settings /></span>
+				<span class="sr-only">{content.lang.landing.settings.header}</span>
 			</Nav>
 		</nav>
 	{/if}
 </header>
+
+<style>
+	.title-bar {
+		display: flex;
+		inline-size: 100%;
+		max-inline-size: 80rem;
+		min-block-size: 4.5rem;
+		margin-inline: auto;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+		padding: 0.75rem clamp(1rem, 3vw, 2rem);
+	}
+	.brand {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.375rem;
+		flex-shrink: 0;
+		direction: ltr;
+	}
+	.brand :global(.brand-logo) {
+		inline-size: 2.75rem;
+		block-size: 2.75rem;
+		object-fit: contain;
+	}
+	.brand-title {
+		inline-size: 5.5rem;
+		color: rgb(var(--color-content-primary));
+	}
+	.brand-title :global(svg) {
+		inline-size: 100%;
+		block-size: auto;
+	}
+	.console {
+		display: grid;
+		grid-template-columns: auto minmax(10rem, 25rem) auto;
+	}
+	nav {
+		display: flex;
+		align-items: center;
+		justify-content: end;
+		gap: 0.25rem;
+	}
+	.header-search {
+		display: flex;
+		min-inline-size: 0;
+		min-block-size: 2.75rem;
+		align-items: center;
+		gap: 0.625rem;
+		padding-inline: 0.875rem;
+		border: 0.0625rem solid rgb(var(--color-border));
+		border-radius: 0.75rem;
+		background: rgb(var(--color-card-primary));
+	}
+	.header-search:focus-within {
+		border-color: rgb(var(--color-accent-primary));
+		box-shadow: 0 0 0 0.1875rem rgb(var(--color-accent-primary) / 0.1);
+	}
+	.search-icon {
+		inline-size: 1rem;
+		flex-shrink: 0;
+		color: rgb(var(--color-content-secondary));
+	}
+	.search-icon :global(svg) {
+		inline-size: 100%;
+	}
+	input {
+		inline-size: 100%;
+		min-inline-size: 0;
+		padding-block: 0.5rem;
+		border: 0;
+		outline: none;
+		background: transparent;
+		font-size: 1rem;
+		line-height: 1.5;
+	}
+	input::placeholder {
+		color: rgb(var(--color-content-secondary));
+	}
+	@media (max-width: 47.99rem) {
+		.console {
+			grid-template-columns: auto 1fr;
+			gap: 0.625rem 0.5rem;
+		}
+		.console .brand {
+			grid-column: 1;
+			grid-row: 1;
+		}
+		.console nav {
+			grid-column: 2;
+			grid-row: 1;
+		}
+		.header-search {
+			grid-column: 1 / -1;
+			grid-row: 2;
+		}
+	}
+	@media (max-width: 26rem) {
+		.console .brand-title {
+			display: none;
+		}
+	}
+</style>

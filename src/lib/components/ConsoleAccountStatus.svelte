@@ -21,7 +21,7 @@
 {#if readOnly}
 	<p
 		role="status"
-		class="mx-3 my-2 rounded-md bg-card-primary p-3 text-content-primary"
+		class="ui-notice text-content-primary"
 		data-testid="plan-read-only"
 	>
 		{content.lang.lang === 'he'
@@ -30,24 +30,26 @@
 	</p>
 {/if}
 {#if authPending}
-	<p role="status" class="m-5 flex-grow text-content-primary">
+	<p role="status" class="ui-notice text-content-primary">
 		{content.lang.common.loading}…
 	</p>
 {:else if cloudPlanBlocked}
 	<p
 		role="status"
-		class="m-5 flex-grow text-content-primary"
+		class="ui-notice text-content-primary"
 		data-testid="pwa-account-unavailable"
 	>
 		{pwaMessages[content.lang.lang].accountUnavailable}
 		<button
 			type="button"
-			class="ms-2 underline disabled:opacity-50"
+			class="ui-button ui-button--secondary ms-2 mt-2"
 			disabled={offline}
 			onclick={onRetry}>{pwaMessages[content.lang.lang].retry}</button
 		>
-		<button type="button" class="ms-2 underline" onclick={onSignOut}
-			>{content.lang.settings.signOut}</button
+		<button
+			type="button"
+			class="ui-button ui-button--secondary ms-2 mt-2"
+			onclick={onSignOut}>{content.lang.settings.signOut}</button
 		>
 	</p>
 {/if}

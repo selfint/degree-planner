@@ -37,6 +37,15 @@ describe('console loading presentation', () => {
 		expect(css).toMatch(/animation:\s*none/);
 	});
 
+	it('keeps only branding and the bar visible, with a screen-reader status', () => {
+		for (const markup of [shell, component]) {
+			expect(markup).not.toContain('console-loading__title');
+			expect(markup).not.toContain('console-loading__description');
+		}
+		expect(css).toContain('clip-path: inset(50%)');
+		expect(css).not.toMatch(/\dpx/);
+	});
+
 	it('keeps the reusable loading view independent of application services', () => {
 		expect(component).not.toMatch(
 			/firebase|publicData|stores\.svelte|localStorage|serviceWorker/

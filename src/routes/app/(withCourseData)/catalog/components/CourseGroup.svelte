@@ -74,74 +74,137 @@
 	const seasonEmojis = ['❄️', '🌿', '☀️'];
 </script>
 
-<div {id} class="mb-2 min-h-[118px] max-w-full">
+<div {id} class="course-group">
 	{#await groups}
 		<div role="status" aria-label={content.lang.common.loading}>
 			<LoadingCourseElement />
 		</div>
 	{:then groups}
 		{#each groups as [scores, group], index}
-			<div class="mb-2">
-				<h1
-					class="mb-2 me-3 ms-3 flex flex-row items-baseline text-base font-medium text-content-primary"
-				>
-					<div class="me-2 flex flex-col flex-wrap items-start gap-y-1">
-						{#each titles as title}
-							<span class="me-1 leading-none">
-								{content.lang.lang === 'he' ? title.he : title.en}
-							</span>
+			<section class="course-group-section">
+				<header class="course-group-header">
+					<h2 class="course-group-title">
+						{#each titles as title, titleIndex}
+							{#if titleIndex > 0}<span
+									class="course-group-divider"
+									aria-hidden="true">/</span
+								>{/if}
+							<span>{content.lang.lang === 'he' ? title.he : title.en}</span>
 						{/each}
-					</div>
-
-					<div class="flex-grow sm:ms-3 sm:flex-grow-0"></div>
-					<span
-						class="flex flex-row text-nowrap font-normal text-content-secondary"
-					>
-						<span>
-							{scores}
-						</span>
-						{#if groups.length > 1}
-							<span class="ms-1">
-								({index + 1}/{groups.length})
-							</span>
-						{/if}
-					</span>
-				</h1>
-				<CourseRow {getCourseData} courses={group}>
-					{#snippet children({ code, course })}
-						<a href={`/app/course/${code}`}>
-							<CourseElement {code} {course}>
-								{#snippet note(course)}
-									{@const index = getCourseSemester(course)}
-									{#if index !== undefined}
-										<span>
-											{seasonEmojis[index % 3]}
-											<span class="hidden sm:inline">
-												{content.lang.common.seasons[index % 3]}
-												{Math.floor(index / 3) + 1}
+					</h2>
+					{#if scores}
+						<p class="course-group-score">
+							<span>{content.lang.course.median}</span>
+							<bdi dir="ltr">{scores}</bdi>
+							{#if groups.length > 1}
+								<bdi dir="ltr">({index + 1}/{groups.length})</bdi>
+							{/if}
+						</p>
+					{/if}
+				</header>
+				{#if group.length === 0}
+					<p class="ui-panel course-group-empty">
+						{content.lang.lang === 'he'
+							? 'אין עדיין קורסים בקבוצה זו.'
+							: 'There are no courses in this group yet.'}
+					</p>
+				{:else}
+					<CourseRow {getCourseData} courses={group} indent={0}>
+						{#snippet children({ code, course })}
+							<a href={`/app/course/${code}`}>
+								<CourseElement {code} {course}>
+									{#snippet note(course)}
+										{@const index = getCourseSemester(course)}
+										{#if index !== undefined}
+											<span>
+												{seasonEmojis[index % 3]}
+												<span class="hidden sm:inline">
+													{content.lang.common.seasons[index % 3]}
+													{Math.floor(index / 3) + 1}
+												</span>
 											</span>
-										</span>
-									{:else if user.d.exemptions.includes(course.code)}
-										<span>✓</span>
-										<span class="hidden sm:inline">
-											{content.lang.catalog.exempt}
-										</span>
-									{:else if user.d.wishlist.includes(course.code)}
-										<span>🌟</span>
-										<span class="hidden sm:inline">
-											{content.lang.catalog.wishlist}
-										</span>
-									{/if}
-								{/snippet}
-							</CourseElement>
-						</a>
-					{/snippet}
-				</CourseRow>
-			</div>
+										{:else if user.d.exemptions.includes(course.code)}
+											<span>✓</span>
+											<span class="hidden sm:inline">
+												{content.lang.catalog.exempt}
+											</span>
+										{:else if user.d.wishlist.includes(course.code)}
+											<span>🌟</span>
+											<span class="hidden sm:inline">
+												{content.lang.catalog.wishlist}
+											</span>
+										{/if}
+									{/snippet}
+								</CourseElement>
+							</a>
+						{/snippet}
+					</CourseRow>
+				{/if}
+			</section>
 		{/each}
 	{:catch}
-		<p role="alert" class="text-content-secondary">
+		<p role="alert" class="ui-notice course-group-error">
 			{content.lang.search.loadError}
 		</p>
 	{/await}
 </div>
+
+<style>
+	.course-group {
+		max-inline-size: 100%;
+		min-inline-size: 0;
+		padding-inline: 0.75rem;
+	}
+
+	.course-group-section + .course-group-section {
+		margin-block-start: 1.5rem;
+	}
+
+	.course-group-header {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: 0.625rem 1rem;
+		margin-block-end: 1rem;
+	}
+
+	.course-group-title {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		gap: 0.375rem 0.625rem;
+		min-inline-size: 0;
+		font-size: 1.125rem;
+		font-weight: 600;
+		line-height: 1.5;
+		overflow-wrap: anywhere;
+	}
+
+	.course-group-divider {
+		color: rgb(var(--color-content-secondary));
+		font-weight: 400;
+	}
+
+	.course-group-score {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.375rem;
+		padding: 0.25rem 0.625rem;
+		border-radius: 0.5rem;
+		background: rgb(var(--color-card-secondary) / 0.45);
+		color: rgb(var(--color-content-secondary));
+		font-size: 0.8125rem;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.course-group-empty {
+		padding: 1.25rem;
+		color: rgb(var(--color-content-secondary));
+		font-size: 0.9375rem;
+	}
+
+	.course-group-error {
+		margin: 0;
+	}
+</style>

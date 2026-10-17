@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { user, content, writeStorage, setUser } from '$lib/stores.svelte';
 
-	import Button from '$lib/components/Button.svelte';
 	import DegreeSection from './components/DegreeSection.svelte';
 	import SemesterSection from './components/SemesterSection.svelte';
 	import UploadSection from './components/UploadSection.svelte';
@@ -15,7 +14,6 @@
 	import CourseRow from '$lib/components/CourseRow.svelte';
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import AsyncButton from '$lib/components/AsyncButton.svelte';
-	import { goto } from '$app/navigation';
 	import Spinner from '$lib/components/Spinner.svelte';
 
 	const { data: pageData } = $props();
@@ -82,22 +80,45 @@
 	let buttonNamespace = $state('');
 </script>
 
-<div class="mt-3">
-	<div class="mb-4 ms-3 flex flex-row gap-x-2">
-		<h1 class="mb-2 text-xl text-content-primary">
-			{currentUser?.displayName ?? content.lang.settings.guest}
-		</h1>
+<div class="ui-page settings-page">
+	<header class="page-heading">
+		<h1 class="ui-page-title">{content.lang.landing.settings.header}</h1>
+		<p>
+			{content.lang.lang === 'he'
+				? 'התאימו את התואר, הסמסטרים והקורסים לתוכנית שלכם.'
+				: 'Manage the degree, semesters, and courses in your plan.'}
+		</p>
+	</header>
+
+	<section class="ui-panel account-section">
+		<div class="account-identity">
+			<span class="account-icon" aria-hidden="true">
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					viewBox="0 0 24 24"
+					width="24"
+					height="24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="1.75"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+				>
+					<circle cx="12" cy="8" r="4" />
+					<path d="M5 21v-2a7 7 0 0 1 14 0v2" />
+				</svg>
+			</span>
+			<h2>{currentUser?.displayName ?? content.lang.settings.guest}</h2>
+		</div>
 		{#if currentUser === null}
 			<AsyncButton variant="secondary" onclick={onSignInWithGoogle}>
-				<span
-					class="flex h-fit w-fit flex-row items-center gap-x-2 pb-0.5 pt-0.5"
-				>
-					<span class="text-nowrap">{content.lang.settings.signInWith}</span>
+				<span class="account-action">
+					<span>{content.lang.settings.signInWith}</span>
 					<img
 						src="https://www.svgrepo.com/show/355037/google.svg"
 						loading="lazy"
 						alt="Google Logo"
-						class="h-5 w-5"
+						class="h-5 w-5 shrink-0"
 					/>
 				</span>
 			</AsyncButton>
@@ -108,10 +129,8 @@
 				bind:buttonNamespace
 				name="signout"
 			>
-				<span
-					class="flex h-fit w-fit flex-row items-center gap-x-2 pb-0.5 pt-0.5"
-				>
-					<span class="text-nowrap">{content.lang.settings.signOut}</span>
+				<span class="account-action">
+					<span>{content.lang.settings.signOut}</span>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
 						viewBox="0 0 24 24"
@@ -122,6 +141,7 @@
 						stroke-width="2"
 						stroke-linecap="round"
 						stroke-linejoin="round"
+						aria-hidden="true"
 					>
 						<path
 							d="M15 3h5a2 2 0 012 2v14a2 2 0 01-2 2h-5M10 17l5-5-5-5M15 12H3"
@@ -130,81 +150,152 @@
 				</span>
 			</AsyncButton>
 		{/if}
-	</div>
-	{#if signInError}
-		<p
-			role="alert"
-			class="mx-3 mb-4 text-content-primary"
-			data-testid="sign-in-error"
-		>
-			{pwaMessages[content.lang.lang].signInErrors[signInError]}
-			{#if signInError === 'domain'}<span dir="ltr">{signInHostname}</span>{/if}
-		</p>
-	{/if}
-	<div class="mb-4 ms-3">
-		{#await catalogs}
-			<div class="me-3">
-				<h2
-					class="flex flex-row gap-x-1 text-base font-medium text-content-primary"
-				>
-					{content.lang.settings.degree}
-					<div class="h-6 w-6">
-						<Spinner />
-					</div>
-					<span class="text-content-secondary"
-						>{content.lang.common.loading}</span
-					>
-				</h2>
+		{#if signInError}
+			<p role="alert" class="sign-in-error" data-testid="sign-in-error">
+				{pwaMessages[content.lang.lang].signInErrors[signInError]}
+				{#if signInError === 'domain'}<span dir="ltr">{signInHostname}</span
+					>{/if}
+			</p>
+		{/if}
+	</section>
+
+	{#await catalogs}
+		<section class="ui-panel loading-section">
+			<h2 class="section-title">{content.lang.settings.degree}</h2>
+			<div class="loading-state" role="status">
+				<span class="h-5 w-5 shrink-0" aria-hidden="true"><Spinner /></span>
+				<span>{content.lang.common.loading}</span>
 			</div>
-		{:then catalogs}
-			<DegreeSection
-				{catalogs}
-				{userDegree}
-				{userPath}
-				{onChange}
-				onReset={() => {}}
-				recommended={undefined}
-				bind:buttonNamespace
-			/>
-		{/await}
-	</div>
+		</section>
+	{:then catalogs}
+		<DegreeSection
+			{catalogs}
+			{userDegree}
+			{userPath}
+			{onChange}
+			onReset={() => {}}
+			recommended={undefined}
+			bind:buttonNamespace
+		/>
+	{/await}
 
 	{#if userDegree !== undefined}
-		<div class="mb-4 ms-3">
-			<SemesterSection
-				{semesterChoice}
-				{totalSemestersChoice}
-				{validTotalValues}
-				bind:buttonNamespace
-			/>
-		</div>
+		<SemesterSection
+			{semesterChoice}
+			{totalSemestersChoice}
+			{validTotalValues}
+			bind:buttonNamespace
+		/>
 	{/if}
 	{#if userDegree !== undefined && user.d.semesters.flat().length === 0}
-		<div class="mb-4">
-			<UploadSection {getCourseData} bind:buttonNamespace />
-		</div>
+		<UploadSection {getCourseData} bind:buttonNamespace />
 	{/if}
 	{#if user.d.exemptions.length > 0}
-		<div class="mb-4">
-			<h2 class="mb-2 ms-3 text-base font-medium text-content-primary">
-				{content.lang.settings.exemptions}
-			</h2>
-			<CourseRow {getCourseData} courses={user.d.exemptions}>
-				{#snippet children({ code, course, index })}
-					<div
-						role="button"
-						tabindex={index}
-						onclick={() => goto(`/app/course/${code}`)}
-						onkeydown={(e) => {
-							if (e.key === 'Enter') {
-								goto(`/app/course/${code}`);
-							}
-						}}
-					>
+		<section class="ui-panel exemptions-section">
+			<h2 class="section-title">{content.lang.settings.exemptions}</h2>
+			<CourseRow {getCourseData} courses={user.d.exemptions} indent={0}>
+				{#snippet children({ code, course })}
+					<a class="block" href={`/app/course/${code}`}>
 						<CourseElement {code} {course} />
-					</div>
+					</a>
 				{/snippet}
 			</CourseRow>
-		</div>
+		</section>
 	{/if}
 </div>
+
+<style>
+	.settings-page {
+		display: grid;
+		max-inline-size: 56rem;
+		gap: 1.25rem;
+		text-align: start;
+	}
+
+	.page-heading {
+		display: grid;
+		gap: 0.625rem;
+		padding-block-end: 0.25rem;
+	}
+
+	.page-heading p {
+		max-inline-size: 42rem;
+		color: rgb(var(--color-content-secondary));
+		font-size: 1rem;
+		line-height: 1.65;
+	}
+
+	.account-section,
+	.loading-section,
+	.exemptions-section {
+		min-inline-size: 0;
+		padding: clamp(1.25rem, 3vw, 1.75rem);
+	}
+
+	.account-section {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+	}
+
+	.account-identity,
+	.account-action {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+	}
+
+	.account-identity {
+		min-inline-size: 0;
+	}
+
+	.account-identity h2 {
+		overflow-wrap: anywhere;
+		font-size: 1.125rem;
+		font-weight: 600;
+	}
+
+	.account-icon {
+		display: grid;
+		block-size: 2.75rem;
+		inline-size: 2.75rem;
+		flex-shrink: 0;
+		place-items: center;
+		border: 0.0625rem solid rgb(var(--color-border));
+		border-radius: 0.75rem;
+		background: rgb(var(--color-background));
+		color: rgb(var(--color-content-secondary));
+	}
+
+	.account-action {
+		gap: 0.5rem;
+	}
+
+	.sign-in-error {
+		flex-basis: 100%;
+		padding: 0.875rem 1rem;
+		border: 0.0625rem solid rgb(var(--color-border));
+		border-radius: 0.625rem;
+		background: rgb(var(--color-background));
+		overflow-wrap: anywhere;
+		font-size: 0.9375rem;
+	}
+
+	.section-title {
+		margin-block-end: 1.25rem;
+		font-size: 1.125rem;
+		font-weight: 650;
+		line-height: 1.4;
+	}
+
+	.loading-state {
+		display: flex;
+		min-block-size: 2.75rem;
+		align-items: center;
+		gap: 0.625rem;
+		color: rgb(var(--color-content-secondary));
+		font-size: 0.9375rem;
+	}
+</style>

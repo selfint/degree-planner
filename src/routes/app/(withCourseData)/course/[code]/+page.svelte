@@ -23,7 +23,6 @@
 	import CourseRow from '$lib/components/CourseRow.svelte';
 	import PlanActionButton from '$lib/components/PlanActionButton.svelte';
 	import Spinner from '$lib/components/Spinner.svelte';
-	import { goto } from '$app/navigation';
 
 	const { data: pageData } = $props();
 	const { getCourseData, courseData } = $derived(pageData);
@@ -176,49 +175,52 @@
 	}
 </script>
 
-<div class="mt-3">
-	<h1 class="ms-3 text-lg font-medium text-content-primary">
-		<div class="flex flex-row flex-wrap items-center gap-x-1 leading-tight">
-			<div class="m-0 mb-1 mt-1 p-0">
-				<div
-					style="background: {generateColor(code)}"
-					class="h-4 w-4 rounded-full"
-				></div>
-			</div>
-			<span dir="rtl">
-				{#await course}
-					{code}
-				{:then course}
-					{course.name ?? code}
-				{/await}
-			</span>
-
+<div class="ui-page course-page">
+	<header class="course-header">
+		<div class="course-eyebrow">
+			<span
+				class="course-color"
+				style:background={generateColor(code)}
+				aria-hidden="true"
+			></span>
+			<span>{content.lang.common.course}</span>
 			<a
+				class="course-code"
 				href={`https://portalex.technion.ac.il/ovv/?sap-theme=sap_belize&sap-language=HE&sap-ui-language=HE#/details/2024/201/SM/${code}`}
 				target="_blank"
+				rel="noreferrer"
+				aria-label={content.lang.lang === 'he'
+					? `פתיחת קורס ${code} ב-SAP (בלשונית חדשה)`
+					: `Open course ${code} in SAP (new tab)`}
 			>
-				<span class="text-content-secondary">
-					{code}
-				</span>
+				<bdi dir="ltr">{code}</bdi>
+				<span aria-hidden="true">↗</span>
 			</a>
 		</div>
-	</h1>
-
-	{#await course}
-		<div class="mb-4 ml-3 mr-3 mt-3 h-5 w-5">
-			<Spinner />
-		</div>
-	{:then course}
-		<p class="mb-4 ml-3 mr-3 mt-3 text-content-secondary" dir="rtl">
-			{course.about}
-		</p>
-	{/await}
+		<h1 class="ui-page-title course-name">
+			{#await course}
+				<bdi dir="ltr">{code}</bdi>
+			{:then course}
+				<bdi dir="auto">{course.name ?? code}</bdi>
+			{/await}
+		</h1>
+		{#await course}
+			<div
+				class="course-loading"
+				role="status"
+				aria-label={content.lang.common.loading}
+			>
+				<Spinner />
+			</div>
+		{:then course}
+			{#if course.about}
+				<p class="course-description"><bdi dir="auto">{course.about}</bdi></p>
+			{/if}
+		{/await}
+	</header>
 
 	{#if showPersonalPlan}
-		<div
-			class="ml-3 mr-3 flex flex-row items-center gap-x-1"
-			data-testid="course-plan-actions"
-		>
+		<div class="course-actions" data-testid="course-plan-actions">
 			{#if courseState === 'planned'}
 				<PlanActionButton
 					variant="secondary"
@@ -281,7 +283,7 @@
 	{:else}
 		<p
 			role="status"
-			class="m-3 text-content-secondary"
+			class="ui-notice course-notice"
 			data-testid="course-plan-unavailable"
 		>
 			{pwaMessages[content.lang.lang].courseActionsUnavailable}
@@ -289,89 +291,88 @@
 	{/if}
 
 	{#if showPersonalPlan && courseMemberRequirements !== undefined}
-		<div class="ms-3 mt-4">
+		<section class="ui-panel course-details-panel">
 			{#await courseMemberRequirements}
-				<h2 class="text-lg font-medium text-content-primary">
+				<h2 class="course-section-title">
 					{content.lang.course.appliesTo}
 					<div class="inline-block h-5 w-5">
 						<Spinner />
 					</div>
 				</h2>
 			{:then courseMemberRequirements}
-				<h2 class="text-lg font-medium text-content-primary">
+				<h2 class="course-section-title">
 					{content.lang.course.appliesTo}
 				</h2>
 				<div class="text-content-secondary">
 					<RequirementsElement requirements={courseMemberRequirements} />
 				</div>
 			{/await}
-		</div>
+		</section>
 	{/if}
 	{#await course}
-		<div class="ms-3 mt-2">
-			<h2 class="text-lg font-medium text-content-primary">
-				{content.lang.course.info}
-				<div class="inline-block h-5 w-5">
-					<Spinner />
-				</div>
-			</h2>
+		<section class="ui-panel course-details-panel">
+			<h2 class="course-section-title">{content.lang.course.info}</h2>
 			<div
-				class="grid w-fit grid-flow-row grid-cols-[auto_auto] items-center gap-x-2 text-content-secondary"
+				class="course-loading"
+				role="status"
+				aria-label={content.lang.common.loading}
 			>
-				<span>{content.lang.common.faculty}</span>
-				<span></span>
-				<span>{content.lang.course.median}</span>
-				<span></span>
-				<span>{content.lang.course.points}</span>
-				<span></span>
-				<span>{content.lang.course.available}</span>
-				<span></span>
+				<Spinner />
 			</div>
-		</div>
+		</section>
 	{:then course}
-		<div class="ms-3 mt-2">
-			<h2 class="text-lg font-medium text-content-primary">
-				{content.lang.course.info}
-			</h2>
-			<div
-				class="grid w-fit grid-flow-row grid-cols-[auto_auto] items-center gap-x-2 text-content-secondary"
-			>
-				<span>{content.lang.common.faculty}</span>
-				<span>{course.faculty ?? content.lang.common.na}</span>
-				<span>{content.lang.course.median}</span>
-				<span>{course.median ?? content.lang.common.na}</span>
-				<span>{content.lang.course.points}</span>
-				<span>{course.points ?? content.lang.common.na}</span>
-				<span>{content.lang.course.available}</span>
-				<span>
-					{course?.current ? content.lang.common.yes : content.lang.common.no}
-				</span>
-			</div>
-		</div>
+		<section class="ui-panel course-details-panel">
+			<h2 class="course-section-title">{content.lang.course.info}</h2>
+			<dl class="course-metadata">
+				<div>
+					<dt>{content.lang.common.faculty}</dt>
+					<dd>
+						<bdi dir="auto">{course.faculty ?? content.lang.common.na}</bdi>
+					</dd>
+				</div>
+				<div>
+					<dt>{content.lang.course.median}</dt>
+					<dd>{course.median ?? content.lang.common.na}</dd>
+				</div>
+				<div>
+					<dt>{content.lang.course.points}</dt>
+					<dd>{course.points ?? content.lang.common.na}</dd>
+				</div>
+				<div>
+					<dt>{content.lang.course.available}</dt>
+					<dd>
+						{course.current ? content.lang.common.yes : content.lang.common.no}
+					</dd>
+				</div>
+			</dl>
+		</section>
 
-		<div class="mt-4">
+		<div class="course-relations">
 			{#if dependencies(course).length !== 0}
-				<div class="pb-4">
-					<h2 class="ms-3 pb-1 text-lg font-medium text-content-primary">
+				<section class="course-relation-group">
+					<h2 class="course-section-title">
 						{content.lang.common.dependencies}
 					</h2>
+					<!-- svelte-ignore a11y_no_noninteractive_tabindex (Keyboard users need to focus this region to scroll through the course dependencies.) -->
 					<div
 						bind:this={depRow}
 						dir={content.lang.dir}
-						class="flex flex-row overflow-x-auto"
+						class="course-dependencies"
+						role="region"
+						aria-label={content.lang.common.dependencies}
+						tabindex="0"
 					>
-						<div class="me-3"></div>
 						{#each dependencies(course) as group, i}
 							{#if i !== 0}
 								<p
-									class="flex flex-col justify-center pe-2 text-sm font-light text-content-secondary"
+									class="flex flex-col justify-center text-sm text-content-secondary"
 								>
 									{content.lang.common.or}
 								</p>
 							{/if}
-							<div class="flex flex-col space-y-1">
+							<div class="flex shrink-0 flex-col gap-2">
 								{#each group as code}
-									<a class="pe-2" href={`/app/course/${code}`}>
+									<a href={`/app/course/${code}`}>
 										<CourseElement {code} course={getCourseData(code)}>
 											{#snippet note()}
 												{@const index = getCourseSemester(code)}
@@ -401,15 +402,16 @@
 							</div>
 						{/each}
 					</div>
-				</div>
+				</section>
 			{/if}
 			{#if (course.connections?.adjacent ?? []).length !== 0}
-				<div class="pb-4">
-					<h2 class="ms-3 pb-1 text-lg font-medium text-content-primary">
+				<section class="course-relation-group">
+					<h2 class="course-section-title">
 						{content.lang.common.adjacencies}
 					</h2>
-					<div class="flex flex-row space-x-2 overflow-x-auto">
+					<div class="min-w-0">
 						<CourseRow
+							indent={0}
 							{getCourseData}
 							resetScroll
 							courses={course.connections?.adjacent ?? []}
@@ -444,14 +446,15 @@
 							{/snippet}
 						</CourseRow>
 					</div>
-				</div>
+				</section>
 			{/if}
 			{#if (course.connections?.exclusive ?? []).length !== 0}
-				<div class="pb-4">
-					<h2 class="ms-3 pb-1 text-lg font-medium text-content-primary">
+				<section class="course-relation-group">
+					<h2 class="course-section-title">
 						{content.lang.common.exclusives}
 					</h2>
 					<CourseRow
+						indent={0}
 						{getCourseData}
 						resetScroll
 						courses={course.connections?.exclusive ?? []}
@@ -485,21 +488,18 @@
 							</a>
 						{/snippet}
 					</CourseRow>
-				</div>
+				</section>
 			{/if}
 
-			<div class="ms-3">
+			<div class="course-relation-group">
 				{#await dependants then dependants}
 					{#if dependants.length > 0}
-						<h2 class="pb-1 text-lg font-medium text-content-primary">
+						<h2 class="course-section-title">
 							{content.lang.common.dependants}
 						</h2>
-						<div class="flex flex-row flex-wrap">
+						<div class="flex flex-wrap gap-3">
 							{#each dependants as course}
-								<button
-									class="pb-4 pe-2"
-									onmousedown={() => goto(`/app/course/${course.code}`)}
-								>
+								<a href={`/app/course/${course.code}`}>
 									<CourseElement code={course.code} {course}>
 										{#snippet note()}
 											{@const index = getCourseSemester(course.code)}
@@ -524,7 +524,7 @@
 											{/if}
 										{/snippet}
 									</CourseElement>
-								</button>
+								</a>
 							{/each}
 						</div>
 					{/if}
@@ -533,3 +533,141 @@
 		</div>
 	{/await}
 </div>
+
+<style>
+	.course-page {
+		display: grid;
+		gap: 1.5rem;
+	}
+
+	.course-header {
+		max-inline-size: 56rem;
+	}
+
+	.course-eyebrow {
+		display: flex;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: 0.625rem;
+		margin-block-end: 0.5rem;
+		color: rgb(var(--color-content-secondary));
+		font-size: 0.875rem;
+	}
+
+	.course-color {
+		inline-size: 0.75rem;
+		block-size: 0.75rem;
+		border-radius: 0.25rem;
+		flex-shrink: 0;
+	}
+
+	.course-code {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.375rem;
+		min-block-size: 2.75rem;
+		padding-inline: 0.5rem;
+		border-radius: 0.5rem;
+		color: rgb(var(--color-link));
+		font-variant-numeric: tabular-nums;
+	}
+
+	.course-code:hover {
+		background: rgb(var(--color-accent-primary) / 0.08);
+		text-decoration: underline;
+	}
+
+	.course-name {
+		overflow-wrap: anywhere;
+		text-align: start;
+	}
+
+	.course-description {
+		margin-block-start: 1rem;
+		color: rgb(var(--color-content-secondary));
+		line-height: 1.8;
+		text-align: start;
+	}
+
+	.course-loading {
+		inline-size: 1.5rem;
+		block-size: 1.5rem;
+		margin-block-start: 0.75rem;
+	}
+
+	.course-actions {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+		grid-auto-rows: 1fr;
+		gap: 0.75rem;
+		max-inline-size: 48rem;
+	}
+
+	.course-actions :global(button) {
+		inline-size: 100%;
+		white-space: normal;
+	}
+
+	.course-notice {
+		margin: 0;
+	}
+
+	.course-details-panel {
+		padding: clamp(1rem, 2vw, 1.5rem);
+	}
+
+	.course-section-title {
+		margin-block-end: 0.875rem;
+		font-size: 1.125rem;
+		font-weight: 600;
+		line-height: 1.45;
+	}
+
+	.course-metadata {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 1rem 1.5rem;
+	}
+
+	.course-metadata dt {
+		margin-block-end: 0.25rem;
+		color: rgb(var(--color-content-secondary));
+		font-size: 0.8125rem;
+	}
+
+	.course-metadata dd {
+		font-weight: 500;
+		overflow-wrap: anywhere;
+	}
+
+	.course-relations {
+		display: grid;
+		gap: 1.75rem;
+		min-inline-size: 0;
+	}
+
+	.course-relation-group {
+		min-inline-size: 0;
+	}
+
+	.course-dependencies {
+		display: flex;
+		gap: 0.875rem;
+		overflow-x: auto;
+		padding: 0.25rem 0.25rem 0.875rem;
+		margin-inline: -0.25rem;
+		overscroll-behavior-inline: contain;
+	}
+
+	.course-dependencies:focus-visible {
+		outline: 0.125rem solid rgb(var(--color-accent-primary));
+		outline-offset: 0.1875rem;
+		border-radius: 0.5rem;
+	}
+
+	@media (min-width: 48rem) {
+		.course-metadata {
+			grid-template-columns: repeat(4, minmax(0, 1fr));
+		}
+	}
+</style>

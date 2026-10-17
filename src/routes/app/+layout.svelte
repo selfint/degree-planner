@@ -34,7 +34,6 @@
 	);
 
 	import {
-		user,
 		content,
 		setStorage,
 		localStorageMethod,
@@ -172,10 +171,10 @@
 </svelte:head>
 
 <div dir={content.lang.dir} class="flex h-full min-h-screen flex-col">
-	<div class="w-full border-b-[1px] border-border bg-background">
+	<div class="w-full border-b border-border bg-background">
 		<TitleBar
 			homeHref="/app/"
-			started={user.d.degree !== undefined}
+			started={true}
 			searchQuery={searchNavigation.url.pathname === '/app/search'
 				? (searchNavigation.url.searchParams.get('q') ?? '')
 				: ''}

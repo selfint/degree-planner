@@ -76,7 +76,7 @@
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
 	{style}
-	class="relative h-fit w-fit select-none justify-between rounded-md bg-card-secondary"
+	class="course-card relative h-fit w-fit select-none bg-card-primary"
 	onclick={(e) => {
 		if (minimize && scheduleErrorButton) {
 			e.preventDefault();
@@ -85,64 +85,81 @@
 		}
 	}}
 >
-	{#await course}
-		<div
-			class="animate-opacity-wave pointer-events-none absolute inset-0 z-0
-           rounded-md bg-gradient-to-r from-card-secondary/50 via-card-primary/50
-           to-card-secondary/50 bg-[length:300%_100%]"
-		></div>
-	{/await}
 	<CourseWidth>
-		<div class="w-full rounded-md bg-card-primary p-2">
+		<div class="course-body" class:course-body-squeezed={squeeze}>
 			<div
-				class="flex flex-row items-center justify-between pb-1 text-xs text-content-secondary"
+				class="course-meta flex items-center justify-between gap-1 text-content-secondary"
 			>
-				<div class="flex flex-row">
+				<div class="flex min-w-0 items-center gap-1">
 					{#await hasTest}
-						<div style="background: {color}" class="h-4 min-w-4"></div>
-					{:then hasTest}
-						<div
+						<span
 							style="background: {color}"
-							class="h-4 min-w-4 {hasTest ? 'rounded-full' : ''}"
-						></div>
+							class="course-marker"
+							aria-hidden="true"
+						></span>
+					{:then hasTest}
+						<span
+							style="background: {color}"
+							class="course-marker {hasTest ? 'rounded-full' : 'rounded-sm'}"
+							aria-hidden="true"
+						></span>
 					{/await}
 					{#if note !== undefined}
-						<span class="me-1 ms-1">
+						<span class="min-w-0 truncate">
 							{#await course then course}
 								{@render note(course)}
 							{/await}
 						</span>
 					{/if}
 				</div>
-				<span>
+				<div class="flex shrink-0 items-center gap-1.5 tabular-nums" dir="ltr">
 					{#await course then course}
-						<span>{course.median ?? ''}</span>
-						<span>{course.points ?? ''}</span>
-					{/await}
-				</span>
-			</div>
-
-			<div
-				class="flex {squeeze
-					? ''
-					: 'min-h-20 sm:min-h-12'} flex-col justify-between"
-			>
-				<div class="text-right text-xs leading-none text-content-primary">
-					<span class="hyphens-auto break-words" dir="rtl">
-						{#await course then course}
-							{course.name}
-
-							<span class="text-right leading-none text-content-secondary">
-								{course.code}
+						{#if course.median !== undefined}
+							<span title={content.lang.course.median}>
+								<span class="sr-only"
+									>{content.lang.course.median}:
+								</span>{course.median}
 							</span>
-						{/await}
-					</span>
+						{/if}
+						{#if course.median !== undefined && course.points !== undefined}
+							<span class="opacity-50" aria-hidden="true">·</span>
+						{/if}
+						{#if course.points !== undefined}
+							<span
+								class="font-semibold text-content-primary"
+								title={content.lang.course.points}
+							>
+								<span class="sr-only"
+									>{content.lang.course.points}:
+								</span>{course.points}
+							</span>
+						{/if}
+					{/await}
 				</div>
 			</div>
+
+			{#await course}
+				<div class="course-loading" aria-hidden="true">
+					<span></span><span></span>
+				</div>
+				<span class="sr-only">{content.lang.common.loading}</span>
+			{:then course}
+				<div class="course-copy text-start">
+					<div
+						class="course-name break-words font-medium text-content-primary"
+						dir="auto"
+					>
+						{course.name ?? content.lang.common.na}
+					</div>
+					<div class="course-code text-content-secondary" dir="ltr">
+						{course.code}
+					</div>
+				</div>
+			{/await}
 		</div>
 
 		{#if tests !== undefined}
-			<div class="p-2 pb-1">
+			<div class="course-footer">
 				{#await course then course}
 					<StudyDaysComponent {course} semester={tests} />
 				{/await}
@@ -152,11 +169,9 @@
 		{#if scheduleError !== undefined && loaded}
 			{#await _scheduleError}
 				<div
-					class="flex flex-row items-center p-2 pb-1 pt-1 text-xs text-content-secondary"
+					class="course-footer flex items-center gap-1 text-xs text-content-secondary"
 				>
-					<div class="h-5 w-5 opacity-75">
-						<Spinner />
-					</div>
+					<div class="h-4 w-4 opacity-75"><Spinner /></div>
 					{content.lang.course.checkingRequirements}
 				</div>
 			{:then _scheduleError}
@@ -164,7 +179,10 @@
 					<button
 						bind:this={scheduleErrorButton}
 						aria-expanded={!minimize}
-						class="w-full"
+						aria-label={content.lang.lang === 'he'
+							? 'פרטי דרישות הקורס'
+							: 'Course requirement details'}
+						class="course-warning w-full text-content-secondary"
 						onclick={(e) => {
 							e.preventDefault();
 							e.stopPropagation();
@@ -174,15 +192,12 @@
 						{#if !minimize}
 							<ScheduleErrorComponent scheduleError={_scheduleError} />
 						{/if}
-						{#if _scheduleError}
-							<div
-								class="flex h-4 w-full flex-row items-center justify-center text-content-secondary"
-							>
-								<div class="w-4" class:rotate-180={!minimize}>
-									<Arrow />
-								</div>
-							</div>
-						{/if}
+						<div
+							class="flex min-h-8 items-center justify-center gap-1.5 text-xs"
+						>
+							<span aria-hidden="true" class="text-accent-primary">!</span>
+							<div class="w-3" class:rotate-180={!minimize}><Arrow /></div>
+						</div>
 					</button>
 				{/if}
 			{/await}
@@ -191,32 +206,100 @@
 </div>
 
 <style>
-	@keyframes opacity-wave {
-		0% {
-			background-position: 0% 50%;
-		}
-		50% {
-			background-position: 100% 50%;
-		}
-		100% {
-			background-position: 0% 50%;
-		}
+	.course-card {
+		border-radius: var(--radius-card, 0.875rem);
+		box-shadow:
+			inset 0 0 0 0.0625rem rgb(var(--color-border)),
+			var(--shadow-card, 0 0.125rem 0.5rem rgb(0 0 0 / 0.06));
+		transition:
+			box-shadow 160ms ease,
+			background-color 160ms ease;
 	}
 
-	.animate-opacity-wave {
-		animation: opacity-wave 3s ease-in-out infinite;
-		will-change: background-position;
+	.course-card:hover {
+		box-shadow:
+			inset 0 0 0 0.0625rem rgb(var(--color-accent-primary) / 0.6),
+			var(--shadow-card, 0 0.125rem 0.5rem rgb(0 0 0 / 0.06));
 	}
 
-	@keyframes gradient {
-		0% {
-			background-position: 0% 50%;
-		}
+	.course-body {
+		display: flex;
+		min-block-size: 6.5rem;
+		flex-direction: column;
+		gap: 0.5rem;
+		padding: 0.625rem;
+	}
+
+	.course-body-squeezed {
+		min-block-size: 0;
+	}
+
+	.course-meta {
+		font-size: 0.75rem;
+		line-height: 1rem;
+	}
+	.course-marker {
+		display: block;
+		flex-shrink: 0;
+		inline-size: 0.625rem;
+		block-size: 0.625rem;
+	}
+	.course-copy {
+		display: flex;
+		flex: 1;
+		flex-direction: column;
+		justify-content: space-between;
+		gap: 0.375rem;
+	}
+	.course-name {
+		font-size: 0.875rem;
+		line-height: 1.45;
+	}
+	.course-code {
+		font-size: 0.6875rem;
+		line-height: 1rem;
+		letter-spacing: 0.025em;
+		font-variant-numeric: tabular-nums;
+		text-align: start;
+	}
+	.course-footer {
+		border-block-start: 0.0625rem solid rgb(var(--color-border));
+		padding: 0.5rem 0.625rem;
+	}
+	.course-warning {
+		border-block-start: 0.0625rem solid rgb(var(--color-border));
+		border-radius: 0 0 var(--radius-card, 0.875rem) var(--radius-card, 0.875rem);
+		background: rgb(var(--color-card-secondary) / 0.25);
+	}
+	.course-warning:focus-visible {
+		outline: 0.125rem solid rgb(var(--color-accent-primary));
+		outline-offset: 0.125rem;
+	}
+	.course-loading {
+		display: grid;
+		gap: 0.5rem;
+		padding-block: 0.375rem;
+	}
+	.course-loading span {
+		block-size: 0.625rem;
+		border-radius: 0.25rem;
+		background: rgb(var(--color-content-secondary) / 0.15);
+		animation: pulse 1.8s ease-in-out infinite;
+	}
+	.course-loading span:last-child {
+		inline-size: 65%;
+	}
+	@keyframes pulse {
 		50% {
-			background-position: 100% 50%;
+			opacity: 0.4;
 		}
-		100% {
-			background-position: 0% 50%;
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.course-card {
+			transition: none;
+		}
+		.course-loading span {
+			animation: none;
 		}
 	}
 </style>

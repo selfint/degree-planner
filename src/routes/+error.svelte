@@ -3,8 +3,8 @@
 	import { content } from '$lib/preferences.svelte';
 </script>
 
-<div class="m-5">
-	<h1 class="text-2xl text-content-primary">
+<div class="ui-page">
+	<h1 class="ui-page-title text-content-primary">
 		{page.status} - {page.status === 404
 			? content.lang.error.notFound
 			: content.lang.error.loadFailed}

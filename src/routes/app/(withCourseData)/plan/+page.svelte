@@ -4,7 +4,6 @@
 
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import Semester from '$lib/components/Semester.svelte';
-	import Button from '$lib/components/Button.svelte';
 
 	import { user, content, writeStorage, setUser } from '$lib/stores.svelte';
 
@@ -71,10 +70,12 @@
 </script>
 
 <!-- Reserve space for the app header/footer while letting long plans grow. -->
-<div class="mb-3 mt-3 flex min-h-[calc(100dvh-9rem)] flex-col">
-	<div class="mb-4 flex h-36 max-h-36 shrink-0 flex-col sm:h-28 sm:max-h-28">
-		<div class="mb-1 me-3 ms-3 flex shrink-0 flex-row justify-between">
-			<h1 class="text-base font-medium text-content-primary">
+<div class="plan-page mb-4 mt-4 flex min-h-[calc(100dvh-9rem)] flex-col">
+	<div class="mb-6 flex shrink-0 flex-col gap-2">
+		<div
+			class="me-3 ms-3 flex min-h-11 shrink-0 flex-row items-center justify-between gap-3 sm:me-5 sm:ms-5"
+		>
+			<h1 class="text-base font-semibold text-content-primary">
 				{content.lang.plan.wishlist}
 			</h1>
 			<div class="flex flex-row items-center gap-x-2 text-sm">
@@ -96,11 +97,14 @@
 						{content.lang.settings.save}
 					</PlanActionButton>
 				{/if}
-				{#if user.d.semesters.some((s) => s.length > 0)}
-					<a href={shareLink} target="_blank">
-						<Button variant="primary" onclick={() => {}}>
-							{content.lang.settings.share}
-						</Button>
+				{#if shareLink && user.d.semesters.some((s) => s.length > 0)}
+					<a
+						href={shareLink}
+						target="_blank"
+						rel="noopener noreferrer"
+						class="ui-button ui-button--primary"
+					>
+						{content.lang.settings.share}
 					</a>
 				{/if}
 			</div>
@@ -110,7 +114,7 @@
 			data-plan-scroll
 			use:initializePlanScroll={content.lang.dir}
 			dir="ltr"
-			class="flex min-h-0 flex-1 flex-row overflow-x-auto overflow-y-hidden"
+			class="plan-rail flex min-h-0 flex-row overflow-x-auto overflow-y-hidden pb-1"
 		>
 			{#key wishlist.join(' ')}
 				<div
@@ -164,12 +168,17 @@
 							);
 						}
 					}}
-					class="me-2 ms-2 flex min-h-full min-w-[calc(100%-1rem)] shrink-0 flex-row items-start justify-end gap-x-2"
+					dir={content.lang.dir}
+					data-empty-message={content.lang.lang === 'he'
+						? 'גררו לכאן קורסים שתרצו ללמוד'
+						: 'Drag courses you’d like to take here'}
+					class="wishlist-rail me-3 ms-3 flex min-h-[6.5rem] min-w-[calc(100%-1.5rem)] shrink-0 flex-row items-start justify-start gap-x-2 sm:me-5 sm:ms-5 sm:min-w-[calc(100%-2.5rem)]"
 				>
 					{#each wishlist as course}
 						<button
 							data-code={course}
-							dir="ltr"
+							dir={content.lang.dir}
+							class="shrink-0 rounded-[var(--radius-card)] text-start"
 							onclick={() => goto(`/app/course/${course}`)}
 						>
 							<CourseElement code={course} course={getCourseData(course)} />
@@ -185,17 +194,17 @@
 		dir="ltr"
 		use:initializePlanScroll={content.lang.dir}
 		style="transform: rotateX(180deg)"
-		class="flex flex-1 overflow-x-auto"
+		class="plan-rail flex flex-1 overflow-x-auto pb-2"
 	>
 		<div
 			dir={content.lang.dir}
 			style="transform: rotateX(180deg)"
 			class="flex flex-1 flex-row"
 		>
-			<div class="ms-3"></div>
+			<div class="ms-3 sm:ms-5"></div>
 			{#key semesters.map((s) => s.join('-')).join(',')}
 				{#each semesters as semester, semesterIndex}
-					<div class="flex pe-2">
+					<div class="flex pe-3">
 						<Semester
 							{getCourseData}
 							index={semesterIndex}
@@ -256,7 +265,7 @@
 						>
 							{#snippet children({ code, course })}
 								<button
-									class="touch-manipulation text-content-primary"
+									class="touch-manipulation rounded-[var(--radius-card)] text-start text-content-primary"
 									data-code={code}
 									dir={content.lang.dir}
 									onclick={() => goto(`/app/course/${code}`)}
@@ -279,15 +288,40 @@
 					</div>
 				{/each}
 			{/key}
-			<div class="min-w-[1px]"></div>
+			<div class="min-w-[0.0625rem]"></div>
 		</div>
 	</div>
 </div>
 
-<style lang="postcss">
-	@reference "tailwindcss";
-
+<style>
+	.plan-rail {
+		scrollbar-width: thin;
+		scrollbar-color: rgb(var(--color-content-secondary) / 0.4) transparent;
+	}
+	.wishlist-rail:empty {
+		align-items: center;
+		border: 0.0625rem dashed rgb(var(--color-border));
+		border-radius: var(--radius-card, 0.875rem);
+		background: rgb(var(--color-card-primary) / 0.4);
+	}
+	.wishlist-rail:empty::before {
+		content: attr(data-empty-message);
+		padding: 1rem;
+		color: rgb(var(--color-content-secondary));
+		font-size: 0.8125rem;
+		pointer-events: none;
+	}
 	:global(.wishlist-ghost) {
-		@apply max-h-[118px] w-[29vw] min-w-[29vw] max-w-[220px] overflow-y-hidden sm:min-w-[220px];
+		max-block-size: 7.375rem;
+		inline-size: clamp(10rem, 42vw, 13.75rem);
+		min-inline-size: 10rem;
+		max-inline-size: 13.75rem;
+		overflow-y: hidden;
+	}
+	@media (min-width: 40rem) {
+		:global(.wishlist-ghost) {
+			inline-size: 13.75rem;
+			min-inline-size: 13.75rem;
+		}
 	}
 </style>

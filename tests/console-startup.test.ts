@@ -359,9 +359,8 @@ for (const language of ['en', 'he'] as const) {
 			const boot = page.locator('#console-boot');
 			await expect(boot).toBeVisible();
 			await expect(boot).not.toHaveAttribute('aria-busy', 'true');
-			await expect(boot.getByRole('heading', { level: 1 })).toHaveText(
-				language === 'he' ? 'מכינים את סביבת התכנון' : 'Preparing your planner'
-			);
+			await expect(boot.getByRole('heading')).toHaveCount(0);
+			await expect(boot.locator('.console-loading__track')).toBeVisible();
 			await expect(boot.getByRole('status')).toHaveText(
 				language === 'he' ? 'טוענים קורסים…' : 'Loading courses…'
 			);

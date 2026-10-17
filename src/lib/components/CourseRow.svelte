@@ -93,7 +93,7 @@
 <div
 	bind:this={row}
 	use:makeSortable
-	class="flex min-h-full flex-row items-start overflow-x-auto"
+	class="course-row flex min-h-full flex-row items-start overflow-x-auto pb-1"
 >
 	<div class="margin" style={margin}></div>
 	{#if sortedCourses === undefined}
@@ -102,7 +102,7 @@
 				checkScheduleError === undefined
 					? undefined
 					: checkScheduleError(course)}
-			<div data-code={code} class="pe-2">
+			<div data-code={code} class="shrink-0 pe-2">
 				{@render children({
 					code,
 					course,
@@ -118,7 +118,7 @@
 					checkScheduleError === undefined
 						? undefined
 						: checkScheduleError(course)}
-				<div data-code={code} class="pe-2">
+				<div data-code={code} class="shrink-0 pe-2">
 					{@render children({
 						code,
 						course,
@@ -133,7 +133,7 @@
 					checkScheduleError === undefined
 						? undefined
 						: checkScheduleError(course)}
-				<div data-code={code} class="pe-2">
+				<div data-code={code} class="shrink-0 pe-2">
 					{@render children({
 						code,
 						course,
@@ -145,3 +145,10 @@
 		{/await}
 	{/if}
 </div>
+
+<style>
+	.course-row {
+		scrollbar-width: thin;
+		scrollbar-color: rgb(var(--color-content-secondary) / 0.4) transparent;
+	}
+</style>

@@ -186,150 +186,206 @@
 	}
 </script>
 
-<div class="me-3">
-	<h2 class="flex flex-row gap-x-1 text-base font-medium text-content-primary">
-		{content.lang.settings.degree}
-	</h2>
-	<div
-		class="grid w-fit max-w-full grid-cols-[auto_auto] items-baseline gap-x-2 gap-y-1"
-	>
-		<span class="text-content-secondary">
-			{content.lang.settings.year}
-		</span>
-		<Select
-			disabled={!$planOnline}
-			bind:value={yearChoice}
-			onchange={() => {
-				year = yearChoice;
-				faculty = undefined;
-				degree = undefined;
-				path = undefined;
-			}}
-		>
-			<option value={undefined} disabled>
-				{content.lang.settings.selectYear}
-			</option>
-			{#each years as yearSemester}
-				{@const [year, semester] = yearSemester.split('_')}
-				<option value={yearSemester}>
-					{year}
-					{content.lang.common.seasons[parseInt(semester) - 200]}
+<section class="ui-panel degree-section">
+	<h2 class="section-title">{content.lang.settings.degree}</h2>
+	<div class="degree-fields">
+		<label class="settings-field">
+			<span>{content.lang.settings.year}</span>
+			<Select
+				disabled={!$planOnline}
+				bind:value={yearChoice}
+				onchange={() => {
+					year = yearChoice;
+					faculty = undefined;
+					degree = undefined;
+					path = undefined;
+				}}
+			>
+				<option value={undefined} disabled>
+					{content.lang.settings.selectYear}
 				</option>
-			{/each}
-		</Select>
+				{#each years as yearSemester}
+					{@const [year, semester] = yearSemester.split('_')}
+					<option value={yearSemester}>
+						{year}
+						{content.lang.common.seasons[parseInt(semester) - 200]}
+					</option>
+				{/each}
+			</Select>
+		</label>
 
-		<span class="text-content-secondary">
-			{content.lang.settings.faculty}
-		</span>
-		<Select
-			disabled={!$planOnline}
-			bind:value={faculty}
-			onchange={() => {
-				degree = undefined;
-				path = undefined;
-			}}
-		>
-			<option value={undefined} disabled>
-				{content.lang.settings.selectFaculty}
-			</option>
-			{#each faculties as { display, value }}
-				<option {value}>
-					{display}
+		<label class="settings-field">
+			<span>{content.lang.settings.faculty}</span>
+			<Select
+				disabled={!$planOnline}
+				bind:value={faculty}
+				onchange={() => {
+					degree = undefined;
+					path = undefined;
+				}}
+			>
+				<option value={undefined} disabled>
+					{content.lang.settings.selectFaculty}
 				</option>
-			{/each}
-		</Select>
+				{#each faculties as { display, value }}
+					<option {value}>{display}</option>
+				{/each}
+			</Select>
+		</label>
 
-		<span class="text-content-secondary">
-			{content.lang.settings.degree}
-		</span>
-		<Select
-			disabled={!$planOnline}
-			bind:value={degree}
-			onchange={() => {
-				path = undefined;
-			}}
-		>
-			<option value={undefined} disabled>
-				{content.lang.settings.selectDegree}
-			</option>
-			{#each degrees as { display, value }}
-				<option {value}>
-					{display}
+		<label class="settings-field field-wide">
+			<span>{content.lang.settings.degree}</span>
+			<Select
+				disabled={!$planOnline}
+				bind:value={degree}
+				onchange={() => {
+					path = undefined;
+				}}
+			>
+				<option value={undefined} disabled>
+					{content.lang.settings.selectDegree}
 				</option>
-			{/each}
-		</Select>
+				{#each degrees as { display, value }}
+					<option {value}>{display}</option>
+				{/each}
+			</Select>
+		</label>
 
 		{#if year !== undefined && faculty !== undefined && degree !== undefined}
-			<span class="text-content-secondary">
-				{content.lang.settings.path}
-			</span>
-			{#await paths}
-				<div class="h-5 w-5">
-					<Spinner />
-				</div>
-			{:then paths}
-				{#if paths.length > 0}
-					<Select disabled={!$planOnline} bind:value={path}>
-						<option value={undefined} disabled>
-							{content.lang.settings.selectPath}
-						</option>
-						{#each paths as { display, value }}
-							<option {value}>
-								{display}
-							</option>
-						{/each}
-					</Select>
-				{:else}
-					<span class="text-content-secondary">
-						{content.lang.settings.noPath}
-					</span>
-					<!-- <div class="h-6 w-6">
-						<Spinner />
-					</div> -->
-				{/if}
-			{/await}
-		{/if}
-	</div>
-	<div class="mt-2">
-		{#if choiceIsChanged(year, faculty, degree, path, userDegree, userPath)}
-			<div class="flex flex-row items-center gap-x-1">
-				{#await choiceIsValid}
-					<AsyncButton disabled={true} variant="primary">
-						{content.lang.settings.save}
-					</AsyncButton>
-				{:then isValid}
-					<PlanActionButton
-						disabled={!isValid}
-						variant="primary"
-						onclick={async () => {
-							// @ts-expect-error We validated the choice in `choiceIsValid`
-							const didChange = await onChange([year, faculty, degree], path);
-
-							if (!didChange) {
-								reset();
-							}
-						}}
-						bind:buttonNamespace
-						name="save-degree"
-					>
-						{content.lang.settings.save}
-					</PlanActionButton>
+			<div class="field-wide">
+				{#await paths}
+					<div class="settings-field">
+						<span>{content.lang.settings.path}</span>
+						<div class="field-status" role="status">
+							<span class="h-5 w-5 shrink-0" aria-hidden="true"
+								><Spinner /></span
+							>
+							<span>{content.lang.common.loading}</span>
+						</div>
+					</div>
+				{:then paths}
+					{#if paths.length > 0}
+						<label class="settings-field">
+							<span>{content.lang.settings.path}</span>
+							<Select disabled={!$planOnline} bind:value={path}>
+								<option value={undefined} disabled>
+									{content.lang.settings.selectPath}
+								</option>
+								{#each paths as { display, value }}
+									<option {value}>{display}</option>
+								{/each}
+							</Select>
+						</label>
+					{:else}
+						<div class="settings-field">
+							<span>{content.lang.settings.path}</span>
+							<p class="field-status">{content.lang.settings.noPath}</p>
+						</div>
+					{/if}
 				{/await}
-				<AsyncButton
-					variant="secondary"
-					onclick={async () => reset()}
-					bind:buttonNamespace
-					name="cancel-degree"
-				>
-					{content.lang.settings.cancel}
-				</AsyncButton>
 			</div>
-		{:else if !onRecommended}
-			{#if recommended !== undefined}
-				<Button variant="secondary" disabled={!$planOnline} onclick={onReset}>
-					{content.lang.settings.revert}
-				</Button>
-			{/if}
 		{/if}
 	</div>
-</div>
+	{#if choiceIsChanged(year, faculty, degree, path, userDegree, userPath)}
+		<div class="section-actions">
+			{#await choiceIsValid}
+				<AsyncButton disabled={true} variant="primary">
+					{content.lang.settings.save}
+				</AsyncButton>
+			{:then isValid}
+				<PlanActionButton
+					disabled={!isValid}
+					variant="primary"
+					onclick={async () => {
+						// @ts-expect-error We validated the choice in `choiceIsValid`
+						const didChange = await onChange([year, faculty, degree], path);
+
+						if (!didChange) {
+							reset();
+						}
+					}}
+					bind:buttonNamespace
+					name="save-degree"
+				>
+					{content.lang.settings.save}
+				</PlanActionButton>
+			{/await}
+			<AsyncButton
+				variant="secondary"
+				onclick={async () => reset()}
+				bind:buttonNamespace
+				name="cancel-degree"
+			>
+				{content.lang.settings.cancel}
+			</AsyncButton>
+		</div>
+	{:else if !onRecommended && recommended !== undefined}
+		<div class="section-actions">
+			<Button variant="secondary" disabled={!$planOnline} onclick={onReset}>
+				{content.lang.settings.revert}
+			</Button>
+		</div>
+	{/if}
+</section>
+
+<style>
+	.degree-section {
+		min-inline-size: 0;
+		padding: clamp(1.25rem, 3vw, 1.75rem);
+		text-align: start;
+	}
+
+	.section-title {
+		margin-block-end: 1.25rem;
+		font-size: 1.125rem;
+		font-weight: 650;
+		line-height: 1.4;
+	}
+
+	.degree-fields {
+		display: grid;
+		gap: 1.25rem;
+	}
+
+	.settings-field {
+		display: grid;
+		min-inline-size: 0;
+		gap: 0.5rem;
+	}
+
+	.settings-field > span {
+		font-size: 0.875rem;
+		font-weight: 600;
+	}
+
+	.field-status {
+		display: flex;
+		min-block-size: 2.75rem;
+		align-items: center;
+		gap: 0.625rem;
+		padding: 0.625rem 0.75rem;
+		border-radius: 0.625rem;
+		background: rgb(var(--color-background));
+		color: rgb(var(--color-content-secondary));
+		font-size: 0.9375rem;
+	}
+
+	.section-actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.625rem;
+		margin-block-start: 1.5rem;
+		padding-block-start: 1.25rem;
+		border-block-start: 0.0625rem solid rgb(var(--color-border));
+	}
+
+	@media (min-width: 40rem) {
+		.degree-fields {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+
+		.field-wide {
+			grid-column: 1 / -1;
+		}
+	}
+</style>

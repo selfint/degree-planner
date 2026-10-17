@@ -45,26 +45,23 @@
 	}
 </script>
 
-<div>
-	<h2 class="text-base font-medium text-content-primary">
-		{content.lang.common.semester}
-	</h2>
-	<div class="grid w-fit grid-cols-[auto_auto] items-baseline gap-x-2 gap-y-1">
-		<span class="text-content-secondary">
-			{content.lang.settings.current}
-		</span>
-		<div class="flex flex-row gap-x-1">
-			<Select disabled={!$planOnline} bind:value={semesterChoice}>
-				{#each Array.from({ length: user.d.semesters.length }) as _, i}
-					<option value={i}>
-						{content.lang.common.seasons[i % 3]}
-						{Math.floor(i / 3) + 1}
-					</option>
-				{/each}
-			</Select>
-
+<section class="ui-panel semester-section">
+	<h2 class="section-title">{content.lang.common.semester}</h2>
+	<div class="semester-fields">
+		<div class="semester-field">
+			<label class="settings-field">
+				<span>{content.lang.settings.current}</span>
+				<Select disabled={!$planOnline} bind:value={semesterChoice}>
+					{#each Array.from({ length: user.d.semesters.length }) as _, i}
+						<option value={i}>
+							{content.lang.common.seasons[i % 3]}
+							{Math.floor(i / 3) + 1}
+						</option>
+					{/each}
+				</Select>
+			</label>
 			{#if semesterChoice !== user.d.currentSemester}
-				<div class="w-fit">
+				<div class="field-actions">
 					<PlanActionButton
 						variant="primary"
 						onclick={onUpdateCurrentSemester}
@@ -73,8 +70,6 @@
 					>
 						{content.lang.settings.save}
 					</PlanActionButton>
-				</div>
-				<div class="w-fit">
 					<AsyncButton
 						variant="secondary"
 						onclick={async () => {
@@ -88,21 +83,21 @@
 				</div>
 			{/if}
 		</div>
-		<span class="text-content-secondary">
-			{content.lang.settings.total}
-		</span>
-		<div class="flex flex-row gap-x-1">
-			<Select disabled={!$planOnline} bind:value={totalSemestersChoice}>
-				{#each validTotalValues as i}
-					<option value={i}>
-						{i}
-						({content.lang.common.seasons[(i - 1) % 3]}
-						{Math.floor((i - 1) / 3) + 1})
-					</option>
-				{/each}
-			</Select>
+		<div class="semester-field">
+			<label class="settings-field">
+				<span>{content.lang.settings.total}</span>
+				<Select disabled={!$planOnline} bind:value={totalSemestersChoice}>
+					{#each validTotalValues as i}
+						<option value={i}>
+							{i}
+							({content.lang.common.seasons[(i - 1) % 3]}
+							{Math.floor((i - 1) / 3) + 1})
+						</option>
+					{/each}
+				</Select>
+			</label>
 			{#if totalSemestersChoice !== user.d.semesters.length}
-				<div class="w-fit">
+				<div class="field-actions">
 					<PlanActionButton
 						variant="primary"
 						onclick={onUpdateTotalSemesters}
@@ -111,8 +106,6 @@
 					>
 						{content.lang.settings.save}
 					</PlanActionButton>
-				</div>
-				<div class="w-fit">
 					<AsyncButton
 						variant="secondary"
 						onclick={async () => {
@@ -127,4 +120,52 @@
 			{/if}
 		</div>
 	</div>
-</div>
+</section>
+
+<style>
+	.semester-section {
+		min-inline-size: 0;
+		padding: clamp(1.25rem, 3vw, 1.75rem);
+		text-align: start;
+	}
+
+	.section-title {
+		margin-block-end: 1.25rem;
+		font-size: 1.125rem;
+		font-weight: 650;
+		line-height: 1.4;
+	}
+
+	.semester-fields {
+		display: grid;
+		gap: 1.5rem;
+	}
+
+	.semester-field,
+	.settings-field {
+		min-inline-size: 0;
+	}
+
+	.settings-field {
+		display: grid;
+		gap: 0.5rem;
+	}
+
+	.settings-field > span {
+		font-size: 0.875rem;
+		font-weight: 600;
+	}
+
+	.field-actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.625rem;
+		margin-block-start: 0.875rem;
+	}
+
+	@media (min-width: 40rem) {
+		.semester-fields {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+</style>

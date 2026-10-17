@@ -28,27 +28,35 @@
 {#each requirements ?? [] as requirementGroup}
 	{@const reqGroup =
 		slice === undefined ? requirementGroup : requirementGroup.slice(-slice)}
-	<div
-		class="me-1 mt-1 flex w-fit flex-row flex-wrap rounded-md text-start leading-none"
-	>
+	<div class="requirement-path">
 		{#each reqGroup as req, i}
-			{#if i === 0 && i === reqGroup.length - 1}
-				<span class="rounded-e-md rounded-s-md pb-0.5 pe-1.5 pt-0.5">
-					{formatName(req)}
-				</span>
-			{:else if i === 0}
-				<span class="me-0.5 rounded-s-md pb-0.5 pe-1 pt-0.5">
-					{formatName(req)}
-				</span>
-			{:else if i === reqGroup.length - 1}
-				<span class="rounded-e-md pb-0.5 pe-1.5 pt-0.5">
-					{formatName(req)}
-				</span>
-			{:else}
-				<span class="me-0.5 pb-0.5 pe-1 pt-0.5">
-					{formatName(req)}
-				</span>
-			{/if}
+			{#if i > 0}<span class="path-separator" aria-hidden="true">/</span>{/if}
+			<span title={content.lang.lang === 'he' ? req.he : req.en}
+				>{formatName(req)}</span
+			>
 		{/each}
 	</div>
 {/each}
+
+<style>
+	.requirement-path {
+		display: inline-flex;
+		max-inline-size: 100%;
+		flex-wrap: wrap;
+		align-items: baseline;
+		gap: 0.25rem;
+		margin-block-start: 0.375rem;
+		margin-inline-end: 0.375rem;
+		padding: 0.25rem 0.5rem;
+		border: 0.0625rem solid rgb(var(--color-border));
+		border-radius: 0.5rem;
+		background: rgb(var(--color-card-primary) / 0.55);
+		line-height: 1.4;
+		text-align: start;
+		overflow-wrap: anywhere;
+	}
+	.path-separator {
+		color: rgb(var(--color-content-secondary));
+		opacity: 0.65;
+	}
+</style>

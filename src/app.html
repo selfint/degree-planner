@@ -46,10 +46,10 @@
 				align-items: safe center;
 				justify-items: center;
 				overflow: auto;
-				padding: max(24px, env(safe-area-inset-top))
-					max(24px, env(safe-area-inset-right))
-					max(24px, env(safe-area-inset-bottom))
-					max(24px, env(safe-area-inset-left));
+				padding: max(1.5rem, env(safe-area-inset-top))
+					max(1.5rem, env(safe-area-inset-right))
+					max(1.5rem, env(safe-area-inset-bottom))
+					max(1.5rem, env(safe-area-inset-left));
 				color: rgb(var(--boot-fg));
 				background-color: rgb(var(--boot-bg));
 				background-image: radial-gradient(
@@ -71,51 +71,38 @@
 				--boot-accent: 15 111 103;
 			}
 			.console-loading__content {
-				inline-size: min(100%, 25rem);
+				position: relative;
+				inline-size: min(100%, 18rem);
 				text-align: center;
 			}
 			.console-loading__brand {
 				display: flex;
 				align-items: center;
 				justify-content: center;
-				gap: 16px;
+				gap: 1rem;
 				direction: ltr;
 			}
 			.console-loading__logo {
 				display: block;
-				inline-size: 76px;
-				block-size: 76px;
+				inline-size: 4.75rem;
+				block-size: 4.75rem;
 				object-fit: contain;
 			}
 			.console-loading__wordmark {
 				display: block;
-				inline-size: 144px;
+				inline-size: 9rem;
 				block-size: auto;
 				filter: invert(1);
 			}
 			[data-theme='light'] .console-loading__wordmark {
 				filter: none;
 			}
-			.console-loading__title {
-				margin: 36px 0 12px;
-				font-size: clamp(22px, 5vw, 26px);
-				font-weight: 600;
-				line-height: 1.3;
-				letter-spacing: -0.025em;
-			}
-			.console-loading__description {
-				max-inline-size: 31ch;
-				margin: 0 auto;
-				color: rgb(var(--boot-muted));
-				font-size: 15px;
-				line-height: 1.65;
-			}
 			.console-loading__track {
 				direction: ltr;
 				overflow: hidden;
-				block-size: 3px;
-				margin-block-start: 32px;
-				border-radius: 999px;
+				block-size: 0.1875rem;
+				margin-block-start: 2rem;
+				border-radius: 62.4375rem;
 				background: rgb(var(--boot-accent) / 0.14);
 			}
 			.console-loading__indicator {
@@ -127,10 +114,14 @@
 				animation: console-loading-travel 1.8s ease-in-out infinite alternate;
 			}
 			.console-loading__status {
-				margin: 16px 0 0;
-				color: rgb(var(--boot-muted));
-				font-size: 13px;
-				line-height: 1.5;
+				position: absolute;
+				inline-size: 0.0625rem;
+				block-size: 0.0625rem;
+				padding: 0;
+				margin: 0;
+				overflow: hidden;
+				clip-path: inset(50%);
+				white-space: nowrap;
 			}
 			@keyframes console-loading-travel {
 				from {
@@ -171,12 +162,6 @@
 						alt="PlanIt"
 					/>
 				</div>
-				<h1 id="console-boot-title" class="console-loading__title">
-					Preparing your planner
-				</h1>
-				<p id="console-boot-description" class="console-loading__description">
-					Getting the course catalog ready for this device.
-				</p>
 				<div class="console-loading__track" aria-hidden="true">
 					<span class="console-loading__indicator"></span>
 				</div>
@@ -204,10 +189,6 @@
 						boot.dir = 'rtl';
 						boot.lang = 'he';
 						boot.setAttribute('aria-label', 'טעינת PlanIt');
-						document.getElementById('console-boot-title').textContent =
-							'מכינים את סביבת התכנון';
-						document.getElementById('console-boot-description').textContent =
-							'מכינים את קטלוג הקורסים לשימוש במכשיר הזה.';
 						document.getElementById('console-boot-detail').textContent =
 							'טוענים קורסים…';
 					}

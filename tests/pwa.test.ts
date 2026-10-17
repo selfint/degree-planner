@@ -184,12 +184,30 @@ test('a never-visited course loads offline while guest plan editing stays read-o
 	expect(requests).not.toContain('/app/course/02340124');
 	expect(requests).not.toContain('/_courses/02340124');
 	const timeOrigin = await page.evaluate(() => performance.timeOrigin);
+	await page.evaluate(() => {
+		document.documentElement.dataset.consoleEntrySeen = 'false';
+		new MutationObserver((records) => {
+			for (const record of records)
+				for (const node of record.addedNodes) {
+					if (
+						node instanceof Element &&
+						(node.matches('[data-testid="console-entry-loading"]') ||
+							node.querySelector('[data-testid="console-entry-loading"]'))
+					)
+						document.documentElement.dataset.consoleEntrySeen = 'true';
+				}
+		}).observe(document.body, { childList: true, subtree: true });
+	});
 	await context.setOffline(true);
 	await page.locator('[data-code="02340124"]').click();
 	await expect(page).toHaveURL(`${origin}/app/course/02340124`);
 	await expect(page.locator('main')).toContainText(course.name);
 	// The route JS was not loaded before disconnecting: navigation stays client-side.
 	expect(await page.evaluate(() => performance.timeOrigin)).toBe(timeOrigin);
+	await expect(page.locator('html')).toHaveAttribute(
+		'data-console-entry-seen',
+		'false'
+	);
 	await page.reload();
 	await expect(page.locator('main')).toContainText(course.name);
 	await expect(page.getByTestId('plan-read-only')).toBeVisible();

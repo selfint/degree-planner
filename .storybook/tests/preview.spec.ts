@@ -143,7 +143,10 @@ test('individual controls are interactive and disabled states stay disabled', as
 	await page.getByRole('button', { name: 'Save plan', exact: true }).click();
 	await expect(
 		page.getByRole('button', { name: 'Save plan', exact: true })
-	).not.toBeVisible();
+	).toBeDisabled();
+	await expect(
+		page.getByRole('button', { name: 'Save plan', exact: true })
+	).toHaveAttribute('aria-busy', 'true');
 	await page.getByRole('button', { name: 'Complete demo action' }).click();
 	await expect(page.getByText('Completed actions: 1')).toBeVisible();
 	await page.goto(storyUrl('components-button--disabled-primary'));
@@ -169,8 +172,15 @@ test('theme, language and reading direction are global controls', async ({
 	await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
 	await expect(page.locator('.console-loading')).toHaveAttribute('dir', 'rtl');
 	await expect(
-		page.getByRole('heading', { name: 'Preparing your planner' })
+		page.locator('.console-loading').getByRole('heading')
+	).toHaveCount(0);
+	await expect(page.locator('.console-loading__logo')).toBeVisible();
+	await expect(
+		page.getByRole('img', { name: 'PlanIt', exact: true })
 	).toBeVisible();
+	await expect(page.locator('.console-loading__track')).toBeVisible();
+	await expect(page.getByRole('status')).toHaveText('Loading courses…');
+	await expect(page.getByRole('status')).toHaveCSS('clip-path', 'inset(50%)');
 	await page.goto(
 		`${storyUrl('components-searchfilters--default')}&globals=theme:light;language:en;direction:ltr`
 	);
@@ -224,6 +234,12 @@ test('footer and installation links are mocked and cannot leave the story', asyn
 }) => {
 	await page.goto(storyUrl('components-landinginstallinfo--default'));
 	const before = page.url();
+	await expect(
+		page.getByRole('heading', { name: 'Add to your home screen' })
+	).toBeVisible();
+	await expect(
+		page.getByRole('heading', { name: 'Prepare for offline reading' })
+	).toBeVisible();
 	await page.getByRole('link', { name: 'Open PlanIt' }).click();
 	expect(page.url()).toBe(before);
 	await page.goto(storyUrl('components-appfooter--default'));
@@ -304,4 +320,85 @@ test('degree path and recommendation variants show their real controls', async (
 	await page.goto(storyUrl('components-degreesection--recommended'));
 	await page.getByRole('button', { name: 'Revert to recommended' }).click();
 	await expect(page.getByText('Demo reset requested')).toBeVisible();
+	await page.goto(storyUrl('pages-catalog--no-degree'));
+	await expect(
+		page.getByRole('link', { name: /Select degree/i })
+	).toHaveAttribute('href', '/app/settings');
+});
+
+test('filter disclosure retains committed filters and keeps results before the filter panel', async ({
+	page
+}) => {
+	await page.goto(storyUrl('components-searchfilters--selected'));
+	const filters = page.locator('details.search-filters');
+	const summary = filters.locator('summary');
+	await expect(filters).toHaveAttribute('open', '');
+	await expect(summary).toContainText('5');
+	await summary.click();
+	await expect(filters).not.toHaveAttribute('open', '');
+	await expect(page.locator('#search-faculty')).not.toBeVisible();
+	await summary.press('Enter');
+	await expect(page.locator('#search-faculty')).toHaveValue('Example science');
+	await expect(page.locator('#search-points-min-input')).toHaveValue('2.0');
+	await page.getByRole('button', { name: 'Clear filters' }).click();
+	await expect(summary.locator('.filter-count')).toHaveCount(0);
+	await expect(page.locator('#search-faculty')).toHaveValue('');
+	await page.goto(storyUrl('pages-search--results'));
+	await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+	await expect(page.locator('details.search-filters')).toBeVisible();
+	const positions = await page.evaluate(() => ({
+		heading: document.querySelector('h1')!.getBoundingClientRect().bottom,
+		filters: document
+			.querySelector('details.search-filters')!
+			.getBoundingClientRect().top
+	}));
+	expect(positions.heading).toBeLessThan(positions.filters);
+});
+
+test('console surfaces remain readable and usable at narrow and wide widths', async ({
+	page
+}) => {
+	test.setTimeout(120_000);
+	for (const [width, globals] of [
+		[320, 'theme:light;language:he;direction:rtl'],
+		[1180, 'theme:dark;language:en;direction:ltr']
+	] as const) {
+		await page.setViewportSize({ width, height: 800 });
+		for (const id of [
+			'pages-settings--choose-degree',
+			'pages-course--default',
+			'pages-search--results',
+			'pages-catalog--default',
+			'pages-shared-plan--default'
+		]) {
+			await test.step(`${id} at ${width}`, async () => {
+				await page.goto(`${storyUrl(id)}&globals=${globals}`);
+				await expect(page.locator('[data-story-rendered]')).toHaveAttribute(
+					'data-story-rendered',
+					id,
+					{ timeout: 15_000 }
+				);
+				await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1);
+				const overflow = await page.evaluate(
+					() =>
+						document.documentElement.scrollWidth -
+						document.documentElement.clientWidth
+				);
+				expect(overflow).toBeLessThanOrEqual(1);
+				const controls = page.locator(
+					'select, [data-testid="course-plan-actions"] button, details.search-filters input:not([type="checkbox"]), details.search-filters button'
+				);
+				for (const control of await controls.all()) {
+					if (await control.isVisible())
+						expect(
+							(await control.boundingBox())!.height
+						).toBeGreaterThanOrEqual(43.5);
+				}
+				await page.screenshot({
+					path: test.info().outputPath(`${id}-${width}.png`),
+					fullPage: true
+				});
+			});
+		}
+	}
 });

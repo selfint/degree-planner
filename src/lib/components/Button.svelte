@@ -9,18 +9,12 @@
 	};
 
 	let { variant, onclick, children, disabled = false }: Props = $props();
-
-	const bg = $derived(
-		variant === 'primary'
-			? 'bg-accent-primary text-content-on-accent'
-			: 'bg-card-secondary text-content-primary'
-	);
 </script>
 
 <button
 	{disabled}
-	class:opacity-50={disabled}
-	class="h-full rounded-md border border-transparent p-0.5 pl-3 pr-3 leading-tight {bg}"
+	type="button"
+	class="ui-button ui-button--{variant}"
 	{onclick}
 >
 	{@render children()}

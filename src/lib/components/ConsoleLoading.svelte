@@ -42,14 +42,6 @@
 				alt="PlanIt"
 			/>
 		</div>
-		<h1 class="console-loading__title">
-			{hebrew ? 'מכינים את סביבת התכנון' : 'Preparing your planner'}
-		</h1>
-		<p class="console-loading__description">
-			{hebrew
-				? 'מכינים את קטלוג הקורסים לשימוש במכשיר הזה.'
-				: 'Getting the course catalog ready for this device.'}
-		</p>
 		<div class="console-loading__track" aria-hidden="true">
 			<span class="console-loading__indicator"></span>
 		</div>

@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/sveltekit';
+import { userEvent, within, waitFor, expect } from 'storybook/test';
 import SearchPage from '../../routes/app/(withFullCourseData)/search/+page.svelte';
 import { courses, pending } from '../../../.storybook/fixtures';
 import { baseRouteData, failed, routeState } from './fixtures';
@@ -46,4 +47,19 @@ export const LoadFailed: Story = {
 };
 export const ReadOnly: Story = {
 	parameters: { planner: { personalPlanReady: false, online: false } }
+};
+
+export const FiltersCollapsed: Story = {
+	play: async ({ canvasElement }) => {
+		await waitFor(() =>
+			expect(canvasElement.querySelector('summary')).not.toBeNull()
+		);
+		await userEvent.click(canvasElement.querySelector('summary')!);
+		await expect(canvasElement.querySelector('details')).not.toHaveAttribute(
+			'open'
+		);
+		await expect(
+			within(canvasElement).getByRole('heading', { level: 1 })
+		).toBeVisible();
+	}
 };

@@ -13,7 +13,7 @@
 	href="/app/"
 	data-sveltekit-reload
 	aria-busy={pending}
-	class="inline-flex h-full items-center justify-center gap-2 rounded-md border border-transparent bg-accent-primary px-3 py-0.5 leading-tight text-content-on-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-primary"
+	class="ui-button ui-button--primary"
 >
 	{content.lang.common.getStarted}
 	{#if pending}

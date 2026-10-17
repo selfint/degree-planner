@@ -4,7 +4,6 @@
 	import CourseRow from '$lib/components/CourseRow.svelte';
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
-	import { goto } from '$app/navigation';
 	import Spinner from '$lib/components/Spinner.svelte';
 
 	const { data: pageData } = $props();
@@ -51,230 +50,328 @@
 	);
 </script>
 
-<div class="mt-3">
-	{#if degreeName !== undefined}
-		<div class="mb-7">
-			<h1
-				class="mb-1 me-3 ms-3 flex flex-row items-baseline text-base font-medium text-content-primary"
-			>
-				<div class="me-2 flex flex-row flex-wrap items-start gap-y-1">
-					{#await degreeName()}
+{#snippet progressMetric(
+	label: string,
+	done: number,
+	planned: number,
+	total?: number
+)}
+	<div class="catalog-metric">
+		<p class="catalog-metric-label">{label}</p>
+		<dl class="catalog-values">
+			<div>
+				<dt>{content.lang.landing.catalog.done}</dt>
+				<dd class="text-accent-primary">{done}</dd>
+			</div>
+			<div>
+				<dt>{content.lang.landing.catalog.planned}</dt>
+				<dd>{planned}</dd>
+			</div>
+			{#if total !== undefined}
+				<div>
+					<dt>{content.lang.landing.catalog.total}</dt>
+					<dd>{total}</dd>
+				</div>
+			{/if}
+		</dl>
+		<ProgressBar
+			value={done}
+			value2={planned}
+			max={Math.max(total ?? planned, 1)}
+			dir={content.lang.dir}
+		/>
+	</div>
+{/snippet}
+
+{#snippet courseNote(course: Course)}
+	{@const index = getCourseSemester(course)}
+	{#if index !== undefined}
+		<span>
+			{seasonEmojis[index % 3]}
+			<span class="hidden sm:inline">
+				{content.lang.common.seasons[index % 3]}
+				{Math.floor(index / 3) + 1}
+			</span>
+		</span>
+	{:else if user.d.exemptions.includes(course.code)}
+		<span>✓</span>
+		<span class="hidden sm:inline">{content.lang.catalog.exempt}</span>
+	{:else if user.d.wishlist.includes(course.code)}
+		<span>🌟</span>
+		<span class="hidden sm:inline">{content.lang.catalog.wishlist}</span>
+	{/if}
+{/snippet}
+
+<div class="ui-page catalog-page">
+	<header>
+		<h1 class="ui-page-title">{content.lang.common.catalog}</h1>
+	</header>
+
+	{#if user.d.degree !== undefined}
+		<section class="ui-panel catalog-summary">
+			<h2 class="catalog-section-title">
+				{#await degreeName()}
+					<span class="catalog-loading" role="status">
+						<span class="h-5 w-5 shrink-0"><Spinner /></span>
 						{content.lang.common.loading}
 						{content.lang.common.catalog}
-						<div class="me-1 inline h-5 w-5">
-							<Spinner />
-						</div>
-					{:then d}
-						{d}
-					{/await}
-				</div>
-			</h1>
-			<div class="max-w-[30rem]">
-				<div
-					class="ms-3 flex flex-row items-center pe-2 text-content-secondary"
-				>
-					<span class="me-2">{content.lang.settings.count}</span>
-					<ProgressBar
-						value={totalCurrentCount}
-						value2={totalPlannedCount}
-						max={totalPlannedCount}
-						dir={content.lang.dir}
-					/>
-					<span class="ms-2 text-nowrap">
-						<span class="text-accent-primary">{totalCurrentCount}</span>
-						/ {totalPlannedCount}
 					</span>
-				</div>
-				<div
-					class="ms-3 flex flex-row items-center pe-2 text-content-secondary"
-				>
-					<span class="me-2">{content.lang.settings.points}</span>
-					{#await Promise.all([totalCurrentPoints, totalPlannedPoints])}
-						<ProgressBar value={1} value2={2} max={3} dir={content.lang.dir} />
-						<div class="w-full max-w-6">
-							<Spinner />
-						</div>
-					{:then [totalCurrentPoints, totalPlannedPoints]}
-						<ProgressBar
-							value={totalCurrentPoints}
-							value2={totalPlannedPoints}
-							max={totalPlannedPoints}
-							dir={content.lang.dir}
-						/>
-						<span class="ms-2 text-nowrap">
-							<span class="text-accent-primary">{totalCurrentPoints}</span>
-							/ {totalPlannedPoints}
-						</span>
-					{/await}
-				</div>
+				{:then name}
+					{name}
+				{/await}
+			</h2>
+			<div class="catalog-progress">
+				{@render progressMetric(
+					content.lang.settings.count,
+					totalCurrentCount,
+					totalPlannedCount
+				)}
+				{#await Promise.all([totalCurrentPoints, totalPlannedPoints])}
+					<div class="catalog-loading" role="status">
+						<span class="h-5 w-5 shrink-0"><Spinner /></span>
+						{content.lang.common.loading}
+						{content.lang.settings.points}
+					</div>
+				{:then [currentPoints, plannedPoints]}
+					{@render progressMetric(
+						content.lang.settings.points,
+						currentPoints,
+						plannedPoints
+					)}
+				{/await}
 			</div>
+		</section>
+	{:else}
+		<div class="ui-panel catalog-empty catalog-empty-degree">
+			<p>
+				{content.lang.lang === 'he'
+					? 'בחרו תואר כדי לראות את הקורסים והדרישות שלו.'
+					: 'Choose a degree to see its courses and requirements.'}
+			</p>
+			<a class="ui-button ui-button--secondary" href="/app/settings"
+				>{content.lang.settings.selectDegree}</a
+			>
 		</div>
 	{/if}
 
-	<div class="mb-7">
-		<h1
-			class="mb-1 me-3 ms-3 flex flex-row items-baseline text-base font-medium text-content-primary"
-		>
-			<div class="me-2 flex flex-col flex-wrap items-start gap-y-1">
-				<span class="me-1">
-					{content.lang.catalog.wishlist}
-				</span>
+	<section class="catalog-section">
+		<h2 class="catalog-section-title">{content.lang.catalog.wishlist}</h2>
+		{#if user.d.wishlist.length === 0}
+			<div class="ui-panel catalog-empty">
+				<span class="catalog-empty-icon" aria-hidden="true">☆</span>
+				<p>
+					{content.lang.lang === 'he'
+						? 'רשימת המשאלות שלך ריקה. פתחו קורס והוסיפו אותו לרשימה כדי לשמור אותו להמשך.'
+						: 'Your wish list is empty. Open a course and add it to your wish list to save it for later.'}
+				</p>
 			</div>
-		</h1>
-		<CourseRow {getCourseData} courses={user.d.wishlist}>
-			{#snippet children({ code, course, index })}
-				<button onclick={() => goto(`/app/course/${code}`)}>
-					<CourseElement
-						{code}
-						{course}
-						{index}
-						styleOnCourse={(c) =>
-							Promise.resolve(c.current ? '' : 'opacity: 0.6')}
-					>
-						{#snippet note(course)}
-							{@const index = getCourseSemester(course)}
-							{#if index !== undefined}
-								<span>
-									{seasonEmojis[index % 3]}
-									<span class="hidden sm:inline">
-										{content.lang.common.seasons[index % 3]}
-										{Math.floor(index / 3) + 1}
-									</span>
-								</span>
-							{:else if user.d.exemptions.includes(course.code)}
-								<span>✓</span>
-								<span class="hidden sm:inline">
-									{content.lang.catalog.exempt}
-								</span>
-							{:else if user.d.wishlist.includes(course.code)}
-								<span>🌟</span>
-								<span class="hidden sm:inline">
-									{content.lang.catalog.wishlist}
-								</span>
-							{/if}
-						{/snippet}
-					</CourseElement>
-				</button>
-			{/snippet}
-		</CourseRow>
-	</div>
-	{#await lists}
-		<div class="h-7 w-7">
-			<Spinner />
-		</div>
-	{:then lists}
-		{#each lists as list}
-			{#if list.courses.length > 0}
-				{@const listPlanned = list.courses.filter((c) => planned.includes(c))}
-				{@const listCurrent = list.courses.filter((c) => current.includes(c))}
-				{@const countCurrent = listCurrent.length}
-				{@const countPlanned = listPlanned.length}
-				{@const countTotal = list.courses.length}
-				{@const pointsCurrent = Promise.all(
-					listCurrent.map(getCourseData)
-				).then((p) => p.reduce((sum, { points }) => sum + (points ?? 0), 0))}
-				{@const pointsPlanned = Promise.all(
-					listPlanned.map(getCourseData)
-				).then((p) => p.reduce((sum, { points }) => sum + (points ?? 0), 0))}
-				{@const pointsTotal = Promise.all(list.courses.map(getCourseData)).then(
-					(p) => p.reduce((sum, { points }) => sum + (points ?? 0), 0)
-				)}
+		{:else}
+			<CourseRow {getCourseData} courses={user.d.wishlist} indent={0}>
+				{#snippet children({ code, course, index })}
+					<a href={`/app/course/${code}`}>
+						<CourseElement
+							{code}
+							{course}
+							{index}
+							styleOnCourse={(c) =>
+								Promise.resolve(c.current ? '' : 'opacity: 0.6')}
+						>
+							{#snippet note(course)}
+								{@render courseNote(course)}
+							{/snippet}
+						</CourseElement>
+					</a>
+				{/snippet}
+			</CourseRow>
+		{/if}
+	</section>
 
-				<div class="mb-7 flex flex-col gap-y-1">
-					<h1
-						class="me-3 ms-3 flex flex-row items-baseline text-base font-medium text-content-primary"
-					>
-						<div class="me-2 flex flex-row flex-wrap items-start gap-y-1">
-							{#each list.path as title}
-								<span class="me-1 leading-none">
-									{content.lang.lang === 'he' ? title.he : title.en}
-								</span>
+	{#if user.d.degree !== undefined}
+		{#await lists}
+			<div class="catalog-loading" role="status">
+				<span class="h-5 w-5 shrink-0"><Spinner /></span>
+				{content.lang.common.loading}
+				{content.lang.common.catalog}
+			</div>
+		{:then lists}
+			{#each lists as list}
+				{#if list.courses.length > 0}
+					{@const listPlanned = list.courses.filter((c) => planned.includes(c))}
+					{@const listCurrent = list.courses.filter((c) => current.includes(c))}
+					{@const pointsCurrent = Promise.all(
+						listCurrent.map(getCourseData)
+					).then((p) => p.reduce((sum, { points }) => sum + (points ?? 0), 0))}
+					{@const pointsPlanned = Promise.all(
+						listPlanned.map(getCourseData)
+					).then((p) => p.reduce((sum, { points }) => sum + (points ?? 0), 0))}
+					{@const pointsTotal = Promise.all(
+						list.courses.map(getCourseData)
+					).then((p) => p.reduce((sum, { points }) => sum + (points ?? 0), 0))}
+
+					<section class="catalog-section">
+						<h2 class="catalog-section-title catalog-path">
+							{#each list.path as title, index}
+								{#if index > 0}<span
+										class="catalog-path-separator"
+										aria-hidden="true">/</span
+									>{/if}
+								<span>{content.lang.lang === 'he' ? title.he : title.en}</span>
 							{/each}
-						</div>
-					</h1>
-
-					<div class="max-w-[30rem]">
-						<div
-							class="ms-3 flex flex-row items-center pe-2 text-content-secondary"
-						>
-							<span class="me-2">{content.lang.settings.count}</span>
-							<ProgressBar
-								value={countCurrent}
-								value2={countPlanned}
-								max={countTotal}
-								dir={content.lang.dir}
-							/>
-							<span class="ms-2 text-nowrap">
-								<span class="text-accent-primary">{countCurrent}</span>
-								/ {countPlanned}
-								/ {countTotal}
-							</span>
-						</div>
-						<div
-							class="ms-3 flex flex-row items-center pe-2 text-content-secondary"
-						>
-							<span class="me-2">{content.lang.settings.points}</span>
+						</h2>
+						<div class="ui-panel catalog-progress catalog-progress-panel">
+							{@render progressMetric(
+								content.lang.settings.count,
+								listCurrent.length,
+								listPlanned.length,
+								list.courses.length
+							)}
 							{#await Promise.all([pointsCurrent, pointsPlanned, pointsTotal])}
-								<ProgressBar
-									value={1}
-									value2={2}
-									max={3}
-									dir={content.lang.dir}
-								/>
-								<div class="w-full max-w-6">
-									<Spinner />
+								<div class="catalog-loading" role="status">
+									<span class="h-5 w-5 shrink-0"><Spinner /></span>
+									{content.lang.common.loading}
+									{content.lang.settings.points}
 								</div>
-							{:then [pointsCurrent, pointsPlanned, pointsTotal]}
-								<ProgressBar
-									value={pointsCurrent}
-									value2={pointsPlanned}
-									max={pointsTotal}
-									dir={content.lang.dir}
-								/>
-								<span class="ms-2 text-nowrap">
-									<span class="text-accent-primary">{pointsCurrent}</span>
-									/ {pointsPlanned}
-									/ {pointsTotal}
-								</span>
+							{:then [currentPoints, plannedPoints, totalPoints]}
+								{@render progressMetric(
+									content.lang.settings.points,
+									currentPoints,
+									plannedPoints,
+									totalPoints
+								)}
 							{/await}
 						</div>
-					</div>
-
-					<CourseRow {getCourseData} courses={list.courses}>
-						{#snippet children({ code, course, index })}
-							<button
-								class:opacity-60={false}
-								onclick={() => goto(`/app/course/${code}`)}
-							>
-								<CourseElement {code} {course} {index}>
-									{#snippet note(course)}
-										{@const index = getCourseSemester(course)}
-										{#if index !== undefined}
-											<span>
-												{seasonEmojis[index % 3]}
-												<span class="hidden sm:inline">
-													{content.lang.common.seasons[index % 3]}
-													{Math.floor(index / 3) + 1}
-												</span>
-											</span>
-										{:else if user.d.exemptions.includes(course.code)}
-											<span>✓</span>
-											<span class="hidden sm:inline">
-												{content.lang.catalog.exempt}
-											</span>
-										{:else if user.d.wishlist.includes(course.code)}
-											<span>🌟</span>
-											<span class="hidden sm:inline">
-												{content.lang.catalog.wishlist}
-											</span>
-										{/if}
-									{/snippet}
-								</CourseElement>
-							</button>
-						{/snippet}
-					</CourseRow>
-				</div>
-			{/if}
-		{/each}
-	{/await}
+						<CourseRow {getCourseData} courses={list.courses} indent={0}>
+							{#snippet children({ code, course, index })}
+								<a href={`/app/course/${code}`}>
+									<CourseElement {code} {course} {index}>
+										{#snippet note(course)}
+											{@render courseNote(course)}
+										{/snippet}
+									</CourseElement>
+								</a>
+							{/snippet}
+						</CourseRow>
+					</section>
+				{/if}
+			{:else}
+				<p class="ui-panel catalog-empty">
+					{content.lang.lang === 'he'
+						? 'אין עדיין קורסים בקטלוג של התואר הזה.'
+						: 'No courses are listed for this degree yet.'}
+				</p>
+			{/each}
+		{/await}
+	{/if}
 </div>
+
+<style>
+	.catalog-page {
+		display: grid;
+		gap: 2rem;
+	}
+
+	.catalog-summary {
+		padding: clamp(1rem, 2vw, 1.5rem);
+	}
+
+	.catalog-section {
+		min-inline-size: 0;
+	}
+
+	.catalog-section-title {
+		margin-block-end: 1rem;
+		font-size: 1.125rem;
+		font-weight: 600;
+		line-height: 1.5;
+		overflow-wrap: anywhere;
+	}
+
+	.catalog-path {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		gap: 0.375rem 0.625rem;
+	}
+
+	.catalog-path-separator {
+		color: rgb(var(--color-content-secondary));
+		font-weight: 400;
+	}
+
+	.catalog-progress {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 1.5rem;
+		max-inline-size: 48rem;
+	}
+
+	.catalog-progress-panel {
+		margin-block-end: 1rem;
+		padding: 1rem 1.25rem;
+	}
+
+	.catalog-metric {
+		min-inline-size: 0;
+	}
+
+	.catalog-metric-label {
+		margin-block-end: 0.625rem;
+		font-size: 0.875rem;
+		font-weight: 600;
+	}
+
+	.catalog-values {
+		display: grid;
+		grid-auto-columns: minmax(0, 1fr);
+		grid-auto-flow: column;
+		gap: 0.75rem;
+		margin-block-end: 0.625rem;
+	}
+
+	.catalog-values dt {
+		color: rgb(var(--color-content-secondary));
+		font-size: 0.75rem;
+	}
+
+	.catalog-values dd {
+		font-size: 1.125rem;
+		font-weight: 600;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.catalog-loading {
+		display: flex;
+		align-items: center;
+		gap: 0.625rem;
+		color: rgb(var(--color-content-secondary));
+		font-size: 0.875rem;
+		font-weight: 400;
+	}
+
+	.catalog-empty {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+		padding: 1.25rem;
+		color: rgb(var(--color-content-secondary));
+		font-size: 0.9375rem;
+		line-height: 1.7;
+	}
+
+	.catalog-empty-icon {
+		font-size: 1.75rem;
+		color: rgb(var(--color-accent-primary));
+	}
+
+	.catalog-empty-degree {
+		flex-wrap: wrap;
+		justify-content: space-between;
+	}
+
+	@media (max-width: 35rem) {
+		.catalog-progress {
+			grid-template-columns: minmax(0, 1fr);
+			gap: 1.25rem;
+		}
+	}
+</style>

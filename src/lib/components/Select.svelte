@@ -19,7 +19,7 @@
 <select
 	{disabled}
 	bind:value
-	class="w-full max-w-fit rounded-md border border-border bg-background p-1 text-content-secondary outline-none"
+	class="ui-field w-full max-w-full"
 	onchange={() => onchange?.(value)}
 >
 	{@render children()}

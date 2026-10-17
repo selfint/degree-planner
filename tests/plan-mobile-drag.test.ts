@@ -676,11 +676,40 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 			const secondSemester = page.locator('[data-semester="1"]');
 			const wishlist = page.getByTestId('plan-wishlist');
 			const second = (await secondSemester.boundingBox())!;
-			expect(second.height).toBeGreaterThan(250);
+			// The iPhone profile has a 664px viewport inside its 844px screen.
+			// With readable chrome and the readiness notice, require usable space
+			// that fills the viewport or real course content, not a fixed 250px.
+			const lastOccupied = (await page
+				.locator('[data-semester="0"] [data-code]')
+				.last()
+				.boundingBox())!;
+			const bottomSpacing = await page
+				.locator('.plan-page')
+				.evaluate((plan) => {
+					const rail = plan.querySelector('[data-testid="semester-scroller"]')!;
+					return (
+						parseFloat(getComputedStyle(plan).marginBottom) +
+						parseFloat(getComputedStyle(rail).paddingBottom)
+					);
+				});
+			const available = page.viewportSize()!.height - second.y - bottomSpacing;
+			expect(second.height).toBeGreaterThanOrEqual(128);
+			expect(second.height + 1).toBeGreaterThanOrEqual(
+				Math.max(available, lastOccupied.y + lastOccupied.height - second.y)
+			);
+			expect(second.y + second.height).toBeLessThanOrEqual(
+				Math.max(
+					page.viewportSize()!.height,
+					lastOccupied.y + lastOccupied.height
+				) + 1
+			);
+			if (available > 250) expect(second.height).toBeGreaterThan(250);
 			const bottom = {
 				x: second.x + second.width / 2,
 				y: second.y + second.height - 20
 			};
+			expect(bottom.y).toBeGreaterThan(0);
+			expect(bottom.y).toBeLessThan(page.viewportSize()!.height);
 			await dragTo(page, touch, '10400003', bottom);
 			await expect(
 				secondSemester.locator('[data-code="10400003"]')

@@ -236,7 +236,7 @@ test('keeps filters when submitting a new query and encodes reserved characters'
 	expect(params.get('pointsMin')).toBe('2');
 	await page.goBack();
 	await expect(
-		page.getByRole('heading', { name: `Results for "${query}"` })
+		page.getByRole('heading', { name: `Results for “${query}”` })
 	).toBeVisible();
 });
 

@@ -29,8 +29,9 @@ const chemistry = 'הפקולטה לכימיה';
 
 async function waitForSearchReady(page: Page) {
 	// The document load event can precede hydration and async course-data rendering.
-	// Give full-page loads their own readiness budget, not the filter assertions.
-	await page.locator('#search-faculty').waitFor({
+	// Broad Hebrew queries took 7–10s in WebKit traces. Keep the existing startup
+	// budget before opening the collapsed panel; its faculty select is not visible yet.
+	await page.locator('details.search-filters').waitFor({
 		state: 'visible',
 		timeout: 30_000
 	});
@@ -79,6 +80,13 @@ async function expectResults(page: Page, state: State) {
 			)
 		)
 		.toBe(expected.length);
+	// Check after the resulting URL and content settle, including Back/Forward.
+	// Updating filters must preserve the user's disclosure choice, not reopen it here.
+	await expect(page.locator('details.search-filters')).toHaveAttribute(
+		'open',
+		''
+	);
+	await expect(page.locator('#search-faculty')).toBeVisible();
 }
 
 async function chooseNativeFaculty(page: Page, faculty: string) {
@@ -113,8 +121,12 @@ for (const language of ['en', 'he']) {
 				language
 			);
 			await page.goto(`/app/search?q=${q}`);
-			await openSearchFilters(page);
 			await waitForSearchReady(page);
+			await expect(page.locator('details.search-filters')).not.toHaveAttribute(
+				'open',
+				''
+			);
+			await openSearchFilters(page);
 			const state: State = {
 				q,
 				faculty: '',
@@ -139,8 +151,12 @@ for (const language of ['en', 'he']) {
 			state.faculty = physics;
 			await expectResults(page, state);
 			await page.reload();
-			await openSearchFilters(page);
 			await waitForSearchReady(page);
+			await expect(page.locator('details.search-filters')).not.toHaveAttribute(
+				'open',
+				''
+			);
+			await openSearchFilters(page);
 			await expectResults(page, state);
 			await page.locator('fieldset button').click();
 			const cleared = {

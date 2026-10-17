@@ -30,11 +30,11 @@ jobs:
           git checkout -b generate-data
           git reset --hard origin/main
 
-      - name: Update courseData.json
-        run: node scripts/generateCourseData.mjs 10000 > static/courseData.json
+      - name: Fetch and validate SAP data before replacing outputs
+        run: node scripts/refreshSAPData.mjs
 
-      - name: Update catalog JSON
-        run: npm run update-catalogs
+      - name: Generate public catalog JSON from the validated SAP response
+        run: node scripts/generateCatalogData.mjs
 
       - name: Validate catalog snapshot
         run: node scripts/validateCatalogData.mjs

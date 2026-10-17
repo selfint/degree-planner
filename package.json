@@ -11,7 +11,7 @@
 		"build": "npm run generate-catalogs && vite build && node scripts/buildStorybook.mjs",
 		"preview": "vite preview",
 		"start-firebase-emulators": "firebase emulators:start",
-		"test": "npm run test:integration && npm run test:unit",
+		"test": "npm run test:integration && npm run test:unit -- --run && npm run test:sap",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"lint": "prettier --check . && eslint .",
@@ -25,7 +25,8 @@
 		"test:pwa-integration": "npm run build && vitest run --config vitest.integration.config.ts",
 		"storybook": "storybook dev -p 6006 --disable-telemetry",
 		"build-storybook": "storybook build --disable-telemetry",
-		"test:storybook": "playwright test --config playwright.storybook.config.ts"
+		"test:storybook": "playwright test --config playwright.storybook.config.ts",
+		"test:sap": "vitest run --config vitest.sap.config.ts"
 	},
 	"devDependencies": {
 		"@playwright/test": "^1.57.0",

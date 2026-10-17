@@ -1,0 +1,111 @@
+.console-loading {
+	--boot-bg: 25 25 29;
+	--boot-fg: 255 255 255;
+	--boot-muted: 173 181 185;
+	--boot-accent: 76 169 161;
+	box-sizing: border-box;
+	display: grid;
+	min-block-size: 100vh;
+	min-block-size: 100svh;
+	align-items: safe center;
+	justify-items: center;
+	overflow: auto;
+	padding: max(24px, env(safe-area-inset-top))
+		max(24px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom))
+		max(24px, env(safe-area-inset-left));
+	color: rgb(var(--boot-fg));
+	background-color: rgb(var(--boot-bg));
+	background-image: radial-gradient(
+		ellipse at 50% 35%,
+		rgb(var(--boot-accent) / 0.07),
+		transparent 62%
+	);
+	font-family:
+		system-ui,
+		-apple-system,
+		BlinkMacSystemFont,
+		'Segoe UI',
+		sans-serif;
+}
+[data-theme='light'] .console-loading {
+	--boot-bg: 248 250 252;
+	--boot-fg: 23 37 51;
+	--boot-muted: 67 82 97;
+	--boot-accent: 15 111 103;
+}
+.console-loading__content {
+	inline-size: min(100%, 25rem);
+	text-align: center;
+}
+.console-loading__brand {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 16px;
+	direction: ltr;
+}
+.console-loading__logo {
+	display: block;
+	inline-size: 76px;
+	block-size: 76px;
+	object-fit: contain;
+}
+.console-loading__wordmark {
+	display: block;
+	inline-size: 144px;
+	block-size: auto;
+	filter: invert(1);
+}
+[data-theme='light'] .console-loading__wordmark {
+	filter: none;
+}
+.console-loading__title {
+	margin: 36px 0 12px;
+	font-size: clamp(22px, 5vw, 26px);
+	font-weight: 600;
+	line-height: 1.3;
+	letter-spacing: -0.025em;
+}
+.console-loading__description {
+	max-inline-size: 31ch;
+	margin: 0 auto;
+	color: rgb(var(--boot-muted));
+	font-size: 15px;
+	line-height: 1.65;
+}
+.console-loading__track {
+	direction: ltr;
+	overflow: hidden;
+	block-size: 3px;
+	margin-block-start: 32px;
+	border-radius: 999px;
+	background: rgb(var(--boot-accent) / 0.14);
+}
+.console-loading__indicator {
+	display: block;
+	inline-size: 34%;
+	block-size: 100%;
+	border-radius: inherit;
+	background: rgb(var(--boot-accent));
+	animation: console-loading-travel 1.8s ease-in-out infinite alternate;
+}
+.console-loading__status {
+	margin: 16px 0 0;
+	color: rgb(var(--boot-muted));
+	font-size: 13px;
+	line-height: 1.5;
+}
+@keyframes console-loading-travel {
+	from {
+		transform: translateX(-30%);
+	}
+	to {
+		transform: translateX(225%);
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	.console-loading__indicator {
+		animation: none;
+		margin-inline: auto;
+	}
+}

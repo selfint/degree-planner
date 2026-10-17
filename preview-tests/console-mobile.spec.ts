@@ -208,7 +208,20 @@ for (const language of ['en', 'he'] as const) {
 				'background-color',
 				theme === 'light' ? 'rgb(248, 250, 252)' : 'rgb(25, 25, 29)'
 			);
-			evidence.checkpoints.push('visible-theme-correct-console-bootstrap');
+			await expect(page.locator('#console-boot-logo')).toBeVisible();
+			await expect
+				.poll(() =>
+					page
+						.locator('#console-boot-logo')
+						.evaluate((image) => (image as HTMLImageElement).naturalWidth)
+				)
+				.toBeGreaterThan(0);
+			await expect(page.locator('#console-boot-title')).toHaveText(
+				language === 'he' ? 'מכינים את סביבת התכנון' : 'Preparing your planner'
+			);
+			evidence.checkpoints.push(
+				'visible-theme-correct-branded-console-bootstrap'
+			);
 			await screenshot(page, testInfo, `loading-${language}-${theme}`);
 		} finally {
 			release();

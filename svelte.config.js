@@ -11,6 +11,8 @@ const config = {
 			files: (file) =>
 				file === 'manifest.webmanifest' ||
 				file === 'favicon.webp' ||
+				file === 'brand/planit-logo.webp' ||
+				file === 'brand/planit-wordmark.svg' ||
 				file.startsWith('icons/')
 		}
 	}

@@ -5,6 +5,7 @@
 	import { content } from '$lib/preferences.svelte';
 	import TitleBar from './components/TitleBar.svelte';
 	import AppFooter from '$lib/components/AppFooter.svelte';
+	import ConsoleLoading from '$lib/components/ConsoleLoading.svelte';
 	const { children } = $props();
 	const consoleRoute = $derived(/^\/app(?:\/|$)/.test(page.url.pathname));
 	const openingConsole = $derived(
@@ -32,11 +33,8 @@
 	</div>
 {/if}
 {#if openingConsole}
-	<div
-		role="status"
-		class="fixed inset-0 z-50 grid place-content-center bg-background text-content-primary"
-	>
-		{content.lang.lang === 'he' ? 'פותחים את PlanIt…' : 'Opening PlanIt…'}
+	<div class="fixed inset-0 z-50">
+		<ConsoleLoading language={content.lang.lang} phase="opening" />
 	</div>
 {/if}
 

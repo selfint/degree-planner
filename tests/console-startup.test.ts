@@ -340,6 +340,82 @@ for (const theme of ['dark', 'light'] as const) {
 	});
 }
 
+for (const language of ['en', 'he'] as const) {
+	for (const theme of ['dark', 'light'] as const) {
+		test(`${language} ${theme} branded boot is accessible on a narrow screen without app assets`, async ({
+			page
+		}) => {
+			await page.setViewportSize({ width: 320, height: 640 });
+			await page.emulateMedia({ reducedMotion: 'reduce' });
+			await page.addInitScript(
+				({ language, theme }) => {
+					localStorage.setItem('lang', language);
+					localStorage.setItem('theme', theme);
+				},
+				{ language, theme }
+			);
+			await page.route('**/_app/**', (route) => route.abort());
+			await page.goto(`${origin}/app/`);
+			const boot = page.locator('#console-boot');
+			await expect(boot).toBeVisible();
+			await expect(boot).not.toHaveAttribute('aria-busy', 'true');
+			await expect(boot.getByRole('heading', { level: 1 })).toHaveText(
+				language === 'he' ? 'מכינים את סביבת התכנון' : 'Preparing your planner'
+			);
+			await expect(boot.getByRole('status')).toHaveText(
+				language === 'he' ? 'טוענים קורסים…' : 'Loading courses…'
+			);
+			await expect
+				.poll(() =>
+					boot
+						.locator('img')
+						.evaluateAll((images) =>
+							images.every(
+								(image) =>
+									(image as HTMLImageElement).complete &&
+									(image as HTMLImageElement).naturalWidth > 0
+							)
+						)
+				)
+				.toBe(true);
+			await expect(boot.locator('.console-loading__indicator')).toHaveCSS(
+				'animation-name',
+				'none'
+			);
+			expect(
+				await page.evaluate(() => document.documentElement.scrollWidth)
+			).toBeLessThanOrEqual(320);
+			const content = await boot
+				.locator('.console-loading__content')
+				.boundingBox();
+			expect(content).not.toBeNull();
+			expect(content!.x).toBeGreaterThanOrEqual(0);
+			expect(content!.x + content!.width).toBeLessThanOrEqual(320);
+			expect(content!.y).toBeGreaterThanOrEqual(0);
+			expect(content!.y + content!.height).toBeLessThanOrEqual(640);
+		});
+	}
+}
+
+test('branded boot keeps its status reachable on a short landscape screen', async ({
+	page
+}) => {
+	await page.setViewportSize({ width: 568, height: 280 });
+	await page.addInitScript(() => localStorage.setItem('lang', 'en'));
+	await page.route('**/_app/**', (route) => route.abort());
+	await page.goto(`${origin}/app/`);
+	const status = page.locator('#console-boot-detail');
+	await status.scrollIntoViewIfNeeded();
+	const bounds = await status.boundingBox();
+	expect(bounds).not.toBeNull();
+	expect(bounds!.y).toBeGreaterThanOrEqual(0);
+	expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(280);
+	await page.locator('#console-boot-logo').scrollIntoViewIfNeeded();
+	expect(
+		(await page.locator('#console-boot-logo').boundingBox())!.y
+	).toBeGreaterThanOrEqual(0);
+});
+
 test.describe('warm cached console bootstrap', () => {
 	// Isolate IndexedDB readiness from service-worker precaching/routing.
 	// Installed-shell offline behavior is exercised by the separate PWA suite.

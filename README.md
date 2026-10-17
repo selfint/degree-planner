@@ -154,6 +154,31 @@ replacement, validators, storage denial, and cross-tab revision coverage.
 `tests/indexeddb-data.test.ts` checks the data layer with service workers blocked;
 `tests/pwa.test.ts` checks the installed shell and whole-browser offline behavior.
 
+## Testing
+
+Install dependencies with `npm ci`. The test suites can be run independently:
+
+- `npm run test:integration` runs the Playwright browser tests, building and serving
+  the app automatically. Install browsers first with
+  `npx playwright install --with-deps chromium webkit`. The full suite runs in
+  Chromium; the existing parallax and native faculty-selection regressions also
+  run in WebKit, including native faculty selection in mobile WebKit.
+  Use `-- --project=chromium` or `-- --project="webkit*"` to run one engine.
+- `npm run test:unit -- --run` runs the Vitest suite excluding the live SAP tests.
+  On a fresh checkout, first run `npm run generate-catalogs && npx svelte-kit sync`.
+  Omit `-- --run` for watch mode. The existing histogram-client test still needs network access.
+- `npm run test:sap` runs only `scripts/SAPClient.test.mjs` against the live Technion
+  SAP service. It needs network access and can fail when SAP is unavailable or its data changes.
+- `npm test` runs all three suites once, sequentially, stopping on failure.
+
+GitHub Actions runs the browser, unit, and live SAP suites in independent,
+parallel jobs on pushes and pull requests to `main`. Each job reports its own
+result, and a SAP failure still fails the workflow without preventing the other
+jobs from running. The browser job uses a Chromium/WebKit matrix with fail-fast
+turned off, so both engines finish independently. Parallax and native search
+coverage are part of that browser suite rather than separate feature jobs.
+Browser recordings, screenshots, and failure traces are retained for seven days.
+
 ## Acknowledgements
 
 - [Michael Maltsev](https://github.com/michael-maltsev) for data in
@@ -248,3 +273,56 @@ therefore absent from the application bundle and service-worker precache. The
 `/storybook` entry redirects to the static `index.html`, preserving story query
 parameters and working on direct reloads. Generated Storybook files are ignored
 by Git and are removed on production builds, including reused workspaces.
+
+## Refreshing SAP data
+
+Run `node scripts/refreshSAPData.mjs`, then
+`node scripts/generateCatalogData.mjs` and
+`node scripts/validateCatalogData.mjs`. The scheduled Data workflow uses this
+path. Fetch, validation, or write failures exit nonzero and fail the workflow;
+later generation, push, and PR steps do not run. There is no old-data fallback.
+After SAP and direct-JSON input validation, `static/courseData.json` and the local
+`scripts/.cache/catalogs.raw.json` are written directly, without a cross-file
+rollback transaction. Catalog conversion uses that same validated response,
+without fetching SAP a second time or recreating the former text-file tree. The
+PR workflow gates publication of the complete generated JSON snapshot.
+
+The client already retried transport/SAP failures. It now also validates the
+response envelope, inner HTTP status, query identity, required course expansions,
+and matching English/Hebrew records inside that retry path. A translation is
+matched within its exact faculty/track/parent, year, and semester query. There is
+no English fallback or silent skip when a required counterpart is missing.
+
+- Up to three attempts per failed query, in sequential chunks of at most 100.
+  Successful subqueries are retained rather than fetched again.
+- Each HTTP request, including its response body, has a 10-second abort timeout.
+  Each chunk has a 30-second total deadline including retry backoff. A full
+  multi-chunk/tree refresh may take longer; this is not a global refresh deadline.
+- Inline counts and continuation links are checked when supplied. A partial page
+  fails closed; automatic continuation fetching is not implemented. Explicit
+  `getCourses(semesters, top)` calls below 10,000 may intentionally request a subset.
+- Empty faculty/degree lists, tree leaves, and course expansion lists can be
+  valid. An empty response for a specific known course or translation is not.
+  Ordinary dataset shrinkage is allowed. During generation, a previously
+  populated semester/faculty/track that is still being queried cannot suddenly
+  return no faculties/degrees/tree children: its empty response is retried, then
+  held for manual verification of a possible upstream removal. Baselines come
+  from cached raw catalogs (including legacy root-level `catalogs.json`) and the
+  committed catalog manifest, or legacy static catalog directories and are used
+  only for completeness validation, never as replacement data. Completely
+  wiping an established output is also held for review, not declared proof of an
+  SAP outage. Individual removed IDs and newly empty scopes remain allowed.
+- Diagnostics identify the endpoint, language, query, and SAP error code without
+  dumping response bodies or internal SAP traces. Persistent RFC/shared-memory
+  failures still require the SAP operator to resolve the backend problem; client
+  retries cannot rebuild SAP buffers, and an empty result alone does not identify
+  its server-side cause.
+
+Run the deterministic regressions without SAP access:
+
+```sh
+npx vitest run scripts/SAPClient.regression.test.mjs scripts/refreshSAPData.test.mjs scripts/generateCatalogsRaw.test.mjs
+```
+
+The existing `scripts/SAPClient.test.mjs` remains a live integration check. Do not
+update its snapshots to bless empty or incomplete upstream responses.

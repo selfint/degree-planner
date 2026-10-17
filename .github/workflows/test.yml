@@ -7,6 +7,79 @@ on:
     branches: 'main'
 
 jobs:
+  browser:
+    name: Browser tests (${{ matrix.browser }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - browser: chromium
+            project: chromium
+          - browser: webkit
+            project: webkit*
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+      - name: Run browser tests
+        run: npm run test:integration -- --project="${{ matrix.project }}"
+      - name: Test the built worker and IndexedDB ownership boundary
+        if: matrix.browser == 'chromium'
+        run: npx vitest run --config vitest.integration.config.ts
+      - name: Upload browser recordings, screenshots, and failure traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-results-${{ matrix.browser }}
+          path: test-results/
+          if-no-files-found: ignore
+          retention-days: 7
+
+  unit:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Prepare test data and SvelteKit
+        run: npm run generate-catalogs && npx svelte-kit sync
+      - name: Run unit tests
+        run: npm run test:unit -- --run
+
+  sap:
+    name: Live SAP tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Prepare SvelteKit config
+        run: npx svelte-kit sync
+      - name: Run live SAP tests
+        run: npm run test:sap
+
   deployed-console-mobile:
     # Only our migration branch owns this preview alias. Never test a fork or a
     # newer branch build while labelling it as the PR event's exact head.
@@ -31,7 +104,7 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - name: Install focused browser test dependencies
-        run: npm install && npx playwright install --with-deps chromium
+        run: npm ci && npx playwright install --with-deps chromium
       - name: Wait for the current head's Vercel deployment
         id: preview-ready
         env:
@@ -59,137 +132,4 @@ jobs:
             test-results/deployed-preview-gate/
             test-results/storybook/
           if-no-files-found: ignore
-          retention-days: 7
-
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-          cache: npm
-      - name: Install dependencies
-        run: npm install && npx playwright install
-      - name: test
-        run: npm run test
-      - name: Upload console startup network evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: console-startup-network-chromium
-          path: test-results/**/*startup-network*.json
-          if-no-files-found: ignore
-          retention-days: 7
-      - name: Upload landing visual checks
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: landing-parallax-visuals
-          path: test-results/**/landing-*.png
-          if-no-files-found: ignore
-          retention-days: 7
-
-  parallax-browsers:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-          cache: npm
-      - name: Install browser test dependencies
-        run: npm install && npx playwright install --with-deps chromium webkit
-      - name: Test parallax in Chromium and WebKit
-        run: npx playwright test --config=playwright.parallax.config.ts
-      - name: Upload scroll recordings and screenshots
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: parallax-browser-recordings
-          path: test-results/
-          retention-days: 7
-
-  search-browsers:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-          cache: npm
-      - name: Install browser test dependencies
-        run: npm install && npx playwright install --with-deps chromium webkit
-      - name: Test native faculty selection in Chromium and WebKit
-        run: npx playwright test --config=playwright.search.config.ts
-      - name: Upload search failure traces
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: search-browser-failures
-          path: test-results/
-          retention-days: 7
-
-  pwa-browsers:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-          cache: npm
-      - name: Install PWA browser test dependencies
-        run: npm install && npx playwright install --with-deps chromium
-      - name: Test install, offline cold routes, account guards and safe updates
-        run: npx playwright test tests/pwa.test.ts --workers=1
-      - name: Test the built worker and IndexedDB ownership boundary
-        run: npx vitest run --config vitest.integration.config.ts
-      - name: Upload PWA failure evidence
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: pwa-browser-failures
-          path: test-results/
-          retention-days: 7
-
-  offline-webkit-data:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-          cache: npm
-      - name: Install WebKit test dependencies
-        run: npm install && npx playwright install --with-deps webkit
-      - name: Test WebKit course persistence and warm offline navigation
-        run: npx playwright test --config=playwright.offline-webkit.config.ts --workers=1
-      - name: Test isolated landing and console bootstrap on mobile and desktop WebKit
-        run: npx playwright test tests/console-startup.test.ts tests/console-routing.test.ts --browser=webkit --workers=1
-      - name: Upload WebKit startup network evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: console-startup-network-webkit
-          path: test-results/**/*startup-network*.json
-          if-no-files-found: ignore
-          retention-days: 7
-      - name: Test WebKit first-opening offline deep links and reloads
-        run: npx playwright test tests/pwa.test.ts --browser=webkit --grep 'first opening' --workers=1
-      - name: Upload WebKit offline-data failure evidence
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: offline-webkit-data-failures
-          path: test-results/
           retention-days: 7

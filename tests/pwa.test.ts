@@ -130,6 +130,24 @@ test('manifest and correctly sized icons support installation', async ({
 		scope: '/app/',
 		display: 'standalone'
 	});
+	// Pre-hydration branding is part of the installed shell, including cold reloads.
+	const shellAssets = await page.evaluate(async () => {
+		const names = (await caches.keys()).filter((name) =>
+			name.startsWith('planit-console-shell-')
+		);
+		return (
+			await Promise.all(
+				names.map(async (name) =>
+					(await (await caches.open(name)).keys()).map(
+						(request) => new URL(request.url).pathname
+					)
+				)
+			)
+		).flat();
+	});
+	expect(shellAssets).toContain('/brand/planit-logo.webp');
+	expect(shellAssets).toContain('/brand/planit-wordmark.svg');
+
 	for (const icon of manifest.icons) {
 		const size = Number(icon.sizes.split('x')[0]);
 		expect(

@@ -1,71 +1,41 @@
 /// <reference path="./types.d.ts"/>
-
-import { writeFileSync as _writeFileSync, mkdirSync } from 'fs';
-import { join } from 'path';
+import { dirname, resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import * as sap from './SAPClient.mjs';
+import { buildCatalogData } from './catalogData.mjs';
+import { readCatalogBaseline } from './catalogBaseline.mjs';
+import { assertNotEmptyReplacement, readJsonIfPresent } from './dataOutput.mjs';
 
-/**
- * @param {string} path
- * @param {string} data
- */
-function writeFileSync(path, data) {
-	const size = sap.formatBytes(new Blob([data]).size);
-	console.error('Writing', path, `(${size})`);
-	_writeFileSync(path, data, 'utf-8');
-}
-
-const cacheDir = join(process.cwd(), 'scripts', '.cache');
-const rawCatalogs = join(cacheDir, 'catalogs.raw.json');
-
-async function main() {
-	const start = Date.now();
+export async function generateCatalogs({ root = process.cwd() } = {}) {
+	const baseline = readCatalogBaseline(root);
 	const semesterYears = await sap.getSemesterYears();
-	console.log(
-		semesterYears.length,
-		`Semester years: ${semesterYears.map(({ PiqSession, PiqYear }) => `${sap.getSemesterName(PiqSession).en} ${PiqYear}`).join(', ')}`
+	const faculties = await sap.getFaculties(semesterYears, baseline.semesters);
+	const tracks = (await sap.getDegrees(faculties, baseline.faculties)).flat();
+	const trees = await sap.getTrackTrees(tracks, baseline.tracks);
+	const catalogs = tracks.map((track, index) => ({
+		track,
+		tree: trees[index]
+	}));
+	console.error(
+		`Fetched ${semesterYears.length} semesters, ${faculties.length} faculties and ${catalogs.length} catalogs`
 	);
-
-	const faculties = await sap.getFaculties(semesterYears);
-	console.log(
-		faculties.length,
-		'Faculties:',
-		faculties.map((f) => f.Name.en).join(', ')
-	);
-
-	const tracks = await sap.getDegrees(faculties).then((d) => d.flat().flat());
-	console.log(tracks.length, 'Tracks:', tracks.map((d) => d.Otjid).join(', '));
-
-	const trees = await sap.getTrackTrees(tracks);
-
-	const catalogs = [];
-	const gotResults = [];
-	for (let index = 0; index < tracks.length; index++) {
-		const track = tracks[index];
-		const tree = trees[index];
-
-		if (tree.children !== undefined || tree.courses !== undefined) {
-			gotResults.push(track.Otjid);
-		}
-
-		/** @type {Catalog} */
-		const catalog = {
-			track,
-			tree
-		};
-
-		catalogs.push(catalog);
-	}
-	console.log(gotResults.length, 'Catalogs:', gotResults.join(', '));
-	console.log('SAP Usage:', JSON.stringify(sap.getUsage()));
-	const duration = Date.now() - start;
-	const durationHour = Math.floor(duration / 3600000);
-	const durationMin = Math.floor((duration % 3600000) / 60000);
-	const durationSec = Math.floor((duration % 60000) / 1000);
-	const durationStr = `${durationHour}:${durationMin}:${durationSec}`;
-	console.log('Duration:', durationStr);
-
-	mkdirSync(cacheDir, { recursive: true });
-	writeFileSync(rawCatalogs, JSON.stringify(catalogs));
+	return catalogs;
 }
 
-main();
+if (
+	process.argv[1] &&
+	import.meta.url === pathToFileURL(resolve(process.argv[1])).href
+) {
+	try {
+		const path = resolve('scripts/.cache/catalogs.raw.json');
+		const catalogs = await generateCatalogs();
+		assertNotEmptyReplacement(readJsonIfPresent(path), catalogs, 'catalogs');
+		buildCatalogData(catalogs);
+		mkdirSync(dirname(path), { recursive: true });
+		writeFileSync(path, JSON.stringify(catalogs, null, '\t'));
+	} catch (error) {
+		console.error(error.message);
+		process.exitCode = 1;
+	}
+}

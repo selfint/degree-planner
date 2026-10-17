@@ -10,6 +10,7 @@
 	} from '$lib/offlineData';
 	import {
 		prepareOfflineShell,
+		prepareWithReconnectRetry,
 		type ShellReadiness
 	} from '$lib/pwa/shell-readiness';
 	import { replacesExistingWorker } from '$lib/pwa/service-worker-update';
@@ -93,7 +94,14 @@
 			const generation = ++checkGeneration;
 			checking = true;
 			shell = 'preparing';
-			const result = await prepareOfflineShell(controller, version);
+			const result = await prepareWithReconnectRetry(
+				() => prepareOfflineShell(controller, version),
+				() =>
+					!disposed &&
+					generation === checkGeneration &&
+					controller === navigator.serviceWorker.controller &&
+					navigator.onLine
+			);
 			if (disposed || generation !== checkGeneration) return;
 			checking = false;
 			if (controller !== navigator.serviceWorker.controller) {

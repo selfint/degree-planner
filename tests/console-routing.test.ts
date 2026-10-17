@@ -24,6 +24,8 @@ for (const path of ['/settings', '/search', '/course/02340124']) {
 	test(`legacy ${path} keeps its query, fragment and same-origin plan`, async ({
 		page
 	}) => {
+		const errors: string[] = [];
+		page.on('pageerror', (error) => errors.push(error.message));
 		const guest = {
 			exemptions: [],
 			semesters: [[], []],
@@ -39,11 +41,13 @@ for (const path of ['/settings', '/search', '/course/02340124']) {
 		await expect(page).toHaveURL(
 			`${origin}/app${path}?source=old-link#details`
 		);
-		await expect(page.locator('main')).toBeVisible();
+		// Cold unfiltered search renders the complete catalog before the route mounts.
+		await expect(page.locator('main')).toBeVisible({ timeout: 20_000 });
 		await expect(page.locator('#console-boot')).toBeHidden();
 		expect(
 			await page.evaluate(() => JSON.parse(localStorage.getItem('userData')!))
 		).toEqual(guest);
+		expect(errors).toEqual([]);
 	});
 }
 

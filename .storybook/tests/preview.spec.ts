@@ -98,7 +98,9 @@ test('all stories render without live data, account access, or planner storage c
 			await page.goto(storyUrl(story.id));
 			await expect(page.locator('[data-story-rendered]')).toHaveAttribute(
 				'data-story-rendered',
-				story.id
+				story.id,
+				// Storybook waits up to 5s for scroll-linked animations before afterEach.
+				{ timeout: 15_000 }
 			);
 			await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
 			expect(

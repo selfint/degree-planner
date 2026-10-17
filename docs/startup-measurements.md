@@ -71,18 +71,18 @@ The measurement environment could not launch a browser: bundled Playwright binar
 
 ## Final comparison
 
-Measured the completed migration client source on 2026-10-17, after the branded startup redesign, mainline SAP/CI integration and complete Storybook expansion. The final application graph was rechecked after the separate 180-story build. The Node version and direct application dependency versions remain the same as the instrumented baseline. Storybook is built separately after Vite and does not enter these graphs. The combined production build passed. These current graph sizes are measured without new module attribution; source-attribution observations below come from the instrumented migration comparison.
+Measured the completed migration client source on 2026-10-17, after the branded startup redesign, mainline SAP/CI integration and complete Storybook expansion and bounded reconnect repair. The final application graph was rechecked after the separate 180-story build. The Node version and direct application dependency versions remain the same as the instrumented baseline. Storybook is built separately after Vite and does not enter these graphs. The combined production build passed. These current graph sizes are measured without new module attribution; source-attribution observations below come from the instrumented migration comparison.
 
 | Before → after route          | Before raw / gzip bytes | After raw / gzip bytes | Raw reduction | Gzip reduction |
 | ----------------------------- | ----------------------: | ---------------------: | ------------: | -------------: |
-| `/` → `/`                     |       566,100 / 196,531 |   **184,910 / 77,470** |     **67.3%** |      **60.6%** |
-| `/plan` → `/app/plan`         |       575,093 / 198,609 |      563,314 / 196,844 |          2.0% |          0.89% |
-| `/search` → `/app/search`     |       536,448 / 183,718 |      523,316 / 181,381 |          2.4% |          1.27% |
-| `/settings` → `/app/settings` |       589,768 / 203,229 |      578,773 / 201,647 |          1.9% |          0.78% |
+| `/` → `/`                     |       566,100 / 196,531 |   **184,910 / 77,476** |     **67.3%** |      **60.6%** |
+| `/plan` → `/app/plan`         |       575,093 / 198,609 |      563,530 / 196,922 |          2.0% |          0.85% |
+| `/search` → `/app/search`     |       536,448 / 183,718 |      523,532 / 181,458 |          2.4% |          1.23% |
+| `/settings` → `/app/settings` |       589,768 / 203,229 |      578,989 / 201,724 |          1.9% |          0.74% |
 
 The landing's initial graph has 27 files versus 25 previously. Splitting the application lowers bytes substantially; it does not reduce the number of emitted files. These are graph file counts, not observed browser requests.
 
-The final `/en` graph is 127,859 raw / 54,078 gzip bytes before its navigation to `/`; it is not the total English landing session. The `/app` entry graph is 498,230 / 172,089 before redirecting to settings or a saved plan, so use the destination-route rows above when assessing the console's working UI.
+The final `/en` graph is 127,859 raw / 54,083 gzip bytes before its navigation to `/`; it is not the total English landing session. The `/app` entry graph is 498,446 / 172,167 before redirecting to settings or a saved plan, so use the destination-route rows above when assessing the console's working UI.
 
 ### What changed
 

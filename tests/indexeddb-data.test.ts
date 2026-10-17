@@ -431,7 +431,7 @@ test('keeps unknown course IDs as code-only course placeholders', async ({
 	await expectSavedPlanUnchanged(page);
 });
 
-for (const failure of ['denied', 'blocked'] as const) {
+for (const failure of ['denied', 'blocked', 'unresponsive'] as const) {
 	test(`falls back to the network when the public IndexedDB cache is ${failure}`, async ({
 		page
 	}) => {
@@ -446,7 +446,15 @@ for (const failure of ['denied', 'blocked'] as const) {
 				) {
 					if (failure === 'denied')
 						throw new DOMException('Denied for test', 'SecurityError');
-					return {} as IDBOpenDBRequest;
+					const request = {} as IDBOpenDBRequest;
+					if (failure === 'blocked')
+						queueMicrotask(() =>
+							request.onblocked?.call(
+								request,
+								new IDBVersionChangeEvent('blocked')
+							)
+						);
+					return request;
 				}
 				return open(name, ...args);
 			};
@@ -454,7 +462,8 @@ for (const failure of ['denied', 'blocked'] as const) {
 		await page.goto(origin + previewUrl);
 		await expect(page.locator('main h1').first()).toContainText(
 			'Computer Science',
-			{ timeout: 10000 }
+			// A completely silent open exercises several bounded store timeouts.
+			{ timeout: failure === 'unresponsive' ? 20000 : 10000 }
 		);
 		await expectSavedPlanUnchanged(page);
 	});

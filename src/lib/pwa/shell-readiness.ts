@@ -1,5 +1,19 @@
 export type ShellReadiness = 'preparing' | 'ready' | 'outdated' | 'unavailable';
 
+/** An online event can precede the worker's actual network restoration. */
+export async function prepareWithReconnectRetry(
+	prepare: () => Promise<ShellReadiness>,
+	canRetry: () => boolean,
+	wait: () => Promise<void> = () =>
+		new Promise((resolve) => setTimeout(resolve, 500))
+): Promise<ShellReadiness> {
+	const status = await prepare();
+	if (status !== 'unavailable' || !canRetry()) return status;
+	await wait();
+	// Retry once, and only while this page/controller is still online/current.
+	return canRetry() ? prepare() : status;
+}
+
 export function readShellStatus(
 	value: unknown,
 	expectedVersion: string

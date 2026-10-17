@@ -164,7 +164,7 @@ for (const viewport of [
 				})
 				.first()
 				.click();
-			await expect(page).toHaveURL(/\/settings/);
+			await expect(page).toHaveURL(/\/app\/settings/);
 			await page.goBack();
 			await expect(glow).toBeVisible();
 			await page.mouse.wheel(0, 300);

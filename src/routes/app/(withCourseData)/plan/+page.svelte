@@ -1,0 +1,328 @@
+<script lang="ts">
+	import { goto } from '$app/navigation';
+	import { browser } from '$app/environment';
+
+	import CourseElement from '$lib/components/CourseElement.svelte';
+	import Semester from '$lib/components/Semester.svelte';
+
+	import { user, content, writeStorage, setUser } from '$lib/stores.svelte';
+
+	import { getScheduleError } from '$lib/schedule';
+	import AsyncButton from '$lib/components/AsyncButton.svelte';
+	import PlanActionButton from '$lib/components/PlanActionButton.svelte';
+	import { startPlanDrag, endPlanDrag, makePlanSortable } from '$lib/planDrag';
+	import { fitPlanToViewport } from '$lib/fitPlanToViewport';
+
+	const { data: pageData } = $props();
+	const { getCourseData } = $derived(pageData);
+	// Touch drags need fallback listeners even where native HTML dragging exists.
+	const touchDrag = browser && navigator.maxTouchPoints > 0;
+
+	let wishlist = $state(user.d.wishlist);
+	let semesters = $state(user.d.semesters);
+	const hasChanges = $derived(
+		wishlist !== user.d.wishlist || semesters !== user.d.semesters
+	);
+
+	$effect(() => {
+		wishlist = user.d.wishlist;
+		semesters = user.d.semesters;
+	});
+
+	const shareLink = $derived.by(() => {
+		if (user.d.degree === undefined) {
+			return undefined;
+		}
+
+		const [year, faculty, degree] = user.d.degree;
+
+		const semesters = user.d.semesters.map((s) => s.join('-')).join('~');
+
+		const urlParams = new URLSearchParams();
+		if (user.d.path !== undefined) {
+			urlParams.append('path', user.d.path);
+		}
+		urlParams.append('semesters', semesters);
+
+		const link = `/app/preview/${year}/${faculty}/${degree}?${urlParams}`;
+
+		return link;
+	});
+
+	async function onCancel() {
+		wishlist = user.d.wishlist;
+		semesters = user.d.semesters;
+	}
+
+	let buttonNamespace = $state('');
+	async function onSave() {
+		setUser(await writeStorage({ ...user.d, wishlist, semesters }));
+	}
+
+	function initializePlanScroll(el: HTMLElement, direction: string) {
+		function update(direction: string) {
+			// Sortable's edge scrolling assumes nonnegative scrollLeft. Keep the
+			// scroller LTR, but start at the right edge for the RTL course row.
+			el.scrollLeft = direction === 'rtl' ? el.scrollWidth : 0;
+		}
+		update(direction);
+		return { update };
+	}
+</script>
+
+<!-- Fill the remaining viewport while letting long plans grow naturally. -->
+<div use:fitPlanToViewport class="plan-page mb-4 mt-4 flex flex-col">
+	<div class="mb-6 flex shrink-0 flex-col gap-2">
+		<div
+			class="me-3 ms-3 flex min-h-11 shrink-0 flex-row items-center justify-between gap-3 sm:me-5 sm:ms-5"
+		>
+			<h1 class="text-base font-semibold text-content-primary">
+				{content.lang.plan.wishlist}
+			</h1>
+			<div class="flex flex-row items-center gap-x-2 text-sm">
+				{#if hasChanges}
+					<AsyncButton
+						variant="secondary"
+						onclick={onCancel}
+						bind:buttonNamespace
+						name="cancel"
+					>
+						{content.lang.settings.cancel}
+					</AsyncButton>
+					<PlanActionButton
+						variant="primary"
+						onclick={onSave}
+						bind:buttonNamespace
+						name="save"
+					>
+						{content.lang.settings.save}
+					</PlanActionButton>
+				{/if}
+				{#if shareLink && user.d.semesters.some((s) => s.length > 0)}
+					<a
+						href={shareLink}
+						target="_blank"
+						rel="noopener noreferrer"
+						class="ui-button ui-button--primary"
+					>
+						{content.lang.settings.share}
+					</a>
+				{/if}
+			</div>
+		</div>
+		<div
+			data-testid="wishlist-scroller"
+			data-plan-scroll
+			use:initializePlanScroll={content.lang.dir}
+			dir="ltr"
+			class="plan-rail flex min-h-0 flex-row overflow-x-auto overflow-y-hidden pb-1"
+		>
+			{#key wishlist.join(' ')}
+				<div
+					data-testid="plan-wishlist"
+					use:makePlanSortable={{
+						group: 'semesters',
+						// Keep the touch preview outside transformed/clipped scrollers.
+						fallbackOnBody: true,
+						forceFallback: touchDrag,
+						onStart: startPlanDrag,
+						onEnd: endPlanDrag,
+						scroll: !touchDrag,
+						bubbleScroll: false,
+						sort: true,
+						direction: 'horizontal',
+						animation: 100,
+						delay: 100,
+						filter: '.margin',
+						delayOnTouchOnly: true,
+						dataIdAttr: 'data-code',
+						ghostClass: 'wishlist-ghost',
+						onUpdate: (event) => {
+							const code = event.item.getAttribute('data-code');
+							if (code === null) {
+								return;
+							}
+
+							const wishlistCodes = Array.from(event.to.children)
+								.map((c) => c.getAttribute('data-code'))
+								.filter((d) => d !== null) as CourseCode[];
+
+							// deduplicate wishlist and preserve order
+							wishlist = [...new Set(wishlistCodes)];
+						},
+						onAdd: (event) => {
+							const code = event.item.getAttribute('data-code');
+							if (code === null) {
+								return;
+							}
+
+							const wishlistCodes = Array.from(event.to.children)
+								.map((c) => c.getAttribute('data-code'))
+								.filter((d) => d !== null) as CourseCode[];
+
+							// deduplicate wishlist and preserve order
+							wishlist = [...new Set(wishlistCodes)];
+
+							// remove wishlist from semesters
+							semesters = semesters.map((s) =>
+								s.filter((c) => !wishlist.includes(c))
+							);
+						}
+					}}
+					dir={content.lang.dir}
+					data-empty-message={content.lang.lang === 'he'
+						? 'גררו לכאן קורסים שתרצו ללמוד'
+						: 'Drag courses you’d like to take here'}
+					class="wishlist-rail me-3 ms-3 flex min-h-[6.5rem] min-w-[calc(100%-1.5rem)] shrink-0 flex-row items-start justify-start gap-x-2 sm:me-5 sm:ms-5 sm:min-w-[calc(100%-2.5rem)]"
+				>
+					{#each wishlist as course}
+						<button
+							data-code={course}
+							dir={content.lang.dir}
+							class="shrink-0 rounded-[var(--radius-card)] text-start"
+							onclick={() => goto(`/app/course/${course}`)}
+						>
+							<CourseElement code={course} course={getCourseData(course)} />
+						</button>
+					{/each}
+				</div>
+			{/key}
+		</div>
+	</div>
+	<div
+		data-testid="semester-scroller"
+		data-plan-scroll
+		dir="ltr"
+		use:initializePlanScroll={content.lang.dir}
+		style="transform: rotateX(180deg)"
+		class="plan-rail flex flex-1 overflow-x-auto pb-2"
+	>
+		<div
+			dir={content.lang.dir}
+			style="transform: rotateX(180deg)"
+			class="flex flex-1 flex-row"
+		>
+			<div class="ms-3 sm:ms-5"></div>
+			{#key semesters.map((s) => s.join('-')).join(',')}
+				{#each semesters as semester, semesterIndex}
+					<div class="flex pe-3">
+						<Semester
+							{getCourseData}
+							index={semesterIndex}
+							{semester}
+							isCurrent={semesterIndex === user.d.currentSemester}
+							href={`/app/semester?c=${semesterIndex}`}
+							sortable={{
+								group: 'semesters',
+								// Keep the touch preview outside transformed/clipped scrollers.
+								fallbackOnBody: true,
+								forceFallback: touchDrag,
+								onStart: startPlanDrag,
+								onEnd: endPlanDrag,
+								scroll: !touchDrag,
+								bubbleScroll: false,
+								dataIdAttr: 'data-code',
+								sort: true,
+								animation: 100,
+								delay: 100,
+								delayOnTouchOnly: true,
+								onUpdate: (event) => {
+									const code = event.item.getAttribute('data-code');
+									if (code === null) {
+										return;
+									}
+
+									const semesterCodes = Array.from(event.to.children)
+										.map((c) => c.getAttribute('data-code'))
+										.filter((d) => d !== null);
+
+									// re-order semester
+									semesters = semesters.map((s, i) =>
+										i === semesterIndex ? semesterCodes : s
+									) as CourseCode[][];
+								},
+								onAdd: (event) => {
+									const code = event.item.getAttribute('data-code');
+									if (code === null) {
+										return;
+									}
+
+									const semesterCodes = Array.from(event.to.children)
+										.map((c) => c.getAttribute('data-code'))
+										.filter((d) => d !== null);
+
+									// remove course from wishlist
+									wishlist = wishlist.filter((c) => c !== code);
+
+									semesters = semesters.map((s, i) =>
+										i === semesterIndex
+											? // deduplicate semester codes and preserve order
+												[...new Set(semesterCodes)]
+											: // remove course from other semesters
+												s.filter((c) => c !== code)
+									) as CourseCode[][];
+								}
+							}}
+						>
+							{#snippet children({ code, course })}
+								<div
+									class="touch-manipulation rounded-[var(--radius-card)] text-start text-content-primary"
+									data-code={code}
+									dir={content.lang.dir}
+								>
+									<CourseElement
+										onOpen={() => goto(`/app/course/${code}`)}
+										{code}
+										{course}
+										squeeze={true}
+										scheduleError={getScheduleError(
+											getCourseData,
+											course,
+											user.d.exemptions,
+											semesters,
+											semesterIndex
+										)}
+									/>
+								</div>
+							{/snippet}
+						</Semester>
+					</div>
+				{/each}
+			{/key}
+			<div class="min-w-[0.0625rem]"></div>
+		</div>
+	</div>
+</div>
+
+<style>
+	.plan-rail {
+		scrollbar-width: thin;
+		scrollbar-color: rgb(var(--color-content-secondary) / 0.4) transparent;
+	}
+	.wishlist-rail:empty {
+		align-items: center;
+		border: 0.0625rem dashed rgb(var(--color-border));
+		border-radius: var(--radius-card, 0.875rem);
+		background: rgb(var(--color-card-primary) / 0.4);
+	}
+	.wishlist-rail:empty::before {
+		content: attr(data-empty-message);
+		padding: 1rem;
+		color: rgb(var(--color-content-secondary));
+		font-size: 0.8125rem;
+		pointer-events: none;
+	}
+	:global(.wishlist-ghost) {
+		max-block-size: 7.375rem;
+		inline-size: clamp(10rem, 42vw, 13.75rem);
+		min-inline-size: 10rem;
+		max-inline-size: 13.75rem;
+		overflow-y: hidden;
+	}
+	@media (min-width: 40rem) {
+		:global(.wishlist-ghost) {
+			inline-size: 13.75rem;
+			min-inline-size: 13.75rem;
+		}
+	}
+</style>

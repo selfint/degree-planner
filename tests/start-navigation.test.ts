@@ -2,16 +2,25 @@ import { expect, test } from '@playwright/test';
 
 const origin = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:4173';
 
-for (const region of ['header', 'main']) {
+for (const region of [
+	'header',
+	'main',
+	'[data-testid="landing-install-info"]'
+]) {
 	test(`${region} Start link works before JavaScript loads`, async ({
 		page
 	}) => {
 		await page.route('**/_app/**/*.js', (route) => route.abort());
 		await page.goto(origin);
-		const start = page.locator(`${region} a[href="/settings"]`);
+		const start = page.locator(region).getByRole('link', {
+			name:
+				region === '[data-testid="landing-install-info"]'
+					? /^(Open PlanIt|פתיחת PlanIt)$/
+					: /^(Get Started|התחל)$/
+		});
 		await expect(start).toBeVisible();
 		await start.click();
-		await expect(page).toHaveURL(`${origin}/settings`);
+		await expect(page).toHaveURL(/\/app\/?$/);
 	});
 }
 
@@ -20,8 +29,11 @@ test('Start works with JavaScript disabled', async ({ browser }) => {
 	try {
 		const page = await context.newPage();
 		await page.goto(origin);
-		await page.locator('main a[href="/settings"]').click();
-		await expect(page).toHaveURL(`${origin}/settings`);
+		await page
+			.locator('main')
+			.getByRole('link', { name: /^(Get Started|התחל)$/ })
+			.click();
+		await expect(page).toHaveURL(/\/app\/?$/);
 	} finally {
 		await context.close();
 	}
@@ -46,7 +58,7 @@ test('a stalled analytics IndexedDB check does not block hydration or Start', as
 	const start = page.locator('main').getByRole('link', { name: 'Get Started' });
 	await expect(start).toBeVisible();
 	await start.click();
-	await expect(page).toHaveURL(`${origin}/settings`);
+	await expect(page).toHaveURL(`${origin}/app/settings`);
 	await expect(
 		page.getByRole('heading', { name: 'Guest', exact: true })
 	).toBeVisible();
@@ -72,7 +84,7 @@ test('blocked Firebase endpoints still allow a guest to start without losing the
 	);
 	await page.goto(origin);
 	await page.locator('main').getByRole('link', { name: 'Get Started' }).click();
-	await expect(page).toHaveURL(`${origin}/settings`);
+	await expect(page).toHaveURL(`${origin}/app/settings`);
 	await expect(
 		page.getByRole('heading', { name: 'Guest', exact: true })
 	).toBeVisible();
@@ -93,14 +105,14 @@ test('repeated clicks keep one settings history entry and support Back/Forward',
 		(element as HTMLAnchorElement).click();
 		(element as HTMLAnchorElement).click();
 	});
-	await expect(page).toHaveURL(`${origin}/settings`);
+	await expect(page).toHaveURL(`${origin}/app/settings`);
 	await page.goBack();
 	await expect(page).toHaveURL(`${origin}/`);
 	await page.goForward();
-	await expect(page).toHaveURL(`${origin}/settings`);
+	await expect(page).toHaveURL(`${origin}/app/settings`);
 });
 
-test('a keyboard click shows progress while the settings route is slow', async ({
+test('a keyboard click shows the console boot screen while route scripts are slow', async ({
 	page
 }) => {
 	await page.addInitScript(() => localStorage.setItem('lang', 'en'));
@@ -118,7 +130,7 @@ test('a keyboard click shows progress while the settings route is slow', async (
 	});
 	await start.focus();
 	await page.keyboard.press('Enter');
-	await expect(start).toHaveAttribute('aria-busy', 'true');
+	await expect(page.locator('#console-boot')).toBeVisible();
 	resume();
-	await expect(page).toHaveURL(`${origin}/settings`);
+	await expect(page).toHaveURL(`${origin}/app/settings`);
 });

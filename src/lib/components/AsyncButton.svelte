@@ -20,15 +20,10 @@
 		disabled: _disabled = false
 	}: Props = $props();
 
-	const bg = $derived(
-		variant === 'primary'
-			? 'bg-accent-primary text-content-on-accent'
-			: 'bg-card-secondary text-content-primary'
-	);
-
 	let inProgress = $state(false);
 
 	async function onclick() {
+		if (inProgress || disabled) return;
 		try {
 			inProgress = true;
 
@@ -63,17 +58,15 @@
 	});
 </script>
 
-{#if inProgress}
-	<div class="h-7 w-7">
-		<Spinner />
-	</div>
-{:else}
-	<button
-		{disabled}
-		class="h-full rounded-md border border-transparent p-0.5 pl-3 pr-3 leading-tight {bg}"
-		{onclick}
-		class:opacity-50={disabled}
-	>
-		{@render children()}
-	</button>
-{/if}
+<button
+	type="button"
+	disabled={disabled || inProgress}
+	aria-busy={inProgress}
+	class="ui-button relative ui-button--{variant}"
+	{onclick}
+>
+	<span class:opacity-0={inProgress}>{@render children()}</span>
+	{#if inProgress}
+		<span class="absolute h-4 w-4" aria-hidden="true"><Spinner /></span>
+	{/if}
+</button>

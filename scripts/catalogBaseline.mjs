@@ -1,5 +1,6 @@
 import { existsSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { programKeys } from './catalogData.mjs';
 import { readJsonIfPresent } from './dataOutput.mjs';
 
 // Only complete disappearance of a still-requested, previously populated scope
@@ -8,7 +9,9 @@ export function readCatalogBaseline(root) {
 	const semesters = new Set();
 	const faculties = new Set();
 	const tracks = new Set();
-	const previous = readJsonIfPresent(resolve(root, 'catalogs.json'));
+	const previous =
+		readJsonIfPresent(resolve(root, 'scripts/.cache/catalogs.raw.json')) ??
+		readJsonIfPresent(resolve(root, 'catalogs.json'));
 	if (previous) {
 		for (const { track, tree } of previous) {
 			const semester = `${track.Peryr}/${track.Perid}`;
@@ -16,6 +19,20 @@ export function readCatalogBaseline(root) {
 			faculties.add(`${semester}/${track.OrgId}`);
 			if (tree?.children?.length || tree?.courses?.length)
 				tracks.add(`${semester}/${track.Otjid}`);
+		}
+	}
+	// The committed JSON is also a baseline: a stale/local raw cache must not
+	// hide populated scopes from the published additive catalog snapshot.
+	const manifest = readJsonIfPresent(resolve(root, 'static/catalogs.json'));
+	if (manifest) {
+		for (const key of programKeys(manifest)) {
+			const [catalog, faculty, program] = key.split('/');
+			const match = program.match(/^(SC\d+)_/);
+			if (!match) continue;
+			const semester = catalog.replace('_', '/');
+			semesters.add(semester);
+			faculties.add(`${semester}/${faculty}`);
+			tracks.add(`${semester}/${match[1]}`);
 		}
 	} else {
 		const path = resolve(root, 'static/_catalogs');

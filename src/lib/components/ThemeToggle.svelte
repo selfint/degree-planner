@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { content } from '$lib/stores.svelte';
+	import { content } from '$lib/preferences.svelte';
 	import {
 		applyTheme,
 		parseTheme,
@@ -43,7 +43,7 @@
 		? content.lang.header.switchToLight
 		: content.lang.header.switchToDark}
 	onclick={toggleTheme}
-	class="flex h-11 w-11 shrink-0 items-center justify-center rounded-md text-content-secondary hover:bg-card-primary hover:text-content-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-primary"
+	class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-border text-content-secondary hover:bg-card-primary hover:text-content-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-primary"
 >
 	<svg
 		aria-hidden="true"

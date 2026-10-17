@@ -50,13 +50,13 @@ test.beforeEach(async ({ page }) => {
 			})
 		);
 	});
-	await page.route('**/courseDataStripped.json', (route) =>
+	// Startup now syncs the canonical full dataset; both views use this fixture.
+	await page.route(/\/courseData(?:Stripped)?\.json(?:\?.*)?$/, (route) =>
 		route.fulfill({ json: courses })
 	);
-	// Navigate client-side so the fixture replaces the course-data request,
-	// rather than the real catalog being inlined by server-side rendering.
-	await page.goto('/');
-	await page.locator('a[href="/plan"]').click();
+	// The console is client-rendered; the public fixture is never SSR-inlined.
+	// Landing deliberately no longer reads the user's plan or renders plan links.
+	await page.goto('/app/plan');
 	await expect(page.getByText('First course')).toBeVisible();
 });
 
@@ -140,7 +140,7 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 				});
 				await expect(ghost).toHaveCount(0);
 				await expect(page.locator('[data-code="10400001"]')).toHaveCount(1);
-				await expect(page).toHaveURL(/\/plan$/);
+				await expect(page).toHaveURL(/\/app\/plan$/);
 			});
 		}
 
@@ -616,7 +616,7 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 			await expect(page.locator('.sortable-fallback')).toHaveCount(0);
 			await expect(page.locator('[data-plan-drag-overlay]')).toHaveCount(0);
 			await expect(page.locator(`[data-code="${code}"]`)).toHaveCount(1);
-			await expect(page).toHaveURL(/\/plan$/);
+			await expect(page).toHaveURL(/\/app\/plan$/);
 		}
 
 		test('repeated touch moves between semesters and the wishlist can be saved or cancelled', async ({
@@ -676,11 +676,40 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 			const secondSemester = page.locator('[data-semester="1"]');
 			const wishlist = page.getByTestId('plan-wishlist');
 			const second = (await secondSemester.boundingBox())!;
-			expect(second.height).toBeGreaterThan(250);
+			// The iPhone profile has a 664px viewport inside its 844px screen.
+			// With readable chrome and the readiness notice, require usable space
+			// that fills the viewport or real course content, not a fixed 250px.
+			const lastOccupied = (await page
+				.locator('[data-semester="0"] [data-code]')
+				.last()
+				.boundingBox())!;
+			const bottomSpacing = await page
+				.locator('.plan-page')
+				.evaluate((plan) => {
+					const rail = plan.querySelector('[data-testid="semester-scroller"]')!;
+					return (
+						parseFloat(getComputedStyle(plan).marginBottom) +
+						parseFloat(getComputedStyle(rail).paddingBottom)
+					);
+				});
+			const available = page.viewportSize()!.height - second.y - bottomSpacing;
+			expect(second.height).toBeGreaterThanOrEqual(128);
+			expect(second.height + 1).toBeGreaterThanOrEqual(
+				Math.max(available, lastOccupied.y + lastOccupied.height - second.y)
+			);
+			expect(second.y + second.height).toBeLessThanOrEqual(
+				Math.max(
+					page.viewportSize()!.height,
+					lastOccupied.y + lastOccupied.height
+				) + 1
+			);
+			if (available > 250) expect(second.height).toBeGreaterThan(250);
 			const bottom = {
 				x: second.x + second.width / 2,
 				y: second.y + second.height - 20
 			};
+			expect(bottom.y).toBeGreaterThan(0);
+			expect(bottom.y).toBeLessThan(page.viewportSize()!.height);
 			await dragTo(page, touch, '10400003', bottom);
 			await expect(
 				secondSemester.locator('[data-code="10400003"]')
@@ -712,17 +741,33 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 			const secondSemester = page.locator('[data-semester="1"]');
 			const rect = (await secondSemester.boundingBox())!;
 			expect(rect.height).toBeGreaterThanOrEqual(128);
-			expect(rect.y + rect.height).toBeLessThan(540);
-			const documentHeight = await page.evaluate(
-				() => document.documentElement.scrollHeight
+			const lastOccupied = (await page
+				.locator('[data-semester="0"] [data-code]')
+				.last()
+				.boundingBox())!;
+			// Readable cards, a two-row header, and a visible readiness notice can
+			// require scrolling on a 540px screen. Empty columns must grow only as
+			// far as the real courses, never add another viewport of blank space.
+			expect(rect.y + rect.height).toBeLessThanOrEqual(
+				lastOccupied.y + lastOccupied.height + 16
 			);
-			// A wrapped footer may extend below a short screen; the planner itself
-			// must fit without creating another viewport of blank scrolling.
+			const pageSize = await page.evaluate(() => ({
+				height: document.documentElement.scrollHeight,
+				scrollY: window.scrollY
+			}));
 			const footerHeight = (await page.locator('footer').boundingBox())!.height;
-			expect(documentHeight).toBeLessThanOrEqual(540 + footerHeight);
+			expect(pageSize.height).toBeLessThanOrEqual(
+				Math.max(
+					540,
+					lastOccupied.y + lastOccupied.height + pageSize.scrollY + 32
+				) + footerHeight
+			);
+			await secondSemester.scrollIntoViewIfNeeded();
+			const visible = (await secondSemester.boundingBox())!;
+			expect(visible.y + visible.height).toBeLessThan(540);
 			await dragTo(page, touch, '10400001', {
-				x: rect.x + rect.width / 2,
-				y: rect.y + rect.height - 15
+				x: visible.x + visible.width / 2,
+				y: visible.y + visible.height - 15
 			});
 			await expect(
 				secondSemester.locator('[data-code="10400001"]')
@@ -737,6 +782,11 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 			page,
 			context
 		}) => {
+			// Build real in-console history: Back must unmount the plan via the
+			// client router, rather than leaving the console for a new document.
+			await page.goto('/app/search');
+			await page.locator('a[href="/app/plan"]').click();
+			await expect(page.getByText('First course')).toBeVisible();
 			const rect = (await page
 				.locator('[data-code="10400001"]')
 				.boundingBox())!;
@@ -763,15 +813,15 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 			await page.waitForTimeout(150);
 			// Browser Back unmounts the plan without ending the gesture first.
 			await page.goBack();
-			await expect(page).toHaveURL(/\/$/);
+			await expect(page).toHaveURL(/\/app\/search$/);
 			await expect(page.locator('.sortable-fallback')).toHaveCount(0);
 			await expect(page.locator('[data-plan-drag-overlay]')).toHaveCount(0);
 			await touch.send('Input.dispatchTouchEvent', {
 				type: 'touchCancel',
 				touchPoints: []
 			});
-			await page.locator('a[href="/plan"]').click();
-			await expect(page).toHaveURL(/\/plan$/);
+			await page.locator('a[href="/app/plan"]').click();
+			await expect(page).toHaveURL(/\/app\/plan$/);
 			await expect(page.locator('[data-code]')).toHaveCount(3);
 		});
 

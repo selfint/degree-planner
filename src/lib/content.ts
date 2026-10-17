@@ -34,6 +34,11 @@ export const cms = {
 			author: 'Tom Selfin',
 			reportIssue: 'Report an issue'
 		},
+		error: {
+			notFound: 'Page Not Found',
+			loadFailed: 'Unable to load this page',
+			retry: 'Check your connection, then reload the page.'
+		},
 		landing: {
 			catchphrase: ['Plan your degree', 'with ease.'],
 			howItWorks: [
@@ -221,6 +226,11 @@ export const cms = {
 			createdBy: 'נוצר על ידי',
 			author: 'תום סלפין',
 			reportIssue: 'דווח על בעיה'
+		},
+		error: {
+			notFound: 'הדף לא נמצא',
+			loadFailed: 'לא ניתן לטעון את הדף',
+			retry: 'בדקו את החיבור לאינטרנט וטענו מחדש את הדף.'
 		},
 		landing: {
 			catchphrase: ['תכנן את התואר', 'בקלות.'],

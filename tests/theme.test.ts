@@ -29,7 +29,7 @@ test('defaults to dark and supports keyboard switching with persistence', async 
 		.getByRole('link', { name: 'Get Started', exact: true })
 		.first()
 		.click();
-	await expect(page).toHaveURL(/\/settings/);
+	await expect(page).toHaveURL(/\/app\/settings/);
 	await expect(toggle).toHaveAttribute('aria-pressed', 'true');
 	await toggle.click();
 	await expect(page.locator('body')).toHaveCSS(
@@ -76,7 +76,7 @@ for (const { language, label, direction } of [
 				})
 			);
 		}, language);
-		await page.goto(origin + '/plan');
+		await page.goto(origin + '/app/plan');
 		const footer = page.locator('footer');
 		const toggle = footer.getByRole('button', { name: label, exact: true });
 		await toggle.click();

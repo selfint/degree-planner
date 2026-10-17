@@ -1,15 +1,16 @@
 # PlanIt visual refresh
 
 This pass keeps the existing PlanIt logo, teal accent and light/dark preferences.
-It focuses on readable mobile layouts and consistent controls rather than new
-application behavior.
+The console prioritizes compact task layouts, SAP course content and direct
+controls. Explanatory and marketing copy stays on the landing.
 
 ## Shared foundation
 
 - Color, surface, border, radius and shadow tokens live in `src/app.css`.
 - `ui-button`, `ui-field`, `ui-panel`, `ui-page`, `ui-page-title` and `ui-notice`
-  provide shared sizing and hierarchy. Interactive controls use a 2.75rem minimum
-  target. Text and layout dimensions use rem; responsive containers stay fluid.
+  provide shared sizing and hierarchy. Console controls use compact 2.25rem
+  targets; landing primary actions retain 2.75rem targets. Editable text stays
+  at 1rem to avoid mobile input zoom. Dimensions use rem; containers stay fluid.
 - Secondary text and primary action labels meet 4.5:1 contrast in both themes,
   covered by `src/lib/designTokens.test.ts`.
 - Logical spacing and automatic direction on bilingual course titles preserve
@@ -20,8 +21,14 @@ application behavior.
 The landing uses a clearer introduction and aligned demonstration sections.
 Installation guidance is always visible at the bottom, without starting console
 services. Console navigation remains available before selecting a degree, and
-mobile search has its own full-width row. Course cards keep a readable minimum
-width inside intentional horizontal rails; semester metrics are labeled.
+mobile search has its own full-width row. Mobile planner rails show three full
+course cards and a visible fourth-card peek at 320px and 390px in both directions.
+Full course names remain in accessible text and titles. Search uses compact
+full-width result rows on narrow screens. Semester metrics remain concise.
+
+Healthy/preparing status takes no space. Exceptional setup or waiting-update
+status uses one header indicator with optional details, without moving task
+content. Offline write reasons stay near disabled actions.
 
 The startup view contains the existing brand and an indeterminate bar, plus a
 localized screen-reader status. The root layout shows it only when entering the

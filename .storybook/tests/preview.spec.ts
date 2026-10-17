@@ -629,6 +629,11 @@ test('compact planner rails show three full items and the next item at mobile wi
 					)
 					.toEqual({ full: 3, peek: 1 });
 			}
+			// Capture the initial density before keyboard focus scrolls a later semester into view.
+			await page.screenshot({
+				path: test.info().outputPath(`compact-plan-${width}-${direction}.png`),
+				fullPage: true
+			});
 			const exams = page.locator('.semester-exams');
 			await expect(exams).not.toHaveAttribute('open', '');
 			await exams.locator('summary').focus();
@@ -642,10 +647,6 @@ test('compact planner rails show three full items and the next item at mobile wi
 					() => document.documentElement.scrollWidth - innerWidth
 				)
 			).toBeLessThanOrEqual(1);
-			await page.screenshot({
-				path: test.info().outputPath(`compact-plan-${width}-${direction}.png`),
-				fullPage: true
-			});
 		}
 	}
 });

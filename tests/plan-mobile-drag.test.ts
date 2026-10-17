@@ -687,9 +687,16 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 				.locator('.plan-page')
 				.evaluate((plan) => {
 					const rail = plan.querySelector('[data-testid="semester-scroller"]')!;
+					// The rail is flipped to put its scrollbar on top. Its CSS bottom
+					// padding is therefore visually above the counter-flipped row.
+					const row = rail.firstElementChild!;
+					const visualBottomInset = Math.max(
+						0,
+						rail.getBoundingClientRect().bottom -
+							row.getBoundingClientRect().bottom
+					);
 					return (
-						parseFloat(getComputedStyle(plan).marginBottom) +
-						parseFloat(getComputedStyle(rail).paddingBottom)
+						parseFloat(getComputedStyle(plan).marginBottom) + visualBottomInset
 					);
 				});
 			const available = page.viewportSize()!.height - second.y - bottomSpacing;
@@ -752,9 +759,16 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 				.locator('.plan-page')
 				.evaluate((plan) => {
 					const rail = plan.querySelector('[data-testid="semester-scroller"]')!;
+					// The rail is flipped to put its scrollbar on top. Its CSS bottom
+					// padding is therefore visually above the counter-flipped row.
+					const row = rail.firstElementChild!;
+					const visualBottomInset = Math.max(
+						0,
+						rail.getBoundingClientRect().bottom -
+							row.getBoundingClientRect().bottom
+					);
 					return (
-						parseFloat(getComputedStyle(plan).marginBottom) +
-						parseFloat(getComputedStyle(rail).paddingBottom)
+						parseFloat(getComputedStyle(plan).marginBottom) + visualBottomInset
 					);
 				});
 			// Dense chrome can now leave room below the real courses. Fill exactly
@@ -914,7 +928,7 @@ test.describe('mouse drop zones', () => {
 		await expect(secondSemester.locator('[data-code]')).toHaveCount(2);
 		const emptyWish = (await wishlist.boundingBox())!;
 		expect(emptyWish.width).toBeGreaterThan(1200);
-		expect(emptyWish.height).toBeGreaterThan(60);
+		expect(emptyWish.height).toBeCloseTo(48, 0);
 		await page.locator('[data-code="10400002"]').dragTo(wishlist, {
 			targetPosition: { x: 40, y: emptyWish.height - 10 }
 		});
@@ -926,3 +940,87 @@ test.describe('mouse drop zones', () => {
 		await expect(wishlist.locator('[data-code="10400003"]')).toHaveCount(1);
 	});
 });
+
+for (const width of [320, 390]) {
+	for (const language of ['en', 'he']) {
+		test(`initial ${language} rails start with the first three courses and a fourth peek (${width}px)`, async ({
+			page
+		}) => {
+			await page.setViewportSize({ width, height: 664 });
+			await page.route(/\/courseData(?:Stripped)?\.json(?:\?.*)?$/, (route) =>
+				route.fulfill({
+					json: Object.fromEntries(
+						Array.from({ length: 9 }, (_, index) => {
+							const code = String(10400001 + index);
+							return [
+								code,
+								{
+									code,
+									name:
+										index === 0
+											? 'First course'
+											: index === 1
+												? 'Second course'
+												: index === 2
+													? 'Wishlist course'
+													: `Course ${index + 1}`,
+									points: 5
+								}
+							];
+						})
+					)
+				})
+			);
+			await page.evaluate((language) => {
+				localStorage.setItem('lang', language);
+				const data = JSON.parse(localStorage.getItem('userData')!);
+				data.semesters = Array.from({ length: 5 }, (_, index) => [
+					String(10400001 + index)
+				]);
+				data.wishlist = Array.from({ length: 4 }, (_, index) =>
+					String(10400006 + index)
+				);
+				localStorage.setItem('userData', JSON.stringify(data));
+			}, language);
+			// A real reload mounts the plan under the console's auth-pending hidden
+			// main. Do not focus or scroll a card before checking initial placement.
+			await page.reload();
+			await expect(page.locator('main')).toBeVisible();
+			await expect(page.locator('[data-semester="0"] .course-name')).toHaveText(
+				'First course'
+			);
+			for (const [testId, selector] of [
+				['semester-scroller', '[data-semester]'],
+				['wishlist-scroller', '[data-code]']
+			] as const) {
+				const rail = page.getByTestId(testId);
+				await expect
+					.poll(() =>
+						rail.evaluate((element, rtl) => {
+							const start = rtl ? element.scrollWidth - element.clientWidth : 0;
+							return Math.abs(element.scrollLeft - start);
+						}, language === 'he')
+					)
+					.toBeLessThan(1);
+				const ratios = await rail.evaluate((element, selector) => {
+					const viewport = element.getBoundingClientRect();
+					return [...element.querySelectorAll(selector)].map((column) => {
+						const box = column.getBoundingClientRect();
+						return (
+							Math.max(
+								0,
+								Math.min(viewport.right, box.right) -
+									Math.max(viewport.left, box.left)
+							) / box.width
+						);
+					});
+				}, selector);
+				for (const ratio of ratios.slice(0, 3))
+					expect(ratio).toBeGreaterThanOrEqual(0.99);
+				expect(ratios[3]).toBeGreaterThanOrEqual(0.1);
+				expect(ratios[3]).toBeLessThanOrEqual(0.85);
+				if (ratios[4] !== undefined) expect(ratios[4]).toBe(0);
+			}
+		});
+	}
+}

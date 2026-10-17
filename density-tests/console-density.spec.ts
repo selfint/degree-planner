@@ -153,6 +153,15 @@ async function measure(page: Page, route: string) {
 			wishlistCardRatios: horizontalRatios(
 				'[data-testid="plan-wishlist"] > [data-code]'
 			),
+			railScroll: [...document.querySelectorAll('[data-plan-scroll]')].map(
+				(rail) => ({
+					id: rail.getAttribute('data-testid'),
+					scrollLeft: round(rail.scrollLeft),
+					clientWidth: rail.clientWidth,
+					scrollWidth: rail.scrollWidth,
+					direction: getComputedStyle(rail).direction
+				})
+			),
 			horizontalOverflow: document.documentElement.scrollWidth > innerWidth + 1
 		};
 	}, route);
@@ -259,9 +268,10 @@ for (const viewport of [
 					checkpoints.push('initial-direction-plan-geometry-captured');
 
 					const search = page.locator('header.title-bar input[type="text"]');
-					await search.fill('023401');
+					// Six-digit numbers are legacy exact codes; use a five-digit prefix.
+					await search.fill('02340');
 					await search.press('Enter');
-					await expect(page).toHaveURL(`${origin}/app/search?q=023401`);
+					await expect(page).toHaveURL(`${origin}/app/search?q=02340`);
 					await expect(page.locator('main ul > li')).not.toHaveCount(0);
 					await expect(
 						page.locator('details.search-filters')

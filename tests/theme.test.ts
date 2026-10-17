@@ -91,8 +91,14 @@ for (const { language, label, direction } of [
 			)
 		).toBe(true);
 		const box = await toggle.boundingBox();
-		expect(box?.width).toBeGreaterThanOrEqual(44);
-		expect(box?.height).toBeGreaterThanOrEqual(44);
+		// The console footer uses the compact 2.25rem control; the landing keeps 2.75rem.
+		const rem = await page.evaluate(() =>
+			Number.parseFloat(getComputedStyle(document.documentElement).fontSize)
+		);
+		expect(box?.width).toBeGreaterThanOrEqual(2.25 * rem);
+		expect(box?.height).toBeGreaterThanOrEqual(2.25 * rem);
+		await toggle.focus();
+		await expect(toggle).toBeFocused();
 		await expect(
 			page.locator('header').getByRole('button', { name: label, exact: true })
 		).toHaveCount(0);

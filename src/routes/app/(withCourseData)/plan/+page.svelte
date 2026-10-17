@@ -12,6 +12,7 @@
 	import PlanActionButton from '$lib/components/PlanActionButton.svelte';
 	import { startPlanDrag, endPlanDrag, makePlanSortable } from '$lib/planDrag';
 	import { fitPlanToViewport } from '$lib/fitPlanToViewport';
+	import { initializePlanScroll } from '$lib/initializePlanScroll';
 
 	const { data: pageData } = $props();
 	const { getCourseData } = $derived(pageData);
@@ -57,16 +58,6 @@
 	let buttonNamespace = $state('');
 	async function onSave() {
 		setUser(await writeStorage({ ...user.d, wishlist, semesters }));
-	}
-
-	function initializePlanScroll(el: HTMLElement, direction: string) {
-		function update(direction: string) {
-			// Sortable's edge scrolling assumes nonnegative scrollLeft. Keep the
-			// scroller LTR, but start at the right edge for the RTL course row.
-			el.scrollLeft = direction === 'rtl' ? el.scrollWidth : 0;
-		}
-		update(direction);
-		return { update };
 	}
 </script>
 

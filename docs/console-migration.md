@@ -66,8 +66,10 @@ loading, unvisited offline courses and reloads using the deployed worker, consol
 home navigation and Back/Forward, read-only guest actions and reconnect writes,
 and iPhone-user-agent landing install guidance, including its no-service-startup
 boundary. The console footer contains only attribution, reporting and preferences.
-Readiness stays an internal shell/data condition; preparation, error and update
-notices appear above console content only when needed. Screenshots and sanitized QA JSON are
+Readiness stays an internal shell/data condition. Preparation and healthy status take
+no layout space; exceptional setup/update states use one compact header indicator
+with optional details. Offline write actions explain their disabled state locally.
+Screenshots and sanitized QA JSON are
 uploaded even on failures. No real account is used. The deliberate course-data
 pause checks the loading screen, not natural startup speed. Physical iOS and
 live account login remain outside this emulation; old-install migration and
@@ -75,6 +77,6 @@ controlled update transitions stay in the production-build proxy suite.
 
 ## Branded startup and component review
 
-The startup screen uses the existing PlanIt logo and wordmark, localized status text and an indeterminate progress line. It respects reduced motion, light/dark preferences, right-to-left layout and short screens. It does not invent a download percentage. The critical pre-hydration markup and hydrated component share tested styling; landing visits do not request the console brand assets.
+The startup screen uses the existing PlanIt logo and wordmark with an indeterminate progress line. Localized status is available to screen readers without extra visible copy. It respects reduced motion, light/dark preferences, right-to-left layout and short screens. It does not invent a download percentage. The critical pre-hydration markup and hydrated component share tested styling; landing visits do not request the console brand assets.
 
-Storybook exposes 180 meaningful states across 44 groups. Every reusable component and visible route screen is inventoried; lifecycle-only wrappers use the same extracted presentation components without starting account or storage services. Theme, language and direction are global toolbar controls. The canvas keeps the default available size. See [the component inventory](storybook.md).
+Storybook exposes 190 meaningful states across 44 groups. Every reusable component and visible route screen is inventoried; lifecycle-only wrappers use the same extracted presentation components without starting account or storage services. Theme, language and direction are global toolbar controls. The canvas keeps the default available size. See [the component inventory](storybook.md).

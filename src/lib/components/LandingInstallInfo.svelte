@@ -58,7 +58,7 @@
 			<a
 				href="/app/"
 				data-sveltekit-reload
-				class="ui-button ui-button--primary"
+				class="ui-button ui-button--primary min-h-11"
 			>
 				{text.open}
 			</a>

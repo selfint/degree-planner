@@ -1,9 +1,62 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Locator } from '@playwright/test';
+import { pwaMessages } from '../../src/lib/pwa/messages';
 import { coverage } from '../coverage';
 
 const controls = 'components-button--primary';
 const storyUrl = (id: string) =>
 	`/storybook/iframe.html?id=${id}&viewMode=story`;
+
+async function expectCompactAction(button: Locator) {
+	await expect(button).toHaveCSS('white-space', 'nowrap');
+	const box = await button.boundingBox();
+	expect(box!.height).toBeGreaterThanOrEqual(35.5);
+	expect(box!.height).toBeLessThanOrEqual(36.5);
+}
+
+async function expectOriginalCardHierarchy(card: Locator) {
+	const body = card.locator('.course-body');
+	const name = body.locator('.course-copy > .course-name');
+	await expect(name).toBeVisible();
+	const title = await name.getAttribute('title');
+	expect(title).toBeTruthy();
+	await expect(name).toHaveText(title!);
+	await expect(name).toHaveCSS('display', 'inline');
+	await expect(name).toHaveCSS('white-space', 'normal');
+	await expect(body.locator('.course-copy')).toHaveCSS('white-space', 'normal');
+	await expect(body.locator('.course-copy')).toHaveCSS('overflow', 'visible');
+	await expect(body.locator('.course-copy')).toHaveCSS(
+		'-webkit-line-clamp',
+		'none'
+	);
+	await expect(body.locator('.course-name + .course-code')).toHaveCount(1);
+	await expect(body.locator('.course-code')).toHaveCSS('display', 'inline');
+	await expect(body.locator('.course-code')).toHaveAttribute('dir', 'ltr');
+	await expect(
+		body.locator('.course-meta .course-markers .course-marker')
+	).toBeVisible();
+	await expect(
+		body.locator('.course-meta .course-stats > .course-median')
+	).toBeVisible();
+	await expect(body.locator('.course-median + .course-points')).toBeVisible();
+	await expect(body).toHaveCSS('padding', '6px');
+	const hierarchy = await body.evaluate((el) => {
+		const meta = el.querySelector('.course-meta')!;
+		const copy = el.querySelector('.course-copy')!;
+		return {
+			children: Array.from(el.children, (child) =>
+				child.classList.contains('course-meta')
+					? 'metadata'
+					: child.classList.contains('course-copy')
+						? 'copy'
+						: 'other'
+			),
+			metadataBottom: meta.getBoundingClientRect().bottom,
+			copyTop: copy.getBoundingClientRect().top
+		};
+	});
+	expect(hierarchy.children).toEqual(['metadata', 'copy']);
+	expect(hierarchy.metadataBottom).toBeLessThanOrEqual(hierarchy.copyTop);
+}
 
 test('deployed /storybook opens the real Storybook manager and survives a direct reload', async ({
 	page,
@@ -137,16 +190,22 @@ test('individual controls are interactive and disabled states stay disabled', as
 	page
 }) => {
 	await page.goto(storyUrl(controls));
+	await expectCompactAction(page.getByRole('button', { name: 'Add semester' }));
 	await page.getByRole('button', { name: 'Add semester' }).click();
 	await expect(page.getByText('Semesters added: 1')).toBeVisible();
 	await page.goto(storyUrl('components-asyncbutton--primary'));
-	await page.getByRole('button', { name: 'Save plan', exact: true }).click();
+	const save = page.getByRole('button', { name: 'Save plan', exact: true });
+	await expectCompactAction(save);
+	const idleWidth = (await save.boundingBox())!.width;
+	await save.click();
 	await expect(
 		page.getByRole('button', { name: 'Save plan', exact: true })
 	).toBeDisabled();
 	await expect(
 		page.getByRole('button', { name: 'Save plan', exact: true })
 	).toHaveAttribute('aria-busy', 'true');
+	await expectCompactAction(save);
+	expect((await save.boundingBox())!.width).toBe(idleWidth);
 	await page.getByRole('button', { name: 'Complete demo action' }).click();
 	await expect(page.getByText('Completed actions: 1')).toBeVisible();
 	await page.goto(storyUrl('components-button--disabled-primary'));
@@ -159,6 +218,7 @@ test('individual controls are interactive and disabled states stay disabled', as
 		await page.goto(storyUrl(`components-planactionbutton--${state}`));
 		const action = page.getByRole('button', { name: 'Save demo plan' });
 		await expect(action).toBeDisabled();
+		await expectCompactAction(action);
 		await expect(action).toHaveAccessibleDescription(
 			/Reconnect to edit or save/
 		);
@@ -365,6 +425,10 @@ test('PWA status stays out of flow until its compact indicator is opened', async
 			expect(bounds!.x).toBeGreaterThanOrEqual(0);
 			expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(width);
 			if (state === 'unavailable') {
+				await expect(details.locator('.refresh-error-detail')).toHaveText(
+					'Example offline setup failed: browser storage quota exceeded.'
+				);
+				await expect(page.getByTestId('pwa-refresh-error')).toHaveCount(0);
 				await page
 					.getByRole('button', { name: /^(Try again|נסו שוב)$/ })
 					.click();
@@ -381,6 +445,88 @@ test('PWA status stays out of flow until its compact indicator is opened', async
 			async () => (await navigator.serviceWorker.getRegistrations()).length
 		)
 	).toBe(0);
+});
+
+test('refresh failures preserve stored-data truth and share one update indicator', async ({
+	page
+}) => {
+	test.setTimeout(60_000);
+	for (const [width, language, theme, direction] of [
+		[320, 'he', 'light', 'rtl'],
+		[390, 'en', 'dark', 'ltr']
+	] as const) {
+		await page.setViewportSize({ width, height: 800 });
+		const text = pwaMessages[language];
+		for (const state of [
+			'cached-refresh-failure',
+			'update-refresh-failure',
+			'cached-refresh-shell-unavailable'
+		]) {
+			await page.goto(
+				`${storyUrl(`components-pwastatus--${state}`)}&globals=language:${language};theme:${theme};direction:${direction}`
+			);
+			const root = page.getByTestId('pwa-status');
+			const details = root.locator('.pwa-details');
+			const summary = details.locator('summary');
+			await expect(root).toHaveAttribute(
+				'data-state',
+				state === 'cached-refresh-shell-unavailable' ? 'error' : 'ready'
+			);
+			await expect(root).toHaveAttribute('data-refresh-state', 'error');
+			await expect(summary).toHaveCount(1);
+			await expect(summary).toHaveAccessibleName(text.refreshFailed);
+			await expect(details).not.toHaveAttribute('open', '');
+			const slot = page.getByTestId('pwa-preview-slot');
+			const height = await slot.evaluate(
+				(el) => el.getBoundingClientRect().height
+			);
+			expect(height).toBe(36);
+			await summary.focus();
+			await summary.press('Enter');
+			await expect(page.getByTestId('pwa-refresh-error')).toHaveText(
+				text.cachedRefreshFailed
+			);
+			await expect(page.getByTestId('pwa-refresh-error')).toBeVisible();
+			await expect(details.locator('.refresh-error-detail')).toHaveText(
+				'Example course refresh failed: response validation rejected missing course names.'
+			);
+			await expect(details.locator('.refresh-error-detail')).toHaveAttribute(
+				'dir',
+				'auto'
+			);
+			await expect(page.getByTestId('pwa-incomplete')).toHaveCount(0);
+			await expect(page.getByTestId('pwa-update')).toHaveCount(
+				state === 'update-refresh-failure' ? 1 : 0
+			);
+			if (state === 'update-refresh-failure')
+				await expect(page.getByTestId('pwa-update')).toBeVisible();
+			expect(
+				await slot.evaluate((el) => el.getBoundingClientRect().height)
+			).toBe(height);
+			const bounds = await details.locator('.pwa-panel').boundingBox();
+			expect(bounds!.x).toBeGreaterThanOrEqual(0);
+			expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(width);
+			await page.screenshot({
+				path: test.info().outputPath(`pwa-${state}-${width}.png`),
+				fullPage: true
+			});
+			const retry = page.getByRole('button', { name: text.retry, exact: true });
+			await expectCompactAction(retry);
+			await retry.click();
+			await expect(page.getByText('Retry requests: 1')).toBeVisible();
+			await page.getByRole('button', { name: /^(Close|סגירה)$/ }).click();
+			await expect(details).not.toHaveAttribute('open', '');
+			await expect(page.getByTestId('pwa-refresh-error')).not.toBeVisible();
+			await expect(summary).toHaveCount(1);
+			// Dismissal hides the details; it must not pretend an unsuccessful refresh recovered.
+			await expect(root).toHaveAttribute('data-refresh-state', 'error');
+			await summary.press('Enter');
+			await expect(page.getByTestId('pwa-refresh-error')).toBeVisible();
+			await expect(page.getByTestId('pwa-update')).toHaveCount(0);
+			await retry.click();
+			await expect(page.getByText('Retry requests: 2')).toBeVisible();
+		}
+	}
 });
 
 test('account-status presentation covers loading, retry, sign-out and offline guards', async ({
@@ -533,6 +679,20 @@ test('console surfaces remain readable and usable at narrow and wide widths', as
 						'open',
 						''
 					);
+				if (
+					[
+						'pages-search--results',
+						'pages-catalog--default',
+						'pages-shared-plan--default'
+					].includes(id)
+				) {
+					await expectOriginalCardHierarchy(
+						page.locator('.course-card').first()
+					);
+				}
+				for (const button of await page.locator('button.ui-button').all()) {
+					if (await button.isVisible()) await expectCompactAction(button);
+				}
 				const controls = page.locator(
 					'select, [data-testid="course-plan-actions"] button, details.search-filters input[type="number"], details.search-filters button'
 				);
@@ -545,7 +705,7 @@ test('console surfaces remain readable and usable at narrow and wide widths', as
 						isInput: el.matches('input, select')
 					}));
 					expect(dimensions.height).toBeGreaterThanOrEqual(35.5);
-					// Compact controls can grow for wrapped labels; avoid enforcing a 44px floor.
+					// Editable fields stay compact with 16px text; action buttons are checked above.
 					expect(dimensions.minHeight).toBeLessThanOrEqual(36);
 					if (dimensions.isInput)
 						expect(dimensions.fontSize).toBeGreaterThanOrEqual(16);
@@ -559,6 +719,33 @@ test('console surfaces remain readable and usable at narrow and wide widths', as
 	}
 });
 
+test('course cards retain original metadata and inline name/code in compact states', async ({
+	page
+}) => {
+	for (const direction of ['rtl', 'ltr']) {
+		await page.setViewportSize({ width: 320, height: 800 });
+		for (const state of ['default', 'compact', 'with-note', 'study-days']) {
+			await page.goto(
+				`${storyUrl(`components-courseelement--${state}`)}&globals=language:${direction === 'rtl' ? 'he' : 'en'};direction:${direction};theme:${direction === 'rtl' ? 'light' : 'dark'}`
+			);
+			const card = page.locator('.course-card');
+			await expectOriginalCardHierarchy(card);
+			await expect(card.locator('.course-median')).toContainText('86');
+			await expect(card.locator('.course-points')).toContainText('4');
+			if (state === 'with-note')
+				await expect(card.locator('.course-meta .course-note')).toHaveText(
+					'★ Example note'
+				);
+			if (state === 'study-days') {
+				await expect(card.locator('.course-footer')).toBeVisible();
+				const body = await card.locator('.course-body').boundingBox();
+				const footer = await card.locator('.course-footer').boundingBox();
+				expect(footer!.y).toBeGreaterThanOrEqual(body!.y + body!.height);
+			}
+		}
+	}
+});
+
 test('course card body and requirement details are separate keyboard controls', async ({
 	page
 }) => {
@@ -568,6 +755,13 @@ test('course card body and requirement details are separate keyboard controls', 
 		name: 'Course requirement details'
 	});
 	await expect(warning).toHaveAttribute('aria-expanded', 'false');
+	const warningBox = await warning.boundingBox();
+	const cardBox = await page.locator('.course-card').boundingBox();
+	expect(warningBox!.height).toBe(36);
+	expect(warningBox!.width).toBeCloseTo(cardBox!.width, 1);
+	expect(warningBox!.y).toBeGreaterThanOrEqual(
+		(await open.boundingBox())!.y + (await open.boundingBox())!.height
+	);
 	await open.focus();
 	await open.press('Enter');
 	await expect(warning).toHaveAttribute('aria-expanded', 'true');
@@ -629,6 +823,9 @@ test('compact planner rails show three full items and the next item at mobile wi
 					)
 					.toEqual({ full: 3, peek: 1 });
 			}
+			await expectOriginalCardHierarchy(
+				page.getByTestId('plan-wishlist').locator('.course-card').first()
+			);
 			// Capture the initial density before keyboard focus scrolls a later semester into view.
 			await page.screenshot({
 				path: test.info().outputPath(`compact-plan-${width}-${direction}.png`),

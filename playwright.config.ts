@@ -6,7 +6,7 @@ const mobile = {
 	hasTouch: true
 };
 const durableData =
-	/downloads every canonical course|reopens an exact previously visited course/;
+	/downloads every canonical course|reopens an exact previously visited course|reports a failed refresh/;
 
 export default defineConfig({
 	webServer: {
@@ -37,7 +37,11 @@ export default defineConfig({
 		},
 		{
 			name: 'webkit-mobile',
-			testMatch: 'search-faculty-native.test.ts',
+			testMatch: [
+				'search-faculty-native.test.ts',
+				'course-card-navigation.test.ts',
+				'console-button-layout.test.ts'
+			],
 			use: { browserName: 'webkit', ...mobile }
 		},
 		{

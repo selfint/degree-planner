@@ -205,10 +205,15 @@
 
 <PwaStatusView
 	{allReady}
+	cachedDataReady={publicData.phase === 'ready'}
 	{unavailable}
 	{shell}
 	{showPreparing}
 	{updateReady}
+	refreshError={publicData.phase === 'error'
+		? undefined
+		: publicData.refreshError}
+	setupError={publicData.error}
 	onClose={() => (updateReady = false)}
 	onRetry={() => retryOffline()}
 />

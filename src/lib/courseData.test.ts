@@ -79,11 +79,13 @@ describe('Planit-style course repository', () => {
 				repository.sync(vi.fn<typeof fetch>().mockResolvedValue(result))
 			).rejects.toThrow();
 		}
-		await repository.sync(
-			vi
-				.fn<typeof fetch>()
-				.mockResolvedValue(response(courses, { 'cache-control': 'no-store' }))
-		);
+		await expect(
+			repository.sync(
+				vi
+					.fn<typeof fetch>()
+					.mockResolvedValue(response(courses, { 'cache-control': 'no-store' }))
+			)
+		).rejects.toThrow('forbids offline storage');
 		expect(await store.getMetadata()).toEqual(before);
 		expect(await store.getCourses()).toEqual(courses);
 	});
@@ -199,15 +201,13 @@ it('reads the legacy full aggregate when migration storage is denied or full', a
 		new DOMException('full', 'QuotaExceededError')
 	);
 	const legacyStore = {
-		get: vi
-			.fn()
-			.mockResolvedValue({
-				key: '/courseData.json',
-				schemaVersion: 1,
-				data: courses,
-				validatedAt: Date.now(),
-				revision: 'old'
-			}),
+		get: vi.fn().mockResolvedValue({
+			key: '/courseData.json',
+			schemaVersion: 1,
+			data: courses,
+			validatedAt: Date.now(),
+			revision: 'old'
+		}),
 		put: vi.fn()
 	};
 	const repository = createCourseDataRepository({
@@ -224,4 +224,66 @@ it('reads the legacy full aggregate when migration storage is denied or full', a
 	expect(await repository.all(fetcher)).toEqual(courses);
 	expect(await repository.metadata()).toBeUndefined();
 	expect(fetcher).not.toHaveBeenCalled();
+});
+
+it('reports failed persistence during refresh instead of renewing an old cache', async () => {
+	const store = create();
+	const repository = createCourseDataRepository({ store });
+	await repository.sync(vi.fn<typeof fetch>().mockResolvedValue(response()));
+	const before = await store.getMetadata();
+	vi.spyOn(store, 'replace').mockRejectedValue(
+		new DOMException('Quota exceeded', 'QuotaExceededError')
+	);
+	await expect(
+		repository.sync(vi.fn<typeof fetch>().mockResolvedValue(response()))
+	).rejects.toThrow('Could not save public data: /courseData.json');
+	expect(await store.getMetadata()).toEqual(before);
+	expect(await repository.get('00104031')).toEqual(courses['00104031']);
+});
+
+describe('startup refresh results', () => {
+	it('does not erase an online refresh failure when connectivity changes during the request', async () => {
+		vi.resetModules();
+		vi.stubGlobal('window', {});
+		vi.stubGlobal('indexedDB', new IDBFactory());
+		const network = { onLine: true };
+		vi.stubGlobal('navigator', network);
+		try {
+			const { preparePublicCourseData } = await import('./publicData');
+			const fetcher = vi.fn<typeof fetch>().mockImplementation(async () => {
+				network.onLine = false;
+				throw new Error('Fixture connection interrupted');
+			});
+			expect(await preparePublicCourseData(fetcher)).toMatchObject({
+				ready: false,
+				refreshed: false,
+				refreshError: expect.stringContaining('Fixture connection interrupted')
+			});
+		} finally {
+			vi.unstubAllGlobals();
+		}
+	});
+	it('does not claim a successful refresh when an offline check finishes after reconnect', async () => {
+		vi.resetModules();
+		vi.stubGlobal('window', {});
+		vi.stubGlobal('indexedDB', new IDBFactory());
+		let first = true;
+		vi.stubGlobal('navigator', {
+			get onLine() {
+				const offline = first;
+				first = false;
+				return !offline;
+			}
+		});
+		try {
+			const { preparePublicCourseData } = await import('./publicData');
+			const result = await preparePublicCourseData(
+				vi.fn<typeof fetch>().mockRejectedValue(new Error('No stored data'))
+			);
+			expect(result).not.toHaveProperty('refreshed');
+			expect(result.ready).toBe(false);
+		} finally {
+			vi.unstubAllGlobals();
+		}
+	});
 });

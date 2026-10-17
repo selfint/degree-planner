@@ -77,61 +77,63 @@
 
 {#snippet body()}
 	<div class="course-body" class:course-body-squeezed={squeeze}>
+		<div class="course-meta text-content-secondary">
+			<div class="course-markers">
+				{#await hasTest}
+					<span
+						style="background: {color}"
+						class="course-marker rounded-sm"
+						aria-hidden="true"
+					></span>
+				{:then hasTest}
+					<span
+						style="background: {color}"
+						class="course-marker {hasTest ? 'rounded-full' : 'rounded-sm'}"
+						aria-hidden="true"
+					></span>
+				{/await}
+				{#if note !== undefined}
+					<span class="course-note"
+						>{#await course then course}{@render note(course)}{/await}</span
+					>
+				{/if}
+			</div>
+			<div class="course-stats" dir="ltr">
+				{#await course then course}
+					{#if course.median !== undefined}
+						<span class="course-median" title={content.lang.course.median}>
+							<span class="sr-only"
+								>{content.lang.course.median}:
+							</span>{course.median}
+						</span>
+					{/if}
+					{#if course.points !== undefined}
+						<span
+							class="course-points font-medium text-content-primary"
+							title={content.lang.course.points}
+						>
+							<span class="sr-only"
+								>{content.lang.course.points}:
+							</span>{course.points}
+						</span>
+					{/if}
+				{/await}
+			</div>
+		</div>
 		{#await course}
 			<div class="course-loading" aria-hidden="true">
 				<span></span><span></span>
 			</div>
 			<span class="sr-only">{content.lang.common.loading}</span>
 		{:then course}
-			<div
-				class="course-name text-start font-medium text-content-primary"
-				dir="auto"
-				title={course.name}
-			>
-				{course.name ?? content.lang.common.na}
+			<div class="course-copy text-start text-content-primary" dir="auto">
+				<span class="course-name font-medium" title={course.name}
+					>{course.name}</span
+				>
+				{' '}<span class="course-code text-content-secondary" dir="ltr"
+					>{code}</span
+				>
 			</div>
-		{/await}
-		<div
-			class="course-code-row flex min-w-0 items-center gap-1 text-content-secondary"
-		>
-			{#await hasTest then hasTest}
-				<span
-					style="background: {color}"
-					class="course-marker {hasTest ? 'rounded-full' : 'rounded-sm'}"
-					aria-hidden="true"
-				></span>
-			{/await}
-			<span class="course-code" dir="ltr">{code}</span>
-		</div>
-		<div class="course-meta text-content-secondary">
-			{#await course then course}
-				{#if course.points !== undefined}
-					<span
-						class="course-points font-medium text-content-primary"
-						title={content.lang.course.points}
-					>
-						<span class="sr-only"
-							>{content.lang.course.points}:
-						</span>{course.points}<span aria-hidden="true">
-							{content.lang.lang === 'he' ? 'נק׳' : 'cr'}</span
-						>
-					</span>
-				{/if}
-			{/await}
-		</div>
-		{#await course then course}
-			{#if note !== undefined || (!squeeze && course.median !== undefined)}
-				<div class="course-extra text-content-secondary">
-					{#if note !== undefined}<span class="min-w-0 truncate"
-							>{@render note(course)}</span
-						>{/if}
-					{#if !squeeze && course.median !== undefined}
-						<span class="shrink-0"
-							>{content.lang.course.median} {course.median}</span
-						>
-					{/if}
-				</div>
-			{/if}
 		{/await}
 	</div>
 {/snippet}
@@ -141,46 +143,18 @@
 	class="course-card relative h-fit w-fit select-none bg-card-primary"
 >
 	<CourseWidth>
-		<div class="course-summary">
-			{#if onOpen}
-				<button
-					type="button"
-					class="course-open w-full text-start"
-					onclick={() => {
-						if (minimize && scheduleErrorButton) minimize = false;
-						else onOpen?.();
-					}}>{@render body()}</button
-				>
-			{:else}
-				{@render body()}
-			{/if}
-			{#if scheduleError !== undefined && loaded}
-				{#await _scheduleError then _scheduleError}
-					{#if _scheduleError}
-						<button
-							type="button"
-							bind:this={scheduleErrorButton}
-							aria-expanded={!minimize}
-							aria-controls={minimize ? undefined : warningId}
-							aria-label={content.lang.lang === 'he'
-								? 'פרטי דרישות הקורס'
-								: 'Course requirement details'}
-							class="course-warning text-content-secondary"
-							onclick={(e) => {
-								e.preventDefault();
-								e.stopPropagation();
-								minimize = !minimize;
-							}}
-						>
-							<span aria-hidden="true" class="font-semibold text-accent-primary"
-								>!</span
-							>
-							<span class="w-2.5" class:rotate-180={!minimize}><Arrow /></span>
-						</button>
-					{/if}
-				{/await}
-			{/if}
-		</div>
+		{#if onOpen}
+			<button
+				type="button"
+				class="course-open w-full text-start"
+				onclick={() => {
+					if (minimize && scheduleErrorButton) minimize = false;
+					else onOpen?.();
+				}}>{@render body()}</button
+			>
+		{:else}
+			{@render body()}
+		{/if}
 
 		{#if tests !== undefined}
 			<div class="course-footer">
@@ -199,10 +173,32 @@
 					{content.lang.course.checkingRequirements}
 				</div>
 			{:then _scheduleError}
-				{#if _scheduleError && !minimize}
-					<div id={warningId} class="course-warning-details">
-						<ScheduleErrorComponent scheduleError={_scheduleError} />
-					</div>
+				{#if _scheduleError}
+					{#if !minimize}
+						<div id={warningId} class="course-warning-details">
+							<ScheduleErrorComponent scheduleError={_scheduleError} />
+						</div>
+					{/if}
+					<button
+						type="button"
+						bind:this={scheduleErrorButton}
+						aria-expanded={!minimize}
+						aria-controls={minimize ? undefined : warningId}
+						aria-label={content.lang.lang === 'he'
+							? 'פרטי דרישות הקורס'
+							: 'Course requirement details'}
+						class="course-warning text-content-secondary"
+						onclick={(e) => {
+							e.preventDefault();
+							e.stopPropagation();
+							minimize = !minimize;
+						}}
+					>
+						<span aria-hidden="true" class="font-semibold text-accent-primary"
+							>!</span
+						>
+						<span class="w-2.5" class:rotate-180={!minimize}><Arrow /></span>
+					</button>
 				{/if}
 			{/await}
 		{/if}
@@ -217,12 +213,6 @@
 			box-shadow 160ms ease,
 			background-color 160ms ease;
 	}
-	.course-card:hover {
-		box-shadow: inset 0 0 0 0.0625rem rgb(var(--color-accent-primary) / 0.7);
-	}
-	.course-summary {
-		position: relative;
-	}
 	.course-open {
 		border-radius: var(--radius-card, 0.375rem);
 	}
@@ -236,40 +226,20 @@
 	.course-body-squeezed {
 		min-block-size: 0;
 	}
-	.course-name {
-		display: -webkit-box;
-		-webkit-box-orient: vertical;
-		-webkit-line-clamp: 3;
-		line-clamp: 3;
-		overflow: hidden;
-		overflow-wrap: normal;
-		hyphens: none;
-		font-size: 0.8125rem;
-		line-height: 1.4;
-	}
 	.course-meta {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
 		gap: 0.25rem;
-		margin-block-start: auto;
 		font-size: 0.75rem;
 		line-height: 1rem;
 		font-variant-numeric: tabular-nums;
 	}
-	.course-summary:has(.course-warning) .course-meta,
-	.course-summary:has(.course-warning) .course-extra {
-		padding-inline-end: 1.875rem;
-		min-block-size: 1.75rem;
-	}
-	.course-code-row {
-		font-size: 0.6875rem;
-		line-height: 0.875rem;
-		font-variant-numeric: tabular-nums;
-	}
-	.course-code,
-	.course-points {
-		white-space: nowrap;
+	.course-markers {
+		display: flex;
+		min-inline-size: 0;
+		align-items: center;
+		gap: 0.25rem;
 	}
 	.course-marker {
 		display: block;
@@ -277,12 +247,33 @@
 		inline-size: 0.375rem;
 		block-size: 0.375rem;
 	}
-	.course-extra {
-		display: flex;
-		justify-content: space-between;
-		gap: 0.375rem;
+	.course-note {
+		min-inline-size: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 		font-size: 0.6875rem;
-		line-height: 1rem;
+	}
+	.course-stats {
+		display: flex;
+		flex-shrink: 0;
+		gap: 0.375rem;
+	}
+	.course-copy {
+		overflow-wrap: break-word;
+		hyphens: auto;
+		font-size: 0.8125rem;
+		line-height: 1.4;
+	}
+	.course-name {
+		display: inline;
+	}
+	.course-code {
+		font-size: 0.6875rem;
+		line-height: 0.875rem;
+		font-variant-numeric: tabular-nums;
+		unicode-bidi: isolate;
+		white-space: nowrap;
 	}
 	.course-footer,
 	.course-warning-details {
@@ -292,20 +283,23 @@
 		padding: 0.375rem 0.5rem;
 	}
 	.course-warning {
-		position: absolute;
-		inset-inline-end: 0;
-		inset-block-end: 0;
 		display: flex;
-		inline-size: 2.25rem;
+		inline-size: 100%;
 		block-size: 2.25rem;
 		align-items: center;
 		justify-content: center;
 		gap: 0.1875rem;
-		border-radius: var(--radius-card, 0.375rem);
+		border-block-start: 0.0625rem solid rgb(var(--color-border));
+		border-radius: 0 0 var(--radius-card, 0.375rem) var(--radius-card, 0.375rem);
 		font-size: 0.75rem;
 	}
-	.course-warning:hover {
-		background: rgb(var(--color-card-secondary) / 0.5);
+	@media (hover: hover) and (pointer: fine) {
+		.course-card:hover {
+			box-shadow: inset 0 0 0 0.0625rem rgb(var(--color-accent-primary) / 0.7);
+		}
+		.course-warning:hover {
+			background: rgb(var(--color-card-secondary) / 0.5);
+		}
 	}
 	.course-warning:focus-visible {
 		outline: 0.125rem solid rgb(var(--color-accent-primary));

@@ -108,7 +108,7 @@
 						class:opacity-60={!course.current}
 						onclick={() => goto(`/app/course/${course.code}`)}
 					>
-						<CourseElement code={course.code} {course}>
+						<CourseElement code={course.code} {course} squeeze>
 							{#snippet note()}
 								{#if showPersonalPlan}
 									{@const index = getCourseSemester(course)}

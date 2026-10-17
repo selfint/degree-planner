@@ -10,7 +10,7 @@ Theme, language and direction are global toolbar controls. Direction follows the
 
 All courses, catalogs, plans and authentication sessions are fictional and memory-only. Writes, transcript parsing, authentication and navigation are mocked. Only public brand files are exposed as static assets; product illustrations are bundled normally. Real Firebase, IndexedDB, public catalog loaders, PDF workers and service-worker lifecycle modules are excluded by the build guard. Footer preference persistence is disabled.
 
-Deployed tests wait for each story’s play function, inspect every emitted story for render errors, unexpected requests and planner storage changes, exercise real interactions, and verify global controls. They also check that Storybook assets never enter app HTML or its service-worker cache.
+Deployed tests wait for each story’s play function, inspect every emitted story for render errors, unexpected requests and planner storage changes, exercise real interactions, and verify global controls. They also check that Storybook assets never enter app HTML or its service-worker cache. Failure stories distinguish cold setup causes, failed refreshes with usable stored data, and unavailable shells; combined update/error states retain one header indicator. Card checks preserve the original top metadata and inline name/code arrangement, while compact actions stay 36px and do not wrap their labels.
 
 ## Rendered UI
 
@@ -27,8 +27,8 @@ Deployed tests wait for each story’s play function, inspect every emitted stor
 | src/lib/components/LandingInstallInfo.svelte                                 | Components/LandingInstallInfo     | Default                                                                                                                                                                              |
 | src/routes/components/Nav.svelte                                             | Components/Nav                    | Default, Active                                                                                                                                                                      |
 | src/lib/components/PlanActionButton.svelte                                   | Components/PlanActionButton       | Primary, Secondary, Disabled, Offline, OfflineHiddenReason, Loading                                                                                                                  |
-| src/lib/components/PwaStatusView.svelte                                      | Components/PwaStatus              | Preparing, Initial, Ready, Unavailable, Outdated, Update                                                                                                                             |
-| src/lib/components/PwaStatus.svelte                                          | Components/PwaStatus              | Preparing, Initial, Ready, Unavailable, Outdated, Update                                                                                                                             |
+| src/lib/components/PwaStatusView.svelte                                      | Components/PwaStatus              | Preparing, Initial, Ready, Unavailable, Outdated, Update, CachedRefreshFailure, UpdateRefreshFailure, CachedRefreshShellUnavailable                                                  |
+| src/lib/components/PwaStatus.svelte                                          | Components/PwaStatus              | Preparing, Initial, Ready, Unavailable, Outdated, Update, CachedRefreshFailure, UpdateRefreshFailure, CachedRefreshShellUnavailable                                                  |
 | src/lib/components/RequirementsElement.svelte                                | Components/RequirementsElement    | Default, Single, Empty, LastOnly, Truncated                                                                                                                                          |
 | src/lib/components/ScheduleErrorComponent.svelte                             | Components/ScheduleErrorComponent | AllWarnings, NoWarnings, Season, Adjacent, Exclusive, SatisfiedPrerequisite                                                                                                          |
 | src/lib/components/SearchFilters.svelte                                      | Components/SearchFilters          | Default, Selected, EmptyFaculties, UnknownFaculty, Expanded, CollapsedWithFilters                                                                                                    |
@@ -70,4 +70,4 @@ Deployed tests wait for each story’s play function, inspect every emitted stor
 - src/routes/[...legacy]/+page.svelte: Empty legacy redirect placeholder.
 - src/routes/en/+page.svelte: Language-setting redirect without visible UI; importing it would write actual browser preferences.
 
-Inventory: 50 source files, 45 covered, 5 nonvisual exclusions; 44 story groups, 190 stories.
+Inventory: 50 source files, 45 covered, 5 nonvisual exclusions; 44 story groups, 193 stories.

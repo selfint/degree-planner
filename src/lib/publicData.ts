@@ -13,6 +13,61 @@ export const PUBLIC_DATA_BOOT_URLS = [
 	'/courseDataStripped.json'
 ] as const;
 
+export type PublicDataRefreshError = { url: string; message: string };
+
+/** One error per canonical public URL; only that URL's successful refresh clears it. */
+export function createPublicDataRefreshStatus() {
+	const errors = new Map<string, string>();
+	const listeners = new Set<(errors: PublicDataRefreshError[]) => void>();
+	const current = () =>
+		Array.from(errors, ([url, message]) => ({ url, message }));
+	function notify(listener: (errors: PublicDataRefreshError[]) => void) {
+		try {
+			listener(current());
+		} catch (error) {
+			// Report view bugs without misclassifying a validated download as failed.
+			if (typeof globalThis.reportError === 'function')
+				globalThis.reportError(error);
+			else console.error('Public data status subscriber failed', error);
+		}
+	}
+	function publish() {
+		for (const listener of listeners) notify(listener);
+	}
+	return {
+		current,
+		summary: () =>
+			current()
+				.map(({ url, message }) =>
+					message.includes(url) ? message : `${url}: ${message}`
+				)
+				.join(' ') || undefined,
+		failed(url: string, error: unknown) {
+			const message =
+				error instanceof Error && error.message
+					? error.message
+					: 'Public data refresh failed.';
+			if (errors.get(url) === message) return;
+			errors.set(url, message);
+			publish();
+		},
+		succeeded(url: string) {
+			if (errors.delete(url)) publish();
+		},
+		subscribe(listener: (errors: PublicDataRefreshError[]) => void) {
+			listeners.add(listener);
+			notify(listener);
+			return () => {
+				listeners.delete(listener);
+			};
+		}
+	};
+}
+
+const browserRefreshStatus = createPublicDataRefreshStatus();
+export const subscribePublicDataRefreshErrors = browserRefreshStatus.subscribe;
+export const readPublicDataRefreshError = browserRefreshStatus.summary;
+
 type Options = {
 	store: PublicDataStore | null;
 	now?: () => number;
@@ -20,6 +75,7 @@ type Options = {
 	maxAgeMs?: number;
 	requestTimeoutMs?: number;
 	bypassServiceWorker?: () => boolean;
+	refreshStatus?: ReturnType<typeof createPublicDataRefreshStatus>;
 };
 
 function cachedResource(value: unknown, key: string): value is CachedResource {
@@ -39,6 +95,25 @@ function cachedResource(value: unknown, key: string): value is CachedResource {
 	);
 }
 
+function conditionalHeaders(previous?: CachedResource) {
+	const headers = new Headers();
+	const invalid: string[] = [];
+	for (const [name, value] of [
+		['If-None-Match', previous?.etag],
+		['If-Modified-Since', previous?.lastModified]
+	]) {
+		if (!value) continue;
+		try {
+			headers.set(name!, value);
+		} catch (error) {
+			if (!(error instanceof TypeError)) throw error;
+			invalid.push(name!);
+		}
+	}
+	// One corrupt validator makes this a deliberate full replacement request.
+	return { headers: invalid.length ? new Headers() : headers, invalid };
+}
+
 /** Cache public JSON only. Plan storage and Firebase never pass through here. */
 export function createPublicDataRepository({
 	store,
@@ -47,6 +122,7 @@ export function createPublicDataRepository({
 		typeof navigator === 'undefined' || navigator.onLine !== false,
 	maxAgeMs = PUBLIC_DATA_MAX_AGE,
 	requestTimeoutMs = 15000,
+	refreshStatus = createPublicDataRefreshStatus(),
 	bypassServiceWorker = () => {
 		try {
 			return (
@@ -58,7 +134,8 @@ export function createPublicDataRepository({
 		}
 	}
 }: Options) {
-	const pending = new Map<string, Promise<unknown>>();
+	type RefreshResult = { data: unknown; persistenceError?: Error };
+	const pending = new Map<string, Promise<RefreshResult>>();
 
 	async function read(
 		key: string
@@ -82,34 +159,32 @@ export function createPublicDataRepository({
 		}
 	}
 
-	async function write(entry: CachedResource, expectedRevision: string | null) {
-		try {
-			return await store?.put(entry, expectedRevision);
-		} catch {
-			// A quota/transaction error must not discard a successful online response.
-		}
-	}
-
 	function refresh(
 		key: string,
 		fetcher: typeof fetch,
 		previous?: CachedResource,
 		expectedRevision: string | null = null
-	): Promise<unknown> {
+	): Promise<RefreshResult> {
 		const existing = pending.get(key);
 		if (existing) return existing;
+		let validatorError: Error | undefined;
+		function failureWithCorruption(error: unknown): unknown {
+			if (!validatorError) return error;
+			const reason =
+				error instanceof Error && error.message
+					? error.message
+					: 'Public data refresh failed.';
+			return new Error(`${validatorError.message} Repair failed: ${reason}`, {
+				cause: error
+			});
+		}
 		const operation = (async () => {
-			const headers = new Headers();
-			for (const [name, value] of [
-				['If-None-Match', previous?.etag],
-				['If-Modified-Since', previous?.lastModified]
-			]) {
-				if (!value) continue;
-				try {
-					headers.set(name!, value);
-				} catch {
-					// A corrupt cached validator must not prevent an unconditional refresh.
-				}
+			const { headers, invalid } = conditionalHeaders(previous);
+			if (invalid.length) {
+				validatorError = new Error(
+					`Corrupt cached HTTP validator (${invalid.join(', ')}): ${key}`
+				);
+				refreshStatus.failed(key, validatorError);
 			}
 			const controller = new AbortController();
 			let timer: ReturnType<typeof setTimeout>;
@@ -138,7 +213,8 @@ export function createPublicDataRepository({
 				)
 					throw new Error(`Unexpected public data response: ${key}`);
 				let data: unknown;
-				if (response.status === 304 && previous) data = previous.data;
+				if (response.status === 304 && previous && !validatorError)
+					data = previous.data;
 				else {
 					if (!response.ok) {
 						const name =
@@ -151,7 +227,7 @@ export function createPublicDataRepository({
 				}
 				// SvelteKit guards un-serialized response headers during SSR. There is
 				// no persistent server cache, so do not inspect validators in that path.
-				if (!store) return data;
+				if (!store) return { data };
 				if (
 					response.headers
 						.get('content-type')
@@ -164,34 +240,82 @@ export function createPublicDataRepository({
 						response.headers.get('cache-control') ?? ''
 					)
 				)
-					return data;
-				const written = await write(
-					{
-						key,
-						revision:
-							globalThis.crypto?.randomUUID?.() ?? `${now()}-${Math.random()}`,
-						schemaVersion: PUBLIC_DATA_SCHEMA_VERSION,
+					return {
 						data,
-						validatedAt: now(),
-						etag:
-							response.headers.get('etag') ??
-							(response.status === 304 ? previous?.etag : undefined),
-						lastModified:
-							response.headers.get('last-modified') ??
-							(response.status === 304 ? previous?.lastModified : undefined)
-					},
-					expectedRevision
-				);
+						persistenceError: new Error(
+							`Public data response forbids offline storage: ${key}`
+						)
+					};
+				let written: boolean | void;
+				try {
+					written = await store.put(
+						{
+							key,
+							revision:
+								globalThis.crypto?.randomUUID?.() ??
+								`${now()}-${Math.random()}`,
+							schemaVersion: PUBLIC_DATA_SCHEMA_VERSION,
+							data,
+							validatedAt: now(),
+							etag:
+								response.headers.get('etag') ??
+								(response.status === 304 ? previous?.etag : undefined),
+							lastModified:
+								response.headers.get('last-modified') ??
+								(response.status === 304 ? previous?.lastModified : undefined)
+						},
+						expectedRevision
+					);
+				} catch (error) {
+					return {
+						data,
+						persistenceError: new Error(`Could not save public data: ${key}`, {
+							cause: error
+						})
+					};
+				}
 				if (written === false) {
 					// Another tab refreshed while this request was in flight. In particular,
 					// a late 304 must never restore its older payload over that newer record.
-					return (await read(key)).cached?.data ?? data;
+					const current = (await read(key)).cached;
+					if (!current)
+						return {
+							data,
+							persistenceError: new Error(
+								`Public data changed while saving and its current cache is unavailable: ${key}`
+							)
+						};
+					if (validatorError && conditionalHeaders(current).invalid.length)
+						return {
+							data: current.data,
+							persistenceError: new Error(
+								`Current public data still has corrupt HTTP validators: ${key}`
+							)
+						};
+					return { data: current.data };
 				}
-				return data;
+				return { data };
 			} finally {
 				clearTimeout(timer!);
 			}
-		})();
+		})().then(
+			(result) => {
+				if (result.persistenceError) {
+					const persistenceError = failureWithCorruption(
+						result.persistenceError
+					) as Error;
+					refreshStatus.failed(key, persistenceError);
+					return { ...result, persistenceError };
+				}
+				refreshStatus.succeeded(key);
+				return result;
+			},
+			(error) => {
+				const failure = failureWithCorruption(error);
+				refreshStatus.failed(key, failure);
+				throw failure;
+			}
+		);
 		pending.set(key, operation);
 		void operation.finally(() => pending.delete(key)).catch(() => {});
 		return operation;
@@ -207,13 +331,13 @@ export function createPublicDataRepository({
 			const { cached, revision } = await read(key);
 			if (cached) {
 				if (isOnline() && now() - cached.validatedAt >= maxAgeMs) {
-					// Render the last good snapshot immediately, even on a slow/broken connection.
+					// Keep valid cached data usable. refresh reports failures before this rejection is consumed.
 					void refresh(key, fetcher, cached, revision).catch(() => {});
 				}
 				return structuredClone(cached.data) as T;
 			}
 			return structuredClone(
-				await refresh(key, fetcher, undefined, revision)
+				(await refresh(key, fetcher, undefined, revision)).data
 			) as T;
 		},
 		async warmCore(fetcher: typeof fetch = fetch): Promise<boolean> {
@@ -231,9 +355,9 @@ export function createPublicDataRepository({
 			if (!isPublicDataUrl(key))
 				throw new Error(`Not a public data URL: ${key}`);
 			const { cached, revision } = await read(key);
-			return structuredClone(
-				await refresh(key, fetcher, cached, revision)
-			) as T;
+			const result = await refresh(key, fetcher, cached, revision);
+			if (result.persistenceError) throw result.persistenceError;
+			return structuredClone(result.data) as T;
 		}
 	};
 	return repository;
@@ -341,10 +465,14 @@ export function createCourseDataRepository({
 function browserRepositories() {
 	if (!browserRepository || !browserCourseRepository) {
 		const resources = createIndexedDbStore();
-		browserRepository = createPublicDataRepository({ store: resources });
+		browserRepository = createPublicDataRepository({
+			store: resources,
+			refreshStatus: browserRefreshStatus
+		});
 		browserCourseRepository = createCourseDataRepository({
 			store: createCourseDataStore(),
-			legacyStore: resources
+			legacyStore: resources,
+			refreshStatus: browserRefreshStatus
 		});
 	}
 	return { resources: browserRepository, courses: browserCourseRepository };
@@ -403,16 +531,34 @@ export async function readPublicCourseDataReadiness() {
 export async function preparePublicCourseData(fetcher: typeof fetch = fetch) {
 	if (typeof window === 'undefined') return { ready: false, courseCount: 0 };
 	const { resources, courses } = browserRepositories();
-	if (navigator.onLine !== false) {
-		await Promise.allSettled([
+	const shouldRefresh = navigator.onLine !== false;
+	let refreshed: boolean | undefined;
+	if (shouldRefresh) {
+		// Retry previously failed selected resources as well as the two core files.
+		// Each refresh owns its URL's status; core success cannot erase a degree error.
+		const failedResources = browserRefreshStatus
+			.current()
+			.map(({ url }) => url)
+			.filter((url) => url !== '/courseData.json' && url !== '/catalogs.json');
+		const results = await Promise.allSettled([
 			courses.sync(fetcher),
-			resources.revalidate('/catalogs.json', fetcher)
+			resources.revalidate('/catalogs.json', fetcher),
+			...failedResources.map((url) => resources.revalidate(url, fetcher))
 		]);
+		refreshed = results.every((result) => result.status === 'fulfilled');
 	} else {
 		// Import a full legacy JSON cache if present; no network is needed when ready.
+		// Any attempted download failure is already recorded by the common repository.
 		if (!(await courses.metadata())) await courses.all(fetcher).catch(() => {});
 	}
-	return readPublicCourseDataReadiness();
+	const readiness = await readPublicCourseDataReadiness();
+	const refreshError = browserRefreshStatus.summary();
+	return {
+		...readiness,
+		...(shouldRefresh
+			? { refreshed, ...(refreshError ? { refreshError } : {}) }
+			: {})
+	};
 }
 
 /** Best-effort warming reports actual persistent readiness, not just a live response. */
@@ -421,7 +567,8 @@ export async function warmCorePublicData(
 ): Promise<boolean> {
 	if (typeof window === 'undefined') return false;
 	browserRepository ??= createPublicDataRepository({
-		store: createIndexedDbStore()
+		store: createIndexedDbStore(),
+		refreshStatus: browserRefreshStatus
 	});
 	return browserRepository.warmCore(fetcher);
 }

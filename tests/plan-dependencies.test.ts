@@ -4,6 +4,7 @@ const courses = {
 	'10400001': {
 		code: '10400001',
 		name: 'Advanced course',
+		median: 82,
 		points: 5,
 		connections: { dependencies: [['10400002']] }
 	},
@@ -125,7 +126,7 @@ test('planned course navigation and warnings are separate keyboard controls', as
 });
 
 for (const width of [320, 390]) {
-	test(`compact warning stays beside credits without obscuring the course code (${width}px)`, async ({
+	test(`original card hierarchy keeps metadata above inline name and code with a separate warning below (${width}px)`, async ({
 		page
 	}) => {
 		await page.setViewportSize({ width, height: 568 });
@@ -136,13 +137,31 @@ for (const width of [320, 390]) {
 		});
 		await expect(toggle).toHaveAttribute('aria-expanded', 'false');
 		await card.scrollIntoViewIfNeeded();
+		const meta = (await card.locator('.course-meta').boundingBox())!;
+		const copy = (await card.locator('.course-copy').boundingBox())!;
 		const code = (await card.locator('.course-code').boundingBox())!;
-		const credits = (await card.locator('.course-points').boundingBox())!;
+		const body = (await card.locator('.course-body').boundingBox())!;
 		const warning = (await toggle.boundingBox())!;
 		expect(warning.width).toBeGreaterThanOrEqual(36);
 		expect(warning.height).toBeGreaterThanOrEqual(36);
 		expect(code.y + code.height).toBeLessThanOrEqual(warning.y + 1);
-		expect(credits.x + credits.width).toBeLessThanOrEqual(warning.x + 1);
+		expect(meta.y + meta.height).toBeLessThanOrEqual(copy.y);
+		expect(warning.y).toBeGreaterThanOrEqual(body.y + body.height);
+		expect(warning.width).toBeCloseTo(body.width, 0);
+		await expect(card.locator('.course-meta .course-median')).toContainText(
+			'82'
+		);
+		await expect(card.locator('.course-meta .course-points')).toContainText(
+			'5'
+		);
+		await expect(card.locator('.course-copy > .course-name')).toHaveCSS(
+			'display',
+			'inline'
+		);
+		await expect(card.locator('.course-copy > .course-code')).toHaveCSS(
+			'display',
+			'inline'
+		);
 		await expect(card.locator('.course-name')).toHaveAttribute(
 			'title',
 			'Advanced course'

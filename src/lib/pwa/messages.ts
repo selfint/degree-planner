@@ -1,6 +1,9 @@
 export const pwaMessages = {
 	en: {
 		retry: 'Try again',
+		refreshFailed: 'Refresh failed',
+		cachedRefreshFailed:
+			'Refresh failed. Saved course data is still available.',
 		ready: 'All courses ready offline',
 		downloading: 'Preparing offline access…',
 		shellOutdated: 'Offline app update pending',
@@ -28,6 +31,9 @@ export const pwaMessages = {
 	},
 	he: {
 		retry: 'נסו שוב',
+		refreshFailed: 'רענון הנתונים נכשל',
+		cachedRefreshFailed:
+			'רענון הנתונים נכשל. נתוני הקורסים השמורים עדיין זמינים.',
 		ready: 'כל הקורסים זמינים ללא אינטרנט',
 		downloading: 'הכנה לשימוש ללא אינטרנט…',
 		shellOutdated: 'עדכון לשימוש ללא אינטרנט ממתין',

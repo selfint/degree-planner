@@ -16,3 +16,9 @@ export const Ready: Story = { args: { state: 'ready' } };
 export const Unavailable: Story = { args: { state: 'unavailable' } };
 export const Outdated: Story = { args: { state: 'outdated' } };
 export const Update: Story = { args: { state: 'update' } };
+
+export const CachedRefreshFailure: Story = { args: { state: 'refresh' } };
+export const UpdateRefreshFailure: Story = { args: { state: 'refreshUpdate' } };
+export const CachedRefreshShellUnavailable: Story = {
+	args: { state: 'refreshShellUnavailable' }
+};

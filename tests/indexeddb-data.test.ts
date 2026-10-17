@@ -468,3 +468,34 @@ for (const failure of ['denied', 'blocked', 'unresponsive'] as const) {
 		await expectSavedPlanUnchanged(page);
 	});
 }
+
+test('reports a failed refresh while verified cached courses remain usable', async ({
+	page
+}) => {
+	await seed(page);
+	await page.goto(origin + '/app/course/02340141');
+	await expectCoursesReady(page);
+	await expect(page.locator('main h1')).toContainText('קומבינטוריקה');
+	const before = await courseSnapshot(page);
+	await page.route('**/courseData.json*', (route) => route.abort());
+	await page.reload();
+	await expect(page.locator('main h1')).toContainText('קומבינטוריקה');
+	const status = page.getByTestId('pwa-status');
+	await expect(status).toHaveAttribute('data-refresh-state', 'error', {
+		timeout: 20000
+	});
+	const indicator = status.getByLabel('Refresh failed', { exact: true });
+	await expect(indicator).toBeVisible();
+	await indicator.click();
+	await expect(page.getByTestId('pwa-refresh-error')).toHaveText(
+		'Refresh failed. Saved course data is still available.'
+	);
+	expect(await courseSnapshot(page)).toEqual(before);
+	await expectSavedPlanUnchanged(page);
+	await page.unroute('**/courseData.json*');
+	await status.getByRole('button', { name: 'Try again', exact: true }).click();
+	await expect(status).toHaveAttribute('data-refresh-state', 'idle', {
+		timeout: 20000
+	});
+	await expect(page.locator('main h1')).toContainText('קומבינטוריקה');
+});

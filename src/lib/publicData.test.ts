@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { IDBFactory } from 'fake-indexeddb';
 import {
 	createPublicDataRepository,
+	createPublicDataRefreshStatus,
 	PUBLIC_DATA_SCHEMA_VERSION
 } from './publicData';
 import { isPublicData, isPublicDataUrl } from './publicDataSchema';
@@ -90,11 +91,11 @@ describe('public JSON repository', () => {
 			const { store, values } = memoryStore([entry()]);
 			const updated = { ...requirement, points: 130 };
 			const repository = createPublicDataRepository({ store, now: () => 200 });
-			expect(
-				await repository.revalidate(url, async () =>
+			await expect(
+				repository.revalidate(url, async () =>
 					response(updated, { 'cache-control': policy })
 				)
-			).toEqual(updated);
+			).rejects.toThrow('forbids offline storage');
 			expect(values.get(url)).toEqual(entry());
 			expect(store.put).not.toHaveBeenCalled();
 			const cold = memoryStore();
@@ -110,14 +111,16 @@ describe('public JSON repository', () => {
 
 	it('does not let no-store 304 renew a persisted timestamp', async () => {
 		const { store, values } = memoryStore([entry()]);
-		await createPublicDataRepository({ store, now: () => 500 }).revalidate(
-			url,
-			async () =>
-				new Response(null, {
-					status: 304,
-					headers: { 'cache-control': 'no-store' }
-				})
-		);
+		await expect(
+			createPublicDataRepository({ store, now: () => 500 }).revalidate(
+				url,
+				async () =>
+					new Response(null, {
+						status: 304,
+						headers: { 'cache-control': 'no-store' }
+					})
+			)
+		).rejects.toThrow('forbids offline storage');
 		expect(values.get(url)).toEqual(entry());
 	});
 
@@ -369,16 +372,111 @@ describe('public JSON repository', () => {
 		expect(values.get(url)?.lastModified).toBeUndefined();
 	});
 
-	it('refreshes successfully even when a cached HTTP validator is corrupt', async () => {
-		const { store, values } = memoryStore([
-			{ ...entry(), etag: 'invalid\nheader' }
-		]);
-		const repository = createPublicDataRepository({ store });
-		await repository.revalidate(url, async (_, init) => {
-			expect(new Headers(init?.headers).get('If-None-Match')).toBeNull();
-			return response(requirement, { etag: '"repaired"' });
+	it('reports corrupt cached validators until a full replacement is durably written', async () => {
+		const previous = { ...entry(), etag: 'invalid\nheader' };
+		const { store, values } = memoryStore([previous]);
+		const status = createPublicDataRefreshStatus();
+		const write = vi.mocked(store.put).getMockImplementation()!;
+		let commit!: () => void;
+		vi.mocked(store.put).mockImplementation(
+			(value, revision) =>
+				new Promise((resolve) => {
+					commit = () => {
+						void write(value, revision).then(resolve);
+					};
+				})
+		);
+		const repository = createPublicDataRepository({
+			store,
+			refreshStatus: status
 		});
+		let finish!: (response: Response) => void;
+		const operation = repository.revalidate(url, async (_, init) => {
+			expect([...new Headers(init?.headers)]).toEqual([]);
+			return new Promise<Response>((resolve) => {
+				finish = resolve;
+			});
+		});
+		await vi.waitFor(() =>
+			expect(status.summary()).toContain(
+				'Corrupt cached HTTP validator (If-None-Match)'
+			)
+		);
+		expect(values.get(url)).toEqual(previous);
+		finish(response(requirement, { etag: '"repaired"' }));
+		await vi.waitFor(() => expect(store.put).toHaveBeenCalledOnce());
+		expect(status.summary()).toContain('Corrupt cached HTTP validator');
+		expect(values.get(url)).toEqual(previous);
+		commit();
+		await operation;
 		expect(values.get(url)?.etag).toBe('"repaired"');
+		expect(status.current()).toEqual([]);
+	});
+
+	it.each([
+		'network',
+		'304',
+		'quota',
+		'no-store',
+		'concurrent-corrupt'
+	] as const)(
+		'keeps corrupt-validator repair failures visible after %s',
+		async (failure) => {
+			const previous = { ...entry(), etag: 'invalid\nheader' };
+			const { store, values } = memoryStore([previous]);
+			if (failure === 'quota')
+				vi.mocked(store.put).mockRejectedValue(
+					new DOMException('Full', 'QuotaExceededError')
+				);
+			if (failure === 'concurrent-corrupt')
+				vi.mocked(store.put).mockResolvedValue(false);
+			const status = createPublicDataRefreshStatus();
+			const repository = createPublicDataRepository({
+				store,
+				refreshStatus: status
+			});
+			await expect(
+				repository.revalidate(url, async (_, init) => {
+					expect([...new Headers(init?.headers)]).toEqual([]);
+					if (failure === 'network') throw new Error('Connection interrupted');
+					if (failure === '304') return new Response(null, { status: 304 });
+					return response(
+						requirement,
+						failure === 'no-store'
+							? { 'cache-control': 'no-store' }
+							: { etag: '"repaired"' }
+					);
+				})
+			).rejects.toThrow('Repair failed');
+			expect(status.summary()).toContain('Corrupt cached HTTP validator');
+			expect(status.summary()).toContain('Repair failed');
+			expect(values.get(url)).toEqual(previous);
+		}
+	);
+
+	it('surfaces unexpected validator-construction errors rather than calling them cache corruption', async () => {
+		const { store } = memoryStore([entry()]);
+		const status = createPublicDataRefreshStatus();
+		const repository = createPublicDataRepository({
+			store,
+			refreshStatus: status
+		});
+		const fetcher = vi.fn<typeof fetch>();
+		const set = vi
+			.spyOn(Headers.prototype, 'set')
+			.mockImplementationOnce(() => {
+				throw new Error('Unexpected header bug');
+			});
+		try {
+			await expect(repository.revalidate(url, fetcher)).rejects.toThrow(
+				'Unexpected header bug'
+			);
+			expect(status.summary()).toContain('Unexpected header bug');
+			expect(status.summary()).not.toContain('Corrupt cached');
+			expect(fetcher).not.toHaveBeenCalled();
+		} finally {
+			set.mockRestore();
+		}
 	});
 
 	it.each([
@@ -593,5 +691,167 @@ describe('public JSON wire compatibility', () => {
 				nested: [{ ...requirement.nested[0], amount: 'two' }]
 			})
 		).toBe(false);
+	});
+});
+
+describe('source-owned public refresh errors', () => {
+	it.each(['rejected', 'invalid', 'quota', 'no-store'] as const)(
+		'reports a selected-degree %s background refresh while preserving valid cached data',
+		async (failure) => {
+			const { store, values } = memoryStore([entry()]);
+			const status = createPublicDataRefreshStatus();
+			const repository = createPublicDataRepository({
+				store,
+				now: () => 200,
+				maxAgeMs: 0,
+				refreshStatus: status
+			});
+			if (failure === 'quota')
+				vi.mocked(store.put).mockRejectedValue(
+					new DOMException('Full', 'QuotaExceededError')
+				);
+			const fetcher = vi.fn<typeof fetch>(async () => {
+				if (failure === 'rejected') throw new Error('Network interrupted');
+				if (failure === 'invalid') return response({ invalid: true });
+				return response(
+					{ ...requirement, points: 130 },
+					failure === 'no-store' ? { 'cache-control': 'no-store' } : {}
+				);
+			});
+			expect(await repository.get(url, fetcher)).toEqual(requirement);
+			await vi.waitFor(() => expect(status.current()).toHaveLength(1));
+			expect(status.current()[0]).toMatchObject({
+				url,
+				message: expect.any(String)
+			});
+			expect(status.summary()).toContain(url);
+			expect(values.get(url)).toEqual(entry());
+		}
+	);
+
+	it('reports a failed cold write even when the genuine live response can be used', async () => {
+		const { store, values } = memoryStore();
+		vi.mocked(store.put).mockRejectedValue(
+			new DOMException('Full', 'QuotaExceededError')
+		);
+		const status = createPublicDataRefreshStatus();
+		const repository = createPublicDataRepository({
+			store,
+			refreshStatus: status
+		});
+		expect(
+			await repository.get(url, async () => response(requirement))
+		).toEqual(requirement);
+		expect(values.size).toBe(0);
+		expect(status.current()).toEqual([
+			{ url, message: `Could not save public data: ${url}` }
+		]);
+	});
+
+	it('clears only the successfully refreshed URL and never clears an error on cached reads', async () => {
+		const secondUrl = url.replace('2024_200', '2025_200');
+		const status = createPublicDataRefreshStatus();
+		const { store } = memoryStore([
+			entry(),
+			entry(secondUrl),
+			entry('/catalogs.json', manifest)
+		]);
+		const repository = createPublicDataRepository({
+			store,
+			refreshStatus: status,
+			isOnline: () => false
+		});
+		for (const key of [url, secondUrl])
+			await expect(
+				repository.revalidate(key, async () => {
+					throw new Error('Bad response');
+				})
+			).rejects.toThrow('Bad response');
+		await repository.revalidate('/catalogs.json', async () =>
+			response(manifest)
+		);
+		expect(status.current().map(({ url }) => url)).toEqual([url, secondUrl]);
+		await repository.get(url);
+		expect(status.current()).toHaveLength(2);
+		await repository.revalidate(
+			url,
+			async () => new Response(null, { status: 304 })
+		);
+		expect(status.current().map(({ url }) => url)).toEqual([secondUrl]);
+	});
+
+	it('publishes immediate independent snapshots, cleans up, and explicitly reports subscriber bugs', () => {
+		const status = createPublicDataRefreshStatus();
+		const reported = vi.fn();
+		vi.stubGlobal('reportError', reported);
+		try {
+			const broken = status.subscribe(() => {
+				throw new Error('View error');
+			});
+			const mutate = status.subscribe((errors) => {
+				if (errors[0]) errors[0].message = 'tampered';
+			});
+			const listener = vi.fn();
+			const stop = status.subscribe(listener);
+			expect(listener).toHaveBeenCalledExactlyOnceWith([]);
+			status.failed(url, new Error('Real failure'));
+			expect(listener).toHaveBeenLastCalledWith([
+				{ url, message: 'Real failure' }
+			]);
+			expect(reported).toHaveBeenCalledWith(
+				expect.objectContaining({ message: 'View error' })
+			);
+			stop();
+			broken();
+			mutate();
+			status.succeeded(url);
+			expect(listener).toHaveBeenCalledTimes(2);
+			expect(status.current()).toEqual([]);
+		} finally {
+			vi.unstubAllGlobals();
+		}
+	});
+
+	it('retries failed selected-degree URLs with the core files and keeps errors visible until that URL succeeds', async () => {
+		vi.resetModules();
+		vi.stubGlobal('window', {});
+		vi.stubGlobal('navigator', { onLine: true });
+		vi.stubGlobal('indexedDB', new IDBFactory());
+		const now = vi.spyOn(Date, 'now').mockReturnValue(100);
+		try {
+			const data = await import('./publicData');
+			let rejected = false;
+			const fetcher = vi.fn<typeof fetch>(async (key) => {
+				if (key === url) {
+					if (rejected) throw new Error('Degree refresh rejected');
+					return response(requirement);
+				}
+				return response(key === '/catalogs.json' ? manifest : courses);
+			});
+			await data.preparePublicCourseData(fetcher);
+			await data.loadPublicJson(url, fetcher);
+			now.mockReturnValue(100 + data.PUBLIC_DATA_MAX_AGE);
+			rejected = true;
+			expect(await data.loadPublicJson(url, fetcher)).toEqual(requirement);
+			await vi.waitFor(() =>
+				expect(data.readPublicDataRefreshError()).toContain(
+					'Degree refresh rejected'
+				)
+			);
+			expect(await data.preparePublicCourseData(fetcher)).toMatchObject({
+				ready: true,
+				refreshed: false,
+				refreshError: expect.stringContaining(url)
+			});
+			rejected = false;
+			const result = await data.preparePublicCourseData(fetcher);
+			expect(result).toMatchObject({ ready: true, refreshed: true });
+			expect(result).not.toHaveProperty('refreshError');
+			expect(data.readPublicDataRefreshError()).toBeUndefined();
+			expect(fetcher.mock.calls.filter(([key]) => key === url)).toHaveLength(4);
+		} finally {
+			now.mockRestore();
+			vi.unstubAllGlobals();
+		}
 	});
 });

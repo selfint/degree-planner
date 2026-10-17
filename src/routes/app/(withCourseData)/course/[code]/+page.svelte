@@ -592,7 +592,7 @@
 		gap: 0.5rem;
 	}
 	.course-actions :global(.plan-action) {
-		max-inline-size: 100%;
+		flex-shrink: 0;
 	}
 	.course-offline {
 		flex-basis: 100%;
@@ -600,10 +600,6 @@
 		font-size: 0.75rem;
 	}
 
-	.course-actions :global(button) {
-		max-inline-size: 100%;
-		white-space: normal;
-	}
 	.course-notice {
 		margin: 0;
 	}

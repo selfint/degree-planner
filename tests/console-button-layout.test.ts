@@ -183,6 +183,34 @@ for (const width of [320, 390]) {
 					.locator('option:checked')
 					.textContent();
 				await expectWithinViewport(page, page.locator('main select'));
+				// Keep the native control in keyboard tab order. Its external focus
+				// ring must remain visible outside the closed-value containment box.
+				for (let tab = 0; tab < 20; tab++) {
+					await page.keyboard.press('Tab');
+					if (
+						await degreeSelect.evaluate(
+							(select) => select === document.activeElement
+						)
+					)
+						break;
+				}
+				await expect(degreeSelect).toBeFocused();
+				const focus = await degreeSelect.evaluate((select) => {
+					const frame = select.parentElement!;
+					const style = getComputedStyle(frame);
+					return {
+						visible: select.matches(':focus-visible'),
+						outlineStyle: style.outlineStyle,
+						outlineWidth: parseFloat(style.outlineWidth),
+						outlineOffset: parseFloat(style.outlineOffset),
+						outlineColor: style.outlineColor
+					};
+				});
+				expect(focus.visible).toBe(true);
+				expect(focus.outlineStyle).toBe('solid');
+				expect(focus.outlineWidth).toBeGreaterThanOrEqual(2);
+				expect(focus.outlineOffset).toBeGreaterThanOrEqual(0);
+				expect(focus.outlineColor).not.toBe('rgba(0, 0, 0, 0)');
 				const semester = page.locator('.semester-field').first();
 				await semester.locator('select').selectOption('13');
 				await expect(semester.locator('.field-actions button')).toHaveCount(2);

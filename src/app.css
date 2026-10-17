@@ -124,13 +124,6 @@
 		cursor: not-allowed;
 	}
 
-	select.ui-field {
-		/* WebKit can propagate a native option's invisible overflow past a
-		   constrained select (webkit.org/b/284644). Contain only that control;
-		   the native picker still exposes every complete option. */
-		overflow-x: hidden;
-	}
-
 	.ui-panel {
 		border: 0.0625rem solid rgb(var(--color-border));
 		border-radius: var(--radius-card);

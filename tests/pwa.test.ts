@@ -312,6 +312,24 @@ test('updates wait without reloading unsaved plan edits or other tabs', async ({
 				cards.map((card) => card.getAttribute('data-code'))
 			)
 	).toEqual(draftOrder);
+	// The optional details overlay can cover the task; dismiss it through its
+	// visible control before saving, exactly as a user would. Closing must not
+	// activate the worker, reload the page, or discard the draft.
+	await page
+		.locator('details.pwa-details')
+		.getByRole('button', { name: 'Close', exact: true })
+		.click();
+	await expect(page.getByTestId('pwa-update')).not.toBeVisible();
+	expect(await page.evaluate(() => performance.timeOrigin)).toBe(timeOrigin);
+	expect(await page.evaluate(() => localStorage.getItem('userData'))).toBe(
+		saved
+	);
+	expect(
+		await page.evaluate(
+			async () =>
+				(await navigator.serviceWorker.getRegistration())?.waiting?.state
+		)
+	).toBe('installed');
 	await page.getByRole('button', { name: 'Save', exact: true }).click();
 	await page.close();
 	// Keeping the second tab open must still prevent activation.

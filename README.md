@@ -141,6 +141,24 @@ named after requirements to complete the degree. A requirement directory can als
    > specializations by the amount of points taken, and take the points from the
    > top 3 specializations.
 
+## Testing
+
+Install dependencies with `npm ci`. The test suites can be run independently:
+
+- `npm run test:integration` runs the Playwright browser tests, building and serving
+  the app automatically. Install browsers first with `npx playwright install --with-deps`.
+- `npm run test:unit -- --run` runs the Vitest suite excluding the live SAP tests.
+  On a fresh checkout, first run `npm run generate-catalogs && npx svelte-kit sync`.
+  Omit `-- --run` for watch mode. The existing histogram-client test still needs network access.
+- `npm run test:sap` runs only `scripts/SAPClient.test.mjs` against the live Technion
+  SAP service. It needs network access and can fail when SAP is unavailable or its data changes.
+- `npm test` runs all three suites once, sequentially, stopping on failure.
+
+GitHub Actions runs the browser, unit, and live SAP suites in independent,
+parallel jobs on pushes and pull requests to `main`. Each job reports its own
+result, and a SAP failure still fails the workflow without preventing the other
+jobs from running. The dedicated Chromium/WebKit parallax job also runs alongside them.
+
 ## Acknowledgements
 
 - [Michael Maltsev](https://github.com/michael-maltsev) for data in

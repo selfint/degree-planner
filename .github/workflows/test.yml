@@ -7,7 +7,8 @@ on:
     branches: 'main'
 
 jobs:
-  test:
+  browser:
+    name: Browser tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -18,9 +19,11 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - name: Install dependencies
-        run: npm install && npx playwright install
-      - name: test
-        run: npm run test
+        run: npm ci
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+      - name: Run browser tests
+        run: npm run test:integration
       - name: Upload landing visual checks
         if: always()
         uses: actions/upload-artifact@v4
@@ -29,6 +32,42 @@ jobs:
           path: test-results/**/landing-*.png
           if-no-files-found: ignore
           retention-days: 7
+
+  unit:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Prepare test data and SvelteKit
+        run: npm run generate-catalogs && npx svelte-kit sync
+      - name: Run unit tests
+        run: npm run test:unit -- --run
+
+  sap:
+    name: Live SAP tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Prepare SvelteKit config
+        run: npx svelte-kit sync
+      - name: Run live SAP tests
+        run: npm run test:sap
 
   parallax-browsers:
     runs-on: ubuntu-latest

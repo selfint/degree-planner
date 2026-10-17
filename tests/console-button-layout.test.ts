@@ -11,6 +11,51 @@ const course = {
 	connections: { dependencies: [], adjacent: [], exclusive: [] }
 };
 
+async function expectNoDocumentOverflow(page: Page) {
+	const layout = await page.evaluate(() => {
+		const width = document.documentElement.scrollWidth;
+		return {
+			width,
+			overflowing: [...document.querySelectorAll<HTMLElement>('body *')]
+				.filter((element) => {
+					const rect = element.getBoundingClientRect();
+					return (
+						rect.width > 0 &&
+						rect.height > 0 &&
+						(rect.left < 0 ||
+							rect.right > innerWidth ||
+							element.scrollWidth > element.clientWidth)
+					);
+				})
+				.map((element) => {
+					const rect = element.getBoundingClientRect();
+					return {
+						tag: element.tagName,
+						class: element.className,
+						left: rect.left,
+						right: rect.right,
+						clientWidth: element.clientWidth,
+						scrollWidth: element.scrollWidth,
+						overflowX: getComputedStyle(element).overflowX
+					};
+				})
+		};
+	});
+	expect(layout.width, JSON.stringify(layout.overflowing)).toBeLessThanOrEqual(
+		page.viewportSize()!.width
+	);
+}
+
+async function expectWithinViewport(page: Page, controls: Locator) {
+	for (const control of await controls.all()) {
+		const box = await control.boundingBox();
+		expect(box).not.toBeNull();
+		expect(box!.x).toBeGreaterThanOrEqual(0);
+		expect(box!.x + box!.width).toBeLessThanOrEqual(page.viewportSize()!.width);
+	}
+	await expectNoDocumentOverflow(page);
+}
+
 async function expectCompactButtons(page: Page, buttons: Locator) {
 	await page.evaluate(async () => {
 		await document.fonts.ready;
@@ -59,9 +104,7 @@ async function expectCompactButtons(page: Page, buttons: Locator) {
 		expect(box.left, box.label).toBeGreaterThanOrEqual(0);
 		expect(box.right, box.label).toBeLessThanOrEqual(box.viewport);
 	}
-	expect(
-		await page.evaluate(() => document.documentElement.scrollWidth)
-	).toBeLessThanOrEqual(page.viewportSize()!.width);
+	await expectNoDocumentOverflow(page);
 }
 
 for (const width of [320, 390]) {
@@ -131,6 +174,15 @@ for (const width of [320, 390]) {
 				await expectCompactButtons(page, actions.locator('button.ui-button'));
 
 				await page.goto(`${origin}/app/settings`);
+				const degreeSelect = page.getByRole('combobox', {
+					name: language === 'en' ? 'Degree' : 'תואר',
+					exact: true
+				});
+				await expect(degreeSelect).toHaveValue('SC00001320_CG00006382');
+				const selectedDegree = await degreeSelect
+					.locator('option:checked')
+					.textContent();
+				await expectWithinViewport(page, page.locator('main select'));
 				const semester = page.locator('.semester-field').first();
 				await semester.locator('select').selectOption('13');
 				await expect(semester.locator('.field-actions button')).toHaveCount(2);
@@ -142,6 +194,10 @@ for (const width of [320, 390]) {
 					})
 					.tap();
 				await expect(semester.locator('select')).toHaveValue('12');
+				await expect(degreeSelect.locator('option:checked')).toHaveText(
+					selectedDegree!
+				);
+				await expectWithinViewport(page, page.locator('main select'));
 
 				await page.goto(`${origin}/app/search?q=layout`);
 				await page.locator('details.search-filters summary').tap();
@@ -152,9 +208,32 @@ for (const width of [320, 390]) {
 
 				const status = page.locator('details.pwa-details');
 				await expect(status.locator('summary')).toBeVisible();
-				await status.locator('summary').tap();
-				await expect(status.locator('.pwa-actions button')).toHaveCount(2);
-				await expectCompactButtons(page, status.locator('.pwa-actions button'));
+				for (let opening = 0; opening < 2; opening++) {
+					await status.locator('summary').tap();
+					await expect(status.locator('.pwa-panel')).toBeVisible();
+					await expect(status.locator('.pwa-actions button')).toHaveCount(2);
+					await expectCompactButtons(
+						page,
+						status.locator('.pwa-actions button')
+					);
+					await expectWithinViewport(page, status.locator('.pwa-panel'));
+					expect(
+						await status
+							.locator('.pwa-panel')
+							.evaluate(
+								(panel: HTMLElement) =>
+									panel.offsetParent === panel.closest('nav')
+							)
+					).toBe(true);
+					await status
+						.getByRole('button', {
+							name: language === 'en' ? 'Close' : 'סגירה',
+							exact: true
+						})
+						.tap();
+					await expect(status).not.toHaveAttribute('open', '');
+					await expectNoDocumentOverflow(page);
+				}
 			});
 		});
 	}

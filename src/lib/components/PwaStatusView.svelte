@@ -128,7 +128,6 @@
 		display: contents;
 	}
 	.pwa-details {
-		position: relative;
 		flex-shrink: 0;
 	}
 	summary {

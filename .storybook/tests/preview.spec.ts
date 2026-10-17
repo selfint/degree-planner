@@ -13,6 +13,32 @@ async function expectCompactAction(button: Locator) {
 	expect(box!.height).toBeLessThanOrEqual(36.5);
 }
 
+async function expectRailReadingEdge(
+	rail: Locator,
+	items: string,
+	direction: string
+) {
+	await expect
+		.poll(() =>
+			rail.evaluate(
+				(el, { items, direction }) => {
+					const bounds = el.getBoundingClientRect();
+					const first = el.querySelector(items)!.getBoundingClientRect();
+					const start =
+						direction === 'rtl' ? el.scrollWidth - el.clientWidth : 0;
+					return {
+						atReadingEdge: Math.abs(el.scrollLeft - start) <= 1,
+						firstFullyVisible:
+							first.left >= bounds.left - 0.5 &&
+							first.right <= bounds.right + 0.5
+					};
+				},
+				{ items, direction }
+			)
+		)
+		.toEqual({ atReadingEdge: true, firstFullyVisible: true });
+}
+
 async function expectOriginalCardHierarchy(card: Locator) {
 	const body = card.locator('.course-body');
 	const name = body.locator('.course-copy > .course-name');
@@ -792,10 +818,12 @@ test('compact planner rails show three full items and the next item at mobile wi
 				'pages-plan--long-plan',
 				{ timeout: 15_000 }
 			);
-			for (const [rail, items] of [
+			const rails = [
 				['wishlist-scroller', '[data-testid="plan-wishlist"] > [data-code]'],
 				['semester-scroller', '[data-semester]']
-			]) {
+			];
+			for (const [rail, items] of rails) {
+				await expectRailReadingEdge(page.getByTestId(rail), items, direction);
 				await expect
 					.poll(
 						async () =>
@@ -826,11 +854,14 @@ test('compact planner rails show three full items and the next item at mobile wi
 			await expectOriginalCardHierarchy(
 				page.getByTestId('plan-wishlist').locator('.course-card').first()
 			);
-			// Capture the initial density before keyboard focus scrolls a later semester into view.
+			// Full-page capture resizes the viewport and can move transformed RTL rails.
+			// Capture the real initial viewport before keyboard focus scrolls a semester.
 			await page.screenshot({
 				path: test.info().outputPath(`compact-plan-${width}-${direction}.png`),
-				fullPage: true
+				fullPage: false
 			});
+			for (const [rail, items] of rails)
+				await expectRailReadingEdge(page.getByTestId(rail), items, direction);
 			const exams = page.locator('.semester-exams');
 			await expect(exams).not.toHaveAttribute('open', '');
 			await exams.locator('summary').focus();

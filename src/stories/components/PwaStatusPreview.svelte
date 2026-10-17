@@ -15,7 +15,7 @@
 	});
 </script>
 
-<div data-testid="pwa-preview-slot" class="flex justify-end">
+<div data-testid="pwa-preview-slot" class="relative flex justify-end">
 	<PwaStatusView
 		{allReady}
 		cachedDataReady={allReady || shellUnavailable}

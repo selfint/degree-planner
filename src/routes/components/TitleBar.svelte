@@ -144,6 +144,7 @@
 		inline-size: 4rem;
 	}
 	nav {
+		position: relative;
 		display: flex;
 		align-items: center;
 		justify-content: end;

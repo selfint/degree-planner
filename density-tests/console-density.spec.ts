@@ -121,6 +121,28 @@ async function measure(page: Page, route: string) {
 		};
 		const cards = [...document.querySelectorAll('main .course-card')];
 		const ratios = cards.map(visibleRatio);
+		const firstSemesterCards = [...document.querySelectorAll('[data-semester]')]
+			.slice(0, 3)
+			.map((semester) => semester.querySelector('.course-card'));
+		const firstWishlistCards = [
+			...document.querySelectorAll('[data-testid="plan-wishlist"] .course-card')
+		].slice(0, 3);
+		const unclippedCourseNames = [
+			...document.querySelectorAll('main .course-name')
+		].filter((name) => {
+			const copy = name.closest('.course-copy')?.getBoundingClientRect();
+			if (!copy || !name.textContent?.trim()) return false;
+			if (name.getAttribute('title') !== name.textContent.trim()) return false;
+			const range = document.createRange();
+			range.selectNodeContents(name);
+			return [...range.getClientRects()].every(
+				(box) =>
+					box.left >= copy.left - 1 &&
+					box.right <= copy.right + 1 &&
+					box.top >= copy.top - 1 &&
+					box.bottom <= copy.bottom + 1
+			);
+		}).length;
 		const horizontalRatios = (selector: string) =>
 			[...document.querySelectorAll(selector)].map((element) => {
 				const box = element.getBoundingClientRect();
@@ -149,6 +171,11 @@ async function measure(page: Page, route: string) {
 			partlyVisibleCourseCards: ratios.filter(
 				(value) => value > 0.05 && value < 0.98
 			).length,
+			firstSemesterCourseRatios: firstSemesterCards.map((card) =>
+				card ? visibleRatio(card) : 0
+			),
+			firstWishlistCourseRatios: firstWishlistCards.map(visibleRatio),
+			unclippedCourseNames,
 			semesterColumnRatios: horizontalRatios('[data-semester]'),
 			wishlistCardRatios: horizontalRatios(
 				'[data-testid="plan-wishlist"] > [data-code]'
@@ -263,7 +290,27 @@ for (const viewport of [
 								.toBeLessThanOrEqual(0.85);
 						}
 						expect.soft(plan.semesterColumnRatios[4]).toBe(0);
-						expect.soft(plan.fullyVisibleCourseCards).toBeGreaterThanOrEqual(9);
+						// Full SAP names and the original full-width warning footer have
+						// variable height. Protect useful initial rows without requiring
+						// truncation to reach the previous corner-warning layout's count.
+						for (const [label, ratios] of [
+							['first semester courses', plan.firstSemesterCourseRatios],
+							['first wishlist courses', plan.firstWishlistCourseRatios]
+						] as const) {
+							expect
+								.soft(ratios, `${label}: three complete cards`)
+								.toHaveLength(3);
+							for (const ratio of ratios)
+								expect
+									.soft(ratio, `${label}: full card in viewport`)
+									.toBeGreaterThanOrEqual(0.98);
+						}
+						expect
+							.soft(
+								plan.unclippedCourseNames,
+								'full course names remain unclipped'
+							)
+							.toBe(19);
 					}
 					checkpoints.push('initial-direction-plan-geometry-captured');
 

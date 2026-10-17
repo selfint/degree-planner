@@ -2,6 +2,13 @@ import { test, expect, type Page } from '@playwright/test';
 import { createServer, type Server } from 'node:http';
 import { readFile } from 'node:fs/promises';
 
+async function openOfflineStatus(page: Page, timeout = 15000) {
+	const details = page.locator('details.pwa-details');
+	await expect(details.locator('summary')).toBeVisible({ timeout });
+	if ((await details.getAttribute('open')) === null)
+		await details.locator('summary').click();
+}
+
 // A proxy of the real production build lets us deliver a changed worker script
 // without modifying build files or racing other Playwright tests.
 let server: Server;
@@ -264,11 +271,25 @@ test('updates wait without reloading unsaved plan edits or other tabs', async ({
 		);
 	const saved = await page.evaluate(() => localStorage.getItem('userData'));
 	const timeOrigin = await page.evaluate(() => performance.timeOrigin);
+	const contentTop = (await page.locator('main').boundingBox())!.y;
 	revision++;
 	await page.evaluate(async () =>
 		(await navigator.serviceWorker.getRegistration())!.update()
 	);
+	await expect(page.locator('details.pwa-details summary')).toBeVisible();
+	await expect(page.getByTestId('pwa-update')).not.toBeVisible();
+	expect((await page.locator('main').boundingBox())!.y).toBeCloseTo(
+		contentTop,
+		0
+	);
+	await openOfflineStatus(page);
 	await expect(page.getByTestId('pwa-update')).toBeVisible();
+	await expect(page.getByTestId('pwa-update')).toHaveCount(1);
+	await expect(page.getByTestId('pwa-incomplete')).toHaveCount(0);
+	expect((await page.locator('main').boundingBox())!.y).toBeCloseTo(
+		contentTop,
+		0
+	);
 	await expect
 		.poll(() =>
 			page.evaluate(
@@ -413,6 +434,7 @@ test('evicted shell assets remove readiness offline and are repaired on reconnec
 	});
 	expect(deleted).toContain('/nodes/');
 	await context.setOffline(true);
+	await openOfflineStatus(page);
 	await expect(page.getByTestId('pwa-incomplete')).toBeVisible();
 	await expect(page.getByTestId('pwa-status')).not.toHaveAttribute(
 		'data-state',
@@ -445,6 +467,7 @@ test('denied IDB leaves online use available without claiming offline setup succ
 	});
 	await page.goto(`${origin}/app/plan`);
 	await page.waitForFunction(() => navigator.serviceWorker.controller !== null);
+	await openOfflineStatus(page);
 	await expect(page.getByTestId('pwa-incomplete')).toBeVisible();
 	await expect(page.locator('[data-code="02340124"]')).toBeVisible();
 });
@@ -623,9 +646,8 @@ test('a failed console shell install keeps the existing root registration', asyn
 	denyConsoleShell = true;
 	await page.goto(`${origin}/app/plan`);
 	await expect(page.locator('[data-code="02340124"]')).toBeVisible();
-	await expect(page.getByTestId('pwa-incomplete')).toBeVisible({
-		timeout: 35_000
-	});
+	await openOfflineStatus(page, 35_000);
+	await expect(page.getByTestId('pwa-incomplete')).toBeVisible();
 	const root = await page.evaluate(async () => {
 		const registration = (
 			await navigator.serviceWorker.getRegistrations()
@@ -668,6 +690,7 @@ test('a failed public-data persistence keeps the existing root registration even
 	});
 	await page.goto(`${origin}/app/plan`);
 	await expect(page.locator('[data-code="02340124"]')).toBeVisible();
+	await openOfflineStatus(page);
 	await expect(page.getByTestId('pwa-incomplete')).toBeVisible();
 	await expect
 		.poll(() =>

@@ -18,10 +18,10 @@
 	} from '$lib/stores.svelte';
 
 	import { getCourseLists } from '$lib/requirements';
-	import { generateColor } from '$lib/colors';
 	import RequirementsElement from '$lib/components/RequirementsElement.svelte';
 	import CourseRow from '$lib/components/CourseRow.svelte';
 	import PlanActionButton from '$lib/components/PlanActionButton.svelte';
+	import { planOnline } from '$lib/planAccess';
 	import Spinner from '$lib/components/Spinner.svelte';
 
 	const { data: pageData } = $props();
@@ -177,13 +177,7 @@
 
 <div class="ui-page course-page">
 	<header class="course-header">
-		<div class="course-eyebrow">
-			<span
-				class="course-color"
-				style:background={generateColor(code)}
-				aria-hidden="true"
-			></span>
-			<span>{content.lang.common.course}</span>
+		<div class="course-title-row">
 			<a
 				class="course-code"
 				href={`https://portalex.technion.ac.il/ovv/?sap-theme=sap_belize&sap-language=HE&sap-ui-language=HE#/details/2024/201/SM/${code}`}
@@ -196,33 +190,21 @@
 				<bdi dir="ltr">{code}</bdi>
 				<span aria-hidden="true">↗</span>
 			</a>
+			<h1 class="ui-page-title course-name">
+				{#await course}
+					<bdi dir="ltr">{code}</bdi>
+				{:then course}
+					<bdi dir="auto">{course.name ?? code}</bdi>
+				{/await}
+			</h1>
 		</div>
-		<h1 class="ui-page-title course-name">
-			{#await course}
-				<bdi dir="ltr">{code}</bdi>
-			{:then course}
-				<bdi dir="auto">{course.name ?? code}</bdi>
-			{/await}
-		</h1>
-		{#await course}
-			<div
-				class="course-loading"
-				role="status"
-				aria-label={content.lang.common.loading}
-			>
-				<Spinner />
-			</div>
-		{:then course}
-			{#if course.about}
-				<p class="course-description"><bdi dir="auto">{course.about}</bdi></p>
-			{/if}
-		{/await}
 	</header>
 
 	{#if showPersonalPlan}
 		<div class="course-actions" data-testid="course-plan-actions">
 			{#if courseState === 'planned'}
 				<PlanActionButton
+					showOfflineReason={false}
 					variant="secondary"
 					onclick={removeCourseFromSemesters}
 					bind:buttonNamespace
@@ -235,6 +217,7 @@
 				</PlanActionButton>
 			{:else}
 				<PlanActionButton
+					showOfflineReason={false}
 					variant="primary"
 					onclick={planCourse}
 					bind:buttonNamespace
@@ -244,6 +227,7 @@
 				</PlanActionButton>
 				{#if courseState === 'wished'}
 					<PlanActionButton
+						showOfflineReason={false}
 						variant="secondary"
 						onclick={removeCourseFromWishlist}
 						bind:buttonNamespace
@@ -253,6 +237,7 @@
 					</PlanActionButton>
 				{:else if courseState === 'exempt'}
 					<PlanActionButton
+						showOfflineReason={false}
 						variant="secondary"
 						onclick={removeCourseFromExemptions}
 						bind:buttonNamespace
@@ -262,6 +247,7 @@
 					</PlanActionButton>
 				{:else}
 					<PlanActionButton
+						showOfflineReason={false}
 						variant="secondary"
 						onclick={addCourseToWishlist}
 						bind:buttonNamespace
@@ -270,6 +256,7 @@
 						{content.lang.course.wishlist}
 					</PlanActionButton>
 					<PlanActionButton
+						showOfflineReason={false}
 						variant="secondary"
 						onclick={addCourseToExemptions}
 						bind:buttonNamespace
@@ -278,6 +265,11 @@
 						{content.lang.course.exempt}
 					</PlanActionButton>
 				{/if}
+			{/if}
+			{#if !$planOnline}
+				<span class="course-offline" role="status"
+					>{content.lang.lang === 'he' ? 'ללא אינטרנט' : 'Offline'}</span
+				>
 			{/if}
 		</div>
 	{:else}
@@ -290,28 +282,9 @@
 		</p>
 	{/if}
 
-	{#if showPersonalPlan && courseMemberRequirements !== undefined}
-		<section class="ui-panel course-details-panel">
-			{#await courseMemberRequirements}
-				<h2 class="course-section-title">
-					{content.lang.course.appliesTo}
-					<div class="inline-block h-5 w-5">
-						<Spinner />
-					</div>
-				</h2>
-			{:then courseMemberRequirements}
-				<h2 class="course-section-title">
-					{content.lang.course.appliesTo}
-				</h2>
-				<div class="text-content-secondary">
-					<RequirementsElement requirements={courseMemberRequirements} />
-				</div>
-			{/await}
-		</section>
-	{/if}
 	{#await course}
-		<section class="ui-panel course-details-panel">
-			<h2 class="course-section-title">{content.lang.course.info}</h2>
+		<section class="course-details-panel">
+			<h2 class="sr-only">{content.lang.course.info}</h2>
 			<div
 				class="course-loading"
 				role="status"
@@ -321,8 +294,8 @@
 			</div>
 		</section>
 	{:then course}
-		<section class="ui-panel course-details-panel">
-			<h2 class="course-section-title">{content.lang.course.info}</h2>
+		<section class="course-details-panel">
+			<h2 class="sr-only">{content.lang.course.info}</h2>
 			<dl class="course-metadata">
 				<div>
 					<dt>{content.lang.common.faculty}</dt>
@@ -346,6 +319,32 @@
 				</div>
 			</dl>
 		</section>
+
+		{#if course.about}
+			<details class="course-description">
+				<summary
+					>{content.lang.lang === 'he'
+						? 'תיאור הקורס'
+						: 'Course description'}</summary
+				>
+				<p><bdi dir="auto">{course.about}</bdi></p>
+			</details>
+		{/if}
+
+		{#if showPersonalPlan}
+			{#await courseMemberRequirements then memberships}
+				{#if memberships.length > 0}
+					<section class="course-details-panel">
+						<h2 class="course-section-title">
+							{content.lang.course.appliesTo}
+						</h2>
+						<div class="text-content-secondary">
+							<RequirementsElement requirements={memberships} />
+						</div>
+					</section>
+				{/if}
+			{/await}
+		{/if}
 
 		<div class="course-relations">
 			{#if dependencies(course).length !== 0}
@@ -497,7 +496,7 @@
 						<h2 class="course-section-title">
 							{content.lang.common.dependants}
 						</h2>
-						<div class="flex flex-wrap gap-3">
+						<div class="flex flex-wrap gap-2">
 							{#each dependants as course}
 								<a href={`/app/course/${course.code}`}>
 									<CourseElement code={course.code} {course}>
@@ -537,137 +536,137 @@
 <style>
 	.course-page {
 		display: grid;
-		gap: 1.5rem;
+		gap: 0.75rem;
 	}
-
 	.course-header {
 		max-inline-size: 56rem;
 	}
-
-	.course-eyebrow {
+	.course-title-row {
 		display: flex;
-		align-items: center;
 		flex-wrap: wrap;
-		gap: 0.625rem;
-		margin-block-end: 0.5rem;
-		color: rgb(var(--color-content-secondary));
-		font-size: 0.875rem;
+		align-items: baseline;
+		gap: 0.25rem 0.625rem;
 	}
-
-	.course-color {
-		inline-size: 0.75rem;
-		block-size: 0.75rem;
-		border-radius: 0.25rem;
-		flex-shrink: 0;
-	}
-
 	.course-code {
 		display: inline-flex;
 		align-items: center;
-		gap: 0.375rem;
-		min-block-size: 2.75rem;
-		padding-inline: 0.5rem;
-		border-radius: 0.5rem;
+		gap: 0.25rem;
+		min-block-size: 2rem;
 		color: rgb(var(--color-link));
+		font-size: 0.8125rem;
 		font-variant-numeric: tabular-nums;
 	}
-
 	.course-code:hover {
-		background: rgb(var(--color-accent-primary) / 0.08);
 		text-decoration: underline;
 	}
-
 	.course-name {
 		overflow-wrap: anywhere;
 		text-align: start;
 	}
-
 	.course-description {
-		margin-block-start: 1rem;
-		color: rgb(var(--color-content-secondary));
-		line-height: 1.8;
+		max-inline-size: 56rem;
+		font-size: 0.875rem;
 		text-align: start;
 	}
-
-	.course-loading {
-		inline-size: 1.5rem;
-		block-size: 1.5rem;
-		margin-block-start: 0.75rem;
+	.course-description summary {
+		width: fit-content;
+		padding-block: 0.375rem;
+		cursor: pointer;
 	}
-
+	.course-description summary:focus-visible {
+		outline: 0.125rem solid rgb(var(--color-accent-primary));
+		outline-offset: 0.125rem;
+	}
+	.course-description p {
+		padding-block: 0.25rem;
+		color: rgb(var(--color-content-secondary));
+		line-height: 1.6;
+	}
+	.course-loading {
+		inline-size: 1.25rem;
+		block-size: 1.25rem;
+	}
 	.course-actions {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
-		grid-auto-rows: 1fr;
-		gap: 0.75rem;
-		max-inline-size: 48rem;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+	}
+	.course-actions :global(.plan-action) {
+		max-inline-size: 100%;
+	}
+	.course-offline {
+		flex-basis: 100%;
+		color: rgb(var(--color-content-secondary));
+		font-size: 0.75rem;
 	}
 
 	.course-actions :global(button) {
-		inline-size: 100%;
+		max-inline-size: 100%;
 		white-space: normal;
 	}
-
 	.course-notice {
 		margin: 0;
 	}
-
 	.course-details-panel {
-		padding: clamp(1rem, 2vw, 1.5rem);
+		min-inline-size: 0;
 	}
-
 	.course-section-title {
-		margin-block-end: 0.875rem;
-		font-size: 1.125rem;
+		margin-block-end: 0.375rem;
+		font-size: 0.9375rem;
 		font-weight: 600;
-		line-height: 1.45;
+		line-height: 1.4;
 	}
-
 	.course-metadata {
 		display: grid;
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-		gap: 1rem 1.5rem;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 0.5rem 1rem;
+		padding-block: 0.625rem;
+		border-block: 1px solid rgb(var(--color-border));
+		font-size: 0.875rem;
 	}
-
+	.course-metadata > div:first-child {
+		grid-column: 1 / -1;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.25rem 0.5rem;
+		align-items: baseline;
+	}
 	.course-metadata dt {
-		margin-block-end: 0.25rem;
 		color: rgb(var(--color-content-secondary));
-		font-size: 0.8125rem;
+		font-size: 0.75rem;
 	}
-
 	.course-metadata dd {
 		font-weight: 500;
 		overflow-wrap: anywhere;
 	}
-
 	.course-relations {
 		display: grid;
-		gap: 1.75rem;
+		gap: 0.875rem;
 		min-inline-size: 0;
 	}
-
 	.course-relation-group {
 		min-inline-size: 0;
 	}
-
 	.course-dependencies {
 		display: flex;
-		gap: 0.875rem;
+		gap: 0.625rem;
 		overflow-x: auto;
-		padding: 0.25rem 0.25rem 0.875rem;
+		padding: 0.25rem 0.25rem 0.5rem;
 		margin-inline: -0.25rem;
 		overscroll-behavior-inline: contain;
 	}
-
 	.course-dependencies:focus-visible {
 		outline: 0.125rem solid rgb(var(--color-accent-primary));
 		outline-offset: 0.1875rem;
-		border-radius: 0.5rem;
+		border-radius: 0.25rem;
 	}
-
 	@media (min-width: 48rem) {
 		.course-metadata {
-			grid-template-columns: repeat(4, minmax(0, 1fr));
+			grid-template-columns: 2fr repeat(3, minmax(0, 1fr));
+		}
+		.course-metadata > div:first-child {
+			grid-column: auto;
+			display: block;
 		}
 	}
 </style>

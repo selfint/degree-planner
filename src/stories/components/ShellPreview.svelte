@@ -13,9 +13,12 @@
 	let query = $state('');
 </script>
 
-{#if kind === 'AppFooter'}<AppFooter persistPreferences={false} />
+{#if kind === 'AppFooter'}<AppFooter
+		persistPreferences={false}
+		compact={variant === 'compact'}
+	/>
 {:else if kind === 'LandingInstallInfo'}<LandingInstallInfo />
-{:else if kind === 'ThemeToggle'}<ThemeToggle />
+{:else if kind === 'ThemeToggle'}<ThemeToggle compact={variant === 'compact'} />
 {:else if kind === 'TitleBar'}
 	<TitleBar
 		started={variant !== 'landing'}

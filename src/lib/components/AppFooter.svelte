@@ -4,8 +4,10 @@
 	import ThemeToggle from './ThemeToggle.svelte';
 	import Select from './Select.svelte';
 
-	let { persistPreferences = true }: { persistPreferences?: boolean } =
-		$props();
+	let {
+		persistPreferences = true,
+		compact = false
+	}: { persistPreferences?: boolean; compact?: boolean } = $props();
 
 	function changeLanguage(value: (typeof cms)[keyof typeof cms]) {
 		if (!persistPreferences) return;
@@ -17,9 +19,13 @@
 	}
 </script>
 
-<footer class="border-t border-border bg-background px-4 py-4 text-sm sm:px-8">
+<footer
+	class="border-t border-border bg-background {compact
+		? 'px-3 py-2 text-xs'
+		: 'px-4 py-4 text-sm sm:px-8'}"
+>
 	<div
-		class="mx-auto flex max-w-[76rem] flex-wrap items-center justify-between gap-x-6 gap-y-3"
+		class="mx-auto flex max-w-[76rem] flex-wrap items-center justify-between gap-x-4 gap-y-1"
 	>
 		<div
 			class="flex flex-wrap items-center gap-x-4 gap-y-1 text-content-secondary"
@@ -41,8 +47,8 @@
 			>
 		</div>
 		<div class="flex items-center gap-2">
-			<ThemeToggle />
-			<label class="[&_select]:min-h-11">
+			<ThemeToggle {compact} />
+			<label class={compact ? '[&_select]:min-h-9' : '[&_select]:min-h-11'}>
 				<span class="sr-only"
 					>{content.lang.lang === 'he' ? 'שפה' : 'Language'}</span
 				>

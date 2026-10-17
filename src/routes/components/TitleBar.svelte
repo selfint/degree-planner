@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { Snippet } from 'svelte';
 	import Logo from '$lib/assets/logo.webp?enhanced';
 	import Title from '$lib/assets/Title.svg?raw';
 
@@ -12,6 +13,7 @@
 
 	type Props = {
 		started: boolean;
+		status?: Snippet;
 		homeHref?: '/' | '/app/';
 		searchQuery: string;
 		searchRevision: number;
@@ -20,6 +22,7 @@
 
 	const {
 		started,
+		status,
 		homeHref = '/',
 		searchQuery,
 		searchRevision,
@@ -85,6 +88,7 @@
 		>
 			<Nav target="catalog">{content.lang.header.catalog}</Nav>
 			<Nav target="plan">{content.lang.header.plan}</Nav>
+			{@render status?.()}
 			<Nav target="settings">
 				<span aria-hidden="true"><Settings /></span>
 				<span class="sr-only">{content.lang.landing.settings.header}</span>
@@ -126,8 +130,18 @@
 		block-size: auto;
 	}
 	.console {
+		min-block-size: 3rem;
+		padding: 0.25rem 0.5rem;
+		gap: 0.5rem;
 		display: grid;
 		grid-template-columns: auto minmax(10rem, 25rem) auto;
+	}
+	.console .brand :global(.brand-logo) {
+		inline-size: 1.75rem;
+		block-size: 1.75rem;
+	}
+	.console .brand-title {
+		inline-size: 4rem;
 	}
 	nav {
 		display: flex;
@@ -138,12 +152,12 @@
 	.header-search {
 		display: flex;
 		min-inline-size: 0;
-		min-block-size: 2.75rem;
+		min-block-size: 2.25rem;
 		align-items: center;
-		gap: 0.625rem;
-		padding-inline: 0.875rem;
+		gap: 0.375rem;
+		padding-inline: 0.5rem;
 		border: 0.0625rem solid rgb(var(--color-border));
-		border-radius: 0.75rem;
+		border-radius: 0.375rem;
 		background: rgb(var(--color-card-primary));
 	}
 	.header-search:focus-within {
@@ -161,7 +175,7 @@
 	input {
 		inline-size: 100%;
 		min-inline-size: 0;
-		padding-block: 0.5rem;
+		padding-block: 0.25rem;
 		border: 0;
 		outline: none;
 		background: transparent;
@@ -174,7 +188,7 @@
 	@media (max-width: 47.99rem) {
 		.console {
 			grid-template-columns: auto 1fr;
-			gap: 0.625rem 0.5rem;
+			gap: 0.125rem 0.5rem;
 		}
 		.console .brand {
 			grid-column: 1;
@@ -189,7 +203,7 @@
 			grid-row: 2;
 		}
 	}
-	@media (max-width: 26rem) {
+	@media (max-width: 47.99rem) {
 		.console .brand-title {
 			display: none;
 		}

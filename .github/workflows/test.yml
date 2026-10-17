@@ -35,6 +35,9 @@ jobs:
       - name: Test the built worker and IndexedDB ownership boundary
         if: matrix.browser == 'chromium'
         run: npx vitest run --config vitest.integration.config.ts
+      - name: Compare full-shell mobile density against the pinned baseline
+        if: (success() || failure()) && matrix.browser == 'chromium'
+        run: node scripts/checkMobileDensity.mjs
       - name: Upload browser recordings, screenshots, and failure traces
         if: always()
         uses: actions/upload-artifact@v4

@@ -123,3 +123,37 @@ test('planned course navigation and warnings are separate keyboard controls', as
 	await page.keyboard.press('Enter');
 	await expect(page).toHaveURL(/\/app\/course\/10400001$/);
 });
+
+for (const width of [320, 390]) {
+	test(`compact warning stays beside credits without obscuring the course code (${width}px)`, async ({
+		page
+	}) => {
+		await page.setViewportSize({ width, height: 568 });
+		const card = page.locator('[data-code="10400001"]');
+		const toggle = card.getByRole('button', {
+			name: 'Course requirement details',
+			exact: true
+		});
+		await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+		await card.scrollIntoViewIfNeeded();
+		const code = (await card.locator('.course-code').boundingBox())!;
+		const credits = (await card.locator('.course-points').boundingBox())!;
+		const warning = (await toggle.boundingBox())!;
+		expect(warning.width).toBeGreaterThanOrEqual(36);
+		expect(warning.height).toBeGreaterThanOrEqual(36);
+		expect(code.y + code.height).toBeLessThanOrEqual(warning.y + 1);
+		expect(credits.x + credits.width).toBeLessThanOrEqual(warning.x + 1);
+		await expect(card.locator('.course-name')).toHaveAttribute(
+			'title',
+			'Advanced course'
+		);
+		await expect(card.locator('button button')).toHaveCount(0);
+		await toggle.focus();
+		await page.keyboard.press('Enter');
+		await expect(
+			card.getByRole('heading', { name: 'Dependencies' })
+		).toBeVisible();
+		await page.keyboard.press('Space');
+		await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+	});
+}

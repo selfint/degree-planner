@@ -42,6 +42,18 @@ describe('exhaustive Storybook inventory', () => {
 		const documentation = readFileSync(join(root, 'docs/storybook.md'), 'utf8');
 		for (const component of sourceComponents)
 			expect(documentation).toContain(component);
+		for (const entry of coverage) {
+			const row = documentation
+				.split('\n')
+				.find((line) => line.startsWith('|') && line.includes(entry.path!));
+			expect(
+				row?.split('|').map((cell) => cell.trim()),
+				entry.file
+			).toContain(entry.stories.join(', '));
+		}
+		expect(documentation).toContain(
+			`${coverage.reduce((count, entry) => count + entry.stories.length, 0)} stories`
+		);
 	});
 	it('keeps lifecycle and public-data services outside Storybook', () => {
 		const config = readFileSync(join(root, '.storybook/main.ts'), 'utf8');

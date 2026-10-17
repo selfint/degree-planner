@@ -27,12 +27,12 @@ async function expectRemSizedNumberField(input: Locator) {
 	// CSSOM returns pixel measurements; compare against the current rem unit.
 	expect(dimensions.width / dimensions.rootFontSize).toBeGreaterThanOrEqual(4);
 	expect(dimensions.height / dimensions.rootFontSize).toBeGreaterThanOrEqual(
-		2.75
+		2.25
 	);
 	expect(dimensions.fontSize / dimensions.rootFontSize).toBeCloseTo(1);
 	expect(
 		dimensions.targetHeight / dimensions.rootFontSize
-	).toBeGreaterThanOrEqual(2.75);
+	).toBeGreaterThanOrEqual(2.25);
 }
 
 const courses = Object.values(courseData) as {
@@ -197,9 +197,7 @@ test('handles malformed URLs, zero median, and an empty result set', async ({
 	await expect(page.locator('main p[role="status"]')).toHaveText(
 		`0 results found (of ${matches.length})`
 	);
-	await expect(
-		page.getByText('No courses match this search.', { exact: false })
-	).toBeVisible();
+	await expect(page.getByText('No results', { exact: true })).toBeVisible();
 	await page.getByRole('button', { name: 'Clear filters' }).click();
 	await expect(page.locator('main p[role="status"]')).toHaveText(
 		`${matches.length} results found`

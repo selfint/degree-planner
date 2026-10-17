@@ -210,7 +210,7 @@
 	}
 </script>
 
-<details class="search-filters ui-panel" bind:open={expanded}>
+<details class="search-filters" bind:open={expanded}>
 	<summary class="filter-summary">
 		<span>{content.lang.search.filters}</span>
 		{#if activeCount > 0}
@@ -359,22 +359,23 @@
 
 <style>
 	.search-filters {
-		margin-block-end: 1.5rem;
-		padding: 0.25rem 1rem 1rem;
+		min-inline-size: 0;
 	}
-	.search-filters:not([open]) {
-		padding-block-end: 0.25rem;
+	.search-filters[open] {
+		padding-block-end: 0.625rem;
+		border-block-end: 1px solid rgb(var(--color-border));
 	}
 	.filter-summary {
-		min-block-size: 2.75rem;
-		padding-block: 0.625rem;
+		min-block-size: 2.25rem;
+		padding-block: 0.375rem;
 		cursor: pointer;
+		font-size: 0.8125rem;
 		font-weight: 600;
 	}
 	.filter-summary:focus-visible {
 		outline: 0.125rem solid rgb(var(--color-accent-primary));
-		outline-offset: 0.1875rem;
-		border-radius: 0.375rem;
+		outline-offset: 0.125rem;
+		border-radius: 0.25rem;
 	}
 	.filter-summary::marker {
 		color: rgb(var(--color-content-secondary));
@@ -383,32 +384,31 @@
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		min-inline-size: 1.5rem;
-		padding-inline: 0.375rem;
-		margin-inline-start: 0.5rem;
-		border-radius: 1rem;
+		min-inline-size: 1.25rem;
+		padding-inline: 0.25rem;
+		margin-inline-start: 0.375rem;
+		border-radius: 0.25rem;
 		background: rgb(var(--color-accent-primary) / 0.15);
-		color: rgb(var(--color-content-primary));
 		font-size: 0.75rem;
 		font-variant-numeric: tabular-nums;
 	}
 	.filter-grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
-		gap: 1rem 1.5rem;
-		padding-block-start: 0.5rem;
+		grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+		gap: 0.625rem 1rem;
+		padding-block-start: 0.25rem;
 	}
 	.filter-field {
 		display: grid;
 		align-content: start;
-		gap: 0.375rem;
+		gap: 0.25rem;
 		min-inline-size: 0;
 	}
 	.filter-available {
 		display: flex;
 		align-items: center;
-		gap: 0.625rem;
-		min-block-size: 2.75rem;
+		gap: 0.5rem;
+		min-block-size: 2.25rem;
 		cursor: pointer;
 		align-self: end;
 	}
@@ -416,7 +416,7 @@
 		display: grid;
 		grid-template-columns: minmax(0, 1fr) 4.5rem;
 		align-items: center;
-		gap: 0.375rem 0.75rem;
+		gap: 0.25rem 0.625rem;
 		min-inline-size: 0;
 	}
 	.filter-range > label:first-child {
@@ -425,7 +425,7 @@
 	.range-input {
 		inline-size: 100%;
 		min-inline-size: 0;
-		block-size: 2.75rem;
+		block-size: 2.25rem;
 		cursor: pointer;
 		accent-color: rgb(var(--color-accent-primary));
 	}
@@ -435,13 +435,18 @@
 	}
 	.filter-clear {
 		align-self: end;
+		justify-self: start;
 	}
-
+	/* Leave finger room around the narrow slider track without enlarging every control. */
+	@media (pointer: coarse) {
+		.range-input {
+			block-size: 2.75rem;
+		}
+	}
 	/* Keep decimal values readable in compact fields without desktop spin buttons. */
 	input[type='number'] {
 		appearance: textfield;
 	}
-
 	input[type='number']::-webkit-inner-spin-button,
 	input[type='number']::-webkit-outer-spin-button {
 		-webkit-appearance: none;

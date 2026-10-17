@@ -55,8 +55,8 @@ export const ExpandedFilters: Story = {
 			expect(canvasElement.querySelector('summary')).not.toBeNull()
 		);
 		await userEvent.click(canvasElement.querySelector('summary')!);
-		await expect(canvasElement.querySelector('details')).not.toHaveAttribute(
-			'open'
+		await waitFor(() =>
+			expect(canvasElement.querySelector('details')).toHaveAttribute('open')
 		);
 		await expect(
 			within(canvasElement).getByRole('heading', { level: 1 })

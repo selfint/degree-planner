@@ -18,7 +18,7 @@ export const pwaMessages = {
 		courseActionsUnavailable:
 			'Course details are available. Plan actions will return when your saved plan is ready; account changes need an internet connection.',
 		accountUnavailable:
-			'Your account plan needs an internet connection to load and sync. Reconnect to continue. Any open draft is kept in this window.',
+			'Reconnect to load your account plan. Your draft stays in this window.',
 		offline:
 			'You’re offline. All downloaded course and catalog data and saved guest plans remain available once offline setup is complete. Plan editing, saving, account plans, sign-in and syncing need internet. Keep this window open until account changes finish syncing.',
 		update:
@@ -44,7 +44,7 @@ export const pwaMessages = {
 		courseActionsUnavailable:
 			'פרטי הקורס זמינים. פעולות התוכנית יחזרו כשהתוכנית השמורה תהיה מוכנה; שינויים בחשבון דורשים חיבור לאינטרנט.',
 		accountUnavailable:
-			'טעינה וסנכרון של התוכנית בחשבון דורשים חיבור לאינטרנט. התחברו מחדש כדי להמשיך. טיוטה פתוחה נשמרת בחלון הזה.',
+			'התחברו לאינטרנט כדי לטעון את התוכנית בחשבון. הטיוטה נשמרת בחלון הזה.',
 		offline:
 			'אין חיבור לאינטרנט. לאחר השלמת ההכנה, נתוני הקורסים והקטלוגים שהורדו ותוכניות אורח שמורות זמינים. עריכת תוכניות, שמירה, תוכניות בחשבון, התחברות וסנכרון דורשים אינטרנט. השאירו את החלון פתוח עד לסיום סנכרון השינויים בחשבון.',
 		update:

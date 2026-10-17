@@ -57,7 +57,7 @@
 	}
 </script>
 
-<div class="ui-page text-content-primary">
+<div class="ui-page search-page text-content-primary">
 	{#await searchData}
 		<div role="status" class="flex items-center gap-2 text-content-secondary">
 			<div class="h-5 w-5"><Spinner /></div>
@@ -69,39 +69,42 @@
 		{@const filteredResults = results.filter((course) =>
 			matchesSearchFilters(course, filters, maxPoints)
 		)}
-		<h1 class="ui-page-title break-words">
-			{content.lang.search.resultsFor} <bdi>“{query}”</bdi>
-		</h1>
-		<p role="status" class="mb-5 mt-2 text-sm text-content-secondary">
-			{filteredResults.length}
-			{content.lang.search.resultsFound}
-			{#if filteredResults.length !== results.length}
-				({content.lang.search.of} {results.length})
-			{/if}
-		</p>
-		{#key navigation.externalRevision}
-			<SearchFilters
-				bind:expanded={filtersExpanded}
-				{filters}
-				{faculties}
-				{maxPoints}
-				onchange={(next) => navigation.updateFilters(next, maxPoints)}
-				onclear={() => navigation.updateFilters(undefined, maxPoints)}
-			/>
-		{/key}
+		<header class="search-toolbar">
+			<div class="search-heading">
+				<h1 class="search-title">
+					<span class="search-title-label"
+						>{content.lang.search.resultsFor}</span
+					> <bdi>“{query}”</bdi>
+				</h1>
+				<p role="status" class="search-count">
+					{filteredResults.length}
+					{content.lang.search.resultsFound}
+					{#if filteredResults.length !== results.length}
+						({content.lang.search.of} {results.length})
+					{/if}
+				</p>
+			</div>
+			{#key navigation.externalRevision}
+				<SearchFilters
+					bind:expanded={filtersExpanded}
+					{filters}
+					{faculties}
+					{maxPoints}
+					onchange={(next) => navigation.updateFilters(next, maxPoints)}
+					onclear={() => navigation.updateFilters(undefined, maxPoints)}
+				/>
+			{/key}
+		</header>
 		{#if filteredResults.length === 0}
-			<p class="ui-panel p-6 text-content-secondary">
-				{content.lang.search.noResults}
+			<p class="search-empty text-content-secondary">
+				{content.lang.lang === 'he' ? 'אין תוצאות' : 'No results'}
 			</p>
 		{/if}
-		<ul
-			class="flex flex-wrap gap-3"
-			aria-label={content.lang.search.resultsFor}
-		>
+		<ul class="search-results" aria-label={content.lang.search.resultsFor}>
 			{#each filteredResults as course (course.code)}
 				<li id={course.code} class="min-w-0">
 					<button
-						class="block h-full rounded-xl text-start"
+						class="search-result text-start"
 						class:opacity-60={!course.current}
 						onclick={() => goto(`/app/course/${course.code}`)}
 					>
@@ -139,3 +142,74 @@
 		<p role="alert" class="ui-notice">{content.lang.search.loadError}</p>
 	{/await}
 </div>
+
+<style>
+	.search-toolbar {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0 0.75rem;
+		margin-block-end: 0.5rem;
+	}
+	.search-heading {
+		display: flex;
+		flex: 1;
+		flex-wrap: wrap;
+		align-items: baseline;
+		gap: 0.125rem 0.75rem;
+		min-inline-size: 0;
+	}
+	.search-title {
+		min-inline-size: 0;
+		overflow-wrap: anywhere;
+		font-size: 0.9375rem;
+		font-weight: 600;
+		line-height: 1.4;
+	}
+	.search-count {
+		color: rgb(var(--color-content-secondary));
+		font-size: 0.75rem;
+	}
+	.search-toolbar :global(.search-filters[open]) {
+		flex-basis: 100%;
+	}
+	.search-empty {
+		padding-block: 0.5rem;
+		font-size: 0.875rem;
+	}
+	.search-results {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+	}
+	.search-result {
+		display: block;
+		block-size: 100%;
+		border-radius: var(--radius-card);
+	}
+	@media (max-width: 35rem) {
+		.search-title-label {
+			position: absolute;
+			inline-size: 1px;
+			block-size: 1px;
+			overflow: hidden;
+			clip-path: inset(50%);
+			white-space: nowrap;
+		}
+		.search-results {
+			display: grid;
+			grid-template-columns: minmax(0, 1fr);
+			gap: 0.375rem;
+		}
+		.search-result,
+		.search-results :global(.course-card),
+		.search-results :global(.course-width) {
+			inline-size: 100%;
+			min-inline-size: 0;
+			max-inline-size: none;
+		}
+		.search-results :global(.course-body) {
+			min-block-size: 0;
+		}
+	}
+</style>

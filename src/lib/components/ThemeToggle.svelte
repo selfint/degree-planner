@@ -9,6 +9,7 @@
 		type Theme
 	} from '$lib/theme';
 
+	let { compact = false }: { compact?: boolean } = $props();
 	let theme = $state<Theme>('dark');
 	let ready = $state(false);
 	const label = $derived(content.lang.header.lightMode);
@@ -43,11 +44,13 @@
 		? content.lang.header.switchToLight
 		: content.lang.header.switchToDark}
 	onclick={toggleTheme}
-	class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-border text-content-secondary hover:bg-card-primary hover:text-content-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-primary"
+	class="flex shrink-0 items-center justify-center rounded-md border border-border text-content-secondary hover:bg-card-primary hover:text-content-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-primary {compact
+		? 'h-9 w-9'
+		: 'h-11 w-11'}"
 >
 	<svg
 		aria-hidden="true"
-		class="h-5 w-5"
+		class="h-4 w-4"
 		viewBox="0 0 24 24"
 		fill="none"
 		stroke="currentColor"

@@ -71,15 +71,15 @@
 </script>
 
 <!-- Fill the remaining viewport while letting long plans grow naturally. -->
-<div use:fitPlanToViewport class="plan-page mb-4 mt-4 flex flex-col">
-	<div class="mb-6 flex shrink-0 flex-col gap-2">
+<div use:fitPlanToViewport class="plan-page mb-2 mt-2 flex flex-col">
+	<div class="mb-3 flex shrink-0 flex-col gap-1">
 		<div
-			class="me-3 ms-3 flex min-h-11 shrink-0 flex-row items-center justify-between gap-3 sm:me-5 sm:ms-5"
+			class="me-3 ms-3 flex min-h-9 shrink-0 flex-row items-center justify-between gap-3 sm:me-5 sm:ms-5"
 		>
-			<h1 class="text-base font-semibold text-content-primary">
+			<h1 class="text-sm font-semibold text-content-primary">
 				{content.lang.plan.wishlist}
 			</h1>
-			<div class="flex flex-row items-center gap-x-2 text-sm">
+			<div class="flex flex-row items-center gap-x-1 text-sm">
 				{#if hasChanges}
 					<AsyncButton
 						variant="secondary"
@@ -170,10 +170,7 @@
 						}
 					}}
 					dir={content.lang.dir}
-					data-empty-message={content.lang.lang === 'he'
-						? 'גררו לכאן קורסים שתרצו ללמוד'
-						: 'Drag courses you’d like to take here'}
-					class="wishlist-rail me-3 ms-3 flex min-h-[6.5rem] min-w-[calc(100%-1.5rem)] shrink-0 flex-row items-start justify-start gap-x-2 sm:me-5 sm:ms-5 sm:min-w-[calc(100%-2.5rem)]"
+					class="wishlist-rail me-3 ms-3 flex min-h-12 min-w-[calc(100%-1.5rem)] shrink-0 flex-row items-start justify-start gap-x-2 sm:me-5 sm:ms-5 sm:min-w-[calc(100%-2.5rem)]"
 				>
 					{#each wishlist as course}
 						<button
@@ -182,7 +179,11 @@
 							class="shrink-0 rounded-[var(--radius-card)] text-start"
 							onclick={() => goto(`/app/course/${course}`)}
 						>
-							<CourseElement code={course} course={getCourseData(course)} />
+							<CourseElement
+								code={course}
+								course={getCourseData(course)}
+								squeeze={true}
+							/>
 						</button>
 					{/each}
 				</div>
@@ -205,7 +206,7 @@
 			<div class="ms-3 sm:ms-5"></div>
 			{#key semesters.map((s) => s.join('-')).join(',')}
 				{#each semesters as semester, semesterIndex}
-					<div class="flex pe-3">
+					<div class="flex pe-2">
 						<Semester
 							{getCourseData}
 							index={semesterIndex}
@@ -305,24 +306,14 @@
 		border-radius: var(--radius-card, 0.875rem);
 		background: rgb(var(--color-card-primary) / 0.4);
 	}
-	.wishlist-rail:empty::before {
-		content: attr(data-empty-message);
-		padding: 1rem;
-		color: rgb(var(--color-content-secondary));
-		font-size: 0.8125rem;
-		pointer-events: none;
-	}
 	:global(.wishlist-ghost) {
-		max-block-size: 7.375rem;
-		inline-size: clamp(10rem, 42vw, 13.75rem);
-		min-inline-size: 10rem;
-		max-inline-size: 13.75rem;
+		max-block-size: 7.25rem;
+		inline-size: calc((100vw - 2.5rem) / 3.25);
 		overflow-y: hidden;
 	}
 	@media (min-width: 40rem) {
 		:global(.wishlist-ghost) {
-			inline-size: 13.75rem;
-			min-inline-size: 13.75rem;
+			inline-size: 10.5rem;
 		}
 	}
 </style>

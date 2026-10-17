@@ -12,6 +12,10 @@ export const Primary: Story = {};
 export const Secondary: Story = { args: { variant: 'secondary' } };
 export const Disabled: Story = { args: { disabled: true } };
 export const Offline: Story = { parameters: { planner: { online: false } } };
+export const OfflineHiddenReason: Story = {
+	args: { showOfflineReason: false },
+	parameters: { planner: { online: false } }
+};
 export const Loading: Story = {
 	args: { pending: true },
 	play: async ({ canvasElement }) => {

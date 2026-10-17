@@ -70,17 +70,10 @@
 		</div>
 	</header>
 	{#if data.semesters.length === 0}
-		<p class="ui-panel preview-empty">
-			{content.lang.lang === 'he'
-				? 'אין סמסטרים בתוכנית זו.'
-				: 'This plan has no semesters yet.'}
+		<p class="preview-empty">
+			{content.lang.lang === 'he' ? 'אין סמסטרים' : 'No semesters'}
 		</p>
 	{:else}
-		<p class="preview-scroll-hint">
-			{content.lang.lang === 'he'
-				? 'גללו לצדדים כדי לראות את כל הסמסטרים בתוכנית.'
-				: 'Scroll horizontally to view all semesters in this plan.'}
-		</p>
 		<!-- svelte-ignore a11y_no_noninteractive_tabindex (Keyboard users need to focus this region to scroll through the semesters.) -->
 		<div
 			class="preview-semesters"
@@ -112,87 +105,59 @@
 	.preview-page {
 		min-inline-size: 0;
 	}
-
 	.preview-header {
 		display: flex;
-		align-items: flex-end;
+		flex-wrap: wrap;
+		align-items: center;
 		justify-content: space-between;
-		gap: 1.25rem 2rem;
-		margin-block-end: 1.5rem;
+		gap: 0.5rem 1rem;
+		margin-block-end: 0.75rem;
 	}
-
 	.preview-heading {
 		max-inline-size: 52rem;
 		min-inline-size: 0;
 		overflow-wrap: anywhere;
 	}
-
 	.preview-eyebrow {
-		margin-block-end: 0.5rem;
 		color: rgb(var(--color-content-secondary));
-		font-size: 0.875rem;
-		font-weight: 500;
+		font-size: 0.75rem;
 	}
-
 	.preview-actions {
 		flex-shrink: 0;
 	}
-
 	.preview-loading {
 		display: inline-block;
-		inline-size: 1.5rem;
-		block-size: 1.5rem;
+		inline-size: 1.25rem;
+		block-size: 1.25rem;
 	}
-
-	.preview-scroll-hint {
-		margin-block-end: 1rem;
-		color: rgb(var(--color-content-secondary));
-		font-size: 0.875rem;
-	}
-
 	.preview-semesters {
 		display: flex;
 		align-items: flex-start;
-		gap: 1rem;
+		gap: 0.5rem;
 		overflow-x: auto;
 		overscroll-behavior-inline: contain;
 		scroll-snap-type: inline proximity;
 		scroll-padding-inline: 0.25rem;
-		padding: 0.25rem 0.25rem 1rem;
+		padding: 0.25rem 0.25rem 0.625rem;
 		margin-inline: -0.25rem;
 		scrollbar-color: rgb(var(--color-content-secondary) / 0.4) transparent;
 	}
-
 	.preview-semester {
 		flex-shrink: 0;
 		scroll-snap-align: start;
 	}
-
 	.preview-course {
 		display: block;
 		touch-action: manipulation;
 		border-radius: var(--radius-card);
 	}
-
 	.preview-empty {
-		padding: 1.25rem;
 		color: rgb(var(--color-content-secondary));
+		font-size: 0.875rem;
 	}
-
 	.preview-semesters:focus-visible {
 		outline: 0.125rem solid rgb(var(--color-accent-primary));
 		outline-offset: 0.1875rem;
-		border-radius: 0.5rem;
-	}
-
-	@media (max-width: 40rem) {
-		.preview-header {
-			flex-direction: column;
-			align-items: stretch;
-		}
-
-		.preview-actions :global(button) {
-			inline-size: 100%;
-		}
+		border-radius: 0.25rem;
 	}
 </style>

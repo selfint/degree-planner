@@ -10,3 +10,4 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 export const Default: Story = { args: { state: 'default' } };
+export const Compact: Story = { args: { state: 'compact' } };

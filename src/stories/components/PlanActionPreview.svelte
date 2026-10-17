@@ -3,10 +3,12 @@
 	let {
 		variant = 'primary',
 		disabled = false,
+		showOfflineReason = true,
 		pending = false
 	}: {
 		variant?: 'primary' | 'secondary';
 		disabled?: boolean;
+		showOfflineReason?: boolean;
 		pending?: boolean;
 	} = $props();
 	let count = $state(0);
@@ -16,6 +18,7 @@
 	<PlanActionButton
 		{variant}
 		{disabled}
+		{showOfflineReason}
 		onclick={async () => {
 			if (pending) await new Promise(() => {});
 			count++;

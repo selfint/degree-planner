@@ -26,12 +26,12 @@
 <style>
 	.nav-link {
 		display: inline-flex;
-		min-block-size: 2.75rem;
-		min-inline-size: 2.75rem;
+		min-block-size: 2.25rem;
+		min-inline-size: 2.25rem;
 		align-items: center;
 		justify-content: center;
-		padding: 0.625rem 0.75rem;
-		border-radius: 0.625rem;
+		padding: 0.375rem 0.5rem;
+		border-radius: 0.375rem;
 		color: rgb(var(--color-content-secondary));
 		font-size: 0.875rem;
 		font-weight: 550;

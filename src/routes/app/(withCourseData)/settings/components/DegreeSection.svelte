@@ -186,7 +186,7 @@
 	}
 </script>
 
-<section class="ui-panel degree-section">
+<section class="degree-section">
 	<h2 class="section-title">{content.lang.settings.degree}</h2>
 	<div class="degree-fields">
 		<label class="settings-field">
@@ -331,59 +331,47 @@
 <style>
 	.degree-section {
 		min-inline-size: 0;
-		padding: clamp(1.25rem, 3vw, 1.75rem);
 		text-align: start;
 	}
-
 	.section-title {
-		margin-block-end: 1.25rem;
-		font-size: 1.125rem;
-		font-weight: 650;
+		margin-block-end: 0.5rem;
+		font-size: 0.9375rem;
+		font-weight: 600;
 		line-height: 1.4;
 	}
-
 	.degree-fields {
 		display: grid;
-		gap: 1.25rem;
+		gap: 0.5rem;
 	}
-
 	.settings-field {
 		display: grid;
+		grid-template-columns: 5rem minmax(0, 1fr);
+		align-items: center;
 		min-inline-size: 0;
 		gap: 0.5rem;
 	}
-
 	.settings-field > span {
-		font-size: 0.875rem;
-		font-weight: 600;
+		font-size: 0.8125rem;
+		font-weight: 500;
 	}
-
 	.field-status {
 		display: flex;
-		min-block-size: 2.75rem;
 		align-items: center;
-		gap: 0.625rem;
-		padding: 0.625rem 0.75rem;
-		border-radius: 0.625rem;
-		background: rgb(var(--color-background));
+		gap: 0.5rem;
 		color: rgb(var(--color-content-secondary));
-		font-size: 0.9375rem;
+		font-size: 0.8125rem;
 	}
-
 	.section-actions {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 0.625rem;
-		margin-block-start: 1.5rem;
-		padding-block-start: 1.25rem;
-		border-block-start: 0.0625rem solid rgb(var(--color-border));
+		gap: 0.5rem;
+		margin-block-start: 0.625rem;
 	}
-
 	@media (min-width: 40rem) {
 		.degree-fields {
 			grid-template-columns: repeat(2, minmax(0, 1fr));
+			column-gap: 1rem;
 		}
-
 		.field-wide {
 			grid-column: 1 / -1;
 		}

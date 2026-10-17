@@ -108,7 +108,7 @@
 	</header>
 
 	{#if user.d.degree !== undefined}
-		<section class="ui-panel catalog-summary">
+		<section class="catalog-summary">
 			<h2 class="catalog-section-title">
 				{#await degreeName()}
 					<span class="catalog-loading" role="status">
@@ -142,30 +142,16 @@
 			</div>
 		</section>
 	{:else}
-		<div class="ui-panel catalog-empty catalog-empty-degree">
-			<p>
-				{content.lang.lang === 'he'
-					? 'בחרו תואר כדי לראות את הקורסים והדרישות שלו.'
-					: 'Choose a degree to see its courses and requirements.'}
-			</p>
+		<div class="catalog-empty catalog-empty-degree">
 			<a class="ui-button ui-button--secondary" href="/app/settings"
 				>{content.lang.settings.selectDegree}</a
 			>
 		</div>
 	{/if}
 
-	<section class="catalog-section">
-		<h2 class="catalog-section-title">{content.lang.catalog.wishlist}</h2>
-		{#if user.d.wishlist.length === 0}
-			<div class="ui-panel catalog-empty">
-				<span class="catalog-empty-icon" aria-hidden="true">☆</span>
-				<p>
-					{content.lang.lang === 'he'
-						? 'רשימת המשאלות שלך ריקה. פתחו קורס והוסיפו אותו לרשימה כדי לשמור אותו להמשך.'
-						: 'Your wish list is empty. Open a course and add it to your wish list to save it for later.'}
-				</p>
-			</div>
-		{:else}
+	{#if user.d.wishlist.length > 0}
+		<section class="catalog-section">
+			<h2 class="catalog-section-title">{content.lang.catalog.wishlist}</h2>
 			<CourseRow {getCourseData} courses={user.d.wishlist} indent={0}>
 				{#snippet children({ code, course, index })}
 					<a href={`/app/course/${code}`}>
@@ -183,8 +169,8 @@
 					</a>
 				{/snippet}
 			</CourseRow>
-		{/if}
-	</section>
+		</section>
+	{/if}
 
 	{#if user.d.degree !== undefined}
 		{#await lists}
@@ -218,7 +204,7 @@
 								<span>{content.lang.lang === 'he' ? title.he : title.en}</span>
 							{/each}
 						</h2>
-						<div class="ui-panel catalog-progress catalog-progress-panel">
+						<div class="catalog-progress catalog-progress-panel">
 							{@render progressMetric(
 								content.lang.settings.count,
 								listCurrent.length,
@@ -254,10 +240,8 @@
 					</section>
 				{/if}
 			{:else}
-				<p class="ui-panel catalog-empty">
-					{content.lang.lang === 'he'
-						? 'אין עדיין קורסים בקטלוג של התואר הזה.'
-						: 'No courses are listed for this degree yet.'}
+				<p class="catalog-empty">
+					{content.lang.lang === 'he' ? 'אין קורסים' : 'No courses'}
 				</p>
 			{/each}
 		{/await}
@@ -267,110 +251,96 @@
 <style>
 	.catalog-page {
 		display: grid;
-		gap: 2rem;
+		gap: 0.875rem;
 	}
-
 	.catalog-summary {
-		padding: clamp(1rem, 2vw, 1.5rem);
+		padding-block-end: 0.75rem;
+		border-block-end: 1px solid rgb(var(--color-border));
 	}
-
 	.catalog-section {
 		min-inline-size: 0;
 	}
-
 	.catalog-section-title {
-		margin-block-end: 1rem;
-		font-size: 1.125rem;
+		margin-block-end: 0.5rem;
+		font-size: 0.9375rem;
 		font-weight: 600;
-		line-height: 1.5;
+		line-height: 1.4;
 		overflow-wrap: anywhere;
 	}
-
 	.catalog-path {
 		display: flex;
 		flex-wrap: wrap;
 		align-items: baseline;
-		gap: 0.375rem 0.625rem;
+		gap: 0.25rem 0.5rem;
 	}
-
 	.catalog-path-separator {
 		color: rgb(var(--color-content-secondary));
 		font-weight: 400;
 	}
-
 	.catalog-progress {
 		display: grid;
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-		gap: 1.5rem;
+		gap: 0.5rem;
 		max-inline-size: 48rem;
 	}
-
 	.catalog-progress-panel {
-		margin-block-end: 1rem;
-		padding: 1rem 1.25rem;
+		margin-block-end: 0.625rem;
 	}
-
 	.catalog-metric {
+		display: grid;
+		grid-template-columns: 3.5rem minmax(0, 1fr);
+		align-items: baseline;
+		gap: 0.25rem 0.5rem;
 		min-inline-size: 0;
 	}
-
+	.catalog-metric > :global(:last-child) {
+		grid-column: 1 / -1;
+	}
 	.catalog-metric-label {
-		margin-block-end: 0.625rem;
-		font-size: 0.875rem;
-		font-weight: 600;
+		font-size: 0.8125rem;
+		font-weight: 500;
 	}
-
 	.catalog-values {
-		display: grid;
-		grid-auto-columns: minmax(0, 1fr);
-		grid-auto-flow: column;
-		gap: 0.75rem;
-		margin-block-end: 0.625rem;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.25rem 0.625rem;
 	}
-
+	.catalog-values > div {
+		display: flex;
+		align-items: baseline;
+		gap: 0.25rem;
+	}
 	.catalog-values dt {
 		color: rgb(var(--color-content-secondary));
 		font-size: 0.75rem;
 	}
-
 	.catalog-values dd {
-		font-size: 1.125rem;
+		font-size: 0.8125rem;
 		font-weight: 600;
 		font-variant-numeric: tabular-nums;
 	}
-
 	.catalog-loading {
 		display: flex;
 		align-items: center;
-		gap: 0.625rem;
+		gap: 0.5rem;
 		color: rgb(var(--color-content-secondary));
-		font-size: 0.875rem;
+		font-size: 0.8125rem;
 		font-weight: 400;
 	}
-
 	.catalog-empty {
 		display: flex;
 		align-items: center;
-		gap: 1rem;
-		padding: 1.25rem;
+		gap: 0.5rem;
 		color: rgb(var(--color-content-secondary));
-		font-size: 0.9375rem;
-		line-height: 1.7;
+		font-size: 0.8125rem;
+		line-height: 1.5;
 	}
-
-	.catalog-empty-icon {
-		font-size: 1.75rem;
-		color: rgb(var(--color-accent-primary));
-	}
-
 	.catalog-empty-degree {
 		flex-wrap: wrap;
 		justify-content: space-between;
 	}
-
-	@media (max-width: 35rem) {
+	@media (min-width: 48rem) {
 		.catalog-progress {
-			grid-template-columns: minmax(0, 1fr);
+			grid-template-columns: repeat(2, minmax(0, 1fr));
 			gap: 1.25rem;
 		}
 	}

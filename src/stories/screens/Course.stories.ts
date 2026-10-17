@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/sveltekit';
+import { userEvent, waitFor, expect } from 'storybook/test';
 import CoursePage from '../../routes/app/(withCourseData)/course/[code]/+page.svelte';
 import {
 	courses,
@@ -31,6 +32,23 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
+export const ExpandedDescription: Story = {
+	play: async ({ canvasElement }) => {
+		await waitFor(() =>
+			expect(
+				canvasElement.querySelector('.course-description summary')
+			).not.toBeNull()
+		);
+		await userEvent.click(
+			canvasElement.querySelector('.course-description summary')!
+		);
+		await waitFor(() =>
+			expect(
+				canvasElement.querySelector('.course-description')
+			).toHaveAttribute('open')
+		);
+	}
+};
 export const Planned: Story = {
 	parameters: { planner: { plan: 'populated' } }
 };

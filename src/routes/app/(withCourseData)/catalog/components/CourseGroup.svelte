@@ -103,10 +103,8 @@
 					{/if}
 				</header>
 				{#if group.length === 0}
-					<p class="ui-panel course-group-empty">
-						{content.lang.lang === 'he'
-							? 'אין עדיין קורסים בקבוצה זו.'
-							: 'There are no courses in this group yet.'}
+					<p class="course-group-empty">
+						{content.lang.lang === 'he' ? 'אין קורסים' : 'No courses'}
 					</p>
 				{:else}
 					<CourseRow {getCourseData} courses={group} indent={0}>
@@ -153,57 +151,45 @@
 	.course-group {
 		max-inline-size: 100%;
 		min-inline-size: 0;
-		padding-inline: 0.75rem;
 	}
-
 	.course-group-section + .course-group-section {
-		margin-block-start: 1.5rem;
+		margin-block-start: 0.875rem;
 	}
-
 	.course-group-header {
 		display: flex;
 		flex-wrap: wrap;
 		align-items: baseline;
 		justify-content: space-between;
-		gap: 0.625rem 1rem;
-		margin-block-end: 1rem;
+		gap: 0.25rem 0.75rem;
+		margin-block-end: 0.5rem;
 	}
-
 	.course-group-title {
 		display: flex;
 		flex-wrap: wrap;
 		align-items: baseline;
-		gap: 0.375rem 0.625rem;
+		gap: 0.25rem 0.5rem;
 		min-inline-size: 0;
-		font-size: 1.125rem;
+		font-size: 0.9375rem;
 		font-weight: 600;
-		line-height: 1.5;
+		line-height: 1.4;
 		overflow-wrap: anywhere;
 	}
-
 	.course-group-divider {
 		color: rgb(var(--color-content-secondary));
 		font-weight: 400;
 	}
-
 	.course-group-score {
 		display: flex;
 		flex-wrap: wrap;
 		gap: 0.375rem;
-		padding: 0.25rem 0.625rem;
-		border-radius: 0.5rem;
-		background: rgb(var(--color-card-secondary) / 0.45);
 		color: rgb(var(--color-content-secondary));
-		font-size: 0.8125rem;
+		font-size: 0.75rem;
 		font-variant-numeric: tabular-nums;
 	}
-
 	.course-group-empty {
-		padding: 1.25rem;
 		color: rgb(var(--color-content-secondary));
-		font-size: 0.9375rem;
+		font-size: 0.8125rem;
 	}
-
 	.course-group-error {
 		margin: 0;
 	}

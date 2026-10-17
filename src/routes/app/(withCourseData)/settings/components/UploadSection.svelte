@@ -69,18 +69,10 @@
 	}
 </script>
 
-<section class="ui-panel upload-section">
+<section class="upload-section">
 	<h2 class="section-title">{content.lang.settings.upload}</h2>
 	{#if transcript === undefined}
 		<div class="upload-field">
-			<div class="upload-description">
-				<span class="file-type" aria-hidden="true">PDF</span>
-				<p>
-					{content.lang.lang === 'he'
-						? 'העלו גיליון ציונים בקובץ PDF כדי להוסיף את הקורסים לתוכנית.'
-						: 'Upload a PDF transcript to add your courses to your plan.'}
-				</p>
-			</div>
 			<div class="upload-actions">
 				<label
 					class="ui-button ui-button--primary upload-trigger"
@@ -163,73 +155,41 @@
 <style>
 	.upload-section {
 		min-inline-size: 0;
-		padding: clamp(1.25rem, 3vw, 1.75rem);
+		padding-block-start: 0.75rem;
+		border-block-start: 1px solid rgb(var(--color-border));
 		text-align: start;
 	}
-
 	.section-title {
-		margin-block-end: 1.25rem;
-		font-size: 1.125rem;
-		font-weight: 650;
+		margin-block-end: 0.5rem;
+		font-size: 0.9375rem;
+		font-weight: 600;
 		line-height: 1.4;
 	}
-
 	.upload-field {
 		display: grid;
-		gap: 1.25rem;
-		padding: 1.25rem;
-		border: 0.0625rem dashed rgb(var(--color-border));
-		border-radius: 0.75rem;
-		background: rgb(var(--color-background));
+		gap: 0.5rem;
 	}
-
-	.upload-description {
-		display: flex;
-		align-items: center;
-		gap: 0.875rem;
-		color: rgb(var(--color-content-secondary));
-		font-size: 0.9375rem;
-	}
-
-	.file-type {
-		display: grid;
-		min-block-size: 2.75rem;
-		min-inline-size: 2.75rem;
-		place-items: center;
-		border: 0.0625rem solid rgb(var(--color-border));
-		border-radius: 0.625rem;
-		background: rgb(var(--color-surface-raised));
-		color: rgb(var(--color-content-primary));
-		font-size: 0.75rem;
-		font-weight: 700;
-	}
-
 	.upload-actions,
 	.upload-status {
 		display: flex;
 		align-items: center;
-		gap: 0.625rem;
+		gap: 0.5rem;
 	}
-
 	.upload-actions {
 		flex-wrap: wrap;
 	}
-
 	.upload-status {
 		color: rgb(var(--color-content-secondary));
-		font-size: 0.875rem;
+		font-size: 0.8125rem;
 	}
-
 	.upload-trigger {
 		position: relative;
 		cursor: pointer;
 	}
-
 	.upload-trigger:focus-within {
 		outline: 0.125rem solid rgb(var(--color-accent-primary));
 		outline-offset: 0.1875rem;
 	}
-
 	.upload-trigger input {
 		position: absolute;
 		inset: 0;
@@ -238,40 +198,32 @@
 		opacity: 0;
 		cursor: pointer;
 	}
-
 	.upload-disabled,
 	.upload-disabled input {
 		cursor: not-allowed;
 	}
-
 	.upload-disabled {
 		opacity: 0.45;
 	}
-
 	.preview-header {
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
 		justify-content: space-between;
-		gap: 1rem;
-		margin-block-end: 1.5rem;
-		padding-block-end: 1.25rem;
-		border-block-end: 0.0625rem solid rgb(var(--color-border));
+		gap: 0.5rem;
+		margin-block-end: 0.75rem;
 	}
-
 	.preview-title {
-		font-size: 1rem;
+		font-size: 0.875rem;
 		font-weight: 600;
 	}
-
 	.preview-scroll:focus-visible {
 		outline: 0.125rem solid rgb(var(--color-accent-primary));
 		outline-offset: 0.1875rem;
 	}
-
 	.preview-exemptions {
 		display: grid;
-		gap: 0.75rem;
-		margin-block-end: 1.5rem;
+		gap: 0.5rem;
+		margin-block-end: 0.75rem;
 	}
 </style>

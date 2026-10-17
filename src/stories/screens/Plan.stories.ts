@@ -36,7 +36,23 @@ export const UnmetPrerequisites: Story = {
 		}
 	}
 };
+// Enough distinct fictional courses to review the compact rail's overflow cue.
+const wishlistCourses: FullCourse[] = Array.from({ length: 4 }, (_, index) => ({
+	...courses[0],
+	code: `0000000${index + 4}` as CourseCode,
+	name: `Example elective ${index + 1} · בחירה לדוגמה ${index + 1}`,
+	points: 2,
+	about: 'A fictional elective for reviewing horizontal planner scrolling.'
+}));
 export const LongPlan: Story = {
+	args: {
+		data: {
+			...baseRouteData,
+			getCourseData: async (code: CourseCode) =>
+				wishlistCourses.find((course) => course.code === code) ??
+				getCourseData(code)
+		}
+	},
 	parameters: {
 		planner: {
 			user: {
@@ -51,7 +67,7 @@ export const LongPlan: Story = {
 					[],
 					[]
 				],
-				wishlist: []
+				wishlist: wishlistCourses.map((course) => course.code)
 			}
 		}
 	}

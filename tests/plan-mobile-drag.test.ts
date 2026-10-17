@@ -719,7 +719,10 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 			await expect(secondSemester.locator('[data-code]')).toHaveCount(2);
 			const emptyWish = (await wishlist.boundingBox())!;
 			expect(emptyWish.width).toBeGreaterThan(300);
-			expect(emptyWish.height).toBeGreaterThan(80);
+			// The compact wishlist stays a full 48px touch target, rather than
+			// reserving more than a course row when it has no courses.
+			expect(emptyWish.height).toBeGreaterThanOrEqual(48);
+			expect(emptyWish.height).toBeLessThanOrEqual(64);
 			await dragTo(page, touch, '10400002', {
 				x: emptyWish.x + 30,
 				y: emptyWish.y + emptyWish.height - 12
@@ -745,12 +748,23 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 				.locator('[data-semester="0"] [data-code]')
 				.last()
 				.boundingBox())!;
-			// Readable cards, a two-row header, and a visible readiness notice can
-			// require scrolling on a 540px screen. Empty columns must grow only as
-			// far as the real courses, never add another viewport of blank space.
-			expect(rect.y + rect.height).toBeLessThanOrEqual(
-				lastOccupied.y + lastOccupied.height + 16
+			const bottomSpacing = await page
+				.locator('.plan-page')
+				.evaluate((plan) => {
+					const rail = plan.querySelector('[data-testid="semester-scroller"]')!;
+					return (
+						parseFloat(getComputedStyle(plan).marginBottom) +
+						parseFloat(getComputedStyle(rail).paddingBottom)
+					);
+				});
+			// Dense chrome can now leave room below the real courses. Fill exactly
+			// that remaining viewport space, or the real list when it is longer.
+			const expectedBottom = Math.max(
+				540 - bottomSpacing,
+				lastOccupied.y + lastOccupied.height,
+				rect.y + 128
 			);
+			expect(rect.y + rect.height).toBeCloseTo(expectedBottom, 0);
 			const pageSize = await page.evaluate(() => ({
 				height: document.documentElement.scrollHeight,
 				scrollY: window.scrollY

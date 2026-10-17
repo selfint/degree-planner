@@ -170,7 +170,10 @@
 	<meta name="apple-mobile-web-app-title" content="PlanIt" />
 </svelte:head>
 
-<div dir={content.lang.dir} class="flex h-full min-h-screen flex-col">
+<div
+	dir={content.lang.dir}
+	class="console-shell flex h-full min-h-screen flex-col"
+>
 	<div class="w-full border-b border-border bg-background">
 		<TitleBar
 			homeHref="/app/"
@@ -180,10 +183,10 @@
 				: ''}
 			searchRevision={searchNavigation.externalRevision}
 			onSearch={searchNavigation.search}
-		/>
+		>
+			{#snippet status()}<PwaStatus />{/snippet}
+		</TitleBar>
 	</div>
-
-	<PwaStatus />
 
 	<ConsoleAccountStatus
 		readOnly={!$planOnline}
@@ -198,7 +201,7 @@
 		{@render children()}
 	</main>
 
-	<AppFooter />
+	<AppFooter compact />
 </div>
 
 <style lang="postcss">

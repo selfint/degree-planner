@@ -155,6 +155,31 @@ test('individual controls are interactive and disabled states stay disabled', as
 	).toBeDisabled();
 	await page.goto(storyUrl('components-select--disabled'));
 	await expect(page.getByRole('combobox')).toBeDisabled();
+	for (const state of ['offline', 'offline-hidden-reason']) {
+		await page.goto(storyUrl(`components-planactionbutton--${state}`));
+		const action = page.getByRole('button', { name: 'Save demo plan' });
+		await expect(action).toBeDisabled();
+		await expect(action).toHaveAccessibleDescription(
+			/Reconnect to edit or save/
+		);
+		await expect(page.getByText('Demo saves: 0')).toBeVisible();
+		const reason = await action.evaluate((el) => {
+			const reason = document.getElementById(
+				el.getAttribute('aria-describedby')!
+			);
+			return (
+				reason && {
+					position: getComputedStyle(reason).position,
+					height: reason.getBoundingClientRect().height
+				}
+			);
+		});
+		expect(reason).not.toBeNull();
+		if (state === 'offline-hidden-reason') {
+			expect(reason!.position).toBe('absolute');
+			expect(reason!.height).toBeLessThanOrEqual(1);
+		} else expect(reason!.height).toBeGreaterThan(1);
+	}
 });
 
 test('theme, language and reading direction are global controls', async ({
@@ -212,16 +237,22 @@ test('footer controls leave real planner preferences untouched', async ({
 		localStorage.setItem('theme', 'dark');
 		localStorage.setItem('lang', 'en');
 	});
-	await page.goto(storyUrl('components-appfooter--default'));
-	await expect(page.getByRole('combobox').locator('option:checked')).toHaveText(
-		'en'
-	);
-	await page.getByRole('button').click();
-	await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
-	await page.getByRole('combobox').selectOption({ label: 'עב' });
-	await expect(page.getByRole('combobox').locator('option:checked')).toHaveText(
-		'עב'
-	);
+	for (const state of ['default', 'compact']) {
+		await page.goto(storyUrl(`components-appfooter--${state}`));
+		await expect(
+			page.getByRole('combobox').locator('option:checked')
+		).toHaveText('en');
+		if (state === 'compact') {
+			expect((await page.getByRole('button').boundingBox())!.height).toBe(36);
+			expect((await page.getByRole('combobox').boundingBox())!.height).toBe(36);
+		}
+		await page.getByRole('button').click();
+		await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+		await page.getByRole('combobox').selectOption({ label: 'עב' });
+		await expect(
+			page.getByRole('combobox').locator('option:checked')
+		).toHaveText('עב');
+	}
 	expect(
 		await page.evaluate(() => [
 			localStorage.getItem('theme'),
@@ -268,21 +299,83 @@ test('CourseGroup resolves actual async data and exposes loading and error state
 	await expect(page.getByRole('alert')).toBeVisible();
 });
 
-test('PWA presentation supports retry and dismiss without starting worker lifecycle', async ({
+test('PWA status stays out of flow until its compact indicator is opened', async ({
 	page
 }) => {
-	await page.goto(storyUrl('components-pwastatus--unavailable'));
-	await page.getByRole('button', { name: 'Try again' }).click();
-	await expect(page.getByText('Retry requests: 1')).toBeVisible();
-	await page.goto(storyUrl('components-pwastatus--update'));
-	await expect(page.getByTestId('pwa-update')).toBeVisible();
-	await page.getByRole('button', { name: 'Dismiss update notice' }).click();
-	await expect(page.getByTestId('pwa-update')).not.toBeVisible();
-	await page.goto(storyUrl('components-pwastatus--ready'));
-	await expect(page.getByTestId('pwa-status')).toHaveAttribute(
-		'data-state',
-		'ready'
-	);
+	for (const state of ['initial', 'preparing', 'ready']) {
+		const id = `components-pwastatus--${state}`;
+		await page.goto(storyUrl(id));
+		await expect(page.locator('[data-story-rendered]')).toHaveAttribute(
+			'data-story-rendered',
+			id
+		);
+		await expect(page.getByTestId('pwa-status')).toHaveAttribute(
+			'data-state',
+			state === 'ready' ? 'ready' : 'preparing'
+		);
+		await expect(page.locator('.pwa-details')).toHaveCount(0);
+		await expect(page.getByRole('status')).toHaveCSS('position', 'absolute');
+		if (state === 'initial') await expect(page.getByRole('status')).toBeEmpty();
+		else await expect(page.getByRole('status')).toContainText(/offline/i);
+		expect(
+			await page
+				.getByTestId('pwa-preview-slot')
+				.evaluate((el) => el.getBoundingClientRect().height)
+		).toBe(0);
+	}
+	for (const [width, globals] of [
+		[320, 'theme:light;language:he;direction:rtl'],
+		[390, 'theme:dark;language:en;direction:ltr']
+	] as const) {
+		await page.setViewportSize({ width, height: 800 });
+		for (const state of ['unavailable', 'outdated', 'update']) {
+			await page.goto(
+				`${storyUrl(`components-pwastatus--${state}`)}&globals=${globals}`
+			);
+			const details = page.locator('.pwa-details');
+			const summary = details.locator('summary');
+			await expect(details).toHaveCount(1);
+			await expect(details).not.toHaveAttribute('open', '');
+			await expect(summary).toHaveAccessibleName(/\S/);
+			const closedHeight = await page
+				.getByTestId('pwa-preview-slot')
+				.evaluate((el) => el.getBoundingClientRect().height);
+			expect(closedHeight).toBeGreaterThanOrEqual(35.5);
+			expect(closedHeight).toBeLessThanOrEqual(40);
+			await summary.focus();
+			await summary.press('Enter');
+			await expect(details).toHaveAttribute('open', '');
+			const panel = page.getByTestId(
+				state === 'unavailable' ? 'pwa-incomplete' : 'pwa-update'
+			);
+			await expect(panel).toHaveCount(1);
+			await expect(panel).toBeVisible();
+			await expect(
+				page.getByTestId(
+					state === 'unavailable' ? 'pwa-update' : 'pwa-incomplete'
+				)
+			).toHaveCount(0);
+			// The details float below the header slot rather than pushing the console down.
+			expect(
+				await page
+					.getByTestId('pwa-preview-slot')
+					.evaluate((el) => el.getBoundingClientRect().height)
+			).toBe(closedHeight);
+			const bounds = await details.locator('.pwa-panel').boundingBox();
+			expect(bounds!.x).toBeGreaterThanOrEqual(0);
+			expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(width);
+			if (state === 'unavailable') {
+				await page
+					.getByRole('button', { name: /^(Try again|נסו שוב)$/ })
+					.click();
+				await expect(page.getByText('Retry requests: 1')).toBeVisible();
+			}
+			await page.getByRole('button', { name: /^(Close|סגירה)$/ }).click();
+			await expect(panel).not.toBeVisible();
+			if (state !== 'update')
+				await expect(details).not.toHaveAttribute('open', '');
+		}
+	}
 	expect(
 		await page.evaluate(
 			async () => (await navigator.serviceWorker.getRegistrations()).length
@@ -305,8 +398,29 @@ test('account-status presentation covers loading, retry, sign-out and offline gu
 	await page.goto(
 		storyUrl('components-consoleaccountstatus--offline-account-unavailable')
 	);
-	await expect(page.getByTestId('plan-read-only')).toBeVisible();
+	await expect(page.getByTestId('plan-read-only')).toHaveCSS(
+		'position',
+		'absolute'
+	);
 	await expect(page.getByRole('button', { name: 'Try again' })).toBeDisabled();
+	await expect(page.getByTestId('pwa-account-unavailable')).toBeVisible();
+	for (const state of ['ready', 'offline']) {
+		const id = `components-consoleaccountstatus--${state}`;
+		await page.goto(storyUrl(id));
+		await expect(page.locator('[data-story-rendered]')).toHaveAttribute(
+			'data-story-rendered',
+			id
+		);
+		expect(
+			await page
+				.getByTestId('account-preview-slot')
+				.evaluate((el) => el.getBoundingClientRect().height)
+		).toBe(0);
+		if (state === 'offline') {
+			await expect(page.getByRole('status')).toContainText('Offline');
+			await expect(page.getByRole('status')).toHaveCSS('position', 'absolute');
+		}
+	}
 });
 
 test('degree path and recommendation variants show their real controls', async ({
@@ -328,7 +442,7 @@ test('degree path and recommendation variants show their real controls', async (
 	).toHaveAttribute('href', '/app/settings');
 });
 
-test('filter disclosure retains committed filters and keeps results before the filter panel', async ({
+test('filter disclosure retains committed filters and defaults to a compact results toolbar', async ({
 	page
 }) => {
 	await page.goto(storyUrl('components-searchfilters--selected'));
@@ -353,12 +467,17 @@ test('filter disclosure retains committed filters and keeps results before the f
 	await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
 	await expect(page.locator('details.search-filters')).toBeVisible();
 	const positions = await page.evaluate(() => ({
-		heading: document.querySelector('h1')!.getBoundingClientRect().bottom,
-		filters: document
-			.querySelector('details.search-filters')!
+		toolbar: document.querySelector('.search-toolbar')!.getBoundingClientRect()
+			.bottom,
+		toolbarHeight: document
+			.querySelector('.search-toolbar')!
+			.getBoundingClientRect().height,
+		firstResult: document
+			.querySelector('.search-results > li')!
 			.getBoundingClientRect().top
 	}));
-	expect(positions.heading).toBeLessThan(positions.filters);
+	expect(positions.toolbar).toBeLessThanOrEqual(positions.firstResult);
+	expect(positions.toolbarHeight).toBeLessThanOrEqual(80);
 });
 
 test('console surfaces remain readable and usable at narrow and wide widths', async ({
@@ -373,6 +492,7 @@ test('console surfaces remain readable and usable at narrow and wide widths', as
 		for (const id of [
 			'pages-settings--choose-degree',
 			'pages-course--default',
+			'pages-course--expanded-description',
 			'pages-search--results',
 			'pages-search--expanded-filters',
 			'pages-catalog--default',
@@ -392,14 +512,43 @@ test('console surfaces remain readable and usable at narrow and wide widths', as
 						document.documentElement.clientWidth
 				);
 				expect(overflow).toBeLessThanOrEqual(1);
+				if (id === 'pages-search--results') {
+					expect(
+						(await page.locator('.search-results > li').first().boundingBox())!
+							.y
+					).toBeLessThan(120);
+				}
+				if (id === 'pages-search--expanded-filters')
+					await expect(page.locator('details.search-filters')).toHaveAttribute(
+						'open',
+						''
+					);
+				if (id === 'pages-course--expanded-description')
+					await expect(page.locator('.course-description')).toHaveAttribute(
+						'open',
+						''
+					);
+				if (id === 'pages-course--default')
+					await expect(page.locator('.course-description')).not.toHaveAttribute(
+						'open',
+						''
+					);
 				const controls = page.locator(
-					'select, [data-testid="course-plan-actions"] button, details.search-filters input:not([type="checkbox"]), details.search-filters button'
+					'select, [data-testid="course-plan-actions"] button, details.search-filters input[type="number"], details.search-filters button'
 				);
 				for (const control of await controls.all()) {
-					if (await control.isVisible())
-						expect(
-							(await control.boundingBox())!.height
-						).toBeGreaterThanOrEqual(43.5);
+					if (!(await control.isVisible())) continue;
+					const dimensions = await control.evaluate((el) => ({
+						height: el.getBoundingClientRect().height,
+						minHeight: parseFloat(getComputedStyle(el).minHeight),
+						fontSize: parseFloat(getComputedStyle(el).fontSize),
+						isInput: el.matches('input, select')
+					}));
+					expect(dimensions.height).toBeGreaterThanOrEqual(35.5);
+					// Compact controls can grow for wrapped labels; avoid enforcing a 44px floor.
+					expect(dimensions.minHeight).toBeLessThanOrEqual(36);
+					if (dimensions.isInput)
+						expect(dimensions.fontSize).toBeGreaterThanOrEqual(16);
 				}
 				await page.screenshot({
 					path: test.info().outputPath(`${id}-${width}.png`),
@@ -432,4 +581,71 @@ test('course card body and requirement details are separate keyboard controls', 
 	await expect(
 		page.locator('button button, button a, a button, a a')
 	).toHaveCount(0);
+});
+
+test('compact planner rails show three full items and the next item at mobile widths', async ({
+	page
+}) => {
+	for (const width of [320, 390]) {
+		for (const direction of ['rtl', 'ltr']) {
+			await page.setViewportSize({ width, height: 800 });
+			const globals = `theme:${direction === 'rtl' ? 'light' : 'dark'};language:${direction === 'rtl' ? 'he' : 'en'};direction:${direction}`;
+			await page.goto(
+				`${storyUrl('pages-plan--long-plan')}&globals=${globals}`
+			);
+			await expect(page.locator('[data-story-rendered]')).toHaveAttribute(
+				'data-story-rendered',
+				'pages-plan--long-plan',
+				{ timeout: 15_000 }
+			);
+			for (const [rail, items] of [
+				['wishlist-scroller', '[data-testid="plan-wishlist"] > [data-code]'],
+				['semester-scroller', '[data-semester]']
+			]) {
+				await expect
+					.poll(
+						async () =>
+							page.getByTestId(rail).evaluate((el, selector) => {
+								const rail = el.getBoundingClientRect();
+								const boxes = Array.from(
+									el.querySelectorAll(selector),
+									(item) => item.getBoundingClientRect()
+								);
+								return {
+									full: boxes.filter(
+										(box) =>
+											box.left >= rail.left - 0.5 &&
+											box.right <= rail.right + 0.5
+									).length,
+									peek: boxes.filter((box) => {
+										const visible =
+											Math.min(box.right, rail.right) -
+											Math.max(box.left, rail.left);
+										return visible >= 4 && visible < box.width - 1;
+									}).length
+								};
+							}, items),
+						{ message: `${rail} at ${width}px ${direction}` }
+					)
+					.toEqual({ full: 3, peek: 1 });
+			}
+			const exams = page.locator('.semester-exams');
+			await expect(exams).not.toHaveAttribute('open', '');
+			await exams.locator('summary').focus();
+			await exams.locator('summary').press('Enter');
+			await expect(exams).toHaveAttribute('open', '');
+			await expect(exams.locator('div').first()).toBeVisible();
+			await exams.locator('summary').press('Enter');
+			await expect(exams).not.toHaveAttribute('open', '');
+			expect(
+				await page.evaluate(
+					() => document.documentElement.scrollWidth - innerWidth
+				)
+			).toBeLessThanOrEqual(1);
+			await page.screenshot({
+				path: test.info().outputPath(`compact-plan-${width}-${direction}.png`),
+				fullPage: true
+			});
+		}
+	}
 });

@@ -9,6 +9,7 @@
 		buttonNamespace?: string;
 		name?: string;
 		disabled?: boolean;
+		ariaDescribedby?: string;
 	};
 
 	let {
@@ -17,7 +18,8 @@
 		children,
 		buttonNamespace: namespace = $bindable(),
 		name,
-		disabled: _disabled = false
+		disabled: _disabled = false,
+		ariaDescribedby
 	}: Props = $props();
 
 	let inProgress = $state(false);
@@ -62,6 +64,7 @@
 	type="button"
 	disabled={disabled || inProgress}
 	aria-busy={inProgress}
+	aria-describedby={ariaDescribedby}
 	class="ui-button relative ui-button--{variant}"
 	{onclick}
 >

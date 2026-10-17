@@ -19,14 +19,10 @@
 </script>
 
 {#if readOnly}
-	<p
-		role="status"
-		class="ui-notice text-content-primary"
-		data-testid="plan-read-only"
-	>
+	<p role="status" class="sr-only" data-testid="plan-read-only">
 		{content.lang.lang === 'he'
-			? 'מצב קריאה בלבד ללא אינטרנט. אפשר לעיין בקורסים ובתוכנית השמורה; התחברו כדי לערוך או לשמור.'
-			: 'Offline, read-only mode. Browse courses and your saved plan; reconnect to edit or save.'}
+			? 'אין אינטרנט. התחברו כדי לערוך או לשמור.'
+			: 'Offline. Reconnect to edit or save.'}
 	</p>
 {/if}
 {#if authPending}

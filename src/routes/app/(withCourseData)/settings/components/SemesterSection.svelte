@@ -45,7 +45,7 @@
 	}
 </script>
 
-<section class="ui-panel semester-section">
+<section class="semester-section">
 	<h2 class="section-title">{content.lang.common.semester}</h2>
 	<div class="semester-fields">
 		<div class="semester-field">
@@ -125,47 +125,37 @@
 <style>
 	.semester-section {
 		min-inline-size: 0;
-		padding: clamp(1.25rem, 3vw, 1.75rem);
+		padding-block-start: 0.75rem;
+		border-block-start: 1px solid rgb(var(--color-border));
 		text-align: start;
 	}
-
 	.section-title {
-		margin-block-end: 1.25rem;
-		font-size: 1.125rem;
-		font-weight: 650;
+		margin-block-end: 0.5rem;
+		font-size: 0.9375rem;
+		font-weight: 600;
 		line-height: 1.4;
 	}
-
 	.semester-fields {
 		display: grid;
-		gap: 1.5rem;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 0.75rem;
 	}
-
 	.semester-field,
 	.settings-field {
 		min-inline-size: 0;
 	}
-
 	.settings-field {
 		display: grid;
-		gap: 0.5rem;
+		gap: 0.25rem;
 	}
-
 	.settings-field > span {
-		font-size: 0.875rem;
-		font-weight: 600;
+		font-size: 0.8125rem;
+		font-weight: 500;
 	}
-
 	.field-actions {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 0.625rem;
-		margin-block-start: 0.875rem;
-	}
-
-	@media (min-width: 40rem) {
-		.semester-fields {
-			grid-template-columns: repeat(2, minmax(0, 1fr));
-		}
+		gap: 0.5rem;
+		margin-block-start: 0.5rem;
 	}
 </style>

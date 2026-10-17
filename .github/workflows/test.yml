@@ -8,8 +8,16 @@ on:
 
 jobs:
   browser:
-    name: Browser tests
+    name: Browser tests (${{ matrix.browser }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - browser: chromium
+            project: chromium
+          - browser: webkit
+            project: webkit*
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -21,15 +29,15 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps
+        run: npx playwright install --with-deps ${{ matrix.browser }}
       - name: Run browser tests
-        run: npm run test:integration
-      - name: Upload landing visual checks
+        run: npm run test:integration -- --project="${{ matrix.project }}"
+      - name: Upload browser recordings, screenshots, and failure traces
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: landing-parallax-visuals
-          path: test-results/**/landing-*.png
+          name: browser-results-${{ matrix.browser }}
+          path: test-results/
           if-no-files-found: ignore
           retention-days: 7
 
@@ -68,47 +76,3 @@ jobs:
         run: npx svelte-kit sync
       - name: Run live SAP tests
         run: npm run test:sap
-
-  parallax-browsers:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-          cache: npm
-      - name: Install browser test dependencies
-        run: npm install && npx playwright install --with-deps chromium webkit
-      - name: Test parallax in Chromium and WebKit
-        run: npx playwright test --config=playwright.parallax.config.ts
-      - name: Upload scroll recordings and screenshots
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: parallax-browser-recordings
-          path: test-results/
-          retention-days: 7
-
-  search-browsers:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-          cache: npm
-      - name: Install browser test dependencies
-        run: npm install && npx playwright install --with-deps chromium webkit
-      - name: Test native faculty selection in Chromium and WebKit
-        run: npx playwright test --config=playwright.search.config.ts
-      - name: Upload search failure traces
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: search-browser-failures
-          path: test-results/
-          retention-days: 7

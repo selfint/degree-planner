@@ -146,7 +146,11 @@ named after requirements to complete the degree. A requirement directory can als
 Install dependencies with `npm ci`. The test suites can be run independently:
 
 - `npm run test:integration` runs the Playwright browser tests, building and serving
-  the app automatically. Install browsers first with `npx playwright install --with-deps`.
+  the app automatically. Install browsers first with
+  `npx playwright install --with-deps chromium webkit`. The full suite runs in
+  Chromium; the existing parallax and native faculty-selection regressions also
+  run in WebKit, including native faculty selection in mobile WebKit.
+  Use `-- --project=chromium` or `-- --project="webkit*"` to run one engine.
 - `npm run test:unit -- --run` runs the Vitest suite excluding the live SAP tests.
   On a fresh checkout, first run `npm run generate-catalogs && npx svelte-kit sync`.
   Omit `-- --run` for watch mode. The existing histogram-client test still needs network access.
@@ -157,7 +161,10 @@ Install dependencies with `npm ci`. The test suites can be run independently:
 GitHub Actions runs the browser, unit, and live SAP suites in independent,
 parallel jobs on pushes and pull requests to `main`. Each job reports its own
 result, and a SAP failure still fails the workflow without preventing the other
-jobs from running. The dedicated Chromium/WebKit parallax job also runs alongside them.
+jobs from running. The browser job uses a Chromium/WebKit matrix with fail-fast
+turned off, so both engines finish independently. Parallax and native search
+coverage are part of that browser suite rather than separate feature jobs.
+Browser recordings, screenshots, and failure traces are retained for seven days.
 
 ## Acknowledgements
 

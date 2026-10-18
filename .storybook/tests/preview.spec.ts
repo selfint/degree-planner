@@ -1391,6 +1391,117 @@ test('PWA footer keeps healthy readiness accessible and shows actionable status'
 	).toBe(0);
 });
 
+test('offline updates keep the footer status visible after dismissal and retain error precedence', async ({
+	page
+}) => {
+	test.setTimeout(60_000);
+	const id = 'components-pwastatus--offline-update';
+	for (const [width, language, theme, direction] of [
+		[320, 'he', 'dark', 'rtl'],
+		[390, 'en', 'light', 'ltr']
+	] as const) {
+		await page.setViewportSize({ width, height: 800 });
+		await page.goto(
+			`${storyUrl(id)}&globals=language:${language};theme:${theme};direction:${direction}`
+		);
+		await expect(page.locator('[data-story-rendered]')).toHaveAttribute(
+			'data-story-rendered',
+			id
+		);
+		const changeArgs = async (updatedArgs: Record<string, string | boolean>) =>
+			page.evaluate(
+				({ id, updatedArgs }) => {
+					(
+						window as Window & {
+							__STORYBOOK_ADDONS_CHANNEL__: {
+								emit: (event: string, payload: unknown) => void;
+							};
+						}
+					).__STORYBOOK_ADDONS_CHANNEL__.emit('updateStoryArgs', {
+						storyId: id,
+						updatedArgs
+					});
+				},
+				{ id, updatedArgs }
+			);
+		const status = page.locator('footer').getByTestId('pwa-status');
+		const readiness = status.getByRole('status');
+		const expectOffline = async () => {
+			await expect(readiness).toHaveText(
+				language === 'he' ? 'אין אינטרנט' : 'Offline'
+			);
+			await expect(readiness).not.toHaveClass(/\bsr-only\b/);
+			await expect(readiness).toHaveCSS('position', 'static');
+			await expect(readiness).toBeVisible();
+			const bounds = await readiness.boundingBox();
+			expect(bounds!.width).toBeGreaterThan(1);
+			expect(bounds!.height).toBeGreaterThan(1);
+			await expect(page.getByTestId('pwa-error')).toHaveCount(0);
+			await expect(page.getByTestId('pwa-status-details')).toHaveCount(0);
+			await expectPwaFooter(page);
+		};
+		await expectPwaUpdateBanner(page, language, true);
+		await expectOffline();
+		await page.getByTestId('pwa-update-dismiss').click();
+		await expectPwaUpdateBanner(page, language, false);
+		await expectOffline();
+		await page.screenshot({
+			path: test
+				.info()
+				.outputPath(`pwa-offline-update-dismissed-${width}-${language}.png`),
+			fullPage: false
+		});
+		// Repeated fixture transitions keep the same dismissed version and the
+		// visible Offline state, without relying on a new component mount.
+		for (const state of ['offline', 'offlineUpdate']) {
+			await changeArgs({ state });
+			await expectPwaUpdateBanner(page, language, false);
+			await expectOffline();
+		}
+		// A refresh failure while still offline must win over the Offline label,
+		// independently of whether the new waiting version's notice is dismissed.
+		await changeArgs({
+			state: 'refreshUpdate',
+			offline: true,
+			updateVersion: 'storybook-update-v3'
+		});
+		await expectPwaUpdateBanner(page, language, true, 'storybook-update-v3');
+		for (const dismissed of [false, true]) {
+			if (dismissed) {
+				await page.getByTestId('pwa-update-dismiss').click();
+				await expectPwaUpdateBanner(page, language, false);
+			}
+			await expect(readiness).toHaveClass(/\bsr-only\b/);
+			await expect(readiness).toHaveText(
+				pwaMessages[language].cachedRefreshFailed
+			);
+			await expect(page.getByTestId('pwa-error')).toHaveCount(1);
+			const error = status.getByRole('link');
+			await expect(error).toHaveCount(1);
+			await expect(error).toBeVisible();
+			await expect(error).toHaveText(language === 'he' ? 'שגיאה' : 'Error');
+			await expect(error).toHaveAttribute('href', '#offline-status');
+			const retry = status.getByRole('button', {
+				name: language === 'he' ? 'נסו שוב' : 'Retry',
+				exact: true
+			});
+			await expectCompactAction(retry);
+			await retry.click();
+			await expect(
+				page.getByText(`Retry requests: ${dismissed ? 2 : 1}`)
+			).toBeVisible();
+			await expect(page.getByTestId('pwa-refresh-error')).toBeVisible();
+			await expect(page.getByTestId('pwa-error-detail')).toHaveText(
+				'Example course refresh failed: response validation rejected missing course names.'
+			);
+			await expectPwaFooter(page);
+		}
+		await changeArgs({ state: 'offlineUpdate' });
+		await expectOffline();
+		await expectPwaUpdateBanner(page, language, false);
+	}
+});
+
 test('PWA dismissal follows versions without reading or writing the real session', async ({
 	page
 }) => {

@@ -32,7 +32,8 @@ export default defineConfig({
 				'search-faculty-native.test.ts',
 				'search-faculty-width.test.ts',
 				'console-startup.test.ts',
-				'console-routing.test.ts'
+				'console-routing.test.ts',
+				'student-journeys.test.ts'
 			],
 			use: { browserName: 'webkit', video: 'on' }
 		},
@@ -49,7 +50,8 @@ export default defineConfig({
 				'search-three-columns.test.ts',
 				'footer-controls.test.ts',
 				'plan-board-alignment.test.ts',
-				'plan-dependencies.test.ts'
+				'plan-dependencies.test.ts',
+				'student-journeys.test.ts'
 			],
 			use: { browserName: 'webkit', ...mobile }
 		},

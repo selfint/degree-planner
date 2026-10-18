@@ -8,16 +8,25 @@
 	import { publishOfflineShellStatus } from '../../../.storybook/mocks/pwaStatus';
 	let {
 		state: variant = 'preparing',
+		offline: fixtureOffline = false,
 		updateVersion: fixtureVersion = 'storybook-update-v2',
 		updateVersionError
 	}: {
 		state?: string;
+		offline?: boolean;
 		updateVersion?: string;
 		updateVersionError?: string;
 	} = $props();
 	const refreshFailed = $derived(variant.startsWith('refresh'));
 	const allReady = $derived(
-		['ready', 'offline', 'update', 'refresh', 'refreshUpdate'].includes(variant)
+		[
+			'ready',
+			'offline',
+			'offlineUpdate',
+			'update',
+			'refresh',
+			'refreshUpdate'
+		].includes(variant)
 	);
 	const shellUnavailable = $derived(variant === 'refreshShellUnavailable');
 	const refreshError = $derived(
@@ -40,7 +49,7 @@
 					: 'preparing'
 	);
 	const updateReady = $derived(
-		variant === 'update' || variant === 'refreshUpdate'
+		['update', 'offlineUpdate', 'refreshUpdate'].includes(variant)
 	);
 	let retries = $state(0);
 	// This wrapper is the sole owner of its memory-only fixture. A decorator
@@ -82,7 +91,9 @@
 		<div data-testid="pwa-preview-slot" class="pwa-footer-controls">
 			<PwaStatusView
 				{allReady}
-				offline={variant === 'offline'}
+				offline={fixtureOffline ||
+					variant === 'offline' ||
+					variant === 'offlineUpdate'}
 				cachedDataReady={allReady || shellUnavailable}
 				{refreshError}
 				{setupError}

@@ -35,7 +35,7 @@ for (const language of ['en', 'he'] as Language[]) {
 				baseURL!,
 				language,
 				theme,
-				[[cardCode], [], []]
+				[[cardCode]]
 			);
 			const { page } = recording;
 			try {
@@ -140,7 +140,7 @@ for (const language of ['en', 'he'] as Language[]) {
 				baseURL!,
 				language,
 				theme,
-				[[], [], []]
+				[[]]
 			);
 			const { page } = recording;
 			const steps = tutorialCopy[language]['plan-course'].steps;
@@ -158,7 +158,7 @@ for (const language of ['en', 'he'] as Language[]) {
 				await search.press('Enter');
 				await expect(page).toHaveURL(new RegExp(`/app/search\\?q=${planCode}`));
 				const result = page
-					.locator(`main a[href="/app/course/${planCode}"]`)
+					.locator(`main li[id="${planCode}"] button.search-result`)
 					.first();
 				await expect(result.locator('.course-name')).toHaveText(
 					courses[planCode].name
@@ -218,6 +218,7 @@ for (const language of ['en', 'he'] as Language[]) {
 				await recording.frame(`plan-course-${language}-${theme}-poster`);
 				await pause(page, 4000);
 				// A reload proves the visible result was durably saved, not just optimistic UI.
+				recording.endScene();
 				await page.reload();
 				await expect(
 					page.locator(`[data-semester="0"] [data-code="${planCode}"]`)

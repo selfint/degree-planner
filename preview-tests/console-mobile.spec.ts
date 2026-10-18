@@ -168,11 +168,7 @@ async function consolePwaFooter(page: Page) {
 	await expect(
 		footer.locator('[data-testid="landing-install-info"], details')
 	).toHaveCount(0);
-	const help = footer.getByTestId('pwa-install-help');
-	await expect(help).toHaveAttribute('href', '/#install-title');
-	await expect(help).toHaveAttribute('target', '_blank');
-	await expect(help).toHaveAttribute('rel', 'noopener noreferrer');
-	await expect(help).toHaveCSS('white-space', 'nowrap');
+	await expect(page.getByTestId('pwa-install-help')).toHaveCount(0);
 	await noHorizontalOverflow(page);
 }
 
@@ -470,7 +466,7 @@ test.describe('iPhone-user-agent install guidance (Chromium emulation only)', ()
 			'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1'
 	});
 
-	test('landing install help stays lightweight and console PWA controls stay in the footer', async ({
+	test('landing install guidance stays lightweight and is not repeated in the console footer', async ({
 		page,
 		evidence
 	}, testInfo) => {
@@ -521,21 +517,10 @@ test.describe('iPhone-user-agent install guidance (Chromium emulation only)', ()
 		evidence.checkpoints.push(
 			'console-pwa-controls-contained-in-dedicated-footer-row'
 		);
-		const consoleUrl = page.url();
-		const timeOrigin = await page.evaluate(() => performance.timeOrigin);
-		const [helpPage] = await Promise.all([
-			page.waitForEvent('popup'),
-			page.getByTestId('pwa-install-help').click()
-		]);
-		await expect(helpPage).toHaveURL(
-			new URL('/#install-title', consoleUrl).href
+		await expect(page.getByTestId('pwa-install-help')).toHaveCount(0);
+		await expect(page.getByTestId('pwa-update-banner')).toHaveCount(0);
+		evidence.checkpoints.push(
+			'healthy-console-has-no-install-help-or-update-notice'
 		);
-		await expect(helpPage.getByTestId('landing-install-info')).toBeVisible();
-		await expect(helpPage.locator('link[rel="manifest"]')).toHaveCount(0);
-		await expect(helpPage.getByTestId('pwa-status')).toHaveCount(0);
-		await helpPage.close();
-		await expect(page).toHaveURL(consoleUrl);
-		expect(await page.evaluate(() => performance.timeOrigin)).toBe(timeOrigin);
-		evidence.checkpoints.push('footer-install-help-preserves-console-window');
 	});
 });

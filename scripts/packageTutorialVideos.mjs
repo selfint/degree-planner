@@ -8,7 +8,9 @@ mkdirSync(output, { recursive: true });
 function run(command, args) {
 	const result = spawnSync(command, args, { encoding: 'utf8' });
 	if (result.status !== 0)
-		throw new Error(`${command} failed: ${result.stderr}`);
+		throw new Error(
+			`${command} failed: ${result.error?.message ?? result.stderr}`
+		);
 	return result.stdout;
 }
 function timestamp(seconds) {
@@ -37,7 +39,8 @@ for (const topic of ['course-card', 'plan-course']) {
 			);
 			const offset = Math.max(
 				0,
-				Number(probe.format.duration) - metadata.duration
+				Number(probe.format.duration) -
+					(metadata.recordedDuration ?? metadata.duration)
 			);
 			run('ffmpeg', [
 				'-y',
@@ -45,6 +48,8 @@ for (const topic of ['course-card', 'plan-course']) {
 				String(offset),
 				'-i',
 				source,
+				'-t',
+				String(metadata.duration),
 				'-an',
 				'-c:v',
 				'libx264',
@@ -64,6 +69,8 @@ for (const topic of ['course-card', 'plan-course']) {
 				String(offset),
 				'-i',
 				source,
+				'-t',
+				String(metadata.duration),
 				'-an',
 				'-c:v',
 				'libvpx-vp9',

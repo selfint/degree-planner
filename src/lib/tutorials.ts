@@ -14,7 +14,7 @@ export const tutorialCopy = {
 			steps: [
 				{
 					title: 'Course marker',
-					text: 'Color identifies the course. A circle means an exam is listed; a square means none is listed.'
+					text: 'Color is based on the course code. Circle: exam data. Square: no exam data.'
 				},
 				{
 					title: 'Median',
@@ -75,7 +75,7 @@ export const tutorialCopy = {
 			steps: [
 				{
 					title: 'סימון הקורס',
-					text: 'הצבע מזהה את הקורס. עיגול מציין מבחן רשום; ריבוע מציין שלא רשום מבחן.'
+					text: 'הצבע נקבע לפי מספר הקורס. עיגול: נתוני מבחנים. ריבוע: ללא נתוני מבחנים.'
 				},
 				{
 					title: 'חציון',

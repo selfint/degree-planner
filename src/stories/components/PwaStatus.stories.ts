@@ -24,6 +24,7 @@ export const Preparing: Story = { args: { state: 'preparing' } };
 export const Initial: Story = { args: { state: 'initial' } };
 export const Ready: Story = { args: { state: 'ready' } };
 export const Offline: Story = { args: { state: 'offline' } };
+export const OfflineUpdate: Story = { args: { state: 'offlineUpdate' } };
 export const Unavailable: Story = { args: { state: 'unavailable' } };
 export const Outdated: Story = { args: { state: 'outdated' } };
 export const Update: Story = { args: { state: 'update' } };

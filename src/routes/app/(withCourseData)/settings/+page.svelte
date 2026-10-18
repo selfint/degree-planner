@@ -49,24 +49,8 @@
 		return true;
 	}
 
-	const maxTotalSemesters = 15;
 	const semesterChoice = $derived(user.d.currentSemester);
 	const totalSemestersChoice = $derived(user.d.semesters.length);
-
-	const maxNonEmptySemesterIndex = $derived(
-		user.d.semesters
-			.map((s, i) => [s.length, i])
-			.filter(([s]) => s > 0)
-			.map(([, i]) => i)
-			// get the last non-empty semester
-			.reduce((a, b) => Math.max(a, b), 0) + 1
-	);
-
-	const validTotalValues = $derived(
-		Array.from({ length: maxTotalSemesters }, (_, i) => i + 1).filter(
-			(i) => i >= maxNonEmptySemesterIndex
-		)
-	);
 
 	let currentUser = $derived(firebase.auth.currentUser);
 	$effect(() => {
@@ -162,7 +146,6 @@
 		<SemesterSection
 			{semesterChoice}
 			{totalSemestersChoice}
-			{validTotalValues}
 			bind:buttonNamespace
 		/>
 	{/if}

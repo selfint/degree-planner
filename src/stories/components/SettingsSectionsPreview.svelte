@@ -46,7 +46,6 @@
 	<SemesterSection
 		semesterChoice={variant === 'changed' ? 0 : user.d.currentSemester}
 		totalSemestersChoice={variant === 'changed' ? 6 : user.d.semesters.length}
-		validTotalValues={[2, 3, 6, 9, 12, 15]}
 		bind:buttonNamespace
 	/>
 {:else if kind === 'UploadSection'}

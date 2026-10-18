@@ -50,7 +50,7 @@
 		role="status"
 		class="readiness start-0 top-0 m-0"
 		class:sr-only={hasError ||
-			updateReady ||
+			(updateReady && !offline) ||
 			(allReady && !offline) ||
 			(!offline && !showPreparing && shell !== 'outdated')}
 	>

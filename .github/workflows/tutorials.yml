@@ -37,11 +37,13 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
+      - name: Install video packaging tools
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
       - name: Check landing tutorial behavior (red before UI implementation)
         run: |
           mkdir -p test-results
           set +e
-          npx playwright test --config=playwright.tutorials.config.ts tutorials/landing.test.ts --grep '^landing tutorials en light 320$' --reporter=json > test-results/tutorial-red.json
+          npx playwright test --config=playwright.tutorials.config.ts tutorials/landing.test.ts --grep 'landing tutorials en light 320$' --reporter=json > test-results/tutorial-red.json
           result=$?
           set -e
           node scripts/assertTutorialRed.mjs "$result"

@@ -130,6 +130,7 @@ export async function createRecording(
 			: route.abort()
 	);
 	let started = 0;
+	let ended: number | undefined;
 	const captions: { start: number; end: number; text: string }[] = [];
 	return {
 		page,
@@ -174,8 +175,12 @@ export async function createRecording(
 		async frame(name: string) {
 			await page.screenshot({ path: path.join(rawRoot, `${name}.png`) });
 		},
+		endScene() {
+			ended = (Date.now() - started) / 1000;
+		},
 		async finish(name: string) {
-			const duration = (Date.now() - started) / 1000;
+			const recordedDuration = (Date.now() - started) / 1000;
+			const duration = ended ?? recordedDuration;
 			if (captions.length) captions.at(-1)!.end = duration;
 			const video = page.video();
 			await context.close();
@@ -187,7 +192,11 @@ export async function createRecording(
 			await video!.saveAs(path.join(rawRoot, `${name}.webm`));
 			await writeFile(
 				path.join(rawRoot, `${name}.json`),
-				JSON.stringify({ duration, captions, language, theme }, null, 2)
+				JSON.stringify(
+					{ duration, recordedDuration, captions, language, theme },
+					null,
+					2
+				)
 			);
 		}
 	};

@@ -1,3 +1,39 @@
+<script module lang="ts">
+	type SemesterPlan = { semesters: string[][]; currentSemester: number };
+	const maxTotalSemesters = 15;
+
+	/** A shorter plan must retain both its current and last occupied semester. */
+	export function semesterCountChoices(plan: SemesterPlan): number[] {
+		const lastOccupied = plan.semesters.reduce(
+			(last, semester, index) => (semester.length > 0 ? index : last),
+			0
+		);
+		const minimum = Math.max(plan.currentSemester, lastOccupied) + 1;
+		return Array.from(
+			{ length: maxTotalSemesters },
+			(_, index) => index + 1
+		).filter((count) => count >= minimum);
+	}
+
+	export function resizePlanSemesters<T extends SemesterPlan>(
+		plan: T,
+		total: number
+	): T {
+		if (!semesterCountChoices(plan).includes(total)) {
+			throw new RangeError(
+				'Choose a total that retains the current and all occupied semesters.'
+			);
+		}
+		const semesters =
+			total < plan.semesters.length
+				? plan.semesters.slice(0, total)
+				: plan.semesters.concat(
+						Array.from({ length: total - plan.semesters.length }, () => [])
+					);
+		return { ...plan, semesters };
+	}
+</script>
+
 <script lang="ts">
 	import { planOnline } from '$lib/planAccess';
 	import Select from '$lib/components/Select.svelte';
@@ -9,16 +45,17 @@
 	type Props = {
 		semesterChoice: number;
 		totalSemestersChoice: number;
-		validTotalValues: number[];
 		buttonNamespace: string;
 	};
 
 	let {
 		semesterChoice,
 		totalSemestersChoice,
-		validTotalValues,
 		buttonNamespace = $bindable()
 	}: Props = $props();
+
+	const validTotalValues = $derived(semesterCountChoices(user.d));
+	let totalError = $state(false);
 
 	async function onUpdateCurrentSemester() {
 		if (semesterChoice !== user.d.currentSemester) {
@@ -32,16 +69,17 @@
 	}
 
 	async function onUpdateTotalSemesters() {
-		const semesters =
-			totalSemestersChoice < user.d.semesters.length
-				? user.d.semesters.slice(0, totalSemestersChoice)
-				: user.d.semesters.concat(
-						Array.from({
-							length: totalSemestersChoice - user.d.semesters.length
-						}).map(() => [])
-					);
-
-		setUser(await writeStorage({ ...user.d, semesters }));
+		totalError = false;
+		let updated: UserData;
+		try {
+			// Re-evaluate against saved state, not the options when the draft began.
+			updated = resizePlanSemesters(user.d, totalSemestersChoice);
+		} catch (error) {
+			if (!(error instanceof RangeError)) throw error;
+			totalError = true;
+			return;
+		}
+		setUser(await writeStorage(updated));
 	}
 </script>
 
@@ -96,6 +134,13 @@
 					{/each}
 				</Select>
 			</label>
+			{#if totalError}
+				<p role="alert" class="mt-1 text-sm text-content-secondary">
+					{content.lang.lang === 'he'
+						? 'מספר הסמסטרים חייב לכלול את הסמסטר הנוכחי וכל סמסטר עם קורסים. בחרו ושמרו סמסטר נוכחי מוקדם יותר לפני קיצור התוכנית.'
+						: 'Keep the current semester and every semester with courses. Choose and save an earlier current semester before shortening the plan.'}
+				</p>
+			{/if}
 			{#if totalSemestersChoice !== user.d.semesters.length}
 				<div class="field-actions">
 					<PlanActionButton

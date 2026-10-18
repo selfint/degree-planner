@@ -12,7 +12,21 @@
 	const { data } = $props();
 	const { getCourseData } = $derived(data);
 
+	let importError = $state(false);
+
 	async function importPlan() {
+		importError = false;
+		const currentSemester = user.d.currentSemester;
+		// Import replaces the semester list, but the receiver chooses Current.
+		// Reject before confirmation or any write rather than silently changing it.
+		if (
+			!Number.isInteger(currentSemester) ||
+			currentSemester < 0 ||
+			currentSemester >= data.semesters.length
+		) {
+			importError = true;
+			return;
+		}
 		if (user.d.semesters.length > 0) {
 			const userConfirmation = confirm(content.lang.preview.overwriteWarning);
 
@@ -27,7 +41,7 @@
 				semesters: data.semesters as CourseCode[][],
 				degree: data.degree,
 				path: data.userPath,
-				currentSemester: user.d.currentSemester ?? 0,
+				currentSemester,
 				wishlist: user.d.wishlist.filter(
 					(c) => !data.semesters.flat().includes(c)
 				)
@@ -69,6 +83,25 @@
 			</PlanActionButton>
 		</div>
 	</header>
+	{#if importError}
+		<p role="alert" class="preview-empty" data-testid="preview-import-error">
+			{#if data.semesters.length === 0}
+				{content.lang.lang === 'he'
+					? 'אין סמסטרים להעתקה בתוכנית המשותפת הזו.'
+					: 'This shared plan has no semesters to copy.'}
+			{:else}
+				{content.lang.lang === 'he'
+					? 'בחרו ושמרו סמסטר נוכחי תקין ב'
+					: 'Choose and save a valid current semester in'}
+				<a href="/app/settings" class="underline"
+					>{content.lang.landing.settings.header}</a
+				>.
+				{content.lang.lang === 'he'
+					? 'לאחר מכן חזרו והעתיקו את התוכנית שוב.'
+					: 'Then return and copy this plan again.'}
+			{/if}
+		</p>
+	{/if}
 	{#if data.semesters.length === 0}
 		<p class="preview-empty">
 			{content.lang.lang === 'he' ? 'אין סמסטרים' : 'No semesters'}

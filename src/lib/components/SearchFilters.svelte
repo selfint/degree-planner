@@ -212,21 +212,23 @@
 		</label>
 		<div class="filter-field">
 			<label for="search-faculty">{content.lang.search.faculty}</label>
-			<select
-				id="search-faculty"
-				bind:this={facultyInput}
-				value={filters.faculty}
-				onchange={(e) => onchange({ faculty: e.currentTarget.value })}
-				class="ui-field w-full"
-			>
-				<option value="">{content.lang.search.allFaculties}</option>
-				{#if filters.faculty && !faculties.includes(filters.faculty)}
-					<option value={filters.faculty}>{filters.faculty}</option>
-				{/if}
-				{#each faculties as faculty}
-					<option value={faculty}>{faculty}</option>
-				{/each}
-			</select>
+			<span class="select-frame">
+				<select
+					id="search-faculty"
+					bind:this={facultyInput}
+					value={filters.faculty}
+					onchange={(e) => onchange({ faculty: e.currentTarget.value })}
+					class="ui-field w-full max-w-full"
+				>
+					<option value="">{content.lang.search.allFaculties}</option>
+					{#if filters.faculty && !faculties.includes(filters.faculty)}
+						<option value={filters.faculty}>{filters.faculty}</option>
+					{/if}
+					{#each faculties as faculty}
+						<option value={faculty}>{faculty}</option>
+					{/each}
+				</select>
+			</span>
 		</div>
 		<div class="filter-range">
 			<label id="search-points-min-label" for="search-points-min-input"

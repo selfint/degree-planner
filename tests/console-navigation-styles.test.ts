@@ -568,9 +568,18 @@ async function expectPlanDraftAndCancel(
 	});
 	for (let pass = 1; pass <= 2; pass++) {
 		const bounds = (await destination.boundingBox())!;
-		await wishlist.locator(`[data-code="${courseCode}"]`).dragTo(destination, {
-			targetPosition: { x: bounds.width / 2, y: 24 }
-		});
+		const position = { x: bounds.width / 2, y: 24 };
+		// Native dragover needs two mouse moves in WebKit. Keep the real drag
+		// and drop lifecycle: a single dragTo move can release before insertion.
+		// https://playwright.dev/docs/input#dragging-manually
+		await wishlist.locator(`[data-code="${courseCode}"]`).hover();
+		await page.mouse.down();
+		try {
+			await destination.hover({ position });
+			await destination.hover({ position });
+		} finally {
+			await page.mouse.up();
+		}
 		await expect(
 			destination.locator(`[data-code="${courseCode}"]`)
 		).toHaveCount(1);

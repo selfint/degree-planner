@@ -185,6 +185,7 @@
 
 <style>
 	.settings-page {
+		position: relative;
 		display: grid;
 		grid-template-columns: minmax(0.75rem, 1fr) minmax(0, 46.5rem) minmax(
 				0.75rem,
@@ -194,6 +195,12 @@
 		padding-block: 0.625rem;
 		row-gap: 0.875rem;
 		text-align: start;
+	}
+	.settings-page > h1 {
+		grid-column: 1 / -1;
+		inset-block-start: 0;
+		inset-inline-start: 0;
+		margin: 0;
 	}
 	/* Keep forms locally inset while the exemptions scrollport reaches both edges. */
 	.settings-page > :global(*) {

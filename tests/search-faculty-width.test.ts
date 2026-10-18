@@ -15,6 +15,9 @@ const faculties = [
 	'הפקולטה להנדסת ביוטכנולוגיה ומזון',
 	'המחלקה ללימודים הומניסטיים ואמנות'
 ] as const;
+// A short, real option gives the same native widget's one-line height on each
+// engine. WebKit's intrinsic native select is taller than a number input.
+const singleLineFaculty = 'הנדסה ימית';
 const maxPoints =
 	Math.ceil(Math.max(...courses.map((course) => course.points ?? 0)) * 2) / 2;
 
@@ -76,7 +79,12 @@ async function chooseNativeFaculty(page: Page, faculty: string) {
 	await page.keyboard.press('Enter');
 }
 
-async function captureClosedControl(page: Page, info: TestInfo, stage: string) {
+async function captureClosedControl(
+	page: Page,
+	info: TestInfo,
+	stage: string,
+	singleLineNative: { faculty: string; height: number }
+) {
 	const select = page.locator('#search-faculty');
 	const requestedViewport = page.viewportSize()!;
 	// Normalize keyboard focus in both captures. The next control is a range,
@@ -147,7 +155,7 @@ async function captureClosedControl(page: Page, info: TestInfo, stage: string) {
 				selectedText: element.selectedOptions[0].text,
 				labelIds: [...(element.labels ?? [])].map((label) => label.htmlFor),
 				fontSize: parseFloat(style.fontSize),
-				lineHeight: parseFloat(style.lineHeight),
+				lineHeight: style.lineHeight,
 				minimumHeight: parseFloat(style.minHeight),
 				verticalInsets: [
 					'paddingTop',
@@ -179,7 +187,13 @@ async function captureClosedControl(page: Page, info: TestInfo, stage: string) {
 	writeFileSync(
 		layoutPath,
 		JSON.stringify(
-			{ project: info.project.name, requestedViewport, focus, ...layout },
+			{
+				project: info.project.name,
+				requestedViewport,
+				singleLineNative,
+				focus,
+				...layout
+			},
 			null,
 			2
 		)
@@ -219,12 +233,9 @@ async function captureClosedControl(page: Page, info: TestInfo, stage: string) {
 		.toBeLessThanOrEqual(layout.field.right + 1);
 	expect
 		.soft(layout.select.height, `${stage}: closed native value stays one line`)
-		.toBeLessThanOrEqual(
-			Math.max(
-				layout.select.minimumHeight,
-				layout.select.lineHeight + layout.select.verticalInsets
-			) + 1
-		);
+		// Preserve this browser's actual native height; a long option must not
+		// wrap into extra lines or increase it relative to a short real option.
+		.toBeLessThanOrEqual(singleLineNative.height + 1);
 	expect(layout.select.labelIds).toContain('search-faculty');
 	for (const control of layout.controls) {
 		expect
@@ -298,11 +309,19 @@ for (const language of ['en', 'he']) {
 					language
 				);
 				await page.goto(
-					`${origin}/app/search?${new URLSearchParams({ q: '0', faculty: faculties[0] })}`
+					`${origin}/app/search?${new URLSearchParams({ q: '0', faculty: singleLineFaculty })}`
 				);
 				const select = page.locator('#search-faculty');
 				await expect(select).toBeVisible({ timeout: 30_000 });
-				await expectState(page, faculties[0]);
+				await expectState(page, singleLineFaculty);
+				await page.evaluate(() => document.fonts.ready);
+				const singleLineNative = {
+					faculty: singleLineFaculty,
+					height: await select.evaluate(
+						(element) => element.getBoundingClientRect().height
+					)
+				};
+				expect(singleLineNative.height).toBeGreaterThan(0);
 				await expect(select).toHaveAccessibleName(
 					language === 'he' ? 'פקולטה' : 'Faculty'
 				);
@@ -317,12 +336,28 @@ for (const language of ['en', 'he']) {
 					'the visible label focuses the real select'
 				).toBeFocused();
 
+				await captureClosedControl(
+					page,
+					info,
+					'short-native-baseline',
+					singleLineNative
+				);
 				await chooseNativeFaculty(page, faculties[1]);
 				await expectState(page, faculties[1]);
-				const humanities = await captureClosedControl(page, info, 'humanities');
+				const humanities = await captureClosedControl(
+					page,
+					info,
+					'humanities',
+					singleLineNative
+				);
 				await chooseNativeFaculty(page, faculties[0]);
 				await expectState(page, faculties[0]);
-				const biotech = await captureClosedControl(page, info, 'biotech');
+				const biotech = await captureClosedControl(
+					page,
+					info,
+					'biotech',
+					singleLineNative
+				);
 				expect
 					.soft(biotech.map((capture) => capture.side))
 					.toEqual(humanities.map((capture) => capture.side));
@@ -351,11 +386,16 @@ for (const language of ['en', 'he']) {
 				).toBe(false);
 				await chooseNativeFaculty(page, faculties[1]);
 				await expectState(page, faculties[1], 5.3);
-				await captureClosedControl(page, info, 'committed-draft');
+				await captureClosedControl(
+					page,
+					info,
+					'committed-draft',
+					singleLineNative
+				);
 				await page.reload();
 				await expect(select).toBeVisible({ timeout: 30_000 });
 				await expectState(page, faculties[1], 5.3);
-				await captureClosedControl(page, info, 'reloaded');
+				await captureClosedControl(page, info, 'reloaded', singleLineNative);
 			});
 		});
 	}

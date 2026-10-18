@@ -149,6 +149,16 @@
 </CourseWidth>
 
 <style>
+	/* Keep accessible metric labels inside their own boxes when their semester
+	   is scrolled offscreen, rather than escaping the rail into page overflow. */
+	.semester-summary > span {
+		position: relative;
+	}
+	.semester-summary .sr-only {
+		inset-block-start: 0;
+		inset-inline-start: 0;
+		margin: 0;
+	}
 	/* The board owns these three tracks. Header wrapping and study-day content
 	   therefore move every course list together, including empty drop targets. */
 	:global(.semester-column--board) {

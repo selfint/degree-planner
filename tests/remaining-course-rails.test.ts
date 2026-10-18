@@ -59,9 +59,11 @@ async function prepare(page: Page, language: Language) {
 		},
 		{ language, guest }
 	);
-	// Prevent optional external analytics/auth traffic; never fulfill app data.
+	// Allow the existing public sign-in image; block optional analytics/auth
+	// traffic and never fulfill application data or perform sign-in.
 	await page.route('**/*', (route) =>
-		new URL(route.request().url()).origin === origin
+		new URL(route.request().url()).origin === origin ||
+		route.request().url() === 'https://www.svgrepo.com/show/355037/google.svg'
 			? route.continue()
 			: route.abort()
 	);
@@ -154,6 +156,18 @@ async function measure(rail: Locator, headingSelector: string) {
 				maxScroll: rail.scrollWidth - rail.clientWidth
 			},
 			ancestors,
+			semanticLabels: [
+				...document.querySelectorAll<HTMLElement>(
+					'.settings-page > h1.sr-only, .preview-semesters .semester-summary .sr-only'
+				)
+			].map((label) => ({
+				...box(label),
+				text: label.textContent?.trim(),
+				position: getComputedStyle(label).position,
+				clip: getComputedStyle(label).clip,
+				parent: box(label.parentElement!),
+				localContainingBlock: label.offsetParent === label.parentElement
+			})),
 			items: items.map((item) => {
 				const card = preview ? item : item.querySelector('.course-card')!;
 				const rect = box(card);
@@ -238,6 +252,19 @@ function expectShell(
 			1
 		);
 	}
+	for (const label of geometry.semanticLabels) {
+		expect(label.text, 'accessible label text is retained').toBeTruthy();
+		expect(label.position).toBe('absolute');
+		expect(label.clip).toBe('rect(0px, 0px, 0px, 0px)');
+		expect(
+			label.localContainingBlock,
+			'hidden label stays anchored to its own semantic container'
+		).toBe(true);
+		expect(label.left).toBeGreaterThanOrEqual(label.parent.left);
+		expect(label.right).toBeLessThanOrEqual(label.parent.right);
+		expect(label.top).toBeGreaterThanOrEqual(label.parent.top);
+		expect(label.bottom).toBeLessThanOrEqual(label.parent.bottom);
+	}
 	const desktopDiscovery = discovery && width >= 640;
 	const expectedLeft = desktopDiscovery && !rtl ? geometry.sidebar!.right : 0;
 	const expectedRight =
@@ -288,7 +315,9 @@ function expectShell(
 			).toBeLessThanOrEqual(1);
 		}
 	} else {
-		expect(geometry.rail.snap).toBe('inline proximity');
+		// CSSOM omits the default proximity keyword in Chromium/WebKit.
+		const [axis, strictness = 'proximity'] = geometry.rail.snap.split(' ');
+		expect([axis, strictness]).toEqual(['inline', 'proximity']);
 		expect(geometry.rail.scrollPadding).toBe('12px');
 		for (const stack of geometry.stacks) {
 			expect(stack.direction).toBe('column');

@@ -1,7 +1,9 @@
 import { writeFileSync } from 'node:fs';
+import { createServer, request as requestHttp } from 'node:http';
+import { request as requestHttps } from 'node:https';
 import {
 	expect,
-	test,
+	test as base,
 	type Locator,
 	type Page,
 	type TestInfo
@@ -10,6 +12,78 @@ import {
 const origin = new URL(
 	process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:4173'
 ).origin;
+type RefreshProxy = {
+	origin: string;
+	failCourses: boolean;
+	failedRequests: { url: string; status: number }[];
+	courseResponses: { url: string; status: number }[];
+};
+
+const test = base.extend<{ refreshProxy: RefreshProxy }>({
+	refreshProxy: async ({}, use) => {
+		const proxy: RefreshProxy = {
+			origin: '',
+			failCourses: false,
+			failedRequests: [],
+			courseResponses: []
+		};
+		// WebKit's service-worker-controlled requests bypass page.route, even
+		// when the worker lets public data pass through. Inject HTTP 503 at the
+		// actual loopback server instead of replacing browser APIs or JSON data.
+		// Successful responses stream untouched from the real production build.
+		const server = createServer((request, response) => {
+			const url = new URL(request.url ?? '/', proxy.origin);
+			if (proxy.failCourses && url.pathname === '/courseData.json') {
+				proxy.failedRequests.push({ url: url.href, status: 503 });
+				response.writeHead(503, { 'cache-control': 'no-store' });
+				response.end();
+				return;
+			}
+			const upstreamUrl = new URL(request.url ?? '/', origin);
+			const requestUpstream =
+				upstreamUrl.protocol === 'https:' ? requestHttps : requestHttp;
+			const upstream = requestUpstream(
+				upstreamUrl,
+				{
+					method: request.method,
+					headers: { ...request.headers, host: upstreamUrl.host }
+				},
+				(upstreamResponse) => {
+					const status = upstreamResponse.statusCode ?? 502;
+					if (url.pathname === '/courseData.json')
+						proxy.courseResponses.push({ url: url.href, status });
+					response.writeHead(status, upstreamResponse.headers);
+					upstreamResponse.on('error', () => response.destroy());
+					upstreamResponse.pipe(response);
+				}
+			);
+			upstream.on('error', () => response.destroy());
+			request.on('aborted', () => upstream.destroy());
+			response.on('close', () => upstream.destroy());
+			request.pipe(upstream);
+		});
+		await new Promise<void>((resolve, reject) => {
+			server.once('error', reject);
+			server.listen(0, '127.0.0.1', () => {
+				server.off('error', reject);
+				resolve();
+			});
+		});
+		const address = server.address();
+		if (!address || typeof address === 'string')
+			throw new Error('Missing public-data proxy address');
+		proxy.origin = `http://127.0.0.1:${address.port}`;
+		try {
+			await use(proxy);
+		} finally {
+			server.closeAllConnections();
+			await new Promise<void>((resolve, reject) =>
+				server.close((error) => (error ? reject(error) : resolve()))
+			);
+		}
+	}
+});
+
 type Language = 'en' | 'he';
 type Theme = 'light' | 'dark';
 // Keep the real console lifecycle in these full-shell footer screenshots.
@@ -42,7 +116,8 @@ async function prepareGuest(
 	page: Page,
 	language: Language,
 	theme: Theme,
-	plan = guest
+	plan = guest,
+	appOrigin = origin
 ) {
 	// Use the real local guest/bootstrap and checked-in public catalog data.
 	// No mocked catalog responses, Firebase account, or replacement browser APIs.
@@ -58,7 +133,7 @@ async function prepareGuest(
 	);
 	// A fresh context stays a guest; external auth/analytics requests are blocked.
 	await page.route('**/*', (route) =>
-		new URL(route.request().url()).origin === origin
+		new URL(route.request().url()).origin === appOrigin
 			? route.continue()
 			: route.abort()
 	);
@@ -206,14 +281,39 @@ async function measureFooter(page: Page) {
 		const toggle = footer.querySelector<HTMLButtonElement>('.theme-toggle')!;
 		const select = footer.querySelector<HTMLSelectElement>('select')!;
 		const selectStyle = getComputedStyle(select);
+		const chevrons = footer.querySelectorAll(
+			'.language-control .language-chevron'
+		);
+		const chevron = chevrons[0];
+		const chevronStyle = chevron ? getComputedStyle(chevron) : null;
 		const selectedText = select.selectedOptions[0].text;
 		// Native option glyph rectangles are not exposed consistently by Chromium
 		// and WebKit. Record the real control's alignment and text-fit metrics;
-		// the persisted viewport screenshot also shows its native arrow/rendering.
+		// the viewport PNG also shows the native selected text and single chevron.
 		const canvas = document.createElement('canvas');
 		const context = canvas.getContext('2d')!;
 		context.font = selectStyle.font;
+		context.textAlign = 'left';
+		context.direction = selectStyle.direction as CanvasDirection;
 		const text = context.measureText(selectedText);
+		const selectBox = box(select);
+		const contentLeft =
+			selectBox.left + select.clientLeft + parseFloat(selectStyle.paddingLeft);
+		const contentTop =
+			selectBox.top + select.clientTop + parseFloat(selectStyle.paddingTop);
+		const contentWidth =
+			select.clientWidth -
+			parseFloat(selectStyle.paddingLeft) -
+			parseFloat(selectStyle.paddingRight);
+		const contentHeight =
+			select.clientHeight -
+			parseFloat(selectStyle.paddingTop) -
+			parseFloat(selectStyle.paddingBottom);
+		const textAdvanceLeft = contentLeft + (contentWidth - text.width) / 2;
+		const glyphInk = {
+			left: textAdvanceLeft - text.actualBoundingBoxLeft,
+			right: textAdvanceLeft + text.actualBoundingBoxRight
+		};
 		const footerStyle = getComputedStyle(footer);
 		const separatorWidth =
 			footer.clientWidth -
@@ -357,12 +457,37 @@ async function measureFooter(page: Page) {
 				textAlign: selectStyle.textAlign,
 				textAlignLast: selectStyle.textAlignLast,
 				whiteSpace: selectStyle.whiteSpace,
+				paddingInlineStart: parseFloat(selectStyle.paddingInlineStart),
+				paddingInlineEnd: parseFloat(selectStyle.paddingInlineEnd),
 				paddingLeft: parseFloat(selectStyle.paddingLeft),
 				paddingRight: parseFloat(selectStyle.paddingRight),
 				paddingTop: parseFloat(selectStyle.paddingTop),
 				paddingBottom: parseFloat(selectStyle.paddingBottom),
 				selectedText,
 				options: [...select.options].map((option) => option.text),
+				contentBox: {
+					left: contentLeft,
+					right: contentLeft + contentWidth,
+					top: contentTop,
+					bottom: contentTop + contentHeight,
+					width: contentWidth,
+					height: contentHeight,
+					centerX: contentLeft + contentWidth / 2
+				},
+				glyphInk,
+				textAdvance: {
+					left: textAdvanceLeft,
+					right: textAdvanceLeft + text.width
+				},
+				chevronCount: chevrons.length,
+				chevron: chevron
+					? {
+							...box(chevron),
+							pointerEvents: chevronStyle!.pointerEvents,
+							ariaHidden: chevron.getAttribute('aria-hidden'),
+							focusable: chevron.getAttribute('focusable')
+						}
+					: null,
 				textWidth: text.width,
 				textHeight:
 					text.actualBoundingBoxAscent + text.actualBoundingBoxDescent,
@@ -479,11 +604,55 @@ function expectMatchingControls(geometry: Geometry, compact = true) {
 	);
 	expect(language.isNative).toBe(true);
 	expect(language.type).toBe('select-one');
-	expect(language.appearance, 'retain the platform picker').not.toBe('none');
+	expect(
+		language.appearance,
+		'hide only the platform arrow, retaining the native select'
+	).toBe('none');
 	expect(language.options).toEqual(['en', 'עב']);
 	expect(language.textAlign).toBe('center');
 	expect(language.textAlignLast).toBe('center');
-	expect(language.paddingLeft).toBe(language.paddingRight);
+	expect(language.paddingInlineStart).toBeCloseTo(0.25 * rootSize, 2);
+	expect(language.paddingInlineEnd).toBeCloseTo(rootSize, 2);
+	expect(language.chevronCount, 'exactly one language chevron').toBe(1);
+	expect(language.chevron).not.toBeNull();
+	const chevron = language.chevron!;
+	expect(
+		chevron.pointerEvents,
+		'chevron never intercepts the native picker'
+	).toBe('none');
+	expect(chevron.ariaHidden).toBe('true');
+	expect(chevron.focusable).toBe('false');
+	expect(chevron.width).toBeCloseTo(0.625 * rootSize, 2);
+	expect(chevron.height).toBeCloseTo(0.625 * rootSize, 2);
+	aligned(chevron.centerY, language.centerY, 'chevron vertically centered');
+	aligned(
+		Math.abs(language[end] - chevron[end]),
+		0.375 * rootSize,
+		'chevron at logical end'
+	);
+	aligned(
+		(language.textAdvance.left + language.textAdvance.right) / 2,
+		language.contentBox.centerX,
+		'selected label centered in actual padded content box'
+	);
+	expect(
+		language.glyphInk.left,
+		'selected label ink fits its content box'
+	).toBeGreaterThanOrEqual(language.contentBox.left - 1);
+	expect(
+		language.glyphInk.right,
+		'selected label ink fits its content box'
+	).toBeLessThanOrEqual(language.contentBox.right + 1);
+	const textIconGap =
+		geometry.direction === 'rtl'
+			? language.glyphInk.left - chevron.right
+			: chevron.left - language.glyphInk.right;
+	expect(
+		textIconGap,
+		'native selected text never overlaps the chevron'
+	).toBeGreaterThanOrEqual(1);
+	expect(chevron.left).toBeGreaterThanOrEqual(language.left);
+	expect(chevron.right).toBeLessThanOrEqual(language.right);
 	expect(language.paddingTop).toBe(language.paddingBottom);
 	expect(language.whiteSpace).toBe('nowrap');
 	expect(language.textWidth).toBeGreaterThan(0);
@@ -840,10 +1009,17 @@ for (const viewport of [
 				});
 
 				test('keeps populated settings composed through a real public-data refresh error and Retry', async ({
-					page
+					page,
+					refreshProxy
 				}, info) => {
-					await prepareGuest(page, language, theme, populatedGuest);
-					await page.goto(`${origin}/app/settings`);
+					const appOrigin = refreshProxy.origin;
+					const sourceEvidence = {
+						source: 'real production build through loopback proxy',
+						upstreamOrigin: origin,
+						proxyOrigin: appOrigin
+					};
+					await prepareGuest(page, language, theme, populatedGuest, appOrigin);
+					await page.goto(`${appOrigin}/app/settings`);
 					await expectSettingsReady(page, language);
 					await expectPreferences(page, language, theme);
 					await expectGuestSettings(page, language, true);
@@ -852,35 +1028,43 @@ for (const viewport of [
 						localStorage.getItem('userData')
 					);
 					expectMatchingControls(
-						await capture(page, info, 'settings-populated', { fullPage: true })
+						await capture(page, info, 'settings-populated', {
+							fullPage: true,
+							evidence: sourceEvidence
+						})
 					);
 
 					// A cold catalogs failure can reject the settings await block. Warm the
 					// real durable data first, then fail only its actual network refresh.
-					// No API replacements, fabricated public responses, or account data.
-					const blockedRequests: string[] = [];
-					const failurePattern = '**/courseData.json*';
-					await page.route(failurePattern, async (route) => {
-						blockedRequests.push(route.request().url());
-						await route.abort('failed');
-					});
+					// Successful JSON and browser APIs remain untouched; only HTTP 503 is
+					// injected by the loopback server. No account data is involved.
+					const failedRequests = refreshProxy.failedRequests;
+					refreshProxy.failCourses = true;
 					await page.reload();
 					await expectSettingsReady(page, language);
 					await expectGuestSettings(page, language, true);
 					await expectPreferences(page, language, theme);
 					const status = page.getByTestId('pwa-status');
+					// Prove the real network fault before waiting on its UI consequence.
+					await expect
+						.poll(() => failedRequests.length, { timeout: 15_000 })
+						.toBeGreaterThan(0);
+					await expect
+						.poll(() => page.evaluate(() => navigator.onLine))
+						.toBe(true);
 					await expect(status).toHaveAttribute('data-refresh-state', 'error', {
 						timeout: 30_000
 					});
 					expect(
-						blockedRequests.length,
-						'real refresh request was aborted'
+						failedRequests.length,
+						'real public-data request received HTTP 503'
 					).toBeGreaterThan(0);
 					expect(
-						blockedRequests.every((url) => {
+						failedRequests.every(({ url, status }) => {
 							const request = new URL(url);
 							return (
-								request.origin === origin &&
+								status === 503 &&
+								request.origin === appOrigin &&
 								request.pathname === '/courseData.json'
 							);
 						})
@@ -905,31 +1089,47 @@ for (const viewport of [
 					await expect(
 						page.getByTestId('pwa-error-detail').first()
 					).toContainText('/courseData.json');
+					await expect(
+						page.getByTestId('pwa-error-detail').first()
+					).toContainText('(503)');
 					const timeOrigin = await page.evaluate(() => performance.timeOrigin);
 					await errorLink.click();
-					await expect(page).toHaveURL(`${origin}/app/settings#offline-status`);
+					await expect(page).toHaveURL(
+						`${appOrigin}/app/settings#offline-status`
+					);
 					expect(await page.evaluate(() => performance.timeOrigin)).toBe(
 						timeOrigin
 					);
 					expectMatchingControls(
 						await capture(page, info, 'settings-refresh-error', {
 							fullPage: true,
-							evidence: { blockedPublicDataRequests: blockedRequests }
+							evidence: {
+								...sourceEvidence,
+								failedPublicDataRequests: failedRequests
+							}
 						})
 					);
 
-					await page.unroute(failurePattern);
-					const refreshed = page.waitForResponse((response) => {
-						const url = new URL(response.url());
-						return (
-							url.origin === origin &&
-							url.pathname === '/courseData.json' &&
-							(response.ok() || response.status() === 304)
-						);
-					});
+					refreshProxy.failCourses = false;
+					const responsesBeforeRetry = refreshProxy.courseResponses.length;
 					await retry.click();
-					const response = await refreshed;
-					await response.finished();
+					await expect
+						.poll(
+							() =>
+								refreshProxy.courseResponses
+									.slice(responsesBeforeRetry)
+									.some(
+										({ status }) =>
+											(status >= 200 && status < 300) || status === 304
+									),
+							{ timeout: 30_000 }
+						)
+						.toBe(true);
+					const response = refreshProxy.courseResponses
+						.slice(responsesBeforeRetry)
+						.find(
+							({ status }) => (status >= 200 && status < 300) || status === 304
+						)!;
 					await expectHealthyPwa(page, language);
 					await expectGuestSettings(page, language, true);
 					await expectPreferences(page, language, theme);
@@ -945,8 +1145,10 @@ for (const viewport of [
 						await capture(page, info, 'settings-retry-recovered', {
 							fullPage: true,
 							evidence: {
-								refreshedUrl: response.url(),
-								status: response.status()
+								...sourceEvidence,
+								failedPublicDataRequests: failedRequests,
+								refreshedUrl: response.url,
+								status: response.status
 							}
 						})
 					);

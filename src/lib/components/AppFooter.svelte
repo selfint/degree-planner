@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Snippet } from 'svelte';
+	import { onMount, type Snippet } from 'svelte';
 	import { content } from '$lib/preferences.svelte';
 	import { cms } from '$lib/content';
 	import ThemeToggle from './ThemeToggle.svelte';
@@ -14,6 +14,11 @@
 		compact?: boolean;
 		pwa?: Snippet;
 	} = $props();
+
+	let ready = $state(false);
+	onMount(() => {
+		ready = true;
+	});
 
 	function changeLanguage(value: (typeof cms)[keyof typeof cms]) {
 		if (!persistPreferences) return;
@@ -57,10 +62,29 @@
 				<span class="sr-only"
 					>{content.lang.lang === 'he' ? 'שפה' : 'Language'}</span
 				>
-				<Select bind:value={content.lang} onchange={changeLanguage}>
+				<Select
+					disabled={!ready}
+					bind:value={content.lang}
+					onchange={changeLanguage}
+				>
 					<option value={cms.en}>en</option>
 					<option value={cms.he}>עב</option>
 				</Select>
+				<svg
+					class="language-chevron"
+					viewBox="0 0 16 16"
+					aria-hidden="true"
+					focusable="false"
+				>
+					<path
+						d="m4 6 4 4 4-4"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="1.5"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					/>
+				</svg>
 			</label>
 		</div>
 	</div>
@@ -105,16 +129,31 @@
 		--preference-control-width: 3rem;
 	}
 	.language-control {
+		position: relative;
 		inline-size: var(--preference-control-width);
 		flex: none;
 	}
 	.language-control :global(select) {
 		block-size: var(--preference-control-height);
 		min-block-size: 0;
-		padding: 0;
+		appearance: none;
+		-webkit-appearance: none;
+		padding-block: 0;
+		padding-inline: 0.25rem 1rem;
 		text-align: center;
 		text-align-last: center;
 		white-space: nowrap;
+	}
+
+	.language-chevron {
+		position: absolute;
+		inset-inline-end: 0.375rem;
+		inset-block-start: 50%;
+		transform: translateY(-50%);
+		inline-size: 0.625rem;
+		block-size: 0.625rem;
+		pointer-events: none;
+		color: rgb(var(--color-content-secondary));
 	}
 
 	.pwa-footer-row {

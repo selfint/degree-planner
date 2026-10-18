@@ -182,9 +182,28 @@ for (const language of ['en', 'he'] as const) {
 		context,
 		evidence
 	}, testInfo) => {
-		await page.goto('/');
-		await expect(page.locator('.landing')).toBeVisible();
+		let releaseScripts!: () => void;
+		const scriptsReady = new Promise<void>((resolve) => {
+			releaseScripts = resolve;
+		});
+		const scriptPattern = /\/_app\/immutable\/.*\.js(?:\?.*)?$/;
+		await page.route(scriptPattern, async (route) => {
+			await scriptsReady;
+			await route.continue();
+		});
 		const select = page.locator('footer select');
+		try {
+			await page.goto('/', { waitUntil: 'commit' });
+			await expect(page.locator('.landing')).toBeVisible();
+			// A native selection cannot be accepted before its persistence and
+			// language handlers exist. Both preference controls share this contract.
+			await expect(select).toBeDisabled();
+			await expect(page.locator('footer button[aria-pressed]')).toBeDisabled();
+		} finally {
+			releaseScripts();
+		}
+		await expect(select).toBeEnabled();
+		evidence.checkpoints.push('landing-preferences-wait-for-real-hydration');
 		// Exercise both directions using the real footer control, not seeded prefs.
 		await select.selectOption({ label: 'en' });
 		if (language === 'he') await select.selectOption({ label: 'עב' });
@@ -303,14 +322,30 @@ for (const language of ['en', 'he'] as const) {
 		const logo = page
 			.locator('header')
 			.getByRole('link', { name: 'PlanIt', exact: true });
-		await expect(logo).toHaveAttribute('href', '/app/');
-		const onlineTimeOrigin = await page.evaluate(() => performance.timeOrigin);
-		await logo.click();
-		await expect(page).toHaveURL(/\/app\/plan$/);
-		expect(await page.evaluate(() => performance.timeOrigin)).toBe(
-			onlineTimeOrigin
+		await expect(logo).toHaveAttribute('href', '/');
+		const initialTimeOrigin = await page.evaluate(() => performance.timeOrigin);
+		const initialSavedPlan = await page.evaluate(() =>
+			localStorage.getItem('userData')
 		);
-		evidence.checkpoints.push('online-logo-stays-in-console-without-reload');
+		await logo.click();
+		await expect(page).toHaveURL(new URL('/', baseURL).href);
+		await expect(page.locator('.landing')).toHaveAttribute(
+			'dir',
+			language === 'he' ? 'rtl' : 'ltr'
+		);
+		expect(await page.evaluate(() => performance.timeOrigin)).not.toBe(
+			initialTimeOrigin
+		);
+		await page.locator('header a[href="/app/"]').click();
+		await expect(page).toHaveURL(/\/app\/plan$/);
+		await ready(page);
+		expect(await page.evaluate(() => localStorage.getItem('userData'))).toBe(
+			initialSavedPlan
+		);
+		const onlineTimeOrigin = await page.evaluate(() => performance.timeOrigin);
+		evidence.checkpoints.push(
+			'brand-opens-landing-and-get-started-restores-saved-plan'
+		);
 
 		await watchConsoleEntry(page);
 		for (const target of ['catalog', 'settings', 'plan']) {
@@ -371,7 +406,7 @@ for (const language of ['en', 'he'] as const) {
 
 		const offlineTimeOrigin = await page.evaluate(() => performance.timeOrigin);
 		await watchConsoleEntry(page);
-		await logo.click();
+		await page.locator('header nav a[href="/app/plan"]').click();
 		await expect(page).toHaveURL(/\/app\/plan$/);
 		await expect(page.locator(`[data-code="${courseCode}"]`)).toBeVisible();
 		await page.goBack();
@@ -392,7 +427,7 @@ for (const language of ['en', 'he'] as const) {
 			'false'
 		);
 		evidence.checkpoints.push(
-			'offline-logo-and-back-forward-preserve-synthetic-guest-without-startup-overlay'
+			'offline-plan-navigation-and-back-forward-preserve-synthetic-guest-without-startup-overlay'
 		);
 
 		await context.setOffline(false);

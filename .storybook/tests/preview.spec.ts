@@ -83,22 +83,76 @@ async function expectFooterPreferenceGeometry(page: Page, compact: boolean) {
 		button!.y + button!.height / 2,
 		1
 	);
-	// The selected option is painted by the native select, not a DOM text box.
-	// Check its centered, symmetric text area without replacing native behavior.
+	// Native option text is painted inside the select's padded content box.
+	// One decorative chevron replaces platform arrows without replacing the picker.
 	await expect(language).toHaveCSS('text-align', 'center');
 	await expect(language).toHaveCSS('text-align-last', 'center');
+	await expect(language).toHaveCSS('appearance', 'none');
+	const chevron = controls.locator('.language-chevron');
+	await expect(chevron).toHaveCount(1);
+	await expect(chevron).toHaveAttribute('aria-hidden', 'true');
+	await expect(chevron).toHaveAttribute('focusable', 'false');
+	await expect(chevron).toHaveCSS('pointer-events', 'none');
 	const valueArea = await language.evaluate((element) => {
-		const style = getComputedStyle(element);
+		const select = element as HTMLSelectElement;
+		const style = getComputedStyle(select);
+		const bounds = select.getBoundingClientRect();
+		const chevron = select
+			.closest('label')!
+			.querySelector('.language-chevron')!;
+		const icon = chevron.getBoundingClientRect();
+		const canvas = document.createElement('canvas');
+		const context = canvas.getContext('2d')!;
+		context.font = style.font;
+		const text = context.measureText(select.selectedOptions[0].text);
+		const left =
+			bounds.left + select.clientLeft + parseFloat(style.paddingLeft);
+		const width =
+			select.clientWidth -
+			parseFloat(style.paddingLeft) -
+			parseFloat(style.paddingRight);
 		return {
+			isNative: select instanceof HTMLSelectElement,
+			type: select.type,
+			direction: style.direction,
 			inlineStart: style.paddingInlineStart,
 			inlineEnd: style.paddingInlineEnd,
 			blockStart: style.paddingBlockStart,
 			blockEnd: style.paddingBlockEnd,
-			overflow: element.scrollWidth - element.clientWidth
+			textLeft: left + (width - text.width) / 2,
+			textRight: left + (width + text.width) / 2,
+			textWidth: text.width,
+			contentWidth: width,
+			icon: {
+				left: icon.left,
+				right: icon.right,
+				top: icon.top,
+				width: icon.width,
+				height: icon.height
+			},
+			overflow: select.scrollWidth - select.clientWidth
 		};
 	});
-	expect(valueArea.inlineStart).toBe(valueArea.inlineEnd);
+	expect(valueArea.isNative).toBe(true);
+	expect(valueArea.type).toBe('select-one');
+	expect(valueArea.inlineStart).toBe('4px');
+	expect(valueArea.inlineEnd).toBe('16px');
 	expect(valueArea.blockStart).toBe(valueArea.blockEnd);
+	expect(valueArea.textWidth).toBeGreaterThan(0);
+	expect(valueArea.textWidth).toBeLessThanOrEqual(valueArea.contentWidth);
+	expect(valueArea.icon.width).toBeCloseTo(10, 1);
+	expect(valueArea.icon.height).toBeCloseTo(10, 1);
+	expect(valueArea.icon.top + valueArea.icon.height / 2).toBeCloseTo(
+		select!.y + select!.height / 2,
+		1
+	);
+	if (valueArea.direction === 'rtl') {
+		expect(valueArea.icon.left - select!.x).toBeCloseTo(6, 1);
+		expect(valueArea.textLeft).toBeGreaterThan(valueArea.icon.right);
+	} else {
+		expect(select!.x + select!.width - valueArea.icon.right).toBeCloseTo(6, 1);
+		expect(valueArea.textRight).toBeLessThan(valueArea.icon.left);
+	}
 	expect(valueArea.overflow).toBeLessThanOrEqual(1);
 }
 
@@ -1183,7 +1237,9 @@ test('console surfaces remain readable and usable at narrow and wide widths', as
 					const positions = await page
 						.locator('.settings-page')
 						.evaluate((root) => ({
-							firstSection: root.querySelector('section')!.className,
+							accountFirst: root
+								.querySelector('section')!
+								.classList.contains('account-section'),
 							headingBottom: root
 								.querySelector('.page-heading')!
 								.getBoundingClientRect().bottom,
@@ -1197,7 +1253,7 @@ test('console surfaces remain readable and usable at narrow and wide widths', as
 								.querySelector('.degree-section')!
 								.getBoundingClientRect().top
 						}));
-					expect(positions.firstSection).toBe('account-section');
+					expect(positions.accountFirst).toBe(true);
 					expect(positions.accountTop).toBeGreaterThanOrEqual(
 						positions.headingBottom
 					);

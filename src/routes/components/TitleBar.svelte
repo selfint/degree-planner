@@ -180,8 +180,11 @@
 	}
 	@media (max-width: 39.99rem) {
 		.console {
-			padding-inline: 0.375rem;
-			gap: 0.375rem;
+			padding-inline: 0.25rem;
+			gap: 0.25rem;
+		}
+		nav {
+			gap: 0.125rem;
 		}
 		.console .brand :global(.brand-logo) {
 			inline-size: 1.75rem;

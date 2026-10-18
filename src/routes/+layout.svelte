@@ -7,6 +7,7 @@
 	import AppFooter from '$lib/components/AppFooter.svelte';
 	import ConsoleLoading from '$lib/components/ConsoleLoading.svelte';
 	import { shouldShowConsoleEntry } from '$lib/consoleNavigation';
+	const buildCommit = __PLANIT_BUILD_SHA__;
 	const { children } = $props();
 	const consoleRoute = $derived(/^\/app(?:\/|$)/.test(page.url.pathname));
 	const openingConsole = $derived(
@@ -16,6 +17,12 @@
 		document.getElementById('console-boot')?.remove();
 	});
 </script>
+
+<svelte:head>
+	{#if buildCommit}
+		<meta name="planit-build" content={buildCommit} />
+	{/if}
+</svelte:head>
 
 {#if consoleRoute}
 	{@render children()}

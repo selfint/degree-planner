@@ -108,9 +108,7 @@
 {/snippet}
 
 <div class="catalog-page">
-	<header class="catalog-inset">
-		<h1 class="ui-page-title">{content.lang.common.catalog}</h1>
-	</header>
+	<h1 class="sr-only">{content.lang.common.catalog}</h1>
 
 	{#if user.d.degree !== undefined}
 		<section class="catalog-summary catalog-inset">

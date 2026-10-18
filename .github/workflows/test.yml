@@ -111,7 +111,7 @@ jobs:
       contents: read
       statuses: read
     env:
-      PREVIEW_URL: ${{ github.event_name == 'push' && 'https://degree-planner-git-staging-selfints-projects.vercel.app/' || vars.DEGREE_PLANNER_PREVIEW_URL || 'https://degree-planner-git-feat-console-migration-selfints-projects.vercel.app/' }}
+      PREVIEW_URL: ${{ github.event_name == 'push' && 'https://tech-planit-preview.vercel.app/' || vars.DEGREE_PLANNER_PREVIEW_URL || 'https://degree-planner-git-feat-console-migration-selfints-projects.vercel.app/' }}
       PREVIEW_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
       PREVIEW_HEAD_REF: ${{ github.head_ref || github.ref_name }}
     steps:

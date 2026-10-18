@@ -311,6 +311,24 @@ async function expectInlineCatalogMetrics(
 	root: Locator,
 	language: 'en' | 'he'
 ) {
+	const pageTitle = root.locator(':scope > h1');
+	await expect(pageTitle).toHaveText(language === 'he' ? 'קטלוג' : 'Catalog');
+	await expect(pageTitle).toHaveClass(/\bsr-only\b/);
+	await expect(pageTitle).toHaveCSS('position', 'absolute');
+	await expect(root.locator(':scope > header')).toHaveCount(0);
+	await expect(root.locator('.catalog-summary h2')).toBeVisible();
+	const titleSpace = await root.evaluate((page) => {
+		const summary = page.querySelector('.catalog-summary')!;
+		return (
+			summary.getBoundingClientRect().top -
+			page.getBoundingClientRect().top -
+			parseFloat(getComputedStyle(page).paddingTop)
+		);
+	});
+	expect(
+		Math.abs(titleSpace),
+		'no empty visible page-heading row'
+	).toBeLessThanOrEqual(1);
 	await root.evaluate(async () => {
 		await document.fonts.ready;
 	});

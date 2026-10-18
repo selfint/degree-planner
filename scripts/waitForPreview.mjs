@@ -1,4 +1,5 @@
 import { mkdir, writeFile } from 'node:fs/promises';
+import { previewBuildCommit } from './previewBuildCommit.mjs';
 
 // Read-only GitHub API gate for the mutable preview alias. No Vercel credential
 // or deployment mutation is needed. --verify-only rechecks after the browser run.
@@ -53,7 +54,17 @@ while (true) {
 	await assertCurrentHead();
 	const result = await github(`commits/${expectedSha}/status?per_page=100`);
 	const status = result.statuses?.find((item) => item.context === contextName);
+	let servedCommit = null;
 	if (status?.state === 'success') {
+		const landing = await fetch(new URL('/', preview), {
+			signal: AbortSignal.timeout(20_000),
+			redirect: 'manual'
+		});
+		if (!landing.ok)
+			throw new Error(`Preview landing returned HTTP ${landing.status}.`);
+		servedCommit = previewBuildCommit(await landing.text());
+	}
+	if (servedCommit === expectedSha) {
 		await assertCurrentHead();
 		const response = await fetch(new URL('/app/', preview), {
 			signal: AbortSignal.timeout(20_000),
@@ -66,6 +77,8 @@ while (true) {
 		await response.body?.cancel();
 		const evidence = {
 			expectedCommit: expectedSha,
+			servedCommit,
+			servedCommitMatches: true,
 			branch,
 			checkedAt: new Date().toISOString(),
 			previewOrigin: preview.origin,
@@ -74,8 +87,8 @@ while (true) {
 			statusUpdatedAt: status.updated_at,
 			currentBranchMatches: true,
 			verification: verifyOnly ? 'after-browser-run' : 'before-browser-run',
-			limitation:
-				'Commit status plus current branch/alias checks; browser response bytes do not independently attest an immutable deployment SHA.'
+			verificationMethod:
+				'Public landing HTML build-SHA marker, successful commit status and current branch ref.'
 		};
 		await mkdir('test-results/deployed-preview-gate', { recursive: true });
 		await writeFile(
@@ -93,10 +106,10 @@ while (true) {
 		);
 	if (verifyOnly || Date.now() >= deadline)
 		throw new Error(
-			`No successful ${contextName} status for ${expectedSha} within the allowed wait.`
+			`Preview did not serve expected commit ${expectedSha} within the allowed wait (status: ${status?.state ?? 'missing'}, served: ${servedCommit ?? 'no build marker'}).`
 		);
 	console.log(
-		`Waiting for ${contextName} on ${expectedSha.slice(0, 12)} (${status?.state ?? 'not posted yet'}).`
+		`Waiting for ${preview.hostname} to serve ${expectedSha.slice(0, 12)} (${status?.state ?? 'not posted yet'}, served: ${servedCommit?.slice(0, 12) ?? 'no build marker'}).`
 	);
 	await new Promise((resolve) => setTimeout(resolve, 15_000));
 }

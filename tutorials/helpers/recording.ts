@@ -123,7 +123,7 @@ export async function createRecording(
 		{ language, theme, semesters }
 	);
 	// Public course/catalog JSON and the real guest storage are untouched.
-	// Only external analytics/auth traffic is blocked in these fictional guest recordings.
+	// External requests are blocked in these fictional guest recordings.
 	await page.route('**/*', (route) =>
 		new URL(route.request().url()).origin === new URL(baseURL).origin
 			? route.continue()

@@ -19,8 +19,11 @@ const config: StorybookConfig = {
 	stories: ['../src/stories/**/*.stories.ts'],
 	framework: '@storybook/sveltekit',
 	addons: [],
-	// Only public branding, never catalogs, real course data or service workers.
-	staticDirs: [{ from: '../static/brand', to: '/brand' }],
+	// Only public branding and tutorial media, never catalogs or service workers.
+	staticDirs: [
+		{ from: '../static/brand', to: '/brand' },
+		{ from: '../static/tutorials', to: '/tutorials' }
+	],
 	core: { disableTelemetry: true },
 	async viteFinal(config) {
 		config.plugins = [

@@ -8,11 +8,10 @@ Two real-browser tutorials run against the application and checked-in public cat
   opens the real warning control and checks the dependency details.
 - Search to semester: types a course code into search, verifies the result and
   course details, adds the course, checks persisted guest storage and semester
-  totals, then reloads to verify persistence.
+  totals, then reopens the saved plan to verify persistence.
 
 No course responses, application state APIs, or rendered cards are mocked. Each
-recording uses an isolated fictional guest plan. External analytics/auth traffic
-is blocked. The recording-only cursor, camera transform and captions are injected
+recording uses an isolated fictional guest plan. External network traffic is blocked. The recording-only cursor, camera transform and captions are injected
 by Playwright; explanatory UI is never added to the console.
 
 ## Run
@@ -22,7 +21,7 @@ by Playwright; explanatory UI is never added to the console.
     node scripts/packageTutorialVideos.mjs
 
 FFmpeg with libx264/libvpx is required for packaging. Omit PW_DEMO to run assertions
-without reading pauses or videos. PLAYWRIGHT_BASE_URL targets an already-running
+without reading pauses or videos. Recordings require genuine service-worker readiness and fail on visible PWA errors. A recording-only slate provides an exact frame boundary for trimming setup; it is removed from every published clip. The recorded page closes before persistence verification, so reload screens cannot enter the tutorial. PLAYWRIGHT_BASE_URL targets an already-running
 app; otherwise the config builds and starts the local preview.
 
 Raw WebM recordings, annotated keyframes and timing JSON are under
@@ -31,10 +30,22 @@ MP4 + WebM, WebP posters, VTT descriptions, and a source-commit manifest under
 `test-results/tutorials-media`. It fails if any variant is missing. Inspect all
 recordings before copying that complete directory to `static/tutorials`.
 
-The initial TDD checkpoint includes `scripts/assertTutorialRed.mjs`, which accepts
-only the exact missing tutorial-section assertion as expected red. Runner, build,
-recording and unrelated assertion failures remain failures. Replace this temporary
-check with the complete passing landing suite when the implementation is added.
+## Landing acceptance and TDD
+
+    npm run build
+    node --test tutorials/ssr.test.mjs
+    npx playwright test --config=playwright.tutorials.config.ts tutorials/landing.test.ts
+
+The real production-rendered HTML test was committed and observed failing on the
+missing tutorial section before adding the landing components. It now verifies
+both accessible native players and their visible transcripts. The browser suite
+also checks both languages/themes at 320, 390 and 1280px, no media transfer before
+play, no console/data boot on landing, keyboard focus, playback, pause and failure
+fallback, native fullscreen and live preference changes. CI runs these assertions normally; unexpected failures fail the job.
+
+The earlier test-first checkpoint retains `scripts/assertTutorialRed.mjs` for
+provenance. It only accepted the exact missing-section browser assertion, never a
+build, runner or unrelated failure. It is not used by the final green workflow.
 
 ## Planit source and attribution
 
@@ -51,3 +62,12 @@ style are adapted from the first-time-user-experience test (not the older circul
 cursor in `tests/helpers/demoCursor.ts`). The recording helper is adapted for this
 Svelte app, localized captions, zooming, isolated guest data, and separate packaging.
 Planit is Apache-2.0 licensed; its license is retained in `assets/LICENSE.planit`.
+
+## Checked-in media
+
+`provenance.json` records each published media file's byte size and SHA-256,
+with the exact recording commit, successful CI run and artifact identifier.
+The current complete set is 6,018,987 bytes. The landing fetches neither video
+format before deliberate playback; its two nearby WebP posters total 31–41 KB,
+depending on language and theme. MP4 playback uses 230–412 KB per tutorial;
+WebM is a fallback. Media is excluded from the app service-worker precache.

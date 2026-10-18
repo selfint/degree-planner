@@ -23,6 +23,11 @@ test('the rendered landing page contains two accessible, user-controlled tutoria
 		assert.match(attributes, /preload="none"/);
 		assert.match(attributes, /\bplaysinline(?:\s|=|$)/);
 		assert.match(attributes, /aria-label="[^"]+"/);
+		assert.match(
+			attributes,
+			/\bh-auto\b/,
+			'intrinsic height must scale with the available width'
+		);
 		assert.doesNotMatch(attributes, /\b(?:autoplay|loop)(?:\s|=|$)/);
 		assert.match(body, /type="video\/mp4"/);
 		assert.match(body, /type="video\/webm"/);

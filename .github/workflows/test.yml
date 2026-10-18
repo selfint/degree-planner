@@ -52,6 +52,9 @@ jobs:
         if: matrix.browser == 'chromium'
         run: npx playwright test tests/plan-mobile-drag.test.ts tests/pwa.test.ts --project=chromium --grep "drop zones remain|signed-in offline users" --max-failures=1
       - name: Run browser tests
+        # Keep the full lifecycle/interaction evidence even when an earlier
+        # focused assertion fails. That failure still fails the overall job.
+        if: success() || failure()
         run: npm run test:integration -- --project="${{ matrix.project }}"
       - name: Test the built worker and IndexedDB ownership boundary
         if: matrix.browser == 'chromium'

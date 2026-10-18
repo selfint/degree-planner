@@ -38,7 +38,8 @@ const labels = {
 		wish: 'Wish list',
 		remove: 'Remove from semester',
 		share: 'Share',
-		copy: 'Copy plan'
+		copy: 'Copy plan',
+		requirements: 'Course requirement details'
 	},
 	he: {
 		year: 'שנה',
@@ -53,7 +54,8 @@ const labels = {
 		wish: 'רשימת משאלות',
 		remove: 'הסר מהסמסטר',
 		share: 'שתף',
-		copy: 'העתק תוכנית'
+		copy: 'העתק תוכנית',
+		requirements: 'פרטי דרישות הקורס'
 	}
 } as const;
 
@@ -305,6 +307,7 @@ for (const language of ['en', 'he'] as const) {
 		});
 		// Playwright Test automatically traces every context created through its
 		// browser fixture. Starting another trace here would throw before import.
+		let journeyFailed = false;
 		try {
 			await isolateGuest(recipient, language);
 			const copy = await recipient.newPage();
@@ -336,9 +339,29 @@ for (const language of ['en', 'he'] as const) {
 				copy.locator(`[data-semester="2"] [data-code="02340141"]`)
 			).toBeVisible();
 			await capture(copy, info, 'independent-imported-plan');
-			await copy
-				.locator(`[data-semester="0"] [data-code="${courseCode}"] .course-open`)
-				.click();
+			const imported = await readPlan(copy);
+			const card = copy.locator(
+				`[data-semester="0"] [data-code="${courseCode}"]`
+			);
+			const requirementDetails = card.getByRole('button', {
+				name: text.requirements,
+				exact: true
+			});
+			await expect(requirementDetails).toHaveAttribute(
+				'aria-expanded',
+				'false'
+			);
+			// A planned course with unmet prerequisites first reveals its warnings.
+			// A second normal click opens the details; neither click edits the plan.
+			await card.locator('.course-open').click();
+			await expect(requirementDetails).toHaveAttribute('aria-expanded', 'true');
+			await expect(card.locator('.course-warning-details')).toBeVisible();
+			await expect(copy).toHaveURL(`${origin}/app/plan`);
+			expect(await readPlan(copy)).toEqual(imported);
+			await capture(copy, info, 'imported-course-requirements-expanded');
+			await card.locator('.course-open').click();
+			await expect(copy).toHaveURL(`${origin}/app/course/${courseCode}`);
+			expect(await readPlan(copy)).toEqual(imported);
 			await copy
 				.getByTestId('course-plan-actions')
 				.getByRole('button', { name: new RegExp(`^${text.remove}`) })
@@ -352,9 +375,20 @@ for (const language of ['en', 'he'] as const) {
 				page.locator(`[data-semester="0"] [data-code="${courseCode}"]`)
 			).toBeVisible();
 			expect(await readPlan(page)).toEqual(owner);
+		} catch (error) {
+			journeyFailed = true;
+			throw error;
 		} finally {
-			await recipient.close();
-			await preview.close();
+			// Keep the original journey error if timeout teardown already closed a
+			// context. Cleanup errors still fail an otherwise successful journey.
+			const cleanup = await Promise.allSettled([
+				recipient.close(),
+				preview.close()
+			]);
+			if (!journeyFailed) {
+				const failure = cleanup.find((result) => result.status === 'rejected');
+				if (failure?.status === 'rejected') throw failure.reason;
+			}
 		}
 	});
 

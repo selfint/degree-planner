@@ -8,9 +8,9 @@ on:
       - 'tutorials/landing.test.ts'
       - 'playwright.tutorials.config.ts'
       - 'scripts/packageTutorialVideos.mjs'
-      - 'src/routes/+page.svelte'
-      - 'src/routes/components/Tutorial*.svelte'
-      - 'src/lib/tutorials.ts'
+      - 'scripts/tutorialTimeline*'
+      - 'src/**'
+      - 'static/courseData.json'
       - 'static/tutorials/**'
       - '.github/workflows/tutorials.yml'
   pull_request:
@@ -18,8 +18,12 @@ on:
     paths:
       - 'tutorials/**'
       - 'tutorials/landing.test.ts'
-      - 'src/routes/components/Tutorial*.svelte'
-      - 'src/lib/tutorials.ts'
+      - 'src/**'
+      - 'static/courseData.json'
+      - 'static/tutorials/**'
+      - 'playwright.tutorials.config.ts'
+      - 'scripts/packageTutorialVideos.mjs'
+      - 'scripts/tutorialTimeline*'
       - '.github/workflows/tutorials.yml'
 
 permissions:
@@ -39,17 +43,11 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - name: Install video packaging tools
         run: sudo apt-get update && sudo apt-get install -y ffmpeg
-      - name: Check landing tutorial behavior (red before UI implementation)
-        run: |
-          mkdir -p test-results
-          set +e
-          npx playwright test --config=playwright.tutorials.config.ts tutorials/landing.test.ts --grep 'landing tutorials en light 320$' --reporter=json > test-results/tutorial-red.json
-          result=$?
-          set -e
-          node scripts/assertTutorialRed.mjs "$result"
-      - name: Record asserted app tutorials in both languages and themes
+      - name: Check landing behavior and record asserted app tutorials
+        run: PW_DEMO=on npx playwright test --config=playwright.tutorials.config.ts
+      - name: Check production-rendered tutorial semantics
         if: success() || failure()
-        run: PW_DEMO=on npx playwright test --config=playwright.tutorials.config.ts tutorials/recordings.spec.ts
+        run: node --test tutorials/ssr.test.mjs
       - name: Package recorded videos, posters and captions
         if: success() || failure()
         run: node scripts/packageTutorialVideos.mjs
@@ -59,7 +57,6 @@ jobs:
         with:
           name: tutorials-${{ github.sha }}
           path: |
-            test-results/tutorial-red.json
             test-results/tutorials-checks/
             test-results/tutorials-raw/
             test-results/tutorials-media/

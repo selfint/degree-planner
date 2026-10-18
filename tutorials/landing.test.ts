@@ -19,6 +19,16 @@ for (const width of [320, 390, 1280]) {
 				);
 				const mediaRequests: string[] = [];
 				const consoleRequests: string[] = [];
+				const loadedPosters = new Set<string>();
+				page.on('response', (response) => {
+					const pathname = new URL(response.url()).pathname;
+					if (
+						pathname.startsWith('/tutorials/') &&
+						pathname.endsWith('.webp') &&
+						response.ok()
+					)
+						loadedPosters.add(pathname);
+				});
 				page.on('request', (request) => {
 					const pathname = new URL(request.url()).pathname;
 					if (/\.(webm|mp4)$/.test(pathname)) mediaRequests.push(pathname);
@@ -42,10 +52,13 @@ for (const width of [320, 390, 1280]) {
 					const tutorial = tutorials.getByTestId(`tutorial-${topic}`);
 					const video = tutorial.locator('video');
 					await expect(video).toHaveAttribute('preload', 'none');
+					const frame = await video.boundingBox();
+					expect(frame!.width / frame!.height).toBeCloseTo(4 / 3, 2);
 					await expect(video).toHaveAttribute('controls', '');
 					await expect(video).toHaveAttribute('playsinline', '');
 					await expect(video).not.toHaveAttribute('autoplay');
 					await expect(video).not.toHaveAttribute('loop');
+					await video.scrollIntoViewIfNeeded();
 					await expect(video).toHaveAttribute(
 						'poster',
 						`/tutorials/${topic}-${language}-${theme}.webp`
@@ -68,6 +81,16 @@ for (const width of [320, 390, 1280]) {
 					expect(
 						await video.evaluate((v) => (v as HTMLVideoElement).paused)
 					).toBe(true);
+					await expect
+						.poll(() =>
+							loadedPosters.has(`/tutorials/${topic}-${language}-${theme}.webp`)
+						)
+						.toBe(true);
+					await tutorial.screenshot({
+						path: info.outputPath(
+							`${topic}-${language}-${theme}-${width}-section.png`
+						)
+					});
 					await page.screenshot({
 						path: info.outputPath(`${topic}-${language}-${theme}-${width}.png`)
 					});
@@ -94,25 +117,172 @@ for (const width of [320, 390, 1280]) {
 	}
 }
 
-test('tutorial media plays, pauses, and exposes readable failure guidance', async ({
+for (const { language, theme, width } of [
+	{ language: 'he', theme: 'dark', width: 320 },
+	{ language: 'en', theme: 'light', width: 390 },
+	{ language: 'en', theme: 'dark', width: 1280 },
+	{ language: 'he', theme: 'light', width: 1280 }
+]) {
+	test(`tutorial media plays and pauses ${language} ${theme} ${width}`, async ({
+		page
+	}, info) => {
+		await page.setViewportSize({ width, height: 900 });
+		await page.addInitScript(
+			({ language, theme }) => {
+				localStorage.setItem('lang', language);
+				localStorage.setItem('theme', theme);
+			},
+			{ language, theme }
+		);
+		await page.goto(baseURL);
+		for (const topic of ['course-card', 'plan-course']) {
+			const tutorial = page.getByTestId(`tutorial-${topic}`);
+			const video = tutorial.locator('video');
+			await video.scrollIntoViewIfNeeded();
+			await video.evaluate(async (node) => {
+				await (node as HTMLVideoElement).play();
+			});
+			await expect
+				.poll(() =>
+					video.evaluate((node) => (node as HTMLVideoElement).currentTime)
+				)
+				.toBeGreaterThan(3);
+			await video.evaluate((node) => (node as HTMLVideoElement).pause());
+			expect(
+				await video.evaluate((node) => (node as HTMLVideoElement).paused)
+			).toBe(true);
+			await page.screenshot({
+				path: info.outputPath(
+					`${topic}-playing-${language}-${theme}-${width}.png`
+				)
+			});
+			await video.evaluate(async (node) => {
+				await node.requestFullscreen();
+			});
+			await expect
+				.poll(() =>
+					video.evaluate((node) => document.fullscreenElement === node)
+				)
+				.toBe(true);
+			if (width < 500)
+				await page.setViewportSize({ width: 900, height: width });
+			await page.screenshot({
+				path: info.outputPath(
+					`${topic}-fullscreen-${language}-${theme}-${width}.png`
+				)
+			});
+			await page.evaluate(() => document.exitFullscreen());
+			if (width < 500) await page.setViewportSize({ width, height: 900 });
+			await video.dispatchEvent('error');
+			await expect(tutorial.getByRole('status')).toBeVisible();
+			await expect(tutorial.locator('.tutorial-steps li')).toHaveCount(
+				topic === 'course-card' ? 6 : 4
+			);
+		}
+	});
+}
+
+test('both unavailable media sources expose a real failure message and readable steps', async ({
 	page
-}) => {
+}, info) => {
+	await page.addInitScript(() => localStorage.setItem('lang', 'en'));
+	const failedSources = new Set<string>();
+	await page.route(
+		/\/tutorials\/course-card-en-.*\.(mp4|webm)$/,
+		async (route) => {
+			failedSources.add(new URL(route.request().url()).pathname);
+			await route.fulfill({
+				status: 503,
+				contentType: 'text/plain',
+				body: 'Media unavailable for this test'
+			});
+		}
+	);
 	await page.goto(baseURL);
 	const tutorial = page.getByTestId('tutorial-course-card');
 	const video = tutorial.locator('video');
-	await video.evaluate(async (node) => {
-		await (node as HTMLVideoElement).play();
+	await video.scrollIntoViewIfNeeded();
+	await video.evaluate((node) => {
+		const player = node as HTMLVideoElement;
+		player.load();
+		void player.play().catch(() => {});
 	});
+	await expect
+		.poll(() => failedSources.size, 'both actual formats failed to load')
+		.toBe(2);
+	await expect(tutorial.getByRole('status')).toContainText(
+		'The video could not load.'
+	);
+	await expect(tutorial.locator('.tutorial-steps li')).toHaveCount(6);
+	await page.screenshot({ path: info.outputPath('real-media-failure.png') });
+});
+
+test('live language and theme preferences replace media without autoplay', async ({
+	page
+}) => {
+	await page.addInitScript(() => {
+		localStorage.setItem('lang', 'en');
+		localStorage.setItem('theme', 'light');
+	});
+	await page.goto(baseURL);
+	const tutorial = page.getByTestId('tutorial-course-card');
+	const video = tutorial.locator('video');
+	await video.scrollIntoViewIfNeeded();
+	await video.evaluate(async (node) => (node as HTMLVideoElement).play());
 	await expect
 		.poll(() =>
 			video.evaluate((node) => (node as HTMLVideoElement).currentTime)
 		)
 		.toBeGreaterThan(0);
-	await video.evaluate((node) => (node as HTMLVideoElement).pause());
+	await page
+		.getByRole('combobox', { name: 'Language' })
+		.selectOption({ label: 'עב' });
+	await expect(page.getByTestId('landing-tutorials')).toHaveAttribute(
+		'dir',
+		'rtl'
+	);
+	await expect(video.locator('source').first()).toHaveAttribute(
+		'src',
+		'/tutorials/course-card-he-light.mp4'
+	);
 	expect(
 		await video.evaluate((node) => (node as HTMLVideoElement).paused)
 	).toBe(true);
-	await video.dispatchEvent('error');
-	await expect(tutorial.getByRole('status')).toBeVisible();
-	await expect(tutorial.locator('.tutorial-steps li')).toHaveCount(6);
+	await page.locator('footer .theme-toggle').click();
+	await expect(video.locator('source').first()).toHaveAttribute(
+		'src',
+		'/tutorials/course-card-he-dark.mp4'
+	);
+	await expect(video.locator('track')).toHaveAttribute('srclang', 'he');
+	expect(
+		await video.evaluate((node) => (node as HTMLVideoElement).paused)
+	).toBe(true);
+	expect(
+		await video.evaluate((node) => (node as HTMLVideoElement).currentTime)
+	).toBe(0);
+});
+
+test('the WebM fallback remains playable when MP4 fails', async ({ page }) => {
+	await page.addInitScript(() => localStorage.setItem('lang', 'en'));
+	let mp4Failed = false;
+	await page.route(/\/tutorials\/course-card-en-.*\.mp4$/, async (route) => {
+		mp4Failed = true;
+		await route.fulfill({ status: 503, body: 'MP4 unavailable for this test' });
+	});
+	await page.goto(baseURL);
+	const tutorial = page.getByTestId('tutorial-course-card');
+	const video = tutorial.locator('video');
+	await video.scrollIntoViewIfNeeded();
+	await video.evaluate(async (node) => (node as HTMLVideoElement).play());
+	await expect
+		.poll(() =>
+			video.evaluate((node) => (node as HTMLVideoElement).currentTime)
+		)
+		.toBeGreaterThan(1);
+	expect(mp4Failed).toBe(true);
+	expect(
+		await video.evaluate((node) => (node as HTMLVideoElement).currentSrc)
+	).toMatch(/\.webm$/);
+	await expect(tutorial.getByRole('status')).toHaveCount(0);
+	await video.evaluate((node) => (node as HTMLVideoElement).pause());
 });

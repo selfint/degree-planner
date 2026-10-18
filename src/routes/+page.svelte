@@ -11,7 +11,7 @@
 
 	import LandingInstallInfo from '$lib/components/LandingInstallInfo.svelte';
 	import GetStartedLink from '$lib/components/GetStartedLink.svelte';
-	import CourseExplanation from '$lib/components/CourseExplanation.svelte';
+	import Tutorials from './components/Tutorials.svelte';
 	import ImgDemo from './components/ImgDemo.svelte';
 	import { landingParallax } from './components/landingParallax';
 </script>
@@ -56,25 +56,7 @@
 	<div
 		class="flex w-full max-w-[64rem] flex-col gap-y-14 px-5 pb-14 sm:gap-y-20 sm:px-6 sm:pb-20"
 	>
-		<section
-			class="grid w-full min-w-0 gap-6 border-t border-border pt-10 md:grid-cols-[minmax(0,1fr)_17rem] md:items-center md:gap-10 md:pt-12"
-			aria-labelledby="course-card-title"
-		>
-			<div class="min-w-0 md:order-2">
-				<h2
-					id="course-card-title"
-					class="text-2xl font-semibold leading-snug tracking-tight text-content-primary"
-				>
-					{content.lang.common.course}
-				</h2>
-				<p class="mt-3 text-base leading-relaxed text-content-secondary">
-					{content.lang.landing.courseCard}
-				</p>
-			</div>
-			<div class="flex min-w-0 justify-center py-2 md:order-1 md:py-6">
-				<CourseExplanation class="w-full max-w-[22rem]" />
-			</div>
-		</section>
+		<Tutorials />
 
 		<ImgDemo src={planPic} title={content.lang.header.plan}>
 			{content.lang.landing.plan.header}

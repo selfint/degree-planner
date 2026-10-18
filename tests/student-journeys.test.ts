@@ -99,12 +99,14 @@ async function openSettings(page: Page) {
 async function chooseDegree(page: Page, language: Language) {
 	const text = labels[language];
 	const section = page.locator('.degree-section');
-	await section.getByLabel(text.year, { exact: true }).selectOption(degree[0]);
 	await section
-		.getByLabel(text.faculty, { exact: true })
+		.getByRole('combobox', { name: text.year, exact: true })
+		.selectOption(degree[0]);
+	await section
+		.getByRole('combobox', { name: text.faculty, exact: true })
 		.selectOption(degree[1]);
 	await section
-		.getByLabel(text.degree, { exact: true })
+		.getByRole('combobox', { name: text.degree, exact: true })
 		.selectOption(degree[2]);
 	await section.getByRole('button', { name: text.save, exact: true }).click();
 	await expect.poll(async () => (await readPlan(page)).degree).toEqual(degree);
@@ -121,7 +123,7 @@ async function saveSemesterSetting(
 ) {
 	const text = labels[language];
 	const field = page.locator('.semester-field').filter({
-		has: page.getByLabel(text[setting], { exact: true })
+		has: page.getByRole('combobox', { name: text[setting], exact: true })
 	});
 	await field.getByRole('combobox').selectOption(String(value));
 	await field.getByRole('button', { name: text.save, exact: true }).click();
@@ -162,7 +164,7 @@ for (const language of ['en', 'he'] as const) {
 
 		await test.step('Cancel and navigation interruption cannot save a partial degree', async () => {
 			await section
-				.getByLabel(text.year, { exact: true })
+				.getByRole('combobox', { name: text.year, exact: true })
 				.selectOption(degree[0]);
 			await expect(
 				section.getByRole('button', { name: text.save, exact: true })
@@ -171,14 +173,16 @@ for (const language of ['en', 'he'] as const) {
 				.getByRole('button', { name: text.cancel, exact: true })
 				.click();
 			await expect(
-				section.getByLabel(text.year, { exact: true }).locator('option:checked')
+				section
+					.getByRole('combobox', { name: text.year, exact: true })
+					.locator('option:checked')
 			).toHaveText(text.selectYear);
 			expect(await readPlan(page)).toEqual(original);
 			await section
-				.getByLabel(text.year, { exact: true })
+				.getByRole('combobox', { name: text.year, exact: true })
 				.selectOption(degree[0]);
 			await section
-				.getByLabel(text.faculty, { exact: true })
+				.getByRole('combobox', { name: text.faculty, exact: true })
 				.selectOption(degree[1]);
 			const search = page.getByRole('search').getByRole('textbox');
 			await search.fill(courseCode);
@@ -189,7 +193,9 @@ for (const language of ['en', 'he'] as const) {
 			await page.goBack();
 			await expect(page.locator('.degree-section')).toBeVisible();
 			await expect(
-				section.getByLabel(text.year, { exact: true }).locator('option:checked')
+				section
+					.getByRole('combobox', { name: text.year, exact: true })
+					.locator('option:checked')
 			).toHaveText(text.selectYear);
 			expect(await readPlan(page)).toEqual(original);
 		});
@@ -297,11 +303,8 @@ for (const language of ['en', 'he'] as const) {
 			viewport: page.viewportSize(),
 			serviceWorkers: 'block'
 		});
-		await recipient.tracing.start({
-			screenshots: true,
-			snapshots: true,
-			sources: true
-		});
+		// Playwright Test automatically traces every context created through its
+		// browser fixture. Starting another trace here would throw before import.
 		try {
 			await isolateGuest(recipient, language);
 			const copy = await recipient.newPage();
@@ -350,12 +353,6 @@ for (const language of ['en', 'he'] as const) {
 			).toBeVisible();
 			expect(await readPlan(page)).toEqual(owner);
 		} finally {
-			const tracePath = info.outputPath('recipient-trace.zip');
-			await recipient.tracing.stop({ path: tracePath });
-			await info.attach('independent-recipient-trace', {
-				path: tracePath,
-				contentType: 'application/zip'
-			});
 			await recipient.close();
 			await preview.close();
 		}
@@ -436,9 +433,15 @@ for (const language of ['en', 'he'] as const) {
 		};
 		await isolateGuest(context, language, guest);
 		await openSettings(page);
-		const total = page.getByLabel(labels[language].total, { exact: true });
+		const total = page.getByRole('combobox', {
+			name: labels[language].total,
+			exact: true
+		});
 		await expect(
-			page.getByLabel(labels[language].current, { exact: true })
+			page.getByRole('combobox', {
+				name: labels[language].current,
+				exact: true
+			})
 		).toHaveValue('3');
 		await capture(page, info, 'current-semester-truncation-options');
 		// A chosen current semester is user intent. Require an explicit change to
@@ -454,7 +457,10 @@ for (const language of ['en', 'he'] as const) {
 		await saveSemesterSetting(page, language, 'total', 2);
 		await page.reload();
 		await expect(
-			page.getByLabel(labels[language].current, { exact: true })
+			page.getByRole('combobox', {
+				name: labels[language].current,
+				exact: true
+			})
 		).toHaveValue('0');
 		await expect
 			.poll(() => readPlan(page))

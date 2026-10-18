@@ -1,6 +1,7 @@
 import { spawnSync } from 'node:child_process';
 import { readFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
+import { recordingStart } from './tutorialTimeline.mjs';
 
 const input = path.resolve('test-results/tutorials-raw');
 const output = path.resolve('test-results/tutorials-media');
@@ -37,11 +38,31 @@ for (const topic of ['course-card', 'plan-course']) {
 					source
 				])
 			);
-			const offset = Math.max(
-				0,
-				Number(probe.format.duration) -
-					(metadata.recordedDuration ?? metadata.duration)
+			if (metadata.timeline !== 'magenta-slate-v1')
+				throw new Error(`Recording ${name} has no verified frame timeline`);
+			const [numerator, denominator] = probe.streams[0].avg_frame_rate
+				.split('/')
+				.map(Number);
+			const pixels = spawnSync(
+				'ffmpeg',
+				[
+					'-v',
+					'error',
+					'-i',
+					source,
+					'-vf',
+					'crop=8:8:0:0,scale=1:1',
+					'-pix_fmt',
+					'rgb24',
+					'-f',
+					'rawvideo',
+					'-'
+				],
+				{ maxBuffer: 8 * 1024 * 1024 }
 			);
+			if (pixels.status !== 0)
+				throw new Error(`Cannot decode recording timeline: ${pixels.stderr}`);
+			const offset = recordingStart(pixels.stdout, numerator / denominator);
 			run('ffmpeg', [
 				'-y',
 				'-ss',

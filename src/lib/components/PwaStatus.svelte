@@ -236,6 +236,10 @@
 					{ scope: '/app/', updateViaCache: 'none' }
 				);
 				if (disposed) return;
+				if (!registration)
+					throw new Error(
+						'The browser did not return an offline app registration. Allow service workers, then retry.'
+					);
 				currentRegistration = registration;
 				reconcileUpdateReady();
 				watchWorker(registration, registration.waiting);

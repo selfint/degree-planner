@@ -1,6 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
 import { createServer, type Server } from 'node:http';
 import { readFile } from 'node:fs/promises';
+import { pwaMessages } from '../src/lib/pwa/messages';
 
 async function viewOfflineError(page: Page, timeout = 15000) {
 	const error = page.getByTestId('pwa-error');
@@ -148,12 +149,16 @@ async function ready(page: Page) {
 	);
 }
 
-async function expectUpdateBanner(page: Page, version: string) {
+async function expectUpdateBanner(
+	page: Page,
+	version: string,
+	language: 'en' | 'he' = 'en'
+) {
 	const banner = page.getByTestId('pwa-update-banner');
 	await expect(banner).toHaveCount(1);
 	await expect(banner).toBeVisible();
 	await expect(banner.getByTestId('pwa-update')).toHaveText(
-		'Update available. Save your work, close all PlanIt tabs and windows, then reopen.'
+		pwaMessages[language].update
 	);
 	await expect(banner.getByTestId('pwa-update')).toHaveAttribute(
 		'role',
@@ -163,7 +168,7 @@ async function expectUpdateBanner(page: Page, version: string) {
 	await expect(banner.locator('a, details, summary')).toHaveCount(0);
 	await expect(banner.getByRole('button')).toHaveCount(1);
 	await expect(banner.getByTestId('pwa-update-dismiss')).toHaveAccessibleName(
-		'Dismiss update notice'
+		pwaMessages[language].close
 	);
 	await expect(banner.getByTestId('pwa-update-dismiss')).toBeEnabled();
 	await expect(page.getByTestId('pwa-update-link')).toHaveCount(0);
@@ -563,6 +568,71 @@ test('versioned dismissal preserves drafts until all tabs close and the new work
 	await expectUpdateBanner(page, v2);
 	await expectUpdateBanner(otherTab, v2);
 	await capture('waiting-v2-mobile');
+	// Exercise the real native footer language control in this same waiting-worker
+	// session, retaining the unsaved draft and returning to English afterward.
+	const language = page.locator('footer').getByRole('combobox');
+	await language.scrollIntoViewIfNeeded();
+	await expect(language).toHaveAccessibleName('Language');
+	await language.selectOption({ label: 'עב' });
+	await expect(language).toHaveAccessibleName('שפה');
+	await page.locator('header').scrollIntoViewIfNeeded();
+	await expectUpdateBanner(page, v2, 'he');
+	const hebrewBanner = page.getByTestId('pwa-update-banner');
+	await expect(hebrewBanner).toHaveCSS('direction', 'rtl');
+	await expect(hebrewBanner.getByTestId('pwa-update')).toHaveCSS(
+		'font-size',
+		'13px'
+	);
+	const bannerBounds = (await hebrewBanner.boundingBox())!;
+	const copy = hebrewBanner.getByTestId('pwa-update');
+	const dismissBounds = (await hebrewBanner
+		.getByTestId('pwa-update-dismiss')
+		.boundingBox())!;
+	const copyBounds = (await copy.boundingBox())!;
+	for (const bounds of [bannerBounds, copyBounds, dismissBounds]) {
+		expect(bounds.x).toBeGreaterThanOrEqual(0);
+		expect(bounds.x + bounds.width).toBeLessThanOrEqual(viewport.width);
+	}
+	expect(bannerBounds.height).toBeLessThanOrEqual(80);
+	expect(dismissBounds.width).toBeCloseTo(36, 1);
+	expect(dismissBounds.height).toBeCloseTo(36, 1);
+	expect(dismissBounds.x + dismissBounds.width).toBeLessThanOrEqual(
+		copyBounds.x
+	);
+	expect(
+		await copy.evaluate((element) => element.scrollWidth - element.clientWidth)
+	).toBeLessThanOrEqual(1);
+	await expect(
+		page.getByRole('button', { name: 'שמור', exact: true })
+	).toBeVisible();
+	await expect(destination.locator('[data-code="02340124"]')).toHaveCount(1);
+	expect(await page.evaluate(() => performance.timeOrigin)).toBe(timeOrigin);
+	expect(await page.evaluate(() => localStorage.getItem('userData'))).toBe(
+		saved
+	);
+	expect(await workerVersion(page, 'controller')).toBe(v1);
+	expect(await workerVersion(page, 'waiting')).toBe(v2);
+	await capture('waiting-v2-hebrew-rtl-mobile');
+	await language.scrollIntoViewIfNeeded();
+	await language.selectOption({ label: 'en' });
+	await expect(language).toHaveAccessibleName('Language');
+	await page.locator('header').scrollIntoViewIfNeeded();
+	await expectUpdateBanner(page, v2);
+	await expect(hebrewBanner).toHaveCSS('direction', 'ltr');
+	await expect(save).toBeVisible();
+	expect(await page.evaluate(() => performance.timeOrigin)).toBe(timeOrigin);
+	expect(await page.evaluate(() => localStorage.getItem('userData'))).toBe(
+		saved
+	);
+	expect(
+		await page
+			.locator('[data-code]')
+			.evaluateAll((cards) =>
+				cards.map((card) => card.getAttribute('data-code'))
+			)
+	).toEqual(draftOrder);
+	expect(await workerVersion(page, 'controller')).toBe(v1);
+	expect(await workerVersion(page, 'waiting')).toBe(v2);
 	await expect(page.getByTestId('pwa-status-details')).toHaveCount(0);
 	await expect(page.getByTestId('pwa-incomplete')).toHaveCount(0);
 	await page.getByTestId('pwa-update-dismiss').click();

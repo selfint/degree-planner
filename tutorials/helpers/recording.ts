@@ -96,7 +96,7 @@ export async function createRecording(
 		baseURL,
 		viewport: { width: 960, height: 720 },
 		colorScheme: theme,
-		serviceWorkers: 'block',
+		serviceWorkers: 'allow',
 		...(demo
 			? { recordVideo: { dir: rawRoot, size: { width: 960, height: 720 } } }
 			: {})
@@ -130,17 +130,39 @@ export async function createRecording(
 			: route.abort()
 	);
 	let started = 0;
-	let ended: number | undefined;
 	const captions: { start: number; end: number; text: string }[] = [];
 	return {
 		page,
 		context,
 		async start() {
+			// Genuine offline readiness; never hide a failure footer for a recording.
+			await expect(page.getByTestId('pwa-status')).toHaveAttribute(
+				'data-state',
+				'ready',
+				{ timeout: 60_000 }
+			);
+			await expect(page.getByTestId('pwa-error-detail')).toHaveCount(0);
 			await page.evaluate(() => document.fonts.ready);
 			await installCursor(page);
+			if (demo) {
+				// A removed slate gives the encoder an actual video-frame boundary,
+				// rather than estimating setup from asynchronous wall-clock duration.
+				await page.evaluate(() => {
+					const slate = document.createElement('div');
+					slate.id = 'tutorial-recording-slate';
+					slate.style.cssText =
+						'position:fixed;inset:0;z-index:2147483647;background:rgb(255,0,255)';
+					document.body.append(slate);
+				});
+				await page.waitForTimeout(400);
+				await page.evaluate(() =>
+					document.getElementById('tutorial-recording-slate')!.remove()
+				);
+			}
 			started = Date.now();
 		},
 		async caption(title: string, text: string, target?: Locator) {
+			await expect(page.getByTestId('pwa-error-detail')).toHaveCount(0);
 			const now = (Date.now() - started) / 1000;
 			if (captions.length) captions.at(-1)!.end = now;
 			captions.push({ start: now, end: now + 3, text: `${title}: ${text}` });
@@ -175,15 +197,11 @@ export async function createRecording(
 		async frame(name: string) {
 			await page.screenshot({ path: path.join(rawRoot, `${name}.png`) });
 		},
-		endScene() {
-			ended = (Date.now() - started) / 1000;
-		},
 		async finish(name: string) {
-			const recordedDuration = (Date.now() - started) / 1000;
-			const duration = ended ?? recordedDuration;
+			const duration = (Date.now() - started) / 1000;
 			if (captions.length) captions.at(-1)!.end = duration;
 			const video = page.video();
-			await context.close();
+			await page.close();
 			if (!demo) return;
 			expect(
 				video,
@@ -193,7 +211,7 @@ export async function createRecording(
 			await writeFile(
 				path.join(rawRoot, `${name}.json`),
 				JSON.stringify(
-					{ duration, recordedDuration, captions, language, theme },
+					{ duration, captions, language, theme, timeline: 'magenta-slate-v1' },
 					null,
 					2
 				)

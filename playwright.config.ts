@@ -40,6 +40,7 @@ export default defineConfig({
 			testMatch: [
 				'search-faculty-native.test.ts',
 				'course-card-navigation.test.ts',
+				'course-catalog-rails.test.ts',
 				'console-button-layout.test.ts',
 				'plan-board-alignment.test.ts'
 			],

@@ -30,14 +30,16 @@ jobs:
         run: npm ci
       - name: Install Playwright browsers
         run: npx playwright install --with-deps ${{ matrix.browser }}
-      - name: Verify narrow mobile controls and board alignment before the full suite
-        run: npx playwright test tests/console-button-layout.test.ts tests/plan-board-alignment.test.ts --project="${{ matrix.project }}" --max-failures=1
+      - name: Verify narrow mobile controls, board and course rails before the full suite
+        run: npx playwright test tests/console-button-layout.test.ts tests/plan-board-alignment.test.ts tests/course-catalog-rails.test.ts --project="${{ matrix.project }}" --max-failures=1
       - name: Upload focused board alignment screenshots
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: board-alignment-${{ matrix.browser }}
-          path: test-results/plan-board-alignment-*/
+          path: |
+            test-results/plan-board-alignment-*/
+            test-results/course-catalog-rails-*/
           if-no-files-found: ignore
           retention-days: 7
       - name: Verify short-screen drops and signed-in offline recovery
@@ -128,6 +130,11 @@ jobs:
         run: node scripts/waitForPreview.mjs
       - name: Test the published console on mobile
         run: npx playwright test --config=playwright.preview.config.ts
+      - name: Verify published course and catalog rails on mobile
+        if: (success() || failure()) && steps.preview-ready.outcome == 'success'
+        env:
+          PLAYWRIGHT_BASE_URL: ${{ env.PREVIEW_URL }}
+        run: npx playwright test --config=playwright.rails-preview.config.ts
       - name: Test the published Storybook route
         if: (success() || failure()) && steps.preview-ready.outcome == 'success'
         env:
@@ -146,6 +153,7 @@ jobs:
           path: |
             test-results/deployed-preview/
             test-results/deployed-preview-gate/
+            test-results/deployed-rails/
             test-results/storybook/
           if-no-files-found: ignore
           retention-days: 7

@@ -158,6 +158,11 @@ async function ready(page: Page) {
 async function consolePwaFooter(page: Page) {
 	const footer = page.locator('footer');
 	await expect(footer.getByTestId('pwa-footer-row')).toHaveCount(1);
+	await expect(footer).toHaveCSS('border-top-width', '1px');
+	await expect(footer.getByTestId('pwa-footer-row')).toHaveCSS(
+		'border-top-width',
+		'0px'
+	);
 	await expect(footer.getByTestId('pwa-status')).toHaveCount(1);
 	await expect(page.locator('header [data-testid^="pwa-"]')).toHaveCount(0);
 	await expect(

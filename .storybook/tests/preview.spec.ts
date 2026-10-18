@@ -17,6 +17,8 @@ async function expectPwaFooter(page: Page) {
 	const footer = page.locator('footer');
 	const row = footer.getByTestId('pwa-footer-row');
 	await expect(row).toBeVisible();
+	await expect(footer).toHaveCSS('border-top-width', '1px');
+	await expect(row).toHaveCSS('border-top-width', '0px');
 	await expect(row.getByTestId('pwa-status')).toHaveCount(1);
 	const controls = await footer.locator(':scope > div').first().boundingBox();
 	const bounds = await row.boundingBox();
@@ -947,7 +949,7 @@ test('console surfaces remain readable and usable at narrow and wide widths', as
 	}
 });
 
-test('catalog course rows fill the available canvas without page gutters or width caps', async ({
+test('catalog scrollports fill the canvas with an internal logical card inset', async ({
 	page
 }) => {
 	for (const width of [320, 390, 1440]) {
@@ -978,7 +980,10 @@ test('catalog course rows fill the available canvas without page gutters or widt
 				const first = await row.locator('.course-card').first().boundingBox();
 				expect(
 					direction === 'rtl' ? first!.x + first!.width : first!.x
-				).toBeCloseTo(direction === 'rtl' ? box!.x + box!.width : box!.x, 1);
+				).toBeCloseTo(
+					direction === 'rtl' ? box!.x + box!.width - 12 : box!.x + 12,
+					1
+				);
 			}
 			await expectOriginalCardHierarchy(
 				rows.first().locator('.course-card').first()
@@ -1124,6 +1129,115 @@ test('compact planner rails show three full items and the next item at mobile wi
 					() => document.documentElement.scrollWidth - innerWidth
 				)
 			).toBeLessThanOrEqual(1);
+		}
+	}
+});
+
+test('course and catalog rails retain their full canvas width while scrolling to every course', async ({
+	page
+}) => {
+	test.setTimeout(120_000);
+	for (const width of [320, 390]) {
+		for (const direction of ['rtl', 'ltr']) {
+			await page.setViewportSize({ width, height: 800 });
+			for (const id of [
+				'pages-course--related-courses',
+				'pages-catalog--long-wishlist'
+			]) {
+				await page.goto(
+					`${storyUrl(id)}&globals=language:${direction === 'rtl' ? 'he' : 'en'};direction:${direction};theme:${direction === 'rtl' ? 'dark' : 'light'}`
+				);
+				await expect(page.locator('[data-story-rendered]')).toHaveAttribute(
+					'data-story-rendered',
+					id,
+					{ timeout: 15_000 }
+				);
+				const root = page.locator(
+					id.includes('catalog') ? '.catalog-page' : '.course-page'
+				);
+				const canvas = await page.locator('[data-story-ready]').boundingBox();
+				const roots = await root.boundingBox();
+				expect(roots!.x).toBeCloseTo(canvas!.x, 1);
+				expect(roots!.width).toBeCloseTo(canvas!.width, 1);
+				await expect(root.locator('.loading-course')).toHaveCount(0);
+				const rails = root.locator('.course-dependencies, .course-row');
+				const overflowing = [];
+				for (const rail of await rails.all()) {
+					if ((await rail.locator('.course-card').count()) >= 7)
+						overflowing.push(rail);
+				}
+				expect(overflowing).toHaveLength(id.includes('catalog') ? 1 : 3);
+				for (const [index, rail] of overflowing.entries()) {
+					await rail.scrollIntoViewIfNeeded();
+					await expect
+						.poll(() => rail.evaluate((el) => Math.abs(el.scrollLeft)))
+						.toBeLessThanOrEqual(1);
+					const box = await rail.boundingBox();
+					expect(box!.x).toBeCloseTo(canvas!.x, 1);
+					expect(box!.width).toBeCloseTo(canvas!.width, 1);
+					const first = await rail
+						.locator('.course-card')
+						.first()
+						.boundingBox();
+					expect(
+						direction === 'rtl'
+							? box!.x + box!.width - first!.x - first!.width
+							: first!.x - box!.x
+					).toBeCloseTo(12, 1);
+					expect(first!.width).toBeCloseTo((width - 40) / 3.25, 1);
+					for (const name of await rail.locator('.course-name').all()) {
+						await expect(name).toHaveText((await name.getAttribute('title'))!);
+						await expect(name).toHaveCSS('-webkit-line-clamp', 'none');
+					}
+					await page.screenshot({
+						path: test
+							.info()
+							.outputPath(`${id}-${index}-${width}-${direction}-initial.png`),
+						fullPage: false
+					});
+					for (const fraction of [0.5, 1]) {
+						await rail.evaluate(
+							(el, { fraction, direction }) => {
+								el.scrollLeft =
+									(direction === 'rtl' ? -1 : 1) *
+									fraction *
+									(el.scrollWidth - el.clientWidth);
+							},
+							{ fraction, direction }
+						);
+						await expect
+							.poll(() =>
+								rail.evaluate(
+									(el) =>
+										Math.abs(el.scrollLeft) / (el.scrollWidth - el.clientWidth)
+								)
+							)
+							.toBeCloseTo(fraction, 2);
+						const position = await rail.boundingBox();
+						expect(position!.x).toBeCloseTo(canvas!.x, 1);
+						expect(position!.width).toBeCloseTo(canvas!.width, 1);
+						expect(
+							await page.evaluate(
+								() => document.documentElement.scrollWidth - innerWidth
+							)
+						).toBeLessThanOrEqual(1);
+					}
+					const last = await rail.locator('.course-card').last().boundingBox();
+					expect(last!.x).toBeGreaterThanOrEqual(box!.x - 1);
+					expect(last!.x + last!.width).toBeLessThanOrEqual(
+						box!.x + box!.width + 1
+					);
+					await page.screenshot({
+						path: test
+							.info()
+							.outputPath(`${id}-${index}-${width}-${direction}-end.png`),
+						fullPage: false
+					});
+					const before = page.url();
+					await rail.locator('a[href^="/app/course/"]').last().click();
+					expect(page.url()).toBe(before); // The story's navigation stays mocked.
+				}
+			}
 		}
 	}
 });

@@ -78,6 +78,5 @@
 		min-inline-size: 0;
 		margin: 0.5rem auto 0;
 		padding-block-start: 0.5rem;
-		border-block-start: 0.0625rem solid rgb(var(--color-border));
 	}
 </style>

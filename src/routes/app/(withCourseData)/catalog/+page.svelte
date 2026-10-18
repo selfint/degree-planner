@@ -154,7 +154,7 @@
 			<h2 class="catalog-section-title catalog-inset">
 				{content.lang.catalog.wishlist}
 			</h2>
-			<CourseRow {getCourseData} courses={user.d.wishlist} indent={0}>
+			<CourseRow {getCourseData} courses={user.d.wishlist} indent={1}>
 				{#snippet children({ code, course, index })}
 					<a href={`/app/course/${code}`}>
 						<CourseElement
@@ -228,7 +228,7 @@
 								)}
 							{/await}
 						</div>
-						<CourseRow {getCourseData} courses={list.courses} indent={0}>
+						<CourseRow {getCourseData} courses={list.courses} indent={1}>
 							{#snippet children({ code, course, index })}
 								<a href={`/app/course/${code}`}>
 									<CourseElement {code} {course} {index}>

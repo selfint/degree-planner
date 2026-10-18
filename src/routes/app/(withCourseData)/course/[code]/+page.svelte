@@ -175,8 +175,8 @@
 	}
 </script>
 
-<div class="ui-page course-page">
-	<header class="course-header">
+<div class="course-page">
+	<header class="course-header course-inset">
 		<div class="course-title-row">
 			<a
 				class="course-code"
@@ -210,12 +210,14 @@
 		</div>
 	{:then course}
 		{#if course.about}
-			<p class="course-description"><bdi dir="auto">{course.about}</bdi></p>
+			<p class="course-description course-inset">
+				<bdi dir="auto">{course.about}</bdi>
+			</p>
 		{/if}
 	{/await}
 
 	{#if showPersonalPlan}
-		<div class="course-actions" data-testid="course-plan-actions">
+		<div class="course-actions course-inset" data-testid="course-plan-actions">
 			{#if courseState === 'planned'}
 				<PlanActionButton
 					showOfflineReason={false}
@@ -289,7 +291,7 @@
 	{:else}
 		<p
 			role="status"
-			class="ui-notice course-notice"
+			class="ui-notice course-notice course-inset"
 			data-testid="course-plan-unavailable"
 		>
 			{pwaMessages[content.lang.lang].courseActionsUnavailable}
@@ -297,7 +299,7 @@
 	{/if}
 
 	{#await course}
-		<section class="course-details-panel">
+		<section class="course-details-panel course-inset">
 			<h2 class="sr-only">{content.lang.course.info}</h2>
 			<div
 				class="course-loading"
@@ -308,7 +310,7 @@
 			</div>
 		</section>
 	{:then course}
-		<section class="course-details-panel">
+		<section class="course-details-panel course-inset">
 			<h2 class="sr-only">{content.lang.course.info}</h2>
 			<dl class="course-metadata">
 				<div>
@@ -337,7 +339,7 @@
 		{#if showPersonalPlan}
 			{#await courseMemberRequirements then memberships}
 				{#if memberships.length > 0}
-					<section class="course-details-panel">
+					<section class="course-details-panel course-inset">
 						<h2 class="course-section-title">
 							{content.lang.course.appliesTo}
 						</h2>
@@ -352,7 +354,7 @@
 		<div class="course-relations">
 			{#if dependencies(course).length !== 0}
 				<section class="course-relation-group">
-					<h2 class="course-section-title">
+					<h2 class="course-section-title course-inset">
 						{content.lang.common.dependencies}
 					</h2>
 					<!-- svelte-ignore a11y_no_noninteractive_tabindex (Keyboard users need to focus this region to scroll through the course dependencies.) -->
@@ -408,12 +410,12 @@
 			{/if}
 			{#if (course.connections?.adjacent ?? []).length !== 0}
 				<section class="course-relation-group">
-					<h2 class="course-section-title">
+					<h2 class="course-section-title course-inset">
 						{content.lang.common.adjacencies}
 					</h2>
 					<div class="min-w-0">
 						<CourseRow
-							indent={0}
+							indent={1}
 							{getCourseData}
 							resetScroll
 							courses={course.connections?.adjacent ?? []}
@@ -452,11 +454,11 @@
 			{/if}
 			{#if (course.connections?.exclusive ?? []).length !== 0}
 				<section class="course-relation-group">
-					<h2 class="course-section-title">
+					<h2 class="course-section-title course-inset">
 						{content.lang.common.exclusives}
 					</h2>
 					<CourseRow
-						indent={0}
+						indent={1}
 						{getCourseData}
 						resetScroll
 						courses={course.connections?.exclusive ?? []}
@@ -496,10 +498,10 @@
 			<div class="course-relation-group">
 				{#await dependants then dependants}
 					{#if dependants.length > 0}
-						<h2 class="course-section-title">
+						<h2 class="course-section-title course-inset">
 							{content.lang.common.dependants}
 						</h2>
-						<div class="flex flex-wrap gap-2">
+						<div class="course-inset flex flex-wrap gap-2">
 							{#each dependants as course}
 								<a href={`/app/course/${course.code}`}>
 									<CourseElement code={course.code} {course}>
@@ -539,7 +541,14 @@
 <style>
 	.course-page {
 		display: grid;
+		grid-template-columns: minmax(0, 1fr);
 		gap: 0.75rem;
+		inline-size: 100%;
+		min-inline-size: 0;
+		padding-block: 0.625rem;
+	}
+	.course-inset {
+		margin-inline: 0.75rem;
 	}
 	.course-header {
 		max-inline-size: 56rem;
@@ -592,7 +601,8 @@
 	}
 
 	.course-notice {
-		margin: 0;
+		inline-size: auto;
+		margin-block: 0;
 	}
 	.course-details-panel {
 		min-inline-size: 0;
@@ -638,8 +648,8 @@
 		display: flex;
 		gap: 0.625rem;
 		overflow-x: auto;
-		padding: 0.25rem 0.25rem 0.5rem;
-		margin-inline: -0.25rem;
+		padding-block: 0.25rem 0.5rem;
+		padding-inline: 0.75rem;
 		overscroll-behavior-inline: contain;
 	}
 	.course-dependencies:focus-visible {

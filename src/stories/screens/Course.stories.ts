@@ -7,6 +7,7 @@ import {
 	pending
 } from '../../../.storybook/fixtures';
 import { baseRouteData, routeState } from './fixtures';
+import { railCourses, railCourseData, getRailCourseData } from './railFixtures';
 
 const course = courses[1];
 const data = {
@@ -74,16 +75,17 @@ export const RelatedCourses: Story = {
 	args: {
 		data: {
 			...data,
+			getCourseData: getRailCourseData,
 			course: Promise.resolve({
 				...course,
 				connections: {
-					dependencies: [[courses[0].code], [courses[2].code]],
-					adjacent: [courses[0].code],
-					exclusive: [courses[2].code]
+					dependencies: railCourses.map((item) => [item.code]),
+					adjacent: railCourses.map((item) => item.code),
+					exclusive: railCourses.map((item) => item.code)
 				}
 			}),
 			courseData: Promise.resolve({
-				...courseData,
+				...railCourseData,
 				[courses[2].code]: {
 					...courses[2],
 					connections: {

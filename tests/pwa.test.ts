@@ -574,7 +574,13 @@ test('signed-in offline users can read an unvisited course without exposing or e
 		'data-state',
 		'ready'
 	);
-	await page.evaluate(async () => {
+	// In this routed signed-in context, Chromium can still let the worker repair
+	// an evicted asset despite context.setOffline(true). Disconnect the actual
+	// proxy too, so this exercises an unavailable shell rather than a repair.
+	originDisconnected = true;
+	server.closeAllConnections();
+	await expect(fetch(`${origin}/offline-outage-probe`)).rejects.toThrow();
+	const eviction = await page.evaluate(async () => {
 		const name = (await caches.keys()).find((name) =>
 			name.startsWith('planit-console-shell-')
 		)!;
@@ -583,10 +589,24 @@ test('signed-in offline users can read an unvisited course without exposing or e
 			(request) =>
 				request.url.includes('/nodes/') && request.url.endsWith('.js')
 		)!;
-		await cache.delete(asset);
+		const deleted = await cache.delete(asset);
+		const remains = !!(await cache.match(asset));
 		window.dispatchEvent(new Event('pageshow'));
+		return { deleted, remains, url: asset.url };
 	});
+	expect(eviction.deleted).toBe(true);
+	expect(eviction.remains).toBe(false);
 	await viewOfflineError(page);
+	await expect(page.getByTestId('pwa-status')).toHaveAttribute(
+		'data-state',
+		'error'
+	);
+	expect(
+		await page.evaluate(
+			async (url) => !!(await caches.match(url)),
+			eviction.url
+		)
+	).toBe(false);
 	await expect(
 		page
 			.getByTestId('pwa-error-detail')

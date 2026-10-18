@@ -40,6 +40,9 @@ jobs:
           path: test-results/plan-board-alignment-*/
           if-no-files-found: ignore
           retention-days: 7
+      - name: Verify short-screen drops and signed-in offline recovery
+        if: matrix.browser == 'chromium'
+        run: npx playwright test tests/plan-mobile-drag.test.ts tests/pwa.test.ts --project=chromium --grep "drop zones remain|signed-in offline users" --max-failures=1
       - name: Run browser tests
         run: npm run test:integration -- --project="${{ matrix.project }}"
       - name: Test the built worker and IndexedDB ownership boundary

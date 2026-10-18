@@ -241,6 +241,7 @@ for (const viewport of [
 			}, info) => {
 				const measurements: Measurement[] = [];
 				const checkpoints: string[] = [];
+				let journeyCompleted = false;
 				let blockedExternalRequests = 0;
 				await context.route('**/*', async (route) => {
 					if (new URL(route.request().url()).origin !== origin) {
@@ -332,27 +333,40 @@ for (const viewport of [
 						await page.locator('details.search-filters summary').click();
 					else
 						await expect(page.locator('details.search-filters')).toHaveCount(0);
-					await expect(page.locator('.search-filters fieldset')).toBeVisible();
+					const filters = page.getByRole('group', {
+						name: language === 'he' ? 'סינונים' : 'Filters',
+						exact: true
+					});
+					await expect(filters).toBeVisible();
+					const filterControls = filters.locator('input, select, button');
+					await expect(filterControls).toHaveCount(8);
+					for (const control of await filterControls.all())
+						await expect(control).toBeVisible();
+					const available = filters.getByRole('checkbox', {
+						name: language === 'he' ? 'זמין' : 'Available',
+						exact: true
+					});
 					measurements.push(await capture(page, info, 'search'));
 					checkpoints.push(
 						'search-comparison-with-all-filter-controls-visible'
 					);
-					await page.locator('fieldset input[type="checkbox"]').check();
+					await available.check();
 					await expect
 						.poll(() => new URL(page.url()).searchParams.has('available'))
 						.toBe(true);
-					await page.locator('fieldset button').click();
+					await filters
+						.getByRole('button', {
+							name: language === 'he' ? 'נקה סינונים' : 'Clear filters',
+							exact: true
+						})
+						.click();
 					await expect
 						.poll(() => new URL(page.url()).searchParams.has('available'))
 						.toBe(false);
 					await page.goBack();
-					await expect(
-						page.locator('fieldset input[type="checkbox"]')
-					).toBeChecked();
+					await expect(available).toBeChecked();
 					await page.goForward();
-					await expect(
-						page.locator('fieldset input[type="checkbox"]')
-					).not.toBeChecked();
+					await expect(available).not.toBeChecked();
 					checkpoints.push('real-search-submit-filter-clear-and-history');
 
 					await page.locator('main li[id="02340141"] button').click();
@@ -488,6 +502,7 @@ for (const viewport of [
 					checkpoints.push(
 						'real-worker-update-keeps-draft-and-save-survives-reload'
 					);
+					journeyCompleted = true;
 				} finally {
 					const path = info.outputPath('density.json');
 					await writeFile(
@@ -499,7 +514,9 @@ for (const viewport of [
 								sourceRevision: process.env.DENSITY_SOURCE_REVISION ?? null,
 								language,
 								viewport,
-								status: info.status,
+								// This records journey completion, not the final test outcome.
+								// Playwright finalizes failures after this finally block.
+								journeyCompleted,
 								comparisonContent:
 									'All search filters, full course description and study-day rows are visible; baseline search disclosure is opened before capture.',
 								checkpoints,

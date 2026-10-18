@@ -742,68 +742,83 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 			await expect(page.locator('[data-code]')).toHaveCount(3);
 		});
 
-		test('drop zones remain usable on a short mobile screen without a giant scroll area', async ({
-			page,
-			context
-		}) => {
-			await page.setViewportSize({ width: 360, height: 540 });
-			const touch = await context.newCDPSession(page);
-			const secondSemester = page.locator('[data-semester="1"]');
-			const rect = (await secondSemester.boundingBox())!;
-			expect(rect.height).toBeGreaterThanOrEqual(128);
-			const lastOccupied = (await page
-				.locator('[data-semester="0"] [data-code]')
-				.last()
-				.boundingBox())!;
-			const bottomSpacing = await page
-				.locator('.plan-page')
-				.evaluate((plan) => {
-					const rail = plan.querySelector('[data-testid="semester-scroller"]')!;
-					// The rail is flipped to put its scrollbar on top. Its CSS bottom
-					// padding is therefore visually above the counter-flipped row.
-					const row = rail.firstElementChild!;
-					const visualBottomInset = Math.max(
-						0,
-						rail.getBoundingClientRect().bottom -
-							row.getBoundingClientRect().bottom
-					);
-					return (
-						parseFloat(getComputedStyle(plan).marginBottom) + visualBottomInset
-					);
+		test.describe('healthy offline shell', () => {
+			test.use({ serviceWorkers: 'allow' });
+			test('drop zones remain usable on a short mobile screen without a giant scroll area', async ({
+				page,
+				context
+			}) => {
+				// Measure healthy app space; a deliberately blocked worker correctly adds
+				// an exceptional failure section after the plan and is covered elsewhere.
+				await expect(page.getByTestId('pwa-status')).toHaveAttribute(
+					'data-state',
+					'ready',
+					{ timeout: 30000 }
+				);
+				await expect(page.getByTestId('pwa-status-details')).toHaveCount(0);
+				await page.setViewportSize({ width: 360, height: 540 });
+				const touch = await context.newCDPSession(page);
+				const secondSemester = page.locator('[data-semester="1"]');
+				const rect = (await secondSemester.boundingBox())!;
+				expect(rect.height).toBeGreaterThanOrEqual(128);
+				const lastOccupied = (await page
+					.locator('[data-semester="0"] [data-code]')
+					.last()
+					.boundingBox())!;
+				const bottomSpacing = await page
+					.locator('.plan-page')
+					.evaluate((plan) => {
+						const rail = plan.querySelector(
+							'[data-testid="semester-scroller"]'
+						)!;
+						// The rail is flipped to put its scrollbar on top. Its CSS bottom
+						// padding is therefore visually above the counter-flipped row.
+						const row = rail.firstElementChild!;
+						const visualBottomInset = Math.max(
+							0,
+							rail.getBoundingClientRect().bottom -
+								row.getBoundingClientRect().bottom
+						);
+						return (
+							parseFloat(getComputedStyle(plan).marginBottom) +
+							visualBottomInset
+						);
+					});
+				// Dense chrome can now leave room below the real courses. Fill exactly
+				// that remaining viewport space, or the real list when it is longer.
+				const expectedBottom = Math.max(
+					540 - bottomSpacing,
+					lastOccupied.y + lastOccupied.height,
+					rect.y + 128
+				);
+				expect(rect.y + rect.height).toBeCloseTo(expectedBottom, 0);
+				const pageSize = await page.evaluate(() => ({
+					height: document.documentElement.scrollHeight,
+					scrollY: window.scrollY
+				}));
+				const footerHeight = (await page.locator('footer').boundingBox())!
+					.height;
+				expect(pageSize.height).toBeLessThanOrEqual(
+					Math.max(
+						540,
+						lastOccupied.y + lastOccupied.height + pageSize.scrollY + 32
+					) + footerHeight
+				);
+				await secondSemester.scrollIntoViewIfNeeded();
+				const visible = (await secondSemester.boundingBox())!;
+				expect(visible.y + visible.height).toBeLessThan(540);
+				await dragTo(page, touch, '10400001', {
+					x: visible.x + visible.width / 2,
+					y: visible.y + visible.height - 15
 				});
-			// Dense chrome can now leave room below the real courses. Fill exactly
-			// that remaining viewport space, or the real list when it is longer.
-			const expectedBottom = Math.max(
-				540 - bottomSpacing,
-				lastOccupied.y + lastOccupied.height,
-				rect.y + 128
-			);
-			expect(rect.y + rect.height).toBeCloseTo(expectedBottom, 0);
-			const pageSize = await page.evaluate(() => ({
-				height: document.documentElement.scrollHeight,
-				scrollY: window.scrollY
-			}));
-			const footerHeight = (await page.locator('footer').boundingBox())!.height;
-			expect(pageSize.height).toBeLessThanOrEqual(
-				Math.max(
-					540,
-					lastOccupied.y + lastOccupied.height + pageSize.scrollY + 32
-				) + footerHeight
-			);
-			await secondSemester.scrollIntoViewIfNeeded();
-			const visible = (await secondSemester.boundingBox())!;
-			expect(visible.y + visible.height).toBeLessThan(540);
-			await dragTo(page, touch, '10400001', {
-				x: visible.x + visible.width / 2,
-				y: visible.y + visible.height - 15
+				await expect(
+					secondSemester.locator('[data-code="10400001"]')
+				).toHaveCount(1);
+				await page.getByRole('button', { name: 'Cancel', exact: true }).click();
+				await expect(
+					page.locator('[data-semester="0"] [data-code="10400001"]')
+				).toHaveCount(1);
 			});
-			await expect(
-				secondSemester.locator('[data-code="10400001"]')
-			).toHaveCount(1);
-			await page.getByRole('button', { name: 'Cancel', exact: true }).click();
-			await expect(
-				page.locator('[data-semester="0"] [data-code="10400001"]')
-			).toHaveCount(1);
 		});
 
 		test('navigating away during a touch drag removes its preview without losing courses', async ({

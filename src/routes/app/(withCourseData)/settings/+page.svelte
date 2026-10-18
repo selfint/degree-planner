@@ -86,7 +86,10 @@
 	</header>
 
 	<section class="account-section">
-		<div class="account-identity">
+		<div
+			class="account-identity"
+			class:guest-identity={currentUser?.displayName == null}
+		>
 			<h2>{currentUser?.displayName ?? content.lang.settings.guest}</h2>
 		</div>
 		{#if currentUser === null}
@@ -203,19 +206,22 @@
 		justify-content: space-between;
 		gap: 0.5rem;
 	}
-	.account-identity,
 	.account-action {
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
 	}
 	.account-identity {
+		flex: 1 1 auto;
 		min-inline-size: 0;
 	}
 	.account-identity h2 {
 		overflow-wrap: anywhere;
 		font-size: 0.875rem;
 		font-weight: 600;
+	}
+	.guest-identity h2 {
+		white-space: nowrap;
 	}
 	.sign-in-error {
 		flex-basis: 100%;

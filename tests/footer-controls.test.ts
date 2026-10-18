@@ -271,7 +271,37 @@ async function measureFooter(page: Page) {
 			range.selectNodeContents(element);
 			const { left, right, top, bottom, width, height } =
 				range.getBoundingClientRect();
-			return { left, right, top, bottom, width, height };
+			const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+			const rects: {
+				left: number;
+				right: number;
+				top: number;
+				bottom: number;
+			}[] = [];
+			while (walker.nextNode()) {
+				if (!walker.currentNode.textContent?.trim()) continue;
+				const textRange = document.createRange();
+				textRange.selectNodeContents(walker.currentNode);
+				for (const rect of textRange.getClientRects()) {
+					if (rect.width > 0 && rect.height > 0)
+						rects.push({
+							left: rect.left,
+							right: rect.right,
+							top: rect.top,
+							bottom: rect.bottom
+						});
+				}
+			}
+			return {
+				left,
+				right,
+				top,
+				bottom,
+				width,
+				height,
+				rects,
+				lines: new Set(rects.map((rect) => Math.round(rect.top))).size
+			};
 		};
 		const main = footer.querySelector('.footer-main')!;
 		const mainStyle = getComputedStyle(main);
@@ -347,6 +377,8 @@ async function measureFooter(page: Page) {
 		const settings = document.querySelector('.settings-page');
 		const noPath = settings?.querySelector('.no-path');
 		const noPathStyle = noPath ? getComputedStyle(noPath) : null;
+		const identity = settings?.querySelector('.account-identity');
+		const guestHeading = identity?.querySelector('h2');
 		return {
 			url: location.href,
 			viewport: { width: innerWidth, height: innerHeight },
@@ -373,6 +405,13 @@ async function measureFooter(page: Page) {
 					clientWidth: element.clientWidth,
 					overflow: element.scrollWidth - element.clientWidth
 				})),
+			guestIdentity: guestHeading
+				? {
+						...box(guestHeading),
+						container: box(identity!),
+						text: textBox(guestHeading)
+					}
+				: null,
 			noPath: noPath
 				? {
 						...box(noPath),
@@ -545,6 +584,16 @@ function expectMatchingControls(geometry: Geometry, compact = true) {
 		firstRow.centerY,
 		'controls centered on the main row'
 	);
+	expect(
+		links.credit.text.lines,
+		'entire author credit stays on one rendered line'
+	).toBe(1);
+	for (const rect of links.credit.text.rects) {
+		expect(rect.left).toBeGreaterThanOrEqual(links.credit.left - 0.5);
+		expect(rect.right).toBeLessThanOrEqual(links.credit.right + 0.5);
+		expect(rect.top).toBeGreaterThanOrEqual(links.credit.top - 0.5);
+		expect(rect.bottom).toBeLessThanOrEqual(links.credit.bottom + 0.5);
+	}
 	for (const link of [links.credit, links.report]) {
 		aligned(link[start], links[start], 'stacked links share logical start');
 		aligned(
@@ -680,6 +729,22 @@ function expectMatchingControls(geometry: Geometry, compact = true) {
 		).toBeLessThanOrEqual(viewport.width + 1);
 	}
 	if (compact) {
+		expect(geometry.guestIdentity).not.toBeNull();
+		const identity = geometry.guestIdentity!;
+		expect(
+			identity.text.lines,
+			'entire guest heading stays on one rendered line'
+		).toBe(1);
+		for (const rect of identity.text.rects) {
+			expect(rect.left).toBeGreaterThanOrEqual(
+				Math.max(identity.left, identity.container.left) - 0.5
+			);
+			expect(rect.right).toBeLessThanOrEqual(
+				Math.min(identity.right, identity.container.right) + 0.5
+			);
+			expect(rect.top).toBeGreaterThanOrEqual(identity.top - 0.5);
+			expect(rect.bottom).toBeLessThanOrEqual(identity.bottom + 0.5);
+		}
 		expect(
 			geometry.noPath,
 			'real degree uses the no-path branch'

@@ -117,16 +117,40 @@ async function measureNavigation(page: Page) {
 				element.getBoundingClientRect();
 			return { left, right, top, bottom, width, height };
 		};
+		const typography = (element: Element, pseudo?: string) => {
+			const style = getComputedStyle(element, pseudo);
+			return {
+				fontSize: style.fontSize,
+				lineHeight: style.lineHeight,
+				fontFamily: style.fontFamily
+			};
+		};
+		const input = header.querySelector<HTMLInputElement>(
+			'.header-search input'
+		)!;
+		const icon = header.querySelector('.search-icon')!;
+		const logo = header.querySelector('.brand-logo')!;
 		return {
 			url: location.href,
 			viewport: { width: innerWidth, height: innerHeight },
 			theme: document.documentElement.dataset.theme,
+			compactHeader: matchMedia('(max-width: 39.99rem)').matches,
 			fineHover: matchMedia('(hover: hover) and (pointer: fine)').matches,
 			documentOverflow: document.documentElement.scrollWidth - innerWidth,
 			scrollX,
 			header: {
 				...box(header),
 				direction: header.getAttribute('dir'),
+				logo: box(logo),
+				search: {
+					input: { ...box(input), ...typography(input) },
+					placeholder: typography(input, '::placeholder'),
+					icon: {
+						wrapper: box(icon),
+						svg: box(icon.querySelector('svg')!),
+						glyph: box(icon.querySelector('svg path')!)
+					}
+				},
 				items: ['.brand', '.header-search', 'nav'].map((selector) =>
 					box(header.querySelector(selector)!)
 				)
@@ -136,6 +160,7 @@ async function measureNavigation(page: Page) {
 					const style = getComputedStyle(link);
 					const icon = link.querySelector('svg path');
 					return {
+						...typography(link),
 						href: link.getAttribute('href'),
 						current: link.getAttribute('aria-current'),
 						active: link.classList.contains('active'),
@@ -152,6 +177,7 @@ async function measureNavigation(page: Page) {
 							color: style.outlineColor
 						},
 						bounds: box(link),
+						whiteSpace: style.whiteSpace,
 						overflow: link.scrollWidth - link.clientWidth
 					};
 				}
@@ -173,7 +199,43 @@ function expectNavigation(
 	theme: Theme
 ) {
 	const palette = colors[theme];
+	const { logo, search } = state.header;
+	const inputCenter = search.input.top + search.input.height / 2;
+
 	expect(state.theme).toBe(theme);
+	expect(logo.width, 'slightly enlarged original logo').toBe(
+		state.compactHeader ? 28 : 32
+	);
+	expect(logo.height, 'preserve the square original logo').toBe(logo.width);
+	expect(search.input.fontSize, 'preserve the accepted Search text size').toBe(
+		'16px'
+	);
+	expect(search.input.lineHeight).toBe('24px');
+	expect(search.placeholder.fontSize).toBe(search.input.fontSize);
+	expect(
+		search.input.width,
+		'retain usable narrow-screen search space'
+	).toBeGreaterThanOrEqual(80);
+	expect(inputCenter).toBeCloseTo(
+		state.header.top + state.header.height / 2,
+		1
+	);
+	for (const [name, bounds] of Object.entries(search.icon)) {
+		expect(bounds.width, `${name} magnifier width`).toBeCloseTo(
+			state.compactHeader ? 14 : 16,
+			1
+		);
+		expect(bounds.height, `${name} magnifier is square`).toBeCloseTo(
+			bounds.width,
+			1
+		);
+		expect(
+			Math.abs(bounds.top + bounds.height / 2 - inputCenter),
+			`${name} magnifier vertically centered with the input`
+		).toBeLessThanOrEqual(0.5);
+		expect(bounds.top).toBeGreaterThanOrEqual(search.input.top);
+		expect(bounds.bottom).toBeLessThanOrEqual(search.input.bottom);
+	}
 	expect(state.links.map(({ href }) => href)).toEqual(
 		targets.map((target) => `/app/${target}`)
 	);
@@ -184,6 +246,16 @@ function expectNavigation(
 		active ? 1 : 0
 	);
 	for (const link of state.links) {
+		expect(link.fontSize, `${link.href} matches Search text size`).toBe(
+			search.input.fontSize
+		);
+		expect(link.lineHeight, `${link.href} matches Search line height`).toBe(
+			search.input.lineHeight
+		);
+		expect(link.fontFamily, `${link.href} matches Search font`).toBe(
+			search.input.fontFamily
+		);
+		expect(link.whiteSpace, `${link.href} stays on one line`).toBe('nowrap');
 		const isActive = link.href === `/app/${active}`;
 		const hover = state.fineHover && link.hover && !isActive;
 		const foreground = isActive

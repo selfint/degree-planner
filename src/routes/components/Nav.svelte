@@ -33,9 +33,9 @@
 		padding: 0.375rem 0.5rem;
 		border-radius: 0.375rem;
 		color: rgb(var(--color-content-secondary));
-		font-size: 0.875rem;
+		font-size: 1rem;
 		font-weight: 550;
-		line-height: 1.4;
+		line-height: 1.5;
 		white-space: nowrap;
 	}
 	@media (hover: hover) and (pointer: fine) {
@@ -51,7 +51,6 @@
 	@media (max-width: 39.99rem) {
 		.nav-link {
 			padding-inline: 0.25rem;
-			font-size: 0.75rem;
 		}
 	}
 </style>

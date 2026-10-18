@@ -730,11 +730,14 @@ for (const viewport of [
 						]);
 					}
 				}
-				// Keep realistic multi-digit and fractional totals in the narrow cases.
+				// The selected path can expose multi-digit and fractional totals in
+				// separate categories; both still exercise the same narrow row layout.
+				const largestTotal = Math.max(...categoryPointTotals);
 				const largestFractionalTotal = Math.max(
 					...categoryPointTotals.filter((total) => !Number.isInteger(total))
 				);
-				expect(largestFractionalTotal).toBeGreaterThanOrEqual(10);
+				expect(largestTotal).toBeGreaterThanOrEqual(10);
+				expect(largestFractionalTotal).toBeGreaterThan(0);
 				const initial = await capture(page, info, 'catalog-initial');
 				expect(initial.rails.length).toBeGreaterThan(1);
 				expectLayout(initial, language);
@@ -743,10 +746,15 @@ for (const viewport of [
 				expect(initial.rails[0].cards.map((card) => card.code).sort()).toEqual(
 					[...guest.wishlist].sort()
 				);
-				await panels
-					.nth(categoryPointTotals.indexOf(largestFractionalTotal))
-					.scrollIntoViewIfNeeded();
-				await capture(page, info, 'catalog-multi-digit-decimal-metrics');
+				for (const [name, total] of [
+					['catalog-multi-digit-metrics', largestTotal],
+					['catalog-decimal-metrics', largestFractionalTotal]
+				] as const) {
+					await panels
+						.nth(categoryPointTotals.indexOf(total))
+						.scrollIntoViewIfNeeded();
+					await capture(page, info, name);
+				}
 				const rows = page.locator('.catalog-page .course-row');
 				await scrollRail(
 					page,

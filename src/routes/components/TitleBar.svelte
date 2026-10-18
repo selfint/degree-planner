@@ -123,8 +123,8 @@
 		grid-template-columns: auto minmax(0, 25rem) auto;
 	}
 	.console .brand :global(.brand-logo) {
-		inline-size: 1.75rem;
-		block-size: 1.75rem;
+		inline-size: 2rem;
+		block-size: 2rem;
 	}
 	.console .brand-title {
 		inline-size: 4rem;
@@ -152,12 +152,18 @@
 		box-shadow: 0 0 0 0.1875rem rgb(var(--color-accent-primary) / 0.1);
 	}
 	.search-icon {
+		display: grid;
+		place-items: center;
 		inline-size: 1rem;
+		block-size: 1rem;
 		flex-shrink: 0;
+		line-height: 1;
 		color: rgb(var(--color-content-secondary));
 	}
 	.search-icon :global(svg) {
+		display: block;
 		inline-size: 100%;
+		block-size: 100%;
 	}
 	input {
 		inline-size: 100%;
@@ -178,8 +184,8 @@
 			gap: 0.375rem;
 		}
 		.console .brand :global(.brand-logo) {
-			inline-size: 1.5rem;
-			block-size: 1.5rem;
+			inline-size: 1.75rem;
+			block-size: 1.75rem;
 		}
 		.console .brand-title {
 			display: none;
@@ -190,6 +196,7 @@
 		}
 		.search-icon {
 			inline-size: 0.875rem;
+			block-size: 0.875rem;
 		}
 	}
 </style>

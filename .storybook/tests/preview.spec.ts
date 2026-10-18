@@ -13,8 +13,56 @@ async function expectCompactAction(button: Locator) {
 	expect(box!.height).toBeLessThanOrEqual(36.5);
 }
 
+async function expectSingleRenderedLine(text: Locator) {
+	await expect(text).toBeVisible();
+	const geometry = await text.evaluate((element) => {
+		const bounds = element.getBoundingClientRect();
+		const parent = element.parentElement!.getBoundingClientRect();
+		const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+		const rects: {
+			left: number;
+			right: number;
+			top: number;
+			bottom: number;
+		}[] = [];
+		while (walker.nextNode()) {
+			if (!walker.currentNode.textContent?.trim()) continue;
+			const range = document.createRange();
+			range.selectNodeContents(walker.currentNode);
+			for (const rect of range.getClientRects()) {
+				if (rect.width > 0 && rect.height > 0)
+					rects.push({
+						left: rect.left,
+						right: rect.right,
+						top: rect.top,
+						bottom: rect.bottom
+					});
+			}
+		}
+		return {
+			lines: new Set(rects.map((rect) => Math.round(rect.top))).size,
+			fits: rects.every(
+				(rect) =>
+					rect.left >= Math.max(bounds.left, parent.left) - 0.5 &&
+					rect.right <= Math.min(bounds.right, parent.right) + 0.5 &&
+					rect.top >= bounds.top - 0.5 &&
+					rect.bottom <= bounds.bottom + 0.5
+			)
+		};
+	});
+	expect(
+		geometry.lines,
+		'the entire text, including nested author link, stays on one rendered line'
+	).toBe(1);
+	expect(
+		geometry.fits,
+		'text fits its own box and the available parent width'
+	).toBe(true);
+}
+
 async function expectFooterComposition(page: Page) {
 	const footer = page.locator('footer');
+	await expectSingleRenderedLine(footer.locator('.footer-credit'));
 	const layout = await footer.evaluate((element) => {
 		const box = (selector: string) => {
 			const { left, right, top, bottom, height } = element
@@ -882,7 +930,7 @@ test('console titlebar keeps brand, search and navigation on one row without PWA
 	page
 }) => {
 	test.setTimeout(60_000);
-	for (const width of [320, 390]) {
+	for (const width of [320, 390, 1180]) {
 		for (const language of ['en', 'he']) {
 			await page.setViewportSize({ width, height: 664 });
 			await page.goto(
@@ -931,6 +979,44 @@ test('console titlebar keeps brand, search and navigation on one row without PWA
 			expect(boxes.overflow).toBeLessThanOrEqual(1);
 			const input = header.getByRole('textbox');
 			await expect(input).toHaveValue('Example systems');
+			await expect(input).toHaveCSS('font-size', '16px');
+			await expect(input).toHaveCSS('line-height', '24px');
+			for (const link of await header.locator('.nav-link').all()) {
+				await expect(link).toHaveCSS('font-size', '16px');
+				await expect(link).toHaveCSS('line-height', '24px');
+				await expect(link).toHaveCSS('white-space', 'nowrap');
+			}
+			const alignment = await header.evaluate((element) => {
+				const box = (selector: string) => {
+					const { left, top, width, height } = element
+						.querySelector(selector)!
+						.getBoundingClientRect();
+					return { width, height, x: left + width / 2, y: top + height / 2 };
+				};
+				return {
+					logo: box('.brand-logo'),
+					form: box('.header-search'),
+					input: box('input'),
+					icon: box('.search-icon'),
+					svg: box('.search-icon svg'),
+					path: box('.search-icon path')
+				};
+			});
+			const logoSize = width < 640 ? 28 : 32;
+			expect(alignment.logo.width).toBe(logoSize);
+			expect(alignment.logo.height).toBe(logoSize);
+			expect(alignment.logo.y).toBeCloseTo(boxes.header.center, 1);
+			for (const icon of [alignment.icon, alignment.svg, alignment.path]) {
+				expect(icon.width).toBeCloseTo(width < 640 ? 14 : 16, 1);
+				expect(icon.height).toBeCloseTo(width < 640 ? 14 : 16, 1);
+				expect(icon.x).toBeCloseTo(alignment.icon.x, 1);
+				expect(icon.y).toBeCloseTo(alignment.form.y, 1);
+				expect(icon.y).toBeCloseTo(alignment.input.y, 1);
+			}
+			await expect(header.locator('.search-icon svg')).toHaveCSS(
+				'display',
+				'block'
+			);
 			await input.fill('Example query');
 			await input.press('Enter');
 			await expect(page.getByText('Submitted: Example query')).toBeVisible();
@@ -1383,16 +1469,26 @@ test('console surfaces remain readable and usable at narrow and wide widths', as
 						positions.degreeTop
 					);
 					if (id === 'pages-settings--signed-in') {
+						await expect(account.getByRole('heading')).toHaveCSS(
+							'white-space',
+							'normal'
+						);
+						await expect(account.getByRole('heading')).toHaveCSS(
+							'overflow-wrap',
+							'anywhere'
+						);
 						await expect(account.getByRole('heading')).toHaveText(
 							'Example Student'
 						);
 						await expect(
 							account.getByRole('button', { name: /^(Sign out|התנתק)$/ })
 						).toBeVisible();
-					} else
+					} else {
 						await expect(account.locator('img[alt="Google Logo"]')).toHaveCount(
 							1
 						);
+						await expectSingleRenderedLine(account.getByRole('heading'));
+					}
 					for (const text of await page
 						.locator(
 							'.settings-field > span:not(.select-frame), .settings-field select, .settings-field option, .settings-field .no-path'
@@ -1632,6 +1728,114 @@ test('course card body and requirement details are separate keyboard controls', 
 	await expect(
 		page.locator('button button, button a, a button, a a')
 	).toHaveCount(0);
+});
+
+test('semester strip shows exam-course count, mean median and credits without visible labels', async ({
+	page
+}) => {
+	test.setTimeout(90_000);
+	// The existing fixture has three courses: two have two exam sittings each,
+	// and the third has no exams. The first metric must therefore be 2, not 3 or 4.
+	const states = [
+		{ id: 'default', values: ['2', '85.3', '9'], cards: 3 },
+		{ id: 'excluded-from-summary', values: ['1', '85', '5'], cards: 3 },
+		{ id: 'empty', values: ['0', '0', '0'], cards: 0 },
+		{ id: 'loading', values: ['-', '-', '-'], cards: 3 }
+	];
+	for (const width of [320, 390]) {
+		for (const language of ['en', 'he']) {
+			await page.setViewportSize({ width, height: 800 });
+			for (const state of states) {
+				await page.goto(
+					`${storyUrl(`components-semester--${state.id}`)}&globals=language:${language};theme:${language === 'he' ? 'dark' : 'light'}`
+				);
+				const summary = page.locator('.semester-summary');
+				const selectors = [
+					'.semester-tests',
+					'.semester-median',
+					'.semester-points'
+				];
+				const labels =
+					language === 'he'
+						? ['מבחנים', 'ממוצע חציונים', 'נקודות']
+						: ['Tests', 'Average median', 'Points'];
+				await expect(summary).toBeVisible();
+				await expect(summary).toHaveCSS('flex-wrap', 'nowrap');
+				for (const [index, selector] of selectors.entries()) {
+					const metric = summary.locator(selector);
+					await expect(summary.locator(':scope > span').nth(index)).toHaveClass(
+						new RegExp(selector.slice(1))
+					);
+					await expect(metric).toHaveAttribute('title', labels[index]);
+					await expect(metric.locator('.sr-only')).toHaveCSS(
+						'position',
+						'absolute'
+					);
+					await expect(metric.locator('.sr-only')).toHaveCSS('width', '1px');
+					await expect(metric.locator('.sr-only')).toHaveCSS('height', '1px');
+					await expect
+						.poll(() =>
+							metric.evaluate((element) => {
+								const visible = element.cloneNode(true) as HTMLElement;
+								visible
+									.querySelectorAll('.sr-only')
+									.forEach((node) => node.remove());
+								return visible.textContent!.trim();
+							})
+						)
+						.toBe(state.values[index]);
+				}
+				await expect(
+					page.locator('.semester-courses .course-card')
+				).toHaveCount(state.cards);
+				const strip = await summary.evaluate((element) => {
+					const bounds = element.getBoundingClientRect();
+					return {
+						left: bounds.left,
+						right: bounds.right,
+						top: bounds.top,
+						bottom: bounds.bottom,
+						overflow: element.scrollWidth - element.clientWidth,
+						metrics: [...element.children].map((metric) => {
+							const { left, right, top, bottom } =
+								metric.getBoundingClientRect();
+							return { left, right, top, bottom };
+						})
+					};
+				});
+				expect(strip.metrics).toHaveLength(3);
+				expect(strip.overflow).toBeLessThanOrEqual(1);
+				for (let index = 1; index < strip.metrics.length; index++) {
+					const previous = strip.metrics[index - 1];
+					const next = strip.metrics[index];
+					expect(
+						language === 'he'
+							? previous.left - next.right
+							: next.left - previous.right
+					).toBeCloseTo(4, 1);
+				}
+
+				for (const metric of strip.metrics) {
+					expect(metric.top).toBeCloseTo(strip.metrics[0].top, 1);
+					expect(metric.bottom).toBeCloseTo(strip.metrics[0].bottom, 1);
+					expect(metric.left).toBeGreaterThanOrEqual(strip.left - 0.5);
+					expect(metric.right).toBeLessThanOrEqual(strip.right + 0.5);
+				}
+				expect(
+					await page.evaluate(
+						() => document.documentElement.scrollWidth - innerWidth
+					)
+				).toBeLessThanOrEqual(1);
+				if (state.id === 'default')
+					await page.screenshot({
+						path: test
+							.info()
+							.outputPath(`semester-strip-${width}-${language}.png`),
+						fullPage: false
+					});
+			}
+		}
+	}
 });
 
 test('compact planner rails show three full items and the next item at mobile widths', async ({

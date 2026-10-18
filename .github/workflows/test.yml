@@ -2,9 +2,9 @@ name: Test
 
 on:
   push:
-    branches: 'main'
+    branches: ['main', 'staging']
   pull_request:
-    branches: 'main'
+    branches: ['main', 'staging']
 
 jobs:
   browser:
@@ -102,23 +102,23 @@ jobs:
         run: npm run test:sap
 
   deployed-console-mobile:
-    # Only our migration branch owns this preview alias. Never test a fork or a
-    # newer branch build while labelling it as the PR event's exact head.
-    if: github.event_name == 'pull_request' && github.head_ref == 'feat/console-migration' && github.event.pull_request.head.repo.full_name == github.repository
+    # Each supported branch uses its own preview alias. Never test a fork or a
+    # newer branch build while labelling it as this event's exact head.
+    if: (github.event_name == 'pull_request' && github.head_ref == 'feat/console-migration' && github.event.pull_request.head.repo.full_name == github.repository) || (github.event_name == 'push' && github.ref == 'refs/heads/staging')
     runs-on: ubuntu-latest
     timeout-minutes: 22
     permissions:
       contents: read
       statuses: read
     env:
-      PREVIEW_URL: ${{ vars.DEGREE_PLANNER_PREVIEW_URL || 'https://degree-planner-git-feat-console-migration-selfints-projects.vercel.app/' }}
-      PREVIEW_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-      PREVIEW_HEAD_REF: ${{ github.head_ref }}
+      PREVIEW_URL: ${{ github.event_name == 'push' && 'https://degree-planner-git-staging-selfints-projects.vercel.app/' || vars.DEGREE_PLANNER_PREVIEW_URL || 'https://degree-planner-git-feat-console-migration-selfints-projects.vercel.app/' }}
+      PREVIEW_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      PREVIEW_HEAD_REF: ${{ github.head_ref || github.ref_name }}
     steps:
-      - name: Checkout the exact PR head
+      - name: Checkout the exact event head
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
@@ -152,7 +152,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: deployed-console-mobile-${{ github.event.pull_request.head.sha }}
+          name: deployed-console-mobile-${{ github.event.pull_request.head.sha || github.sha }}
           path: |
             test-results/deployed-preview/
             test-results/deployed-preview-gate/

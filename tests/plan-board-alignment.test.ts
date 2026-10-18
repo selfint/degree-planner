@@ -353,7 +353,7 @@ for (const viewport of [
 				await expect
 					.poll(() =>
 						page
-							.locator('.semester-summary .stat-value')
+							.locator('.semester-summary .semester-points')
 							.evaluateAll((elements) =>
 								elements.map((element) => parseFloat(element.textContent!))
 							)

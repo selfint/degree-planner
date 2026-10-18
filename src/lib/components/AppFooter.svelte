@@ -114,6 +114,7 @@
 	}
 	.footer-credit {
 		margin: 0;
+		white-space: nowrap;
 	}
 	.footer-author,
 	.footer-report {

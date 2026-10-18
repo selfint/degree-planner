@@ -54,33 +54,57 @@
 </script>
 
 {#snippet title()}
-	<div class="semester-heading" class:current={isCurrent}>
-		<h2 class="text-sm font-semibold leading-snug text-content-primary">
-			{content.lang.common.seasons[index % 3]}
-			{Math.floor(index / 3) + 1}
-		</h2>
-		<div class="semester-summary">
-			<span class="stat-value" title={content.lang.course.points}>
-				{#await effectiveSemester}–{:then effectiveSemester}{effectiveSemester.reduce(
-						(a, b) => a + (b.points ?? 0),
-						0
-					)}{/await}
-				<span>{content.lang.lang === 'he' ? 'נק׳' : 'cr'}</span>
+	<div
+		class="semester-heading flex w-full flex-col items-start justify-between sm:flex-row"
+	>
+		<div class="items-baseline justify-start">
+			<h2
+				class="border-b-2 {isCurrent
+					? 'border-b-accent-primary'
+					: 'border-b-transparent'} text-base font-medium text-content-primary"
+			>
+				{content.lang.common.seasons[index % 3]}
+				{Math.floor(index / 3) + 1}
+			</h2>
+		</div>
+		<div
+			class="semester-summary flex flex-row items-baseline justify-end text-content-secondary"
+		>
+			<span
+				class="semester-tests me-1"
+				title={content.lang.lang === 'he' ? 'מבחנים' : 'Tests'}
+			>
+				{#await effectiveSemester}
+					-
+				{:then effectiveSemester}
+					{effectiveSemester
+						.map((c) => c.tests)
+						.filter((t) => t !== undefined && t.length > 0).length}
+				{/await}
+				<span class="sr-only">
+					{content.lang.lang === 'he' ? 'מבחנים' : 'tests'}
+				</span>
 			</span>
 			<span
-				class="stat-label"
-				title={content.lang.lang === 'he' ? 'קורסים' : 'Courses'}
+				class="semester-median me-1"
+				title={content.lang.lang === 'he' ? 'ממוצע חציונים' : 'Average median'}
 			>
-				{semester.filter((c) => !disabled?.includes(c)).length}
-				{content.lang.lang === 'he' ? 'קורסים' : 'courses'}
+				{#await effectiveSemester}
+					-
+				{:then effectiveSemester}
+					{getAvgMedian(effectiveSemester)}
+				{/await}
+				<span class="sr-only">
+					{content.lang.lang === 'he' ? 'ממוצע חציונים' : 'average median'}
+				</span>
 			</span>
-			<span class="sr-only">
-				{content.lang.course.median}: {#await effectiveSemester}–{:then effectiveSemester}{getAvgMedian(
-						effectiveSemester
-					)}{/await}.
-				{content.lang.lang === 'he' ? 'מבחנים' : 'Exams'}: {#await effectiveSemester}–{:then effectiveSemester}{effectiveSemester.filter(
-						(c) => c.tests !== undefined && c.tests.length > 0
-					).length}{/await}
+			<span class="semester-points" title={content.lang.course.points}>
+				{#await effectiveSemester}
+					-
+				{:then effectiveSemester}
+					{effectiveSemester.reduce((a, b) => a + (b.points ?? 0), 0)}
+				{/await}
+				<span class="sr-only">{content.lang.course.points}</span>
 			</span>
 		</div>
 	</div>
@@ -142,13 +166,6 @@
 	:global(.semester-column--board) .semester-heading {
 		block-size: 100%;
 	}
-	.semester-heading {
-		border-block-end: 0.125rem solid rgb(var(--color-border));
-		padding: 0.25rem 0;
-	}
-	.semester-heading.current {
-		border-block-end-color: rgb(var(--color-accent-primary));
-	}
 	.semester-link {
 		transition: background-color 160ms ease;
 	}
@@ -158,24 +175,6 @@
 	.semester-link:focus-visible {
 		outline: 0.125rem solid rgb(var(--color-accent-primary));
 		outline-offset: 0.125rem;
-	}
-	.semester-summary {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: baseline;
-		gap: 0.125rem 0.375rem;
-	}
-	.stat-label {
-		color: rgb(var(--color-content-secondary));
-		font-size: 0.625rem;
-		line-height: 1rem;
-	}
-	.stat-value {
-		color: rgb(var(--color-content-primary));
-		font-size: 0.75rem;
-		line-height: 1rem;
-		font-weight: 500;
-		font-variant-numeric: tabular-nums;
 	}
 	.semester-courses:empty {
 		border: 0.0625rem dashed rgb(var(--color-border));

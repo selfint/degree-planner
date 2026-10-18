@@ -25,6 +25,13 @@ const courses: Record<string, PublicCourse> = JSON.parse(
 	readFileSync(new URL('../static/courseData.json', import.meta.url), 'utf8')
 );
 const courseCode = '01040033';
+const dependantCodes = Object.values(courses)
+	.filter((course) =>
+		course.connections.dependencies.some((group) => group.includes(courseCode))
+	)
+	.map((course) => course.code)
+	.sort();
+const unequalDependenciesCode = '00480080';
 const guest = {
 	degree: ['2024_200', '00002120', 'SC00001320_CG00006382'],
 	semesters: [[], [], []],
@@ -100,8 +107,19 @@ async function measurePage(page: Page) {
 					overflowX: style.overflowX,
 					scrollLeft: rail.scrollLeft,
 					maxScroll: rail.scrollWidth - rail.clientWidth,
+					dependencyGroups: [
+						...rail.querySelectorAll('.course-dependency-group')
+					].map((group) => ({
+						...box(group),
+						codes: [...group.querySelectorAll('a')].map(
+							(link) => link.getAttribute('href')!.split('/').at(-1)!
+						)
+					})),
 					cards: [...rail.querySelectorAll('.course-card')].map((card) => {
 						const bounds = box(card);
+						const group = card.closest('.course-dependency-group');
+						const link = card.closest('a')!;
+						const rowIndex = group ? [...group.children].indexOf(link) : 0;
 						const copy = card.querySelector('.course-copy')!;
 						const copyBounds = box(copy);
 						const name = copy.querySelector('.course-name')!;
@@ -112,6 +130,10 @@ async function measurePage(page: Page) {
 						const railBounds = box(rail);
 						return {
 							...bounds,
+							rowIndex,
+							// Only the outer card stretches; its content remains intrinsic.
+							naturalHeight: box(card.querySelector('.course-width')!).height,
+							linkBounds: box(link),
 							code: card.closest('a')!.getAttribute('href')!.split('/').at(-1)!,
 							name: name.textContent?.trim(),
 							title: name.getAttribute('title'),
@@ -154,6 +176,14 @@ async function measurePage(page: Page) {
 				)
 			},
 			footer: box(document.querySelector('footer')!),
+			dependants: [
+				...document.querySelectorAll('.course-dependants .course-card')
+			].map((card) => ({
+				...box(card),
+				code: card.querySelector('.course-code')!.textContent!.trim(),
+				naturalHeight: box(card.querySelector('.course-width')!).height,
+				linkHeight: box(card.closest('a')!).height
+			})),
 			rails
 		};
 	}, railSelector);
@@ -191,6 +221,20 @@ function expectLayout(geometry: Geometry, language: Language) {
 	);
 	expect(geometry.footer.left).toBeGreaterThanOrEqual(0);
 	expect(geometry.footer.right).toBeLessThanOrEqual(width);
+	for (const card of geometry.dependants) {
+		const row = geometry.dependants.filter(
+			(peer) => Math.abs(peer.top - card.top) < 1
+		);
+		const naturalHeight = Math.max(...row.map((peer) => peer.naturalHeight));
+		expect(
+			Math.abs(card.height - naturalHeight),
+			`dependant ${card.code}: tallest intrinsic height within its wrapped row`
+		).toBeLessThanOrEqual(1);
+		expect(
+			Math.abs(card.linkHeight - card.height),
+			'full-height dependant link'
+		).toBeLessThanOrEqual(1);
+	}
 	for (const rail of geometry.rails) {
 		const label = rail.heading.text;
 		expect(
@@ -209,6 +253,7 @@ function expectLayout(geometry: Geometry, language: Language) {
 			Math.abs(headingStart - inset),
 			`${label}: unchanged heading inset`
 		).toBeLessThanOrEqual(1);
+		expectSynchronizedHeights(rail);
 		for (const card of rail.cards) {
 			expect(
 				courses[card.code]?.name,
@@ -224,6 +269,32 @@ function expectLayout(geometry: Geometry, language: Language) {
 			expect(
 				Math.abs(card.width - cardWidth),
 				`${label}: accepted card width`
+			).toBeLessThanOrEqual(1);
+		}
+	}
+}
+
+function expectSynchronizedHeights(rail: Rail) {
+	for (const rowIndex of new Set(rail.cards.map((card) => card.rowIndex))) {
+		const row = rail.cards.filter((card) => card.rowIndex === rowIndex);
+		const naturalHeight = Math.max(...row.map((card) => card.naturalHeight));
+		const label = `${rail.heading.text}: horizontal row ${rowIndex + 1}`;
+		for (const card of row) {
+			expect(
+				Math.abs(card.height - naturalHeight),
+				`${label}: ${card.code} stretches to the tallest full-content card`
+			).toBeLessThanOrEqual(1);
+			expect(
+				Math.abs(card.top - row[0].top),
+				`${label}: aligned card tops`
+			).toBeLessThanOrEqual(1);
+			expect(
+				Math.abs(card.bottom - row[0].bottom),
+				`${label}: aligned card bottoms`
+			).toBeLessThanOrEqual(1);
+			expect(
+				Math.abs(card.linkBounds.height - card.height),
+				`${label}: full-height clickable card`
 			).toBeLessThanOrEqual(1);
 		}
 	}
@@ -361,10 +432,16 @@ for (const viewport of [
 				);
 				await expect(page.getByTestId('course-plan-actions')).toBeVisible();
 				await expect(page.locator(railSelector)).toHaveCount(2);
+				await expect(
+					page.locator('.course-dependants .course-card')
+				).toHaveCount(dependantCodes.length);
 				const initial = await capture(page, info, 'course-initial');
 				expectLayout(initial, language);
 				for (const rail of initial.rails)
 					expectInitial(rail, initial, language);
+				expect(initial.dependants.map((card) => card.code).sort()).toEqual(
+					dependantCodes
+				);
 				expect(initial.rails[0].cards.map((card) => card.code)).toEqual(
 					courses[courseCode].connections.dependencies.flat()
 				);
@@ -411,6 +488,54 @@ for (const viewport of [
 				).toHaveCount(1);
 			});
 
+			test('unequal dependency alternatives share row heights without stretching singletons over AND stacks', async ({
+				page
+			}, info) => {
+				await prepareGuest(page, language);
+				await page.goto(`${origin}/app/course/${unequalDependenciesCode}`);
+				await expect(page.locator('h1.course-name')).toHaveText(
+					courses[unequalDependenciesCode].name
+				);
+				const initial = await capture(
+					page,
+					info,
+					'unequal-dependencies-initial'
+				);
+				expectLayout(initial, language);
+				const railIndex = initial.rails.findIndex(
+					(rail) => rail.kind === 'dependencies'
+				);
+				expect(railIndex).toBeGreaterThanOrEqual(0);
+				const rail = initial.rails[railIndex];
+				expectInitial(rail, initial, language);
+				expect(rail.dependencyGroups.map((group) => group.codes)).toEqual(
+					courses[unequalDependenciesCode].connections.dependencies
+				);
+				const singleton = rail.dependencyGroups.find(
+					(group) => group.codes.length === 1
+				)!;
+				const stacked = rail.dependencyGroups.find(
+					(group) => group.codes.length > 1
+				)!;
+				expect(singleton).toBeTruthy();
+				expect(stacked).toBeTruthy();
+				const singletonCard = rail.cards.find(
+					(card) => card.code === singleton.codes[0]
+				)!;
+				expect(
+					singletonCard.bottom,
+					'singleton occupies only its first shared row'
+				).toBeLessThan(stacked.bottom - 8);
+				await scrollRail(
+					page,
+					page.locator('.course-dependencies'),
+					railIndex,
+					language,
+					info,
+					'unequal-dependencies'
+				);
+			});
+
 			test('real catalog and guest wishlist keep the internal start buffer and native end access', async ({
 				page
 			}, info) => {
@@ -431,6 +556,13 @@ for (const viewport of [
 				expect(initial.rails[0].cards.map((card) => card.code).sort()).toEqual(
 					[...guest.wishlist].sort()
 				);
+				const naturalHeights = initial.rails[0].cards.map(
+					(card) => card.naturalHeight
+				);
+				expect(
+					Math.max(...naturalHeights) - Math.min(...naturalHeights),
+					'wishlist fixture actually exercises differently wrapped full names'
+				).toBeGreaterThan(8);
 				const rows = page.locator('.catalog-page .course-row');
 				await scrollRail(
 					page,

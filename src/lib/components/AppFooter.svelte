@@ -52,9 +52,12 @@
 				rel="noopener noreferrer">{content.lang.footer.reportIssue}</a
 			>
 		</div>
-		<div class="flex items-center gap-2">
+		<div
+			class="preference-controls flex items-center gap-2"
+			style:--preference-control-height={compact ? '2.25rem' : '2.75rem'}
+		>
 			<ThemeToggle {compact} />
-			<label class={compact ? '[&_select]:min-h-9' : '[&_select]:min-h-11'}>
+			<label class="language-control">
 				<span class="sr-only"
 					>{content.lang.lang === 'he' ? 'שפה' : 'Language'}</span
 				>
@@ -73,6 +76,22 @@
 </footer>
 
 <style>
+	.preference-controls {
+		--preference-control-width: 3rem;
+	}
+	.language-control {
+		inline-size: var(--preference-control-width);
+		flex: none;
+	}
+	.language-control :global(select) {
+		block-size: var(--preference-control-height);
+		min-block-size: 0;
+		padding: 0;
+		text-align: center;
+		text-align-last: center;
+		white-space: nowrap;
+	}
+
 	.pwa-footer-row {
 		max-inline-size: 76rem;
 		min-inline-size: 0;

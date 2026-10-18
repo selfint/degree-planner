@@ -42,6 +42,7 @@ export default defineConfig({
 				'course-card-navigation.test.ts',
 				'course-catalog-rails.test.ts',
 				'console-button-layout.test.ts',
+				'footer-controls.test.ts',
 				'plan-board-alignment.test.ts'
 			],
 			use: { browserName: 'webkit', ...mobile }

@@ -44,9 +44,8 @@
 		? content.lang.header.switchToLight
 		: content.lang.header.switchToDark}
 	onclick={toggleTheme}
-	class="flex shrink-0 items-center justify-center rounded-md border border-border text-content-secondary hover:bg-card-primary hover:text-content-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-primary {compact
-		? 'h-9 w-9'
-		: 'h-11 w-11'}"
+	style:--theme-toggle-size={compact ? '2.25rem' : '2.75rem'}
+	class="theme-toggle flex shrink-0 items-center justify-center rounded-md border border-border text-content-secondary hover:bg-card-primary hover:text-content-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-primary"
 >
 	<svg
 		aria-hidden="true"
@@ -68,3 +67,10 @@
 		{/if}
 	</svg>
 </button>
+
+<style>
+	.theme-toggle {
+		inline-size: var(--preference-control-width, var(--theme-toggle-size));
+		block-size: var(--preference-control-height, var(--theme-toggle-size));
+	}
+</style>

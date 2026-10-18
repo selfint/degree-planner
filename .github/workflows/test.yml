@@ -31,7 +31,7 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps ${{ matrix.browser }}
       - name: Verify narrow mobile controls, board and course rails before the full suite
-        run: npx playwright test tests/console-button-layout.test.ts tests/plan-board-alignment.test.ts tests/course-catalog-rails.test.ts --project="${{ matrix.project }}" --max-failures=1
+        run: npx playwright test tests/console-button-layout.test.ts tests/footer-controls.test.ts tests/plan-board-alignment.test.ts tests/course-catalog-rails.test.ts --project="${{ matrix.project }}" --max-failures=1
       - name: Upload focused board alignment screenshots
         if: always()
         uses: actions/upload-artifact@v4
@@ -39,6 +39,7 @@ jobs:
           name: board-alignment-${{ matrix.browser }}
           path: |
             test-results/plan-board-alignment-*/
+            test-results/footer-controls-*/
             test-results/course-catalog-rails-*/
           if-no-files-found: ignore
           retention-days: 7
@@ -130,7 +131,7 @@ jobs:
         run: node scripts/waitForPreview.mjs
       - name: Test the published console on mobile
         run: npx playwright test --config=playwright.preview.config.ts
-      - name: Verify published course and catalog rails on mobile
+      - name: Verify published course rails and footer controls on mobile
         if: (success() || failure()) && steps.preview-ready.outcome == 'success'
         env:
           PLAYWRIGHT_BASE_URL: ${{ env.PREVIEW_URL }}

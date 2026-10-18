@@ -161,7 +161,7 @@
 						}
 					}}
 					dir={content.lang.dir}
-					class="wishlist-rail me-3 ms-3 flex min-h-12 min-w-[calc(100%-1.5rem)] shrink-0 flex-row items-start justify-start gap-x-2 sm:me-5 sm:ms-5 sm:min-w-[calc(100%-2.5rem)]"
+					class="wishlist-rail me-3 ms-3 flex min-h-12 min-w-[calc(100%-1.5rem)] shrink-0 flex-row items-stretch justify-start gap-x-2 sm:me-5 sm:ms-5 sm:min-w-[calc(100%-2.5rem)]"
 				>
 					{#each wishlist as course}
 						<button
@@ -284,6 +284,9 @@
 </div>
 
 <style>
+	.wishlist-rail > button {
+		display: flex;
+	}
 	.semester-board {
 		display: grid;
 		flex: 1;

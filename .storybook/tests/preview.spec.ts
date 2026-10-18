@@ -13,6 +13,77 @@ async function expectCompactAction(button: Locator) {
 	expect(box!.height).toBeLessThanOrEqual(36.5);
 }
 
+async function expectFooterPreferenceGeometry(page: Page, compact: boolean) {
+	const controls = page.locator('footer .preference-controls');
+	const toggle = controls.getByRole('button');
+	const language = controls.getByRole('combobox');
+	await expect(toggle).toBeEnabled();
+	const [button, select, icon] = await Promise.all([
+		toggle.boundingBox(),
+		language.boundingBox(),
+		toggle.locator('svg').boundingBox()
+	]);
+	for (const bounds of [button!, select!]) {
+		expect(bounds.width).toBeCloseTo(48, 1);
+		expect(bounds.height).toBeCloseTo(compact ? 36 : 44, 1);
+	}
+	expect(button!.y).toBeCloseTo(select!.y, 1);
+	expect(icon!.x + icon!.width / 2).toBeCloseTo(
+		button!.x + button!.width / 2,
+		1
+	);
+	expect(icon!.y + icon!.height / 2).toBeCloseTo(
+		button!.y + button!.height / 2,
+		1
+	);
+	// The selected option is painted by the native select, not a DOM text box.
+	// Check its centered, symmetric text area without replacing native behavior.
+	await expect(language).toHaveCSS('text-align', 'center');
+	await expect(language).toHaveCSS('text-align-last', 'center');
+	const valueArea = await language.evaluate((element) => {
+		const style = getComputedStyle(element);
+		return {
+			inlineStart: style.paddingInlineStart,
+			inlineEnd: style.paddingInlineEnd,
+			blockStart: style.paddingBlockStart,
+			blockEnd: style.paddingBlockEnd,
+			overflow: element.scrollWidth - element.clientWidth
+		};
+	});
+	expect(valueArea.inlineStart).toBe(valueArea.inlineEnd);
+	expect(valueArea.blockStart).toBe(valueArea.blockEnd);
+	expect(valueArea.overflow).toBeLessThanOrEqual(1);
+}
+
+async function expectNaturalRowHeight(row: Locator) {
+	const cards = await row.locator('.course-card').evaluateAll((elements) =>
+		elements.map((element) => {
+			const bounds = element.getBoundingClientRect();
+			// The card shell stretches; its real contents retain their natural height.
+			const contents = element.querySelector(':scope > .course-width')!;
+			const natural = contents.getBoundingClientRect();
+			return {
+				top: bounds.top,
+				bottom: bounds.bottom,
+				height: bounds.height,
+				naturalHeight: natural.height,
+				contentTop: natural.top,
+				contentBottom: natural.bottom
+			};
+		})
+	);
+	expect(cards.length).toBeGreaterThan(0);
+	const tallest = Math.max(...cards.map((card) => card.naturalHeight));
+	for (const card of cards) {
+		expect(card.top).toBeCloseTo(cards[0].top, 1);
+		expect(card.bottom).toBeCloseTo(cards[0].bottom, 1);
+		expect(card.height).toBeCloseTo(tallest, 1);
+		expect(card.contentTop).toBeGreaterThanOrEqual(card.top - 0.5);
+		expect(card.contentBottom).toBeLessThanOrEqual(card.bottom + 0.5);
+	}
+	return tallest - Math.min(...cards.map((card) => card.naturalHeight));
+}
+
 async function expectPwaFooter(page: Page) {
 	const footer = page.locator('footer');
 	const row = footer.getByTestId('pwa-footer-row');
@@ -423,35 +494,50 @@ test('the app service worker and app HTML do not load Storybook', async ({
 	}
 });
 
-test('footer controls leave real planner preferences untouched', async ({
+test('footer preferences have equal centered controls and leave real planner preferences untouched', async ({
 	page
 }) => {
 	await page.addInitScript(() => {
 		localStorage.setItem('theme', 'dark');
 		localStorage.setItem('lang', 'en');
 	});
-	for (const state of ['default', 'compact']) {
-		await page.goto(storyUrl(`components-appfooter--${state}`));
-		await expect(
-			page.getByRole('combobox').locator('option:checked')
-		).toHaveText('en');
-		if (state === 'compact') {
-			expect((await page.getByRole('button').boundingBox())!.height).toBe(36);
-			expect((await page.getByRole('combobox').boundingBox())!.height).toBe(36);
+	for (const width of [320, 390]) {
+		await page.setViewportSize({ width, height: 800 });
+		for (const state of ['default', 'compact']) {
+			for (const language of ['en', 'he']) {
+				const direction = language === 'he' ? 'rtl' : 'ltr';
+				await page.goto(
+					`${storyUrl(`components-appfooter--${state}`)}&globals=language:${language};direction:${direction};theme:dark`
+				);
+				const select = page.getByRole('combobox');
+				await expect(select.locator('option:checked')).toHaveText(
+					language === 'he' ? 'עב' : 'en'
+				);
+				await expectFooterPreferenceGeometry(page, state === 'compact');
+				await page.screenshot({
+					path: test
+						.info()
+						.outputPath(`footer-controls-${state}-${width}-${language}.png`),
+					fullPage: false
+				});
+				await page.getByRole('button').click();
+				await expect(page.locator('html')).toHaveAttribute(
+					'data-theme',
+					'light'
+				);
+				const nextLabel = language === 'he' ? 'en' : 'עב';
+				await select.selectOption({ label: nextLabel });
+				await expect(select.locator('option:checked')).toHaveText(nextLabel);
+				await expectFooterPreferenceGeometry(page, state === 'compact');
+				expect(
+					await page.evaluate(() => [
+						localStorage.getItem('theme'),
+						localStorage.getItem('lang')
+					])
+				).toEqual(['dark', 'en']);
+			}
 		}
-		await page.getByRole('button').click();
-		await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
-		await page.getByRole('combobox').selectOption({ label: 'עב' });
-		await expect(
-			page.getByRole('combobox').locator('option:checked')
-		).toHaveText('עב');
 	}
-	expect(
-		await page.evaluate(() => [
-			localStorage.getItem('theme'),
-			localStorage.getItem('lang')
-		])
-	).toEqual(['dark', 'en']);
 });
 
 test('footer and installation links are mocked and cannot leave the story', async ({
@@ -1110,6 +1196,7 @@ test('compact planner rails show three full items and the next item at mobile wi
 			await expectOriginalCardHierarchy(
 				page.getByTestId('plan-wishlist').locator('.course-card').first()
 			);
+			await expectNaturalRowHeight(page.getByTestId('plan-wishlist'));
 			// Full-page capture resizes the viewport and can move transformed RTL rails.
 			// Capture the real initial viewport before keyboard focus scrolls a semester.
 			await page.screenshot({
@@ -1133,16 +1220,19 @@ test('compact planner rails show three full items and the next item at mobile wi
 	}
 });
 
-test('course and catalog rails retain their full canvas width while scrolling to every course', async ({
+test('course and catalog rails keep natural equal card heights and full canvas width while scrolling', async ({
 	page
 }) => {
-	test.setTimeout(120_000);
+	test.setTimeout(180_000);
+	const naturalSpreads: number[] = [];
 	for (const width of [320, 390]) {
 		for (const direction of ['rtl', 'ltr']) {
 			await page.setViewportSize({ width, height: 800 });
 			for (const id of [
 				'pages-course--related-courses',
-				'pages-catalog--long-wishlist'
+				'pages-catalog--long-wishlist',
+				'pages-course--default',
+				'pages-catalog--default'
 			]) {
 				await page.goto(
 					`${storyUrl(id)}&globals=language:${direction === 'rtl' ? 'he' : 'en'};direction:${direction};theme:${direction === 'rtl' ? 'dark' : 'light'}`
@@ -1159,14 +1249,35 @@ test('course and catalog rails retain their full canvas width while scrolling to
 				const roots = await root.boundingBox();
 				expect(roots!.x).toBeCloseTo(canvas!.x, 1);
 				expect(roots!.width).toBeCloseTo(canvas!.width, 1);
-				await expect(root.locator('.loading-course')).toHaveCount(0);
+				await expect(
+					root.locator('.loading-course, .course-loading, .catalog-loading')
+				).toHaveCount(0);
+				await page.evaluate(() => document.fonts.ready);
 				const rails = root.locator('.course-dependencies, .course-row');
 				const overflowing = [];
+				for (const [index, row] of (await rails.all()).entries()) {
+					if (!(await row.locator('.course-card').count())) continue;
+					const spread = await expectNaturalRowHeight(row);
+					naturalSpreads.push(spread);
+					if (id.endsWith('--default') && spread > 1) {
+						await row.scrollIntoViewIfNeeded();
+						await page.screenshot({
+							path: test
+								.info()
+								.outputPath(
+									`${id}-${index}-${width}-${direction}-mixed-heights.png`
+								),
+							fullPage: false
+						});
+					}
+				}
 				for (const rail of await rails.all()) {
 					if ((await rail.locator('.course-card').count()) >= 7)
 						overflowing.push(rail);
 				}
-				expect(overflowing).toHaveLength(id.includes('catalog') ? 1 : 3);
+				expect(overflowing).toHaveLength(
+					id.endsWith('--default') ? 0 : id.includes('catalog') ? 1 : 3
+				);
 				for (const [index, rail] of overflowing.entries()) {
 					await rail.scrollIntoViewIfNeeded();
 					await expect
@@ -1240,4 +1351,7 @@ test('course and catalog rails retain their full canvas width while scrolling to
 			}
 		}
 	}
+	// Existing overflow fixtures include shorter and longer natural card contents.
+	// At least one mixed row must exercise actual stretch, not equal text alone.
+	expect(Math.max(...naturalSpreads)).toBeGreaterThan(1);
 });

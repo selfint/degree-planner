@@ -362,6 +362,9 @@
 						bind:this={depRow}
 						dir={content.lang.dir}
 						class="course-dependencies"
+						style:--dependency-rows={Math.max(
+							...dependencies(course).map((group) => group.length)
+						)}
 						role="region"
 						aria-label={content.lang.common.dependencies}
 						tabindex="0"
@@ -369,12 +372,12 @@
 						{#each dependencies(course) as group, i}
 							{#if i !== 0}
 								<p
-									class="flex flex-col justify-center text-sm text-content-secondary"
+									class="course-dependency-or flex flex-col justify-center text-sm text-content-secondary"
 								>
 									{content.lang.common.or}
 								</p>
 							{/if}
-							<div class="flex shrink-0 flex-col gap-2">
+							<div class="course-dependency-group">
 								{#each group as code}
 									<a href={`/app/course/${code}`}>
 										<CourseElement {code} course={getCourseData(code)}>
@@ -501,7 +504,7 @@
 						<h2 class="course-section-title course-inset">
 							{content.lang.common.dependants}
 						</h2>
-						<div class="course-inset flex flex-wrap gap-2">
+						<div class="course-dependants course-inset flex flex-wrap gap-2">
 							{#each dependants as course}
 								<a href={`/app/course/${course.code}`}>
 									<CourseElement code={course.code} {course}>
@@ -645,12 +648,29 @@
 		min-inline-size: 0;
 	}
 	.course-dependencies {
-		display: flex;
-		gap: 0.625rem;
+		display: grid;
+		grid-auto-flow: column;
+		grid-auto-columns: max-content;
+		grid-template-rows: repeat(var(--dependency-rows), max-content);
+		gap: 0.5rem 0.625rem;
 		overflow-x: auto;
 		padding-block: 0.25rem 0.5rem;
 		padding-inline: 0.75rem;
 		overscroll-behavior-inline: contain;
+	}
+	/* Align corresponding cards across OR alternatives. A shorter AND group
+	   leaves later tracks empty instead of growing its cards to the whole column. */
+	.course-dependency-group {
+		display: grid;
+		grid-row: 1 / -1;
+		grid-template-rows: subgrid;
+	}
+	.course-dependency-group > a,
+	.course-dependants > a {
+		display: flex;
+	}
+	.course-dependency-or {
+		grid-row: 1 / -1;
 	}
 	.course-dependencies:focus-visible {
 		outline: 0.125rem solid rgb(var(--color-accent-primary));

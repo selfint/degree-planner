@@ -138,10 +138,7 @@
 	</div>
 {/snippet}
 
-<div
-	{style}
-	class="course-card relative h-fit w-fit select-none bg-card-primary"
->
+<div {style} class="course-card relative w-fit select-none bg-card-primary">
 	<CourseWidth>
 		{#if onOpen}
 			<button

@@ -388,9 +388,9 @@
 		</CourseRow>
 	</div>
 
-	<div class="relative z-0 min-w-0 flex-1 overflow-x-auto sm:pe-4">
+	<div class="semester-discovery relative z-0 min-w-0 flex-1 overflow-x-auto">
 		{#await loLoCo}
-			<h2 class="flex flex-row text-content-primary">
+			<h2 class="flex flex-row text-content-primary sm:pe-4">
 				{content.lang.common.loading}
 				<div class="me-1 h-5 w-5">
 					<Spinner />
@@ -400,7 +400,7 @@
 			{#each loLoCo as [titles, courses, colorize]}
 				<div class="mb-8">
 					<h2
-						class="mb-3 ms-3 text-sm font-semibold text-content-primary sm:ms-0"
+						class="mb-3 ms-3 text-sm font-semibold text-content-primary sm:ms-0 sm:pe-4"
 					>
 						<div
 							class="me-2 flex flex-row flex-wrap items-start gap-x-1.5 gap-y-1"

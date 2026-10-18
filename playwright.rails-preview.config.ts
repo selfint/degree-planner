@@ -8,6 +8,8 @@ export default defineConfig({
 	testDir: './tests',
 	testMatch: [
 		'course-catalog-rails.test.ts',
+		'remaining-course-rails.test.ts',
+		'search-faculty-width.test.ts',
 		'footer-controls.test.ts',
 		'console-navigation-styles.test.ts',
 		'search-three-columns.test.ts'

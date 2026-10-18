@@ -13,6 +13,62 @@ async function expectCompactAction(button: Locator) {
 	expect(box!.height).toBeLessThanOrEqual(36.5);
 }
 
+async function withRootFontSize(
+	page: Page,
+	pixels: number,
+	assertions: () => Promise<void>
+) {
+	const root = page.locator('html');
+	const previousStyle = await root.getAttribute('style');
+	try {
+		await root.evaluate((element, size) => {
+			element.style.fontSize = `${size}px`;
+		}, pixels);
+		await expect(root).toHaveCSS('font-size', `${pixels}px`);
+		await assertions();
+	} finally {
+		// Restore even after a failed assertion; no scale leaks into the next case.
+		await root.evaluate((element, style) => {
+			if (style === null) element.removeAttribute('style');
+			else element.setAttribute('style', style);
+		}, previousStyle);
+	}
+}
+
+async function expectScaledIcon(
+	icon: Locator,
+	control: Locator,
+	pixels: number,
+	centerHorizontally = false
+) {
+	await expect(icon).toBeVisible();
+	await expect(icon).toHaveCSS('width', `${pixels}px`);
+	await expect(icon).toHaveCSS('height', `${pixels}px`);
+	const [bounds, parent] = await Promise.all([
+		icon.boundingBox(),
+		control.boundingBox()
+	]);
+	expect(bounds!.width).toBeCloseTo(pixels, 1);
+	expect(bounds!.height).toBeCloseTo(pixels, 1);
+	expect(bounds!.x).toBeGreaterThanOrEqual(parent!.x - 0.5);
+	expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(
+		parent!.x + parent!.width + 0.5
+	);
+	expect(bounds!.y).toBeGreaterThanOrEqual(parent!.y - 0.5);
+	expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(
+		parent!.y + parent!.height + 0.5
+	);
+	expect(bounds!.y + bounds!.height / 2).toBeCloseTo(
+		parent!.y + parent!.height / 2,
+		1
+	);
+	if (centerHorizontally)
+		expect(bounds!.x + bounds!.width / 2).toBeCloseTo(
+			parent!.x + parent!.width / 2,
+			1
+		);
+}
+
 async function expectSingleRenderedLine(text: Locator) {
 	await expect(text).toBeVisible();
 	const geometry = await text.evaluate((element) => {
@@ -997,11 +1053,11 @@ test('console titlebar keeps brand, search and navigation on one row without PWA
 			expect(boxes.overflow).toBeLessThanOrEqual(1);
 			const input = header.getByRole('textbox');
 			await expect(input).toHaveValue('Example systems');
-			await expect(input).toHaveCSS('font-size', '16px');
-			await expect(input).toHaveCSS('line-height', '24px');
+			await expect(input).toHaveCSS('font-size', '14px');
+			await expect(input).toHaveCSS('line-height', '21px');
 			for (const link of await header.locator('.nav-link').all()) {
-				await expect(link).toHaveCSS('font-size', '16px');
-				await expect(link).toHaveCSS('line-height', '24px');
+				await expect(link).toHaveCSS('font-size', '14px');
+				await expect(link).toHaveCSS('line-height', '21px');
 				await expect(link).toHaveCSS('white-space', 'nowrap');
 			}
 			const alignment = await header.evaluate((element) => {
@@ -1042,6 +1098,94 @@ test('console titlebar keeps brand, search and navigation on one row without PWA
 				path: test.info().outputPath(`titlebar-${width}-${language}.png`),
 				fullPage: false
 			});
+		}
+	}
+});
+
+test('settings navigation icon scales with root typography and stays centered', async ({
+	page
+}) => {
+	// Keep enough room for the desktop header at the largest text size.
+	await page.setViewportSize({ width: 1600, height: 900 });
+	for (const language of ['en', 'he']) {
+		const id = 'components-titlebar--query';
+		await page.goto(
+			`${storyUrl(id)}&globals=language:${language};direction:${language === 'he' ? 'rtl' : 'ltr'}`
+		);
+		await expect(page.locator('[data-story-rendered]')).toHaveAttribute(
+			'data-story-rendered',
+			id,
+			{ timeout: 15_000 }
+		);
+		const settings = page.locator('header.title-bar').getByRole('link', {
+			name: language === 'he' ? 'הגדרות' : 'Settings',
+			exact: true
+		});
+		await expect(settings).toHaveAttribute('href', '/app/settings');
+		for (const pixels of [16, 20, 24]) {
+			await test.step(`${language}, ${pixels}px root`, async () => {
+				await withRootFontSize(page, pixels, async () => {
+					await expectScaledIcon(
+						settings.locator('svg'),
+						settings,
+						pixels * 1.5,
+						true
+					);
+				});
+			});
+		}
+	}
+});
+
+test('guest and signed-in settings icons share rem sizing and centered action bounds', async ({
+	page
+}) => {
+	test.setTimeout(60_000);
+	await page.setViewportSize({ width: 1600, height: 900 });
+	for (const language of ['en', 'he']) {
+		for (const state of ['guest', 'signed-in']) {
+			const id = `pages-settings--${state}`;
+			// Each story navigation mounts a fresh, memory-only auth fixture.
+			await page.goto(
+				`${storyUrl(id)}&globals=language:${language};direction:${language === 'he' ? 'rtl' : 'ltr'}`
+			);
+			await expect(page.locator('[data-story-rendered]')).toHaveAttribute(
+				'data-story-rendered',
+				id,
+				{ timeout: 15_000 }
+			);
+			const account = page.locator('.account-section');
+			const button = account.getByRole('button');
+			const action = button.locator('.account-action');
+			const icon = action.locator(state === 'guest' ? 'img' : 'svg');
+			await expect(account.getByRole('heading')).toHaveText(
+				state === 'signed-in'
+					? 'Example Student'
+					: language === 'he'
+						? 'אורח'
+						: 'Guest'
+			);
+			await expect(button).toBeEnabled();
+			for (const pixels of [16, 20, 24]) {
+				await test.step(`${state}, ${language}, ${pixels}px root`, async () => {
+					await withRootFontSize(page, pixels, async () => {
+						await expect(icon).toHaveCSS('flex-shrink', '0');
+						await expectScaledIcon(icon, button, pixels * 1.25);
+						await expectSingleRenderedLine(action.locator(':scope > span'));
+						const [contents, control] = await Promise.all([
+							action.boundingBox(),
+							button.boundingBox()
+						]);
+						for (const axis of ['x', 'y'] as const) {
+							const size = axis === 'x' ? 'width' : 'height';
+							expect(contents![axis] + contents![size] / 2).toBeCloseTo(
+								control![axis] + control![size] / 2,
+								1
+							);
+						}
+					});
+				});
+			}
 		}
 	}
 });
@@ -1460,15 +1604,26 @@ test('console surfaces remain readable and usable at narrow and wide widths', as
 				if (id.startsWith('pages-settings--')) {
 					const account = page.locator('.settings-page > .account-section');
 					await expect(account).toBeVisible();
+					await expect(
+						page.locator('.settings-page > .page-heading')
+					).toHaveCount(0);
+					const title = page.locator('.settings-page > h1');
+					await expect(title).toHaveText(width === 320 ? 'הגדרות' : 'Settings');
+					await expect(title).toHaveClass(/\bsr-only\b/);
+					await expect(title).toHaveCSS('position', 'absolute');
+					await expect(title).toHaveCSS('width', '1px');
+					await expect(title).toHaveCSS('height', '1px');
+					await expect(title).toHaveCSS('clip', 'rect(0px, 0px, 0px, 0px)');
 					const positions = await page
 						.locator('.settings-page')
 						.evaluate((root) => ({
 							accountFirst: root
 								.querySelector('section')!
 								.classList.contains('account-section'),
-							headingBottom: root
-								.querySelector('.page-heading')!
-								.getBoundingClientRect().bottom,
+							contentTop:
+								root.getBoundingClientRect().top +
+								parseFloat(getComputedStyle(root).paddingTop) +
+								parseFloat(getComputedStyle(root).borderTopWidth),
 							accountTop: root
 								.querySelector('.account-section')!
 								.getBoundingClientRect().top,
@@ -1480,9 +1635,10 @@ test('console surfaces remain readable and usable at narrow and wide widths', as
 								.getBoundingClientRect().top
 						}));
 					expect(positions.accountFirst).toBe(true);
-					expect(positions.accountTop).toBeGreaterThanOrEqual(
-						positions.headingBottom
-					);
+					expect(
+						positions.accountTop,
+						'account controls are the first visible settings row'
+					).toBeCloseTo(positions.contentTop, 1);
 					expect(positions.accountBottom).toBeLessThanOrEqual(
 						positions.degreeTop
 					);
@@ -1871,6 +2027,24 @@ test('compact planner rails show three full items and the next item at mobile wi
 				'pages-plan--long-plan',
 				{ timeout: 15_000 }
 			);
+			const toolbar = page.locator('.plan-toolbar');
+			const heading = toolbar.getByRole('heading', {
+				name: direction === 'rtl' ? 'רשימת משאלות' : 'Wish list',
+				exact: true
+			});
+			const share = toolbar.getByRole('link', {
+				name: direction === 'rtl' ? 'שתף' : 'Share',
+				exact: true
+			});
+			await expect(share).toHaveText(direction === 'rtl' ? 'שתף' : 'Share');
+			await expect(share).toHaveCSS('padding-inline-start', '8px');
+			await expect(share).toHaveCSS('padding-inline-end', '8px');
+			await expect(share).toHaveCSS('color', 'rgb(255, 255, 255)');
+			await expect(share).toHaveCSS('background-color', 'rgb(15, 111, 103)');
+			await expectCompactAction(share);
+			await expectSingleRenderedLine(share);
+			await expect(heading).toHaveCSS('white-space', 'nowrap');
+			await expectSingleRenderedLine(heading);
 			const rails = [
 				['wishlist-scroller', '[data-testid="plan-wishlist"] > [data-code]'],
 				['semester-scroller', '[data-semester]']

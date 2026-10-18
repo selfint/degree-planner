@@ -31,7 +31,7 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps ${{ matrix.browser }}
       - name: Verify narrow mobile controls, board and course rails before the full suite
-        run: npx playwright test tests/console-button-layout.test.ts tests/footer-controls.test.ts tests/console-navigation-styles.test.ts tests/search-three-columns.test.ts tests/plan-board-alignment.test.ts tests/course-catalog-rails.test.ts --project="${{ matrix.project }}"
+        run: npx playwright test tests/console-button-layout.test.ts tests/footer-controls.test.ts tests/console-navigation-styles.test.ts tests/search-three-columns.test.ts tests/plan-board-alignment.test.ts tests/course-catalog-rails.test.ts tests/remaining-course-rails.test.ts tests/search-faculty-width.test.ts --project="${{ matrix.project }}"
       - name: Upload focused board alignment screenshots
         if: always()
         uses: actions/upload-artifact@v4
@@ -43,6 +43,8 @@ jobs:
             test-results/console-navigation-styles-*/
             test-results/search-three-columns-*/
             test-results/course-catalog-rails-*/
+            test-results/remaining-course-rails-*/
+            test-results/search-faculty-width-*/
           if-no-files-found: ignore
           retention-days: 7
       - name: Verify short-screen drops and signed-in offline recovery
@@ -106,7 +108,7 @@ jobs:
     # newer branch build while labelling it as this event's exact head.
     if: (github.event_name == 'pull_request' && github.head_ref == 'feat/console-migration' && github.event.pull_request.head.repo.full_name == github.repository) || (github.event_name == 'push' && github.ref == 'refs/heads/staging')
     runs-on: ubuntu-latest
-    timeout-minutes: 22
+    timeout-minutes: 30
     permissions:
       contents: read
       statuses: read

@@ -47,7 +47,7 @@
 	}
 </script>
 
-<div class="ui-page preview-page">
+<div class="preview-page">
 	<header class="preview-header">
 		<div class="preview-heading">
 			<p class="preview-eyebrow">{content.lang.settings.preview}</p>
@@ -103,7 +103,13 @@
 
 <style>
 	.preview-page {
+		inline-size: 100%;
 		min-inline-size: 0;
+		padding-block: 0.625rem;
+	}
+	.preview-header,
+	.preview-empty {
+		margin-inline: 0.75rem;
 	}
 	.preview-header {
 		display: flex;
@@ -137,9 +143,9 @@
 		overflow-x: auto;
 		overscroll-behavior-inline: contain;
 		scroll-snap-type: inline proximity;
-		scroll-padding-inline: 0.25rem;
-		padding: 0.25rem 0.25rem 0.625rem;
-		margin-inline: -0.25rem;
+		scroll-padding-inline: 0.75rem;
+		padding-block: 0.25rem 0.625rem;
+		padding-inline: 0.75rem;
 		scrollbar-color: rgb(var(--color-content-secondary) / 0.4) transparent;
 	}
 	.preview-semester {

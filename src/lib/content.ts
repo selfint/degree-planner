@@ -117,7 +117,7 @@ export const cms = {
 		},
 		settings: {
 			degree: 'Degree',
-			share: 'Share plan',
+			share: 'Share',
 			year: 'Year',
 			selectYear: 'Select year',
 			faculty: 'Faculty',
@@ -330,7 +330,7 @@ export const cms = {
 		},
 		settings: {
 			degree: 'תואר',
-			share: 'שתף תוכנית',
+			share: 'שתף',
 			year: 'שנה',
 			selectYear: 'בחר שנה',
 			faculty: 'פקולטה',

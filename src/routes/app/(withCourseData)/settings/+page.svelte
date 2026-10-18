@@ -80,10 +80,8 @@
 	let buttonNamespace = $state('');
 </script>
 
-<div class="ui-page settings-page">
-	<header class="page-heading">
-		<h1 class="ui-page-title">{content.lang.landing.settings.header}</h1>
-	</header>
+<div class="settings-page">
+	<h1 class="sr-only">{content.lang.landing.settings.header}</h1>
 
 	<section class="account-section">
 		<div
@@ -116,8 +114,7 @@
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
 						viewBox="0 0 24 24"
-						height="20"
-						width="20"
+						class="h-5 w-5 shrink-0"
 						fill="none"
 						stroke="currentColor"
 						stroke-width="2"
@@ -175,7 +172,7 @@
 	{#if user.d.exemptions.length > 0}
 		<section class="exemptions-section">
 			<h2 class="section-title">{content.lang.settings.exemptions}</h2>
-			<CourseRow {getCourseData} courses={user.d.exemptions} indent={0}>
+			<CourseRow {getCourseData} courses={user.d.exemptions}>
 				{#snippet children({ code, course })}
 					<a class="block" href={`/app/course/${code}`}>
 						<CourseElement {code} {course} />
@@ -189,17 +186,34 @@
 <style>
 	.settings-page {
 		display: grid;
-		max-inline-size: 48rem;
-		gap: 0.875rem;
+		grid-template-columns: minmax(0.75rem, 1fr) minmax(0, 46.5rem) minmax(
+				0.75rem,
+				1fr
+			);
+		inline-size: 100%;
+		padding-block: 0.625rem;
+		row-gap: 0.875rem;
 		text-align: start;
 	}
-	.account-section,
+	/* Keep forms locally inset while the exemptions scrollport reaches both edges. */
+	.settings-page > :global(*) {
+		grid-column: 2;
+		max-inline-size: 46.5rem;
+	}
+	.settings-page > .exemptions-section {
+		grid-column: 1 / -1;
+		max-inline-size: none;
+	}
+	.exemptions-section .section-title {
+		margin-inline: 0.75rem;
+	}
 	.loading-section,
 	.exemptions-section {
 		min-inline-size: 0;
 		padding-block-start: 0.75rem;
 	}
 	.account-section {
+		min-inline-size: 0;
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;

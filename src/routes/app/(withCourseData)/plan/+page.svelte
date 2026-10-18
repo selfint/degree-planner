@@ -65,9 +65,9 @@
 <div use:fitPlanToViewport class="plan-page mb-2 mt-2 flex flex-col">
 	<div class="mb-3 flex shrink-0 flex-col gap-1">
 		<div
-			class="me-3 ms-3 flex min-h-9 shrink-0 flex-row items-center justify-between gap-3 sm:me-5 sm:ms-5"
+			class="plan-toolbar me-3 ms-3 flex min-h-9 shrink-0 flex-row items-center justify-between gap-3 sm:me-5 sm:ms-5"
 		>
-			<h1 class="text-sm font-semibold text-content-primary">
+			<h1 class="wishlist-heading text-sm font-semibold text-content-primary">
 				{content.lang.plan.wishlist}
 			</h1>
 			<div class="flex flex-row items-center gap-x-1 text-sm">
@@ -94,7 +94,7 @@
 						href={shareLink}
 						target="_blank"
 						rel="noopener noreferrer"
-						class="ui-button ui-button--primary"
+						class="plan-share ui-button ui-button--primary"
 					>
 						{content.lang.settings.share}
 					</a>
@@ -284,6 +284,16 @@
 </div>
 
 <style>
+	.wishlist-heading {
+		flex-shrink: 0;
+		white-space: nowrap;
+	}
+	.plan-share {
+		min-inline-size: var(--control-height);
+		padding-inline: 0.5rem;
+		background: #0f6f67;
+		color: #fff;
+	}
 	.wishlist-rail > button {
 		display: flex;
 	}

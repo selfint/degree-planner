@@ -30,6 +30,7 @@ export default defineConfig({
 				'landing-parallax.test.ts',
 				'landing-install.test.ts',
 				'search-faculty-native.test.ts',
+				'search-faculty-width.test.ts',
 				'console-startup.test.ts',
 				'console-routing.test.ts'
 			],
@@ -39,8 +40,10 @@ export default defineConfig({
 			name: 'webkit-mobile',
 			testMatch: [
 				'search-faculty-native.test.ts',
+				'search-faculty-width.test.ts',
 				'course-card-navigation.test.ts',
 				'course-catalog-rails.test.ts',
+				'remaining-course-rails.test.ts',
 				'console-button-layout.test.ts',
 				'console-navigation-styles.test.ts',
 				'search-three-columns.test.ts',

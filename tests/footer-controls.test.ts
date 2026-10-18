@@ -379,6 +379,7 @@ async function measureFooter(page: Page) {
 		const noPathStyle = noPath ? getComputedStyle(noPath) : null;
 		const identity = settings?.querySelector('.account-identity');
 		const guestHeading = identity?.querySelector('h2');
+		const settingsTitle = settings?.querySelector(':scope > h1');
 		return {
 			url: location.href,
 			viewport: { width: innerWidth, height: innerHeight },
@@ -412,6 +413,24 @@ async function measureFooter(page: Page) {
 						text: textBox(guestHeading)
 					}
 				: null,
+			settingsStart:
+				settings && settingsTitle
+					? {
+							contentTop:
+								settings.getBoundingClientRect().top +
+								parseFloat(getComputedStyle(settings).paddingTop) +
+								parseFloat(getComputedStyle(settings).borderTopWidth),
+							headingWrapper: settings.querySelectorAll(
+								':scope > .page-heading'
+							).length,
+							title: {
+								...box(settingsTitle),
+								text: settingsTitle.textContent?.trim(),
+								position: getComputedStyle(settingsTitle).position,
+								clip: getComputedStyle(settingsTitle).clip
+							}
+						}
+					: null,
 			noPath: noPath
 				? {
 						...box(noPath),
@@ -813,6 +832,26 @@ function expectMatchingControls(geometry: Geometry, compact = true) {
 		);
 		expect(account, 'guest account section renders').toBeDefined();
 		expect(degree, 'degree section renders').toBeDefined();
+		expect(
+			geometry.settingsStart,
+			'settings retain an accessible page heading'
+		).not.toBeNull();
+		const start = geometry.settingsStart!;
+		expect(start.headingWrapper, 'no visible Settings title row remains').toBe(
+			0
+		);
+		expect(start.title.text).toBe(
+			geometry.direction === 'rtl' ? 'הגדרות' : 'Settings'
+		);
+		expect(start.title.position).toBe('absolute');
+		expect(start.title.width).toBe(1);
+		expect(start.title.height).toBe(1);
+		expect(start.title.clip).toBe('rect(0px, 0px, 0px, 0px)');
+		aligned(
+			account!.top,
+			start.contentTop,
+			'account controls are the first visible settings row'
+		);
 		expect(
 			account!.bottom,
 			'guest identity stays above degree controls'

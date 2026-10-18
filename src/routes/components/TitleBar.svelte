@@ -116,6 +116,7 @@
 		block-size: auto;
 	}
 	.console {
+		--titlebar-font-size: 0.875rem;
 		min-block-size: 3rem;
 		padding: 0.25rem 0.5rem;
 		gap: 0.5rem;
@@ -172,7 +173,7 @@
 		border: 0;
 		outline: none;
 		background: transparent;
-		font-size: 1rem;
+		font-size: var(--titlebar-font-size);
 		line-height: 1.5;
 	}
 	input::placeholder {

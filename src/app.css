@@ -119,6 +119,13 @@
 		line-height: 1.5;
 	}
 
+	.settings-field {
+		font-size: 1rem;
+	}
+	.settings-field select,
+	.settings-field option {
+		font-size: inherit;
+	}
 	.ui-field:disabled {
 		opacity: 0.5;
 		cursor: not-allowed;

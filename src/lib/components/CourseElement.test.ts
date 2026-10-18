@@ -58,7 +58,7 @@ describe('original shared course-card content hierarchy', () => {
 		expect(source.slice(meta.start, meta.end)).not.toContain('squeeze');
 	});
 
-	it('keeps the full name and code as inline siblings in one copy block', () => {
+	it('keeps the complete name and title with the code outside the name clamp', () => {
 		const copy = element('course-copy');
 		const name = element('course-name', copy);
 		const code = element('course-code', copy);
@@ -67,7 +67,9 @@ describe('original shared course-card content hierarchy', () => {
 		expect(name.start).toBeLessThan(code.start!);
 		expect(source.slice(name.start, name.end)).toContain('title={course.name}');
 		expect(source.slice(name.start, name.end)).not.toContain('{code}');
-		expect(source.slice(copy.start, copy.end)).not.toContain('line-clamp');
+		expect(source.slice(name.start, name.end)).toContain('{course.name}');
+		expect(code.start).toBeGreaterThan(name.end!);
+		expect(source.slice(code.start, code.end)).toContain('{code}');
 	});
 
 	it('puts the disclosure after the body and optional exam information, without nesting buttons', () => {
@@ -101,4 +103,58 @@ it('limits decorative hover to fine pointers without limiting keyboard focus', (
 	expect(hoverRules).toContain('.course-warning:hover');
 	expect(hoverRules).not.toContain(':focus-visible');
 	expect(source).toContain('.course-warning:focus-visible');
+});
+
+function styles(selector: string) {
+	const rule = source.match(new RegExp(`\\.${selector} \\{([^}]+)\\}`));
+	if (!rule) throw new Error(`Missing ${selector} styles`);
+	return rule[1];
+}
+
+it('limits only the name to three lines with native CSS ellipsis', () => {
+	const name = styles('course-name');
+	expect(name).toContain('display: -webkit-box;');
+	expect(name).toContain('-webkit-box-orient: vertical;');
+	expect(name).toContain('-webkit-line-clamp: 3;');
+	expect(name).toContain('\n\t\tline-clamp: 3;');
+	expect(name).toContain('overflow: hidden;');
+	for (const selector of [
+		'course-copy',
+		'course-code',
+		'course-body',
+		'course-card'
+	]) {
+		expect(styles(selector)).not.toMatch(/line-clamp|overflow: hidden/);
+	}
+	const script = source.slice(0, source.indexOf('</script>'));
+	expect(script).not.toMatch(
+		/getBoundingClientRect|scrollHeight|ResizeObserver|\.slice\(|\.substring\(/
+	);
+});
+
+it('retains the original text-xs leading-none name/code and text-xs metadata typography', () => {
+	// a4c4dc8e used text-xs leading-none for name/code, text-xs for metadata.
+	expect(styles('course-copy')).toContain('font-size: 0.75rem;');
+	expect(styles('course-copy')).toContain('line-height: 1;');
+	expect(styles('course-meta')).toContain('font-size: 0.75rem;');
+	expect(styles('course-meta')).toContain('line-height: 1rem;');
+	for (const selector of ['course-name', 'course-code', 'course-note']) {
+		expect(styles(selector)).not.toMatch(/font-size:|line-height:/);
+	}
+	for (const selector of ['course-name', 'course-points']) {
+		const node = element(selector);
+		expect(source.slice(node.start, node.end)).not.toContain('font-medium');
+	}
+});
+
+it('reserves five original-size name lines plus code only for non-squeezed cards', () => {
+	expect(styles('course-copy')).toContain('min-block-size: 4.5rem;');
+	expect(styles('course-copy')).toContain('flex-direction: column;');
+	expect(styles('course-code')).toContain('margin-block-start: auto;');
+	expect(source).toContain(
+		'.course-body-squeezed .course-copy {\n\t\tmin-block-size: 0;'
+	);
+	expect(styles('course-name')).not.toMatch(
+		/(?:min-|max-)?(?:block-size|height):/
+	);
 });

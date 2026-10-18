@@ -13,7 +13,54 @@ async function expectCompactAction(button: Locator) {
 	expect(box!.height).toBeLessThanOrEqual(36.5);
 }
 
+async function expectFooterComposition(page: Page) {
+	const footer = page.locator('footer');
+	const layout = await footer.evaluate((element) => {
+		const box = (selector: string) => {
+			const { left, right, top, bottom, height } = element
+				.querySelector(selector)!
+				.getBoundingClientRect();
+			return { left, right, top, bottom, height, centerY: top + height / 2 };
+		};
+		return {
+			direction: getComputedStyle(element).direction,
+			main: box('.footer-main'),
+			links: box('.footer-links'),
+			credit: box('.footer-credit'),
+			report: box('.footer-report'),
+			preferences: box('.preference-controls'),
+			overflow: element.scrollWidth - element.clientWidth
+		};
+	});
+	await expect(footer.locator('.footer-main')).toHaveCSS('display', 'grid');
+	expect(layout.report.top).toBeGreaterThanOrEqual(layout.credit.bottom - 0.5);
+	expect(layout.preferences.centerY).toBeCloseTo(layout.links.centerY, 1);
+	expect(layout.main.height).toBeCloseTo(
+		Math.max(layout.links.height, layout.preferences.height),
+		1
+	);
+	const start = layout.direction === 'rtl' ? 'right' : 'left';
+	const end = layout.direction === 'rtl' ? 'left' : 'right';
+	for (const item of [layout.links, layout.credit, layout.report])
+		expect(item[start]).toBeCloseTo(layout.main[start], 1);
+	expect(layout.preferences[end]).toBeCloseTo(layout.main[end], 1);
+	expect(
+		layout.direction === 'rtl'
+			? layout.links.left - layout.preferences.right
+			: layout.preferences.left - layout.links.right
+	).toBeGreaterThanOrEqual(11.5);
+	for (const item of [layout.credit, layout.report, layout.preferences]) {
+		expect(item.left).toBeGreaterThanOrEqual(layout.main.left - 0.5);
+		expect(item.right).toBeLessThanOrEqual(layout.main.right + 0.5);
+	}
+	expect(layout.overflow).toBe(0);
+	expect(
+		await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)
+	).toBe(0);
+}
+
 async function expectFooterPreferenceGeometry(page: Page, compact: boolean) {
+	await expectFooterComposition(page);
 	const controls = page.locator('footer .preference-controls');
 	const toggle = controls.getByRole('button');
 	const language = controls.getByRole('combobox');
@@ -85,6 +132,7 @@ async function expectNaturalRowHeight(row: Locator) {
 }
 
 async function expectPwaFooter(page: Page) {
+	await expectFooterComposition(page);
 	const footer = page.locator('footer');
 	const row = footer.getByTestId('pwa-footer-row');
 	await expect(row).toBeVisible();
@@ -103,6 +151,13 @@ async function expectPwaFooter(page: Page) {
 	await expect(install).toHaveAttribute('target', '_blank');
 	await expect(install).toHaveAttribute('rel', 'noopener noreferrer');
 	await expectCompactAction(install);
+	const installBox = await install.boundingBox();
+	const direction = await footer.evaluate(
+		(element) => getComputedStyle(element).direction
+	);
+	expect(
+		direction === 'rtl' ? installBox!.x : installBox!.x + installBox!.width
+	).toBeCloseTo(direction === 'rtl' ? bounds!.x : bounds!.x + bounds!.width, 1);
 	// Footer groups may wrap; each action and readiness label stays complete.
 	const labels = await row.locator('.pwa-footer-controls').evaluate((el) =>
 		Array.from(
@@ -157,7 +212,31 @@ async function expectOriginalCardHierarchy(card: Locator) {
 	const title = await name.getAttribute('title');
 	expect(title).toBeTruthy();
 	await expect(name).toHaveText(title!);
-	await expect(name).toHaveCSS('display', 'inline');
+	for (const text of [name, body.locator('.course-code')]) {
+		await expect(text).toHaveCSS('font-size', '12px');
+		await expect(text).toHaveCSS('line-height', '12px');
+		await expect(text).toHaveCSS('font-weight', '400');
+	}
+	for (const text of await body
+		.locator('.course-median, .course-points, .course-note')
+		.all()) {
+		await expect(text).toHaveCSS('font-size', '12px');
+		await expect(text).toHaveCSS('line-height', '16px');
+		await expect(text).toHaveCSS('font-weight', '400');
+	}
+	await expect(name).toHaveCSS('-webkit-line-clamp', '3');
+	await expect(name).toHaveCSS('-webkit-box-orient', 'vertical');
+	await expect(name).toHaveCSS('overflow', 'hidden');
+	const nameBox = await name.boundingBox();
+	const lineHeight = await name.evaluate((element) =>
+		parseFloat(getComputedStyle(element).lineHeight)
+	);
+	expect(nameBox!.height).toBeLessThanOrEqual(3 * lineHeight + 0.5);
+	const action = name.locator('xpath=ancestor::*[self::a or self::button][1]');
+	if (await action.count())
+		await expect(action).toHaveAccessibleName(
+			new RegExp(title!.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+		);
 	await expect(name).toHaveCSS('white-space', 'normal');
 	await expect(body.locator('.course-copy')).toHaveCSS('white-space', 'normal');
 	await expect(body.locator('.course-copy')).toHaveCSS('overflow', 'visible');
@@ -166,8 +245,49 @@ async function expectOriginalCardHierarchy(card: Locator) {
 		'none'
 	);
 	await expect(body.locator('.course-name + .course-code')).toHaveCount(1);
-	await expect(body.locator('.course-code')).toHaveCSS('display', 'inline');
+	await expect(body.locator('.course-copy')).toHaveCSS('display', 'flex');
+	await expect(body.locator('.course-copy')).toHaveCSS(
+		'flex-direction',
+		'column'
+	);
+	const squeezed = await body.evaluate((element) =>
+		element.classList.contains('course-body-squeezed')
+	);
+	await expect(body.locator('.course-copy')).toHaveCSS(
+		'min-height',
+		squeezed ? '0px' : '72px'
+	);
 	await expect(body.locator('.course-code')).toHaveAttribute('dir', 'ltr');
+	const codeBox = await body.locator('.course-code').boundingBox();
+	const cardBox = await card.boundingBox();
+	const copyBox = await body.locator('.course-copy').boundingBox();
+	await expect(body.locator('.course-code')).toHaveCSS(
+		'align-self',
+		'flex-start'
+	);
+	const copyDirection = await body
+		.locator('.course-copy')
+		.evaluate((element) => getComputedStyle(element).direction);
+	expect(
+		copyDirection === 'rtl' ? codeBox!.x + codeBox!.width : codeBox!.x
+	).toBeCloseTo(
+		copyDirection === 'rtl' ? copyBox!.x + copyBox!.width : copyBox!.x,
+		1
+	);
+	if (!squeezed) {
+		expect(copyBox!.height).toBeGreaterThanOrEqual(72);
+		expect(codeBox!.y).toBeGreaterThanOrEqual(copyBox!.y + 60 - 0.5);
+	}
+	expect(codeBox!.y + codeBox!.height).toBeCloseTo(
+		copyBox!.y + copyBox!.height,
+		1
+	);
+	expect(codeBox!.y).toBeGreaterThanOrEqual(nameBox!.y + nameBox!.height - 0.5);
+	expect(codeBox!.x).toBeGreaterThanOrEqual(cardBox!.x - 0.5);
+	expect(codeBox!.x + codeBox!.width).toBeLessThanOrEqual(
+		cardBox!.x + cardBox!.width + 0.5
+	);
+	expect(codeBox!.height).toBeGreaterThan(0);
 	await expect(
 		body.locator('.course-meta .course-markers .course-marker')
 	).toBeVisible();
@@ -593,6 +713,11 @@ test('console titlebar keeps brand, search and navigation on one row without PWA
 				`${storyUrl('components-titlebar--query')}&globals=language:${language};theme:${language === 'he' ? 'dark' : 'light'}`
 			);
 			const header = page.locator('header.title-bar');
+			await expect(header.locator('a.brand')).toHaveAttribute('href', '/');
+			await expect(header.locator('a.brand')).toHaveAttribute(
+				'data-sveltekit-reload',
+				''
+			);
 			await expect(header).toBeVisible();
 			await expect(header).toHaveAttribute('dir', 'ltr');
 			await expect(header.locator('form')).toHaveAttribute(
@@ -641,7 +766,7 @@ test('console titlebar keeps brand, search and navigation on one row without PWA
 	}
 });
 
-test('PWA footer keeps readiness visible and exceptional actions with their details', async ({
+test('PWA footer keeps healthy readiness accessible and shows actionable status', async ({
 	page
 }) => {
 	test.setTimeout(60_000);
@@ -650,7 +775,7 @@ test('PWA footer keeps readiness visible and exceptional actions with their deta
 		[390, 'en']
 	] as const) {
 		await page.setViewportSize({ width, height: 800 });
-		for (const state of ['initial', 'preparing', 'ready']) {
+		for (const state of ['initial', 'preparing', 'offline', 'ready']) {
 			const id = `components-pwastatus--${state}`;
 			await page.goto(
 				`${storyUrl(id)}&globals=language:${language};theme:${language === 'he' ? 'dark' : 'light'}`
@@ -661,22 +786,41 @@ test('PWA footer keeps readiness visible and exceptional actions with their deta
 			);
 			await expect(page.getByTestId('pwa-status')).toHaveAttribute(
 				'data-state',
-				state === 'ready' ? 'ready' : 'preparing'
+				state === 'ready' || state === 'offline' ? 'ready' : 'preparing'
 			);
 			await expect(page.locator('details, summary')).toHaveCount(0);
 			await expect(page.getByTestId('pwa-status-details')).toHaveCount(0);
-			await expect(page.getByRole('status')).toHaveCSS('position', 'static');
+			const readiness = page.getByRole('status');
+			if (state === 'initial' || state === 'ready') {
+				await expect(readiness).toHaveClass(/\bsr-only\b/);
+				await expect(readiness).toHaveCSS('position', 'absolute');
+				const box = await readiness.boundingBox();
+				expect(box!.width).toBeLessThanOrEqual(1);
+				expect(box!.height).toBeLessThanOrEqual(1);
+			} else {
+				await expect(readiness).not.toHaveClass(/\bsr-only\b/);
+				await expect(readiness).toHaveCSS('position', 'static');
+			}
 			await expectPwaFooter(page);
 			if (state === 'initial')
 				await expect(page.getByRole('status')).toBeEmpty();
 			else {
-				await expect(page.getByRole('status')).toBeVisible();
+				if (state !== 'ready') await expect(readiness).toBeVisible();
 				await expect(page.getByRole('status')).toHaveText(
 					state === 'ready'
 						? pwaMessages[language].ready
-						: pwaMessages[language].downloading
+						: state === 'offline'
+							? language === 'he'
+								? 'אין אינטרנט'
+								: 'Offline'
+							: pwaMessages[language].downloading
 				);
 			}
+			if (state === 'offline')
+				await page.screenshot({
+					path: test.info().outputPath(`pwa-offline-${width}-${language}.png`),
+					fullPage: false
+				});
 		}
 		await page.screenshot({
 			path: test.info().outputPath(`pwa-ready-${width}-${language}.png`),
@@ -898,9 +1042,10 @@ test('degree path and recommendation variants show their real controls', async (
 	).toHaveAttribute('href', '/app/settings');
 });
 
-test('filters stay visible and retain committed values above search results', async ({
+test('filters stay visible above three-column mobile search results', async ({
 	page
 }) => {
+	test.setTimeout(120_000);
 	await page.goto(storyUrl('components-searchfilters--selected'));
 	await expect(page.locator('.search-filters')).toBeVisible();
 	await expect(
@@ -935,12 +1080,71 @@ test('filters stay visible and retain committed values above search results', as
 	}));
 	expect(positions.filtersBottom).toBeLessThanOrEqual(positions.headingTop);
 	expect(positions.headingBottom).toBeLessThanOrEqual(positions.firstResult);
+	for (const width of [320, 390]) {
+		for (const direction of ['ltr', 'rtl']) {
+			await page.setViewportSize({ width, height: 800 });
+			await page.goto(
+				`${storyUrl('pages-search--results')}&globals=language:${direction === 'rtl' ? 'he' : 'en'};direction:${direction};theme:${direction === 'rtl' ? 'dark' : 'light'}`
+			);
+			await expect(page.locator('[data-story-rendered]')).toHaveAttribute(
+				'data-story-rendered',
+				'pages-search--results',
+				{ timeout: 15_000 }
+			);
+			await expect(page.locator('#search-faculty')).toBeVisible();
+			const results = page.locator('.search-results');
+			await expect(results.locator(':scope > li')).toHaveCount(3);
+			await expect(results).toHaveCSS('display', 'grid');
+			const geometry = await results.evaluate((root) => {
+				const bounds = root.getBoundingClientRect();
+				const boxes = [...root.querySelectorAll(':scope > li')].map((el) => {
+					const { left, right, top, width } = el.getBoundingClientRect();
+					return { left, right, top, width };
+				});
+				return {
+					columns: getComputedStyle(root)
+						.gridTemplateColumns.split(' ')
+						.map(parseFloat),
+					left: bounds.left,
+					right: bounds.right,
+					boxes,
+					overflow: root.scrollWidth - root.clientWidth,
+					pageOverflow:
+						document.documentElement.scrollWidth -
+						document.documentElement.clientWidth
+				};
+			});
+			expect(geometry.columns).toHaveLength(3);
+			expect(
+				Math.max(...geometry.columns) - Math.min(...geometry.columns)
+			).toBeLessThanOrEqual(0.1);
+			for (const box of geometry.boxes) {
+				expect(box.width).toBeCloseTo(geometry.columns[0], 1);
+				expect(box.top).toBeCloseTo(geometry.boxes[0].top, 1);
+				expect(box.left).toBeGreaterThanOrEqual(geometry.left - 0.5);
+				expect(box.right).toBeLessThanOrEqual(geometry.right + 0.5);
+			}
+			expect(geometry.overflow).toBe(0);
+			expect(geometry.pageOverflow).toBe(0);
+			for (const card of await results.locator('.course-card').all()) {
+				await expect(card.locator('.course-body-squeezed')).toHaveCount(0);
+				await expectOriginalCardHierarchy(card);
+			}
+			await results.scrollIntoViewIfNeeded();
+			await page.screenshot({
+				path: test
+					.info()
+					.outputPath(`search-three-columns-${width}-${direction}.png`),
+				fullPage: false
+			});
+		}
+	}
 });
 
 test('console surfaces remain readable and usable at narrow and wide widths', async ({
 	page
 }) => {
-	test.setTimeout(120_000);
+	test.setTimeout(180_000);
 	for (const [width, globals] of [
 		[320, 'theme:light;language:he;direction:rtl'],
 		[1180, 'theme:dark;language:en;direction:ltr']
@@ -948,6 +1152,10 @@ test('console surfaces remain readable and usable at narrow and wide widths', as
 		await page.setViewportSize({ width, height: 800 });
 		for (const id of [
 			'pages-settings--choose-degree',
+			'pages-settings--empty-plan',
+			'pages-settings--guest',
+			'pages-settings--signed-in',
+			'pages-settings--exemptions',
 			'pages-course--default',
 			'pages-course--missing-details',
 			'pages-search--results',
@@ -969,6 +1177,83 @@ test('console surfaces remain readable and usable at narrow and wide widths', as
 						document.documentElement.clientWidth
 				);
 				expect(overflow).toBeLessThanOrEqual(1);
+				if (id.startsWith('pages-settings--')) {
+					const account = page.locator('.settings-page > .account-section');
+					await expect(account).toBeVisible();
+					const positions = await page
+						.locator('.settings-page')
+						.evaluate((root) => ({
+							firstSection: root.querySelector('section')!.className,
+							headingBottom: root
+								.querySelector('.page-heading')!
+								.getBoundingClientRect().bottom,
+							accountTop: root
+								.querySelector('.account-section')!
+								.getBoundingClientRect().top,
+							accountBottom: root
+								.querySelector('.account-section')!
+								.getBoundingClientRect().bottom,
+							degreeTop: root
+								.querySelector('.degree-section')!
+								.getBoundingClientRect().top
+						}));
+					expect(positions.firstSection).toBe('account-section');
+					expect(positions.accountTop).toBeGreaterThanOrEqual(
+						positions.headingBottom
+					);
+					expect(positions.accountBottom).toBeLessThanOrEqual(
+						positions.degreeTop
+					);
+					if (id === 'pages-settings--signed-in') {
+						await expect(account.getByRole('heading')).toHaveText(
+							'Example Student'
+						);
+						await expect(
+							account.getByRole('button', { name: /^(Sign out|התנתק)$/ })
+						).toBeVisible();
+					} else
+						await expect(account.locator('img[alt="Google Logo"]')).toHaveCount(
+							1
+						);
+					for (const text of await page
+						.locator(
+							'.settings-field > span:not(.select-frame), .settings-field select, .settings-field option, .settings-field .no-path'
+						)
+						.all())
+						await expect(text).toHaveCSS('font-size', '16px');
+					if (id !== 'pages-settings--choose-degree') {
+						const noPath = page.locator('.no-path');
+						await expect(noPath).toBeVisible();
+						await expect(noPath).toHaveText(
+							width === 320 ? 'אין מסלולים בתואר' : 'Degree has no paths'
+						);
+						await expect(noPath).toHaveCSS('white-space', 'nowrap');
+						const text = await noPath.evaluate((element) => {
+							const range = document.createRange();
+							range.selectNodeContents(element);
+							const rects = [...range.getClientRects()].filter(
+								(rect) => rect.width > 0
+							);
+							const bounds = element.getBoundingClientRect();
+							return {
+								lines: new Set(rects.map((rect) => Math.round(rect.top))).size,
+								fits: rects.every(
+									(rect) =>
+										rect.left >= bounds.left - 0.5 &&
+										rect.right <= bounds.right + 0.5
+								),
+								overflow: element.scrollWidth - element.clientWidth
+							};
+						});
+						expect(text).toEqual({ lines: 1, fits: true, overflow: 0 });
+					}
+					const sections = page.locator('.settings-page section');
+					expect(await sections.count()).toBeGreaterThan(0);
+					for (const section of await sections.all()) {
+						await expect(section).toHaveCSS('border-top-width', '0px');
+						await expect(section).toHaveCSS('border-bottom-width', '0px');
+					}
+				}
 				if (id.startsWith('pages-search--')) {
 					await expect(page.locator('#search-faculty')).toBeVisible();
 					await expect(page.locator('#search-points-min-input')).toBeVisible();
@@ -1057,6 +1342,27 @@ test('catalog scrollports fill the canvas with an internal logical card inset', 
 			const bounds = await root.boundingBox();
 			expect(bounds!.x).toBeCloseTo(canvas!.x, 1);
 			expect(bounds!.width).toBeCloseTo(canvas!.width, 1);
+			await expect(
+				root.locator('.catalog-summary').getByRole('meter')
+			).toHaveCount(2);
+			await expect(
+				root.locator('.catalog-section').getByRole('meter')
+			).toHaveCount(0);
+			const categoryMetrics = root.locator('.catalog-progress-panel');
+			await expect(categoryMetrics).toHaveCount(2);
+			await expect(
+				categoryMetrics.first().locator('.catalog-values dd')
+			).toHaveText(['1', '2', '2', '4', '7', '7']);
+			await expect(
+				categoryMetrics.last().locator('.catalog-values dd')
+			).toHaveText(['0', '0', '1', '0', '0', '2']);
+			for (const group of await categoryMetrics.all()) {
+				await expect(group.locator('.catalog-metric-label')).toHaveCount(2);
+				for (const label of await group
+					.locator('.catalog-metric-label, dt')
+					.all())
+					await expect(label).not.toBeEmpty();
+			}
 			const rows = root.locator('.course-row');
 			expect(await rows.count()).toBeGreaterThan(0);
 			for (const row of await rows.all()) {
@@ -1087,7 +1393,7 @@ test('catalog scrollports fill the canvas with an internal logical card inset', 
 	}
 });
 
-test('course cards retain original metadata and inline name/code in compact states', async ({
+test('course cards retain metadata, full accessible names and visible codes below three-line clamps', async ({
 	page
 }) => {
 	for (const direction of ['rtl', 'ltr']) {
@@ -1224,7 +1530,7 @@ test('course and catalog rails keep natural equal card heights and full canvas w
 	page
 }) => {
 	test.setTimeout(180_000);
-	const naturalSpreads: number[] = [];
+	let clampedLongNames = 0;
 	for (const width of [320, 390]) {
 		for (const direction of ['rtl', 'ltr']) {
 			await page.setViewportSize({ width, height: 800 });
@@ -1257,9 +1563,11 @@ test('course and catalog rails keep natural equal card heights and full canvas w
 				const overflowing = [];
 				for (const [index, row] of (await rails.all()).entries()) {
 					if (!(await row.locator('.course-card').count())) continue;
-					const spread = await expectNaturalRowHeight(row);
-					naturalSpreads.push(spread);
-					if (id.endsWith('--default') && spread > 1) {
+					await expectNaturalRowHeight(row);
+					if (
+						id.endsWith('--default') &&
+						(await row.locator('.course-card').count()) > 1
+					) {
 						await row.scrollIntoViewIfNeeded();
 						await page.screenshot({
 							path: test
@@ -1296,9 +1604,15 @@ test('course and catalog rails keep natural equal card heights and full canvas w
 							: first!.x - box!.x
 					).toBeCloseTo(12, 1);
 					expect(first!.width).toBeCloseTo((width - 40) / 3.25, 1);
-					for (const name of await rail.locator('.course-name').all()) {
-						await expect(name).toHaveText((await name.getAttribute('title'))!);
-						await expect(name).toHaveCSS('-webkit-line-clamp', 'none');
+					for (const card of await rail.locator('.course-card').all()) {
+						await expectOriginalCardHierarchy(card);
+						const name = card.locator('.course-name');
+						if (
+							await name.evaluate(
+								(element) => element.scrollHeight > element.clientHeight + 1
+							)
+						)
+							clampedLongNames++;
 					}
 					await page.screenshot({
 						path: test
@@ -1351,7 +1665,10 @@ test('course and catalog rails keep natural equal card heights and full canvas w
 			}
 		}
 	}
-	// Existing overflow fixtures include shorter and longer natural card contents.
-	// At least one mixed row must exercise actual stretch, not equal text alone.
-	expect(Math.max(...naturalSpreads)).toBeGreaterThan(1);
+	// The approved five-line name reserve can equalize short and long cards.
+	// Row shells still match their own tallest intrinsic content, including code.
+	expect(
+		clampedLongNames,
+		'long fixture names exercise real three-line clipping'
+	).toBeGreaterThan(0);
 });

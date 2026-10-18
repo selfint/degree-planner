@@ -12,19 +12,12 @@
 
 	type Props = {
 		started: boolean;
-		homeHref?: '/' | '/app/';
 		searchQuery: string;
 		searchRevision: number;
 		onSearch: (query: string) => void;
 	};
 
-	const {
-		started,
-		homeHref = '/',
-		searchQuery,
-		searchRevision,
-		onSearch
-	}: Props = $props();
+	const { started, searchQuery, searchRevision, onSearch }: Props = $props();
 
 	let query = $state('');
 	const committedQuery = $derived(searchQuery);
@@ -52,12 +45,7 @@
 </script>
 
 <header dir="ltr" class="title-bar" class:console={started}>
-	<a
-		href={homeHref}
-		data-sveltekit-reload={homeHref === '/' ? true : undefined}
-		class="brand"
-		aria-label="PlanIt"
-	>
+	<a href="/" data-sveltekit-reload class="brand" aria-label="PlanIt">
 		<enhanced:img src={Logo} loading="eager" alt="" class="brand-logo" />
 		<span class="brand-title">{@html Title}</span>
 	</a>

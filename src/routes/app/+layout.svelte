@@ -177,7 +177,6 @@
 >
 	<div class="w-full border-b border-border bg-background">
 		<TitleBar
-			homeHref="/app/"
 			started={true}
 			searchQuery={searchNavigation.url.pathname === '/app/search'
 				? (searchNavigation.url.searchParams.get('q') ?? '')
@@ -203,7 +202,7 @@
 	<AppFooter compact>
 		{#snippet pwa()}
 			<div class="pwa-footer-controls">
-				<PwaStatus />
+				<PwaStatus {offline} />
 				<a
 					href="/#install-title"
 					target="_blank"
@@ -230,6 +229,7 @@
 		min-inline-size: 0;
 	}
 	.pwa-install-help {
+		margin-inline-start: auto;
 		display: inline-flex;
 		align-items: center;
 		block-size: var(--control-height);

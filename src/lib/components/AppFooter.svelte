@@ -30,23 +30,19 @@
 		? 'px-3 py-2 text-xs'
 		: 'px-4 py-4 text-sm sm:px-8'}"
 >
-	<div
-		class="mx-auto flex max-w-[76rem] flex-wrap items-center justify-between gap-x-4 gap-y-1"
-	>
-		<div
-			class="flex flex-wrap items-center gap-x-4 gap-y-1 text-content-secondary"
-		>
-			<p>
+	<div class="footer-main">
+		<div class="footer-links">
+			<p class="footer-credit">
 				{content.lang.footer.createdBy}
 				<a
-					class="font-medium text-content-primary underline decoration-border underline-offset-4 hover:decoration-accent-primary"
+					class="footer-author"
 					href="https://github.com/selfint"
 					target="_blank"
 					rel="noopener noreferrer">{content.lang.footer.author}</a
 				>
 			</p>
 			<a
-				class="hover:text-content-primary hover:underline"
+				class="footer-report"
 				href="https://github.com/selfint/degree-planner/issues/new/choose"
 				target="_blank"
 				rel="noopener noreferrer">{content.lang.footer.reportIssue}</a
@@ -76,6 +72,35 @@
 </footer>
 
 <style>
+	.footer-main {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto;
+		align-items: center;
+		gap: 0.75rem;
+		max-inline-size: 76rem;
+		margin-inline: auto;
+	}
+	.footer-links {
+		display: grid;
+		justify-items: start;
+		min-inline-size: 0;
+		font-size: 0.75rem;
+		line-height: 1.5;
+		color: rgb(var(--color-content-secondary));
+	}
+	.footer-credit {
+		margin: 0;
+	}
+	.footer-author,
+	.footer-report {
+		text-underline-offset: 0.125rem;
+	}
+	.footer-author:hover,
+	.footer-report:hover {
+		color: rgb(var(--color-content-primary));
+		text-decoration: underline;
+	}
+
 	.preference-controls {
 		--preference-control-width: 3rem;
 	}
@@ -95,7 +120,6 @@
 	.pwa-footer-row {
 		max-inline-size: 76rem;
 		min-inline-size: 0;
-		margin: 0.5rem auto 0;
-		padding-block-start: 0.5rem;
+		margin: 0.25rem auto 0;
 	}
 </style>

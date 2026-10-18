@@ -22,7 +22,6 @@
 {:else if kind === 'TitleBar'}
 	<TitleBar
 		started={variant !== 'landing'}
-		homeHref={variant === 'landing' ? '/' : '/app/'}
 		searchQuery={variant === 'query' ? 'Example systems' : ''}
 		searchRevision={0}
 		onSearch={(value) => (query = value)}

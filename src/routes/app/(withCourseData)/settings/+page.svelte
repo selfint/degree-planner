@@ -85,49 +85,6 @@
 		<h1 class="ui-page-title">{content.lang.landing.settings.header}</h1>
 	</header>
 
-	{#await catalogs}
-		<section class="loading-section">
-			<h2 class="section-title">{content.lang.settings.degree}</h2>
-			<div class="loading-state" role="status">
-				<span class="h-5 w-5 shrink-0" aria-hidden="true"><Spinner /></span>
-				<span>{content.lang.common.loading}</span>
-			</div>
-		</section>
-	{:then catalogs}
-		<DegreeSection
-			{catalogs}
-			{userDegree}
-			{userPath}
-			{onChange}
-			onReset={() => {}}
-			recommended={undefined}
-			bind:buttonNamespace
-		/>
-	{/await}
-
-	{#if userDegree !== undefined}
-		<SemesterSection
-			{semesterChoice}
-			{totalSemestersChoice}
-			{validTotalValues}
-			bind:buttonNamespace
-		/>
-	{/if}
-	{#if userDegree !== undefined && user.d.semesters.flat().length === 0}
-		<UploadSection {getCourseData} bind:buttonNamespace />
-	{/if}
-	{#if user.d.exemptions.length > 0}
-		<section class="exemptions-section">
-			<h2 class="section-title">{content.lang.settings.exemptions}</h2>
-			<CourseRow {getCourseData} courses={user.d.exemptions} indent={0}>
-				{#snippet children({ code, course })}
-					<a class="block" href={`/app/course/${code}`}>
-						<CourseElement {code} {course} />
-					</a>
-				{/snippet}
-			</CourseRow>
-		</section>
-	{/if}
 	<section class="account-section">
 		<div class="account-identity">
 			<h2>{currentUser?.displayName ?? content.lang.settings.guest}</h2>
@@ -180,6 +137,50 @@
 			</p>
 		{/if}
 	</section>
+
+	{#await catalogs}
+		<section class="loading-section">
+			<h2 class="section-title">{content.lang.settings.degree}</h2>
+			<div class="loading-state" role="status">
+				<span class="h-5 w-5 shrink-0" aria-hidden="true"><Spinner /></span>
+				<span>{content.lang.common.loading}</span>
+			</div>
+		</section>
+	{:then catalogs}
+		<DegreeSection
+			{catalogs}
+			{userDegree}
+			{userPath}
+			{onChange}
+			onReset={() => {}}
+			recommended={undefined}
+			bind:buttonNamespace
+		/>
+	{/await}
+
+	{#if userDegree !== undefined}
+		<SemesterSection
+			{semesterChoice}
+			{totalSemestersChoice}
+			{validTotalValues}
+			bind:buttonNamespace
+		/>
+	{/if}
+	{#if userDegree !== undefined && user.d.semesters.flat().length === 0}
+		<UploadSection {getCourseData} bind:buttonNamespace />
+	{/if}
+	{#if user.d.exemptions.length > 0}
+		<section class="exemptions-section">
+			<h2 class="section-title">{content.lang.settings.exemptions}</h2>
+			<CourseRow {getCourseData} courses={user.d.exemptions} indent={0}>
+				{#snippet children({ code, course })}
+					<a class="block" href={`/app/course/${code}`}>
+						<CourseElement {code} {course} />
+					</a>
+				{/snippet}
+			</CourseRow>
+		</section>
+	{/if}
 </div>
 
 <style>
@@ -194,7 +195,6 @@
 	.exemptions-section {
 		min-inline-size: 0;
 		padding-block-start: 0.75rem;
-		border-block-start: 1px solid rgb(var(--color-border));
 	}
 	.account-section {
 		display: flex;

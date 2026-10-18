@@ -105,7 +105,7 @@
 						class:opacity-60={!course.current}
 						onclick={() => goto(`/app/course/${course.code}`)}
 					>
-						<CourseElement code={course.code} {course} squeeze>
+						<CourseElement code={course.code} {course}>
 							{#snippet note()}
 								{#if showPersonalPlan}
 									{@const index = getCourseSemester(course)}
@@ -192,7 +192,7 @@
 		}
 		.search-results {
 			display: grid;
-			grid-template-columns: minmax(0, 1fr);
+			grid-template-columns: repeat(3, minmax(0, 1fr));
 			gap: 0.375rem;
 		}
 		.search-result,
@@ -201,9 +201,6 @@
 			inline-size: 100%;
 			min-inline-size: 0;
 			max-inline-size: none;
-		}
-		.search-results :global(.course-body) {
-			min-block-size: 0;
 		}
 	}
 </style>

@@ -150,20 +150,25 @@ async function measure(page: Page, route: string) {
 		const firstWishlistCards = [
 			...document.querySelectorAll('[data-testid="plan-wishlist"] .course-card')
 		].slice(0, 3);
-		const unclippedCourseNames = [
-			...document.querySelectorAll('main .course-name')
+		const clampedCourseNames = [
+			...document.querySelectorAll('.course-card .course-name')
 		].filter((name) => {
-			const copy = name.closest('.course-copy')?.getBoundingClientRect();
-			if (!copy || !name.textContent?.trim()) return false;
-			if (name.getAttribute('title') !== name.textContent.trim()) return false;
-			const range = document.createRange();
-			range.selectNodeContents(name);
-			return [...range.getClientRects()].every(
-				(box) =>
-					box.left >= copy.left - 1 &&
-					box.right <= copy.right + 1 &&
-					box.top >= copy.top - 1 &&
-					box.bottom <= copy.bottom + 1
+			const copy = name.closest('.course-copy')!.getBoundingClientRect();
+			const bounds = name.getBoundingClientRect();
+			const code = name.nextElementSibling!.getBoundingClientRect();
+			const style = getComputedStyle(name);
+			return (
+				!!name.textContent?.trim() &&
+				name.getAttribute('title') === name.textContent.trim() &&
+				style.webkitLineClamp === '3' &&
+				style.overflow === 'hidden' &&
+				bounds.height <= 3 * parseFloat(style.lineHeight) + 1 &&
+				bounds.left >= copy.left - 1 &&
+				bounds.right <= copy.right + 1 &&
+				code.top >= bounds.bottom - 1 &&
+				code.bottom <= copy.bottom + 1 &&
+				code.left >= copy.left - 1 &&
+				code.right <= copy.right + 1
 			);
 		}).length;
 		const horizontalRatios = (selector: string) =>
@@ -211,7 +216,7 @@ async function measure(page: Page, route: string) {
 				card ? visibleRatio(card) : 0
 			),
 			firstWishlistCourseRatios: firstWishlistCards.map(visibleRatio),
-			unclippedCourseNames,
+			clampedCourseNames,
 			semesterColumnRatios: horizontalRatios('[data-semester]'),
 			wishlistCardRatios: horizontalRatios(
 				'[data-testid="plan-wishlist"] > [data-code]'
@@ -362,13 +367,23 @@ async function capture(page: Page, info: TestInfo, name: string, route = name) {
 			!(await footerRow.getByTestId('pwa-error').count())
 		) {
 			const readiness = status.getByRole('status');
-			await expect(readiness).toBeVisible();
-			await expect(readiness).not.toHaveClass(/\bsr-only\b/);
-			await expect(readiness).toHaveText(
-				(await header.locator('.header-search').getAttribute('dir')) === 'rtl'
-					? 'כל הקורסים זמינים ללא אינטרנט'
-					: 'All courses ready offline'
-			);
+			const offline = await page.evaluate(() => !navigator.onLine);
+			const hebrew =
+				(await header.locator('.header-search').getAttribute('dir')) === 'rtl';
+			if (offline) {
+				await expect(readiness).toBeVisible();
+				await expect(readiness).not.toHaveClass(/\bsr-only\b/);
+				await expect(readiness).toHaveText(hebrew ? 'אין אינטרנט' : 'Offline');
+			} else {
+				await expect(readiness).toHaveClass(/\bsr-only\b/);
+				await expect(readiness).toHaveCSS('position', 'absolute');
+				const bounds = await readiness.boundingBox();
+				expect(bounds!.width).toBeLessThanOrEqual(1);
+				expect(bounds!.height).toBeLessThanOrEqual(1);
+				await expect(readiness).toHaveText(
+					hebrew ? 'כל הקורסים זמינים ללא אינטרנט' : 'All courses ready offline'
+				);
+			}
 		}
 		expect
 			.soft(
@@ -449,9 +464,9 @@ for (const viewport of [
 								.toBeLessThanOrEqual(0.85);
 						}
 						expect.soft(plan.semesterColumnRatios[4]).toBe(0);
-						// Full SAP names and the original full-width warning footer have
-						// variable height. Protect useful initial rows without requiring
-						// truncation to reach the previous corner-warning layout's count.
+						// Squeezed planner names clamp visible text at three lines.
+						// The full-width warning footer can still grow naturally; protect
+						// useful initial rows without imposing fixed whole-card heights.
 						for (const [label, ratios] of [
 							['first semester courses', plan.firstSemesterCourseRatios],
 							['first wishlist courses', plan.firstWishlistCourseRatios]
@@ -466,8 +481,8 @@ for (const viewport of [
 						}
 						expect
 							.soft(
-								plan.unclippedCourseNames,
-								'full course names remain unclipped'
+								plan.clampedCourseNames,
+								'three-line course names retain full text and visible codes'
 							)
 							.toBe(19);
 					}

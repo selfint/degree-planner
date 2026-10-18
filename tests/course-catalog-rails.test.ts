@@ -13,6 +13,7 @@ const origin = new URL(
 type PublicCourse = {
 	code: string;
 	name: string;
+	points?: number;
 	connections: {
 		dependencies: string[][];
 		adjacent: string[];
@@ -123,9 +124,9 @@ async function measurePage(page: Page) {
 						const copy = card.querySelector('.course-copy')!;
 						const copyBounds = box(copy);
 						const name = copy.querySelector('.course-name')!;
-						const range = document.createRange();
-						range.selectNodeContents(name);
-						const textRects = [...range.getClientRects()];
+						const nameBounds = box(name);
+						const nameStyle = getComputedStyle(name);
+						const codeBounds = box(copy.querySelector('.course-code')!);
 						const copyStyle = getComputedStyle(copy);
 						const railBounds = box(rail);
 						return {
@@ -138,17 +139,21 @@ async function measurePage(page: Page) {
 							name: name.textContent?.trim(),
 							title: name.getAttribute('title'),
 							nameFits:
-								textRects.length > 0 &&
-								textRects.every(
-									(rect) =>
-										rect.left >= copyBounds.left - 1 &&
-										rect.right <= copyBounds.right + 1 &&
-										rect.top >= copyBounds.top - 1 &&
-										rect.bottom <= copyBounds.bottom + 1 &&
-										rect.bottom <= bounds.bottom + 1
-								),
+								nameBounds.left >= copyBounds.left - 1 &&
+								nameBounds.right <= copyBounds.right + 1 &&
+								nameBounds.height <= 3 * parseFloat(nameStyle.lineHeight) + 1,
+							codeFits:
+								codeBounds.left >= copyBounds.left - 1 &&
+								codeBounds.right <= copyBounds.right + 1 &&
+								codeBounds.top >= nameBounds.bottom - 1 &&
+								codeBounds.bottom <= bounds.bottom + 1,
+							copyHeight: copyBounds.height,
+							codeStart: codeBounds.top - copyBounds.top,
 							copyOverflow: copyStyle.overflow,
-							lineClamp: copyStyle.webkitLineClamp,
+							nameOverflow: nameStyle.overflow,
+							lineClamp: nameStyle.webkitLineClamp,
+							nameLineHeight: parseFloat(nameStyle.lineHeight),
+							nameFontSize: parseFloat(nameStyle.fontSize),
 							visibleRatio:
 								Math.max(
 									0,
@@ -263,9 +268,18 @@ function expectLayout(geometry: Geometry, language: Language) {
 				courses[card.code].name
 			);
 			expect(card.title).toBe(courses[card.code].name);
-			expect(card.nameFits, `${label}: unclipped name ${card.code}`).toBe(true);
+			expect(
+				card.nameFits,
+				`${label}: name stays within three lines ${card.code}`
+			).toBe(true);
 			expect(card.copyOverflow).toBe('visible');
-			expect(card.lineClamp).toBe('none');
+			expect(card.nameOverflow).toBe('hidden');
+			expect(card.lineClamp).toBe('3');
+			expect(card.codeFits, `${label}: visible code ${card.code}`).toBe(true);
+			expect(card.nameFontSize).toBeCloseTo(geometry.rootSize * 0.75);
+			expect(card.nameLineHeight).toBe(card.nameFontSize);
+			expect(card.copyHeight).toBeCloseTo(geometry.rootSize * 4.5);
+			expect(card.codeStart).toBeCloseTo(geometry.rootSize * 3.75);
 			expect(
 				Math.abs(card.width - cardWidth),
 				`${label}: accepted card width`
@@ -282,7 +296,7 @@ function expectSynchronizedHeights(rail: Rail) {
 		for (const card of row) {
 			expect(
 				Math.abs(card.height - naturalHeight),
-				`${label}: ${card.code} stretches to the tallest full-content card`
+				`${label}: ${card.code} stretches to the tallest natural-height card`
 			).toBeLessThanOrEqual(1);
 			expect(
 				Math.abs(card.top - row[0].top),
@@ -430,6 +444,10 @@ for (const viewport of [
 				await expect(page.locator('h1.course-name')).toHaveText(
 					courses[courseCode].name
 				);
+				await expect(page.locator('h1.course-name')).toHaveCSS(
+					'-webkit-line-clamp',
+					'none'
+				);
 				await expect(page.getByTestId('course-plan-actions')).toBeVisible();
 				await expect(page.locator(railSelector)).toHaveCount(2);
 				await expect(
@@ -548,6 +566,39 @@ for (const viewport of [
 						.locator('.course-card')
 				).toHaveCount(guest.wishlist.length);
 				await expect(page.locator('.catalog-path').first()).toBeVisible();
+				await expect(page.getByRole('meter')).toHaveCount(2);
+				await expect(
+					page.locator('.catalog-summary').getByRole('meter')
+				).toHaveCount(2);
+				await expect(
+					page.locator('.catalog-section').getByRole('meter')
+				).toHaveCount(0);
+				await settle(page);
+				const panels = page.locator('.catalog-section .catalog-progress-panel');
+				expect(await panels.count()).toBeGreaterThan(0);
+				for (const panel of await panels.all()) {
+					await expect(panel.locator('.catalog-metric')).toHaveCount(2);
+					const codes = await panel.evaluate((panel) =>
+						[
+							...panel
+								.closest('.catalog-section')!
+								.querySelectorAll('.course-code')
+						].map((code) => code.textContent!.trim())
+					);
+					const totals = [
+						codes.length,
+						codes.reduce((sum, code) => sum + (courses[code].points ?? 0), 0)
+					];
+					for (const [index, metric] of (
+						await panel.locator('.catalog-metric').all()
+					).entries()) {
+						await expect(metric.locator('dd')).toHaveText([
+							'0',
+							'0',
+							String(totals[index])
+						]);
+					}
+				}
 				const initial = await capture(page, info, 'catalog-initial');
 				expect(initial.rails.length).toBeGreaterThan(1);
 				expectLayout(initial, language);
@@ -556,13 +607,6 @@ for (const viewport of [
 				expect(initial.rails[0].cards.map((card) => card.code).sort()).toEqual(
 					[...guest.wishlist].sort()
 				);
-				const naturalHeights = initial.rails[0].cards.map(
-					(card) => card.naturalHeight
-				);
-				expect(
-					Math.max(...naturalHeights) - Math.min(...naturalHeights),
-					'wishlist fixture actually exercises differently wrapped full names'
-				).toBeGreaterThan(8);
 				const rows = page.locator('.catalog-page .course-row');
 				await scrollRail(
 					page,

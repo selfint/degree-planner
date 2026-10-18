@@ -54,6 +54,7 @@
 	label: string,
 	done: number,
 	planned: number,
+	showBar: boolean,
 	total?: number
 )}
 	<div class="catalog-metric">
@@ -74,12 +75,14 @@
 				</div>
 			{/if}
 		</dl>
-		<ProgressBar
-			value={done}
-			value2={planned}
-			max={Math.max(total ?? planned, 1)}
-			dir={content.lang.dir}
-		/>
+		{#if showBar}
+			<ProgressBar
+				value={done}
+				value2={planned}
+				max={Math.max(total ?? planned, 1)}
+				dir={content.lang.dir}
+			/>
+		{/if}
 	</div>
 {/snippet}
 
@@ -124,7 +127,8 @@
 				{@render progressMetric(
 					content.lang.settings.count,
 					totalCurrentCount,
-					totalPlannedCount
+					totalPlannedCount,
+					true
 				)}
 				{#await Promise.all([totalCurrentPoints, totalPlannedPoints])}
 					<div class="catalog-loading" role="status">
@@ -136,7 +140,8 @@
 					{@render progressMetric(
 						content.lang.settings.points,
 						currentPoints,
-						plannedPoints
+						plannedPoints,
+						true
 					)}
 				{/await}
 			</div>
@@ -211,6 +216,7 @@
 								content.lang.settings.count,
 								listCurrent.length,
 								listPlanned.length,
+								false,
 								list.courses.length
 							)}
 							{#await Promise.all([pointsCurrent, pointsPlanned, pointsTotal])}
@@ -224,6 +230,7 @@
 									content.lang.settings.points,
 									currentPoints,
 									plannedPoints,
+									false,
 									totalPoints
 								)}
 							{/await}

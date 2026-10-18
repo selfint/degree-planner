@@ -6,7 +6,12 @@ import preview from './playwright.preview.config';
 export default defineConfig({
 	...preview,
 	testDir: './tests',
-	testMatch: ['course-catalog-rails.test.ts', 'footer-controls.test.ts'],
+	testMatch: [
+		'course-catalog-rails.test.ts',
+		'footer-controls.test.ts',
+		'console-navigation-styles.test.ts',
+		'search-three-columns.test.ts'
+	],
 	outputDir: 'test-results/deployed-rails',
 	timeout: 120_000,
 	use: {

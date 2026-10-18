@@ -4,6 +4,7 @@
 	import type { ShellReadiness } from '$lib/pwa/shell-readiness';
 	let {
 		allReady,
+		offline = false,
 		cachedDataReady = allReady,
 		unavailable,
 		shell,
@@ -14,6 +15,7 @@
 		onRetry
 	}: {
 		allReady: boolean;
+		offline?: boolean;
 		cachedDataReady?: boolean;
 		unavailable: boolean;
 		shell: ShellReadiness;
@@ -48,17 +50,24 @@
 	<p
 		role="status"
 		class="readiness start-0 top-0 m-0"
-		class:sr-only={hasError || update}
+		class:sr-only={hasError ||
+			update ||
+			(allReady && !offline) ||
+			(!offline && !showPreparing)}
 	>
-		{refreshError
-			? cachedDataReady
-				? text.cachedRefreshFailed
-				: text.refreshFailed
-			: allReady
-				? text.ready
-				: showPreparing
-					? text.downloading
-					: ''}
+		{offline && !hasError
+			? content.lang.lang === 'he'
+				? 'אין אינטרנט'
+				: 'Offline'
+			: refreshError
+				? cachedDataReady
+					? text.cachedRefreshFailed
+					: text.refreshFailed
+				: allReady
+					? text.ready
+					: showPreparing
+						? text.downloading
+						: ''}
 	</p>
 	{#if hasError}
 		<div class="pwa-actions" data-testid="pwa-error">

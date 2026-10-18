@@ -38,11 +38,13 @@
 		line-height: 1.4;
 		white-space: nowrap;
 	}
-	.nav-link:hover {
-		background: rgb(var(--color-card-primary));
-		color: rgb(var(--color-content-primary));
+	@media (hover: hover) and (pointer: fine) {
+		.nav-link:not(.active):hover {
+			background: rgb(var(--color-card-primary));
+			color: rgb(var(--color-content-primary));
+		}
 	}
-	.active {
+	.nav-link.active {
 		background: rgb(var(--color-accent-primary) / 0.12);
 		color: rgb(var(--color-accent-primary));
 	}

@@ -170,3 +170,71 @@ for (const language of ['en', 'he'] as const) {
 		await expect(page.getByTestId('console-entry-loading')).toHaveCount(0);
 	});
 }
+
+test.describe('PlanIt brand returns to landing', () => {
+	test.use({ isMobile: true, hasTouch: true });
+	for (const width of [320, 390]) {
+		for (const language of ['en', 'he'] as const) {
+			test(`${width}px ${language}: logo opens landing and Get Started returns to saved plan`, async ({
+				page
+			}) => {
+				const guest = {
+					degree: ['2024_200', '00002120', 'SC00001320_CG00006382'],
+					exemptions: [],
+					semesters: [[], []],
+					currentSemester: 0,
+					wishlist: ['02340124']
+				};
+				await page.setViewportSize({ width, height: 664 });
+				await page.addInitScript(
+					({ guest, language }) => {
+						if (localStorage.getItem('userData')) return;
+						localStorage.setItem('lang', language);
+						localStorage.setItem('version', '4');
+						localStorage.setItem('userData', JSON.stringify(guest));
+					},
+					{ guest, language }
+				);
+				await page.goto(`${origin}/app/plan`);
+				await expect(page.locator('[data-code="02340124"]')).toBeVisible({
+					timeout: 30_000
+				});
+				const brand = page
+					.locator('header')
+					.getByRole('link', { name: 'PlanIt', exact: true });
+				await expect(brand).toHaveAttribute('href', '/');
+				await expect(brand).toHaveAttribute('data-sveltekit-reload', '');
+				const consoleOrigin = await page.evaluate(() => performance.timeOrigin);
+				await brand.tap();
+				await expect(page).toHaveURL(`${origin}/`);
+				await expect(page.locator('.landing')).toHaveAttribute(
+					'dir',
+					language === 'he' ? 'rtl' : 'ltr'
+				);
+				await expect(page.locator('.console-shell')).toHaveCount(0);
+				expect(await page.evaluate(() => performance.timeOrigin)).not.toBe(
+					consoleOrigin
+				);
+				expect(
+					await page.evaluate(() =>
+						JSON.parse(localStorage.getItem('userData')!)
+					)
+				).toEqual(guest);
+				await page.locator('header a[href="/app/"]').tap();
+				await expect(page).toHaveURL(`${origin}/app/plan`);
+				await expect(page.locator('[data-code="02340124"]')).toBeVisible({
+					timeout: 30_000
+				});
+				await expect(page.locator('.console-shell')).toHaveAttribute(
+					'dir',
+					language === 'he' ? 'rtl' : 'ltr'
+				);
+				expect(
+					await page.evaluate(() =>
+						JSON.parse(localStorage.getItem('userData')!)
+					)
+				).toEqual(guest);
+			});
+		}
+	}
+});

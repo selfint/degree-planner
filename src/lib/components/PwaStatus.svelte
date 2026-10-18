@@ -1,4 +1,5 @@
 <script lang="ts">
+	let { offline = false }: { offline?: boolean } = $props();
 	import PwaStatusView from './PwaStatusView.svelte';
 	import { onMount } from 'svelte';
 	import { afterNavigate } from '$app/navigation';
@@ -258,6 +259,7 @@
 </script>
 
 <PwaStatusView
+	{offline}
 	{allReady}
 	cachedDataReady={publicData.phase === 'ready'}
 	{unavailable}

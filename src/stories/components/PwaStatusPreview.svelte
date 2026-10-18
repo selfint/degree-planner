@@ -8,7 +8,7 @@
 	let { state: variant = 'preparing' }: { state?: string } = $props();
 	const refreshFailed = $derived(variant.startsWith('refresh'));
 	const allReady = $derived(
-		['ready', 'update', 'refresh', 'refreshUpdate'].includes(variant)
+		['ready', 'offline', 'update', 'refresh', 'refreshUpdate'].includes(variant)
 	);
 	const shellUnavailable = $derived(variant === 'refreshShellUnavailable');
 	const refreshError = $derived(
@@ -59,6 +59,7 @@
 		<div data-testid="pwa-preview-slot" class="pwa-footer-controls">
 			<PwaStatusView
 				{allReady}
+				offline={variant === 'offline'}
 				cachedDataReady={allReady || shellUnavailable}
 				{refreshError}
 				{setupError}
@@ -93,6 +94,7 @@
 		min-inline-size: 0;
 	}
 	.pwa-install-help {
+		margin-inline-start: auto;
 		display: inline-flex;
 		align-items: center;
 		block-size: var(--control-height);

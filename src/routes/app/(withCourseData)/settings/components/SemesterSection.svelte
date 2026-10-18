@@ -126,7 +126,6 @@
 	.semester-section {
 		min-inline-size: 0;
 		padding-block-start: 0.75rem;
-		border-block-start: 1px solid rgb(var(--color-border));
 		text-align: start;
 	}
 	.section-title {
@@ -149,7 +148,6 @@
 		gap: 0.25rem;
 	}
 	.settings-field > span {
-		font-size: 0.8125rem;
 		font-weight: 500;
 	}
 	.field-actions {

@@ -109,7 +109,7 @@
 					{/if}
 					{#if course.points !== undefined}
 						<span
-							class="course-points font-medium text-content-primary"
+							class="course-points text-content-primary"
 							title={content.lang.course.points}
 						>
 							<span class="sr-only"
@@ -127,9 +127,7 @@
 			<span class="sr-only">{content.lang.common.loading}</span>
 		{:then course}
 			<div class="course-copy text-start text-content-primary" dir="auto">
-				<span class="course-name font-medium" title={course.name}
-					>{course.name}</span
-				>
+				<span class="course-name" title={course.name}>{course.name}</span>
 				{' '}<span class="course-code text-content-secondary" dir="ltr"
 					>{code}</span
 				>
@@ -249,7 +247,6 @@
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
-		font-size: 0.6875rem;
 	}
 	.course-stats {
 		display: flex;
@@ -257,17 +254,28 @@
 		gap: 0.375rem;
 	}
 	.course-copy {
+		display: flex;
+		flex-direction: column;
+		/* Five original-size name lines, plus one separate line for the code. */
+		min-block-size: 4.5rem;
 		overflow-wrap: break-word;
 		hyphens: auto;
-		font-size: 0.8125rem;
-		line-height: 1.4;
+		font-size: 0.75rem;
+		line-height: 1;
+	}
+	.course-body-squeezed .course-copy {
+		min-block-size: 0;
 	}
 	.course-name {
-		display: inline;
+		display: -webkit-box;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 3;
+		line-clamp: 3;
+		overflow: hidden;
 	}
 	.course-code {
-		font-size: 0.6875rem;
-		line-height: 0.875rem;
+		align-self: flex-start;
+		margin-block-start: auto;
 		font-variant-numeric: tabular-nums;
 		unicode-bidi: isolate;
 		white-space: nowrap;

@@ -3,7 +3,7 @@ import { expect, test, type Page, type TestInfo } from '@playwright/test';
 
 const origin = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:4173';
 // The delivered density screenshot's public courses and fictional guest plan.
-// Keep their full names, fractional totals and tall fourth wishlist card intact.
+// Keep their full DOM names and fractional totals intact.
 const catalogBody = readFileSync(
 	new URL('../static/courseData.json', import.meta.url),
 	'utf8'
@@ -96,18 +96,25 @@ async function measureBoard(page: Page) {
 		);
 		const bottomSpacing =
 			parseFloat(getComputedStyle(plan).marginBottom) + visualBottomInset;
-		const unclippedNames = [
+		const clampedCourseNames = [
 			...document.querySelectorAll('.course-card .course-name')
 		].filter((name) => {
 			const copy = name.closest('.course-copy')!.getBoundingClientRect();
-			const range = document.createRange();
-			range.selectNodeContents(name);
-			return [...range.getClientRects()].every(
-				(rect) =>
-					rect.left >= copy.left - 1 &&
-					rect.right <= copy.right + 1 &&
-					rect.top >= copy.top - 1 &&
-					rect.bottom <= copy.bottom + 1
+			const bounds = name.getBoundingClientRect();
+			const code = name.nextElementSibling!.getBoundingClientRect();
+			const style = getComputedStyle(name);
+			return (
+				!!name.textContent?.trim() &&
+				name.getAttribute('title') === name.textContent.trim() &&
+				style.webkitLineClamp === '3' &&
+				style.overflow === 'hidden' &&
+				bounds.height <= 3 * parseFloat(style.lineHeight) + 1 &&
+				bounds.left >= copy.left - 1 &&
+				bounds.right <= copy.right + 1 &&
+				code.top >= bounds.bottom - 1 &&
+				code.bottom <= copy.bottom + 1 &&
+				code.left >= copy.left - 1 &&
+				code.right <= copy.right + 1
 			);
 		}).length;
 		return {
@@ -122,7 +129,7 @@ async function measureBoard(page: Page) {
 			apparentGapAfterVisibleWishlistCards: headingTop - visibleWishlistBottom,
 			bottomSpacing,
 			rails,
-			unclippedNames,
+			clampedCourseNames,
 			documentOverflow: document.documentElement.scrollWidth - innerWidth
 		};
 	});
@@ -185,7 +192,10 @@ function expectAligned(board: Board, label: string) {
 		)
 		.toBeLessThanOrEqual(1);
 	expect
-		.soft(board.unclippedNames, `${label}: full course names`)
+		.soft(
+			board.clampedCourseNames,
+			`${label}: three-line course names with visible codes`
+		)
 		.toBe(allCodes.length);
 	expect
 		.soft(board.documentOverflow, `${label}: no document overflow`)
@@ -375,17 +385,8 @@ for (const viewport of [
 					expect.soft(rail.ratios[3]).toBeLessThanOrEqual(0.85);
 					if (rail.ratios[4] !== undefined) expect.soft(rail.ratios[4]).toBe(0);
 				}
-				// The fourth card still has taller natural content; the entire
-				// horizontal row now stretches to it instead of leaving uneven bottoms.
-				const naturalHeights = initial.wishlist.map(
-					(card) => card.naturalHeight
-				);
-				expect(initial.wishlist[3].naturalHeight).toBe(
-					Math.max(...naturalHeights)
-				);
-				expect(Math.max(...naturalHeights)).toBeGreaterThan(
-					Math.min(...naturalHeights)
-				);
+				// Squeezed planner cards retain intrinsic copy height within the
+				// three-line name cap; the row still follows its tallest card.
 				expect(initial.wishlistBottom).toBe(initial.visibleWishlistBottom);
 				expect(initial.gapAfterTallestWishlistCard).toBeGreaterThanOrEqual(0);
 

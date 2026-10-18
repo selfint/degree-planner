@@ -277,9 +277,9 @@
 							</Select>
 						</label>
 					{:else}
-						<div class="settings-field">
+						<div class="settings-field no-path-field">
 							<span>{content.lang.settings.path}</span>
-							<p class="field-status">{content.lang.settings.noPath}</p>
+							<p class="field-status no-path">{content.lang.settings.noPath}</p>
 						</div>
 					{/if}
 				{/await}
@@ -351,7 +351,6 @@
 		gap: 0.5rem;
 	}
 	.settings-field > span {
-		font-size: 0.8125rem;
 		font-weight: 500;
 	}
 	.field-status {
@@ -359,7 +358,12 @@
 		align-items: center;
 		gap: 0.5rem;
 		color: rgb(var(--color-content-secondary));
-		font-size: 0.8125rem;
+	}
+	.no-path-field {
+		grid-template-columns: minmax(0, 5rem) max-content;
+	}
+	.no-path {
+		white-space: nowrap;
 	}
 	.section-actions {
 		display: flex;

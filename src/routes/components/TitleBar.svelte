@@ -180,7 +180,8 @@
 	}
 	@media (max-width: 39.99rem) {
 		.console {
-			padding-inline: 0.25rem;
+			/* Reserve the global 2px outline plus 3px focus offset. */
+			padding-inline: 0.3125rem;
 			gap: 0.25rem;
 		}
 		nav {

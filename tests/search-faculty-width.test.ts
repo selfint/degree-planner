@@ -120,10 +120,15 @@ test.afterEach(async ({ page }, info) => {
 		)
 	);
 	await info.attach('asset-loading', { path, contentType: 'application/json' });
+	// Keep optional telemetry failures in the evidence, but only emitted app
+	// modules/styles are layout dependencies. Vercel's /_vercel/* scripts are
+	// unavailable on the localhost production server used by the browser suite.
 	expect
 		.soft(
 			events.filter(
-				(event) => event.phase === 'failed' || (event.status ?? 0) >= 400
+				(event) =>
+					new URL(event.url).pathname.startsWith('/_app/immutable/') &&
+					(event.phase === 'failed' || (event.status ?? 0) >= 400)
 			),
 			'the real application scripts and stylesheets load without asset errors'
 		)

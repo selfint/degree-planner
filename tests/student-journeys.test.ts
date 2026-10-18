@@ -5,7 +5,8 @@ import {
 	type Page,
 	type TestInfo
 } from '@playwright/test';
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { initializeGuestStorage } from './helpers/student-guest-storage';
 import {
 	intentionalWebKitFetchDiagnostic,
 	type BrowserDiagnostic
@@ -31,12 +32,17 @@ test.afterEach(async ({}, info) => {
 	const diagnostics = diagnosticsByTest.get(info.testId);
 	if (!diagnostics) return;
 	diagnosticsByTest.delete(info.testId);
-	await info.attach('isolated-guest-diagnostics', {
-		body: JSON.stringify(
+	const path = info.outputPath('isolated-guest-diagnostics.json');
+	writeFileSync(
+		path,
+		JSON.stringify(
 			{ ...diagnostics, abortedUrls: [...diagnostics.abortedUrls] },
 			null,
 			2
-		),
+		)
+	);
+	await info.attach('isolated-guest-diagnostics', {
+		path,
 		contentType: 'application/json'
 	});
 });
@@ -131,20 +137,11 @@ async function isolateGuest(
 			diagnostics?.abortedUrls.add(route.request().url());
 		}
 	});
-	await context.addInitScript(
-		({ language, seed }) => {
-			// Do not reseed on reload: persistence and preference changes are part
-			// of the journey, and a repeating fixture would conceal data loss.
-			if (localStorage.getItem('student-journey-initialized') !== null) return;
-			localStorage.setItem('student-journey-initialized', 'true');
-			localStorage.setItem('lang', language);
-			if (seed) {
-				localStorage.setItem('version', '4');
-				localStorage.setItem('userData', JSON.stringify(seed));
-			}
-		},
-		{ language, seed }
-	);
+	await context.addInitScript(initializeGuestStorage, {
+		origin,
+		language,
+		seed
+	});
 }
 
 async function readPlan(page: Page): Promise<GuestPlan> {

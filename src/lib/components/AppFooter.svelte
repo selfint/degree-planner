@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { Snippet } from 'svelte';
 	import { content } from '$lib/preferences.svelte';
 	import { cms } from '$lib/content';
 	import ThemeToggle from './ThemeToggle.svelte';
@@ -6,8 +7,13 @@
 
 	let {
 		persistPreferences = true,
-		compact = false
-	}: { persistPreferences?: boolean; compact?: boolean } = $props();
+		compact = false,
+		pwa
+	}: {
+		persistPreferences?: boolean;
+		compact?: boolean;
+		pwa?: Snippet;
+	} = $props();
 
 	function changeLanguage(value: (typeof cms)[keyof typeof cms]) {
 		if (!persistPreferences) return;
@@ -59,4 +65,19 @@
 			</label>
 		</div>
 	</div>
+	{#if pwa}
+		<div class="pwa-footer-row" data-testid="pwa-footer-row">
+			{@render pwa()}
+		</div>
+	{/if}
 </footer>
+
+<style>
+	.pwa-footer-row {
+		max-inline-size: 76rem;
+		min-inline-size: 0;
+		margin: 0.5rem auto 0;
+		padding-block-start: 0.5rem;
+		border-block-start: 0.0625rem solid rgb(var(--color-border));
+	}
+</style>

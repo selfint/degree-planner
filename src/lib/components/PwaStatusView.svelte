@@ -45,7 +45,11 @@
 				: 'preparing'}
 	class="pwa-status"
 >
-	<p role="status" class="sr-only start-0 top-0 m-0">
+	<p
+		role="status"
+		class="readiness start-0 top-0 m-0"
+		class:sr-only={hasError || update}
+	>
 		{refreshError
 			? cachedDataReady
 				? text.cachedRefreshFailed
@@ -86,6 +90,11 @@
 <style>
 	.pwa-status {
 		display: contents;
+	}
+	.readiness {
+		font-size: 0.75rem;
+		color: rgb(var(--color-content-secondary));
+		white-space: nowrap;
 	}
 	.pwa-actions {
 		display: flex;

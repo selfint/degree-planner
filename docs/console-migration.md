@@ -65,10 +65,12 @@ The five isolated 390px Chromium journeys cover English/Hebrew preferences and
 loading, unvisited offline courses and reloads using the deployed worker, console
 home navigation and Back/Forward, read-only guest actions and reconnect writes,
 and iPhone-user-agent landing install guidance, including its no-service-startup
-boundary. The console footer contains only attribution, reporting and preferences.
-Readiness stays an internal shell/data condition. Preparation and healthy status take
-no layout space; exceptional setup/update states use one compact header indicator
-with optional details. Offline write actions explain their disabled state locally.
+boundary. The original single-row console titlebar contains the logo, search and
+navigation. A separate footer row holds offline readiness, installation help,
+Retry and update instructions. Actual failure details remain visible in that same
+footer, without a dropdown or automatic reload. Installation help opens the
+lightweight landing guidance in a separate tab so the console stays open.
+Offline write actions still explain their disabled state locally.
 Screenshots and sanitized QA JSON are
 uploaded even on failures. No real account is used. The deliberate course-data
 pause checks the loading screen, not natural startup speed. Physical iOS and

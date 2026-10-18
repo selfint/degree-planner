@@ -1,5 +1,4 @@
 <script lang="ts">
-	import type { Snippet } from 'svelte';
 	import Logo from '$lib/assets/logo.webp?enhanced';
 	import Title from '$lib/assets/Title.svg?raw';
 
@@ -13,7 +12,6 @@
 
 	type Props = {
 		started: boolean;
-		status?: Snippet;
 		homeHref?: '/' | '/app/';
 		searchQuery: string;
 		searchRevision: number;
@@ -22,7 +20,6 @@
 
 	const {
 		started,
-		status,
 		homeHref = '/',
 		searchQuery,
 		searchRevision,
@@ -54,7 +51,7 @@
 	}
 </script>
 
-<header dir={content.lang.dir} class="title-bar" class:console={started}>
+<header dir="ltr" class="title-bar" class:console={started}>
 	<a
 		href={homeHref}
 		data-sveltekit-reload={homeHref === '/' ? true : undefined}
@@ -67,7 +64,7 @@
 	{#if !started}
 		<GetStartedLink />
 	{:else}
-		<form class="header-search" role="search" {onsubmit}>
+		<form class="header-search" dir={content.lang.dir} role="search" {onsubmit}>
 			<span class="search-icon" aria-hidden="true"><SearchIcon /></span>
 			<input
 				type="text"
@@ -75,9 +72,11 @@
 				{placeholder}
 				onfocus={() => {
 					selected = true;
+					placeholder = '';
 				}}
 				onblur={() => {
 					selected = false;
+					placeholder = content.lang.header.searchPlaceholder;
 				}}
 				bind:value={query}
 				class={textStyle}
@@ -88,7 +87,6 @@
 		>
 			<Nav target="catalog">{content.lang.header.catalog}</Nav>
 			<Nav target="plan">{content.lang.header.plan}</Nav>
-			{@render status?.()}
 			<Nav target="settings">
 				<span aria-hidden="true"><Settings /></span>
 				<span class="sr-only">{content.lang.landing.settings.header}</span>
@@ -134,7 +132,7 @@
 		padding: 0.25rem 0.5rem;
 		gap: 0.5rem;
 		display: grid;
-		grid-template-columns: auto minmax(10rem, 25rem) auto;
+		grid-template-columns: auto minmax(0, 25rem) auto;
 	}
 	.console .brand :global(.brand-logo) {
 		inline-size: 1.75rem;
@@ -186,27 +184,24 @@
 	input::placeholder {
 		color: rgb(var(--color-content-secondary));
 	}
-	@media (max-width: 47.99rem) {
+	@media (max-width: 39.99rem) {
 		.console {
-			grid-template-columns: auto 1fr;
-			gap: 0.125rem 0.5rem;
+			padding-inline: 0.375rem;
+			gap: 0.375rem;
 		}
-		.console .brand {
-			grid-column: 1;
-			grid-row: 1;
+		.console .brand :global(.brand-logo) {
+			inline-size: 1.5rem;
+			block-size: 1.5rem;
 		}
-		.console nav {
-			grid-column: 2;
-			grid-row: 1;
-		}
-		.header-search {
-			grid-column: 1 / -1;
-			grid-row: 2;
-		}
-	}
-	@media (max-width: 47.99rem) {
 		.console .brand-title {
 			display: none;
+		}
+		.header-search {
+			gap: 0.25rem;
+			padding-inline: 0.25rem;
+		}
+		.search-icon {
+			inline-size: 0.875rem;
 		}
 	}
 </style>

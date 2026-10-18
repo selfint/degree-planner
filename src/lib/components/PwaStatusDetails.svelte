@@ -63,10 +63,10 @@
 <style>
 	section {
 		inline-size: 100%;
-		max-inline-size: 80rem;
+		max-inline-size: 76rem;
 		min-inline-size: 0;
 		margin-inline: auto;
-		padding: 0.75rem 1rem;
+		padding-block-start: 0.375rem;
 		scroll-margin-block: 1rem;
 		text-align: start;
 		font-size: 0.8125rem;

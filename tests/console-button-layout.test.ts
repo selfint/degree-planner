@@ -49,6 +49,36 @@ async function expectNoDocumentOverflow(page: Page) {
 	);
 }
 
+async function expectSingleRowHeader(page: Page, language: string) {
+	const header = page.locator('header.title-bar');
+	await expect(header).toHaveAttribute('dir', 'ltr');
+	await expect(header.locator('form[role="search"]')).toHaveAttribute(
+		'dir',
+		language === 'he' ? 'rtl' : 'ltr'
+	);
+	await expect(header.getByTestId('pwa-status')).toHaveCount(0);
+	await expect(header.getByTestId('pwa-error')).toHaveCount(0);
+	const layout = await header.evaluate((el) => {
+		const header = el.getBoundingClientRect();
+		return {
+			height: header.height,
+			center: header.top + header.height / 2,
+			items: ['.brand', '.header-search', 'nav'].map((selector) => {
+				const r = el.querySelector(selector)!.getBoundingClientRect();
+				return { left: r.left, right: r.right, center: r.top + r.height / 2 };
+			})
+		};
+	});
+	expect(layout.height).toBe(48);
+	for (const item of layout.items) {
+		expect(item.center).toBeCloseTo(layout.center, 1);
+		expect(item.left).toBeGreaterThanOrEqual(0);
+		expect(item.right).toBeLessThanOrEqual(page.viewportSize()!.width);
+	}
+	expect(layout.items[0].right).toBeLessThanOrEqual(layout.items[1].left);
+	expect(layout.items[1].right).toBeLessThanOrEqual(layout.items[2].left);
+}
+
 async function expectWithinViewport(page: Page, controls: Locator) {
 	for (const control of await controls.all()) {
 		const box = await control.boundingBox();
@@ -163,6 +193,7 @@ for (const width of [320, 390]) {
 
 				await page.goto(`${origin}/app/course/${course.code}`);
 				await expect(page.locator('h1.course-name')).toHaveText(course.name);
+				await expectSingleRowHeader(page, language);
 				const actions = page.getByTestId('course-plan-actions');
 				await expect(actions).toBeVisible();
 				const description = page.locator('.course-description');
@@ -251,7 +282,24 @@ for (const width of [320, 390]) {
 					page.locator('fieldset.search-filters button.ui-button')
 				);
 
-				const status = page.getByTestId('pwa-error');
+				await expectSingleRowHeader(page, language);
+				const footer = page.locator('footer');
+				const pwaRow = footer.getByTestId('pwa-footer-row');
+				const status = pwaRow.getByTestId('pwa-error');
+				await expect(pwaRow).toBeVisible();
+				const originalControls = await footer
+					.locator(':scope > div')
+					.first()
+					.boundingBox();
+				const pwaBounds = await pwaRow.boundingBox();
+				expect(pwaBounds!.y).toBeGreaterThanOrEqual(
+					originalControls!.y + originalControls!.height
+				);
+				const help = pwaRow.getByTestId('pwa-install-help');
+				await expect(help).toHaveAttribute('href', '/#install-title');
+				await expect(help).toHaveAttribute('target', '_blank');
+				await expect(help).toHaveAttribute('rel', 'noopener noreferrer');
+				await expectCompactButtons(page, help);
 				const retry = status.getByRole('button', {
 					name: language === 'en' ? 'Retry' : 'נסו שוב',
 					exact: true
@@ -279,7 +327,7 @@ for (const width of [320, 390]) {
 					await expect(page).toHaveURL(
 						`${origin}/app/search?q=layout#offline-status`
 					);
-					const details = page.getByTestId('pwa-status-details');
+					const details = pwaRow.getByTestId('pwa-status-details');
 					await expect(details).toBeInViewport();
 					await expect(details.getByTestId('pwa-error-detail')).toContainText(
 						'Fixture denies offline installation'

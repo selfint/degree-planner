@@ -46,4 +46,10 @@
 		background: rgb(var(--color-accent-primary) / 0.12);
 		color: rgb(var(--color-accent-primary));
 	}
+	@media (max-width: 39.99rem) {
+		.nav-link {
+			padding-inline: 0.25rem;
+			font-size: 0.75rem;
+		}
+	}
 </style>

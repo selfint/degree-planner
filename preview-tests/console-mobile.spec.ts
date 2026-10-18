@@ -152,19 +152,23 @@ async function ready(page: Page) {
 		{ timeout: 45_000 }
 	);
 	await page.waitForFunction(() => navigator.serviceWorker.controller !== null);
-	await quietConsoleFooter(page);
+	await consolePwaFooter(page);
 }
 
-async function quietConsoleFooter(page: Page) {
+async function consolePwaFooter(page: Page) {
 	const footer = page.locator('footer');
+	await expect(footer.getByTestId('pwa-footer-row')).toHaveCount(1);
+	await expect(footer.getByTestId('pwa-status')).toHaveCount(1);
+	await expect(page.locator('header [data-testid^="pwa-"]')).toHaveCount(0);
 	await expect(
-		footer.locator(
-			'[data-testid^="pwa-"], [data-testid="landing-install-info"], details'
-		)
+		footer.locator('[data-testid="landing-install-info"], details')
 	).toHaveCount(0);
-	await expect(footer).not.toContainText(
-		/Install PlanIt|התקנת PlanIt|All courses ready offline|כל הקורסים זמינים ללא אינטרנט/
-	);
+	const help = footer.getByTestId('pwa-install-help');
+	await expect(help).toHaveAttribute('href', '/#install-title');
+	await expect(help).toHaveAttribute('target', '_blank');
+	await expect(help).toHaveAttribute('rel', 'noopener noreferrer');
+	await expect(help).toHaveCSS('white-space', 'nowrap');
+	await noHorizontalOverflow(page);
 }
 
 for (const language of ['en', 'he'] as const) {
@@ -348,7 +352,7 @@ for (const language of ['en', 'he'] as const) {
 		expect(reload?.fromServiceWorker()).toBe(true);
 		await expect(page.locator('main h1')).toContainText(courseName);
 		await expect(page.getByTestId('plan-read-only')).toBeVisible();
-		await quietConsoleFooter(page);
+		await consolePwaFooter(page);
 		const action = page.getByRole('button', {
 			name: language === 'he' ? 'הוספה' : 'Plan',
 			exact: true
@@ -388,7 +392,7 @@ for (const language of ['en', 'he'] as const) {
 
 		await context.setOffline(false);
 		await expect(page.getByTestId('plan-read-only')).toHaveCount(0);
-		await quietConsoleFooter(page);
+		await consolePwaFooter(page);
 		await expect(action).toBeEnabled();
 		// A real local guest-only write proves reconnect re-enables the action.
 		await action.click();
@@ -426,7 +430,7 @@ test.describe('iPhone-user-agent install guidance (Chromium emulation only)', ()
 			'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1'
 	});
 
-	test('landing install help stays lightweight and leaves the console footer clear', async ({
+	test('landing install help stays lightweight and console PWA controls stay in the footer', async ({
 		page,
 		evidence
 	}, testInfo) => {
@@ -475,7 +479,23 @@ test.describe('iPhone-user-agent install guidance (Chromium emulation only)', ()
 		await ready(page);
 		await expect(info).toHaveCount(0);
 		evidence.checkpoints.push(
-			'console-footer-has-no-install-or-persistent-pwa-content'
+			'console-pwa-controls-contained-in-dedicated-footer-row'
 		);
+		const consoleUrl = page.url();
+		const timeOrigin = await page.evaluate(() => performance.timeOrigin);
+		const [helpPage] = await Promise.all([
+			page.waitForEvent('popup'),
+			page.getByTestId('pwa-install-help').click()
+		]);
+		await expect(helpPage).toHaveURL(
+			new URL('/#install-title', consoleUrl).href
+		);
+		await expect(helpPage.getByTestId('landing-install-info')).toBeVisible();
+		await expect(helpPage.locator('link[rel="manifest"]')).toHaveCount(0);
+		await expect(helpPage.getByTestId('pwa-status')).toHaveCount(0);
+		await helpPage.close();
+		await expect(page).toHaveURL(consoleUrl);
+		expect(await page.evaluate(() => performance.timeOrigin)).toBe(timeOrigin);
+		evidence.checkpoints.push('footer-install-help-preserves-console-window');
 	});
 });

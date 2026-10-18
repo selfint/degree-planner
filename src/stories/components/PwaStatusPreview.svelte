@@ -1,4 +1,6 @@
 <script lang="ts">
+	import AppFooter from '$lib/components/AppFooter.svelte';
+	import { content } from '$lib/preferences.svelte';
 	import PwaStatusView from '$lib/components/PwaStatusView.svelte';
 	import PwaStatusDetails from '$lib/components/PwaStatusDetails.svelte';
 	import { setOfflinePublicData } from '../../../.storybook/mocks/offlineData';
@@ -52,18 +54,51 @@
 	});
 </script>
 
-<div data-testid="pwa-preview-slot" class="flex justify-end">
-	<PwaStatusView
-		{allReady}
-		cachedDataReady={allReady || shellUnavailable}
-		{refreshError}
-		{setupError}
-		unavailable={variant === 'unavailable' || shellUnavailable}
-		{shell}
-		showPreparing={variant !== 'initial'}
-		{updateReady}
-		onRetry={() => retries++}
-	/>
-</div>
-<PwaStatusDetails />
+<AppFooter compact persistPreferences={false}>
+	{#snippet pwa()}
+		<div data-testid="pwa-preview-slot" class="pwa-footer-controls">
+			<PwaStatusView
+				{allReady}
+				cachedDataReady={allReady || shellUnavailable}
+				{refreshError}
+				{setupError}
+				unavailable={variant === 'unavailable' || shellUnavailable}
+				{shell}
+				showPreparing={variant !== 'initial'}
+				{updateReady}
+				onRetry={() => retries++}
+			/>
+			<a
+				href="/#install-title"
+				target="_blank"
+				rel="noopener noreferrer"
+				class="pwa-install-help"
+				data-testid="pwa-install-help"
+				>{content.lang.lang === 'he' ? 'עזרה בהתקנה' : 'Install help'}</a
+			>
+		</div>
+		<PwaStatusDetails />
+	{/snippet}
+</AppFooter>
 {#if retries}<output>Retry requests: {retries}</output>{/if}
+
+<style>
+	/* Match the console's footer snippet without mounting its service lifecycle. */
+	.pwa-footer-controls {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.25rem 0.75rem;
+		min-inline-size: 0;
+	}
+	.pwa-install-help {
+		display: inline-flex;
+		align-items: center;
+		block-size: var(--control-height);
+		white-space: nowrap;
+		text-decoration: underline;
+		text-underline-offset: 0.125rem;
+		color: rgb(var(--color-content-secondary));
+	}
+</style>

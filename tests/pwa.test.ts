@@ -117,18 +117,25 @@ test('manifest and correctly sized icons support installation', async ({
 	request
 }) => {
 	await ready(page);
-	await expect(page.locator('footer').getByTestId('pwa-status')).toHaveCount(0);
+	await expect(page.locator('header').getByTestId('pwa-status')).toHaveCount(0);
+	await expect(page.locator('footer').getByTestId('pwa-status')).toHaveCount(1);
+	await expect(
+		page.locator('footer').getByTestId('pwa-footer-row')
+	).toHaveCount(1);
+	await expect(page.getByTestId('pwa-install-help')).toHaveAttribute(
+		'href',
+		'/#install-title'
+	);
+	await expect(page.locator('footer').getByRole('status')).toHaveText(
+		'All courses ready offline'
+	);
 	await expect(page.locator('footer details')).toHaveCount(0);
 	await expect(page.getByTestId('pwa-downloading')).toHaveCount(0);
 	await expect(page.getByTestId('pwa-status-details')).toHaveCount(0);
 	await expect(
 		page.getByTestId('pwa-status').locator('a, button, details')
 	).toHaveCount(0);
-	expect(
-		await page
-			.getByTestId('pwa-status')
-			.evaluate((node) => node.getBoundingClientRect().height)
-	).toBe(0);
+
 	for (const link of await page.locator('footer a').all()) {
 		await expect(link).toHaveAttribute('target', '_blank');
 		await expect(link).toHaveAttribute('rel', 'noopener noreferrer');
@@ -283,6 +290,12 @@ test('updates wait without reloading unsaved plan edits or other tabs', async ({
 	);
 	const updateLink = page.getByTestId('pwa-update-link');
 	await expect(updateLink).toBeVisible();
+	await expect(
+		page.locator('footer').getByTestId('pwa-update-link')
+	).toHaveCount(1);
+	await expect(
+		page.locator('header').getByTestId('pwa-update-link')
+	).toHaveCount(0);
 	await expect(updateLink).toHaveAttribute('href', '#offline-status');
 	await expect(updateLink).toHaveAttribute(
 		'title',

@@ -84,6 +84,29 @@ async function measure(page: Page, route: string) {
 		const round = (value: number) => Math.round(value * 10) / 10;
 		const header = rect('header.title-bar')!;
 		const main = rect('main')!;
+		const headerControls = ['.brand', '.header-search', 'nav'].map(
+			(selector) => {
+				const box = rect(`header.title-bar ${selector}`);
+				return box
+					? {
+							selector,
+							left: round(box.left),
+							right: round(box.right),
+							height: round(box.height),
+							centerOffset: round(
+								box.top + box.height / 2 - (header.top + header.height / 2)
+							)
+						}
+					: null;
+			}
+		);
+		// The pinned baseline predates the footer row. Missing new selectors are
+		// recorded as null so its original measurements and journey still run.
+		const footerRow = document.querySelector('[data-testid="pwa-footer-row"]');
+		const footer = footerRow?.closest('footer')?.getBoundingClientRect();
+		const footerControls =
+			footerRow?.previousElementSibling?.getBoundingClientRect();
+		const footerBox = footerRow?.getBoundingClientRect();
 		const target: Record<string, string> = {
 			plan: '[data-semester="0"] .course-card',
 			search: 'main ul > li .course-card',
@@ -162,6 +185,19 @@ async function measure(page: Page, route: string) {
 			viewport: { width: innerWidth, height: innerHeight },
 			scrollY: round(scrollY),
 			headerHeight: round(header.height),
+			headerControls,
+			footerLayout:
+				footer && footerControls && footerBox
+					? {
+							mainBottom: round(main.bottom),
+							footerTop: round(footer.top),
+							footerBottom: round(footer.bottom),
+							controlsBottom: round(footerControls.bottom),
+							rowTop: round(footerBox.top),
+							rowBottom: round(footerBox.bottom),
+							rowHeight: round(footerBox.height)
+						}
+					: null,
 			statusLayoutHeight: round(Math.max(0, main.top - header.bottom - 1)),
 			mainTop: round(main.top),
 			usableViewportHeight: round(Math.max(0, innerHeight - main.top)),
@@ -216,8 +252,124 @@ async function capture(page: Page, info: TestInfo, name: string, route = name) {
 		.toBe(false);
 	if (!baseline) {
 		expect
-			.soft(measurement.headerHeight, `${name}: compact full-shell header`)
-			.toBeLessThanOrEqual(88);
+			.soft(measurement.headerHeight, `${name}: one 48px header row`)
+			.toBe(48);
+		for (const [index, control] of measurement.headerControls.entries()) {
+			expect
+				.soft(control, `${name}: header control ${index} exists`)
+				.not.toBeNull();
+			if (!control) continue;
+			expect
+				.soft(control.height, `${name}: ${control.selector} is visible`)
+				.toBeGreaterThan(0);
+			expect
+				.soft(
+					Math.abs(control.centerOffset),
+					`${name}: ${control.selector} stays on the header row`
+				)
+				.toBeLessThanOrEqual(1);
+			expect
+				.soft(
+					control.left,
+					`${name}: ${control.selector} stays within the viewport`
+				)
+				.toBeGreaterThanOrEqual(0);
+			expect
+				.soft(
+					control.right,
+					`${name}: ${control.selector} stays within the viewport`
+				)
+				.toBeLessThanOrEqual(measurement.viewport.width);
+			const previous = measurement.headerControls[index - 1];
+			if (previous)
+				expect
+					.soft(
+						control.left,
+						`${name}: brand, search and navigation stay in LTR order without overlap`
+					)
+					.toBeGreaterThanOrEqual(previous.right);
+		}
+		const header = page.locator('header.title-bar');
+		await expect(header).toHaveAttribute('dir', 'ltr');
+		await expect(header.locator('.header-search')).toHaveAttribute(
+			'dir',
+			(await page.locator('main').locator('..').getAttribute('dir'))!
+		);
+		await expect(header.locator('[data-testid^="pwa-"]')).toHaveCount(0);
+
+		const footer = page.locator('footer');
+		const controls = footer.locator(':scope > div').first();
+		const footerRow = footer.locator(':scope > [data-testid="pwa-footer-row"]');
+		await expect(footerRow).toHaveCount(1);
+		await expect(footerRow).toBeVisible();
+		await expect(
+			controls.locator('a[href="https://github.com/selfint"]')
+		).toBeVisible();
+		await expect(
+			controls.locator(
+				'a[href="https://github.com/selfint/degree-planner/issues/new/choose"]'
+			)
+		).toBeVisible();
+		await expect(controls.getByRole('button')).toBeVisible();
+		await expect(controls.getByRole('combobox')).toBeVisible();
+		expect
+			.soft(measurement.footerLayout, `${name}: real footer geometry exists`)
+			.not.toBeNull();
+		if (measurement.footerLayout) {
+			const layout = measurement.footerLayout;
+			expect
+				.soft(layout.footerTop, `${name}: footer follows the main content`)
+				.toBeGreaterThanOrEqual(layout.mainBottom);
+			expect
+				.soft(
+					layout.rowTop,
+					`${name}: PWA row follows the original footer controls`
+				)
+				.toBeGreaterThanOrEqual(layout.controlsBottom);
+			expect
+				.soft(layout.rowBottom, `${name}: PWA row remains inside AppFooter`)
+				.toBeLessThanOrEqual(layout.footerBottom);
+			expect
+				.soft(layout.rowHeight, `${name}: PWA row has visible height`)
+				.toBeGreaterThan(0);
+		}
+		expect(
+			await page
+				.locator('[data-testid^="pwa-"]')
+				.evaluateAll((nodes) =>
+					nodes.every((node) =>
+						node.closest('footer > [data-testid="pwa-footer-row"]')
+					)
+				),
+			`${name}: every PWA control and detail belongs to the footer row`
+		).toBe(true);
+		const installHelp = footerRow.getByTestId('pwa-install-help');
+		await expect(installHelp).toBeVisible();
+		await expect(installHelp).toHaveAttribute('href', '/#install-title');
+		await expect(installHelp).toHaveAttribute('target', '_blank');
+		await expect(installHelp).toHaveAttribute(
+			'rel',
+			/(?:^|\s)noopener(?:\s|$)/
+		);
+		await expect(installHelp).toHaveAttribute(
+			'rel',
+			/(?:^|\s)noreferrer(?:\s|$)/
+		);
+		const status = footerRow.getByTestId('pwa-status');
+		await expect(status).toHaveAttribute('data-state', 'ready');
+		if (
+			!(await footerRow.getByTestId('pwa-update-link').count()) &&
+			!(await footerRow.getByTestId('pwa-error').count())
+		) {
+			const readiness = status.getByRole('status');
+			await expect(readiness).toBeVisible();
+			await expect(readiness).not.toHaveClass(/\bsr-only\b/);
+			await expect(readiness).toHaveText(
+				(await header.locator('.header-search').getAttribute('dir')) === 'rtl'
+					? 'כל הקורסים זמינים ללא אינטרנט'
+					: 'All courses ready offline'
+			);
+		}
 		expect
 			.soft(
 				measurement.statusLayoutHeight,
@@ -415,6 +567,26 @@ for (const viewport of [
 					await expect(page).toHaveURL(`${origin}/app/settings`);
 					await expect(page.locator('.semester-field select')).toHaveCount(2);
 					measurements.push(await capture(page, info, 'settings'));
+					if (!baseline) {
+						const path = info.outputPath('settings-footer.png');
+						await page.locator('footer').screenshot({
+							path,
+							animations: 'disabled'
+						});
+						await info.attach('settings-footer', {
+							path,
+							contentType: 'image/png'
+						});
+						await page.evaluate(() => scrollTo(0, 0));
+						await page.evaluate(
+							() =>
+								new Promise<void>((resolve) =>
+									requestAnimationFrame(() =>
+										requestAnimationFrame(() => resolve())
+									)
+								)
+						);
+					}
 					const current = page.locator('.semester-field').first();
 					const choice = current.locator('select');
 					const save = current.getByRole('button', {
@@ -459,9 +631,12 @@ for (const viewport of [
 					await expect(choice).toHaveValue('1');
 					if (!baseline) {
 						await expect(page.locator('details.pwa-details')).toHaveCount(0);
-						const updateLink = page.getByTestId('pwa-update-link');
+						const footerRow = page.locator(
+							'footer > [data-testid="pwa-footer-row"]'
+						);
+						const updateLink = footerRow.getByTestId('pwa-update-link');
 						await expect(updateLink).toBeVisible();
-						await expect(page.getByTestId('pwa-update')).toBeVisible();
+						await expect(footerRow.getByTestId('pwa-update')).toBeVisible();
 						await expect(updateLink).toHaveAttribute('href', '#offline-status');
 						await updateLink.click();
 						await expect(page).toHaveURL(

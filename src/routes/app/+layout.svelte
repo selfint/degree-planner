@@ -184,9 +184,7 @@
 				: ''}
 			searchRevision={searchNavigation.externalRevision}
 			onSearch={searchNavigation.search}
-		>
-			{#snippet status()}<PwaStatus />{/snippet}
-		</TitleBar>
+		/>
 	</div>
 
 	<ConsoleAccountStatus
@@ -202,13 +200,44 @@
 		{@render children()}
 	</main>
 
-	<PwaStatusDetails />
-	<AppFooter compact />
+	<AppFooter compact>
+		{#snippet pwa()}
+			<div class="pwa-footer-controls">
+				<PwaStatus />
+				<a
+					href="/#install-title"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="pwa-install-help"
+					data-testid="pwa-install-help"
+					>{content.lang.lang === 'he' ? 'עזרה בהתקנה' : 'Install help'}</a
+				>
+			</div>
+			<PwaStatusDetails />
+		{/snippet}
+	</AppFooter>
 </div>
 
 <style lang="postcss">
 	@reference "tailwindcss";
 
+	.pwa-footer-controls {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.25rem 0.75rem;
+		min-inline-size: 0;
+	}
+	.pwa-install-help {
+		display: inline-flex;
+		align-items: center;
+		block-size: var(--control-height);
+		white-space: nowrap;
+		text-decoration: underline;
+		text-underline-offset: 0.125rem;
+		color: rgb(var(--color-content-secondary));
+	}
 	:global(body) {
 		@apply bg-background;
 		overscroll-behavior-y: none;

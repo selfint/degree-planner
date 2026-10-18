@@ -1,4 +1,4 @@
-import { expect, test, type Locator } from '@playwright/test';
+import { expect, test, type Locator, type Page } from '@playwright/test';
 import { pwaMessages } from '../../src/lib/pwa/messages';
 import { coverage } from '../coverage';
 
@@ -11,6 +11,44 @@ async function expectCompactAction(button: Locator) {
 	const box = await button.boundingBox();
 	expect(box!.height).toBeGreaterThanOrEqual(35.5);
 	expect(box!.height).toBeLessThanOrEqual(36.5);
+}
+
+async function expectPwaFooter(page: Page) {
+	const footer = page.locator('footer');
+	const row = footer.getByTestId('pwa-footer-row');
+	await expect(row).toBeVisible();
+	await expect(row.getByTestId('pwa-status')).toHaveCount(1);
+	const controls = await footer.locator(':scope > div').first().boundingBox();
+	const bounds = await row.boundingBox();
+	expect(bounds!.y).toBeGreaterThanOrEqual(controls!.y + controls!.height);
+	expect(bounds!.x).toBeGreaterThanOrEqual(0);
+	expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(
+		page.viewportSize()!.width
+	);
+	const install = row.getByTestId('pwa-install-help');
+	await expect(install).toHaveAttribute('href', '/#install-title');
+	await expect(install).toHaveAttribute('target', '_blank');
+	await expect(install).toHaveAttribute('rel', 'noopener noreferrer');
+	await expectCompactAction(install);
+	// Footer groups may wrap; each action and readiness label stays complete.
+	const labels = await row.locator('.pwa-footer-controls').evaluate((el) =>
+		Array.from(
+			el.querySelectorAll('a, button, .readiness:not(.sr-only)'),
+			(child) => {
+				const rect = child.getBoundingClientRect();
+				return {
+					left: rect.left,
+					right: rect.right,
+					overflow: child.scrollWidth - child.clientWidth
+				};
+			}
+		)
+	);
+	for (const label of labels) {
+		expect(label.left).toBeGreaterThanOrEqual(0);
+		expect(label.right).toBeLessThanOrEqual(page.viewportSize()!.width);
+		expect(label.overflow).toBeLessThanOrEqual(1);
+	}
 }
 
 async function expectRailReadingEdge(
@@ -432,6 +470,10 @@ test('footer and installation links are mocked and cannot leave the story', asyn
 	const footerUrl = page.url();
 	await page.locator('a[href="https://github.com/selfint"]').click();
 	expect(page.url()).toBe(footerUrl);
+	await page.goto(storyUrl('components-pwastatus--ready'));
+	const pwaUrl = page.url();
+	await page.getByTestId('pwa-install-help').click();
+	expect(page.url()).toBe(pwaUrl);
 	expect(context.pages()).toHaveLength(1);
 });
 
@@ -452,31 +494,108 @@ test('CourseGroup resolves actual async data and exposes loading and error state
 	await expect(page.getByRole('alert')).toBeVisible();
 });
 
-test('PWA status has direct exceptional actions and always-visible details', async ({
+test('console titlebar keeps brand, search and navigation on one row without PWA controls', async ({
 	page
 }) => {
-	for (const state of ['initial', 'preparing', 'ready']) {
-		const id = `components-pwastatus--${state}`;
-		await page.goto(storyUrl(id));
-		await expect(page.locator('[data-story-rendered]')).toHaveAttribute(
-			'data-story-rendered',
-			id
-		);
-		await expect(page.getByTestId('pwa-status')).toHaveAttribute(
-			'data-state',
-			state === 'ready' ? 'ready' : 'preparing'
-		);
-		await expect(page.locator('details, summary')).toHaveCount(0);
-		await expect(page.getByTestId('pwa-status-details')).toHaveCount(0);
-		await expect(page.getByRole('status')).toHaveCSS('position', 'absolute');
-		if (state === 'initial') await expect(page.getByRole('status')).toBeEmpty();
-		else await expect(page.getByRole('status')).toContainText(/offline/i);
-		expect(
-			await page
-				.getByTestId('pwa-preview-slot')
-				.evaluate((el) => el.getBoundingClientRect().height)
-		).toBe(0);
+	test.setTimeout(60_000);
+	for (const width of [320, 390]) {
+		for (const language of ['en', 'he']) {
+			await page.setViewportSize({ width, height: 664 });
+			await page.goto(
+				`${storyUrl('components-titlebar--query')}&globals=language:${language};theme:${language === 'he' ? 'dark' : 'light'}`
+			);
+			const header = page.locator('header.title-bar');
+			await expect(header).toBeVisible();
+			await expect(header).toHaveAttribute('dir', 'ltr');
+			await expect(header.locator('form')).toHaveAttribute(
+				'dir',
+				language === 'he' ? 'rtl' : 'ltr'
+			);
+			await expect(header.getByTestId('pwa-status')).toHaveCount(0);
+			await expect(header.getByTestId('pwa-update-link')).toHaveCount(0);
+			const boxes = await header.evaluate((el) => {
+				const box = (child: Element) => {
+					const r = child.getBoundingClientRect();
+					return {
+						left: r.left,
+						right: r.right,
+						center: r.top + r.height / 2,
+						height: r.height
+					};
+				};
+				return {
+					header: box(el),
+					items: ['.brand', '.header-search', 'nav'].map((selector) =>
+						box(el.querySelector(selector)!)
+					),
+					overflow: document.documentElement.scrollWidth - innerWidth
+				};
+			});
+			expect(boxes.header.height).toBe(48);
+			for (const item of boxes.items) {
+				expect(item.center).toBeCloseTo(boxes.header.center, 1);
+				expect(item.left).toBeGreaterThanOrEqual(boxes.header.left);
+				expect(item.right).toBeLessThanOrEqual(boxes.header.right);
+			}
+			expect(boxes.items[0].right).toBeLessThanOrEqual(boxes.items[1].left);
+			expect(boxes.items[1].right).toBeLessThanOrEqual(boxes.items[2].left);
+			expect(boxes.overflow).toBeLessThanOrEqual(1);
+			const input = header.getByRole('textbox');
+			await expect(input).toHaveValue('Example systems');
+			await input.fill('Example query');
+			await input.press('Enter');
+			await expect(page.getByText('Submitted: Example query')).toBeVisible();
+			await page.screenshot({
+				path: test.info().outputPath(`titlebar-${width}-${language}.png`),
+				fullPage: false
+			});
+		}
 	}
+});
+
+test('PWA footer keeps readiness visible and exceptional actions with their details', async ({
+	page
+}) => {
+	test.setTimeout(60_000);
+	for (const [width, language] of [
+		[320, 'he'],
+		[390, 'en']
+	] as const) {
+		await page.setViewportSize({ width, height: 800 });
+		for (const state of ['initial', 'preparing', 'ready']) {
+			const id = `components-pwastatus--${state}`;
+			await page.goto(
+				`${storyUrl(id)}&globals=language:${language};theme:${language === 'he' ? 'dark' : 'light'}`
+			);
+			await expect(page.locator('[data-story-rendered]')).toHaveAttribute(
+				'data-story-rendered',
+				id
+			);
+			await expect(page.getByTestId('pwa-status')).toHaveAttribute(
+				'data-state',
+				state === 'ready' ? 'ready' : 'preparing'
+			);
+			await expect(page.locator('details, summary')).toHaveCount(0);
+			await expect(page.getByTestId('pwa-status-details')).toHaveCount(0);
+			await expect(page.getByRole('status')).toHaveCSS('position', 'static');
+			await expectPwaFooter(page);
+			if (state === 'initial')
+				await expect(page.getByRole('status')).toBeEmpty();
+			else {
+				await expect(page.getByRole('status')).toBeVisible();
+				await expect(page.getByRole('status')).toHaveText(
+					state === 'ready'
+						? pwaMessages[language].ready
+						: pwaMessages[language].downloading
+				);
+			}
+		}
+		await page.screenshot({
+			path: test.info().outputPath(`pwa-ready-${width}-${language}.png`),
+			fullPage: false
+		});
+	}
+
 	for (const [width, language, theme, direction] of [
 		[320, 'he', 'light', 'rtl'],
 		[390, 'en', 'dark', 'ltr']
@@ -507,11 +626,10 @@ test('PWA status has direct exceptional actions and always-visible details', asy
 					state === 'unavailable' ? 'pwa-update' : 'pwa-incomplete'
 				)
 			).toHaveCount(0);
-			expect(
-				await page
-					.getByTestId('pwa-preview-slot')
-					.evaluate((el) => el.getBoundingClientRect().height)
-			).toBe(36);
+			await expectPwaFooter(page);
+			await expect(
+				page.getByTestId('pwa-footer-row').getByTestId('pwa-status-details')
+			).toHaveCount(1);
 			const bounds = await detail.boundingBox();
 			expect(bounds!.x).toBeGreaterThanOrEqual(0);
 			expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(width);
@@ -556,7 +674,7 @@ test('PWA status has direct exceptional actions and always-visible details', asy
 	).toBe(0);
 });
 
-test('refresh failures preserve stored-data truth and one direct header error', async ({
+test('refresh failures preserve stored-data truth and one direct footer error', async ({
 	page
 }) => {
 	test.setTimeout(60_000);
@@ -608,11 +726,10 @@ test('refresh failures preserve stored-data truth and one direct header error', 
 			);
 			if (state === 'update-refresh-failure')
 				await expect(page.getByTestId('pwa-update')).toHaveText(text.update);
-			expect(
-				await page
-					.getByTestId('pwa-preview-slot')
-					.evaluate((el) => el.getBoundingClientRect().height)
-			).toBe(36);
+			await expectPwaFooter(page);
+			await expect(
+				page.getByTestId('pwa-footer-row').getByTestId('pwa-status-details')
+			).toHaveCount(1);
 			const bounds = await detail.boundingBox();
 			expect(bounds!.x).toBeGreaterThanOrEqual(0);
 			expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(width);

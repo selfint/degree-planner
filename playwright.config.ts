@@ -40,7 +40,8 @@ export default defineConfig({
 			testMatch: [
 				'search-faculty-native.test.ts',
 				'course-card-navigation.test.ts',
-				'console-button-layout.test.ts'
+				'console-button-layout.test.ts',
+				'plan-board-alignment.test.ts'
 			],
 			use: { browserName: 'webkit', ...mobile }
 		},

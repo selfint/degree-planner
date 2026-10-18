@@ -269,6 +269,12 @@ for (const viewport of [
 					const navigationOrigin = await page.evaluate(
 						() => performance.timeOrigin
 					);
+					if (!baseline) {
+						await expect(
+							page.locator('.semester-exams .study-days')
+						).toBeVisible();
+						await expect(page.locator('details.semester-exams')).toHaveCount(0);
+					}
 					const plan = await capture(page, info, 'plan');
 					measurements.push(plan);
 					if (!baseline) {
@@ -320,11 +326,17 @@ for (const viewport of [
 					await search.press('Enter');
 					await expect(page).toHaveURL(`${origin}/app/search?q=02340`);
 					await expect(page.locator('main ul > li')).not.toHaveCount(0);
-					await expect(
-						page.locator('details.search-filters')
-					).not.toHaveAttribute('open', '');
+					// Compare the same visible filter content on both revisions. The
+					// old baseline requires one disclosure; the restored UI needs none.
+					if (baseline)
+						await page.locator('details.search-filters summary').click();
+					else
+						await expect(page.locator('details.search-filters')).toHaveCount(0);
+					await expect(page.locator('.search-filters fieldset')).toBeVisible();
 					measurements.push(await capture(page, info, 'search'));
-					await page.locator('details.search-filters summary').click();
+					checkpoints.push(
+						'search-comparison-with-all-filter-controls-visible'
+					);
 					await page.locator('fieldset input[type="checkbox"]').check();
 					await expect
 						.poll(() => new URL(page.url()).searchParams.has('available'))
@@ -341,12 +353,15 @@ for (const viewport of [
 					await expect(
 						page.locator('fieldset input[type="checkbox"]')
 					).not.toBeChecked();
-					await page.locator('details.search-filters summary').click();
 					checkpoints.push('real-search-submit-filter-clear-and-history');
 
 					await page.locator('main li[id="02340141"] button').click();
 					await expect(page).toHaveURL(`${origin}/app/course/02340141`);
 					await expect(page.locator('main h1')).toContainText('קומבינטוריקה');
+					await expect(page.locator('p.course-description')).toBeVisible();
+					await expect(page.locator('details.course-description')).toHaveCount(
+						0
+					);
 					measurements.push(await capture(page, info, 'course'));
 					const planAction = page.getByRole('button', {
 						name: language === 'he' ? 'הוספה' : 'Plan',
@@ -421,37 +436,38 @@ for (const viewport of [
 							)
 						)
 						.toBe('installed');
-					// The UI may use an optional disclosure, but an update must not reload
-					// or consume the task viewport while the unsaved draft is mounted.
+					// An update must not reload or interrupt the unsaved draft. The current
+					// UI exposes its safe instructions directly, with no dropdown or modal.
 					await expect(page.getByTestId('pwa-update')).toBeAttached();
 					measurements.push(
 						await capture(page, info, 'settings-update', 'update')
 					);
 					await expect(choice).toHaveValue('1');
 					if (!baseline) {
-						const details = page.locator('details.pwa-details');
-						await expect(details).not.toHaveAttribute('open', '');
-						await details.locator('summary').click();
+						await expect(page.locator('details.pwa-details')).toHaveCount(0);
+						const updateLink = page.getByTestId('pwa-update-link');
+						await expect(updateLink).toBeVisible();
 						await expect(page.getByTestId('pwa-update')).toBeVisible();
-						const expanded = await measure(page, 'update');
-						expect.soft(expanded.mainTop).toBe(measurements.at(-1)!.mainTop);
-						expect.soft(expanded.horizontalOverflow).toBe(false);
-						const path = info.outputPath('settings-update-details.png');
+						await expect(updateLink).toHaveAttribute('href', '#offline-status');
+						await updateLink.click();
+						await expect(page).toHaveURL(
+							`${origin}/app/settings#offline-status`
+						);
+						await expect(page.getByTestId('pwa-update')).toBeInViewport();
+						await expect(choice).toHaveValue('1');
+						const instruction = await measure(page, 'update');
+						expect.soft(instruction.horizontalOverflow).toBe(false);
+						const path = info.outputPath('settings-update-instruction.png');
 						await page.screenshot({ path, animations: 'disabled' });
-						await info.attach('settings-update-details', {
+						await info.attach('settings-update-instruction', {
 							path,
 							contentType: 'image/png'
 						});
-						await details
-							.getByRole('button', {
-								name: language === 'he' ? 'סגירה' : 'Close',
-								exact: true
-							})
-							.click();
+						await page.goBack();
+						await expect(page).toHaveURL(`${origin}/app/settings`);
 						await expect(choice).toHaveValue('1');
-						checkpoints.push(
-							'update-disclosure-opens-and-dismisses-without-layout-shift'
-						);
+						await save.scrollIntoViewIfNeeded();
+						checkpoints.push('update-anchor-and-back-preserve-draft');
 					}
 					expect(await page.evaluate(() => performance.timeOrigin)).toBe(
 						navigationOrigin
@@ -484,6 +500,8 @@ for (const viewport of [
 								language,
 								viewport,
 								status: info.status,
+								comparisonContent:
+									'All search filters, full course description and study-day rows are visible; baseline search disclosure is opened before capture.',
 								checkpoints,
 								measurements,
 								blockedExternalRequests,

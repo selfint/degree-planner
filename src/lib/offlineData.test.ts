@@ -247,3 +247,31 @@ it('surfaces unexpected readiness exceptions instead of inventing missing-cache 
 		'Unexpected readiness bug'
 	);
 });
+
+it('keeps the actual setup error visible during retry until durable recovery', async () => {
+	prepare.mockRejectedValueOnce(
+		new Error('Browser storage denied this write.')
+	);
+	const { prepareOfflinePublicData, subscribeOfflinePublicData } =
+		await import('./offlineData');
+	await prepareOfflinePublicData();
+	let finish!: (result: { ready: boolean; courseCount: number }) => void;
+	prepare.mockReturnValue(
+		new Promise((resolve) => {
+			finish = resolve;
+		})
+	);
+	const snapshots: { phase: string; error?: string }[] = [];
+	const unsubscribe = subscribeOfflinePublicData((state) =>
+		snapshots.push({ phase: state.phase, error: state.error })
+	);
+	const retry = prepareOfflinePublicData();
+	expect(snapshots.at(-1)).toEqual({
+		phase: 'loading',
+		error: 'Browser storage denied this write.'
+	});
+	finish({ ready: true, courseCount: 3362 });
+	await retry;
+	expect(snapshots.at(-1)).toEqual({ phase: 'ready', error: undefined });
+	unsubscribe();
+});

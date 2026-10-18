@@ -1,12 +1,7 @@
 <script lang="ts">
 	import SearchFilters from '$lib/components/SearchFilters.svelte';
 	import type { SearchFilters as Filters } from '$lib/search';
-	let {
-		selected = false,
-		empty = false,
-		unknownFaculty = false,
-		expanded = false
-	} = $props();
+	let { selected = false, empty = false, unknownFaculty = false } = $props();
 	const defaults: Filters = {
 		available: false,
 		faculty: '',
@@ -29,7 +24,6 @@
 </script>
 
 <SearchFilters
-	{expanded}
 	{filters}
 	faculties={empty ? [] : ['Example science', 'Example engineering']}
 	maxPoints={6}

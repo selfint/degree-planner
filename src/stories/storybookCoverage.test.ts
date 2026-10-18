@@ -59,6 +59,12 @@ describe('exhaustive Storybook inventory', () => {
 		const config = readFileSync(join(root, '.storybook/main.ts'), 'utf8');
 		expect(config).toContain('A live planner module entered Storybook');
 		expect(config).toContain("from: '../static/brand'");
+		expect(config).toContain("offlineData: 'offlineData.ts'");
+		expect(config).toContain("'pwa/status': 'pwaStatus.ts'");
+		for (const file of ['offlineData.ts', 'pwaStatus.ts']) {
+			const mock = readFileSync(join(root, '.storybook/mocks', file), 'utf8');
+			expect(mock).not.toMatch(/fetch\(|indexedDB|localStorage|serviceWorker/);
+		}
 		for (const entry of coverage) {
 			expect(entry.source).not.toMatch(
 				/(?:firebase|publicData|offlineData)\.svelte['"]|from ['"].*\+layout\.svelte['"]/

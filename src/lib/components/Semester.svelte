@@ -20,6 +20,7 @@
 		>;
 		href?: string;
 		sortable?: Sortable.Options;
+		board?: boolean;
 	};
 
 	let {
@@ -30,7 +31,8 @@
 		disabled,
 		children,
 		href,
-		sortable
+		sortable,
+		board = false
 	}: Props = $props();
 
 	const effectiveSemester = $derived.by(
@@ -84,8 +86,14 @@
 	</div>
 {/snippet}
 
-<CourseWidth class={sortable === undefined ? '' : 'flex h-full flex-col'}>
-	<div class="mb-1.5">
+<CourseWidth
+	class={board
+		? 'semester-column--board'
+		: sortable === undefined
+			? ''
+			: 'flex h-full flex-col'}
+>
+	<div class="semester-title mb-1.5">
 		{#if href !== undefined}
 			<a {href} class="semester-link block rounded-[var(--radius-card)]"
 				>{@render title()}</a
@@ -95,16 +103,15 @@
 		{/if}
 	</div>
 
-	{#await effectiveSemester then _effectiveSemester}
-		{#if isCurrent && _effectiveSemester.filter((c) => c.tests?.length ?? 0 > 0).length > 0}
-			<details class="semester-exams mb-1.5">
-				<summary>{content.lang.lang === 'he' ? 'מבחנים' : 'Exams'}</summary>
-				<div class="pb-1 pt-1">
+	<div class="semester-exams-row">
+		{#await effectiveSemester then _effectiveSemester}
+			{#if isCurrent && _effectiveSemester.filter((c) => c.tests?.length ?? 0 > 0).length > 0}
+				<div class="semester-exams mb-1.5">
 					<StudyDaysComponent semester={effectiveSemester} />
 				</div>
-			</details>
-		{/if}
-	{/await}
+			{/if}
+		{/await}
+	</div>
 
 	<div
 		class="semester-courses flex min-h-32 flex-1 flex-col gap-1.5"
@@ -118,6 +125,23 @@
 </CourseWidth>
 
 <style>
+	/* The board owns these three tracks. Header wrapping and study-day content
+	   therefore move every course list together, including empty drop targets. */
+	:global(.semester-column--board) {
+		display: grid;
+		grid-row: 1 / -1;
+		grid-template-rows: subgrid;
+	}
+	:global(.semester-column--board) .semester-title {
+		display: flex;
+		flex-direction: column;
+	}
+	:global(.semester-column--board) .semester-title > :global(*) {
+		flex: 1;
+	}
+	:global(.semester-column--board) .semester-heading {
+		block-size: 100%;
+	}
 	.semester-heading {
 		border-block-end: 0.125rem solid rgb(var(--color-border));
 		padding: 0.25rem 0;
@@ -152,14 +176,6 @@
 		line-height: 1rem;
 		font-weight: 500;
 		font-variant-numeric: tabular-nums;
-	}
-	.semester-exams summary {
-		min-block-size: 2.25rem;
-		padding-block: 0.5rem;
-		color: rgb(var(--color-content-secondary));
-		font-size: 0.75rem;
-		line-height: 1.25;
-		cursor: pointer;
 	}
 	.semester-courses:empty {
 		border: 0.0625rem dashed rgb(var(--color-border));

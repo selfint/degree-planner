@@ -50,7 +50,15 @@ function reportSubscriberError(error: unknown) {
 function publish(next: OfflinePublicDataState) {
 	const { refreshError: _previousRefreshError, ...availability } = next;
 	const refreshError = readPublicDataRefreshError();
-	state = { ...availability, ...(refreshError ? { refreshError } : {}) };
+	state = {
+		...availability,
+		// Starting a retry is not recovery. Keep a setup failure visible until
+		// preparation verifies durable data or supplies a newer failure.
+		...(next.phase === 'loading' && state.error && !next.error
+			? { error: state.error }
+			: {}),
+		...(refreshError ? { refreshError } : {})
+	};
 	for (const listener of listeners) {
 		try {
 			listener(state);

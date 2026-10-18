@@ -26,8 +26,6 @@
 	const { data: pageData } = $props();
 	const { fullCourseData } = $derived(pageData);
 
-	// Keep the disclosure choice through filter/query history without persisting it.
-	let filtersExpanded = $state(false);
 	const query = $derived(
 		normalizeSearchQuery(navigation.url.searchParams.get('q') ?? '')
 	);
@@ -69,6 +67,15 @@
 		{@const filteredResults = results.filter((course) =>
 			matchesSearchFilters(course, filters, maxPoints)
 		)}
+		{#key navigation.externalRevision}
+			<SearchFilters
+				{filters}
+				{faculties}
+				{maxPoints}
+				onchange={(next) => navigation.updateFilters(next, maxPoints)}
+				onclear={() => navigation.updateFilters(undefined, maxPoints)}
+			/>
+		{/key}
 		<header class="search-toolbar">
 			<div class="search-heading">
 				<h1 class="search-title">
@@ -84,16 +91,6 @@
 					{/if}
 				</p>
 			</div>
-			{#key navigation.externalRevision}
-				<SearchFilters
-					bind:expanded={filtersExpanded}
-					{filters}
-					{faculties}
-					{maxPoints}
-					onchange={(next) => navigation.updateFilters(next, maxPoints)}
-					onclear={() => navigation.updateFilters(undefined, maxPoints)}
-				/>
-			{/key}
 		</header>
 		{#if filteredResults.length === 0}
 			<p class="search-empty text-content-secondary">
@@ -169,9 +166,6 @@
 	.search-count {
 		color: rgb(var(--color-content-secondary));
 		font-size: 0.75rem;
-	}
-	.search-toolbar :global(.search-filters[open]) {
-		flex-basis: 100%;
 	}
 	.search-empty {
 		padding-block: 0.5rem;

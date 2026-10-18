@@ -30,8 +30,16 @@ jobs:
         run: npm ci
       - name: Install Playwright browsers
         run: npx playwright install --with-deps ${{ matrix.browser }}
-      - name: Verify narrow mobile controls before the full browser suite
-        run: npx playwright test tests/console-button-layout.test.ts --project="${{ matrix.project }}" --max-failures=1
+      - name: Verify narrow mobile controls and board alignment before the full suite
+        run: npx playwright test tests/console-button-layout.test.ts tests/plan-board-alignment.test.ts --project="${{ matrix.project }}" --max-failures=1
+      - name: Upload focused board alignment screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: board-alignment-${{ matrix.browser }}
+          path: test-results/plan-board-alignment-*/
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Run browser tests
         run: npm run test:integration -- --project="${{ matrix.project }}"
       - name: Test the built worker and IndexedDB ownership boundary

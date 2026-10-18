@@ -8,6 +8,8 @@ const isolatedModules: Record<string, string> = {
 	'stores.svelte': 'stores.svelte.ts',
 	'preferences.svelte': 'preferences.svelte.ts',
 	theme: 'theme.ts',
+	offlineData: 'offlineData.ts',
+	'pwa/status': 'pwaStatus.ts',
 	planAccess: 'planAccess.ts',
 	requirements: 'requirements.ts',
 	transcriptParser: 'transcriptParser.ts',
@@ -33,7 +35,7 @@ const config: StorybookConfig = {
 							? resolve(dirname(importer), source)
 							: source;
 					const match = absolute.match(
-						/(?:^\$lib\/|\/src\/lib\/)([^/]+?)(?:\.(?:ts|js))?$/
+						/(?:^\$lib\/|\/src\/lib\/)(.+?)(?:\.(?:ts|js))?$/
 					);
 					if (match && isolatedModules[match[1]])
 						return mock(isolatedModules[match[1]]);
@@ -54,6 +56,7 @@ const config: StorybookConfig = {
 								/\/src\/lib\/(?:stores\.svelte|preferences\.svelte|theme|firebase\.svelte|publicData|publicDataStore|requirements|offlineData|transcriptParser)\.ts$/.test(
 									id
 								) ||
+								/\/src\/lib\/pwa\/status\.ts$/.test(id) ||
 								/\/node_modules\/(?:@firebase|firebase|pdfjs-dist)\//.test(id)
 							)
 								this.error(`A live planner module entered Storybook: ${id}`);

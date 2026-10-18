@@ -484,16 +484,25 @@ test('reports a failed refresh while verified cached courses remain usable', asy
 	await expect(status).toHaveAttribute('data-refresh-state', 'error', {
 		timeout: 20000
 	});
-	const indicator = status.getByLabel('Refresh failed', { exact: true });
+	const indicator = status.getByRole('link', {
+		name: 'Error. View details',
+		exact: true
+	});
+	const timeOrigin = await page.evaluate(() => performance.timeOrigin);
+	await expect(indicator).toHaveAttribute('href', '#offline-status');
+	await expect(status.locator('details, summary')).toHaveCount(0);
 	await expect(indicator).toBeVisible();
 	await indicator.click();
+	await expect(page).toHaveURL(origin + '/app/course/02340141#offline-status');
+	expect(await page.evaluate(() => performance.timeOrigin)).toBe(timeOrigin);
+	await expect(page.getByTestId('pwa-error-detail').first()).not.toBeEmpty();
 	await expect(page.getByTestId('pwa-refresh-error')).toHaveText(
 		'Refresh failed. Saved course data is still available.'
 	);
 	expect(await courseSnapshot(page)).toEqual(before);
 	await expectSavedPlanUnchanged(page);
 	await page.unroute('**/courseData.json*');
-	await status.getByRole('button', { name: 'Try again', exact: true }).click();
+	await status.getByRole('button', { name: 'Retry', exact: true }).click();
 	await expect(status).toHaveAttribute('data-refresh-state', 'idle', {
 		timeout: 20000
 	});

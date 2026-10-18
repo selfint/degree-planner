@@ -200,6 +200,20 @@
 		</div>
 	</header>
 
+	{#await course}
+		<div
+			class="course-loading"
+			role="status"
+			aria-label={content.lang.common.loading}
+		>
+			<Spinner />
+		</div>
+	{:then course}
+		{#if course.about}
+			<p class="course-description"><bdi dir="auto">{course.about}</bdi></p>
+		{/if}
+	{/await}
+
 	{#if showPersonalPlan}
 		<div class="course-actions" data-testid="course-plan-actions">
 			{#if courseState === 'planned'}
@@ -319,17 +333,6 @@
 				</div>
 			</dl>
 		</section>
-
-		{#if course.about}
-			<details class="course-description">
-				<summary
-					>{content.lang.lang === 'he'
-						? 'תיאור הקורס'
-						: 'Course description'}</summary
-				>
-				<p><bdi dir="auto">{course.about}</bdi></p>
-			</details>
-		{/if}
 
 		{#if showPersonalPlan}
 			{#await courseMemberRequirements then memberships}
@@ -567,18 +570,6 @@
 		max-inline-size: 56rem;
 		font-size: 0.875rem;
 		text-align: start;
-	}
-	.course-description summary {
-		width: fit-content;
-		padding-block: 0.375rem;
-		cursor: pointer;
-	}
-	.course-description summary:focus-visible {
-		outline: 0.125rem solid rgb(var(--color-accent-primary));
-		outline-offset: 0.125rem;
-	}
-	.course-description p {
-		padding-block: 0.25rem;
 		color: rgb(var(--color-content-secondary));
 		line-height: 1.6;
 	}

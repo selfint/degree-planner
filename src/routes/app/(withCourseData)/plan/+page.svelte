@@ -192,101 +192,112 @@
 		<div
 			dir={content.lang.dir}
 			style="transform: rotateX(180deg)"
-			class="flex flex-1 flex-row"
+			class="semester-board"
 		>
-			<div class="ms-3 sm:ms-5"></div>
 			{#key semesters.map((s) => s.join('-')).join(',')}
 				{#each semesters as semester, semesterIndex}
-					<div class="flex pe-2">
-						<Semester
-							{getCourseData}
-							index={semesterIndex}
-							{semester}
-							isCurrent={semesterIndex === user.d.currentSemester}
-							href={`/app/semester?c=${semesterIndex}`}
-							sortable={{
-								group: 'semesters',
-								// Keep the touch preview outside transformed/clipped scrollers.
-								fallbackOnBody: true,
-								forceFallback: touchDrag,
-								onStart: startPlanDrag,
-								onEnd: endPlanDrag,
-								scroll: !touchDrag,
-								bubbleScroll: false,
-								dataIdAttr: 'data-code',
-								sort: true,
-								animation: 100,
-								delay: 100,
-								delayOnTouchOnly: true,
-								onUpdate: (event) => {
-									const code = event.item.getAttribute('data-code');
-									if (code === null) {
-										return;
-									}
-
-									const semesterCodes = Array.from(event.to.children)
-										.map((c) => c.getAttribute('data-code'))
-										.filter((d) => d !== null);
-
-									// re-order semester
-									semesters = semesters.map((s, i) =>
-										i === semesterIndex ? semesterCodes : s
-									) as CourseCode[][];
-								},
-								onAdd: (event) => {
-									const code = event.item.getAttribute('data-code');
-									if (code === null) {
-										return;
-									}
-
-									const semesterCodes = Array.from(event.to.children)
-										.map((c) => c.getAttribute('data-code'))
-										.filter((d) => d !== null);
-
-									// remove course from wishlist
-									wishlist = wishlist.filter((c) => c !== code);
-
-									semesters = semesters.map((s, i) =>
-										i === semesterIndex
-											? // deduplicate semester codes and preserve order
-												[...new Set(semesterCodes)]
-											: // remove course from other semesters
-												s.filter((c) => c !== code)
-									) as CourseCode[][];
+					<Semester
+						board
+						{getCourseData}
+						index={semesterIndex}
+						{semester}
+						isCurrent={semesterIndex === user.d.currentSemester}
+						href={`/app/semester?c=${semesterIndex}`}
+						sortable={{
+							group: 'semesters',
+							// Keep the touch preview outside transformed/clipped scrollers.
+							fallbackOnBody: true,
+							forceFallback: touchDrag,
+							onStart: startPlanDrag,
+							onEnd: endPlanDrag,
+							scroll: !touchDrag,
+							bubbleScroll: false,
+							dataIdAttr: 'data-code',
+							sort: true,
+							animation: 100,
+							delay: 100,
+							delayOnTouchOnly: true,
+							onUpdate: (event) => {
+								const code = event.item.getAttribute('data-code');
+								if (code === null) {
+									return;
 								}
-							}}
-						>
-							{#snippet children({ code, course })}
-								<div
-									class="touch-manipulation rounded-[var(--radius-card)] text-start text-content-primary"
-									data-code={code}
-									dir={content.lang.dir}
-								>
-									<CourseElement
-										onOpen={() => goto(`/app/course/${code}`)}
-										{code}
-										{course}
-										squeeze={true}
-										scheduleError={getScheduleError(
-											getCourseData,
-											course,
-											user.d.exemptions,
-											semesters,
-											semesterIndex
-										)}
-									/>
-								</div>
-							{/snippet}
-						</Semester>
-					</div>
+
+								const semesterCodes = Array.from(event.to.children)
+									.map((c) => c.getAttribute('data-code'))
+									.filter((d) => d !== null);
+
+								// re-order semester
+								semesters = semesters.map((s, i) =>
+									i === semesterIndex ? semesterCodes : s
+								) as CourseCode[][];
+							},
+							onAdd: (event) => {
+								const code = event.item.getAttribute('data-code');
+								if (code === null) {
+									return;
+								}
+
+								const semesterCodes = Array.from(event.to.children)
+									.map((c) => c.getAttribute('data-code'))
+									.filter((d) => d !== null);
+
+								// remove course from wishlist
+								wishlist = wishlist.filter((c) => c !== code);
+
+								semesters = semesters.map((s, i) =>
+									i === semesterIndex
+										? // deduplicate semester codes and preserve order
+											[...new Set(semesterCodes)]
+										: // remove course from other semesters
+											s.filter((c) => c !== code)
+								) as CourseCode[][];
+							}
+						}}
+					>
+						{#snippet children({ code, course })}
+							<div
+								class="touch-manipulation rounded-[var(--radius-card)] text-start text-content-primary"
+								data-code={code}
+								dir={content.lang.dir}
+							>
+								<CourseElement
+									onOpen={() => goto(`/app/course/${code}`)}
+									{code}
+									{course}
+									squeeze={true}
+									scheduleError={getScheduleError(
+										getCourseData,
+										course,
+										user.d.exemptions,
+										semesters,
+										semesterIndex
+									)}
+								/>
+							</div>
+						{/snippet}
+					</Semester>
 				{/each}
 			{/key}
-			<div class="min-w-[0.0625rem]"></div>
 		</div>
 	</div>
 </div>
 
 <style>
+	.semester-board {
+		display: grid;
+		flex: 1;
+		grid-auto-flow: column;
+		grid-auto-columns: max-content;
+		grid-template-rows: auto auto minmax(8rem, 1fr);
+		column-gap: 0.5rem;
+		padding-inline: 0.75rem;
+	}
+	@media (min-width: 40rem) {
+		.semester-board {
+			padding-inline: 1.25rem;
+		}
+	}
 	.plan-rail {
 		scrollbar-width: thin;
 		scrollbar-color: rgb(var(--color-content-secondary) / 0.4) transparent;

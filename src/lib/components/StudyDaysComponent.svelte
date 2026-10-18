@@ -89,19 +89,10 @@
 			{#each [days0, days1] as days, round}
 				{#if days !== undefined}
 					<div class="exam-round">
-						<span
-							class="round-label"
-							title={content.lang.lang === 'he'
+						<span class="sr-only">
+							{content.lang.lang === 'he'
 								? `מועד ${round === 0 ? 'א' : 'ב'}`
 								: `Exam round ${round + 1}`}
-						>
-							{content.lang.lang === 'he'
-								? round === 0
-									? 'א'
-									: 'ב'
-								: round === 0
-									? 'A'
-									: 'B'}
 						</span>
 						<span
 							style="background: {generateColor(days.first[0].code)}"
@@ -138,13 +129,6 @@
 		flex-wrap: wrap;
 		align-items: center;
 		gap: 0.1875rem;
-	}
-	.round-label {
-		min-inline-size: 0.625rem;
-		margin-inline-end: 0.0625rem;
-		color: rgb(var(--color-content-secondary));
-		font-size: 0.625rem;
-		font-weight: 600;
 	}
 	.study-chip {
 		min-inline-size: 1.375rem;

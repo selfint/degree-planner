@@ -1,4 +1,4 @@
-import { openSearchFilters } from './helpers/searchFilters';
+import { expectSearchFiltersVisible } from './helpers/searchFilters';
 import { expect, test, type Page } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 
@@ -30,8 +30,8 @@ const chemistry = 'הפקולטה לכימיה';
 async function waitForSearchReady(page: Page) {
 	// The document load event can precede hydration and async course-data rendering.
 	// Broad Hebrew queries took 7–10s in WebKit traces. Keep the existing startup
-	// budget before opening the collapsed panel; its faculty select is not visible yet.
-	await page.locator('details.search-filters').waitFor({
+	// budget while waiting for the always-visible native faculty control.
+	await page.locator('#search-faculty').waitFor({
 		state: 'visible',
 		timeout: 30_000
 	});
@@ -80,13 +80,8 @@ async function expectResults(page: Page, state: State) {
 			)
 		)
 		.toBe(expected.length);
-	// Check after the resulting URL and content settle, including Back/Forward.
-	// Updating filters must preserve the user's disclosure choice, not reopen it here.
-	await expect(page.locator('details.search-filters')).toHaveAttribute(
-		'open',
-		''
-	);
-	await expect(page.locator('#search-faculty')).toBeVisible();
+	// Filters stay visible after URL changes and Back/Forward, without extra clicks.
+	await expectSearchFiltersVisible(page);
 }
 
 async function chooseNativeFaculty(page: Page, faculty: string) {
@@ -122,11 +117,7 @@ for (const language of ['en', 'he']) {
 			);
 			await page.goto(`/app/search?q=${q}`);
 			await waitForSearchReady(page);
-			await expect(page.locator('details.search-filters')).not.toHaveAttribute(
-				'open',
-				''
-			);
-			await openSearchFilters(page);
+			await expectSearchFiltersVisible(page);
 			const state: State = {
 				q,
 				faculty: '',
@@ -152,11 +143,7 @@ for (const language of ['en', 'he']) {
 			await expectResults(page, state);
 			await page.reload();
 			await waitForSearchReady(page);
-			await expect(page.locator('details.search-filters')).not.toHaveAttribute(
-				'open',
-				''
-			);
-			await openSearchFilters(page);
+			await expectSearchFiltersVisible(page);
 			await expectResults(page, state);
 			await page.locator('fieldset button').click();
 			const cleared = {

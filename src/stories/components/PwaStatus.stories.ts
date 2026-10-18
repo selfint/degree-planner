@@ -4,8 +4,17 @@ const meta = {
 	title: 'Components/PwaStatus',
 	component: Preview,
 	parameters: {
+		sveltekit_experimental: {
+			hrefs: {
+				'#offline-status': () =>
+					document.getElementById('offline-status')?.focus()
+			}
+		},
 		componentPath: 'src/lib/components/PwaStatusView.svelte',
-		covers: ['src/lib/components/PwaStatus.svelte']
+		covers: [
+			'src/lib/components/PwaStatus.svelte',
+			'src/lib/components/PwaStatusDetails.svelte'
+		]
 	}
 } satisfies Meta<typeof Preview>;
 export default meta;

@@ -8,11 +8,8 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 export const Default: Story = {};
-export const Selected: Story = { args: { selected: true, expanded: true } };
-export const EmptyFaculties: Story = { args: { empty: true, expanded: true } };
+export const Selected: Story = { args: { selected: true } };
+export const EmptyFaculties: Story = { args: { empty: true } };
 export const UnknownFaculty: Story = {
-	args: { selected: true, unknownFaculty: true, expanded: true }
+	args: { selected: true, unknownFaculty: true }
 };
-
-export const Expanded: Story = { args: { expanded: true } };
-export const CollapsedWithFilters: Story = { args: { selected: true } };

@@ -102,13 +102,13 @@
 	{/if}
 {/snippet}
 
-<div class="ui-page catalog-page">
-	<header>
+<div class="catalog-page">
+	<header class="catalog-inset">
 		<h1 class="ui-page-title">{content.lang.common.catalog}</h1>
 	</header>
 
 	{#if user.d.degree !== undefined}
-		<section class="catalog-summary">
+		<section class="catalog-summary catalog-inset">
 			<h2 class="catalog-section-title">
 				{#await degreeName()}
 					<span class="catalog-loading" role="status">
@@ -142,7 +142,7 @@
 			</div>
 		</section>
 	{:else}
-		<div class="catalog-empty catalog-empty-degree">
+		<div class="catalog-empty catalog-empty-degree catalog-inset">
 			<a class="ui-button ui-button--secondary" href="/app/settings"
 				>{content.lang.settings.selectDegree}</a
 			>
@@ -151,7 +151,9 @@
 
 	{#if user.d.wishlist.length > 0}
 		<section class="catalog-section">
-			<h2 class="catalog-section-title">{content.lang.catalog.wishlist}</h2>
+			<h2 class="catalog-section-title catalog-inset">
+				{content.lang.catalog.wishlist}
+			</h2>
 			<CourseRow {getCourseData} courses={user.d.wishlist} indent={0}>
 				{#snippet children({ code, course, index })}
 					<a href={`/app/course/${code}`}>
@@ -174,7 +176,7 @@
 
 	{#if user.d.degree !== undefined}
 		{#await lists}
-			<div class="catalog-loading" role="status">
+			<div class="catalog-loading catalog-inset" role="status">
 				<span class="h-5 w-5 shrink-0"><Spinner /></span>
 				{content.lang.common.loading}
 				{content.lang.common.catalog}
@@ -195,7 +197,7 @@
 					).then((p) => p.reduce((sum, { points }) => sum + (points ?? 0), 0))}
 
 					<section class="catalog-section">
-						<h2 class="catalog-section-title catalog-path">
+						<h2 class="catalog-section-title catalog-path catalog-inset">
 							{#each list.path as title, index}
 								{#if index > 0}<span
 										class="catalog-path-separator"
@@ -204,7 +206,7 @@
 								<span>{content.lang.lang === 'he' ? title.he : title.en}</span>
 							{/each}
 						</h2>
-						<div class="catalog-progress catalog-progress-panel">
+						<div class="catalog-progress catalog-progress-panel catalog-inset">
 							{@render progressMetric(
 								content.lang.settings.count,
 								listCurrent.length,
@@ -240,7 +242,7 @@
 					</section>
 				{/if}
 			{:else}
-				<p class="catalog-empty">
+				<p class="catalog-empty catalog-inset">
 					{content.lang.lang === 'he' ? 'אין קורסים' : 'No courses'}
 				</p>
 			{/each}
@@ -251,7 +253,14 @@
 <style>
 	.catalog-page {
 		display: grid;
+		grid-template-columns: minmax(0, 1fr);
 		gap: 0.875rem;
+		inline-size: 100%;
+		min-inline-size: 0;
+		padding-block: 0.625rem;
+	}
+	.catalog-inset {
+		margin-inline: 0.75rem;
 	}
 	.catalog-summary {
 		padding-block-end: 0.75rem;

@@ -46,6 +46,7 @@
 	import TitleBar from '../components/TitleBar.svelte';
 	import AppFooter from '$lib/components/AppFooter.svelte';
 	import PwaStatus from '$lib/components/PwaStatus.svelte';
+	import PwaStatusDetails from '$lib/components/PwaStatusDetails.svelte';
 	import {
 		buildFirebaseStorage,
 		subscribeFirebase,
@@ -201,6 +202,7 @@
 		{@render children()}
 	</main>
 
+	<PwaStatusDetails />
 	<AppFooter compact />
 </div>
 

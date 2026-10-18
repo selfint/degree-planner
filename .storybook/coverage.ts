@@ -34,7 +34,7 @@ export const exclusions: Record<string, string> = {
 	'src/routes/+layout.svelte':
 		'Root routing and lifecycle scaffold; TitleBar, AppFooter, ConsoleLoading and route pages are covered separately.',
 	'src/routes/app/+layout.svelte':
-		'Console bootstrap, authentication, service worker and context lifecycle; inline account/offline/auth notices are extracted into ConsoleAccountStatus; all visible UI is covered without starting services.',
+		'Console bootstrap, authentication, service worker and context lifecycle; account/offline/auth notices and exceptional PWA details are covered by ConsoleAccountStatus and PwaStatusDetails without starting services.',
 	'src/routes/app/+page.svelte':
 		'Empty route entry; server/client loader redirects to a plan or settings.',
 	'src/routes/[...legacy]/+page.svelte': 'Empty legacy redirect placeholder.',

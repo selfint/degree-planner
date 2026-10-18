@@ -9,21 +9,13 @@
 	} from '$lib/search';
 
 	type Props = {
-		expanded?: boolean;
 		filters: SearchFilters;
 		faculties: string[];
 		maxPoints: number;
 		onchange: (filters: Partial<SearchFilters>) => void;
 		onclear: () => void;
 	};
-	let {
-		filters,
-		faculties,
-		maxPoints,
-		onchange,
-		onclear,
-		expanded = $bindable(false)
-	}: Props = $props();
+	const { filters, faculties, maxPoints, onchange, onclear }: Props = $props();
 	let pointsMin = $state(0);
 	let pointsMax = $state(0);
 	let pointsMinText = $state('0.0');
@@ -32,13 +24,6 @@
 	let hasUncommittedInput = $state(false);
 	let facultyInput: HTMLSelectElement;
 	let fieldset: HTMLFieldSetElement;
-	const activeCount = $derived(
-		Number(filters.available) +
-			Number(Boolean(filters.faculty)) +
-			Number(filters.pointsMin > 0) +
-			Number(filters.pointsMax < maxPoints) +
-			Number(filters.medianMin > 0)
-	);
 
 	const committedMin = $derived(filters.pointsMin);
 	const committedMax = $derived(filters.pointsMax);
@@ -210,187 +195,154 @@
 	}
 </script>
 
-<details class="search-filters" bind:open={expanded}>
-	<summary class="filter-summary">
-		<span>{content.lang.search.filters}</span>
-		{#if activeCount > 0}
-			<span
-				class="filter-count"
-				aria-label={content.lang.lang === 'he'
-					? `${activeCount} מסננים פעילים`
-					: `${activeCount} active filters`}>{activeCount}</span
+<fieldset
+	bind:this={fieldset}
+	class="search-filters min-w-0 text-sm text-content-primary"
+>
+	<legend class="filter-legend">{content.lang.search.filters}</legend>
+	<div class="filter-grid">
+		<label class="filter-available">
+			<input
+				type="checkbox"
+				checked={filters.available}
+				onchange={(e) => onchange({ available: e.currentTarget.checked })}
+				class="h-5 w-5 shrink-0 cursor-pointer accent-accent-primary"
+			/>
+			{content.lang.search.available}
+		</label>
+		<div class="filter-field">
+			<label for="search-faculty">{content.lang.search.faculty}</label>
+			<select
+				id="search-faculty"
+				bind:this={facultyInput}
+				value={filters.faculty}
+				onchange={(e) => onchange({ faculty: e.currentTarget.value })}
+				class="ui-field w-full"
 			>
-		{/if}
-	</summary>
-	<fieldset bind:this={fieldset} class="min-w-0 text-sm text-content-primary">
-		<legend class="sr-only">{content.lang.search.filters}</legend>
-		<div class="filter-grid">
-			<label class="filter-available">
+				<option value="">{content.lang.search.allFaculties}</option>
+				{#if filters.faculty && !faculties.includes(filters.faculty)}
+					<option value={filters.faculty}>{filters.faculty}</option>
+				{/if}
+				{#each faculties as faculty}
+					<option value={faculty}>{faculty}</option>
+				{/each}
+			</select>
+		</div>
+		<div class="filter-range">
+			<label id="search-points-min-label" for="search-points-min-input"
+				>{content.lang.search.minPoints}</label
+			>
+			<input
+				id="search-points-min"
+				aria-labelledby="search-points-min-label"
+				type="range"
+				min="0"
+				max={pointsMax}
+				step="any"
+				value={pointsMin}
+				oninput={(e) => previewSlider(e.currentTarget, 'pointsMin')}
+				onkeydown={(e) => stepSlider(e, 'pointsMin')}
+				onpointerdown={beginSliderGesture}
+				onpointerup={updatePoints}
+				onpointercancel={updatePoints}
+				ontouchend={updatePoints}
+				ontouchcancel={updatePoints}
+				onkeyup={updatePoints}
+				onchange={updatePoints}
+				class="range-input"
+			/>
+			<label for="search-points-min-input" class="number-field">
 				<input
-					type="checkbox"
-					checked={filters.available}
-					onchange={(e) => onchange({ available: e.currentTarget.checked })}
-					class="h-5 w-5 shrink-0 cursor-pointer accent-accent-primary"
-				/>
-				{content.lang.search.available}
-			</label>
-			<div class="filter-field">
-				<label for="search-faculty">{content.lang.search.faculty}</label>
-				<select
-					id="search-faculty"
-					bind:this={facultyInput}
-					value={filters.faculty}
-					onchange={(e) => onchange({ faculty: e.currentTarget.value })}
-					class="ui-field w-full"
-				>
-					<option value="">{content.lang.search.allFaculties}</option>
-					{#if filters.faculty && !faculties.includes(filters.faculty)}
-						<option value={filters.faculty}>{filters.faculty}</option>
-					{/if}
-					{#each faculties as faculty}
-						<option value={faculty}>{faculty}</option>
-					{/each}
-				</select>
-			</div>
-			<div class="filter-range">
-				<label id="search-points-min-label" for="search-points-min-input"
-					>{content.lang.search.minPoints}</label
-				>
-				<input
-					id="search-points-min"
-					aria-labelledby="search-points-min-label"
-					type="range"
+					id="search-points-min-input"
+					type="number"
+					inputmode="decimal"
 					min="0"
 					max={pointsMax}
-					step="any"
-					value={pointsMin}
-					oninput={(e) => previewSlider(e.currentTarget, 'pointsMin')}
-					onkeydown={(e) => stepSlider(e, 'pointsMin')}
-					onpointerdown={beginSliderGesture}
-					onpointerup={updatePoints}
-					onpointercancel={updatePoints}
-					ontouchend={updatePoints}
-					ontouchcancel={updatePoints}
-					onkeyup={updatePoints}
-					onchange={updatePoints}
-					class="range-input"
-				/>
-				<label for="search-points-min-input" class="number-field">
-					<input
-						id="search-points-min-input"
-						type="number"
-						inputmode="decimal"
-						min="0"
-						max={pointsMax}
-						step="0.5"
-						value={pointsMinText}
-						oninput={(e) => previewPoints(e.currentTarget, 'pointsMin')}
-						onblur={(e) => commitNumber(e.currentTarget, 'pointsMin')}
-						onkeydown={(e) => stepNumber(e, 'pointsMin')}
-						class="ui-field w-full text-center tabular-nums"
-					/>
-				</label>
-			</div>
-			<div class="filter-range">
-				<label id="search-points-max-label" for="search-points-max-input"
-					>{content.lang.search.maxPoints}</label
-				>
-				<input
-					id="search-points-max"
-					aria-labelledby="search-points-max-label"
-					type="range"
-					min={pointsMin}
-					max={maxPoints}
-					step="any"
-					value={pointsMax}
-					oninput={(e) => previewSlider(e.currentTarget, 'pointsMax')}
-					onkeydown={(e) => stepSlider(e, 'pointsMax')}
-					onpointerdown={beginSliderGesture}
-					onpointerup={updatePoints}
-					onpointercancel={updatePoints}
-					ontouchend={updatePoints}
-					ontouchcancel={updatePoints}
-					onkeyup={updatePoints}
-					onchange={updatePoints}
-					class="range-input"
-				/>
-				<label for="search-points-max-input" class="number-field">
-					<input
-						id="search-points-max-input"
-						type="number"
-						inputmode="decimal"
-						min={pointsMin}
-						max={maxPoints}
-						step="0.5"
-						value={pointsMaxText}
-						oninput={(e) => previewPoints(e.currentTarget, 'pointsMax')}
-						onblur={(e) => commitNumber(e.currentTarget, 'pointsMax')}
-						onkeydown={(e) => stepNumber(e, 'pointsMax')}
-						class="ui-field w-full text-center tabular-nums"
-					/>
-				</label>
-			</div>
-			<label class="filter-field">
-				<span>{content.lang.search.minMedian}</span>
-				<input
-					type="number"
-					min="0"
-					max="100"
-					step="any"
-					value={medianText}
-					oninput={() => (hasUncommittedInput = true)}
-					inputmode="decimal"
-					onblur={(e) => commitNumber(e.currentTarget, 'medianMin')}
-					onkeydown={commitOnEnter}
+					step="0.5"
+					value={pointsMinText}
+					oninput={(e) => previewPoints(e.currentTarget, 'pointsMin')}
+					onblur={(e) => commitNumber(e.currentTarget, 'pointsMin')}
+					onkeydown={(e) => stepNumber(e, 'pointsMin')}
 					class="ui-field w-full text-center tabular-nums"
 				/>
 			</label>
-			<button
-				type="button"
-				disabled={!hasSearchFilters(filters, maxPoints) && !hasUncommittedInput}
-				onclick={clear}
-				class="ui-button ui-button--secondary filter-clear"
-			>
-				{content.lang.search.clearFilters}
-			</button>
 		</div>
-	</fieldset>
-</details>
+		<div class="filter-range">
+			<label id="search-points-max-label" for="search-points-max-input"
+				>{content.lang.search.maxPoints}</label
+			>
+			<input
+				id="search-points-max"
+				aria-labelledby="search-points-max-label"
+				type="range"
+				min={pointsMin}
+				max={maxPoints}
+				step="any"
+				value={pointsMax}
+				oninput={(e) => previewSlider(e.currentTarget, 'pointsMax')}
+				onkeydown={(e) => stepSlider(e, 'pointsMax')}
+				onpointerdown={beginSliderGesture}
+				onpointerup={updatePoints}
+				onpointercancel={updatePoints}
+				ontouchend={updatePoints}
+				ontouchcancel={updatePoints}
+				onkeyup={updatePoints}
+				onchange={updatePoints}
+				class="range-input"
+			/>
+			<label for="search-points-max-input" class="number-field">
+				<input
+					id="search-points-max-input"
+					type="number"
+					inputmode="decimal"
+					min={pointsMin}
+					max={maxPoints}
+					step="0.5"
+					value={pointsMaxText}
+					oninput={(e) => previewPoints(e.currentTarget, 'pointsMax')}
+					onblur={(e) => commitNumber(e.currentTarget, 'pointsMax')}
+					onkeydown={(e) => stepNumber(e, 'pointsMax')}
+					class="ui-field w-full text-center tabular-nums"
+				/>
+			</label>
+		</div>
+		<label class="filter-field">
+			<span>{content.lang.search.minMedian}</span>
+			<input
+				type="number"
+				min="0"
+				max="100"
+				step="any"
+				value={medianText}
+				oninput={() => (hasUncommittedInput = true)}
+				inputmode="decimal"
+				onblur={(e) => commitNumber(e.currentTarget, 'medianMin')}
+				onkeydown={commitOnEnter}
+				class="ui-field w-full text-center tabular-nums"
+			/>
+		</label>
+		<button
+			type="button"
+			disabled={!hasSearchFilters(filters, maxPoints) && !hasUncommittedInput}
+			onclick={clear}
+			class="ui-button ui-button--secondary filter-clear"
+		>
+			{content.lang.search.clearFilters}
+		</button>
+	</div>
+</fieldset>
 
 <style>
 	.search-filters {
 		min-inline-size: 0;
-	}
-	.search-filters[open] {
+		margin-block-end: 0.625rem;
 		padding-block-end: 0.625rem;
 		border-block-end: 1px solid rgb(var(--color-border));
 	}
-	.filter-summary {
-		min-block-size: 2.25rem;
-		padding-block: 0.375rem;
-		cursor: pointer;
+	.filter-legend {
+		padding-block-end: 0.375rem;
 		font-size: 0.8125rem;
 		font-weight: 600;
-	}
-	.filter-summary:focus-visible {
-		outline: 0.125rem solid rgb(var(--color-accent-primary));
-		outline-offset: 0.125rem;
-		border-radius: 0.25rem;
-	}
-	.filter-summary::marker {
-		color: rgb(var(--color-content-secondary));
-	}
-	.filter-count {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		min-inline-size: 1.25rem;
-		padding-inline: 0.25rem;
-		margin-inline-start: 0.375rem;
-		border-radius: 0.25rem;
-		background: rgb(var(--color-accent-primary) / 0.15);
-		font-size: 0.75rem;
-		font-variant-numeric: tabular-nums;
 	}
 	.filter-grid {
 		display: grid;

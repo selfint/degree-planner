@@ -13,11 +13,25 @@
 		prepareWithReconnectRetry,
 		type ShellReadiness
 	} from '$lib/pwa/shell-readiness';
+	import { publishOfflineShellStatus } from '$lib/pwa/status';
 	import { replacesExistingWorker } from '$lib/pwa/service-worker-update';
 
 	let showPreparing = $state(false);
 	let updateReady = $state(false);
 	let shell = $state<ShellReadiness>('preparing');
+	let shellError = $state<string | undefined>();
+	function setShell(status: ShellReadiness, error?: string) {
+		shell = status;
+		if (status === 'ready' || status === 'outdated') shellError = undefined;
+		else if (error) shellError = error;
+	}
+	$effect(() => {
+		publishOfflineShellStatus({
+			status: shell,
+			updateReady,
+			error: shellError
+		});
+	});
 	let publicData = $state<OfflinePublicDataState>({
 		phase: 'idle',
 		courseCount: 0
@@ -93,7 +107,7 @@
 			if (!controller) return;
 			const generation = ++checkGeneration;
 			checking = true;
-			shell = 'preparing';
+			setShell('preparing');
 			const result = await prepareWithReconnectRetry(
 				() => prepareOfflineShell(controller, version),
 				() =>
@@ -108,20 +122,27 @@
 				void checkShell();
 				return;
 			}
-			shell = result;
+			setShell(
+				result,
+				result === 'unavailable'
+					? 'Offline app files could not be verified. Check your connection and retry.'
+					: undefined
+			);
 			void upgradeLegacyScope();
 		};
 		verifyShell = () => {
 			void checkShell();
 		};
 		retryOffline = () => {
-			void prepareOfflinePublicData().catch(() => {});
-			void checkShell();
+			void prepareOfflinePublicData();
+			if (shell === 'unavailable' || !navigator.serviceWorker?.controller)
+				void registerShell();
+			else void checkShell();
 		};
 		const controllerChanged = () => {
 			checkGeneration++;
 			checking = false;
-			shell = 'preparing';
+			setShell('preparing');
 			void checkShell();
 		};
 		const checkNetwork = () => {
@@ -136,28 +157,35 @@
 		window.addEventListener('pageshow', retryOffline);
 		document.addEventListener('visibilitychange', visible);
 
-		// The console layout owns initial bootstrap; reconnect/visibility refresh it.
-		if (import.meta.env.PROD && 'serviceWorker' in navigator) {
-			navigator.serviceWorker.addEventListener(
-				'controllerchange',
-				controllerChanged
-			);
-			const timer = setTimeout(() => {
-				if (!disposed && !navigator.serviceWorker.controller)
-					shell = 'unavailable';
-			}, 30000);
-			cleanups.push(() => clearTimeout(timer));
-			void navigator.serviceWorker
-				.register('/service-worker.js', {
-					scope: '/app/',
-					updateViaCache: 'none'
-				})
-				.then(async (registration) => {
-					if (disposed) return;
-					updateReady = !!registration.waiting;
+		// The console layout owns data bootstrap. Retry a failed platform setup too,
+		// without activating a waiting worker or replacing the current document.
+		let registering = false;
+		let controllerTimer: ReturnType<typeof setTimeout> | undefined;
+		const watchedRegistrations = new WeakSet<ServiceWorkerRegistration>();
+		const watchedWorkers = new WeakSet<ServiceWorker>();
+		async function registerShell() {
+			if (disposed || registering) return;
+			if (!import.meta.env.PROD || !('serviceWorker' in navigator)) {
+				setShell(
+					'unavailable',
+					'Service workers are unavailable in this browser.'
+				);
+				return;
+			}
+			registering = true;
+			try {
+				const registration = await navigator.serviceWorker.register(
+					'/service-worker.js',
+					{ scope: '/app/', updateViaCache: 'none' }
+				);
+				if (disposed) return;
+				updateReady = !!registration.waiting;
+				if (!watchedRegistrations.has(registration)) {
+					watchedRegistrations.add(registration);
 					const watchInstalling = () => {
 						const worker = registration.installing;
-						if (!worker) return;
+						if (!worker || watchedWorkers.has(worker)) return;
+						watchedWorkers.add(worker);
 						const isUpdate = replacesExistingWorker(
 							worker,
 							registration.active,
@@ -166,7 +194,10 @@
 						const changed = () => {
 							if (worker.state === 'installed' && isUpdate) updateReady = true;
 							if (worker.state === 'redundant' && !registration.active)
-								shell = 'unavailable';
+								setShell(
+									'unavailable',
+									'The offline app installation did not finish.'
+								);
 						};
 						worker.addEventListener('statechange', changed);
 						cleanups.push(() =>
@@ -178,14 +209,37 @@
 						registration.removeEventListener('updatefound', watchInstalling)
 					);
 					watchInstalling();
-					void checkShell();
-					await navigator.serviceWorker.ready;
+				}
+				clearTimeout(controllerTimer);
+				controllerTimer = setTimeout(() => {
+					if (!disposed && !navigator.serviceWorker.controller)
+						setShell(
+							'unavailable',
+							'The offline app did not take control within 30 seconds.'
+						);
+				}, 30000);
+				void checkShell();
+				void navigator.serviceWorker.ready.then(() => {
 					if (!disposed) void checkShell();
-				})
-				.catch(() => {
-					if (!disposed) shell = 'unavailable';
 				});
-		} else shell = 'unavailable';
+			} catch (error) {
+				if (!disposed)
+					setShell(
+						'unavailable',
+						error instanceof Error ? error.message : String(error)
+					);
+			} finally {
+				registering = false;
+			}
+		}
+		if ('serviceWorker' in navigator) {
+			navigator.serviceWorker.addEventListener(
+				'controllerchange',
+				controllerChanged
+			);
+			cleanups.push(() => clearTimeout(controllerTimer));
+		}
+		void registerShell();
 
 		return () => {
 			disposed = true;
@@ -213,7 +267,6 @@
 	refreshError={publicData.phase === 'error'
 		? undefined
 		: publicData.refreshError}
-	setupError={publicData.error}
-	onClose={() => (updateReady = false)}
+	setupError={publicData.error ?? shellError}
 	onRetry={() => retryOffline()}
 />

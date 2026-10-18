@@ -1,3 +1,4 @@
+import { expectSearchFiltersVisible } from './helpers/searchFilters';
 import { expect, test, type Locator, type Page } from '@playwright/test';
 
 const origin = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:4173';
@@ -5,6 +6,8 @@ const origin = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:4173';
 const course = {
 	code: '10400001',
 	name: 'Button layout fixture',
+	about:
+		'A short course description that is always available before plan actions.',
 	points: 5,
 	median: 80,
 	current: true,
@@ -138,13 +141,18 @@ for (const width of [320, 390]) {
 					// Exercise the actual unavailable-install UI with a rejected platform
 					// operation, rather than forcing a view prop or Storybook variant.
 					if ('serviceWorker' in navigator)
-						navigator.serviceWorker.register = () =>
-							Promise.reject(
+						navigator.serviceWorker.register = () => {
+							const root = document.documentElement;
+							root.dataset.registrationAttempts = String(
+								Number(root.dataset.registrationAttempts ?? 0) + 1
+							);
+							return Promise.reject(
 								new DOMException(
 									'Fixture denies offline installation',
 									'NotSupportedError'
 								)
 							);
+						};
 				}, language);
 				await page.route(/\/courseData(?:Stripped)?\.json(?:\?.*)?$/, (route) =>
 					route.fulfill({ json: { [course.code]: course } })
@@ -157,6 +165,15 @@ for (const width of [320, 390]) {
 				await expect(page.locator('h1.course-name')).toHaveText(course.name);
 				const actions = page.getByTestId('course-plan-actions');
 				await expect(actions).toBeVisible();
+				const description = page.locator('.course-description');
+				await expect(description).toBeVisible();
+				await expect(description).toContainText(course.about);
+				await expect(page.locator('details.course-description')).toHaveCount(0);
+				const descriptionBounds = await description.boundingBox();
+				const actionsBounds = await actions.boundingBox();
+				expect(
+					descriptionBounds!.y + descriptionBounds!.height
+				).toBeLessThanOrEqual(actionsBounds!.y);
 				await expectCompactButtons(page, actions.locator('button.ui-button'));
 				await actions
 					.getByRole('button', {
@@ -228,38 +245,50 @@ for (const width of [320, 390]) {
 				await expectWithinViewport(page, page.locator('main select'));
 
 				await page.goto(`${origin}/app/search?q=layout`);
-				await page.locator('details.search-filters summary').tap();
+				await expectSearchFiltersVisible(page);
 				await expectCompactButtons(
 					page,
-					page.locator('details.search-filters button.ui-button')
+					page.locator('fieldset.search-filters button.ui-button')
 				);
 
-				const status = page.locator('details.pwa-details');
-				await expect(status.locator('summary')).toBeVisible();
-				for (let opening = 0; opening < 2; opening++) {
-					await status.locator('summary').tap();
-					await expect(status.locator('.pwa-panel')).toBeVisible();
-					await expect(status.locator('.pwa-actions button')).toHaveCount(2);
-					await expectCompactButtons(
-						page,
-						status.locator('.pwa-actions button')
-					);
-					await expectWithinViewport(page, status.locator('.pwa-panel'));
-					expect(
-						await status
-							.locator('.pwa-panel')
-							.evaluate(
-								(panel: HTMLElement) =>
-									panel.offsetParent === panel.closest('nav')
+				const status = page.getByTestId('pwa-error');
+				const retry = status.getByRole('button', {
+					name: language === 'en' ? 'Retry' : 'נסו שוב',
+					exact: true
+				});
+				await expect(status).toBeVisible();
+				await expect(page.locator('details.pwa-details')).toHaveCount(0);
+				await expectCompactButtons(page, retry);
+				await expectWithinViewport(page, page.locator('header nav'));
+				const timeOrigin = await page.evaluate(() => performance.timeOrigin);
+				for (let attempt = 0; attempt < 2; attempt++) {
+					const attempts = await page
+						.locator('html')
+						.getAttribute('data-registration-attempts');
+					await retry.tap();
+					await expect
+						.poll(async () =>
+							Number(
+								await page
+									.locator('html')
+									.getAttribute('data-registration-attempts')
 							)
-					).toBe(true);
-					await status
-						.getByRole('button', {
-							name: language === 'en' ? 'Close' : 'סגירה',
-							exact: true
-						})
-						.tap();
-					await expect(status).not.toHaveAttribute('open', '');
+						)
+						.toBeGreaterThan(Number(attempts));
+					await status.getByRole('link').tap();
+					await expect(page).toHaveURL(
+						`${origin}/app/search?q=layout#offline-status`
+					);
+					const details = page.getByTestId('pwa-status-details');
+					await expect(details).toBeInViewport();
+					await expect(details.getByTestId('pwa-error-detail')).toContainText(
+						'Fixture denies offline installation'
+					);
+					await expect(details.locator('details, summary')).toHaveCount(0);
+					await expectWithinViewport(page, details);
+					expect(await page.evaluate(() => performance.timeOrigin)).toBe(
+						timeOrigin
+					);
 					await expectNoDocumentOverflow(page);
 				}
 			});

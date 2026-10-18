@@ -1,4 +1,4 @@
-import { openSearchFilters } from './helpers/searchFilters';
+import { expectSearchFiltersVisible } from './helpers/searchFilters';
 import { expect, test, type Locator } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 
@@ -69,7 +69,7 @@ test('combines filters, counts only displayed courses, and restores state after 
 	page
 }) => {
 	await page.goto(`/app/search?q=${query}`);
-	await openSearchFilters(page);
+	await expectSearchFiltersVisible(page);
 	await expect(page.locator('main p[role="status"]')).toHaveText(
 		`${matches.length} results found`
 	);
@@ -113,7 +113,7 @@ test('combines filters, counts only displayed courses, and restores state after 
 			.evaluateAll((items) => items.map((item) => item.id))
 	).toEqual(expected.map((course) => course.code));
 	await page.reload();
-	await openSearchFilters(page);
+	await expectSearchFiltersVisible(page);
 	await expect(page.getByLabel('Available', { exact: true })).toBeChecked();
 	await expect(page.getByLabel('Faculty', { exact: true })).toHaveValue(
 		mathFaculty
@@ -134,7 +134,7 @@ test('commits a slider gesture once, clears filters without losing the query, an
 	await page.goto(
 		`/app/search?q=${query}&available&faculty=${encodeURIComponent(mathFaculty)}`
 	);
-	await openSearchFilters(page);
+	await expectSearchFiltersVisible(page);
 	const original = page.url();
 	const slider = page.getByRole('slider', { name: 'Min points' });
 	await expect(slider).toHaveValue('0');
@@ -173,7 +173,7 @@ test('handles malformed URLs, zero median, and an empty result set', async ({
 	await page.goto(
 		`/app/search?q=${query}&pointsMin=NaN&pointsMax=Infinity&medianMin=0`
 	);
-	await openSearchFilters(page);
+	await expectSearchFiltersVisible(page);
 	await expect(page.getByRole('slider', { name: 'Min points' })).toHaveValue(
 		'0'
 	);
@@ -190,7 +190,7 @@ test('handles malformed URLs, zero median, and an empty result set', async ({
 	).toHaveValue('100.0');
 	await expect(page).toHaveURL(/medianMin=100/);
 	await page.goto(`/app/search?q=${query}&faculty=Unknown`);
-	await openSearchFilters(page);
+	await expectSearchFiltersVisible(page);
 	await expect(page.getByLabel('Faculty', { exact: true })).toHaveValue(
 		'Unknown'
 	);
@@ -221,7 +221,7 @@ test('keeps filters when submitting a new query and encodes reserved characters'
 		);
 	});
 	await page.goto(`/app/search?q=${query}&available&pointsMin=2`);
-	await openSearchFilters(page);
+	await expectSearchFiltersVisible(page);
 	const input = page.locator('header input[type="text"]');
 	await input.fill('A&B + #?');
 	await input.press('Enter');
@@ -243,7 +243,7 @@ test('renders labeled Hebrew controls without horizontal overflow on mobile', as
 }) => {
 	await page.setViewportSize({ width: 320, height: 812 });
 	await page.goto('/app/search?q=104184&medianMin=85');
-	await openSearchFilters(page);
+	await expectSearchFiltersVisible(page);
 	await expect(
 		page.getByRole('heading', { name: 'תוצאות עבור “01040184”' })
 	).toBeVisible();
@@ -274,7 +274,7 @@ test('supports precise decimal fields on mobile with slider, URL, reload, and hi
 }) => {
 	await page.setViewportSize({ width: 320, height: 812 });
 	await page.goto(`/app/search?q=${query}`);
-	await openSearchFilters(page);
+	await expectSearchFiltersVisible(page);
 	const minInput = page.getByRole('spinbutton', { name: 'Min points' });
 	const maxInput = page.getByRole('spinbutton', { name: 'Max points' });
 	const medianInput = page.getByRole('spinbutton', { name: 'Min median' });
@@ -333,7 +333,7 @@ test('supports precise decimal fields on mobile with slider, URL, reload, and hi
 		layout.width
 	);
 	await page.reload();
-	await openSearchFilters(page);
+	await expectSearchFiltersVisible(page);
 	await expect(minInput).toHaveValue('2.3');
 	await expect(maxInput).toHaveValue('4.8');
 	await expect(medianInput).toHaveValue('85.1');
@@ -360,7 +360,7 @@ test('normalizes numeric fields only when committed and handles empty, invalid, 
 	await page.goto(
 		`/app/search?q=${query}&pointsMin=1.3&pointsMax=4.8&medianMin=90.5`
 	);
-	await openSearchFilters(page);
+	await expectSearchFiltersVisible(page);
 	const minInput = page.getByRole('spinbutton', { name: 'Min points' });
 	const maxInput = page.getByRole('spinbutton', { name: 'Max points' });
 	const medianInput = page.getByRole('spinbutton', { name: 'Min median' });
@@ -419,7 +419,7 @@ for (const language of ['English', 'Hebrew']) {
 	}) => {
 		await page.setViewportSize({ width: 320, height: 812 });
 		await page.goto('/app/search?q=104184');
-		await openSearchFilters(page);
+		await expectSearchFiltersVisible(page);
 		const inputs = page.locator('fieldset input[type="number"]');
 		await expect(inputs).toHaveCount(3);
 		for (const input of await inputs.all())
@@ -457,7 +457,7 @@ test('formats one decimal and snaps credit gestures and steppers to half points'
 	await page.goto(
 		'/app/search?q=1040&pointsMin=3.04&pointsMax=5.01&medianMin=85.04'
 	);
-	await openSearchFilters(page);
+	await expectSearchFiltersVisible(page);
 	const min = page.getByRole('spinbutton', { name: 'Min points' });
 	const max = page.getByRole('spinbutton', { name: 'Max points' });
 	const median = page.getByRole('spinbutton', { name: 'Min median' });
@@ -501,7 +501,7 @@ test('formats one decimal and snaps credit gestures and steppers to half points'
 	await expect(min).toHaveValue('3.1');
 	await expect(page).toHaveURL(/pointsMin=3.1/);
 	await page.reload();
-	await openSearchFilters(page);
+	await expectSearchFiltersVisible(page);
 	await expect(min).toHaveValue('3.1');
 	await expect(slider).toHaveValue('3.1');
 });

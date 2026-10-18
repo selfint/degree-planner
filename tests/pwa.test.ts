@@ -2,11 +2,12 @@ import { test, expect, type Page } from '@playwright/test';
 import { createServer, type Server } from 'node:http';
 import { readFile } from 'node:fs/promises';
 
-async function openOfflineStatus(page: Page, timeout = 15000) {
-	const details = page.locator('details.pwa-details');
-	await expect(details.locator('summary')).toBeVisible({ timeout });
-	if ((await details.getAttribute('open')) === null)
-		await details.locator('summary').click();
+async function viewOfflineError(page: Page, timeout = 15000) {
+	const error = page.getByTestId('pwa-error');
+	await expect(error).toBeVisible({ timeout });
+	await expect(error.locator('details, summary')).toHaveCount(0);
+	await error.getByRole('link').click();
+	await expect(page.getByTestId('pwa-status-details')).toBeVisible();
 }
 
 // A proxy of the real production build lets us deliver a changed worker script
@@ -119,6 +120,10 @@ test('manifest and correctly sized icons support installation', async ({
 	await expect(page.locator('footer').getByTestId('pwa-status')).toHaveCount(0);
 	await expect(page.locator('footer details')).toHaveCount(0);
 	await expect(page.getByTestId('pwa-downloading')).toHaveCount(0);
+	await expect(page.getByTestId('pwa-status-details')).toHaveCount(0);
+	await expect(
+		page.getByTestId('pwa-status').locator('a, button, details')
+	).toHaveCount(0);
 	expect(
 		await page
 			.getByTestId('pwa-status')
@@ -276,13 +281,18 @@ test('updates wait without reloading unsaved plan edits or other tabs', async ({
 	await page.evaluate(async () =>
 		(await navigator.serviceWorker.getRegistration())!.update()
 	);
-	await expect(page.locator('details.pwa-details summary')).toBeVisible();
-	await expect(page.getByTestId('pwa-update')).not.toBeVisible();
+	const updateLink = page.getByTestId('pwa-update-link');
+	await expect(updateLink).toBeVisible();
+	await expect(updateLink).toHaveAttribute('href', '#offline-status');
+	await expect(updateLink).toHaveAttribute(
+		'title',
+		/Finish saving.*close all PlanIt tabs/
+	);
+	await expect(page.locator('details.pwa-details')).toHaveCount(0);
 	expect((await page.locator('main').boundingBox())!.y).toBeCloseTo(
 		contentTop,
 		0
 	);
-	await openOfflineStatus(page);
 	await expect(page.getByTestId('pwa-update')).toBeVisible();
 	await expect(page.getByTestId('pwa-update')).toHaveCount(1);
 	await expect(page.getByTestId('pwa-incomplete')).toHaveCount(0);
@@ -312,14 +322,29 @@ test('updates wait without reloading unsaved plan edits or other tabs', async ({
 				cards.map((card) => card.getAttribute('data-code'))
 			)
 	).toEqual(draftOrder);
-	// The optional details overlay can cover the task; dismiss it through its
-	// visible control before saving, exactly as a user would. Closing must not
-	// activate the worker, reload the page, or discard the draft.
-	await page
-		.locator('details.pwa-details')
-		.getByRole('button', { name: 'Close', exact: true })
-		.click();
-	await expect(page.getByTestId('pwa-update')).not.toBeVisible();
+	// The same-page link reveals already-visible instructions without navigating
+	// away, opening an overlay, reloading, or discarding the current draft.
+	await updateLink.click();
+	await expect(page).toHaveURL(`${origin}/app/plan#offline-status`);
+	await expect(page.getByTestId('pwa-update')).toBeInViewport();
+	await expect(page.getByTestId('pwa-update')).toContainText('Finish saving');
+	await expect(page.getByTestId('pwa-update')).toContainText(
+		'close all PlanIt tabs'
+	);
+	await expect(page.getByTestId('pwa-update')).toContainText(
+		'will not be reloaded automatically'
+	);
+	await expect(
+		page.getByRole('button', { name: 'Save', exact: true })
+	).toBeVisible();
+	expect(
+		await page
+			.locator('[data-code]')
+			.evaluateAll((cards) =>
+				cards.map((card) => card.getAttribute('data-code'))
+			)
+	).toEqual(draftOrder);
+
 	expect(await page.evaluate(() => performance.timeOrigin)).toBe(timeOrigin);
 	expect(await page.evaluate(() => localStorage.getItem('userData'))).toBe(
 		saved
@@ -452,7 +477,7 @@ test('evicted shell assets remove readiness offline and are repaired on reconnec
 	});
 	expect(deleted).toContain('/nodes/');
 	await context.setOffline(true);
-	await openOfflineStatus(page);
+	await viewOfflineError(page);
 	await expect(page.getByTestId('pwa-incomplete')).toBeVisible();
 	await expect(page.getByTestId('pwa-status')).not.toHaveAttribute(
 		'data-state',
@@ -485,7 +510,7 @@ test('denied IDB leaves online use available without claiming offline setup succ
 	});
 	await page.goto(`${origin}/app/plan`);
 	await page.waitForFunction(() => navigator.serviceWorker.controller !== null);
-	await openOfflineStatus(page);
+	await viewOfflineError(page);
 	await expect(page.getByTestId('pwa-incomplete')).toBeVisible();
 	await expect(page.locator('[data-code="02340124"]')).toBeVisible();
 });
@@ -545,6 +570,33 @@ test('signed-in offline users can read an unvisited course without exposing or e
 	await page.goto(`${origin}/app/plan`);
 	await expect(page.getByTestId('pwa-account-unavailable')).toBeVisible();
 	await expect(page.locator('main')).toBeHidden();
+	await expect(page.getByTestId('pwa-status')).toHaveAttribute(
+		'data-state',
+		'ready'
+	);
+	await page.evaluate(async () => {
+		const name = (await caches.keys()).find((name) =>
+			name.startsWith('planit-console-shell-')
+		)!;
+		const cache = await caches.open(name);
+		const asset = (await cache.keys()).find(
+			(request) =>
+				request.url.includes('/nodes/') && request.url.endsWith('.js')
+		)!;
+		await cache.delete(asset);
+		window.dispatchEvent(new Event('pageshow'));
+	});
+	await viewOfflineError(page);
+	await expect(
+		page
+			.getByTestId('pwa-error-detail')
+			.filter({ hasText: 'Offline app files could not be verified' })
+	).toBeVisible();
+	await expect(page.getByTestId('pwa-status-details')).toBeInViewport();
+	await expect(page.locator('main')).toBeHidden();
+	expect(await page.evaluate(() => localStorage.getItem('userData'))).toBe(
+		guestPlan
+	);
 });
 
 test('console scope upgrades legacy installed launches without clearing open-tab caches', async ({
@@ -664,7 +716,7 @@ test('a failed console shell install keeps the existing root registration', asyn
 	denyConsoleShell = true;
 	await page.goto(`${origin}/app/plan`);
 	await expect(page.locator('[data-code="02340124"]')).toBeVisible();
-	await openOfflineStatus(page, 35_000);
+	await viewOfflineError(page, 35_000);
 	await expect(page.getByTestId('pwa-incomplete')).toBeVisible();
 	const root = await page.evaluate(async () => {
 		const registration = (
@@ -708,7 +760,7 @@ test('a failed public-data persistence keeps the existing root registration even
 	});
 	await page.goto(`${origin}/app/plan`);
 	await expect(page.locator('[data-code="02340124"]')).toBeVisible();
-	await openOfflineStatus(page);
+	await viewOfflineError(page);
 	await expect(page.getByTestId('pwa-incomplete')).toBeVisible();
 	await expect
 		.poll(() =>

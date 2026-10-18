@@ -293,12 +293,50 @@ test('theme, language and reading direction are global controls', async ({
 	await expect(page.getByRole('status')).toHaveText('Loading courses…');
 	await expect(page.getByRole('status')).toHaveCSS('clip-path', 'inset(50%)');
 	await page.goto(
-		`${storyUrl('components-searchfilters--expanded')}&globals=theme:light;language:en;direction:ltr`
+		`${storyUrl('components-searchfilters--default')}&globals=theme:light;language:en;direction:ltr`
 	);
 	await expect(page.locator('html')).toHaveAttribute('dir', 'ltr');
 	await expect(
 		page.getByRole('group', { name: 'Filters', exact: true })
 	).toBeVisible();
+	await page.goto(storyUrl('components-pwastatus--cached-refresh-failure'));
+	await expect(page.getByTestId('pwa-refresh-error')).toHaveText(
+		pwaMessages.en.cachedRefreshFailed
+	);
+	for (const language of ['he', 'en'] as const) {
+		// Use the same Storybook channel event as its toolbar, without reloading
+		// the iframe: global changes must keep the active fixture's details.
+		await page.evaluate((language) => {
+			const channel = (
+				window as Window & {
+					__STORYBOOK_ADDONS_CHANNEL__: {
+						emit: (event: string, payload: unknown) => void;
+					};
+				}
+			).__STORYBOOK_ADDONS_CHANNEL__;
+			channel.emit('updateGlobals', {
+				globals: {
+					language,
+					theme: language === 'he' ? 'light' : 'dark',
+					direction: language === 'he' ? 'rtl' : 'ltr'
+				}
+			});
+		}, language);
+		await expect(page.locator('html')).toHaveAttribute('lang', language);
+		await expect(page.locator('html')).toHaveAttribute(
+			'dir',
+			language === 'he' ? 'rtl' : 'ltr'
+		);
+		await expect(page.locator('html')).toHaveAttribute(
+			'data-theme',
+			language === 'he' ? 'light' : 'dark'
+		);
+		await expect(page.getByTestId('pwa-refresh-error')).toHaveText(
+			pwaMessages[language].cachedRefreshFailed
+		);
+		await expect(page.getByTestId('pwa-error-detail')).toBeVisible();
+		await expect(page.getByTestId('pwa-error')).toBeVisible();
+	}
 });
 
 test('the app service worker and app HTML do not load Storybook', async ({
@@ -385,7 +423,7 @@ test('CourseGroup resolves actual async data and exposes loading and error state
 	await expect(page.getByRole('alert')).toBeVisible();
 });
 
-test('PWA status stays out of flow until its compact indicator is opened', async ({
+test('PWA status has direct exceptional actions and always-visible details', async ({
 	page
 }) => {
 	for (const state of ['initial', 'preparing', 'ready']) {
@@ -399,7 +437,8 @@ test('PWA status stays out of flow until its compact indicator is opened', async
 			'data-state',
 			state === 'ready' ? 'ready' : 'preparing'
 		);
-		await expect(page.locator('.pwa-details')).toHaveCount(0);
+		await expect(page.locator('details, summary')).toHaveCount(0);
+		await expect(page.getByTestId('pwa-status-details')).toHaveCount(0);
 		await expect(page.getByRole('status')).toHaveCSS('position', 'absolute');
 		if (state === 'initial') await expect(page.getByRole('status')).toBeEmpty();
 		else await expect(page.getByRole('status')).toContainText(/offline/i);
@@ -409,61 +448,76 @@ test('PWA status stays out of flow until its compact indicator is opened', async
 				.evaluate((el) => el.getBoundingClientRect().height)
 		).toBe(0);
 	}
-	for (const [width, globals] of [
-		[320, 'theme:light;language:he;direction:rtl'],
-		[390, 'theme:dark;language:en;direction:ltr']
+	for (const [width, language, theme, direction] of [
+		[320, 'he', 'light', 'rtl'],
+		[390, 'en', 'dark', 'ltr']
 	] as const) {
 		await page.setViewportSize({ width, height: 800 });
 		for (const state of ['unavailable', 'outdated', 'update']) {
 			await page.goto(
-				`${storyUrl(`components-pwastatus--${state}`)}&globals=${globals}`
+				`${storyUrl(`components-pwastatus--${state}`)}&globals=language:${language};theme:${theme};direction:${direction}`
 			);
-			const details = page.locator('.pwa-details');
-			const summary = details.locator('summary');
-			await expect(details).toHaveCount(1);
-			await expect(details).not.toHaveAttribute('open', '');
-			await expect(summary).toHaveAccessibleName(/\S/);
-			const closedHeight = await page
-				.getByTestId('pwa-preview-slot')
-				.evaluate((el) => el.getBoundingClientRect().height);
-			expect(closedHeight).toBeGreaterThanOrEqual(35.5);
-			expect(closedHeight).toBeLessThanOrEqual(40);
-			await summary.focus();
-			await summary.press('Enter');
-			await expect(details).toHaveAttribute('open', '');
+			const root = page.getByTestId('pwa-status');
+			const detail = page.getByTestId('pwa-status-details');
+			await expect(
+				page.locator('details, summary, [role="dialog"]')
+			).toHaveCount(0);
+			await expect(detail).toBeVisible();
+			await expect(detail).toHaveAttribute('id', 'offline-status');
+			await expect(detail).toHaveCSS('position', 'static');
+			const link = root.getByRole('link');
+			await expect(link).toHaveCount(1);
+			await expect(link).toHaveAccessibleName(/\S/);
+			await expect(link).toHaveAttribute('href', '#offline-status');
 			const panel = page.getByTestId(
 				state === 'unavailable' ? 'pwa-incomplete' : 'pwa-update'
 			);
-			await expect(panel).toHaveCount(1);
 			await expect(panel).toBeVisible();
 			await expect(
 				page.getByTestId(
 					state === 'unavailable' ? 'pwa-update' : 'pwa-incomplete'
 				)
 			).toHaveCount(0);
-			// The details float below the header slot rather than pushing the console down.
 			expect(
 				await page
 					.getByTestId('pwa-preview-slot')
 					.evaluate((el) => el.getBoundingClientRect().height)
-			).toBe(closedHeight);
-			const bounds = await details.locator('.pwa-panel').boundingBox();
+			).toBe(36);
+			const bounds = await detail.boundingBox();
 			expect(bounds!.x).toBeGreaterThanOrEqual(0);
 			expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(width);
 			if (state === 'unavailable') {
-				await expect(details.locator('.refresh-error-detail')).toHaveText(
+				await expect(page.getByTestId('pwa-error')).toHaveCount(1);
+				await expect(page.getByTestId('pwa-update-link')).toHaveCount(0);
+				await expect(page.getByTestId('pwa-error-detail')).toHaveText(
 					'Example offline setup failed: browser storage quota exceeded.'
 				);
+				await expect(page.getByTestId('pwa-error-detail')).toHaveAttribute(
+					'dir',
+					'auto'
+				);
 				await expect(page.getByTestId('pwa-refresh-error')).toHaveCount(0);
-				await page
-					.getByRole('button', { name: /^(Try again|נסו שוב)$/ })
-					.click();
+				const retry = root.getByRole('button', { name: /^(Retry|נסו שוב)$/ });
+				await expectCompactAction(retry);
+				await retry.click();
 				await expect(page.getByText('Retry requests: 1')).toBeVisible();
+				await expect(panel).toBeVisible();
+			} else {
+				await expect(page.getByTestId('pwa-update-link')).toHaveCount(1);
+				await expect(panel).toHaveText(pwaMessages[language].update);
+				await expect(root.getByRole('button')).toHaveCount(0);
 			}
-			await page.getByRole('button', { name: /^(Close|סגירה)$/ }).click();
-			await expect(panel).not.toBeVisible();
-			if (state !== 'update')
-				await expect(details).not.toHaveAttribute('open', '');
+			const before = page.url();
+			await link.focus();
+			await link.press('Enter');
+			// SvelteKit's Storybook provider mocks anchors; this exact local target
+			// focuses the visible section without permitting real app navigation.
+			await expect(detail).toBeFocused();
+			expect(page.url()).toBe(before);
+			await expect(detail).toBeVisible();
+			await expect(
+				page.getByRole('button', { name: /^(Close|סגירה)$/ })
+			).toHaveCount(0);
 		}
 	}
 	expect(
@@ -473,7 +527,7 @@ test('PWA status stays out of flow until its compact indicator is opened', async
 	).toBe(0);
 });
 
-test('refresh failures preserve stored-data truth and share one update indicator', async ({
+test('refresh failures preserve stored-data truth and one direct header error', async ({
 	page
 }) => {
 	test.setTimeout(60_000);
@@ -492,31 +546,30 @@ test('refresh failures preserve stored-data truth and share one update indicator
 				`${storyUrl(`components-pwastatus--${state}`)}&globals=language:${language};theme:${theme};direction:${direction}`
 			);
 			const root = page.getByTestId('pwa-status');
-			const details = root.locator('.pwa-details');
-			const summary = details.locator('summary');
+			const detail = page.getByTestId('pwa-status-details');
 			await expect(root).toHaveAttribute(
 				'data-state',
 				state === 'cached-refresh-shell-unavailable' ? 'error' : 'ready'
 			);
 			await expect(root).toHaveAttribute('data-refresh-state', 'error');
-			await expect(summary).toHaveCount(1);
-			await expect(summary).toHaveAccessibleName(text.refreshFailed);
-			await expect(details).not.toHaveAttribute('open', '');
-			const slot = page.getByTestId('pwa-preview-slot');
-			const height = await slot.evaluate(
-				(el) => el.getBoundingClientRect().height
+			await expect(
+				page.locator('details, summary, [role="dialog"]')
+			).toHaveCount(0);
+			await expect(root.getByRole('link')).toHaveCount(1);
+			await expect(root.getByRole('link')).toHaveAttribute(
+				'href',
+				'#offline-status'
 			);
-			expect(height).toBe(36);
-			await summary.focus();
-			await summary.press('Enter');
+			await expect(page.getByTestId('pwa-error')).toHaveCount(1);
+			await expect(page.getByTestId('pwa-update-link')).toHaveCount(0);
 			await expect(page.getByTestId('pwa-refresh-error')).toHaveText(
 				text.cachedRefreshFailed
 			);
 			await expect(page.getByTestId('pwa-refresh-error')).toBeVisible();
-			await expect(details.locator('.refresh-error-detail')).toHaveText(
+			await expect(page.getByTestId('pwa-error-detail')).toHaveText(
 				'Example course refresh failed: response validation rejected missing course names.'
 			);
-			await expect(details.locator('.refresh-error-detail')).toHaveAttribute(
+			await expect(page.getByTestId('pwa-error-detail')).toHaveAttribute(
 				'dir',
 				'auto'
 			);
@@ -525,32 +578,29 @@ test('refresh failures preserve stored-data truth and share one update indicator
 				state === 'update-refresh-failure' ? 1 : 0
 			);
 			if (state === 'update-refresh-failure')
-				await expect(page.getByTestId('pwa-update')).toBeVisible();
+				await expect(page.getByTestId('pwa-update')).toHaveText(text.update);
 			expect(
-				await slot.evaluate((el) => el.getBoundingClientRect().height)
-			).toBe(height);
-			const bounds = await details.locator('.pwa-panel').boundingBox();
+				await page
+					.getByTestId('pwa-preview-slot')
+					.evaluate((el) => el.getBoundingClientRect().height)
+			).toBe(36);
+			const bounds = await detail.boundingBox();
 			expect(bounds!.x).toBeGreaterThanOrEqual(0);
 			expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(width);
 			await page.screenshot({
 				path: test.info().outputPath(`pwa-${state}-${width}.png`),
 				fullPage: true
 			});
-			const retry = page.getByRole('button', { name: text.retry, exact: true });
+			const retry = root.getByRole('button', { name: /^(Retry|נסו שוב)$/ });
 			await expectCompactAction(retry);
 			await retry.click();
 			await expect(page.getByText('Retry requests: 1')).toBeVisible();
-			await page.getByRole('button', { name: /^(Close|סגירה)$/ }).click();
-			await expect(details).not.toHaveAttribute('open', '');
-			await expect(page.getByTestId('pwa-refresh-error')).not.toBeVisible();
-			await expect(summary).toHaveCount(1);
-			// Dismissal hides the details; it must not pretend an unsuccessful refresh recovered.
+			// A retry request does not dismiss a real failure or hide a pending update.
 			await expect(root).toHaveAttribute('data-refresh-state', 'error');
-			await summary.press('Enter');
 			await expect(page.getByTestId('pwa-refresh-error')).toBeVisible();
-			await expect(page.getByTestId('pwa-update')).toHaveCount(0);
-			await retry.click();
-			await expect(page.getByText('Retry requests: 2')).toBeVisible();
+			await expect(page.getByTestId('pwa-update')).toHaveCount(
+				state === 'update-refresh-failure' ? 1 : 0
+			);
 		}
 	}
 });
@@ -614,42 +664,43 @@ test('degree path and recommendation variants show their real controls', async (
 	).toHaveAttribute('href', '/app/settings');
 });
 
-test('filter disclosure retains committed filters and defaults to a compact results toolbar', async ({
+test('filters stay visible and retain committed values above search results', async ({
 	page
 }) => {
 	await page.goto(storyUrl('components-searchfilters--selected'));
-	const filters = page.locator('details.search-filters');
-	const summary = filters.locator('summary');
-	await expect(filters).toHaveAttribute('open', '');
-	await expect(summary).toContainText('5');
-	await summary.click();
-	await expect(filters).not.toHaveAttribute('open', '');
-	await expect(page.locator('#search-faculty')).not.toBeVisible();
-	await summary.press('Enter');
+	await expect(page.locator('.search-filters')).toBeVisible();
+	await expect(
+		page.locator('details.search-filters, .search-filters summary')
+	).toHaveCount(0);
+	await expect(page.locator('#search-faculty')).toBeVisible();
 	await expect(page.locator('#search-faculty')).toHaveValue('Example science');
 	await expect(page.locator('#search-points-min-input')).toHaveValue('2.0');
 	await page.getByRole('button', { name: 'Clear filters' }).click();
-	await expect(summary.locator('.filter-count')).toHaveCount(0);
 	await expect(page.locator('#search-faculty')).toHaveValue('');
+	await expect(page.locator('#search-points-min-input')).toHaveValue('0.0');
+	await expect(page.locator('#search-faculty')).toBeVisible();
 	await page.goto(storyUrl('pages-search--results'));
-	await expect(page.locator('details.search-filters')).not.toHaveAttribute(
-		'open',
-		''
-	);
+	await expect(page.locator('#search-faculty')).toBeVisible();
 	await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-	await expect(page.locator('details.search-filters')).toBeVisible();
+	await expect(
+		page.locator('details.search-filters, .search-filters summary')
+	).toHaveCount(0);
 	const positions = await page.evaluate(() => ({
-		toolbar: document.querySelector('.search-toolbar')!.getBoundingClientRect()
-			.bottom,
-		toolbarHeight: document
-			.querySelector('.search-toolbar')!
-			.getBoundingClientRect().height,
+		filtersBottom: document
+			.querySelector('.search-filters')!
+			.getBoundingClientRect().bottom,
+		headingTop: document
+			.querySelector('.search-heading')!
+			.getBoundingClientRect().top,
+		headingBottom: document
+			.querySelector('.search-heading')!
+			.getBoundingClientRect().bottom,
 		firstResult: document
 			.querySelector('.search-results > li')!
 			.getBoundingClientRect().top
 	}));
-	expect(positions.toolbar).toBeLessThanOrEqual(positions.firstResult);
-	expect(positions.toolbarHeight).toBeLessThanOrEqual(80);
+	expect(positions.filtersBottom).toBeLessThanOrEqual(positions.headingTop);
+	expect(positions.headingBottom).toBeLessThanOrEqual(positions.firstResult);
 });
 
 test('console surfaces remain readable and usable at narrow and wide widths', async ({
@@ -664,9 +715,9 @@ test('console surfaces remain readable and usable at narrow and wide widths', as
 		for (const id of [
 			'pages-settings--choose-degree',
 			'pages-course--default',
-			'pages-course--expanded-description',
+			'pages-course--missing-details',
 			'pages-search--results',
-			'pages-search--expanded-filters',
+			'pages-search--filtered-results',
 			'pages-catalog--default',
 			'pages-shared-plan--default'
 		]) {
@@ -684,27 +735,32 @@ test('console surfaces remain readable and usable at narrow and wide widths', as
 						document.documentElement.clientWidth
 				);
 				expect(overflow).toBeLessThanOrEqual(1);
-				if (id === 'pages-search--results') {
-					expect(
-						(await page.locator('.search-results > li').first().boundingBox())!
-							.y
-					).toBeLessThan(120);
+				if (id.startsWith('pages-search--')) {
+					await expect(page.locator('#search-faculty')).toBeVisible();
+					await expect(page.locator('#search-points-min-input')).toBeVisible();
+					await expect(
+						page.locator('details.search-filters, .search-filters summary')
+					).toHaveCount(0);
+					const filters = await page.locator('.search-filters').boundingBox();
+					const heading = await page.locator('.search-heading').boundingBox();
+					expect(filters!.y + filters!.height).toBeLessThanOrEqual(heading!.y);
 				}
-				if (id === 'pages-search--expanded-filters')
-					await expect(page.locator('details.search-filters')).toHaveAttribute(
-						'open',
-						''
+				if (id === 'pages-course--default') {
+					const description = page.locator('p.course-description');
+					await expect(description).toHaveText('A fictional follow-up course.');
+					await expect(description).toBeVisible();
+					await expect(page.locator('details.course-description')).toHaveCount(
+						0
 					);
-				if (id === 'pages-course--expanded-description')
-					await expect(page.locator('.course-description')).toHaveAttribute(
-						'open',
-						''
-					);
-				if (id === 'pages-course--default')
-					await expect(page.locator('.course-description')).not.toHaveAttribute(
-						'open',
-						''
-					);
+					const about = await description.boundingBox();
+					const actions = await page
+						.getByTestId('course-plan-actions')
+						.boundingBox();
+					expect(about!.y + about!.height).toBeLessThanOrEqual(actions!.y);
+				}
+				if (id === 'pages-course--missing-details')
+					await expect(page.locator('.course-description')).toHaveCount(0);
+
 				if (
 					[
 						'pages-search--results',
@@ -720,7 +776,7 @@ test('console surfaces remain readable and usable at narrow and wide widths', as
 					if (await button.isVisible()) await expectCompactAction(button);
 				}
 				const controls = page.locator(
-					'select, [data-testid="course-plan-actions"] button, details.search-filters input[type="number"], details.search-filters button'
+					'select, [data-testid="course-plan-actions"] button, .search-filters input[type="number"], .search-filters button'
 				);
 				for (const control of await controls.all()) {
 					if (!(await control.isVisible())) continue;
@@ -740,6 +796,55 @@ test('console surfaces remain readable and usable at narrow and wide widths', as
 					path: test.info().outputPath(`${id}-${width}.png`),
 					fullPage: true
 				});
+			});
+		}
+	}
+});
+
+test('catalog course rows fill the available canvas without page gutters or width caps', async ({
+	page
+}) => {
+	for (const width of [320, 390, 1440]) {
+		for (const direction of ['rtl', 'ltr']) {
+			await page.setViewportSize({ width, height: 800 });
+			await page.goto(
+				`${storyUrl('pages-catalog--default')}&globals=language:${direction === 'rtl' ? 'he' : 'en'};direction:${direction};theme:${direction === 'rtl' ? 'light' : 'dark'}`
+			);
+			await expect(page.locator('[data-story-rendered]')).toHaveAttribute(
+				'data-story-rendered',
+				'pages-catalog--default',
+				{ timeout: 15_000 }
+			);
+			const root = page.locator('.catalog-page');
+			await expect(root).toHaveCSS('padding-left', '0px');
+			await expect(root).toHaveCSS('padding-right', '0px');
+			await expect(root).toHaveCSS('max-width', 'none');
+			const canvas = await page.locator('[data-story-ready]').boundingBox();
+			const bounds = await root.boundingBox();
+			expect(bounds!.x).toBeCloseTo(canvas!.x, 1);
+			expect(bounds!.width).toBeCloseTo(canvas!.width, 1);
+			const rows = root.locator('.course-row');
+			expect(await rows.count()).toBeGreaterThan(0);
+			for (const row of await rows.all()) {
+				const box = await row.boundingBox();
+				expect(box!.x).toBeCloseTo(bounds!.x, 1);
+				expect(box!.width).toBeCloseTo(bounds!.width, 1);
+				const first = await row.locator('.course-card').first().boundingBox();
+				expect(
+					direction === 'rtl' ? first!.x + first!.width : first!.x
+				).toBeCloseTo(direction === 'rtl' ? box!.x + box!.width : box!.x, 1);
+			}
+			await expectOriginalCardHierarchy(
+				rows.first().locator('.course-card').first()
+			);
+			expect(
+				await page.evaluate(
+					() => document.documentElement.scrollWidth - innerWidth
+				)
+			).toBeLessThanOrEqual(1);
+			await page.screenshot({
+				path: test.info().outputPath(`catalog-edge-${width}-${direction}.png`),
+				fullPage: true
 			});
 		}
 	}
@@ -863,13 +968,11 @@ test('compact planner rails show three full items and the next item at mobile wi
 			for (const [rail, items] of rails)
 				await expectRailReadingEdge(page.getByTestId(rail), items, direction);
 			const exams = page.locator('.semester-exams');
-			await expect(exams).not.toHaveAttribute('open', '');
-			await exams.locator('summary').focus();
-			await exams.locator('summary').press('Enter');
-			await expect(exams).toHaveAttribute('open', '');
-			await expect(exams.locator('div').first()).toBeVisible();
-			await exams.locator('summary').press('Enter');
-			await expect(exams).not.toHaveAttribute('open', '');
+			await expect(exams.locator('.study-days')).toBeVisible();
+			await expect(exams.locator('.study-chip').first()).toBeVisible();
+			await expect(
+				page.locator('details.semester-exams, .semester-exams summary')
+			).toHaveCount(0);
 			expect(
 				await page.evaluate(
 					() => document.documentElement.scrollWidth - innerWidth

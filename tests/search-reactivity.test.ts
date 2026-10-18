@@ -1,4 +1,4 @@
-import { openSearchFilters } from './helpers/searchFilters';
+import { expectSearchFiltersVisible } from './helpers/searchFilters';
 import { expect, test, type Page } from '@playwright/test';
 
 import { readFileSync } from 'node:fs';
@@ -121,7 +121,7 @@ test('preserves every filter when slider changes and availability arrive before 
 	page
 }) => {
 	await page.goto('/app/search?q=1040&pointsMin=1&pointsMax=6');
-	await openSearchFilters(page);
+	await expectSearchFiltersVisible(page);
 	await expect(page.locator('#search-points-min')).toHaveValue('1');
 	// A synchronous burst deliberately exercises the interval that waiting for each URL hides.
 	await page.locator('fieldset').evaluate((fieldset) => {
@@ -174,7 +174,7 @@ for (const language of ['English', 'Hebrew']) {
 			if (language === 'Hebrew')
 				await page.setViewportSize({ width: 320, height: 812 });
 			await page.goto('/app/search?q=1040');
-			await openSearchFilters(page);
+			await expectSearchFiltersVisible(page);
 			let state = defaults();
 			await expectState(page, state);
 			const history = [{ ...state }];
@@ -235,7 +235,7 @@ for (const language of ['English', 'Hebrew']) {
 				await expectState(page, state);
 			}
 			await page.reload();
-			await openSearchFilters(page);
+			await expectSearchFiltersVisible(page);
 			await expectState(page, state);
 			await page.locator('fieldset button').click();
 			await expectState(page, { ...defaults(), q: state.q });
@@ -271,7 +271,7 @@ for (const language of ['English', 'Hebrew']) {
 				await page.goto(
 					'/app/search?q=1040&pointsMin=1&pointsMax=6&medianMin=80'
 				);
-				await openSearchFilters(page);
+				await expectSearchFiltersVisible(page);
 				const state = {
 					...defaults(),
 					pointsMin: 1,
@@ -317,7 +317,7 @@ test('rapid mixed changes, query, clear and later edits never restore a stale sn
 	page
 }) => {
 	await page.goto('/app/search?q=1040&pointsMin=1&pointsMax=6');
-	await openSearchFilters(page);
+	await expectSearchFiltersVisible(page);
 	await expect(page.locator('#search-points-min')).toHaveValue('1');
 	await page.locator('body').evaluate((body, faculty) => {
 		const number = (selector: string, value: string) => {
@@ -350,7 +350,7 @@ test('rapid mixed changes, query, clear and later edits never restore a stale sn
 		available: true
 	});
 	await page.reload();
-	await openSearchFilters(page);
+	await expectSearchFiltersVisible(page);
 	await expectState(page, {
 		...defaults(),
 		q: '0104',
@@ -363,7 +363,7 @@ test('Back and Forward discard an unfinished draft even when the committed point
 	page
 }) => {
 	await page.goto('/app/search?q=1040&pointsMin=3&pointsMax=5');
-	await openSearchFilters(page);
+	await expectSearchFiltersVisible(page);
 	let state = { ...defaults(), pointsMin: 3, pointsMax: 5 };
 	await expectState(page, state);
 	await page.locator('fieldset input[type="checkbox"]').check();
@@ -380,7 +380,7 @@ test('an unrelated checkbox update cannot reset an unfinished slider gesture', a
 	page
 }) => {
 	await page.goto('/app/search?q=1040&pointsMin=3&pointsMax=5');
-	await openSearchFilters(page);
+	await expectSearchFiltersVisible(page);
 	await expectState(page, { ...defaults(), pointsMin: 3, pointsMax: 5 });
 	const slider = page.locator('#search-points-min');
 	await slider.evaluate((input: HTMLInputElement) => {
@@ -409,7 +409,7 @@ test('Clear accepts the first click when only an unfinished numeric draft is act
 		'fieldset input[type="number"]:last-of-type'
 	]) {
 		await page.goto('/app/search?q=1040');
-		await openSearchFilters(page);
+		await expectSearchFiltersVisible(page);
 		await expectState(page, defaults());
 		const input = selector.startsWith('fieldset')
 			? page.locator('fieldset input[type="number"]').last()
@@ -431,7 +431,7 @@ test('same-batch numeric and slider edits followed by Clear restore every native
 }) => {
 	for (const mode of ['number', 'range']) {
 		await page.goto('/app/search?q=1040&available');
-		await openSearchFilters(page);
+		await expectSearchFiltersVisible(page);
 		await expectState(page, { ...defaults(), available: true });
 		await page.locator('fieldset').evaluate((fieldset, mode) => {
 			const inputs = Array.from(
@@ -460,14 +460,14 @@ for (const language of ['English', 'Hebrew']) {
 		await page.goto(
 			`/app/search?q=1040&faculty=${encodeURIComponent(systems)}`
 		);
-		await openSearchFilters(page);
+		await expectSearchFiltersVisible(page);
 		const input = page.locator('header input[type="text"]');
 		const state = { ...defaults(), faculty: systems };
 		await expect(input).toHaveValue('1040');
 		await expectState(page, state);
 		await expect(page.locator('main ul > li')).toHaveCount(0);
 		await page.reload();
-		await openSearchFilters(page);
+		await expectSearchFiltersVisible(page);
 		await expect(input).toHaveValue('1040');
 		await input.fill('');
 		await input.press('Enter');
@@ -535,7 +535,7 @@ for (const inputMode of ['mouse', 'touch'] as const) {
 					await page.goto(
 						'/app/search?q=1040&available&pointsMin=1&pointsMax=12'
 					);
-					await openSearchFilters(page);
+					await expectSearchFiltersVisible(page);
 					const state = {
 						...defaults(),
 						available: true,
@@ -613,7 +613,7 @@ for (const inputMode of ['mouse', 'touch'] as const) {
 						if (inputMode === 'mouse') await expect(slider).toBeFocused();
 					}
 					await page.reload();
-					await openSearchFilters(page);
+					await expectSearchFiltersVisible(page);
 					await expectState(page, state);
 				});
 			}

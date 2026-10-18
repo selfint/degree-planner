@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import {
 	expect,
 	test,
@@ -274,13 +274,17 @@ async function capture(page: Page, info: TestInfo, name: string) {
 	await settle(page);
 	const geometry = await measurePage(page);
 	// Never use fullPage: it can change RTL scroll positions while capturing.
-	const screenshot = await page.screenshot({
+	const screenshotPath = info.outputPath(`${name}.png`);
+	await page.screenshot({
+		path: screenshotPath,
 		fullPage: false,
 		animations: 'disabled'
 	});
-	await info.attach(name, { body: screenshot, contentType: 'image/png' });
+	await info.attach(name, { path: screenshotPath, contentType: 'image/png' });
+	const geometryPath = info.outputPath(`${name}-geometry.json`);
+	writeFileSync(geometryPath, JSON.stringify(geometry, null, 2));
 	await info.attach(`${name}-geometry`, {
-		body: JSON.stringify(geometry, null, 2),
+		path: geometryPath,
 		contentType: 'application/json'
 	});
 	return geometry;

@@ -32,6 +32,8 @@
 		variant === 'update' || variant === 'refreshUpdate'
 	);
 	let retries = $state(0);
+	// This wrapper is the sole owner of its memory-only fixture. A decorator
+	// can rerender independently when toolbar globals change.
 	$effect.pre(() => {
 		retries = 0;
 		setOfflinePublicData({

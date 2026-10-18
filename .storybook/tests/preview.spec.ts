@@ -337,6 +337,35 @@ test('theme, language and reading direction are global controls', async ({
 		await expect(page.getByTestId('pwa-error-detail')).toBeVisible();
 		await expect(page.getByTestId('pwa-error')).toBeVisible();
 	}
+	// Controls update the same component instance. Each variant must replace
+	// the full fixture so a previous error cannot leak into Ready or setup failure.
+	for (const state of ['ready', 'unavailable']) {
+		await page.evaluate((state) => {
+			(
+				window as Window & {
+					__STORYBOOK_ADDONS_CHANNEL__: {
+						emit: (event: string, payload: unknown) => void;
+					};
+				}
+			).__STORYBOOK_ADDONS_CHANNEL__.emit('updateStoryArgs', {
+				storyId: 'components-pwastatus--cached-refresh-failure',
+				updatedArgs: { state }
+			});
+		}, state);
+		await expect(page.getByTestId('pwa-refresh-error')).toHaveCount(0);
+		if (state === 'ready') {
+			await expect(page.getByTestId('pwa-status')).toHaveAttribute(
+				'data-state',
+				'ready'
+			);
+			await expect(page.getByTestId('pwa-status-details')).toHaveCount(0);
+		} else {
+			await expect(page.getByTestId('pwa-incomplete')).toBeVisible();
+			await expect(page.getByTestId('pwa-error-detail')).toHaveText(
+				'Example offline setup failed: browser storage quota exceeded.'
+			);
+		}
+	}
 });
 
 test('the app service worker and app HTML do not load Storybook', async ({

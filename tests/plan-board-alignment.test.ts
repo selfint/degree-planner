@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
 
 const origin = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:4173';
@@ -184,8 +184,10 @@ async function capture(page: Page, info: TestInfo, name: string) {
 	// Viewport only: fullPage screenshots can alter RTL rail scroll positions.
 	await page.screenshot({ path, fullPage: false, animations: 'disabled' });
 	await info.attach(name, { path, contentType: 'image/png' });
+	const geometryPath = info.outputPath(`${name}-geometry.json`);
+	writeFileSync(geometryPath, JSON.stringify(measurement, null, 2));
 	await info.attach(`${name}-geometry`, {
-		body: JSON.stringify(measurement, null, 2),
+		path: geometryPath,
 		contentType: 'application/json'
 	});
 	return measurement;
@@ -236,8 +238,10 @@ async function captureCatalogEdges(page: Page, info: TestInfo) {
 	const path = info.outputPath('catalog-initial.png');
 	await page.screenshot({ path, fullPage: false, animations: 'disabled' });
 	await info.attach('catalog-initial', { path, contentType: 'image/png' });
+	const geometryPath = info.outputPath('catalog-initial-geometry.json');
+	writeFileSync(geometryPath, JSON.stringify(geometry, null, 2));
 	await info.attach('catalog-initial-geometry', {
-		body: JSON.stringify(geometry, null, 2),
+		path: geometryPath,
 		contentType: 'application/json'
 	});
 	expect(geometry.rows.length).toBeGreaterThan(0);

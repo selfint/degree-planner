@@ -4,8 +4,6 @@
 	import { content } from './mocks/preferences.svelte';
 	import { user, scenario } from './mocks/stores.svelte';
 	import { planOnline } from './mocks/planAccess';
-	import { setOfflinePublicData } from './mocks/offlineData';
-	import { publishOfflineShellStatus } from './mocks/pwaStatus';
 	import { makeUser } from './fixtures';
 	import { PERSONAL_PLAN_READY } from '../src/lib/pwa/plan-visibility';
 	import {
@@ -53,14 +51,6 @@
 			}
 		)
 	);
-	// Global-toolbar rerenders must not clear the current PWA fixture.
-	$effect.pre(() => {
-		storyId;
-		untrack(() => {
-			setOfflinePublicData({ phase: 'idle', courseCount: 0 });
-			publishOfflineShellStatus({ status: 'preparing', updateReady: false });
-		});
-	});
 	$effect.pre(() => {
 		storyId;
 		const p = planner;

@@ -295,11 +295,8 @@ for (const width of [320, 390]) {
 				expect(pwaBounds!.y).toBeGreaterThanOrEqual(
 					originalControls!.y + originalControls!.height
 				);
-				const help = pwaRow.getByTestId('pwa-install-help');
-				await expect(help).toHaveAttribute('href', '/#install-title');
-				await expect(help).toHaveAttribute('target', '_blank');
-				await expect(help).toHaveAttribute('rel', 'noopener noreferrer');
-				await expectCompactButtons(page, help);
+				await expect(page.getByTestId('pwa-install-help')).toHaveCount(0);
+				await expect(page.getByTestId('pwa-update-banner')).toHaveCount(0);
 				const retry = status.getByRole('button', {
 					name: language === 'en' ? 'Retry' : 'נסו שוב',
 					exact: true

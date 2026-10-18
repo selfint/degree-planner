@@ -51,4 +51,37 @@ describe('offline shell presentation status', () => {
 		expect(get(offlineShellStatus).updateReady).toBe(true);
 		expect('set' in offlineShellStatus).toBe(false);
 	});
+
+	it('publishes verified update versions without retaining an older worker identity', () => {
+		publishOfflineShellStatus({
+			status: 'ready',
+			updateReady: true,
+			updateVersion: 'v2'
+		});
+		expect(get(offlineShellStatus).updateVersion).toBe('v2');
+		publishOfflineShellStatus({ status: 'ready', updateReady: true });
+		expect(get(offlineShellStatus).updateVersion).toBeUndefined();
+		publishOfflineShellStatus({
+			status: 'ready',
+			updateReady: true,
+			updateVersion: 'v3'
+		});
+		expect(get(offlineShellStatus).updateVersion).toBe('v3');
+	});
+
+	it('keeps version verification failures separate from a ready offline shell', () => {
+		publishOfflineShellStatus({
+			status: 'ready',
+			updateReady: true,
+			updateVersionError:
+				'The waiting update returned an invalid version response.'
+		});
+		expect(get(offlineShellStatus).updateVersionError).toBe(
+			'The waiting update returned an invalid version response.'
+		);
+		expect(get(offlineShellStatus).error).toBeUndefined();
+		expect(get(offlineShellStatus).updateVersion).toBeUndefined();
+		publishOfflineShellStatus({ status: 'ready', updateReady: false });
+		expect(get(offlineShellStatus).updateVersionError).toBeUndefined();
+	});
 });

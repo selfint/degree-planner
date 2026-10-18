@@ -13,7 +13,8 @@ const meta = {
 		componentPath: 'src/lib/components/PwaStatusView.svelte',
 		covers: [
 			'src/lib/components/PwaStatus.svelte',
-			'src/lib/components/PwaStatusDetails.svelte'
+			'src/lib/components/PwaStatusDetails.svelte',
+			'src/lib/components/PwaUpdateBanner.svelte'
 		]
 	}
 } satisfies Meta<typeof Preview>;

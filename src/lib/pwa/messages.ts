@@ -25,7 +25,7 @@ export const pwaMessages = {
 		offline:
 			'You’re offline. All downloaded course and catalog data and saved guest plans remain available once offline setup is complete. Plan editing, saving, account plans, sign-in and syncing need internet. Keep this window open until account changes finish syncing.',
 		update:
-			'An update is ready. Finish saving, reconnect if needed, then close all PlanIt tabs and app windows and reopen. Your current work will not be reloaded automatically.',
+			'Update available. Save your work, close all PlanIt tabs and windows, then reopen.',
 		unavailable: 'Offline setup incomplete',
 		close: 'Dismiss update notice'
 	},
@@ -54,7 +54,7 @@ export const pwaMessages = {
 		offline:
 			'אין חיבור לאינטרנט. לאחר השלמת ההכנה, נתוני הקורסים והקטלוגים שהורדו ותוכניות אורח שמורות זמינים. עריכת תוכניות, שמירה, תוכניות בחשבון, התחברות וסנכרון דורשים אינטרנט. השאירו את החלון פתוח עד לסיום סנכרון השינויים בחשבון.',
 		update:
-			'עדכון מוכן. סיימו לשמור, התחברו לאינטרנט אם צריך, ואז סגרו את כל הלשוניות והחלונות של PlanIt ופתחו מחדש. העבודה הנוכחית לא תיטען מחדש באופן אוטומטי.',
+			'עדכון זמין. שמרו, סגרו את כל הלשוניות והחלונות של PlanIt ופתחו מחדש.',
 		unavailable: 'ההכנה ללא אינטרנט לא הושלמה',
 		close: 'סגירת הודעת העדכון'
 	}

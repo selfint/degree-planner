@@ -125,10 +125,18 @@
 		gap: 0.25rem;
 	}
 	.exam-round {
+		position: relative;
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
 		gap: 0.1875rem;
+	}
+	/* Keep the accessible round label inside its own row, including at an
+	   RTL viewport edge and inside a horizontally scrolled course card. */
+	.exam-round > .sr-only {
+		inset-block-start: 0;
+		inset-inline-start: 0;
+		margin: 0;
 	}
 	.study-chip {
 		min-inline-size: 1.375rem;

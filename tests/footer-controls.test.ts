@@ -247,6 +247,8 @@ async function expectHealthyPwa(page: Page, language: Language) {
 	);
 	await expect(status.locator('.readiness')).toHaveClass(/\bsr-only\b/);
 	await expect(page.getByTestId('pwa-error')).toHaveCount(0);
+	await expect(page.getByTestId('pwa-update-banner')).toHaveCount(0);
+	await expect(page.getByTestId('pwa-install-help')).toHaveCount(0);
 	await expect(page.getByTestId('pwa-status-details')).toHaveCount(0);
 }
 
@@ -368,9 +370,6 @@ async function measureFooter(page: Page) {
 		);
 		const pwa = footer.querySelector('[data-testid="pwa-footer-row"]');
 		const pwaControls = footer.querySelector('.pwa-footer-controls');
-		const installHelp = footer.querySelector(
-			'[data-testid="pwa-install-help"]'
-		);
 		const status = footer.querySelector('[data-testid="pwa-status"]');
 		const readiness = status?.querySelector('.readiness');
 		const readinessStyle = readiness ? getComputedStyle(readiness) : null;
@@ -561,7 +560,6 @@ async function measureFooter(page: Page) {
 			},
 			pwa: pwa ? box(pwa) : null,
 			pwaControls: pwaControls ? box(pwaControls) : null,
-			installHelp: installHelp ? box(installHelp) : null,
 			pwaStatus: status
 				? {
 						state: status.getAttribute('data-state'),
@@ -885,16 +883,10 @@ function expectMatchingControls(geometry: Geometry, compact = true) {
 		aligned(geometry.pwa!.left, firstRow.left, 'PWA row left edge');
 		aligned(geometry.pwa!.right, firstRow.right, 'PWA row right edge');
 		expect(geometry.pwaControls).not.toBeNull();
-		expect(geometry.installHelp).not.toBeNull();
 		aligned(
 			geometry.pwaControls!.top,
 			geometry.pwa!.top,
 			'PWA controls start the separate row'
-		);
-		aligned(
-			geometry.installHelp![end],
-			firstRow[end],
-			'install help at logical end'
 		);
 		expect(
 			geometry.pwaControls!.height,
@@ -1028,10 +1020,8 @@ for (const viewport of [
 					const select = footer.locator('select');
 					await expect(footer).toHaveCount(1);
 					await expect(footer.getByTestId('pwa-footer-row')).toHaveCount(1);
-					await expect(footer.getByTestId('pwa-install-help')).toHaveAttribute(
-						'href',
-						'/#install-title'
-					);
+					await expect(footer.getByTestId('pwa-install-help')).toHaveCount(0);
+					await expect(page.getByTestId('pwa-update-banner')).toHaveCount(0);
 					await expect(
 						page.locator('header.title-bar').getByTestId('pwa-status')
 					).toHaveCount(0);

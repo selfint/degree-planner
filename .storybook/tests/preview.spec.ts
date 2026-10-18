@@ -293,29 +293,23 @@ async function expectPwaFooter(page: Page) {
 	await expectFooterComposition(page);
 	const footer = page.locator('footer');
 	const row = footer.getByTestId('pwa-footer-row');
-	await expect(row).toBeVisible();
+	await expect(row).toBeAttached();
 	await expect(footer).toHaveCSS('border-top-width', '1px');
 	await expect(row).toHaveCSS('border-top-width', '0px');
 	await expect(row.getByTestId('pwa-status')).toHaveCount(1);
 	const controls = await footer.locator(':scope > div').first().boundingBox();
-	const bounds = await row.boundingBox();
+	const bounds = await row.evaluate((element) => {
+		const { x, y, width, height } = element.getBoundingClientRect();
+		return { x, y, width, height };
+	});
 	expect(bounds!.y).toBeGreaterThanOrEqual(controls!.y + controls!.height);
 	expect(bounds!.x).toBeGreaterThanOrEqual(0);
 	expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(
 		page.viewportSize()!.width
 	);
-	const install = row.getByTestId('pwa-install-help');
-	await expect(install).toHaveAttribute('href', '/#install-title');
-	await expect(install).toHaveAttribute('target', '_blank');
-	await expect(install).toHaveAttribute('rel', 'noopener noreferrer');
-	await expectCompactAction(install);
-	const installBox = await install.boundingBox();
-	const direction = await footer.evaluate(
-		(element) => getComputedStyle(element).direction
-	);
-	expect(
-		direction === 'rtl' ? installBox!.x : installBox!.x + installBox!.width
-	).toBeCloseTo(direction === 'rtl' ? bounds!.x : bounds!.x + bounds!.width, 1);
+	await expect(page.getByTestId('pwa-install-help')).toHaveCount(0);
+	await expect(page.getByTestId('pwa-update-link')).toHaveCount(0);
+	await expect(footer.getByTestId('pwa-update')).toHaveCount(0);
 	// Footer groups may wrap; each action and readiness label stays complete.
 	const labels = await row.locator('.pwa-footer-controls').evaluate((el) =>
 		Array.from(
@@ -676,6 +670,10 @@ test('all stories render without live data, account access, or planner storage c
 		localStorage.setItem('theme', 'sentinel');
 		localStorage.setItem('lang', 'sentinel');
 		localStorage.setItem('version', 'sentinel');
+		sessionStorage.setItem(
+			'planit-dismissed-update-version',
+			'storybook-update-v2'
+		);
 		const reads: string[] = [];
 		Object.assign(window, { plannerStorageReads: reads });
 		const openDatabase = IDBFactory.prototype.open;
@@ -694,7 +692,8 @@ test('all stories render without live data, account access, or planner storage c
 					'username',
 					'degree',
 					'semesters',
-					'wishlist'
+					'wishlist',
+					'planit-dismissed-update-version'
 				].includes(key)
 			)
 				reads.push(key);
@@ -723,13 +722,17 @@ test('all stories render without live data, account access, or planner storage c
 					data: localStorage.getItem('userData'),
 					theme: localStorage.getItem('theme'),
 					lang: localStorage.getItem('lang'),
-					version: localStorage.getItem('version')
+					version: localStorage.getItem('version'),
+					dismissedUpdate: sessionStorage.getItem(
+						'planit-dismissed-update-version'
+					)
 				}))
 			).toEqual({
 				data: '{"storybookSentinel":true}',
 				theme: 'sentinel',
 				lang: 'sentinel',
-				version: 'sentinel'
+				version: 'sentinel',
+				dismissedUpdate: 'storybook-update-v2'
 			});
 		});
 	}
@@ -828,7 +831,7 @@ test('theme, language and reading direction are global controls', async ({
 	await expect(
 		page.getByRole('group', { name: 'Filters', exact: true })
 	).toBeVisible();
-	await page.goto(storyUrl('components-pwastatus--cached-refresh-failure'));
+	await page.goto(storyUrl('components-pwastatus--update-refresh-failure'));
 	await expect(page.getByTestId('pwa-refresh-error')).toHaveText(
 		pwaMessages.en.cachedRefreshFailed
 	);
@@ -865,10 +868,11 @@ test('theme, language and reading direction are global controls', async ({
 		);
 		await expect(page.getByTestId('pwa-error-detail')).toBeVisible();
 		await expect(page.getByTestId('pwa-error')).toBeVisible();
+		await expectPwaUpdateBanner(page, language, true);
 	}
 	// Controls update the same component instance. Each variant must replace
 	// the full fixture so a previous error cannot leak into Ready or setup failure.
-	for (const state of ['ready', 'unavailable']) {
+	for (const state of ['ready', 'update', 'outdated', 'unavailable', 'ready']) {
 		await page.evaluate((state) => {
 			(
 				window as Window & {
@@ -877,15 +881,16 @@ test('theme, language and reading direction are global controls', async ({
 					};
 				}
 			).__STORYBOOK_ADDONS_CHANNEL__.emit('updateStoryArgs', {
-				storyId: 'components-pwastatus--cached-refresh-failure',
+				storyId: 'components-pwastatus--update-refresh-failure',
 				updatedArgs: { state }
 			});
 		}, state);
 		await expect(page.getByTestId('pwa-refresh-error')).toHaveCount(0);
-		if (state === 'ready') {
+		await expectPwaUpdateBanner(page, 'en', state === 'update');
+		if (state !== 'unavailable') {
 			await expect(page.getByTestId('pwa-status')).toHaveAttribute(
 				'data-state',
-				'ready'
+				state === 'outdated' ? 'outdated' : 'ready'
 			);
 			await expect(page.getByTestId('pwa-status-details')).toHaveCount(0);
 		} else {
@@ -977,9 +982,7 @@ test('footer and installation links are mocked and cannot leave the story', asyn
 	await page.locator('a[href="https://github.com/selfint"]').click();
 	expect(page.url()).toBe(footerUrl);
 	await page.goto(storyUrl('components-pwastatus--ready'));
-	const pwaUrl = page.url();
-	await page.getByTestId('pwa-install-help').click();
-	expect(page.url()).toBe(pwaUrl);
+	await expect(page.getByTestId('pwa-install-help')).toHaveCount(0);
 	expect(context.pages()).toHaveLength(1);
 });
 
@@ -1190,6 +1193,57 @@ test('guest and signed-in settings icons share rem sizing and centered action bo
 	}
 });
 
+async function expectPwaUpdateBanner(
+	page: Page,
+	language: 'en' | 'he',
+	visible: boolean,
+	version = 'storybook-update-v2'
+) {
+	const banner = page.getByTestId('pwa-update-banner');
+	await expect(banner).toHaveCount(visible ? 1 : 0);
+	await expect(page.getByTestId('pwa-update')).toHaveCount(visible ? 1 : 0);
+	await expect(page.getByTestId('pwa-update-link')).toHaveCount(0);
+	await expect(page.locator('footer').getByTestId('pwa-update')).toHaveCount(0);
+	if (!visible) return;
+	await expect(banner).toBeVisible();
+	await expect(banner.getByRole('status')).toHaveText(
+		pwaMessages[language].update
+	);
+	await expect(banner).toHaveAttribute('data-update-version', version);
+	await expect(banner.locator('a, details, summary')).toHaveCount(0);
+	await expect(banner.getByRole('button')).toHaveCount(1);
+	const dismiss = banner.getByTestId('pwa-update-dismiss');
+	await expect(dismiss).toHaveAccessibleName(pwaMessages[language].close);
+	await expect(dismiss).toBeEnabled();
+	const dismissBounds = await dismiss.boundingBox();
+	for (const size of [dismissBounds!.width, dismissBounds!.height]) {
+		expect(size).toBeGreaterThanOrEqual(35.5);
+		expect(size).toBeLessThanOrEqual(36.5);
+	}
+	await expect(
+		page.locator('header').getByTestId('pwa-update-banner')
+	).toHaveCount(0);
+	const [header, bounds, footer] = await Promise.all([
+		page.locator('header').boundingBox(),
+		banner.boundingBox(),
+		page.locator('footer').boundingBox()
+	]);
+	expect(bounds!.y).toBeGreaterThanOrEqual(header!.y + header!.height);
+	expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(footer!.y);
+	expect(bounds!.x).toBeGreaterThanOrEqual(0);
+	expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(
+		page.viewportSize()!.width
+	);
+	expect(
+		bounds!.height,
+		'a compact notice, including narrow-screen wrapping'
+	).toBeLessThanOrEqual(80);
+	const text = banner.getByTestId('pwa-update');
+	expect(
+		await text.evaluate((element) => element.scrollWidth - element.clientWidth)
+	).toBeLessThanOrEqual(1);
+}
+
 test('PWA footer keeps healthy readiness accessible and shows actionable status', async ({
 	page
 }) => {
@@ -1214,6 +1268,7 @@ test('PWA footer keeps healthy readiness accessible and shows actionable status'
 			);
 			await expect(page.locator('details, summary')).toHaveCount(0);
 			await expect(page.getByTestId('pwa-status-details')).toHaveCount(0);
+			await expectPwaUpdateBanner(page, language, false);
 			const readiness = page.getByRole('status');
 			if (state === 'initial' || state === 'ready') {
 				await expect(readiness).toHaveClass(/\bsr-only\b/);
@@ -1266,55 +1321,61 @@ test('PWA footer keeps healthy readiness accessible and shows actionable status'
 			await expect(
 				page.locator('details, summary, [role="dialog"]')
 			).toHaveCount(0);
+			await expectPwaFooter(page);
+			await expectPwaUpdateBanner(page, language, state === 'update');
+			await expect(root).toHaveAttribute(
+				'data-state',
+				state === 'unavailable'
+					? 'error'
+					: state === 'outdated'
+						? 'outdated'
+						: 'ready'
+			);
+			if (state !== 'unavailable') {
+				await expect(detail).toHaveCount(0);
+				await expect(root.locator('a, button')).toHaveCount(0);
+				await expect(page.getByTestId('pwa-incomplete')).toHaveCount(0);
+				if (state === 'outdated') {
+					await expect(root.getByRole('status')).toBeVisible();
+					await expect(root.getByRole('status')).not.toHaveClass(/\bsr-only\b/);
+					await expect(root.getByRole('status')).toHaveText(
+						pwaMessages[language].shellOutdated
+					);
+				}
+				continue;
+			}
 			await expect(detail).toBeVisible();
 			await expect(detail).toHaveAttribute('id', 'offline-status');
 			await expect(detail).toHaveCSS('position', 'static');
+			await expect(
+				page.getByTestId('pwa-footer-row').getByTestId('pwa-status-details')
+			).toHaveCount(1);
+			await expect(page.getByTestId('pwa-incomplete')).toBeVisible();
+			await expect(page.getByTestId('pwa-error')).toHaveCount(1);
+			await expect(page.getByTestId('pwa-error-detail')).toHaveText(
+				'Example offline setup failed: browser storage quota exceeded.'
+			);
+			await expect(page.getByTestId('pwa-error-detail')).toHaveAttribute(
+				'dir',
+				'auto'
+			);
+			await expect(page.getByTestId('pwa-refresh-error')).toHaveCount(0);
+			const bounds = await detail.boundingBox();
+			expect(bounds!.x).toBeGreaterThanOrEqual(0);
+			expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(width);
+			const retry = root.getByRole('button', { name: /^(Retry|נסו שוב)$/ });
+			await expectCompactAction(retry);
+			await retry.click();
+			await expect(page.getByText('Retry requests: 1')).toBeVisible();
+			await expect(page.getByTestId('pwa-incomplete')).toBeVisible();
 			const link = root.getByRole('link');
 			await expect(link).toHaveCount(1);
 			await expect(link).toHaveAccessibleName(/\S/);
 			await expect(link).toHaveAttribute('href', '#offline-status');
-			const panel = page.getByTestId(
-				state === 'unavailable' ? 'pwa-incomplete' : 'pwa-update'
-			);
-			await expect(panel).toBeVisible();
-			await expect(
-				page.getByTestId(
-					state === 'unavailable' ? 'pwa-update' : 'pwa-incomplete'
-				)
-			).toHaveCount(0);
-			await expectPwaFooter(page);
-			await expect(
-				page.getByTestId('pwa-footer-row').getByTestId('pwa-status-details')
-			).toHaveCount(1);
-			const bounds = await detail.boundingBox();
-			expect(bounds!.x).toBeGreaterThanOrEqual(0);
-			expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(width);
-			if (state === 'unavailable') {
-				await expect(page.getByTestId('pwa-error')).toHaveCount(1);
-				await expect(page.getByTestId('pwa-update-link')).toHaveCount(0);
-				await expect(page.getByTestId('pwa-error-detail')).toHaveText(
-					'Example offline setup failed: browser storage quota exceeded.'
-				);
-				await expect(page.getByTestId('pwa-error-detail')).toHaveAttribute(
-					'dir',
-					'auto'
-				);
-				await expect(page.getByTestId('pwa-refresh-error')).toHaveCount(0);
-				const retry = root.getByRole('button', { name: /^(Retry|נסו שוב)$/ });
-				await expectCompactAction(retry);
-				await retry.click();
-				await expect(page.getByText('Retry requests: 1')).toBeVisible();
-				await expect(panel).toBeVisible();
-			} else {
-				await expect(page.getByTestId('pwa-update-link')).toHaveCount(1);
-				await expect(panel).toHaveText(pwaMessages[language].update);
-				await expect(root.getByRole('button')).toHaveCount(0);
-			}
 			const before = page.url();
 			await link.focus();
 			await link.press('Enter');
-			// SvelteKit's Storybook provider mocks anchors; this exact local target
-			// focuses the visible section without permitting real app navigation.
+			// Only the real error link targets this always-visible footer diagnostic.
 			await expect(detail).toBeFocused();
 			expect(page.url()).toBe(before);
 			await expect(detail).toBeVisible();
@@ -1323,6 +1384,79 @@ test('PWA footer keeps healthy readiness accessible and shows actionable status'
 			).toHaveCount(0);
 		}
 	}
+	expect(
+		await page.evaluate(
+			async () => (await navigator.serviceWorker.getRegistrations()).length
+		)
+	).toBe(0);
+});
+
+test('PWA dismissal follows versions without reading or writing the real session', async ({
+	page
+}) => {
+	await page.addInitScript(() =>
+		sessionStorage.setItem(
+			'planit-dismissed-update-version',
+			'storybook-update-v2'
+		)
+	);
+	const id = 'components-pwastatus--update';
+	await page.goto(storyUrl(id));
+	await expectPwaUpdateBanner(page, 'en', true);
+	const changeArgs = async (updatedArgs: Record<string, string>) =>
+		page.evaluate(
+			({ id, updatedArgs }) => {
+				(
+					window as Window & {
+						__STORYBOOK_ADDONS_CHANNEL__: {
+							emit: (event: string, payload: unknown) => void;
+						};
+					}
+				).__STORYBOOK_ADDONS_CHANNEL__.emit('updateStoryArgs', {
+					storyId: id,
+					updatedArgs
+				});
+			},
+			{ id, updatedArgs }
+		);
+	await page.getByTestId('pwa-update-dismiss').click();
+	await expectPwaUpdateBanner(page, 'en', false);
+	for (const state of ['ready', 'update', 'outdated', 'refreshUpdate']) {
+		await changeArgs({ state });
+		await expectPwaUpdateBanner(page, 'en', false);
+	}
+	await expect(page.getByTestId('pwa-refresh-error')).toBeVisible();
+	await changeArgs({ updateVersion: 'storybook-update-v3' });
+	await expectPwaUpdateBanner(page, 'en', true, 'storybook-update-v3');
+	await page.getByTestId('pwa-update-dismiss').click();
+	await expectPwaUpdateBanner(page, 'en', false);
+	await expect(page.getByTestId('pwa-refresh-error')).toBeVisible();
+	await changeArgs({
+		updateVersion: '',
+		updateVersionError: 'Example waiting update identity could not be verified.'
+	});
+	await expect(page.getByTestId('pwa-update-banner')).toBeVisible();
+	await expect(page.getByTestId('pwa-update-error')).toHaveText(
+		'Example waiting update identity could not be verified.'
+	);
+	await expect(page.getByTestId('pwa-update-error')).toHaveAttribute(
+		'role',
+		'alert'
+	);
+	await expect(page.getByTestId('pwa-update-dismiss')).toBeDisabled();
+	await expect(page.getByTestId('pwa-refresh-error')).toBeVisible();
+	await changeArgs({
+		updateVersion: 'storybook-update-v4',
+		updateVersionError: ''
+	});
+	await expectPwaUpdateBanner(page, 'en', true, 'storybook-update-v4');
+	await expect(page.getByTestId('pwa-update-error')).toHaveCount(0);
+
+	expect(
+		await page.evaluate(() =>
+			sessionStorage.getItem('planit-dismissed-update-version')
+		)
+	).toBe('storybook-update-v2');
 	expect(
 		await page.evaluate(
 			async () => (await navigator.serviceWorker.getRegistrations()).length
@@ -1377,11 +1511,11 @@ test('refresh failures preserve stored-data truth and one direct footer error', 
 				'auto'
 			);
 			await expect(page.getByTestId('pwa-incomplete')).toHaveCount(0);
-			await expect(page.getByTestId('pwa-update')).toHaveCount(
-				state === 'update-refresh-failure' ? 1 : 0
+			await expectPwaUpdateBanner(
+				page,
+				language,
+				state === 'update-refresh-failure'
 			);
-			if (state === 'update-refresh-failure')
-				await expect(page.getByTestId('pwa-update')).toHaveText(text.update);
 			await expectPwaFooter(page);
 			await expect(
 				page.getByTestId('pwa-footer-row').getByTestId('pwa-status-details')
@@ -1400,8 +1534,10 @@ test('refresh failures preserve stored-data truth and one direct footer error', 
 			// A retry request does not dismiss a real failure or hide a pending update.
 			await expect(root).toHaveAttribute('data-refresh-state', 'error');
 			await expect(page.getByTestId('pwa-refresh-error')).toBeVisible();
-			await expect(page.getByTestId('pwa-update')).toHaveCount(
-				state === 'update-refresh-failure' ? 1 : 0
+			await expectPwaUpdateBanner(
+				page,
+				language,
+				state === 'update-refresh-failure'
 			);
 		}
 	}

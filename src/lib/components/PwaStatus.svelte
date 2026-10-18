@@ -15,10 +15,15 @@
 		type ShellReadiness
 	} from '$lib/pwa/shell-readiness';
 	import { publishOfflineShellStatus } from '$lib/pwa/status';
-	import { replacesExistingWorker } from '$lib/pwa/service-worker-update';
+	import {
+		createUpdateVersionReader,
+		hasWaitingUpdate
+	} from '$lib/pwa/service-worker-update';
 
 	let showPreparing = $state(false);
 	let updateReady = $state(false);
+	let updateVersion = $state<string | undefined>();
+	let updateVersionError = $state<string | undefined>();
 	let shell = $state<ShellReadiness>('preparing');
 	let shellError = $state<string | undefined>();
 	function setShell(status: ShellReadiness, error?: string) {
@@ -30,6 +35,8 @@
 		publishOfflineShellStatus({
 			status: shell,
 			updateReady,
+			updateVersion,
+			updateVersionError,
 			error: shellError
 		});
 	});
@@ -141,6 +148,7 @@
 			else void checkShell();
 		};
 		const controllerChanged = () => {
+			reconcileUpdateReady();
 			checkGeneration++;
 			checking = false;
 			setShell('preparing');
@@ -161,9 +169,57 @@
 		// The console layout owns data bootstrap. Retry a failed platform setup too,
 		// without activating a waiting worker or replacing the current document.
 		let registering = false;
+		let currentRegistration: ServiceWorkerRegistration | undefined;
 		let controllerTimer: ReturnType<typeof setTimeout> | undefined;
 		const watchedRegistrations = new WeakSet<ServiceWorkerRegistration>();
 		const watchedWorkers = new WeakSet<ServiceWorker>();
+		const versionReader = createUpdateVersionReader(
+			() =>
+				currentRegistration &&
+				hasWaitingUpdate(
+					currentRegistration.waiting,
+					currentRegistration.active
+				)
+					? currentRegistration.waiting
+					: null,
+			({ version, error }) => {
+				updateVersion = version;
+				updateVersionError = error;
+			}
+		);
+		cleanups.push(() => versionReader.dispose());
+		function reconcileUpdateReady() {
+			if (disposed) return;
+			updateReady = currentRegistration
+				? hasWaitingUpdate(
+						currentRegistration.waiting,
+						currentRegistration.active
+					)
+				: false;
+			versionReader.reconcile();
+		}
+		function watchWorker(
+			registration: ServiceWorkerRegistration,
+			worker: ServiceWorker | null
+		) {
+			if (!worker || watchedWorkers.has(worker)) return;
+			watchedWorkers.add(worker);
+			const changed = () => {
+				if (disposed) return;
+				reconcileUpdateReady();
+				if (
+					registration === currentRegistration &&
+					worker.state === 'redundant' &&
+					!registration.active
+				)
+					setShell(
+						'unavailable',
+						'The offline app installation did not finish.'
+					);
+			};
+			worker.addEventListener('statechange', changed);
+			cleanups.push(() => worker.removeEventListener('statechange', changed));
+		}
 		async function registerShell() {
 			if (disposed || registering) return;
 			if (!import.meta.env.PROD || !('serviceWorker' in navigator)) {
@@ -180,30 +236,14 @@
 					{ scope: '/app/', updateViaCache: 'none' }
 				);
 				if (disposed) return;
-				updateReady = !!registration.waiting;
+				currentRegistration = registration;
+				reconcileUpdateReady();
+				watchWorker(registration, registration.waiting);
 				if (!watchedRegistrations.has(registration)) {
 					watchedRegistrations.add(registration);
 					const watchInstalling = () => {
-						const worker = registration.installing;
-						if (!worker || watchedWorkers.has(worker)) return;
-						watchedWorkers.add(worker);
-						const isUpdate = replacesExistingWorker(
-							worker,
-							registration.active,
-							registration.active ? navigator.serviceWorker.controller : null
-						);
-						const changed = () => {
-							if (worker.state === 'installed' && isUpdate) updateReady = true;
-							if (worker.state === 'redundant' && !registration.active)
-								setShell(
-									'unavailable',
-									'The offline app installation did not finish.'
-								);
-						};
-						worker.addEventListener('statechange', changed);
-						cleanups.push(() =>
-							worker.removeEventListener('statechange', changed)
-						);
+						watchWorker(registration, registration.installing);
+						reconcileUpdateReady();
 					};
 					registration.addEventListener('updatefound', watchInstalling);
 					cleanups.push(() =>

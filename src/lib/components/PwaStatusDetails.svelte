@@ -17,9 +17,6 @@
 	const refreshError = $derived(publicData.refreshError);
 	const setupError = $derived(publicData.error);
 	const shellError = $derived($offlineShellStatus.error);
-	const update = $derived(
-		$offlineShellStatus.updateReady || $offlineShellStatus.status === 'outdated'
-	);
 	const incomplete = $derived(
 		publicData.phase === 'error' || $offlineShellStatus.status === 'unavailable'
 	);
@@ -30,7 +27,7 @@
 	);
 </script>
 
-{#if update || incomplete || errors.length}
+{#if incomplete || errors.length}
 	<section
 		id="offline-status"
 		data-testid="pwa-status-details"
@@ -40,9 +37,6 @@
 		<h2 id="offline-status-title">
 			{content.lang.lang === 'he' ? 'גישה ללא אינטרנט' : 'Offline access'}
 		</h2>
-		{#if update}
-			<p role="status" data-testid="pwa-update">{text.update}</p>
-		{/if}
 		{#if refreshError && publicData.phase !== 'error'}
 			<p role="status" data-testid="pwa-refresh-error">
 				{publicData.phase === 'ready'

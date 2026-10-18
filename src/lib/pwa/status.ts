@@ -4,6 +4,8 @@ import type { ShellReadiness } from './shell-readiness';
 export type OfflineShellStatus = {
 	status: ShellReadiness;
 	updateReady: boolean;
+	updateVersion?: string;
+	updateVersionError?: string;
 	error?: string;
 };
 

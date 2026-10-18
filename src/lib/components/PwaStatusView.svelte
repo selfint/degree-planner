@@ -26,7 +26,6 @@
 		onRetry: () => void;
 	} = $props();
 	const text = $derived(pwaMessages[content.lang.lang]);
-	const update = $derived(updateReady || shell === 'outdated');
 	const hasError = $derived(
 		!!refreshError || !!setupError || (!allReady && unavailable)
 	);
@@ -51,9 +50,9 @@
 		role="status"
 		class="readiness start-0 top-0 m-0"
 		class:sr-only={hasError ||
-			update ||
+			updateReady ||
 			(allReady && !offline) ||
-			(!offline && !showPreparing)}
+			(!offline && !showPreparing && shell !== 'outdated')}
 	>
 		{offline && !hasError
 			? content.lang.lang === 'he'
@@ -63,11 +62,13 @@
 				? cachedDataReady
 					? text.cachedRefreshFailed
 					: text.refreshFailed
-				: allReady
-					? text.ready
-					: showPreparing
-						? text.downloading
-						: ''}
+				: shell === 'outdated'
+					? text.shellOutdated
+					: allReady
+						? text.ready
+						: showPreparing
+							? text.downloading
+							: ''}
 	</p>
 	{#if hasError}
 		<div class="pwa-actions" data-testid="pwa-error">
@@ -82,17 +83,6 @@
 				>{content.lang.lang === 'he' ? 'נסו שוב' : 'Retry'}</button
 			>
 		</div>
-	{:else if update}
-		<a
-			href="#offline-status"
-			class="status-link"
-			data-testid="pwa-update-link"
-			title={text.update}
-			aria-label={content.lang.lang === 'he'
-				? 'עדכון זמין. הצגת הנחיות'
-				: 'Update available. View instructions'}
-			>{content.lang.lang === 'he' ? 'עדכון' : 'Update'}</a
-		>
 	{/if}
 </div>
 

@@ -106,7 +106,12 @@ worker.addEventListener('install', (event) => {
 
 worker.addEventListener('message', (event) => {
 	const port = event.ports?.[0];
-	if (event.data?.type !== 'PREPARE_OFFLINE_SHELL' || !port) return;
+	if (!port) return;
+	if (event.data?.type === 'GET_OFFLINE_SHELL_VERSION') {
+		port.postMessage({ type: 'OFFLINE_SHELL_VERSION', version });
+		return;
+	}
+	if (event.data?.type !== 'PREPARE_OFFLINE_SHELL') return;
 	event.waitUntil(
 		(async () => {
 			// A newer online page can run behind an older controlling worker while

@@ -47,6 +47,8 @@
 	import AppFooter from '$lib/components/AppFooter.svelte';
 	import PwaStatus from '$lib/components/PwaStatus.svelte';
 	import PwaStatusDetails from '$lib/components/PwaStatusDetails.svelte';
+	import PwaUpdateBanner from '$lib/components/PwaUpdateBanner.svelte';
+	import { offlineShellStatus } from '$lib/pwa/status';
 	import {
 		buildFirebaseStorage,
 		subscribeFirebase,
@@ -186,6 +188,12 @@
 		/>
 	</div>
 
+	<PwaUpdateBanner
+		visible={$offlineShellStatus.updateReady}
+		updateVersion={$offlineShellStatus.updateVersion}
+		updateVersionError={$offlineShellStatus.updateVersionError}
+	/>
+
 	<ConsoleAccountStatus
 		readOnly={!$planOnline}
 		{offline}
@@ -203,14 +211,6 @@
 		{#snippet pwa()}
 			<div class="pwa-footer-controls">
 				<PwaStatus {offline} />
-				<a
-					href="/#install-title"
-					target="_blank"
-					rel="noopener noreferrer"
-					class="pwa-install-help"
-					data-testid="pwa-install-help"
-					>{content.lang.lang === 'he' ? 'עזרה בהתקנה' : 'Install help'}</a
-				>
 			</div>
 			<PwaStatusDetails />
 		{/snippet}
@@ -227,16 +227,6 @@
 		justify-content: space-between;
 		gap: 0.25rem 0.75rem;
 		min-inline-size: 0;
-	}
-	.pwa-install-help {
-		margin-inline-start: auto;
-		display: inline-flex;
-		align-items: center;
-		block-size: var(--control-height);
-		white-space: nowrap;
-		text-decoration: underline;
-		text-underline-offset: 0.125rem;
-		color: rgb(var(--color-content-secondary));
 	}
 	:global(body) {
 		@apply bg-background;

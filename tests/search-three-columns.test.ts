@@ -97,7 +97,7 @@ async function expectThreeColumns(page: Page) {
 		return {
 			labels: [
 				...document.querySelectorAll(
-					'.filter-available, .filter-field > label, .filter-field > span, .filter-range > label:first-child, .filter-clear'
+					'.filter-available, .filter-field > label, label.filter-field > span, .filter-range > label:first-child, .filter-clear'
 				)
 			].map((label) => {
 				const range = document.createRange();
@@ -146,6 +146,7 @@ async function expectThreeColumns(page: Page) {
 		layout.viewport
 	);
 	expect(Math.abs(layout.scrollX)).toBeLessThanOrEqual(1);
+	expect(layout.labels, 'all six visible filter labels').toHaveLength(6);
 	for (const label of layout.labels) {
 		expect(label.textBox.height, `${label.text}: one line`).toBeLessThanOrEqual(
 			label.lineHeight + 1

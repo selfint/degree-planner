@@ -204,6 +204,9 @@ async function measure(page: Page, route: string) {
 						}
 					: null,
 			statusLayoutHeight: round(Math.max(0, main.top - header.bottom - 1)),
+			updateBannerHeight: round(
+				rect('[data-testid="pwa-update-banner"]')?.height ?? 0
+			),
 			mainTop: round(main.top),
 			usableViewportHeight: round(Math.max(0, innerHeight - main.top)),
 			taskContentTop: task ? round(task.top) : null,
@@ -306,7 +309,7 @@ async function capture(page: Page, info: TestInfo, name: string, route = name) {
 		const controls = footer.locator(':scope > div').first();
 		const footerRow = footer.locator(':scope > [data-testid="pwa-footer-row"]');
 		await expect(footerRow).toHaveCount(1);
-		await expect(footerRow).toBeVisible();
+		await expect(footerRow).toBeAttached();
 		await expect(
 			controls.locator('a[href="https://github.com/selfint"]')
 		).toBeVisible();
@@ -335,37 +338,28 @@ async function capture(page: Page, info: TestInfo, name: string, route = name) {
 				.soft(layout.rowBottom, `${name}: PWA row remains inside AppFooter`)
 				.toBeLessThanOrEqual(layout.footerBottom);
 			expect
-				.soft(layout.rowHeight, `${name}: PWA row has visible height`)
-				.toBeGreaterThan(0);
+				.soft(
+					layout.rowHeight,
+					`${name}: PWA diagnostics row has nonnegative height`
+				)
+				.toBeGreaterThanOrEqual(0);
 		}
 		expect(
 			await page
-				.locator('[data-testid^="pwa-"]')
+				.locator('[data-testid^="pwa-"]:not([data-testid^="pwa-update"])')
 				.evaluateAll((nodes) =>
 					nodes.every((node) =>
 						node.closest('footer > [data-testid="pwa-footer-row"]')
 					)
 				),
-			`${name}: every PWA control and detail belongs to the footer row`
+			`${name}: offline controls and diagnostics stay in the footer row`
 		).toBe(true);
-		const installHelp = footerRow.getByTestId('pwa-install-help');
-		await expect(installHelp).toBeVisible();
-		await expect(installHelp).toHaveAttribute('href', '/#install-title');
-		await expect(installHelp).toHaveAttribute('target', '_blank');
-		await expect(installHelp).toHaveAttribute(
-			'rel',
-			/(?:^|\s)noopener(?:\s|$)/
-		);
-		await expect(installHelp).toHaveAttribute(
-			'rel',
-			/(?:^|\s)noreferrer(?:\s|$)/
-		);
+		await expect(page.getByTestId('pwa-install-help')).toHaveCount(0);
+		await expect(page.getByTestId('pwa-update-link')).toHaveCount(0);
+		await expect(footer.getByTestId('pwa-update')).toHaveCount(0);
 		const status = footerRow.getByTestId('pwa-status');
 		await expect(status).toHaveAttribute('data-state', 'ready');
-		if (
-			!(await footerRow.getByTestId('pwa-update-link').count()) &&
-			!(await footerRow.getByTestId('pwa-error').count())
-		) {
+		if (!(await footerRow.getByTestId('pwa-error').count())) {
 			const readiness = status.getByRole('status');
 			const offline = await page.evaluate(() => !navigator.onLine);
 			const hebrew =
@@ -388,9 +382,9 @@ async function capture(page: Page, info: TestInfo, name: string, route = name) {
 		expect
 			.soft(
 				measurement.statusLayoutHeight,
-				`${name}: no routine status banner above work`
+				`${name}: only a real waiting update takes space above work`
 			)
-			.toBeLessThanOrEqual(2);
+			.toBeLessThanOrEqual(measurement.updateBannerHeight + 2);
 	}
 	return { ...measurement, route: name };
 }
@@ -646,18 +640,26 @@ for (const viewport of [
 					await expect(choice).toHaveValue('1');
 					if (!baseline) {
 						await expect(page.locator('details.pwa-details')).toHaveCount(0);
-						const footerRow = page.locator(
-							'footer > [data-testid="pwa-footer-row"]'
+						const banner = page.getByTestId('pwa-update-banner');
+						await expect(banner).toHaveCount(1);
+						await expect(banner).toBeInViewport();
+						await expect(banner.getByTestId('pwa-update')).toBeVisible();
+						await expect(banner.locator('a, details, summary')).toHaveCount(0);
+						await expect(page.getByTestId('pwa-update-link')).toHaveCount(0);
+						await expect(
+							page.locator('footer').getByTestId('pwa-update')
+						).toHaveCount(0);
+						const [header, notice, main] = await Promise.all([
+							page.locator('header').boundingBox(),
+							banner.boundingBox(),
+							page.locator('main').boundingBox()
+						]);
+						expect(notice!.y).toBeGreaterThanOrEqual(
+							header!.y + header!.height
 						);
-						const updateLink = footerRow.getByTestId('pwa-update-link');
-						await expect(updateLink).toBeVisible();
-						await expect(footerRow.getByTestId('pwa-update')).toBeVisible();
-						await expect(updateLink).toHaveAttribute('href', '#offline-status');
-						await updateLink.click();
-						await expect(page).toHaveURL(
-							`${origin}/app/settings#offline-status`
-						);
-						await expect(page.getByTestId('pwa-update')).toBeInViewport();
+						expect(notice!.y + notice!.height).toBeLessThanOrEqual(main!.y);
+						expect(notice!.height).toBeLessThanOrEqual(80);
+						await expect(page).toHaveURL(`${origin}/app/settings`);
 						await expect(choice).toHaveValue('1');
 						const instruction = await measure(page, 'update');
 						expect.soft(instruction.horizontalOverflow).toBe(false);
@@ -667,11 +669,18 @@ for (const viewport of [
 							path,
 							contentType: 'image/png'
 						});
-						await page.goBack();
-						await expect(page).toHaveURL(`${origin}/app/settings`);
+						const dismiss = banner.getByTestId('pwa-update-dismiss');
+						await expect(dismiss).toBeEnabled();
+						await expect(dismiss).toHaveAccessibleName(
+							language === 'he' ? 'סגירת הודעת העדכון' : 'Dismiss update notice'
+						);
+						await dismiss.click();
+						await expect(banner).toHaveCount(0);
 						await expect(choice).toHaveValue('1');
 						await save.scrollIntoViewIfNeeded();
-						checkpoints.push('update-anchor-and-back-preserve-draft');
+						checkpoints.push(
+							'compact-update-banner-and-dismiss-preserve-draft'
+						);
 					}
 					expect(await page.evaluate(() => performance.timeOrigin)).toBe(
 						navigationOrigin

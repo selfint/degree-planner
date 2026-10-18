@@ -125,7 +125,11 @@ async function measure(rail: Locator, headingSelector: string) {
 				.querySelector('[data-testid="pwa-status"]')
 				?.getAttribute('data-state'),
 			viewport: { width: innerWidth, height: innerHeight },
-			documentOverflow: document.documentElement.scrollWidth - innerWidth,
+			layoutViewportWidth: document.documentElement.clientWidth,
+			documentWidth: document.documentElement.scrollWidth,
+			documentOverflow:
+				document.documentElement.scrollWidth -
+				document.documentElement.clientWidth,
 			scrollX,
 			scrollY,
 			rootSize: parseFloat(getComputedStyle(document.documentElement).fontSize),
@@ -146,6 +150,7 @@ async function measure(rail: Locator, headingSelector: string) {
 			heading: box(document.querySelector(headingSelector)!),
 			rail: {
 				...bounds,
+				focused: document.activeElement === rail,
 				direction: style.direction,
 				overflowX: style.overflowX,
 				paddingStart: style.paddingInlineStart,
@@ -158,16 +163,19 @@ async function measure(rail: Locator, headingSelector: string) {
 			ancestors,
 			semanticLabels: [
 				...document.querySelectorAll<HTMLElement>(
-					'.settings-page > h1.sr-only, .preview-semesters .semester-summary .sr-only'
+					'.settings-page > h1.sr-only, .semester-summary .sr-only, .study-days .exam-round > .sr-only'
 				)
-			].map((label) => ({
-				...box(label),
-				text: label.textContent?.trim(),
-				position: getComputedStyle(label).position,
-				clip: getComputedStyle(label).clip,
-				parent: box(label.parentElement!),
-				localContainingBlock: label.offsetParent === label.parentElement
-			})),
+			]
+				.filter((label) => label.getClientRects().length > 0)
+				.map((label) => ({
+					...box(label),
+					text: label.textContent?.trim(),
+					position: getComputedStyle(label).position,
+					clip: getComputedStyle(label).clip,
+					parent: box(label.parentElement!),
+					parentClass: label.parentElement!.className,
+					localContainingBlock: label.offsetParent === label.parentElement
+				})),
 			items: items.map((item) => {
 				const card = preview ? item : item.querySelector('.course-card')!;
 				const rect = box(card);
@@ -220,8 +228,12 @@ function expectShell(
 	expect(
 		geometry.documentOverflow,
 		'whole document stays in the viewport'
-	).toBeLessThanOrEqual(1);
-	expect(Math.abs(geometry.scrollX)).toBeLessThanOrEqual(1);
+	).toBe(0);
+	expect(
+		geometry.viewport.width,
+		'mobile visual viewport is not expanded by hidden page overflow'
+	).toBe(geometry.layoutViewportWidth);
+	expect(geometry.scrollX).toBe(0);
 	expect(geometry.header.height).toBe(48);
 	expect(geometry.header.direction).toBe('ltr');
 	for (const item of geometry.header.items) {
@@ -264,6 +276,14 @@ function expectShell(
 		expect(label.right).toBeLessThanOrEqual(label.parent.right);
 		expect(label.top).toBeGreaterThanOrEqual(label.parent.top);
 		expect(label.bottom).toBeLessThanOrEqual(label.parent.bottom);
+	}
+	if (new URL(geometry.url).pathname === '/app/semester') {
+		expect(
+			geometry.semanticLabels.filter((label) =>
+				label.parentClass.split(' ').includes('exam-round')
+			).length,
+			'visible study-day rows retain locally anchored accessible round labels'
+		).toBeGreaterThanOrEqual(2);
 	}
 	const desktopDiscovery = discovery && width >= 640;
 	const expectedLeft = desktopDiscovery && !rtl ? geometry.sidebar!.right : 0;
@@ -650,17 +670,51 @@ for (const width of [320, 390, 1180, 1440]) {
 				await expect(page).toHaveURL(`${origin}${href}`);
 				await page.goBack();
 				await expect(rail).toBeVisible();
+				await settle(page);
 				await rail.evaluate((element) => element.scrollTo({ left: 0 }));
-				await rail.focus();
-				await expect(rail).toBeFocused();
-				for (let step = 0; step < 8; step++) {
-					await page.keyboard.press(
-						language === 'he' ? 'ArrowLeft' : 'ArrowRight'
-					);
-				}
 				await expect
 					.poll(() => rail.evaluate((element) => Math.abs(element.scrollLeft)))
-					.toBeGreaterThan(0);
+					.toBe(0);
+				await rail.focus();
+				await expect(rail).toBeFocused();
+				const keyboardStart = await capture(
+					page,
+					rail,
+					'.preview-heading h1',
+					info,
+					'preview-keyboard-start'
+				);
+				expectShell(keyboardStart, language);
+				expectInitial(keyboardStart, language);
+				expect(keyboardStart.rail.focused).toBe(true);
+				await expect(rail).toBeFocused();
+				// Give native key-down scrolling an actual rendering interval after
+				// back navigation, rather than coalescing a zero-duration key burst.
+				for (let step = 0; step < 8; step++) {
+					await page.keyboard.press(
+						language === 'he' ? 'ArrowLeft' : 'ArrowRight',
+						{ delay: 100 }
+					);
+				}
+				let keyboardEnd: Geometry;
+				try {
+					await expect
+						.poll(() =>
+							rail.evaluate((element) => Math.abs(element.scrollLeft))
+						)
+						.toBeGreaterThan(0);
+				} finally {
+					keyboardEnd = await capture(
+						page,
+						rail,
+						'.preview-heading h1',
+						info,
+						'preview-keyboard-end'
+					);
+				}
+				expectShell(keyboardEnd, language);
+				expect(keyboardEnd.rail.focused).toBe(true);
+				expect(Math.abs(keyboardEnd.rail.scrollLeft)).toBeGreaterThan(0);
 				const importButton = page.locator('.preview-actions button');
 				page.once('dialog', (dialog) => dialog.dismiss());
 				await importButton.click();

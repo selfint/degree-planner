@@ -1,11 +1,20 @@
 <script lang="ts">
 	import AppFooter from '$lib/components/AppFooter.svelte';
-	import { content } from '$lib/preferences.svelte';
+	import TitleBar from '../../routes/components/TitleBar.svelte';
+	import PwaUpdateBanner from '$lib/components/PwaUpdateBanner.svelte';
 	import PwaStatusView from '$lib/components/PwaStatusView.svelte';
 	import PwaStatusDetails from '$lib/components/PwaStatusDetails.svelte';
 	import { setOfflinePublicData } from '../../../.storybook/mocks/offlineData';
 	import { publishOfflineShellStatus } from '../../../.storybook/mocks/pwaStatus';
-	let { state: variant = 'preparing' }: { state?: string } = $props();
+	let {
+		state: variant = 'preparing',
+		updateVersion: fixtureVersion = 'storybook-update-v2',
+		updateVersionError
+	}: {
+		state?: string;
+		updateVersion?: string;
+		updateVersionError?: string;
+	} = $props();
 	const refreshFailed = $derived(variant.startsWith('refresh'));
 	const allReady = $derived(
 		['ready', 'offline', 'update', 'refresh', 'refreshUpdate'].includes(variant)
@@ -54,6 +63,20 @@
 	});
 </script>
 
+<div class="w-full border-b border-border bg-background">
+	<TitleBar
+		started={true}
+		searchQuery=""
+		searchRevision={0}
+		onSearch={() => {}}
+	/>
+</div>
+<PwaUpdateBanner
+	visible={updateReady}
+	updateVersion={updateReady ? fixtureVersion : undefined}
+	{updateVersionError}
+	persistDismissal={false}
+/>
 <AppFooter compact persistPreferences={false}>
 	{#snippet pwa()}
 		<div data-testid="pwa-preview-slot" class="pwa-footer-controls">
@@ -69,14 +92,6 @@
 				{updateReady}
 				onRetry={() => retries++}
 			/>
-			<a
-				href="/#install-title"
-				target="_blank"
-				rel="noopener noreferrer"
-				class="pwa-install-help"
-				data-testid="pwa-install-help"
-				>{content.lang.lang === 'he' ? 'עזרה בהתקנה' : 'Install help'}</a
-			>
 		</div>
 		<PwaStatusDetails />
 	{/snippet}
@@ -92,15 +107,5 @@
 		justify-content: space-between;
 		gap: 0.25rem 0.75rem;
 		min-inline-size: 0;
-	}
-	.pwa-install-help {
-		margin-inline-start: auto;
-		display: inline-flex;
-		align-items: center;
-		block-size: var(--control-height);
-		white-space: nowrap;
-		text-decoration: underline;
-		text-underline-offset: 0.125rem;
-		color: rgb(var(--color-content-secondary));
 	}
 </style>

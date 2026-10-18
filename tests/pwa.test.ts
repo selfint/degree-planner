@@ -10,14 +10,24 @@ async function viewOfflineError(page: Page, timeout = 15000) {
 	await expect(page.getByTestId('pwa-status-details')).toBeVisible();
 }
 
-// A proxy of the real production build lets us deliver a changed worker script
-// without modifying build files or racing other Playwright tests.
+// Proxy the real production build with distinct validated build-version literals.
+// Native workers still install, wait, cache and activate normally; no browser APIs
+// or lifecycle state are replaced, and source build files remain untouched.
 let server: Server;
 let origin: string;
-let revision = 0;
+let revision = 1;
+let buildVersion: string;
+const deploymentVersion = () => `${buildVersion}-pwa-${revision}`;
+function versioned(source: string) {
+	return source.replaceAll(
+		JSON.stringify(buildVersion),
+		JSON.stringify(deploymentVersion())
+	);
+}
 let originDisconnected = false;
 let serveLegacyWorker = false;
 let denyConsoleShell = false;
+let denyWorkerUpdate = false;
 
 // Other suites mock network responses and block service workers globally.
 test.use({ serviceWorkers: 'allow' });
@@ -27,6 +37,19 @@ test.beforeAll(async () => {
 		'.svelte-kit/output/client/service-worker.js',
 		'utf8'
 	);
+	const manifest = JSON.parse(
+		await readFile('.svelte-kit/output/client/_app/version.json', 'utf8')
+	);
+	if (
+		typeof manifest.version !== 'string' ||
+		!/^[\w.-]+$/.test(manifest.version)
+	)
+		throw new Error('Production build version must be a nonempty safe string');
+	buildVersion = manifest.version;
+	if (!worker.includes(JSON.stringify(buildVersion)))
+		throw new Error(
+			'Expected the exact compiled build-version literal in the production worker'
+		);
 	server = createServer(async (request, response) => {
 		if (originDisconnected) {
 			request.socket.destroy();
@@ -38,6 +61,11 @@ test.beforeAll(async () => {
 				response.end();
 				return;
 			}
+			if (request.url === '/service-worker.js' && denyWorkerUpdate) {
+				response.writeHead(503, { 'cache-control': 'no-store' });
+				response.end();
+				return;
+			}
 			if (request.url === '/service-worker.js') {
 				response.writeHead(200, {
 					'content-type': 'application/javascript',
@@ -46,7 +74,7 @@ test.beforeAll(async () => {
 				response.end(
 					serveLegacyWorker
 						? "self.addEventListener('activate', event => event.waitUntil(self.clients.claim()));"
-						: `${worker}\n// Test deployment ${revision}\n`
+						: versioned(worker)
 				);
 				return;
 			}
@@ -55,7 +83,13 @@ test.beforeAll(async () => {
 				'content-type':
 					upstream.headers.get('content-type') ?? 'application/octet-stream'
 			});
-			response.end(Buffer.from(await upstream.arrayBuffer()));
+			const body = Buffer.from(await upstream.arrayBuffer());
+			const path = new URL(request.url ?? '/', origin).pathname;
+			response.end(
+				path.endsWith('.js') || path === '/_app/version.json'
+					? versioned(body.toString('utf8'))
+					: body
+			);
 		} catch {
 			response.writeHead(502);
 			response.end();
@@ -77,6 +111,8 @@ test.afterEach(() => {
 	originDisconnected = false;
 	serveLegacyWorker = false;
 	denyConsoleShell = false;
+	denyWorkerUpdate = false;
+	revision = 1;
 });
 
 test.beforeEach(async ({ page }, testInfo) => {
@@ -112,20 +148,177 @@ async function ready(page: Page) {
 	);
 }
 
+async function expectUpdateBanner(page: Page, version: string) {
+	const banner = page.getByTestId('pwa-update-banner');
+	await expect(banner).toHaveCount(1);
+	await expect(banner).toBeVisible();
+	await expect(banner.getByTestId('pwa-update')).toHaveText(
+		'Update available. Save your work, close all PlanIt tabs and windows, then reopen.'
+	);
+	await expect(banner.getByTestId('pwa-update')).toHaveAttribute(
+		'role',
+		'status'
+	);
+	await expect(banner).toHaveAttribute('data-update-version', version);
+	await expect(banner.locator('a, details, summary')).toHaveCount(0);
+	await expect(banner.getByRole('button')).toHaveCount(1);
+	await expect(banner.getByTestId('pwa-update-dismiss')).toHaveAccessibleName(
+		'Dismiss update notice'
+	);
+	await expect(banner.getByTestId('pwa-update-dismiss')).toBeEnabled();
+	await expect(page.getByTestId('pwa-update-link')).toHaveCount(0);
+	await expect(page.locator('footer').getByTestId('pwa-update')).toHaveCount(0);
+	await expect(
+		page.locator('header').getByTestId('pwa-update-banner')
+	).toHaveCount(0);
+	const placement = await banner.evaluate((element) => {
+		const header = document.querySelector('header')!;
+		const main = document.querySelector('main')!;
+		const bounds = element.getBoundingClientRect();
+		return {
+			afterHeader: !!(
+				header.compareDocumentPosition(element) &
+				Node.DOCUMENT_POSITION_FOLLOWING
+			),
+			beforeMain: !!(
+				element.compareDocumentPosition(main) & Node.DOCUMENT_POSITION_FOLLOWING
+			),
+			top: bounds.top,
+			bottom: bounds.bottom,
+			headerBottom: header.getBoundingClientRect().bottom,
+			mainTop: main.getBoundingClientRect().top
+		};
+	});
+	expect(placement.afterHeader).toBe(true);
+	expect(placement.beforeMain).toBe(true);
+	expect(placement.top).toBeGreaterThanOrEqual(placement.headerBottom);
+	expect(placement.bottom).toBeLessThanOrEqual(placement.mainTop);
+}
+
+async function workerVersion(
+	page: Page,
+	target: 'active' | 'waiting' | 'controller'
+) {
+	return page.evaluate(async (target) => {
+		const registration = await navigator.serviceWorker.getRegistration();
+		const worker =
+			target === 'controller'
+				? navigator.serviceWorker.controller
+				: registration?.[target];
+		if (!worker) return null;
+		const channel = new MessageChannel();
+		try {
+			return await new Promise<string>((resolve, reject) => {
+				const timeout = setTimeout(
+					() => reject(new Error('Worker version response timed out')),
+					5000
+				);
+				channel.port1.onmessage = ({ data }) => {
+					clearTimeout(timeout);
+					if (
+						data?.type === 'OFFLINE_SHELL_VERSION' &&
+						typeof data.version === 'string' &&
+						data.version
+					)
+						resolve(data.version);
+					else reject(new Error('Invalid worker version response'));
+				};
+				worker.postMessage({ type: 'GET_OFFLINE_SHELL_VERSION' }, [
+					channel.port2
+				]);
+			});
+		} finally {
+			channel.port1.close();
+			channel.port2.close();
+		}
+	}, target);
+}
+
+async function storedCourses(page: Page) {
+	return page.evaluate(async () => {
+		const snapshot = await new Promise<{
+			courses: unknown[];
+			count: number;
+			schemaVersion: number;
+		}>((resolve, reject) => {
+			const request = indexedDB.open('degree-planner-courses', 1);
+			request.onupgradeneeded = () => request.transaction?.abort();
+			request.onerror = () => reject(request.error);
+			request.onsuccess = () => {
+				const database = request.result;
+				try {
+					const transaction = database.transaction(
+						['courses', 'meta'],
+						'readonly'
+					);
+					const courses = transaction.objectStore('courses').getAll();
+					const metadata = transaction.objectStore('meta').get('courses');
+					transaction.oncomplete = () => {
+						database.close();
+						resolve({
+							courses: courses.result,
+							count: metadata.result.count,
+							schemaVersion: metadata.result.schemaVersion
+						});
+					};
+					transaction.onabort = () => {
+						database.close();
+						reject(transaction.error);
+					};
+				} catch (error) {
+					database.close();
+					reject(error);
+				}
+			};
+		});
+		// Compare every durable course field, while permitting honest refresh-time
+		// metadata to advance. IndexedDB getAll is ordered by its real primary key.
+		const digest = await crypto.subtle.digest(
+			'SHA-256',
+			new TextEncoder().encode(JSON.stringify(snapshot.courses))
+		);
+		return {
+			records: snapshot.courses.length,
+			count: snapshot.count,
+			schemaVersion: snapshot.schemaVersion,
+			digest: Array.from(new Uint8Array(digest), (byte) =>
+				byte.toString(16).padStart(2, '0')
+			).join('')
+		};
+	});
+}
+
 test('manifest and correctly sized icons support installation', async ({
 	page,
 	request
 }) => {
+	// Observe the genuine first-install lifecycle, including transient DOM frames.
+	await page.addInitScript(() => {
+		new MutationObserver((records) => {
+			for (const record of records)
+				for (const node of record.addedNodes) {
+					if (
+						node instanceof Element &&
+						(node.matches('[data-testid="pwa-update-banner"]') ||
+							node.querySelector('[data-testid="pwa-update-banner"]'))
+					)
+						document.documentElement.dataset.initialUpdateBannerSeen = 'true';
+				}
+		}).observe(document, { childList: true, subtree: true });
+	});
 	await ready(page);
+	await expect(page.locator('html')).not.toHaveAttribute(
+		'data-initial-update-banner-seen',
+		'true'
+	);
 	await expect(page.locator('header').getByTestId('pwa-status')).toHaveCount(0);
 	await expect(page.locator('footer').getByTestId('pwa-status')).toHaveCount(1);
 	await expect(
 		page.locator('footer').getByTestId('pwa-footer-row')
 	).toHaveCount(1);
-	await expect(page.getByTestId('pwa-install-help')).toHaveAttribute(
-		'href',
-		'/#install-title'
-	);
+	await expect(page.getByTestId('pwa-install-help')).toHaveCount(0);
+	await expect(page.getByTestId('pwa-update-banner')).toHaveCount(0);
+	await expect(page.getByTestId('pwa-update-link')).toHaveCount(0);
 	await expect(page.locator('footer').getByRole('status')).toHaveText(
 		'All courses ready offline'
 	);
@@ -262,20 +455,94 @@ test('a never-visited course loads offline while guest plan editing stays read-o
 	await expect(page.getByTestId('plan-read-only')).toHaveCount(0);
 });
 
-test('updates wait without reloading unsaved plan edits or other tabs', async ({
-	page,
-	context
+test('a failed worker replacement never announces an available update', async ({
+	page
 }) => {
 	await ready(page);
+	const originalTime = await page.evaluate(() => performance.timeOrigin);
+	denyWorkerUpdate = true;
+	const rejected = await page.evaluate(async () => {
+		try {
+			await (await navigator.serviceWorker.getRegistration())!.update();
+			return false;
+		} catch {
+			return true;
+		}
+	});
+	expect(rejected).toBe(true);
+	expect(
+		await page.evaluate(async () => {
+			const registration = await navigator.serviceWorker.getRegistration();
+			return {
+				active: registration?.active?.state,
+				waiting: registration?.waiting?.state
+			};
+		})
+	).toEqual({ active: 'activated', waiting: undefined });
+	await expect(page.getByTestId('pwa-update-banner')).toHaveCount(0);
+	await expect(page.getByTestId('pwa-update')).toHaveCount(0);
+	await expect(page.getByTestId('pwa-update-link')).toHaveCount(0);
+	await expect(page.locator('[data-code="02340124"]')).toBeVisible();
+	expect(await page.evaluate(() => performance.timeOrigin)).toBe(originalTime);
+	denyWorkerUpdate = false;
+	await page.evaluate(async () =>
+		(await navigator.serviceWorker.getRegistration())!.update()
+	);
+	await expect(page.getByTestId('pwa-update-banner')).toHaveCount(0);
+});
+
+test('versioned dismissal preserves drafts until all tabs close and the new worker opens offline', async ({
+	page,
+	context,
+	browserName
+}, info) => {
+	test.setTimeout(90_000);
+	const viewport = { width: 390, height: 844 };
+	await page.setViewportSize(viewport);
+	const capture = async (name: string) => {
+		await page.locator('header').scrollIntoViewIfNeeded();
+		await page.evaluate(async () => {
+			await document.fonts.ready;
+			await new Promise<void>((resolve) =>
+				requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+			);
+		});
+		const path = info.outputPath(`${browserName}-${name}-390.png`);
+		await page.screenshot({ path, animations: 'disabled', fullPage: false });
+		await info.attach(name, { path, contentType: 'image/png' });
+	};
+	const courses = JSON.parse(await readFile('static/courseData.json', 'utf8'));
+	await ready(page);
+	const v1 = deploymentVersion();
+	expect(await workerVersion(page, 'active')).toBe(v1);
+	expect(await workerVersion(page, 'controller')).toBe(v1);
+	const durableCourses = await storedCourses(page);
+	expect(durableCourses.records).toBe(Object.keys(courses).length);
+	expect(durableCourses.count).toBe(durableCourses.records);
+	expect(durableCourses.schemaVersion).toBe(1);
 	const otherTab = await context.newPage();
+	await otherTab.setViewportSize(viewport);
 	await otherTab.goto(`${origin}/app/plan`);
-	// Reorder the wishlist without saving to exercise actual in-memory draft state.
-	const first = page.locator('[data-code="02340124"]');
-	const second = page.locator('[data-code="02340141"]');
-	await first.dragTo(second, { targetPosition: { x: 5, y: 5 } });
-	await expect(
-		page.getByRole('button', { name: 'Save', exact: true })
-	).toBeVisible();
+	await expect(otherTab.locator('[data-code="02340124"]')).toBeVisible();
+	// Make a real unsaved draft using native dragover in both engines. WebKit
+	// needs a second target hover before mouseup; do not dispatch synthetic events.
+	const destination = page.locator('[data-semester="1"]');
+	const destinationBounds = (await destination.boundingBox())!;
+	const position = { x: destinationBounds.width / 2, y: 24 };
+	await page
+		.getByTestId('plan-wishlist')
+		.locator('[data-code="02340124"]')
+		.hover();
+	await page.mouse.down();
+	try {
+		await destination.hover({ position });
+		await destination.hover({ position });
+	} finally {
+		await page.mouse.up();
+	}
+	await expect(destination.locator('[data-code="02340124"]')).toHaveCount(1);
+	const save = page.getByRole('button', { name: 'Save', exact: true });
+	await expect(save).toBeVisible();
 	const draftOrder = await page
 		.locator('[data-code]')
 		.evaluateAll((cards) =>
@@ -283,111 +550,179 @@ test('updates wait without reloading unsaved plan edits or other tabs', async ({
 		);
 	const saved = await page.evaluate(() => localStorage.getItem('userData'));
 	const timeOrigin = await page.evaluate(() => performance.timeOrigin);
-	const contentTop = (await page.locator('main').boundingBox())!.y;
+	const otherTimeOrigin = await otherTab.evaluate(() => performance.timeOrigin);
+	await expect(page.getByTestId('pwa-update-banner')).toHaveCount(0);
+	await expect(otherTab.getByTestId('pwa-update-banner')).toHaveCount(0);
+
 	revision++;
+	const v2 = deploymentVersion();
 	await page.evaluate(async () =>
 		(await navigator.serviceWorker.getRegistration())!.update()
 	);
-	const updateLink = page.getByTestId('pwa-update-link');
-	await expect(updateLink).toBeVisible();
-	await expect(
-		page.locator('footer').getByTestId('pwa-update-link')
-	).toHaveCount(1);
-	await expect(
-		page.locator('header').getByTestId('pwa-update-link')
-	).toHaveCount(0);
-	await expect(updateLink).toHaveAttribute('href', '#offline-status');
-	await expect(updateLink).toHaveAttribute(
-		'title',
-		/Finish saving.*close all PlanIt tabs/
-	);
-	await expect(page.locator('details.pwa-details')).toHaveCount(0);
-	expect((await page.locator('main').boundingBox())!.y).toBeCloseTo(
-		contentTop,
-		0
-	);
-	await expect(page.getByTestId('pwa-update')).toBeVisible();
-	await expect(page.getByTestId('pwa-update')).toHaveCount(1);
+	await expect.poll(() => workerVersion(page, 'waiting')).toBe(v2);
+	await expectUpdateBanner(page, v2);
+	await expectUpdateBanner(otherTab, v2);
+	await capture('waiting-v2-mobile');
+	await expect(page.getByTestId('pwa-status-details')).toHaveCount(0);
 	await expect(page.getByTestId('pwa-incomplete')).toHaveCount(0);
-	expect((await page.locator('main').boundingBox())!.y).toBeCloseTo(
-		contentTop,
-		0
-	);
-	await expect
-		.poll(() =>
-			page.evaluate(
-				async () =>
-					(await navigator.serviceWorker.getRegistration())?.waiting?.state
-			)
+	await page.getByTestId('pwa-update-dismiss').click();
+	await expect(page.getByTestId('pwa-update-banner')).toHaveCount(0);
+	expect(
+		await page.evaluate(() =>
+			sessionStorage.getItem('planit-dismissed-update-version')
 		)
-		.toBe('installed');
-	await expect(
-		page.getByRole('button', { name: 'Save', exact: true })
-	).toBeVisible();
-	expect(await page.evaluate(() => performance.timeOrigin)).toBe(timeOrigin);
-	expect(await page.evaluate(() => localStorage.getItem('userData'))).toBe(
-		saved
+	).toBe(v2);
+	await capture('dismissed-v2-mobile');
+	// Session dismissal belongs to one window and never activates the waiting worker.
+	await expectUpdateBanner(otherTab, v2);
+	expect(await workerVersion(page, 'active')).toBe(v1);
+	expect(await workerVersion(page, 'controller')).toBe(v1);
+	expect(await workerVersion(page, 'waiting')).toBe(v2);
+	await otherTab.getByTestId('pwa-update-dismiss').click();
+	await expect(otherTab.getByTestId('pwa-update-banner')).toHaveCount(0);
+	for (let attempt = 0; attempt < 2; attempt++) {
+		await otherTab.locator('header nav a[href="/app/catalog"]').click();
+		await expect(otherTab).toHaveURL(`${origin}/app/catalog`);
+		await expect(otherTab.getByTestId('pwa-update-banner')).toHaveCount(0);
+		await otherTab.goBack();
+		await expect(otherTab).toHaveURL(`${origin}/app/plan`);
+		await expect(otherTab.getByTestId('pwa-update-banner')).toHaveCount(0);
+	}
+	expect(await otherTab.evaluate(() => performance.timeOrigin)).toBe(
+		otherTimeOrigin
+	);
+	await otherTab.addInitScript(() => {
+		new MutationObserver((records) => {
+			for (const record of records)
+				for (const node of record.addedNodes)
+					if (
+						node instanceof Element &&
+						(node.matches('[data-testid="pwa-update-banner"]') ||
+							node.querySelector('[data-testid="pwa-update-banner"]'))
+					)
+						document.documentElement.dataset.dismissedUpdateBannerSeen = 'true';
+		}).observe(document, { childList: true, subtree: true });
+	});
+	await otherTab.reload();
+	await expect(otherTab.locator('[data-code="02340124"]')).toBeVisible();
+	await expect.poll(() => workerVersion(otherTab, 'waiting')).toBe(v2);
+	await expect(otherTab.getByTestId('pwa-update-banner')).toHaveCount(0);
+	await otherTab.evaluate(
+		() =>
+			new Promise<void>((resolve) =>
+				requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+			)
+	);
+	await expect(otherTab.locator('html')).not.toHaveAttribute(
+		'data-dismissed-update-banner-seen',
+		'true'
 	);
 	expect(
-		await page
-			.locator('[data-code]')
-			.evaluateAll((cards) =>
-				cards.map((card) => card.getAttribute('data-code'))
-			)
-	).toEqual(draftOrder);
-	// The same-page link reveals already-visible instructions without navigating
-	// away, opening an overlay, reloading, or discarding the current draft.
-	await updateLink.click();
-	await expect(page).toHaveURL(`${origin}/app/plan#offline-status`);
-	await expect(page.getByTestId('pwa-update')).toBeInViewport();
-	await expect(page.getByTestId('pwa-update')).toContainText('Finish saving');
-	await expect(page.getByTestId('pwa-update')).toContainText(
-		'close all PlanIt tabs'
-	);
-	await expect(page.getByTestId('pwa-update')).toContainText(
-		'will not be reloaded automatically'
-	);
-	await expect(
-		page.getByRole('button', { name: 'Save', exact: true })
-	).toBeVisible();
-	expect(
-		await page
-			.locator('[data-code]')
-			.evaluateAll((cards) =>
-				cards.map((card) => card.getAttribute('data-code'))
-			)
-	).toEqual(draftOrder);
+		await otherTab.evaluate(() =>
+			sessionStorage.getItem('planit-dismissed-update-version')
+		)
+	).toBe(v2);
 
+	// A genuinely different waiting build must resurface after the previous version
+	// was dismissed. The superseded worker becomes redundant through the native API.
+	revision++;
+	const v3 = deploymentVersion();
+	await page.evaluate(async () =>
+		(await navigator.serviceWorker.getRegistration())!.update()
+	);
+	await expect.poll(() => workerVersion(page, 'waiting')).toBe(v3);
+	await expectUpdateBanner(page, v3);
+	await expectUpdateBanner(otherTab, v3);
+	await capture('waiting-v3-mobile');
+	await page.getByTestId('pwa-update-dismiss').click();
+	await expect(page.getByTestId('pwa-update-banner')).toHaveCount(0);
+	expect(
+		await page.evaluate(() =>
+			sessionStorage.getItem('planit-dismissed-update-version')
+		)
+	).toBe(v3);
+	await expect(save).toBeVisible();
 	expect(await page.evaluate(() => performance.timeOrigin)).toBe(timeOrigin);
 	expect(await page.evaluate(() => localStorage.getItem('userData'))).toBe(
 		saved
 	);
 	expect(
-		await page.evaluate(
-			async () =>
-				(await navigator.serviceWorker.getRegistration())?.waiting?.state
-		)
-	).toBe('installed');
-	await page.getByRole('button', { name: 'Save', exact: true }).click();
+		await page
+			.locator('[data-code]')
+			.evaluateAll((cards) =>
+				cards.map((card) => card.getAttribute('data-code'))
+			)
+	).toEqual(draftOrder);
+	expect(await storedCourses(page)).toEqual(durableCourses);
+	expect(await workerVersion(page, 'active')).toBe(v1);
+	expect(await workerVersion(otherTab, 'controller')).toBe(v1);
+
+	// Follow exactly the visible instruction: save, close every controlled client,
+	// then reopen. There is no skipWaiting, activation button or forced reload.
+	await save.click();
+	await expect(save).toHaveCount(0);
+	const savedDraft = await page.evaluate(() =>
+		localStorage.getItem('userData')
+	);
+	expect(savedDraft).not.toBe(saved);
 	await page.close();
-	// Keeping the second tab open must still prevent activation.
-	expect(
-		await otherTab.evaluate(
-			async () =>
-				(await navigator.serviceWorker.getRegistration())?.waiting?.state
-		)
-	).toBe('installed');
+	expect(await workerVersion(otherTab, 'active')).toBe(v1);
+	expect(await workerVersion(otherTab, 'waiting')).toBe(v3);
 	await otherTab.close();
 	const reopened = await context.newPage();
+	await reopened.setViewportSize(viewport);
 	await reopened.goto(`${origin}/app/plan`);
-	await expect
-		.poll(() =>
-			reopened.evaluate(
-				async () => !(await navigator.serviceWorker.getRegistration())?.waiting
-			)
-		)
-		.toBe(true);
 	await expect(reopened.locator('[data-code="02340124"]')).toBeVisible();
+	await expect.poll(() => workerVersion(reopened, 'active')).toBe(v3);
+	await expect.poll(() => workerVersion(reopened, 'controller')).toBe(v3);
+	expect(await workerVersion(reopened, 'waiting')).toBeNull();
+	await expect(reopened.getByTestId('pwa-update-banner')).toHaveCount(0);
+	await expect(reopened.getByTestId('pwa-status')).toHaveAttribute(
+		'data-state',
+		'ready',
+		{ timeout: 20000 }
+	);
+	expect(await reopened.evaluate(() => localStorage.getItem('userData'))).toBe(
+		savedDraft
+	);
+	expect(await storedCourses(reopened)).toEqual(durableCourses);
+	await reopened.reload();
+	await expect(reopened.locator('[data-code="02340124"]')).toBeVisible();
+	await expect(reopened.getByTestId('pwa-update-banner')).toHaveCount(0);
+	await expect(reopened.getByTestId('pwa-status')).toHaveAttribute(
+		'data-state',
+		'ready'
+	);
+
+	// The newly active build must still open a never-visited course entirely offline.
+	const reopenedTime = await reopened.evaluate(() => performance.timeOrigin);
+	// Disconnect the actual origin in both engines, proving cached responses cannot
+	// forward to a working network. WebKit avoids setOffline because its emulator
+	// rejects even SW-only responses; this is not physical iOS airplane-mode QA.
+	originDisconnected = true;
+	server.closeAllConnections();
+	await expect(fetch(`${origin}/offline-outage-probe`)).rejects.toThrow();
+	if (browserName !== 'webkit') await context.setOffline(true);
+	await reopened.locator('[data-code="02340141"]').click();
+	await expect(reopened).toHaveURL(`${origin}/app/course/02340141`);
+	await expect(reopened.locator('main')).toContainText(
+		courses['02340141'].name
+	);
+	expect(await reopened.evaluate(() => performance.timeOrigin)).toBe(
+		reopenedTime
+	);
+	const offlineReload = await reopened.reload();
+	expect(offlineReload?.fromServiceWorker()).toBe(true);
+	await expect(reopened.locator('main')).toContainText(
+		courses['02340141'].name
+	);
+	if (browserName !== 'webkit')
+		await expect(reopened.getByTestId('plan-read-only')).toBeVisible();
+	expect(await workerVersion(reopened, 'controller')).toBe(v3);
+	expect(await reopened.evaluate(() => localStorage.getItem('userData'))).toBe(
+		savedDraft
+	);
+	expect(await storedCourses(reopened)).toEqual(durableCourses);
 });
 
 test('caches contain only public assets and do not delete unrelated storage', async ({
@@ -750,6 +1085,7 @@ test('a failed console shell install keeps the existing root registration', asyn
 	await page.goto(`${origin}/app/plan`);
 	await expect(page.locator('[data-code="02340124"]')).toBeVisible();
 	await viewOfflineError(page, 35_000);
+	await expect(page.getByTestId('pwa-update-banner')).toHaveCount(0);
 	await expect(page.getByTestId('pwa-incomplete')).toBeVisible();
 	const root = await page.evaluate(async () => {
 		const registration = (

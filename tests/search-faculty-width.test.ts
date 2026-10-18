@@ -21,6 +21,115 @@ const singleLineFaculty = 'הנדסה ימית';
 const maxPoints =
 	Math.ceil(Math.max(...courses.map((course) => course.points ?? 0)) * 2) / 2;
 
+// Retain the actual loading sequence when a native-control capture fails. A
+// missing shared stylesheet can move the control outside the viewport even
+// though the search route's own styles and hydration are already ready.
+test.use({ trace: 'retain-on-failure' });
+
+type AssetEvent = {
+	phase: 'request' | 'response' | 'failed';
+	at: number;
+	url: string;
+	type: string;
+	status?: number;
+	contentType?: string;
+	error?: string;
+};
+const assetEvents = new WeakMap<Page, AssetEvent[]>();
+
+test.beforeEach(async ({ page }) => {
+	const events: AssetEvent[] = [];
+	assetEvents.set(page, events);
+	const record = (
+		request: import('@playwright/test').Request,
+		data: Omit<AssetEvent, 'at' | 'url' | 'type'>
+	) => {
+		if (!['stylesheet', 'script'].includes(request.resourceType())) return;
+		const url = new URL(request.url());
+		if (url.origin !== origin) return;
+		events.push({
+			...data,
+			at: Date.now(),
+			url: `${url.origin}${url.pathname}`,
+			type: request.resourceType()
+		});
+	};
+	page.on('request', (request) => record(request, { phase: 'request' }));
+	page.on('response', (response) =>
+		record(response.request(), {
+			phase: 'response',
+			status: response.status(),
+			contentType: response.headers()['content-type']
+		})
+	);
+	page.on('requestfailed', (request) =>
+		record(request, {
+			phase: 'failed',
+			error: request.failure()?.errorText
+		})
+	);
+});
+
+async function stylesheetState(page: Page) {
+	return page.evaluate(() => {
+		const header = document.querySelector('header.title-bar');
+		const logo = header?.querySelector('.brand-logo');
+		const box = (element: Element | null | undefined) => {
+			if (!element) return null;
+			const { x, y, width, height } = element.getBoundingClientRect();
+			return { x, y, width, height };
+		};
+		return {
+			readyState: document.readyState,
+			header: box(header),
+			logo: box(logo),
+			headerDisplay: header ? getComputedStyle(header).display : null,
+			headerClass: header?.className,
+			stylesheets: [
+				...document.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"]')
+			].map((link) => {
+				let rules: number | null = null;
+				let rulesError: string | null = null;
+				try {
+					rules = link.sheet?.cssRules.length ?? null;
+				} catch (error) {
+					rulesError = String(error);
+				}
+				return {
+					href: link.href,
+					media: link.media,
+					disabled: link.disabled,
+					loaded: Boolean(link.sheet),
+					rules,
+					rulesError
+				};
+			})
+		};
+	});
+}
+
+test.afterEach(async ({ page }, info) => {
+	const events = assetEvents.get(page) ?? [];
+	const path = info.outputPath('asset-loading.json');
+	writeFileSync(
+		path,
+		JSON.stringify(
+			{ events, final: page.isClosed() ? null : await stylesheetState(page) },
+			null,
+			2
+		)
+	);
+	await info.attach('asset-loading', { path, contentType: 'application/json' });
+	expect
+		.soft(
+			events.filter(
+				(event) => event.phase === 'failed' || (event.status ?? 0) >= 400
+			),
+			'the real application scripts and stylesheets load without asset errors'
+		)
+		.toEqual([]);
+});
+
 async function expectState(page: Page, faculty: string, pointsMax = maxPoints) {
 	const params: Record<string, string> = { q: '0', faculty };
 	if (pointsMax < maxPoints) params.pointsMax = String(pointsMax);
@@ -184,6 +293,7 @@ async function captureClosedControl(
 		};
 	});
 	const layoutPath = info.outputPath(`${stage}-layout.json`);
+	const assets = await stylesheetState(page);
 	writeFileSync(
 		layoutPath,
 		JSON.stringify(
@@ -192,6 +302,7 @@ async function captureClosedControl(
 				requestedViewport,
 				singleLineNative,
 				focus,
+				assets,
 				...layout
 			},
 			null,

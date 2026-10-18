@@ -18,6 +18,14 @@
 	let video: HTMLVideoElement;
 	let nearby = $state(false);
 	let failed = $state(false);
+	const failedSources = new Set<string>();
+
+	function sourceFailed(format: string) {
+		// Source errors do not bubble to the video. One failed format can still
+		// fall back successfully; show the message only when both are exhausted.
+		failedSources.add(format);
+		if (failedSources.size === 2) failed = true;
+	}
 
 	onMount(() => {
 		// Reserve the frame immediately, but fetch its poster only near the viewport.
@@ -65,9 +73,21 @@
 				aria-label={tutorial.title}
 				aria-describedby={`${topic}-steps-title`}
 				onerror={() => (failed = true)}
+				onloadeddata={() => {
+					failedSources.clear();
+					failed = false;
+				}}
 			>
-				<source src={`${source}.mp4`} type="video/mp4" />
-				<source src={`${source}.webm`} type="video/webm" />
+				<source
+					src={`${source}.mp4`}
+					type="video/mp4"
+					onerror={() => sourceFailed('mp4')}
+				/>
+				<source
+					src={`${source}.webm`}
+					type="video/webm"
+					onerror={() => sourceFailed('webm')}
+				/>
 				<track
 					src={`${source}.vtt`}
 					kind="captions"

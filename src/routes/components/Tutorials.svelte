@@ -6,6 +6,7 @@
 	import TutorialVideo from './TutorialVideo.svelte';
 
 	let theme = $state<Theme>('dark');
+	let hydrated = $state(false);
 	const language = $derived(content.lang.lang === 'en' ? 'en' : 'he');
 	const copy = $derived(tutorialCopy[language]);
 	const topics: TutorialTopic[] = ['course-card', 'plan-course'];
@@ -14,6 +15,10 @@
 		const syncTheme = () =>
 			(theme = parseTheme(document.documentElement.dataset.theme));
 		syncTheme();
+		// Native media can retain the source selected from server HTML even when
+		// hydration updates its <source> attributes. Recreate once with the real
+		// device preferences, without calling load() or fetching video bytes.
+		hydrated = true;
 		const observer = new MutationObserver(syncTheme);
 		observer.observe(document.documentElement, {
 			attributes: true,
@@ -40,7 +45,7 @@
 	</p>
 	<div class="mt-8 space-y-12 sm:mt-10 sm:space-y-16">
 		{#each topics as topic}
-			{#key `${topic}-${language}-${theme}`}
+			{#key `${topic}-${language}-${theme}-${hydrated}`}
 				<TutorialVideo {topic} {language} {theme} />
 			{/key}
 		{/each}

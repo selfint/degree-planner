@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { writeFile } from 'node:fs/promises';
 
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:4173';
 
@@ -86,6 +87,29 @@ for (const width of [320, 390, 1280]) {
 							loadedPosters.has(`/tutorials/${topic}-${language}-${theme}.webp`)
 						)
 						.toBe(true);
+					// Capture the settled poster, rather than its native image-loading animation.
+					await page.waitForTimeout(2000);
+					const idle = await video.evaluate((node) => {
+						const player = node as HTMLVideoElement;
+						return {
+							paused: player.paused,
+							currentTime: player.currentTime,
+							readyState: player.readyState,
+							networkState: player.networkState,
+							currentSrc: player.currentSrc,
+							poster: player.poster
+						};
+					});
+					await writeFile(
+						info.outputPath(`${topic}-${language}-${theme}-${width}-idle.json`),
+						JSON.stringify(idle, null, 2)
+					);
+					expect(idle.paused).toBe(true);
+					expect(idle.currentTime).toBe(0);
+					expect(
+						idle.networkState,
+						'idle poster must not leave native media loading indefinitely'
+					).not.toBe(2);
 					await tutorial.screenshot({
 						path: info.outputPath(
 							`${topic}-${language}-${theme}-${width}-section.png`
@@ -138,6 +162,10 @@ for (const { language, theme, width } of [
 		for (const topic of ['course-card', 'plan-course']) {
 			const tutorial = page.getByTestId(`tutorial-${topic}`);
 			const video = tutorial.locator('video');
+			await expect(video.locator('source').first()).toHaveAttribute(
+				'src',
+				`/tutorials/${topic}-${language}-${theme}.mp4`
+			);
 			await video.scrollIntoViewIfNeeded();
 			await video.evaluate(async (node) => {
 				await (node as HTMLVideoElement).play();
@@ -147,6 +175,9 @@ for (const { language, theme, width } of [
 					video.evaluate((node) => (node as HTMLVideoElement).currentTime)
 				)
 				.toBeGreaterThan(3);
+			expect(
+				await video.evaluate((node) => (node as HTMLVideoElement).currentSrc)
+			).toContain(`/tutorials/${topic}-${language}-${theme}.`);
 			await video.evaluate((node) => (node as HTMLVideoElement).pause());
 			expect(
 				await video.evaluate((node) => (node as HTMLVideoElement).paused)
@@ -166,11 +197,18 @@ for (const { language, theme, width } of [
 				.toBe(true);
 			if (width < 500)
 				await page.setViewportSize({ width: 900, height: width });
+			await video.evaluate(async (node) => (node as HTMLVideoElement).play());
+			await expect
+				.poll(() =>
+					video.evaluate((node) => (node as HTMLVideoElement).currentTime)
+				)
+				.toBeGreaterThan(6);
 			await page.screenshot({
 				path: info.outputPath(
 					`${topic}-fullscreen-${language}-${theme}-${width}.png`
 				)
 			});
+			await video.evaluate((node) => (node as HTMLVideoElement).pause());
 			await page.evaluate(() => document.exitFullscreen());
 			if (width < 500) await page.setViewportSize({ width, height: 900 });
 			await video.dispatchEvent('error');
@@ -201,6 +239,10 @@ test('both unavailable media sources expose a real failure message and readable 
 	await page.goto(baseURL);
 	const tutorial = page.getByTestId('tutorial-course-card');
 	const video = tutorial.locator('video');
+	await expect(video.locator('source').first()).toHaveAttribute(
+		'src',
+		/\/course-card-en-.*\.mp4$/
+	);
 	await video.scrollIntoViewIfNeeded();
 	await video.evaluate((node) => {
 		const player = node as HTMLVideoElement;
@@ -272,6 +314,10 @@ test('the WebM fallback remains playable when MP4 fails', async ({ page }) => {
 	await page.goto(baseURL);
 	const tutorial = page.getByTestId('tutorial-course-card');
 	const video = tutorial.locator('video');
+	await expect(video.locator('source').first()).toHaveAttribute(
+		'src',
+		/\/course-card-en-.*\.mp4$/
+	);
 	await video.scrollIntoViewIfNeeded();
 	await video.evaluate(async (node) => (node as HTMLVideoElement).play());
 	await expect
@@ -279,7 +325,10 @@ test('the WebM fallback remains playable when MP4 fails', async ({ page }) => {
 			video.evaluate((node) => (node as HTMLVideoElement).currentTime)
 		)
 		.toBeGreaterThan(1);
-	expect(mp4Failed).toBe(true);
+	expect(
+		mp4Failed,
+		`Selected source: ${await video.evaluate((node) => (node as HTMLVideoElement).currentSrc)}`
+	).toBe(true);
 	expect(
 		await video.evaluate((node) => (node as HTMLVideoElement).currentSrc)
 	).toMatch(/\.webm$/);

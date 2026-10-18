@@ -6,6 +6,10 @@ import {
 	type TestInfo
 } from '@playwright/test';
 import { readFileSync } from 'node:fs';
+import {
+	intentionalWebKitFetchDiagnostic,
+	type BrowserDiagnostic
+} from './helpers/student-journey-diagnostics';
 
 const origin = new URL(
 	process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:4173'
@@ -16,6 +20,27 @@ const courses = JSON.parse(
 	readFileSync(new URL('../static/courseData.json', import.meta.url), 'utf8')
 ) as Record<string, { faculty: string; points: number }>;
 type Language = 'en' | 'he';
+type JourneyDiagnostics = {
+	abortedUrls: Set<string>;
+	browserErrors: BrowserDiagnostic[];
+	runtimeErrors: { type: string; message: string }[];
+};
+const diagnosticsByTest = new Map<string, JourneyDiagnostics>();
+
+test.afterEach(async ({}, info) => {
+	const diagnostics = diagnosticsByTest.get(info.testId);
+	if (!diagnostics) return;
+	diagnosticsByTest.delete(info.testId);
+	await info.attach('isolated-guest-diagnostics', {
+		body: JSON.stringify(
+			{ ...diagnostics, abortedUrls: [...diagnostics.abortedUrls] },
+			null,
+			2
+		),
+		contentType: 'application/json'
+	});
+});
+
 type GuestPlan = {
 	degree?: string[];
 	path?: string;
@@ -65,12 +90,46 @@ const labels = {
 async function isolateGuest(
 	context: BrowserContext,
 	language: Language,
-	seed?: GuestPlan
+	seed?: GuestPlan,
+	diagnostics?: JourneyDiagnostics
 ) {
+	if (diagnostics) {
+		const observe = (page: Page) => {
+			page.on('pageerror', ({ name, message, stack }) => {
+				diagnostics.browserErrors.push({ name, message, stack });
+			});
+		};
+		context.pages().forEach(observe);
+		context.on('page', observe);
+		await context.exposeBinding('__studentRuntimeError', (_, error) => {
+			diagnostics.runtimeErrors.push(error);
+		});
+		await context.addInitScript(() => {
+			const report = (type: string, message: string) => {
+				void (
+					window as unknown as {
+						__studentRuntimeError: (error: {
+							type: string;
+							message: string;
+						}) => Promise<void>;
+					}
+				).__studentRuntimeError({ type, message });
+			};
+			window.addEventListener('error', (event) =>
+				report('error', event.message)
+			);
+			window.addEventListener('unhandledrejection', (event) =>
+				report('unhandledrejection', String(event.reason))
+			);
+		});
+	}
 	await context.route('**/*', async (route) => {
 		if (new URL(route.request().url()).origin === origin)
 			await route.continue();
-		else await route.abort('blockedbyclient');
+		else {
+			await route.abort('blockedbyclient');
+			diagnostics?.abortedUrls.add(route.request().url());
+		}
 	});
 	await context.addInitScript(
 		({ language, seed }) => {
@@ -152,12 +211,17 @@ test.use({ serviceWorkers: 'block', trace: 'on' });
 for (const language of ['en', 'he'] as const) {
 	test(`${language}: a fresh student recovers interrupted degree setup and reopens a saved course`, async ({
 		page,
-		context
+		context,
+		browserName
 	}, info) => {
 		test.setTimeout(90_000);
-		await isolateGuest(context, language);
-		const errors: string[] = [];
-		page.on('pageerror', (error) => errors.push(error.message));
+		const diagnostics: JourneyDiagnostics = {
+			abortedUrls: new Set(),
+			browserErrors: [],
+			runtimeErrors: []
+		};
+		diagnosticsByTest.set(info.testId, diagnostics);
+		await isolateGuest(context, language, undefined, diagnostics);
 		const text = labels[language];
 		await openSettings(page);
 		const original = await readPlan(page);
@@ -269,7 +333,21 @@ for (const language of ['en', 'he'] as const) {
 			);
 			await reopened.close();
 		});
-		expect(errors).toEqual([]);
+		// WebKit also reports its own blocked-fetch console diagnostic as a
+		// pageerror. Keep every real JS error/rejection, and require exact evidence
+		// of our own route abort before classifying that single SDK diagnostic.
+		expect(diagnostics.runtimeErrors).toEqual([]);
+		const unexpected = diagnostics.browserErrors.filter((error) => {
+			const abortedUrl = intentionalWebKitFetchDiagnostic(
+				browserName,
+				error,
+				diagnostics.abortedUrls
+			);
+			if (!abortedUrl) return true;
+			expect(diagnostics.abortedUrls.has(abortedUrl)).toBe(true);
+			return false;
+		});
+		expect(unexpected).toEqual([]);
 	});
 
 	test(`${language}: a generated share link imports into an independent guest without changing its owner`, async ({

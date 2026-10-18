@@ -12,6 +12,9 @@ const origin = new URL(
 ).origin;
 type Language = 'en' | 'he';
 type Theme = 'light' | 'dark';
+// Keep the real console lifecycle in these full-shell footer screenshots.
+// Playwright's blocked registration returns undefined, an artificial error state.
+test.use({ serviceWorkers: 'allow' });
 const guest = {
 	degree: ['2024_200', '00002120', 'SC00001320_CG00006382'],
 	semesters: [[], [], []],
@@ -91,6 +94,11 @@ async function expectSettingsReady(page: Page, language: Language) {
 		language === 'he' ? 'rtl' : 'ltr'
 	);
 	await expect(page.locator('footer .theme-toggle')).toBeEnabled();
+	await expect(page.getByTestId('pwa-status')).toHaveAttribute(
+		'data-state',
+		'ready',
+		{ timeout: 60_000 }
+	);
 }
 
 async function measureFooter(page: Page) {

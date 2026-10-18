@@ -48,6 +48,8 @@ async function measureBoard(page: Page) {
 			...document.querySelectorAll('[data-testid="plan-wishlist"] .course-card')
 		].map((element) => ({
 			code: element.closest('[data-code]')!.getAttribute('data-code'),
+			naturalHeight: box(element.querySelector('.course-width')!).height,
+			buttonHeight: box(element.closest('button')!).height,
 			...box(element)
 		}));
 		const wishlistBottom = Math.max(...wishlist.map((card) => card.bottom));
@@ -129,6 +131,24 @@ async function measureBoard(page: Page) {
 type Board = Awaited<ReturnType<typeof measureBoard>>;
 
 function expectAligned(board: Board, label: string) {
+	const wishlistHeight = Math.max(
+		...board.wishlist.map((card) => card.naturalHeight)
+	);
+	for (const card of board.wishlist) {
+		expect
+			.soft(
+				Math.abs(card.height - wishlistHeight),
+				`${label}: wishlist cards share tallest natural height`
+			)
+			.toBeLessThanOrEqual(1);
+		expect
+			.soft(
+				Math.abs(card.buttonHeight - card.height),
+				`${label}: wishlist action covers the full card`
+			)
+			.toBeLessThanOrEqual(1);
+	}
+
 	const listTops = board.semesters.map((semester) => semester.list.top);
 	const cardTops = board.semesters.flatMap((semester) =>
 		semester.cards.length ? [semester.cards[0].top] : []
@@ -355,12 +375,18 @@ for (const viewport of [
 					expect.soft(rail.ratios[3]).toBeLessThanOrEqual(0.85);
 					if (rail.ratios[4] !== undefined) expect.soft(rail.ratios[4]).toBe(0);
 				}
-				// Attribute apparent whitespace to the actual tallest offscreen card,
-				// never to only the three fully visible wishlist cards.
-				expect(initial.wishlist[3].bottom).toBe(initial.wishlistBottom);
-				expect(initial.wishlistBottom).toBeGreaterThan(
-					initial.visibleWishlistBottom
+				// The fourth card still has taller natural content; the entire
+				// horizontal row now stretches to it instead of leaving uneven bottoms.
+				const naturalHeights = initial.wishlist.map(
+					(card) => card.naturalHeight
 				);
+				expect(initial.wishlist[3].naturalHeight).toBe(
+					Math.max(...naturalHeights)
+				);
+				expect(Math.max(...naturalHeights)).toBeGreaterThan(
+					Math.min(...naturalHeights)
+				);
+				expect(initial.wishlistBottom).toBe(initial.visibleWishlistBottom);
 				expect(initial.gapAfterTallestWishlistCard).toBeGreaterThanOrEqual(0);
 
 				const otherLanguage = language === 'en' ? 'he' : 'en';

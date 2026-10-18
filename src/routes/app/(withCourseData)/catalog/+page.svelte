@@ -76,12 +76,14 @@
 			{/if}
 		</dl>
 		{#if showBar}
-			<ProgressBar
-				value={done}
-				value2={planned}
-				max={Math.max(total ?? planned, 1)}
-				dir={content.lang.dir}
-			/>
+			<div class="catalog-metric-bar">
+				<ProgressBar
+					value={done}
+					value2={planned}
+					max={Math.max(total ?? planned, 1)}
+					dir={content.lang.dir}
+				/>
+			</div>
 		{/if}
 	</div>
 {/snippet}
@@ -308,17 +310,18 @@
 		gap: 0.25rem 0.5rem;
 		min-inline-size: 0;
 	}
-	.catalog-metric > :global(:last-child) {
+	.catalog-metric-bar {
 		grid-column: 1 / -1;
 	}
 	.catalog-metric-label {
 		font-size: 0.8125rem;
 		font-weight: 500;
+		white-space: nowrap;
 	}
 	.catalog-values {
 		display: flex;
-		flex-wrap: wrap;
 		gap: 0.25rem 0.625rem;
+		white-space: nowrap;
 	}
 	.catalog-values > div {
 		display: flex;

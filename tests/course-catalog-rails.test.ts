@@ -84,6 +84,128 @@ async function settle(page: Page) {
 	});
 }
 
+async function expectInlineCatalogMetrics(
+	root: Locator,
+	language: 'en' | 'he'
+) {
+	await root.evaluate(async () => {
+		await document.fonts.ready;
+	});
+	const rows = await root.locator('.catalog-metric').evaluateAll((metrics) => {
+		const box = (element: Element) => {
+			const { left, right, top, bottom } = element.getBoundingClientRect();
+			return { left, right, top, bottom };
+		};
+		return metrics.map((metric) => {
+			const label = metric.querySelector('.catalog-metric-label')!;
+			const values = metric.querySelector('.catalog-values')!;
+			const text = [label, ...values.querySelectorAll('dt, dd')].map(
+				(element) => {
+					const style = getComputedStyle(element);
+					const bounds = box(element);
+					const range = document.createRange();
+					range.selectNodeContents(element);
+					const rects = [...range.getClientRects()].filter(
+						(rect) => rect.width > 0
+					);
+					// A zero-size inline probe exposes the actual text baseline without
+					// guessing from different 12px/13px glyph or line-box heights.
+					const probe = document.createElement('span');
+					probe.style.cssText =
+						'display:inline-block;width:0;height:0;padding:0;margin:0;border:0;vertical-align:baseline';
+					element.append(probe);
+					const baseline = probe.getBoundingClientRect().top;
+					probe.remove();
+					return {
+						...bounds,
+						text: element.textContent!.trim(),
+						tag: element.tagName,
+						baseline,
+						fontSize: style.fontSize,
+						whiteSpace: style.whiteSpace,
+						overflowX: style.overflowX,
+						visibility: style.visibility,
+						lineClamp: style.webkitLineClamp,
+						lines: new Set(rects.map((rect) => Math.round(rect.top))).size,
+						textFits: rects.every(
+							(rect) =>
+								rect.left >= bounds.left - 0.5 &&
+								rect.right <= bounds.right + 0.5
+						),
+						overflow: element.scrollWidth - element.clientWidth
+					};
+				}
+			);
+			return {
+				...box(metric),
+				category: !metric.closest('.catalog-summary'),
+				direction: getComputedStyle(metric).direction,
+				values: box(values),
+				valuesOverflow: values.scrollWidth - values.clientWidth,
+				groups: [...values.children].map(box),
+				text,
+				viewport: innerWidth
+			};
+		});
+	});
+	expect(rows.length).toBeGreaterThan(2);
+	const labels = language === 'he' ? ['קורסים', 'נקודות'] : ['Count', 'Points'];
+	const terms =
+		language === 'he'
+			? ['בוצע', 'מתוכנן', 'סה״כ']
+			: ['done', 'planned', 'total'];
+	for (const [index, row] of rows.entries()) {
+		const label = row.text[0];
+		expect(label.text).toBe(labels[index % 2]);
+		expect(row.direction).toBe(language === 'he' ? 'rtl' : 'ltr');
+		expect(row.groups).toHaveLength(row.category ? 3 : 2);
+		expect(
+			row.text.filter((item) => item.tag === 'DT').map((item) => item.text)
+		).toEqual(terms.slice(0, row.category ? 3 : 2));
+		expect(
+			row.valuesOverflow,
+			`${label.text}: values stay in their track`
+		).toBeLessThanOrEqual(1);
+		expect(row.left).toBeGreaterThanOrEqual(0);
+		expect(row.right).toBeLessThanOrEqual(row.viewport);
+		expect(row.values.left).toBeGreaterThanOrEqual(row.left - 0.5);
+		expect(row.values.right).toBeLessThanOrEqual(row.right + 0.5);
+		const ordered = [label, ...row.groups];
+		for (let i = 1; i < ordered.length; i++) {
+			expect(
+				row.direction === 'rtl'
+					? ordered[i - 1].left - ordered[i].right
+					: ordered[i].left - ordered[i - 1].right,
+				`${label.text}: separate label and value groups on one row`
+			).toBeGreaterThanOrEqual(0);
+		}
+		for (const group of row.groups) {
+			expect(group.left).toBeGreaterThanOrEqual(row.values.left - 0.5);
+			expect(group.right).toBeLessThanOrEqual(row.values.right + 0.5);
+		}
+		for (const item of row.text) {
+			const description = `${label.text}: ${item.text}`;
+			expect(item.text, description).not.toBe('');
+			expect(item.fontSize, description).toBe(
+				item.tag === 'DT' ? '12px' : '13px'
+			);
+			expect(item.whiteSpace, description).toBe('nowrap');
+			expect(item.overflowX, description).toBe('visible');
+			expect(item.visibility, description).toBe('visible');
+			expect(item.lineClamp, description).toBe('none');
+			expect(item.lines, description).toBe(1);
+			expect(item.textFits, description).toBe(true);
+			expect(item.overflow, description).toBeLessThanOrEqual(1);
+			expect(
+				Math.abs(item.baseline - label.baseline),
+				`${description}: shared baseline`
+			).toBeLessThanOrEqual(0.5);
+			expect(item.left, description).toBeGreaterThanOrEqual(row.left - 0.5);
+			expect(item.right, description).toBeLessThanOrEqual(row.right + 0.5);
+		}
+	}
+}
+
 async function measurePage(page: Page) {
 	return page.evaluate((selector) => {
 		const box = (element: Element) => {
@@ -574,7 +696,15 @@ for (const viewport of [
 					page.locator('.catalog-section').getByRole('meter')
 				).toHaveCount(0);
 				await settle(page);
+				await expectInlineCatalogMetrics(
+					page.locator('.catalog-page'),
+					language
+				);
+				await expect(
+					page.locator('.catalog-summary .catalog-values dd')
+				).toHaveText(['0', '0', '0', '0']);
 				const panels = page.locator('.catalog-section .catalog-progress-panel');
+				const categoryPointTotals: number[] = [];
 				expect(await panels.count()).toBeGreaterThan(0);
 				for (const panel of await panels.all()) {
 					await expect(panel.locator('.catalog-metric')).toHaveCount(2);
@@ -589,6 +719,7 @@ for (const viewport of [
 						codes.length,
 						codes.reduce((sum, code) => sum + (courses[code].points ?? 0), 0)
 					];
+					categoryPointTotals.push(totals[1]);
 					for (const [index, metric] of (
 						await panel.locator('.catalog-metric').all()
 					).entries()) {
@@ -599,6 +730,11 @@ for (const viewport of [
 						]);
 					}
 				}
+				// Keep realistic multi-digit and fractional totals in the narrow cases.
+				const largestFractionalTotal = Math.max(
+					...categoryPointTotals.filter((total) => !Number.isInteger(total))
+				);
+				expect(largestFractionalTotal).toBeGreaterThanOrEqual(10);
 				const initial = await capture(page, info, 'catalog-initial');
 				expect(initial.rails.length).toBeGreaterThan(1);
 				expectLayout(initial, language);
@@ -607,6 +743,10 @@ for (const viewport of [
 				expect(initial.rails[0].cards.map((card) => card.code).sort()).toEqual(
 					[...guest.wishlist].sort()
 				);
+				await panels
+					.nth(categoryPointTotals.indexOf(largestFractionalTotal))
+					.scrollIntoViewIfNeeded();
+				await capture(page, info, 'catalog-multi-digit-decimal-metrics');
 				const rows = page.locator('.catalog-page .course-row');
 				await scrollRail(
 					page,

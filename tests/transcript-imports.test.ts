@@ -119,7 +119,9 @@ for (const language of ['en', 'he'] as const) {
 			await input.setInputFiles(valid);
 			await expect(save).toBeEnabled();
 			await expect(error).toHaveCount(0);
-			await expect(upload.locator('[data-code="02340124"]')).toBeVisible();
+			// The read-only preview renders CourseElement directly, without the
+			// drag/list wrappers that own data-code on the saved plan.
+			await expect(upload.getByText('02340124', { exact: true })).toBeVisible();
 			expect(await readPlan(page)).toEqual(seed);
 			await cancel.click();
 			await expect(input).toBeEnabled();

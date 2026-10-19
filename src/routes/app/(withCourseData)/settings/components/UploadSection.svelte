@@ -2,6 +2,7 @@
 	import { isPlanWritable, planOnline } from '$lib/planAccess';
 	import type { Transcript } from '$lib/transcriptParser';
 	import * as TranscriptParser from '$lib/transcriptParser';
+	import { getTranscriptImportErrorKind } from '$lib/transcriptImportError';
 	import { user, content, writeStorage, setUser } from '$lib/stores.svelte';
 	import Semester from '$lib/components/Semester.svelte';
 	import CourseElement from '$lib/components/CourseElement.svelte';
@@ -13,11 +14,22 @@
 	import Spinner from '$lib/components/Spinner.svelte';
 
 	let transcript: Transcript | undefined = $state(undefined);
+	let uploadError = $state<
+		'unrecognized' | 'invalid' | 'password' | 'failed' | undefined
+	>();
 
 	let { getCourseData, buttonNamespace = $bindable() } = $props();
 
 	async function onSave() {
 		if (transcript === undefined) {
+			return;
+		}
+
+		// Recheck at the write boundary, even if a future parser or preview
+		// supplies an empty result. Do not invent a current semester.
+		if (transcript.semesters.length === 0) {
+			transcript = undefined;
+			uploadError = 'unrecognized';
 			return;
 		}
 
@@ -42,35 +54,50 @@
 
 	async function onCancel() {
 		transcript = undefined;
+		uploadError = undefined;
 	}
 
 	let uploading = $state(false);
-	async function handleFileUpload(event: unknown) {
+	async function handleFileUpload(event: Event) {
 		if (!isPlanWritable()) return;
+		const input = event.currentTarget as HTMLInputElement;
+		uploadError = undefined;
 		uploading = true;
 		try {
-			// @ts-expect-error
-			const file = event.target.files[0];
+			const file = input.files?.[0];
 			if (!file) return;
 
-			const buffer = await file.arrayBuffer();
+			const buffer = new Uint8Array(await file.arrayBuffer());
 
 			const result = await TranscriptParser.parseTranscript(
 				getCourseData,
 				buffer,
 				pdfWorkerUrl
 			);
-			if (result !== undefined && isPlanWritable()) {
+			if (!isPlanWritable()) return;
+			if (result === undefined || result.semesters.length === 0) {
+				uploadError = 'unrecognized';
+			} else {
 				transcript = result;
 			}
+		} catch (error) {
+			uploadError = getTranscriptImportErrorKind(error);
+			console.error('Transcript import failed', error);
 		} finally {
 			uploading = false;
+			// Browsers otherwise suppress change when the same file is retried.
+			input.value = '';
 		}
 	}
 </script>
 
 <section class="upload-section">
 	<h2 class="section-title">{content.lang.settings.upload}</h2>
+	{#if uploadError}
+		<p class="upload-error" role="alert">
+			{content.lang.settings.uploadErrors[uploadError]}
+		</p>
+	{/if}
 	{#if transcript === undefined}
 		<div class="upload-field">
 			<div class="upload-actions">
@@ -163,6 +190,11 @@
 		font-size: 0.9375rem;
 		font-weight: 600;
 		line-height: 1.4;
+	}
+	.upload-error {
+		margin-block-end: 0.5rem;
+		font-size: 0.875rem;
+		color: rgb(var(--color-content-secondary));
 	}
 	.upload-field {
 		display: grid;

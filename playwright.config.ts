@@ -33,7 +33,8 @@ export default defineConfig({
 				'search-faculty-width.test.ts',
 				'console-startup.test.ts',
 				'console-routing.test.ts',
-				'student-journeys.test.ts'
+				'student-journeys.test.ts',
+				'transcript-imports.test.ts'
 			],
 			use: { browserName: 'webkit', video: 'on' }
 		},
@@ -51,7 +52,8 @@ export default defineConfig({
 				'footer-controls.test.ts',
 				'plan-board-alignment.test.ts',
 				'plan-dependencies.test.ts',
-				'student-journeys.test.ts'
+				'student-journeys.test.ts',
+				'transcript-imports.test.ts'
 			],
 			use: { browserName: 'webkit', ...mobile }
 		},

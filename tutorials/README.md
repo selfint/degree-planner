@@ -67,12 +67,12 @@ Planit is Apache-2.0 licensed; its license is retained in `assets/LICENSE.planit
 
 `provenance.json` records each published media file's byte size and SHA-256,
 with the exact recording commit, successful CI run and artifact identifier.
-The current complete set is 6,018,987 bytes. The landing fetches neither video
+The current complete set (including the Search feature) is 8,493,147 bytes. The landing fetches neither video
 format before deliberate playback; its two nearby WebP posters total 31–41 KB,
-depending on language and theme. MP4 playback uses 230–412 KB per tutorial;
+depending on language and theme. MP4 playback remains under 600 KB per clip;
 WebM is a fallback. Media is excluded from the app service-worker precache.
 
-## Search feature recording (pre-publication)
+## Search feature recording and publication
 
 `search-recordings.spec.ts` adds the first feature-slot vertical slice. It searches
 for the real public course `02340114`, verifies its name/code/credits, selects its
@@ -96,9 +96,30 @@ The Tutorial videos CI workflow records and packages all 12 variants and retains
 raw videos, timing JSON, keyframes, packaged media and the source-commit manifest
 in its existing `tutorials-<commit>` artifact. Missing variants fail packaging.
 
-Search is intentionally not wired to the landing page yet. Before replacing its
-image, inspect all four real recordings, validate playback in the eventual
-native player (including live theme/language switching and mobile widths), copy
-the complete reviewed asset set, and update provenance with the exact source
-commit, successful run/artifact and file hashes. Do not substitute a fixture,
-static screenshot animation, or existing unrelated tutorial for missing footage.
+Search replaces only the seventh feature image, using the existing section,
+heading, paragraph and grid. The other six feature images are unchanged. Its
+native player follows the landing preferences, loads no video before playback,
+and recreates the player when language or theme changes. Run the focused checks:
+
+    npx playwright test --config=playwright.search-feature.config.ts
+
+The standard tutorial config also includes these checks. They cover all four
+variants at 320, 390 and 1280px, actual playback, fullscreen, live preference
+switching with playback of each selected source, WebM fallback, and the failure
+message without losing the feature description.
+
+The checked-in 12-clip set was recorded from GitHub's PR merge commit
+`5f0718fef21d3b517b4456e7f9417ae25654b2a6` (PR head
+`cf095a8b4158a1feb0dc2a4d53150fb0dd39f61b`) in successful Actions run
+[39402249380](https://github.com/selfint/degree-planner/actions/runs/39402249380),
+artifact `12256417655`. The course-card clips include the compact-name/code fix.
+All MP4 and WebM files were fully decoded with FFmpeg, and start/middle/end
+frames across all 12 clips were visually inspected before copying the complete
+packaged set. `provenance.json` records the exact source, artifact ZIP hash,
+per-file hashes and media durations. Native playback after this integration must
+still be checked in CI and the deployed preview; recording success alone does
+not establish deployed playback.
+
+For future regeneration, inspect all four variants per topic and update the
+complete asset set and provenance. Do not substitute fixtures, screenshot
+animations or unrelated clips for missing footage.

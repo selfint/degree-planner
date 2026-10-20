@@ -9,7 +9,7 @@ const html = readFileSync(
 	'utf8'
 );
 
-test('the rendered landing page contains two accessible, user-controlled tutorials', () => {
+test('the rendered landing page contains two tutorials and the Search feature player', () => {
 	assert.match(html, /id="landing-title"/, 'the real landing page rendered');
 	assert.match(
 		html,
@@ -17,7 +17,8 @@ test('the rendered landing page contains two accessible, user-controlled tutoria
 		'the rendered landing page must include the tutorial section'
 	);
 	const videos = [...html.matchAll(/<video\b([^>]*?)>([\s\S]*?)<\/video>/g)];
-	assert.equal(videos.length, 2, 'both requested tutorials are rendered');
+	assert.equal(videos.length, 3, 'two tutorials plus Search are rendered');
+	assert.match(html, /data-testid="feature-search"/);
 	for (const [, attributes, body] of videos) {
 		assert.match(attributes, /\bcontrols(?:\s|=|$)/);
 		assert.match(attributes, /preload="none"/);

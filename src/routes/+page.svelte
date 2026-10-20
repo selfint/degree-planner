@@ -7,12 +7,12 @@
 	import semesterPic from '$lib/assets/semester-pic.webp?enhanced';
 	import coursePic from '$lib/assets/course-pic.webp?enhanced';
 	import sharePic from '$lib/assets/share-pic.webp?enhanced';
-	import searchPic from '$lib/assets/search-pic.webp?enhanced';
 
 	import LandingInstallInfo from '$lib/components/LandingInstallInfo.svelte';
 	import GetStartedLink from '$lib/components/GetStartedLink.svelte';
 	import Tutorials from './components/Tutorials.svelte';
 	import ImgDemo from './components/ImgDemo.svelte';
+	import FeatureVideo from './components/FeatureVideo.svelte';
 	import { landingParallax } from './components/landingParallax';
 </script>
 
@@ -95,7 +95,13 @@
 			{content.lang.landing.share.description}
 		</ImgDemo>
 
-		<ImgDemo src={searchPic} title={content.lang.header.searchPlaceholder}>
+		<ImgDemo title={content.lang.header.searchPlaceholder}>
+			{#snippet media()}
+				<FeatureVideo
+					topic="feature-search"
+					title={content.lang.header.searchPlaceholder}
+				/>
+			{/snippet}
 			{content.lang.landing.search}
 		</ImgDemo>
 	</div>

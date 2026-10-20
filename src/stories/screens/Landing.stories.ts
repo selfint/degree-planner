@@ -9,7 +9,9 @@ const meta = {
 		componentPath: 'src/routes/+page.svelte',
 		covers: [
 			'src/routes/components/Tutorials.svelte',
-			'src/routes/components/TutorialVideo.svelte'
+			'src/routes/components/TutorialVideo.svelte',
+			'src/routes/components/FeatureVideo.svelte',
+			'src/routes/components/NativeVideo.svelte'
 		],
 		layout: 'fullscreen',
 		sveltekit_experimental: routeState('/')

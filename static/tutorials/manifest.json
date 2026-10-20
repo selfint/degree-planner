@@ -1,58 +1,86 @@
 [
   {
     "name": "course-card-en-light",
-    "duration": 33.623,
+    "duration": 33.14,
     "width": 960,
     "height": 720,
-    "sourceCommit": "da6db3dc313ce890d6b48f059dbaef6ed00b5f0c"
+    "sourceCommit": "5f0718fef21d3b517b4456e7f9417ae25654b2a6"
   },
   {
     "name": "course-card-en-dark",
-    "duration": 33.626,
+    "duration": 33.162,
     "width": 960,
     "height": 720,
-    "sourceCommit": "da6db3dc313ce890d6b48f059dbaef6ed00b5f0c"
+    "sourceCommit": "5f0718fef21d3b517b4456e7f9417ae25654b2a6"
   },
   {
     "name": "course-card-he-light",
-    "duration": 33.572,
+    "duration": 33.259,
     "width": 960,
     "height": 720,
-    "sourceCommit": "da6db3dc313ce890d6b48f059dbaef6ed00b5f0c"
+    "sourceCommit": "5f0718fef21d3b517b4456e7f9417ae25654b2a6"
   },
   {
     "name": "course-card-he-dark",
-    "duration": 33.566,
+    "duration": 33.274,
     "width": 960,
     "height": 720,
-    "sourceCommit": "da6db3dc313ce890d6b48f059dbaef6ed00b5f0c"
+    "sourceCommit": "5f0718fef21d3b517b4456e7f9417ae25654b2a6"
   },
   {
     "name": "plan-course-en-light",
-    "duration": 22.634,
+    "duration": 22.16,
     "width": 960,
     "height": 720,
-    "sourceCommit": "da6db3dc313ce890d6b48f059dbaef6ed00b5f0c"
+    "sourceCommit": "5f0718fef21d3b517b4456e7f9417ae25654b2a6"
   },
   {
     "name": "plan-course-en-dark",
-    "duration": 22.696,
+    "duration": 22.347,
     "width": 960,
     "height": 720,
-    "sourceCommit": "da6db3dc313ce890d6b48f059dbaef6ed00b5f0c"
+    "sourceCommit": "5f0718fef21d3b517b4456e7f9417ae25654b2a6"
   },
   {
     "name": "plan-course-he-light",
-    "duration": 22.667,
+    "duration": 22.316,
     "width": 960,
     "height": 720,
-    "sourceCommit": "da6db3dc313ce890d6b48f059dbaef6ed00b5f0c"
+    "sourceCommit": "5f0718fef21d3b517b4456e7f9417ae25654b2a6"
   },
   {
     "name": "plan-course-he-dark",
-    "duration": 22.837,
+    "duration": 22.228,
     "width": 960,
     "height": 720,
-    "sourceCommit": "da6db3dc313ce890d6b48f059dbaef6ed00b5f0c"
+    "sourceCommit": "5f0718fef21d3b517b4456e7f9417ae25654b2a6"
+  },
+  {
+    "name": "feature-search-en-light",
+    "duration": 22.237,
+    "width": 960,
+    "height": 720,
+    "sourceCommit": "5f0718fef21d3b517b4456e7f9417ae25654b2a6"
+  },
+  {
+    "name": "feature-search-en-dark",
+    "duration": 22.158,
+    "width": 960,
+    "height": 720,
+    "sourceCommit": "5f0718fef21d3b517b4456e7f9417ae25654b2a6"
+  },
+  {
+    "name": "feature-search-he-light",
+    "duration": 22.172,
+    "width": 960,
+    "height": 720,
+    "sourceCommit": "5f0718fef21d3b517b4456e7f9417ae25654b2a6"
+  },
+  {
+    "name": "feature-search-he-dark",
+    "duration": 22.182,
+    "width": 960,
+    "height": 720,
+    "sourceCommit": "5f0718fef21d3b517b4456e7f9417ae25654b2a6"
   }
 ]

@@ -3,16 +3,15 @@
 	import type { Picture } from 'imagetools-core';
 
 	type Props = {
-		src: Picture;
 		title: string;
 		children: Snippet;
-	};
+	} & ({ src: Picture; media?: never } | { media: Snippet; src?: never });
 
-	let { src, title, children }: Props = $props();
+	let { src, media, title, children }: Props = $props();
 	const headingId = $props.id();
 </script>
 
-<!-- Keep a definite image-column width and intrinsic ratio before lazy decoding. -->
+<!-- Preserve the existing feature grid for either a lazy image or native media. -->
 <section
 	class="grid w-full min-w-0 gap-5 md:grid-cols-[minmax(0,1fr)_17rem] md:items-center md:gap-10"
 	aria-labelledby={headingId}
@@ -32,13 +31,17 @@
 		<div
 			class="w-full rounded-2xl border border-border bg-card-primary/80 p-2 shadow-sm"
 		>
-			<enhanced:img
-				{src}
-				alt={title}
-				loading="lazy"
-				style:aspect-ratio={`${src.img.w} / ${src.img.h}`}
-				class="pointer-events-auto h-auto w-full rounded-lg bg-transparent"
-			/>
+			{#if media}
+				{@render media()}
+			{:else if src}
+				<enhanced:img
+					{src}
+					alt={title}
+					loading="lazy"
+					style:aspect-ratio={`${src.img.w} / ${src.img.h}`}
+					class="pointer-events-auto h-auto w-full rounded-lg bg-transparent"
+				/>
+			{/if}
 		</div>
 	</div>
 </section>

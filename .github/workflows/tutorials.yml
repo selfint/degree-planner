@@ -50,7 +50,7 @@ jobs:
         run: node --test tutorials/ssr.test.mjs
       - name: Package recorded videos, posters and captions
         if: success() || failure()
-        run: node scripts/packageTutorialVideos.mjs
+        run: node scripts/packageTutorialVideos.mjs --group=all
       - name: Upload tutorial evidence and generated public assets
         if: always()
         uses: actions/upload-artifact@v4

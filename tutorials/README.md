@@ -71,3 +71,34 @@ The current complete set is 6,018,987 bytes. The landing fetches neither video
 format before deliberate playback; its two nearby WebP posters total 31–41 KB,
 depending on language and theme. MP4 playback uses 230–412 KB per tutorial;
 WebM is a fallback. Media is excluded from the app service-worker precache.
+
+## Search feature recording (pre-publication)
+
+`search-recordings.spec.ts` adds the first feature-slot vertical slice. It searches
+for the real public course `02340114`, verifies its name/code/credits, selects its
+actual faculty filter, verifies the URL and matching result, and opens the real
+course details. The guest plan must remain unchanged. All four English/Hebrew and
+light/dark variants use the existing pinned PlanIt cursor and timing helper.
+
+    PW_DEMO=on npx playwright test --config=playwright.tutorials.config.ts tutorials/search-recordings.spec.ts
+    node scripts/packageTutorialVideos.mjs --group=features
+
+Use `PLAYWRIGHT_BASE_URL` for an existing production preview. A local system
+Chromium can be selected with `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH`; Playwright's
+video encoder must also be installed. A development server without a ready real
+service worker does not satisfy the recording precondition.
+
+The shared inventory in `src/lib/tutorialMedia.ts` distinguishes existing
+tutorials from feature recordings; inventory membership is not publication.
+Packaging without arguments still selects only the original two tutorials.
+`--group=features` selects Search only, and `--group=all` selects all three topics.
+The Tutorial videos CI workflow records and packages all 12 variants and retains
+raw videos, timing JSON, keyframes, packaged media and the source-commit manifest
+in its existing `tutorials-<commit>` artifact. Missing variants fail packaging.
+
+Search is intentionally not wired to the landing page yet. Before replacing its
+image, inspect all four real recordings, validate playback in the eventual
+native player (including live theme/language switching and mobile widths), copy
+the complete reviewed asset set, and update provenance with the exact source
+commit, successful run/artifact and file hashes. Do not substitute a fixture,
+static screenshot animation, or existing unrelated tutorial for missing footage.

@@ -1,6 +1,7 @@
 import { spawnSync } from 'node:child_process';
 import { readFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
+import { selectMediaTopics } from '../src/lib/tutorialMedia.ts';
 import { recordingStart } from './tutorialTimeline.mjs';
 
 const input = path.resolve('test-results/tutorials-raw');
@@ -18,7 +19,8 @@ function timestamp(seconds) {
 	return new Date(Math.max(0, seconds) * 1000).toISOString().slice(11, 23);
 }
 const manifest = [];
-for (const topic of ['course-card', 'plan-course']) {
+const group = process.argv.find((arg) => arg.startsWith('--group='))?.slice(8);
+for (const topic of selectMediaTopics(group)) {
 	for (const language of ['en', 'he']) {
 		for (const theme of ['light', 'dark']) {
 			const name = `${topic}-${language}-${theme}`;

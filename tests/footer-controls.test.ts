@@ -6,6 +6,7 @@ import {
 	test as base,
 	type Locator,
 	type Page,
+	type Request,
 	type TestInfo
 } from '@playwright/test';
 
@@ -1186,66 +1187,111 @@ for (const viewport of [
 					await expect(
 						page.getByTestId('pwa-error-detail').first()
 					).toContainText('(503)');
-					const timeOrigin = await page.evaluate(() => performance.timeOrigin);
-					await errorLink.click();
-					await expect(page).toHaveURL(
-						`${appOrigin}/app/settings#offline-status`
-					);
-					expect(await page.evaluate(() => performance.timeOrigin)).toBe(
-						timeOrigin
-					);
-					expectMatchingControls(
-						await capture(page, info, 'settings-refresh-error', {
-							fullPage: true,
-							evidence: {
-								...sourceEvidence,
-								failedPublicDataRequests: failedRequests
-							}
-						})
-					);
+					// A retained Document handle is an identity sentinel, unlike WebKit's
+					// performance.timeOrigin, which can differ between reads.
+					const documentIdentity = await page.evaluateHandle(() => document);
+					const documentRequests: string[] = [];
+					let domContentLoadedEvents = 0;
+					const onRequest = (request: Request) => {
+						if (
+							request.resourceType() === 'document' &&
+							request.frame() === page.mainFrame()
+						) {
+							documentRequests.push(request.url());
+						}
+					};
+					const onDomContentLoaded = () => {
+						domContentLoadedEvents += 1;
+					};
+					page.on('request', onRequest);
+					page.on('domcontentloaded', onDomContentLoaded);
+					try {
+						await errorLink.click();
+						await expect(page).toHaveURL(
+							`${appOrigin}/app/settings#offline-status`
+						);
+						expect(
+							await page.evaluate(
+								(originalDocument) => document === originalDocument,
+								documentIdentity
+							),
+							'error details anchor preserves the original Document'
+						).toBe(true);
+						expect(
+							documentRequests,
+							'no main-document navigation request'
+						).toEqual([]);
+						expect(domContentLoadedEvents, 'no document reload event').toBe(0);
 
-					refreshProxy.failCourses = false;
-					const responsesBeforeRetry = refreshProxy.courseResponses.length;
-					await retry.click();
-					await expect
-						.poll(
-							() =>
-								refreshProxy.courseResponses
-									.slice(responsesBeforeRetry)
-									.some(
-										({ status }) =>
-											(status >= 200 && status < 300) || status === 304
-									),
-							{ timeout: 30_000 }
-						)
-						.toBe(true);
-					const response = refreshProxy.courseResponses
-						.slice(responsesBeforeRetry)
-						.find(
-							({ status }) => (status >= 200 && status < 300) || status === 304
-						)!;
-					await expectHealthyPwa(page, language);
-					await expectGuestSettings(page, language, true);
-					await expectPreferences(page, language, theme);
-					expect(
-						await page.evaluate(() => performance.timeOrigin),
-						'Retry recovers without reloading'
-					).toBe(timeOrigin);
-					expect(
-						await page.evaluate(() => localStorage.getItem('userData')),
-						'guest plan survives refresh failure and recovery'
-					).toBe(savedPlan);
-					expectMatchingControls(
-						await capture(page, info, 'settings-retry-recovered', {
-							fullPage: true,
-							evidence: {
-								...sourceEvidence,
-								failedPublicDataRequests: failedRequests,
-								refreshedUrl: response.url,
-								status: response.status
-							}
-						})
-					);
+						expectMatchingControls(
+							await capture(page, info, 'settings-refresh-error', {
+								fullPage: true,
+								evidence: {
+									...sourceEvidence,
+									failedPublicDataRequests: failedRequests
+								}
+							})
+						);
+
+						refreshProxy.failCourses = false;
+						const responsesBeforeRetry = refreshProxy.courseResponses.length;
+						await retry.click();
+						await expect
+							.poll(
+								() =>
+									refreshProxy.courseResponses
+										.slice(responsesBeforeRetry)
+										.some(
+											({ status }) =>
+												(status >= 200 && status < 300) || status === 304
+										),
+								{ timeout: 30_000 }
+							)
+							.toBe(true);
+						const response = refreshProxy.courseResponses
+							.slice(responsesBeforeRetry)
+							.find(
+								({ status }) =>
+									(status >= 200 && status < 300) || status === 304
+							)!;
+						await expectHealthyPwa(page, language);
+						await expectGuestSettings(page, language, true);
+						await expectPreferences(page, language, theme);
+						expect(
+							await page.evaluate(
+								(originalDocument) => document === originalDocument,
+								documentIdentity
+							),
+							'Retry recovers in the original Document'
+						).toBe(true);
+						expect(
+							documentRequests,
+							'no main-document request through Retry'
+						).toEqual([]);
+						expect(
+							domContentLoadedEvents,
+							'no reload event through Retry'
+						).toBe(0);
+						expect(
+							await page.evaluate(() => localStorage.getItem('userData')),
+							'guest plan survives refresh failure and recovery'
+						).toBe(savedPlan);
+						expectMatchingControls(
+							await capture(page, info, 'settings-retry-recovered', {
+								fullPage: true,
+								evidence: {
+									...sourceEvidence,
+									failedPublicDataRequests: failedRequests,
+									refreshedUrl: response.url,
+									status: response.status
+								}
+							})
+						);
+					} finally {
+						page.off('request', onRequest);
+						page.off('domcontentloaded', onDomContentLoaded);
+						await documentIdentity.dispose();
+					}
 				});
 			});
 		}

@@ -285,7 +285,9 @@ async function measurePage(page: Page) {
 							codeFits:
 								codeBounds.left >= copyBounds.left - 1 &&
 								codeBounds.right <= copyBounds.right + 1 &&
-								codeBounds.top >= nameBounds.bottom - 1 &&
+								codeBounds.top >=
+									nameBounds.bottom - parseFloat(nameStyle.lineHeight) - 1 &&
+								codeBounds.top <= nameBounds.bottom + 1 &&
 								codeBounds.bottom <= bounds.bottom + 1,
 							copyHeight: copyBounds.height,
 							codeStart: codeBounds.top - copyBounds.top,
@@ -419,7 +421,7 @@ function expectLayout(geometry: Geometry, language: Language) {
 			expect(card.nameFontSize).toBeCloseTo(geometry.rootSize * 0.75);
 			expect(card.nameLineHeight).toBe(card.nameFontSize);
 			expect(card.copyHeight).toBeCloseTo(geometry.rootSize * 4.5);
-			expect(card.codeStart).toBeCloseTo(geometry.rootSize * 3.75);
+			expect(card.codeStart).toBeLessThanOrEqual(geometry.rootSize * 2.25 + 1);
 			expect(
 				Math.abs(card.width - cardWidth),
 				`${label}: accepted card width`

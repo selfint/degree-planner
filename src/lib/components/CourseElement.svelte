@@ -239,8 +239,8 @@
 	.course-marker {
 		display: block;
 		flex-shrink: 0;
-		inline-size: 0.375rem;
-		block-size: 0.375rem;
+		inline-size: 1em;
+		block-size: 1em;
 	}
 	.course-note {
 		min-inline-size: 0;
@@ -254,9 +254,7 @@
 		gap: 0.375rem;
 	}
 	.course-copy {
-		display: flex;
-		flex-direction: column;
-		/* Five original-size name lines, plus one separate line for the code. */
+		/* Keep equal card heights, leaving unused space after the flowing copy. */
 		min-block-size: 4.5rem;
 		overflow-wrap: break-word;
 		hyphens: auto;
@@ -267,15 +265,17 @@
 		min-block-size: 0;
 	}
 	.course-name {
-		display: -webkit-box;
+		display: -webkit-inline-box;
+		max-inline-size: 100%;
+		vertical-align: bottom;
 		-webkit-box-orient: vertical;
 		-webkit-line-clamp: 3;
 		line-clamp: 3;
 		overflow: hidden;
 	}
 	.course-code {
-		align-self: flex-start;
-		margin-block-start: auto;
+		display: inline-block;
+		vertical-align: bottom;
 		font-variant-numeric: tabular-nums;
 		unicode-bidi: isolate;
 		white-space: nowrap;

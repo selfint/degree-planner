@@ -12,6 +12,12 @@ vi.mock('$lib/preferences.svelte', () => ({
 import GetStartedLink from './GetStartedLink.svelte';
 
 describe('Get Started link', () => {
+	it('renders an explicit white label utility on the Start link', () => {
+		navigation.to = null;
+		const { body } = render(GetStartedLink);
+		expect(body).toMatch(/class="[^"]*\btext-white\b[^"]*"/);
+	});
+
 	it('renders a real destination before JavaScript and Firebase are ready', () => {
 		navigation.to = null;
 		const { body } = render(GetStartedLink);

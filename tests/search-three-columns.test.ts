@@ -181,9 +181,10 @@ async function expectThreeColumns(page: Page) {
 		expect(card.left).toBeGreaterThanOrEqual(0);
 		expect(card.right).toBeLessThanOrEqual(layout.viewport);
 		expect(card.squeezed, card.codeText).toBe(false);
-		expect(card.copyMin, 'normal five name lines plus separate code').toBe(
-			'72px'
-		);
+		expect(
+			card.copyMin,
+			'equal-height reserve below flowing name and code'
+		).toBe('72px');
 		expect(card.copy.height).toBe(72);
 		expect(card.nameFont).toBe('12px');
 		expect(card.nameLine).toBe('12px');
@@ -196,7 +197,8 @@ async function expectThreeColumns(page: Page) {
 		expect(card.codeFont).toBe('12px');
 		expect(card.codeLine).toBe('12px');
 		expect(card.codeWhiteSpace).toBe('nowrap');
-		expect(card.code.top).toBeGreaterThanOrEqual(card.name.bottom);
+		expect(card.code.top).toBeGreaterThanOrEqual(card.name.bottom - 12 - 0.5);
+		expect(card.code.top).toBeLessThanOrEqual(card.name.bottom + 0.5);
 		expect(card.code.bottom).toBeLessThanOrEqual(card.bottom);
 		expect(card.code.left).toBeGreaterThanOrEqual(card.left);
 		expect(card.code.right).toBeLessThanOrEqual(card.right);

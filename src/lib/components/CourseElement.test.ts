@@ -113,7 +113,7 @@ function styles(selector: string) {
 
 it('limits only the name to three lines with native CSS ellipsis', () => {
 	const name = styles('course-name');
-	expect(name).toContain('display: -webkit-box;');
+	expect(name).toContain('display: -webkit-inline-box;');
 	expect(name).toContain('-webkit-box-orient: vertical;');
 	expect(name).toContain('-webkit-line-clamp: 3;');
 	expect(name).toContain('\n\t\tline-clamp: 3;');
@@ -147,14 +147,25 @@ it('retains the original text-xs leading-none name/code and text-xs metadata typ
 	}
 });
 
-it('reserves five original-size name lines plus code only for non-squeezed cards', () => {
+it('keeps the equal-height reserve below inline name/number content, not between it', () => {
 	expect(styles('course-copy')).toContain('min-block-size: 4.5rem;');
-	expect(styles('course-copy')).toContain('flex-direction: column;');
-	expect(styles('course-code')).toContain('margin-block-start: auto;');
+	expect(styles('course-copy')).not.toMatch(/display: flex|flex-direction:/);
+	expect(styles('course-code')).not.toMatch(/margin-block-start:|align-self:/);
+	expect(styles('course-name')).toContain('max-inline-size: 100%;');
+	expect(styles('course-name')).toContain('vertical-align: bottom;');
+	expect(styles('course-code')).toContain('display: inline-block;');
+	expect(styles('course-code')).toContain('vertical-align: bottom;');
 	expect(source).toContain(
 		'.course-body-squeezed .course-copy {\n\t\tmin-block-size: 0;'
 	);
 	expect(styles('course-name')).not.toMatch(
 		/(?:min-|max-)?(?:block-size|height):/
 	);
+});
+
+it('matches the marker to metadata text size while preserving its shape semantics', () => {
+	expect(styles('course-marker')).toContain('inline-size: 1em;');
+	expect(styles('course-marker')).toContain('block-size: 1em;');
+	expect(styles('course-meta')).toContain('align-items: center;');
+	expect(source).toContain("hasTest ? 'rounded-full' : 'rounded-sm'");
 });

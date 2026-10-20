@@ -537,11 +537,7 @@ async function expectOriginalCardHierarchy(card: Locator) {
 		'none'
 	);
 	await expect(body.locator('.course-name + .course-code')).toHaveCount(1);
-	await expect(body.locator('.course-copy')).toHaveCSS('display', 'flex');
-	await expect(body.locator('.course-copy')).toHaveCSS(
-		'flex-direction',
-		'column'
-	);
+	await expect(body.locator('.course-copy')).toHaveCSS('display', 'block');
 	const squeezed = await body.evaluate((element) =>
 		element.classList.contains('course-body-squeezed')
 	);
@@ -553,28 +549,14 @@ async function expectOriginalCardHierarchy(card: Locator) {
 	const codeBox = await body.locator('.course-code').boundingBox();
 	const cardBox = await card.boundingBox();
 	const copyBox = await body.locator('.course-copy').boundingBox();
-	await expect(body.locator('.course-code')).toHaveCSS(
-		'align-self',
-		'flex-start'
+	if (!squeezed) expect(copyBox!.height).toBeGreaterThanOrEqual(72);
+	expect(codeBox!.y).toBeGreaterThanOrEqual(
+		nameBox!.y + nameBox!.height - lineHeight - 0.5
 	);
-	const copyDirection = await body
-		.locator('.course-copy')
-		.evaluate((element) => getComputedStyle(element).direction);
-	expect(
-		copyDirection === 'rtl' ? codeBox!.x + codeBox!.width : codeBox!.x
-	).toBeCloseTo(
-		copyDirection === 'rtl' ? copyBox!.x + copyBox!.width : copyBox!.x,
-		1
+	expect(codeBox!.y).toBeLessThanOrEqual(nameBox!.y + nameBox!.height + 0.5);
+	expect(codeBox!.y + codeBox!.height).toBeLessThanOrEqual(
+		copyBox!.y + copyBox!.height + 0.5
 	);
-	if (!squeezed) {
-		expect(copyBox!.height).toBeGreaterThanOrEqual(72);
-		expect(codeBox!.y).toBeGreaterThanOrEqual(copyBox!.y + 60 - 0.5);
-	}
-	expect(codeBox!.y + codeBox!.height).toBeCloseTo(
-		copyBox!.y + copyBox!.height,
-		1
-	);
-	expect(codeBox!.y).toBeGreaterThanOrEqual(nameBox!.y + nameBox!.height - 0.5);
 	expect(codeBox!.x).toBeGreaterThanOrEqual(cardBox!.x - 0.5);
 	expect(codeBox!.x + codeBox!.width).toBeLessThanOrEqual(
 		cardBox!.x + cardBox!.width + 0.5

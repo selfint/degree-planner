@@ -130,3 +130,30 @@ and deployed-preview checks; recording success alone does not establish it.
 For future regeneration, inspect all four variants per topic and update the
 complete asset set and provenance. Do not substitute fixtures, screenshot
 animations or unrelated clips for missing footage.
+
+### Capture motion and refresh gate
+
+Capture mode (`PW_DEMO=on`) uses `helpers/motion.ts` for real scroll offsets
+animated over 900 ms, with 300 ms orienting pauses and five stable animation
+frames before continuing. Nested scroll panels are revealed before the document.
+Cursor approaches emit real mouse moves every 25 ms over 900 ms. The Plan
+wish-list drag keeps the real mouse button pressed while moving for 1600 ms,
+with short holds before and after dropping. The decorative cursor also follows
+each real mouse move during native HTML drag, which suppresses ordinary
+mousemove events. Playwright `steps` or extra static
+caption holds alone are not used as a substitute for elapsed motion time.
+Normal assertion runs retain their fast scrolling and drag path.
+
+All nine topics use the shared recording action helpers in every EN/HE and
+light/dark variant: course-card, plan-course, feature-search, feature-plan,
+feature-catalog, feature-settings, feature-course, feature-semester, feature-share
+(36 clips). The checked-in assets/provenance are not refreshed by this source
+change. After the complete recording CI succeeds, refresh the full artifact,
+verify its digest and all codecs/durations, and inspect successive frames DURING
+scrolls and the Plan drag in all four variants, not only their before/after
+screenshots. Confirm intermediate positions, readable orientation and the actual
+asserted destination/drop before publishing replacement assets and provenance.
+`motion.test.ts` checks intermediate nested/horizontal scrolling (including negative RTL
+offsets), pressed-pointer timing and native HTML drop/cursor alignment in
+isolated browser fixtures; the application recordings still assert real
+catalog, guest storage and course movements without mocked course APIs.

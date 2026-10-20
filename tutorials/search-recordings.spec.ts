@@ -72,12 +72,10 @@ for (const { name, language, theme } of mediaVariants('feature-search')) {
 			await expect(result.locator('.course-points')).toContainText(
 				String(course.points)
 			);
-			await result.scrollIntoViewIfNeeded();
 			await recording.caption(steps[1][0], steps[1][1], result);
 			await recording.frame(`${name}-result`);
 			await pause(page, 3200);
 			const faculty = page.locator('#search-faculty');
-			await faculty.scrollIntoViewIfNeeded();
 			await recording.caption(steps[2][0], steps[2][1], faculty);
 			await pause(page, 2000);
 			expect(course.faculty).toBeTruthy();
@@ -90,7 +88,6 @@ for (const { name, language, theme } of mediaVariants('feature-search')) {
 			await expect(page.locator('.search-results > li')).toHaveCount(1);
 			await recording.frame(`${name}-poster`);
 			await pause(page, 3500);
-			await result.scrollIntoViewIfNeeded();
 			await recording.caption(steps[3][0], steps[3][1], result);
 			await pause(page, 2500);
 			await click(page, result);

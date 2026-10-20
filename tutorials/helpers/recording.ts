@@ -6,6 +6,12 @@ import {
 } from '@playwright/test';
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import {
+	approachTarget,
+	movePointer,
+	revealTarget,
+	setPointerPosition
+} from './motion';
 
 export type Language = 'en' | 'he';
 export type Theme = 'light' | 'dark';
@@ -35,6 +41,7 @@ export async function installCursor(page: Page) {
 	await page.evaluate((svg) => {
 		const cursor = document.createElement('div');
 		cursor.className = 'demo-cursor';
+		cursor.dataset.recordingPointer = '';
 		cursor.innerHTML = svg;
 		cursor.setAttribute('aria-hidden', 'true');
 		cursor.style.left = '840px';
@@ -46,23 +53,30 @@ export async function installCursor(page: Page) {
 		});
 	}, svg);
 	await page.mouse.move(840, 400);
+	setPointerPosition(page, { x: 840, y: 400 });
 }
 
 export async function pause(page: Page, milliseconds: number) {
 	if (demo) await page.waitForTimeout(milliseconds);
 }
 
+export async function reveal(page: Page, target: Locator) {
+	if (demo) await revealTarget(target);
+	else await target.scrollIntoViewIfNeeded();
+}
+
 export async function moveTo(page: Page, target: Locator) {
+	if (demo) return approachTarget(page, target);
 	await expect(target).toBeVisible();
 	const box = await target.boundingBox();
 	if (!box) throw new Error('Tutorial target has no visible bounding box');
 	await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2, {
-		steps: demo ? 30 : 1
+		steps: 1
 	});
 }
 
 export async function click(page: Page, target: Locator) {
-	await target.scrollIntoViewIfNeeded();
+	await reveal(page, target);
 	await moveTo(page, target);
 	await pause(page, 300);
 	await page.evaluate(() => {
@@ -82,6 +96,39 @@ export async function click(page: Page, target: Locator) {
 		document.querySelector<HTMLElement>('.demo-cursor')!.dataset.pressed =
 			'false';
 	});
+}
+
+export async function drag(page: Page, source: Locator, target: Locator) {
+	await reveal(page, source);
+	await moveTo(page, source);
+	await pause(page, 400);
+	const destination = await target.boundingBox();
+	if (!destination) throw new Error('Drag destination has no bounding box');
+	await expect(target).toBeInViewport();
+	await page.mouse.down();
+	try {
+		if (demo) {
+			await page
+				.locator('.demo-cursor')
+				.evaluate((node) => ((node as HTMLElement).dataset.pressed = 'true'));
+			await pause(page, 250);
+			const point = { x: destination.x + 40, y: destination.y + 24 };
+			await movePointer(page, point, 1600);
+			// A second real move at the destination also delivers HTML dragover.
+			await page.mouse.move(point.x, point.y);
+			await pause(page, 400);
+		} else {
+			await target.hover({ position: { x: 40, y: 24 } });
+			await target.hover({ position: { x: 40, y: 24 } });
+		}
+	} finally {
+		await page.mouse.up();
+		if (demo)
+			await page
+				.locator('.demo-cursor')
+				.evaluate((node) => ((node as HTMLElement).dataset.pressed = 'false'));
+	}
+	await pause(page, 650);
 }
 
 export async function createRecording(
@@ -199,6 +246,7 @@ export async function createRecording(
 				{ title, text, language }
 			);
 			if (target) {
+				await reveal(page, target);
 				await target.evaluate((node) =>
 					node.setAttribute('data-tutorial-focus', '')
 				);

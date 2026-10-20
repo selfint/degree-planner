@@ -1,7 +1,7 @@
 import { expect, test, type Page, type Locator } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { mediaVariants, type MediaTopic } from '../src/lib/tutorialMedia';
-import { click, createRecording, moveTo, pause } from './helpers/recording';
+import { click, createRecording, drag, pause } from './helpers/recording';
 
 const courses = JSON.parse(
 	readFileSync(new URL('../static/courseData.json', import.meta.url), 'utf8')
@@ -66,7 +66,6 @@ async function scene(
 	text: [string, string],
 	target?: Locator
 ) {
-	if (target) await target.scrollIntoViewIfNeeded();
 	await recording.caption(
 		title[language === 'he' ? 1 : 0],
 		text[language === 'he' ? 1 : 0],
@@ -166,14 +165,7 @@ for (const topic of topics) {
 						],
 						source
 					);
-					await moveTo(page, source);
-					await page.mouse.down();
-					try {
-						await target.hover({ position: { x: 40, y: 24 } });
-						await target.hover({ position: { x: 40, y: 24 } });
-					} finally {
-						await page.mouse.up();
-					}
+					await drag(page, source, target);
 					await expect(target.locator(`[data-code="${systems}"]`)).toHaveCount(
 						1
 					);

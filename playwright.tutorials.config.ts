@@ -6,6 +6,7 @@ export default defineConfig({
 	testDir: '.',
 	testMatch: [
 		'tutorials/recordings.spec.ts',
+		'tutorials/motion.test.ts',
 		'tutorials/search-recordings.spec.ts',
 		'tutorials/search-feature.test.ts',
 		'tutorials/feature-recordings.spec.ts',

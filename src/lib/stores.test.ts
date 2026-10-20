@@ -111,3 +111,22 @@ describe('offline plan storage', () => {
 		expect(values.has('semesters')).toBe(false);
 	});
 });
+
+describe('degree requirement selection', () => {
+	it.each([undefined, 'CG00006253'])(
+		'decodes the selected path %s before loading requirements',
+		async (path) => {
+			const degree: Degree = [
+				'2024_200',
+				'00002120',
+				path === undefined ? 'SC00001320_CG00006382' : 'SC00001314_CG00006245'
+			];
+			values.set('userData', JSON.stringify({ ...plan, degree, path }));
+			const { loadRequirement } = await import('./requirements');
+			vi.mocked(loadRequirement).mockClear();
+			const { requirement } = await import('./stores.svelte');
+			requirement();
+			expect(loadRequirement).toHaveBeenCalledWith(degree, path);
+		}
+	);
+});

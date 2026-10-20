@@ -226,7 +226,8 @@ const _requirement = $derived.by(() => {
 	const [degreeString, path] = _fineGrainedReactivityUserDegree.split(';');
 	const degree = degreeString.split(':') as Degree;
 
-	return loadRequirement(degree, path);
+	// Match degreeName: '-' is our internal no-path sentinel, not a catalog path.
+	return loadRequirement(degree, path === '-' ? undefined : path);
 });
 export const requirement = () => _requirement;
 

@@ -40,6 +40,8 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
+      - name: Type-check tutorial helpers and scenarios before recording
+        run: npx tsc --project tutorials/tsconfig.json
       - run: npx playwright install --with-deps chromium
       - name: Install video packaging tools
         run: sudo apt-get update && sudo apt-get install -y ffmpeg

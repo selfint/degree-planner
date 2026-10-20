@@ -1,7 +1,13 @@
 import { expect, test, type Page, type Locator } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { mediaVariants, type MediaTopic } from '../src/lib/tutorialMedia';
-import { click, createRecording, drag, pause } from './helpers/recording';
+import {
+	click,
+	createRecording,
+	drag,
+	moveTo,
+	pause
+} from './helpers/recording';
 
 const courses = JSON.parse(
 	readFileSync(new URL('../static/courseData.json', import.meta.url), 'utf8')

@@ -89,7 +89,12 @@ export async function createRecording(
 	baseURL: string,
 	language: Language,
 	theme: Theme,
-	semesters: string[][]
+	semesters: string[][],
+	initial: {
+		degree?: [string, string, string] | null;
+		currentSemester?: number;
+		wishlist?: string[];
+	} = {}
 ) {
 	await mkdir(rawRoot, { recursive: true });
 	const context = await browser.newContext({
@@ -103,7 +108,7 @@ export async function createRecording(
 	});
 	const page = await context.newPage();
 	await page.addInitScript(
-		({ language, theme, semesters }) => {
+		({ language, theme, semesters, initial }) => {
 			localStorage.setItem('lang', language);
 			localStorage.setItem('theme', theme);
 			if (!localStorage.getItem('version')) {
@@ -111,16 +116,23 @@ export async function createRecording(
 				localStorage.setItem(
 					'userData',
 					JSON.stringify({
-						degree: ['2024_200', '00002120', 'SC00001320_CG00006382'],
-						currentSemester: 0,
+						degree:
+							initial.degree === null
+								? undefined
+								: (initial.degree ?? [
+										'2024_200',
+										'00002120',
+										'SC00001320_CG00006382'
+									]),
+						currentSemester: initial.currentSemester ?? 0,
 						semesters,
 						exemptions: [],
-						wishlist: []
+						wishlist: initial.wishlist ?? []
 					})
 				);
 			}
 		},
-		{ language, theme, semesters }
+		{ language, theme, semesters, initial }
 	);
 	// Public course/catalog JSON and the real guest storage are untouched.
 	// External requests are blocked in these fictional guest recordings.

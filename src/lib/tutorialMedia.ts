@@ -1,7 +1,15 @@
 /** Recording inventory, not a declaration that generated assets are published. */
 export const mediaGroups = {
 	tutorials: ['course-card', 'plan-course'],
-	features: ['feature-search']
+	features: [
+		'feature-search',
+		'feature-plan',
+		'feature-catalog',
+		'feature-settings',
+		'feature-course',
+		'feature-semester',
+		'feature-share'
+	]
 } as const;
 export type MediaTopic = (typeof mediaGroups)[keyof typeof mediaGroups][number];
 

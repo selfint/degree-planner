@@ -8,6 +8,7 @@ export default defineConfig({
 		'tutorials/recordings.spec.ts',
 		'tutorials/search-recordings.spec.ts',
 		'tutorials/search-feature.test.ts',
+		'tutorials/feature-recordings.spec.ts',
 		'tutorials/landing.test.ts'
 	],
 	outputDir: 'test-results/tutorials-checks',

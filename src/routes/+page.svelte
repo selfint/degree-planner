@@ -1,13 +1,6 @@
 <script lang="ts">
 	import { content } from '$lib/preferences.svelte';
 
-	import settingsPic from '$lib/assets/settings-pic.webp?enhanced';
-	import planPic from '$lib/assets/plan-pic.webp?enhanced';
-	import catalogPic from '$lib/assets/catalog-pic.webp?enhanced';
-	import semesterPic from '$lib/assets/semester-pic.webp?enhanced';
-	import coursePic from '$lib/assets/course-pic.webp?enhanced';
-	import sharePic from '$lib/assets/share-pic.webp?enhanced';
-
 	import LandingInstallInfo from '$lib/components/LandingInstallInfo.svelte';
 	import GetStartedLink from '$lib/components/GetStartedLink.svelte';
 	import Tutorials from './components/Tutorials.svelte';
@@ -58,14 +51,23 @@
 	>
 		<Tutorials />
 
-		<ImgDemo src={planPic} title={content.lang.header.plan}>
+		<ImgDemo title={content.lang.header.plan}>
+			{#snippet media()}
+				<FeatureVideo topic="feature-plan" title={content.lang.header.plan} />
+			{/snippet}
 			{content.lang.landing.plan.header}
 			<br />
 			<br />
 			{content.lang.landing.plan.testSchedule}
 		</ImgDemo>
 
-		<ImgDemo src={catalogPic} title={content.lang.header.catalog}>
+		<ImgDemo title={content.lang.header.catalog}>
+			{#snippet media()}
+				<FeatureVideo
+					topic="feature-catalog"
+					title={content.lang.header.catalog}
+				/>
+			{/snippet}
 			{content.lang.landing.catalog.header}
 			<span class="inline rounded-md bg-card-primary px-1.5 py-0.5">
 				<span class="text-accent-primary">
@@ -79,19 +81,43 @@
 			{content.lang.landing.catalog.footer}
 		</ImgDemo>
 
-		<ImgDemo src={settingsPic} title={content.lang.landing.settings.header}>
+		<ImgDemo title={content.lang.landing.settings.header}>
+			{#snippet media()}
+				<FeatureVideo
+					topic="feature-settings"
+					title={content.lang.landing.settings.header}
+				/>
+			{/snippet}
 			{content.lang.landing.settings.description}
 		</ImgDemo>
 
-		<ImgDemo src={coursePic} title={content.lang.common.course}>
+		<ImgDemo title={content.lang.common.course}>
+			{#snippet media()}
+				<FeatureVideo
+					topic="feature-course"
+					title={content.lang.common.course}
+				/>
+			{/snippet}
 			{content.lang.landing.course}
 		</ImgDemo>
 
-		<ImgDemo src={semesterPic} title={content.lang.common.semester}>
+		<ImgDemo title={content.lang.common.semester}>
+			{#snippet media()}
+				<FeatureVideo
+					topic="feature-semester"
+					title={content.lang.common.semester}
+				/>
+			{/snippet}
 			{content.lang.landing.semester}
 		</ImgDemo>
 
-		<ImgDemo src={sharePic} title={content.lang.landing.share.title}>
+		<ImgDemo title={content.lang.landing.share.title}>
+			{#snippet media()}
+				<FeatureVideo
+					topic="feature-share"
+					title={content.lang.landing.share.title}
+				/>
+			{/snippet}
 			{content.lang.landing.share.description}
 		</ImgDemo>
 

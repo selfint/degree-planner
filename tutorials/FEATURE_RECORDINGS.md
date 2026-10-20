@@ -1,4 +1,4 @@
-# Remaining landing-feature recordings (unpublished)
+# Landing-feature recording scenarios
 
 `feature-recordings.spec.ts` supplies 24 real-app clips: Plan, Catalog, Settings,
 Course, Semester and Share Plan, each in English/Hebrew and light/dark. It uses
@@ -37,7 +37,7 @@ is blocked. Inventory membership does not publish assets or replace landing text
 The complete inventory is 36 clips (two existing tutorials plus seven features).
 `--group=features` requires all 28 feature clips, not only Search. Running one
 scenario alone is useful for debugging, but cannot package a complete group.
-The workflow has 45 minutes for the single-worker production recordings and
+The workflow has 60 minutes for the single-worker production recordings and
 36 MP4/WebM/poster/caption encodes. Failed/missing recordings fail packaging.
 
 Source/unit checks and test discovery do not establish browser correctness.
@@ -47,3 +47,7 @@ Only a successful complete artifact, with matching source commit and updated
 provenance, may replace any remaining landing image. Do not substitute existing
 footage for a different feature. Browser execution was not attempted locally
 because this environment's browser launch is already known to be blocked.
+
+The complete set is now published with the source/run/hash details in `provenance.json`.
+Native-player integration coverage is in `search-feature.test.ts` (historical name),
+with 105 checks across all seven feature players.

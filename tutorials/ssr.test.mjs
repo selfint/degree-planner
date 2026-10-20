@@ -9,7 +9,7 @@ const html = readFileSync(
 	'utf8'
 );
 
-test('the rendered landing page contains two tutorials and the Search feature player', () => {
+test('the rendered landing page contains two tutorials and all seven feature players', () => {
 	assert.match(html, /id="landing-title"/, 'the real landing page rendered');
 	assert.match(
 		html,
@@ -17,8 +17,22 @@ test('the rendered landing page contains two tutorials and the Search feature pl
 		'the rendered landing page must include the tutorial section'
 	);
 	const videos = [...html.matchAll(/<video\b([^>]*?)>([\s\S]*?)<\/video>/g)];
-	assert.equal(videos.length, 3, 'two tutorials plus Search are rendered');
-	assert.match(html, /data-testid="feature-search"/);
+	assert.equal(
+		videos.length,
+		9,
+		'two tutorials plus seven features are rendered'
+	);
+	for (const topic of [
+		'plan',
+		'catalog',
+		'settings',
+		'course',
+		'semester',
+		'share',
+		'search'
+	]) {
+		assert.match(html, new RegExp(`data-testid="feature-${topic}"`));
+	}
 	for (const [, attributes, body] of videos) {
 		assert.match(attributes, /\bcontrols(?:\s|=|$)/);
 		assert.match(attributes, /preload="none"/);

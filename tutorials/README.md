@@ -38,7 +38,7 @@ recordings before copying that complete directory to `static/tutorials`.
 
 The real production-rendered HTML test was committed and observed failing on the
 missing tutorial section before adding the landing components. It now verifies
-both accessible native players and their visible transcripts. The browser suite
+all nine accessible native players and both original visible transcripts. The browser suite
 also checks both languages/themes at 320, 390 and 1280px, no media transfer before
 play, no console/data boot on landing, keyboard focus, playback, pause and failure
 fallback, native fullscreen and live preference changes. CI runs these assertions normally; unexpected failures fail the job.
@@ -91,34 +91,41 @@ service worker does not satisfy the recording precondition.
 The shared inventory in `src/lib/tutorialMedia.ts` distinguishes existing
 tutorials from feature recordings; inventory membership is not publication.
 Packaging without arguments still selects only the original two tutorials.
-`--group=features` selects Search only, and `--group=all` selects all three topics.
-The Tutorial videos CI workflow records and packages all 12 variants and retains
+`--group=features` selects all seven features, and `--group=all` selects all nine topics.
+The Tutorial videos CI workflow records and packages all 36 variants and retains
 raw videos, timing JSON, keyframes, packaged media and the source-commit manifest
 in its existing `tutorials-<commit>` artifact. Missing variants fail packaging.
 
-Search replaces only the seventh feature image, using the existing section,
-heading, paragraph and grid. The other six feature images are unchanged. Its
+All seven feature images are replaced by their own recordings, using the existing
+sections, headings, paragraphs, order and grids. Both original tutorials remain. Each
 native player follows the landing preferences, loads no video before playback,
 and recreates the player when language or theme changes. Run the focused checks:
 
     npx playwright test --config=playwright.search-feature.config.ts
 
-The standard tutorial config also includes these checks. They cover all four
+The standard tutorial config also includes these checks. The 105 checks cover all seven players in all four
 variants at 320, 390 and 1280px, actual playback, fullscreen, live preference
 switching with playback of each selected source, WebM fallback, and the failure
 message without losing the feature description.
 
-The checked-in 12-clip set was recorded from GitHub's PR merge commit
-`5f0718fef21d3b517b4456e7f9417ae25654b2a6` (PR head
-`cf095a8b4158a1feb0dc2a4d53150fb0dd39f61b`) in successful Actions run
-[39402249380](https://github.com/selfint/degree-planner/actions/runs/39402249380),
-artifact `12256417655`. The course-card clips include the compact-name/code fix.
-All MP4 and WebM files were fully decoded with FFmpeg, and start/middle/end
-frames across all 12 clips were visually inspected before copying the complete
-packaged set. `provenance.json` records the exact source, artifact ZIP hash,
-per-file hashes and media durations. Native playback after this integration must
-still be checked in CI and the deployed preview; recording success alone does
-not establish deployed playback.
+The checked-in 36-clip set was recorded from GitHub's PR merge commit
+`afa2e701cbb83c69a121e115451257ae9c7d8612` (PR head
+`2e466e62`) in successful Actions run
+[39406470836](https://github.com/selfint/degree-planner/actions/runs/39406470836),
+artifact `12259028586`. All 70 checks passed before packaging. All 72 MP4/WebM
+files were fully decoded with FFmpeg, and start/middle/end frames across all 36
+clips were visually inspected before copying the complete packaged set.
+`provenance.json` records the exact source, artifact ZIP hash, per-file hashes and
+media durations. The nine-topic root manifest remains separate from the nested
+`journeys/` gallery and its independent provenance/inventory validation.
+
+Two minor recording cosmetics remain visible: the lower duplicate prerequisite
+line in the English Plan warning partly overlaps its caption, and the unrelated
+external Google sign-in logo is unavailable in Settings' network-isolated guest
+context. Settings demonstrates degree selection only, not sign-in. The demonstrated
+controls, unique prerequisite alternatives and captions remain readable; no failure UI was
+hidden. Native playback of the newly integrated six players must still pass CI
+and deployed-preview checks; recording success alone does not establish it.
 
 For future regeneration, inspect all four variants per topic and update the
 complete asset set and provenance. Do not substitute fixtures, screenshot

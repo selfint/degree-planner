@@ -38,8 +38,22 @@ describe('published tutorial media provenance', () => {
 		}
 	});
 	it('matches the exact recorded file inventory, hashes and byte sizes', () => {
+		const entries = readdirSync(root, { withFileTypes: true });
+		// Journey captures have their own strict inventory and source provenance.
+		// Do not silently exclude any other directory or non-file entry.
+		expect(
+			entries
+				.filter((entry) => !entry.isFile())
+				.map((entry) => ({
+					name: entry.name,
+					directory: entry.isDirectory()
+				}))
+		).toEqual([{ name: 'journeys', directory: true }]);
 		expect(provenance.files.map((file) => file.file).sort()).toEqual(
-			readdirSync(root).sort()
+			entries
+				.filter((entry) => entry.isFile())
+				.map((entry) => entry.name)
+				.sort()
 		);
 		let total = 0;
 		for (const file of provenance.files) {

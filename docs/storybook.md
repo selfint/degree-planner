@@ -79,4 +79,16 @@ Landing-only NativeVideo, FeatureVideo, TutorialVideo and Tutorials components r
 - src/routes/[...legacy]/+page.svelte: Empty legacy redirect placeholder.
 - src/routes/en/+page.svelte: Language-setting redirect without visible UI; importing it would write actual browser preferences.
 
-Inventory: 56 source files, 51 covered, 5 nonvisual exclusions; 44 story groups, 195 stories.
+Inventory: 56 source files, 51 covered, 5 nonvisual exclusions; 44 story groups, 199 stories.
+
+## Asserted student journey recordings
+
+| Component                                  | Storybook group             | Stories                                                                                        |
+| ------------------------------------------ | --------------------------- | ---------------------------------------------------------------------------------------------- |
+| src/routes/components/UserFlowVideo.svelte | User flows/Student journeys | RecoverSetupAndReopen, ShareWithIndependentGuest, ChooseCurrentBeforeImport, SafelyShortenPlan |
+
+These four real browser-asserted recordings each have English/Hebrew and initial light/dark variants, selected by the global toolbar without a viewport override. Native controls support pause, seek, fullscreen and localized captions. The player remounts when the chosen variant changes, preventing stale playback.
+
+The recordings retain the isolated tests’ blocked service workers and external traffic, including offline-setup notices and reload screens. Setup recovery intentionally changes theme, language and screen size to verify persistence. These are test evidence, not polished offline-install demonstrations.
+
+Media and capture provenance are independently scoped to `static/tutorials/journeys/` and `tutorials/journeys-provenance.json`; the existing root tutorial inventory remains separate. See `tutorials/student-journeys.md` for regeneration.

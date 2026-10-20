@@ -37,6 +37,61 @@ describe('installed update banner', () => {
 			expect(body).not.toMatch(/<(?:a|details)\b/);
 		}
 	);
+	it.each(['en', 'he'] as const)(
+		'keeps the %s blocked explanation visible in a full-width row after the controls',
+		(language) => {
+			preferences.lang.lang = language;
+			const { body } = render(PwaUpdateBanner, {
+				props: {
+					visible: true,
+					updateVersion: 'build-v2',
+					persistDismissal: false,
+					updateBlocked: true,
+					onAccept: () => {}
+				}
+			});
+			const reason = body.match(
+				/<p[^>]*\sid="([^"]+)"[^>]*>[\s\S]*?<\/p>/
+			)?.[0];
+			expect(reason).toBeDefined();
+			expect(reason).toContain(pwaMessages[language].updateBlocked);
+			expect(body.indexOf(reason!)).toBeGreaterThan(
+				body.indexOf('data-testid="pwa-update-dismiss"')
+			);
+			const accept = body.match(
+				/<button[^>]*data-testid="pwa-update-accept"[^>]*>/
+			)?.[0];
+			expect(accept).toMatch(/\bdisabled\b/);
+			expect(accept).toContain('aria-describedby=');
+			expect(body.match(/<button\b/g)).toHaveLength(2);
+		}
+	);
+	it.each([
+		['updateVersionError', 'pwa-update-error'],
+		['updateActionError', 'pwa-update-action-error']
+	] as const)(
+		'gives %s an unclipped full-width alert row',
+		(property, testId) => {
+			const message =
+				'The update could not finish. Save changes in other tabs and close them before retrying.';
+			const { body } = render(PwaUpdateBanner, {
+				props: {
+					visible: true,
+					updateVersion: 'build-v2',
+					persistDismissal: false,
+					[property]: message
+				}
+			});
+			const paragraph = body.match(
+				new RegExp(`<p[^>]*data-testid="${testId}"[^>]*>[\\s\\S]*?<\\/p>`)
+			)?.[0];
+			expect(paragraph).toContain('role="alert"');
+			expect(paragraph).toContain(message);
+			expect(body.indexOf(paragraph!)).toBeGreaterThan(
+				body.indexOf('data-testid="pwa-update-dismiss"')
+			);
+		}
+	);
 	it('keeps the actual version-lookup failure visible without a false dismissal', () => {
 		const { body } = render(PwaUpdateBanner, {
 			props: {

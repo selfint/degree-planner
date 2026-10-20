@@ -24,9 +24,9 @@ export const pwaMessages = {
 			'Reconnect to load your account plan. Your draft stays in this window.',
 		offline:
 			'You’re offline. All downloaded course and catalog data and saved guest plans remain available once offline setup is complete. Plan editing, saving, account plans, sign-in and syncing need internet. Keep this window open until account changes finish syncing.',
-		update: 'Update available. Save your work before updating.',
+		update: 'Update available.',
 		updateAccept: 'Update',
-		updateBlocked: 'Save or cancel changes and wait for saving to finish.',
+		updateBlocked: 'Save or cancel changes; wait for saving.',
 		updateOtherTabs:
 			'Save your work in other PlanIt tabs and close them, then try Update again.',
 		updateFailed:
@@ -58,7 +58,7 @@ export const pwaMessages = {
 			'התחברו לאינטרנט כדי לטעון את התוכנית בחשבון. הטיוטה נשמרת בחלון הזה.',
 		offline:
 			'אין חיבור לאינטרנט. לאחר השלמת ההכנה, נתוני הקורסים והקטלוגים שהורדו ותוכניות אורח שמורות זמינים. עריכת תוכניות, שמירה, תוכניות בחשבון, התחברות וסנכרון דורשים אינטרנט. השאירו את החלון פתוח עד לסיום סנכרון השינויים בחשבון.',
-		update: 'עדכון זמין. שמרו את השינויים לפני העדכון.',
+		update: 'עדכון זמין.',
 		updateAccept: 'עדכון',
 		updateBlocked: 'שמרו או בטלו שינויים והמתינו לסיום השמירה.',
 		updateOtherTabs:

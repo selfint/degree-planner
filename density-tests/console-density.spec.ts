@@ -1,6 +1,7 @@
 import { createServer, type Server } from 'node:http';
 import { readFile, writeFile } from 'node:fs/promises';
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
+import { pwaMessages } from '../src/lib/pwa/messages';
 
 // Identical public courses and fictional guest plan on both source revisions.
 // No account sign-in, provider responses, private plans or auth mocks are used.
@@ -659,6 +660,29 @@ for (const viewport of [
 						);
 						expect(notice!.y + notice!.height).toBeLessThanOrEqual(main!.y);
 						expect(notice!.height).toBeLessThanOrEqual(80);
+						const accept = banner.getByTestId('pwa-update-accept');
+						const blockedReason = banner.getByTestId('pwa-update-blocked');
+						await expect(accept).toBeDisabled();
+						await expect(accept).toHaveAccessibleDescription(
+							pwaMessages[language].updateBlocked
+						);
+						await expect(blockedReason).toBeVisible();
+						await expect(blockedReason).toHaveText(
+							pwaMessages[language].updateBlocked
+						);
+						const reasonBounds = (await blockedReason.boundingBox())!;
+						const acceptBounds = (await accept.boundingBox())!;
+						expect(reasonBounds.y).toBeGreaterThanOrEqual(
+							acceptBounds.y + acceptBounds.height
+						);
+						expect(reasonBounds.width).toBeGreaterThanOrEqual(
+							notice!.width - 24
+						);
+						expect(
+							await blockedReason.evaluate(
+								(element) => element.scrollWidth > element.clientWidth
+							)
+						).toBe(false);
 						await expect(page).toHaveURL(`${origin}/app/settings`);
 						await expect(choice).toHaveValue('1');
 						const instruction = await measure(page, 'update');

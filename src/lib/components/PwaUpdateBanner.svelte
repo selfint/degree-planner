@@ -73,26 +73,6 @@
 				<p role="status" data-testid="pwa-update">
 					{pwaMessages[content.lang.lang].update}
 				</p>
-				{#if error}
-					<p
-						class="update-error"
-						role="alert"
-						data-testid="pwa-update-error"
-						dir="auto"
-					>
-						{error}
-					</p>
-				{/if}
-				{#if updateActionError}<p
-						role="alert"
-						class="update-error"
-						data-testid="pwa-update-action-error"
-					>
-						{updateActionError}
-					</p>{/if}
-				{#if updateBlocked}<p id={blockedReasonId} class="update-error">
-						{pwaMessages[content.lang.lang].updateBlocked}
-					</p>{/if}
 			</div>
 			<button
 				type="button"
@@ -122,6 +102,32 @@
 					/>
 				</svg>
 			</button>
+			{#if error}
+				<p
+					class="update-error"
+					role="alert"
+					data-testid="pwa-update-error"
+					dir="auto"
+				>
+					{error}
+				</p>
+			{/if}
+			{#if updateActionError}<p
+					role="alert"
+					class="update-error"
+					data-testid="pwa-update-action-error"
+				>
+					{updateActionError}
+				</p>{/if}
+			{#if updateBlocked}
+				<p
+					id={blockedReasonId}
+					class="blocked-reason update-error"
+					data-testid="pwa-update-blocked"
+				>
+					{pwaMessages[content.lang.lang].updateBlocked}
+				</p>
+			{/if}
 		</div>
 	</aside>
 {/if}
@@ -134,20 +140,22 @@
 		color: rgb(var(--color-content-primary));
 	}
 	.update-content {
-		display: flex;
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto auto;
 		align-items: center;
-		gap: 0.5rem;
+		gap: 0.125rem 0.5rem;
 		max-inline-size: 76rem;
 		margin-inline: auto;
-		padding: 0.375rem 0.75rem;
+		padding: 0.125rem 0.75rem;
 	}
-	.update-copy {
-		flex: 1;
+	.update-copy,
+	.update-error {
 		min-inline-size: 0;
 		font-size: 0.8125rem;
 		line-height: 1.4;
 	}
 	.update-error {
+		grid-column: 1 / -1;
 		color: rgb(var(--color-error));
 		overflow-wrap: anywhere;
 	}

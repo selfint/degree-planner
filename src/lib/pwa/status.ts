@@ -6,6 +6,10 @@ export type OfflineShellStatus = {
 	updateReady: boolean;
 	updateVersion?: string;
 	updateVersionError?: string;
+	updateBlocked?: boolean;
+	updateBusy?: boolean;
+	updateActionError?: string;
+	acceptUpdate?: () => void;
 	error?: string;
 };
 

@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
+	import { updateSafety } from '$lib/pwa/update-safety';
 	import AsyncButton from '$lib/components/AsyncButton.svelte';
 	import PlanActionButton from '$lib/components/PlanActionButton.svelte';
 	import { planOnline } from '$lib/planAccess';
@@ -123,6 +125,7 @@
 	}
 
 	function reset() {
+		updateSafety.discardFailure();
 		year = userDegree?.[0];
 		faculty = userDegree?.[1];
 		degree = userDegree?.[2];
@@ -184,6 +187,17 @@
 				display: content.lang.lang === 'he' ? he : en
 			}));
 	}
+	const updateDraft = $derived(
+		year !== userDegree?.[0] ||
+			faculty !== userDegree?.[1] ||
+			degree !== userDegree?.[2] ||
+			path !== userPath
+	);
+	onMount(() => updateSafety.register(() => updateDraft));
+	$effect(() => {
+		void updateDraft;
+		updateSafety.refresh();
+	});
 </script>
 
 <section class="degree-section">

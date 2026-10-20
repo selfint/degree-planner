@@ -7,13 +7,22 @@
 		visible = false,
 		updateVersion,
 		updateVersionError,
-		persistDismissal = true
+		persistDismissal = true,
+		updateBlocked = false,
+		updateBusy = false,
+		updateActionError,
+		onAccept
 	}: {
 		visible?: boolean;
 		updateVersion?: string;
 		updateVersionError?: string;
 		persistDismissal?: boolean;
+		updateBlocked?: boolean;
+		updateBusy?: boolean;
+		updateActionError?: string;
+		onAccept?: () => void;
 	} = $props();
+	const blockedReasonId = $props.id();
 	const preferenceKey = 'planit-dismissed-update-version';
 	let preferenceReady = $state(false);
 	let dismissedVersion = $state<string | undefined>();
@@ -74,14 +83,33 @@
 						{error}
 					</p>
 				{/if}
+				{#if updateActionError}<p
+						role="alert"
+						class="update-error"
+						data-testid="pwa-update-action-error"
+					>
+						{updateActionError}
+					</p>{/if}
+				{#if updateBlocked}<p id={blockedReasonId} class="update-error">
+						{pwaMessages[content.lang.lang].updateBlocked}
+					</p>{/if}
 			</div>
+			<button
+				type="button"
+				class="accept-update ui-button ui-button--secondary"
+				data-testid="pwa-update-accept"
+				disabled={!updateVersion || updateBlocked || updateBusy || !onAccept}
+				aria-busy={updateBusy}
+				aria-describedby={updateBlocked ? blockedReasonId : undefined}
+				onclick={onAccept}>{pwaMessages[content.lang.lang].updateAccept}</button
+			>
 			<button
 				type="button"
 				class="dismiss-update"
 				data-testid="pwa-update-dismiss"
 				aria-label={pwaMessages[content.lang.lang].close}
 				title={pwaMessages[content.lang.lang].close}
-				disabled={!updateVersion}
+				disabled={!updateVersion || updateBusy}
 				onclick={dismiss}
 			>
 				<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
@@ -122,6 +150,10 @@
 	.update-error {
 		color: rgb(var(--color-error));
 		overflow-wrap: anywhere;
+	}
+	.accept-update {
+		flex: none;
+		white-space: nowrap;
 	}
 	.dismiss-update {
 		display: inline-flex;

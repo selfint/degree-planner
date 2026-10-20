@@ -35,6 +35,8 @@
 </script>
 
 <script lang="ts">
+	import { onMount } from 'svelte';
+	import { updateSafety } from '$lib/pwa/update-safety';
 	import { planOnline } from '$lib/planAccess';
 	import Select from '$lib/components/Select.svelte';
 
@@ -57,6 +59,14 @@
 	const validTotalValues = $derived(semesterCountChoices(user.d));
 	let totalError = $state(false);
 
+	async function onCancelCurrentSemester() {
+		semesterChoice = user.d.currentSemester;
+		updateSafety.discardFailure();
+	}
+	async function onCancelTotalSemesters() {
+		totalSemestersChoice = user.d.semesters.length;
+		updateSafety.discardFailure();
+	}
 	async function onUpdateCurrentSemester() {
 		if (semesterChoice !== user.d.currentSemester) {
 			setUser(
@@ -81,6 +91,15 @@
 		}
 		setUser(await writeStorage(updated));
 	}
+	const updateDraft = $derived(
+		semesterChoice !== user.d.currentSemester ||
+			totalSemestersChoice !== user.d.semesters.length
+	);
+	onMount(() => updateSafety.register(() => updateDraft));
+	$effect(() => {
+		void updateDraft;
+		updateSafety.refresh();
+	});
 </script>
 
 <section class="semester-section">
@@ -110,9 +129,7 @@
 					</PlanActionButton>
 					<AsyncButton
 						variant="secondary"
-						onclick={async () => {
-							semesterChoice = user.d.currentSemester;
-						}}
+						onclick={onCancelCurrentSemester}
 						bind:buttonNamespace
 						name="cancel-semesters"
 					>
@@ -153,9 +170,7 @@
 					</PlanActionButton>
 					<AsyncButton
 						variant="secondary"
-						onclick={async () => {
-							totalSemestersChoice = user.d.semesters.length;
-						}}
+						onclick={onCancelTotalSemesters}
 						bind:buttonNamespace
 						name="cancel-total"
 					>

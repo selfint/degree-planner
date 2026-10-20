@@ -504,6 +504,49 @@ describe('production SW shell/privacy/lifecycle guards (VM)', () => {
 		expect(await sw.caches.keys()).toEqual([]);
 	});
 
+	it('serves exact retired node/shared chunks after activation without reusing old HTML or unrelated caches', async () => {
+		const sw = harness();
+		await sw.install();
+		const retained = await sw.caches.open('planit-console-shell-older-build');
+		await retained.put(
+			'/_app/immutable/nodes/old.Abc123.js',
+			new Response('old node')
+		);
+		await retained.put(
+			'/_app/immutable/chunks/hkyq93-W.js',
+			new Response('old shared chunk')
+		);
+		await retained.put(
+			'/app/offline',
+			new Response('obsolete HTML must not render')
+		);
+		const unrelated = await sw.caches.open('other-product-cache');
+		await unrelated.put(
+			'/_app/immutable/chunks/not-planit.js',
+			new Response('unrelated response')
+		);
+		await sw.activate();
+		sw.network.mockRejectedValue(new Error('Origin offline'));
+		expect(
+			await (
+				await sw.fetcher(`${origin}/_app/immutable/nodes/old.Abc123.js`)
+			).text()
+		).toBe('old node');
+		expect(
+			await (
+				await sw.fetcher(`${origin}/_app/immutable/chunks/hkyq93-W.js`)
+			).text()
+		).toBe('old shared chunk');
+		await expect(
+			sw.fetcher(`${origin}/_app/immutable/chunks/not-planit.js`)
+		).rejects.toThrow('Origin offline');
+		const offlineNavigation = sw.dispatch('fetch', {
+			request: navigation('/app/catalog')
+		});
+		await offlineNavigation.completed;
+		expect(await (await offlineNavigation.response)!.text()).toBe(offlineHtml);
+	});
+
 	it('does not force skipWaiting during installation, activation, or a message', async () => {
 		const sw = harness();
 		await sw.install();
@@ -513,7 +556,7 @@ describe('production SW shell/privacy/lifecycle guards (VM)', () => {
 		expect(sw.claim).toHaveBeenCalledOnce();
 	});
 
-	it('retains the current shell, unrelated CacheStorage, and all fake IDB records during activation', async () => {
+	it('retains historical shells, unrelated CacheStorage, and all fake IDB records during activation', async () => {
 		const factory = new IDBFactory();
 		const store = createIndexedDbStore({ factory });
 		const unrelatedStore = createIndexedDbStore({
@@ -546,7 +589,7 @@ describe('production SW shell/privacy/lifecycle guards (VM)', () => {
 			await sw.activate();
 			const keys = await sw.caches.keys();
 			expect(keys).toContain(currentShell);
-			expect(keys).not.toContain('planit-console-shell-obsolete-test');
+			expect(keys).toContain('planit-console-shell-obsolete-test');
 			expect(
 				await (await sw.caches.match('/sentinel', {
 					cacheName: 'unrelated-cache'

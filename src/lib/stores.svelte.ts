@@ -1,3 +1,4 @@
+import { updateSafety } from './pwa/update-safety';
 import { browser } from '$app/environment';
 import { loadDegreeName, loadRequirement } from './requirements';
 import { content } from './preferences.svelte';
@@ -324,6 +325,6 @@ let _storage: StorageMethod = $state(localStorageMethod);
 export const readStorage = async () => await _storage.read();
 export const writeStorage = async (d: UserData) => {
 	assertPlanWritable();
-	return await _storage.write(d);
+	return await updateSafety.write(() => _storage.write(d));
 };
 export const setStorage = (s: StorageMethod) => (_storage = s);

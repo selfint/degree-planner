@@ -1,6 +1,7 @@
 /// <reference lib="webworker" />
 import { build, files, version } from '$service-worker';
-import { isAppNavigation } from './lib/pwa/cache-policy';
+import { isAppNavigation, isImmutableAppAsset } from './lib/pwa/cache-policy';
+import { activateIfSoleClient } from './lib/pwa/update-activation';
 
 const worker = self as unknown as ServiceWorkerGlobalScope;
 const SHELL_PREFIX = 'planit-console-shell-';
@@ -101,12 +102,40 @@ worker.addEventListener('install', (event) => {
 		return;
 	}
 	event.waitUntil(prepareShell());
-	// Do not skipWaiting: another tab may contain unsaved work or pending writes.
+	// Activation requires a version-bound, explicit request from a sole app client.
 });
 
 worker.addEventListener('message', (event) => {
 	const port = event.ports?.[0];
 	if (!port) return;
+	if (event.data?.type === 'ACCEPT_UPDATE') {
+		event.waitUntil(
+			(async () => {
+				let status;
+				try {
+					const source =
+						event.source && 'id' in event.source && 'url' in event.source
+							? { id: event.source.id, url: event.source.url }
+							: undefined;
+					status = await activateIfSoleClient(event.data.version, source, {
+						origin: worker.location.origin,
+						version,
+						clients: () =>
+							worker.clients.matchAll({
+								type: 'window',
+								includeUncontrolled: true
+							}),
+						prepare: prepareShell,
+						activate: () => worker.skipWaiting()
+					});
+				} catch {
+					status = 'failed';
+				}
+				port.postMessage({ type: 'UPDATE_ACTIVATION', version, status });
+			})()
+		);
+		return;
+	}
 	if (event.data?.type === 'GET_OFFLINE_SHELL_VERSION') {
 		port.postMessage({ type: 'OFFLINE_SHELL_VERSION', version });
 		return;
@@ -145,12 +174,9 @@ worker.addEventListener('message', (event) => {
 worker.addEventListener('activate', (event) => {
 	event.waitUntil(
 		(async () => {
-			const keys = await caches.keys();
-			await Promise.all(
-				keys
-					.filter((key) => key.startsWith(SHELL_PREFIX) && key !== SHELL_CACHE)
-					.map((key) => caches.delete(key))
-			);
+			// A window can open after the acceptance client check. Never delete old
+			// caches on activation: those documents may still import old lazy chunks.
+			// Cache GC requires a separate, conservative live-client/version protocol.
 			await worker.clients.claim();
 		})()
 	);
@@ -175,11 +201,24 @@ worker.addEventListener('fetch', (event) => {
 					Response.error()
 			)
 		);
-	} else if (ASSETS.has(url.pathname) && !url.search) {
+	} else if (
+		(ASSETS.has(url.pathname) || isImmutableAppAsset(url.pathname)) &&
+		!url.search
+	) {
 		event.respondWith(
-			(async () =>
-				(await caches.match(request, { cacheName: SHELL_CACHE })) ??
-				fetch(request))()
+			(async () => {
+				const current = await caches.match(request, { cacheName: SHELL_CACHE });
+				if (current) return current;
+				if (isImmutableAppAsset(url.pathname)) {
+					for (const name of await caches.keys()) {
+						if (!name.startsWith(SHELL_PREFIX) || name === SHELL_CACHE)
+							continue;
+						const retained = await caches.match(request, { cacheName: name });
+						if (retained) return retained;
+					}
+				}
+				return fetch(request);
+			})()
 		);
 	}
 	// Public JSON belongs exclusively to the IndexedDB repository.

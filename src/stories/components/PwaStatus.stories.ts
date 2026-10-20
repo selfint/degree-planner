@@ -28,6 +28,10 @@ export const OfflineUpdate: Story = { args: { state: 'offlineUpdate' } };
 export const Unavailable: Story = { args: { state: 'unavailable' } };
 export const Outdated: Story = { args: { state: 'outdated' } };
 export const Update: Story = { args: { state: 'update' } };
+export const UnsavedPlanUpdate: Story = { args: { state: 'updateDirty' } };
+export const SavingPlanUpdate: Story = { args: { state: 'updateSaving' } };
+export const ApplyingUpdate: Story = { args: { state: 'updateApplying' } };
+export const OtherTabsUpdate: Story = { args: { state: 'updateOtherTabs' } };
 
 export const CachedRefreshFailure: Story = { args: { state: 'refresh' } };
 export const UpdateRefreshFailure: Story = { args: { state: 'refreshUpdate' } };

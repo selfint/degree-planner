@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
+	import { updateSafety } from '$lib/pwa/update-safety';
 	import { isPlanWritable, planOnline } from '$lib/planAccess';
 	import type { Transcript } from '$lib/transcriptParser';
 	import * as TranscriptParser from '$lib/transcriptParser';
@@ -53,6 +55,7 @@
 	}
 
 	async function onCancel() {
+		updateSafety.discardFailure();
 		transcript = undefined;
 		uploadError = undefined;
 	}
@@ -89,6 +92,12 @@
 			input.value = '';
 		}
 	}
+	const updateDraft = $derived(uploading || transcript !== undefined);
+	onMount(() => updateSafety.register(() => updateDraft));
+	$effect(() => {
+		void updateDraft;
+		updateSafety.refresh();
+	});
 </script>
 
 <section class="upload-section">

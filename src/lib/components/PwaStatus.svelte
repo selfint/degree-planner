@@ -1,6 +1,13 @@
 <script lang="ts">
 	let { offline = false }: { offline?: boolean } = $props();
 	import PwaStatusView from './PwaStatusView.svelte';
+	import { updateSafety } from '$lib/pwa/update-safety';
+	import {
+		requestUpdateActivation,
+		waitForUpdateController
+	} from '$lib/pwa/update-activation';
+	import { pwaMessages } from '$lib/pwa/messages';
+	import { content } from '$lib/preferences.svelte';
 	import { onMount } from 'svelte';
 	import { afterNavigate } from '$app/navigation';
 	import { version } from '$app/environment';
@@ -16,10 +23,15 @@
 	} from '$lib/pwa/shell-readiness';
 	import { publishOfflineShellStatus } from '$lib/pwa/status';
 	import {
+		readWaitingWorkerVersion,
 		createUpdateVersionReader,
 		hasWaitingUpdate
 	} from '$lib/pwa/service-worker-update';
 
+	let updateBusy = $state(false);
+	let updateActionError = $state<string>();
+	let acceptedUpdate = $state<{ worker: ServiceWorker; version: string }>();
+	let acceptUpdate = () => {};
 	let showPreparing = $state(false);
 	let updateReady = $state(false);
 	let updateVersion = $state<string | undefined>();
@@ -34,8 +46,12 @@
 	$effect(() => {
 		publishOfflineShellStatus({
 			status: shell,
-			updateReady,
-			updateVersion,
+			updateReady: updateReady || !!acceptedUpdate,
+			updateVersion: acceptedUpdate?.version ?? updateVersion,
+			updateBlocked: $updateSafety,
+			updateBusy,
+			updateActionError,
+			acceptUpdate: () => acceptUpdate(),
 			updateVersionError,
 			error: shellError
 		});
@@ -170,6 +186,75 @@
 		// without activating a waiting worker or replacing the current document.
 		let registering = false;
 		let currentRegistration: ServiceWorkerRegistration | undefined;
+		let reloadStarted = false;
+		acceptUpdate = async () => {
+			if (disposed || updateBusy || reloadStarted || updateSafety.blocked())
+				return;
+			updateBusy = true;
+			updateActionError = undefined;
+			let controllerWait:
+				| ReturnType<typeof waitForUpdateController>
+				| undefined;
+			let target: ServiceWorker | undefined;
+			let targetVersion: string | undefined;
+			try {
+				target =
+					acceptedUpdate?.worker ?? currentRegistration?.waiting ?? undefined;
+				targetVersion = acceptedUpdate?.version ?? updateVersion;
+				if (!target || !targetVersion)
+					throw new Error('No verified update is available.');
+				if (target !== navigator.serviceWorker.controller) {
+					if (
+						currentRegistration?.waiting !== target ||
+						target.state !== 'installed'
+					)
+						throw new Error('The waiting update changed.');
+					const verifiedVersion = await readWaitingWorkerVersion(target);
+					if (
+						verifiedVersion !== targetVersion ||
+						currentRegistration?.waiting !== target
+					)
+						throw new Error('The waiting update changed.');
+					if (disposed || updateSafety.blocked())
+						throw new Error('Save changes before updating.');
+					controllerWait = waitForUpdateController(
+						navigator.serviceWorker,
+						target
+					);
+					const status = await requestUpdateActivation(target, targetVersion);
+					if (status !== 'accepted') {
+						updateActionError =
+							status === 'other-tabs'
+								? pwaMessages[content.lang.lang].updateOtherTabs
+								: pwaMessages[content.lang.lang].updateFailed;
+						return;
+					}
+					acceptedUpdate = { worker: target, version: targetVersion };
+					await controllerWait.promise;
+				}
+				// The user may have edited while activation was pending. Never reload that
+				// draft; retain an explicit retry action for this already-active version.
+				if (disposed || updateSafety.blocked()) {
+					updateActionError = pwaMessages[content.lang.lang].updateBlocked;
+					return;
+				}
+				if (navigator.serviceWorker.controller !== target)
+					throw new Error('The controlling update changed.');
+				reloadStarted = true;
+				window.location.reload();
+			} catch {
+				if (
+					target &&
+					targetVersion &&
+					navigator.serviceWorker.controller === target
+				)
+					acceptedUpdate = { worker: target, version: targetVersion };
+				updateActionError = pwaMessages[content.lang.lang].updateFailed;
+			} finally {
+				controllerWait?.dispose();
+				updateBusy = false;
+			}
+		};
 		let controllerTimer: ReturnType<typeof setTimeout> | undefined;
 		const watchedRegistrations = new WeakSet<ServiceWorkerRegistration>();
 		const watchedWorkers = new WeakSet<ServiceWorker>();

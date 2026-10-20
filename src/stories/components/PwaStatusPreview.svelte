@@ -1,5 +1,7 @@
 <script lang="ts">
 	import AppFooter from '$lib/components/AppFooter.svelte';
+	import { content } from '$lib/preferences.svelte';
+	import { pwaMessages } from '$lib/pwa/messages';
 	import TitleBar from '../../routes/components/TitleBar.svelte';
 	import PwaUpdateBanner from '$lib/components/PwaUpdateBanner.svelte';
 	import PwaStatusView from '$lib/components/PwaStatusView.svelte';
@@ -19,14 +21,15 @@
 	} = $props();
 	const refreshFailed = $derived(variant.startsWith('refresh'));
 	const allReady = $derived(
-		[
-			'ready',
-			'offline',
-			'offlineUpdate',
-			'update',
-			'refresh',
-			'refreshUpdate'
-		].includes(variant)
+		variant.startsWith('update') ||
+			[
+				'ready',
+				'offline',
+				'offlineUpdate',
+				'update',
+				'refresh',
+				'refreshUpdate'
+			].includes(variant)
 	);
 	const shellUnavailable = $derived(variant === 'refreshShellUnavailable');
 	const refreshError = $derived(
@@ -49,13 +52,16 @@
 					: 'preparing'
 	);
 	const updateReady = $derived(
-		['update', 'offlineUpdate', 'refreshUpdate'].includes(variant)
+		variant.startsWith('update') ||
+			['offlineUpdate', 'refreshUpdate'].includes(variant)
 	);
 	let retries = $state(0);
+	let accepts = $state(0);
 	// This wrapper is the sole owner of its memory-only fixture. A decorator
 	// can rerender independently when toolbar globals change.
 	$effect.pre(() => {
 		retries = 0;
+		accepts = 0;
 		setOfflinePublicData({
 			phase: setupError
 				? 'error'
@@ -85,6 +91,12 @@
 	updateVersion={updateReady ? fixtureVersion : undefined}
 	{updateVersionError}
 	persistDismissal={false}
+	updateBlocked={variant === 'updateDirty' || variant === 'updateSaving'}
+	updateBusy={variant === 'updateApplying'}
+	updateActionError={variant === 'updateOtherTabs'
+		? pwaMessages[content.lang.lang].updateOtherTabs
+		: undefined}
+	onAccept={() => accepts++}
 />
 <AppFooter compact persistPreferences={false}>
 	{#snippet pwa()}
@@ -107,6 +119,7 @@
 		<PwaStatusDetails />
 	{/snippet}
 </AppFooter>
+{#if accepts}<output>Update requests (fixture only): {accepts}</output>{/if}
 {#if retries}<output>Retry requests: {retries}</output>{/if}
 
 <style>

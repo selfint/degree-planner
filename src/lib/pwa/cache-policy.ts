@@ -16,3 +16,14 @@ export function isAppNavigation(pathname: string): boolean {
 		)
 	);
 }
+
+/** Only the build's immutable asset namespace can use retained cache entries.
+ * SvelteKit shared chunks are hash.js, while nodes are name.hash.js. Do not
+ * infer one filename convention; the historical cache must contain the exact URL.
+ */
+export function isImmutableAppAsset(pathname: string): boolean {
+	return (
+		/^\/_app\/immutable\/(?:[\w-]+\/)*[\w.-]+\.[\w]+$/.test(pathname) &&
+		!pathname.split('/').includes('..')
+	);
+}

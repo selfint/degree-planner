@@ -192,6 +192,10 @@
 		visible={$offlineShellStatus.updateReady}
 		updateVersion={$offlineShellStatus.updateVersion}
 		updateVersionError={$offlineShellStatus.updateVersionError}
+		updateBlocked={$offlineShellStatus.updateBlocked}
+		updateBusy={$offlineShellStatus.updateBusy}
+		updateActionError={$offlineShellStatus.updateActionError}
+		onAccept={$offlineShellStatus.acceptUpdate}
 	/>
 
 	<ConsoleAccountStatus

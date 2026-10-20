@@ -1,7 +1,8 @@
 import { test, expect, type Page } from '@playwright/test';
 import { createServer, type Server } from 'node:http';
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
 import { pwaMessages } from '../src/lib/pwa/messages';
+import { createPwaDeployment } from './helpers/pwa-deployment';
 
 async function viewOfflineError(page: Page, timeout = 15000) {
 	const error = page.getByTestId('pwa-error');
@@ -11,20 +12,25 @@ async function viewOfflineError(page: Page, timeout = 15000) {
 	await expect(page.getByTestId('pwa-status-details')).toBeVisible();
 }
 
-// Proxy the real production build with distinct validated build-version literals.
-// Native workers still install, wait, cache and activate normally; no browser APIs
-// or lifecycle state are replaced, and source build files remain untouched.
+// Proxy the real build as distinct deployments, including disjoint immutable
+// asset URLs. Only the current deployment is available from the network; old
+// tabs must really use their cached scripts after deployment/activation.
+// Native workers install, wait, cache and activate without lifecycle mocks.
 let server: Server;
 let origin: string;
 let revision = 1;
 let buildVersion: string;
-const deploymentVersion = () => `${buildVersion}-pwa-${revision}`;
-function versioned(source: string) {
-	return source.replaceAll(
-		JSON.stringify(buildVersion),
-		JSON.stringify(deploymentVersion())
-	);
+let immutablePaths: string[];
+const deployments = new Map<number, ReturnType<typeof createPwaDeployment>>();
+function deployment() {
+	let current = deployments.get(revision);
+	if (!current) {
+		current = createPwaDeployment(buildVersion, revision, immutablePaths);
+		deployments.set(revision, current);
+	}
+	return current;
 }
+const deploymentVersion = () => deployment().version;
 let originDisconnected = false;
 let serveLegacyWorker = false;
 let denyConsoleShell = false;
@@ -47,6 +53,17 @@ test.beforeAll(async () => {
 	)
 		throw new Error('Production build version must be a nonempty safe string');
 	buildVersion = manifest.version;
+	immutablePaths = (
+		await readdir('.svelte-kit/output/client/_app/immutable', {
+			recursive: true,
+			withFileTypes: true
+		})
+	)
+		.filter((entry) => entry.isFile())
+		.map((entry) => {
+			const path = `${entry.parentPath}/${entry.name}`.replaceAll('\\', '/');
+			return path.slice(path.indexOf('/_app/immutable/'));
+		});
 	if (!worker.includes(JSON.stringify(buildVersion)))
 		throw new Error(
 			'Expected the exact compiled build-version literal in the production worker'
@@ -57,6 +74,11 @@ test.beforeAll(async () => {
 			return;
 		}
 		try {
+			// Snapshot the deployment at request arrival. An in-flight upstream
+			// response must not acquire the next revision's imports halfway through.
+			const current = deployment();
+			const url = new URL(request.url ?? '/', origin);
+			const path = url.pathname;
 			if (denyConsoleShell && request.url === '/app/offline') {
 				response.writeHead(503);
 				response.end();
@@ -75,20 +97,36 @@ test.beforeAll(async () => {
 				response.end(
 					serveLegacyWorker
 						? "self.addEventListener('activate', event => event.waitUntil(self.clients.claim()));"
-						: versioned(worker)
+						: current.rewrite(worker)
 				);
 				return;
 			}
-			const upstream = await fetch(`http://localhost:4173${request.url}`);
+			const immutable = path.startsWith('/_app/immutable/');
+			const originalPath = immutable ? current.networkAssets.get(path) : path;
+			// In particular, never let Vite's preview fallback serve the previous
+			// deployment or the build's original immutable paths.
+			if (!originalPath) {
+				response.writeHead(404, { 'cache-control': 'no-store' });
+				response.end('This immutable asset is no longer deployed');
+				return;
+			}
+			const upstream = await fetch(
+				`http://localhost:4173${originalPath}${url.search}`
+			);
+			const contentType =
+				upstream.headers.get('content-type') ?? 'application/octet-stream';
 			response.writeHead(upstream.status, {
-				'content-type':
-					upstream.headers.get('content-type') ?? 'application/octet-stream'
+				'content-type': contentType,
+				'cache-control': immutable
+					? 'public, max-age=31536000, immutable'
+					: 'no-cache'
 			});
 			const body = Buffer.from(await upstream.arrayBuffer());
-			const path = new URL(request.url ?? '/', origin).pathname;
 			response.end(
-				path.endsWith('.js') || path === '/_app/version.json'
-					? versioned(body.toString('utf8'))
+				/\.(?:m?js|css)$/.test(path) ||
+					path === '/_app/version.json' ||
+					contentType.includes('text/html')
+					? current.rewrite(body.toString('utf8'))
 					: body
 			);
 		} catch {
@@ -149,6 +187,28 @@ async function ready(page: Page) {
 	);
 }
 
+async function moveWishlistCourse(page: Page, code: string, semester: number) {
+	const destination = page.locator(`[data-semester="${semester}"]`);
+	const bounds = (await destination.boundingBox())!;
+	const position = { x: bounds.width / 2, y: 24 };
+	await page
+		.getByTestId('plan-wishlist')
+		.locator(`[data-code="${code}"]`)
+		.hover();
+	await page.mouse.down();
+	try {
+		// WebKit requires a second native dragover before mouseup.
+		await destination.hover({ position });
+		await destination.hover({ position });
+	} finally {
+		await page.mouse.up();
+	}
+	await expect(destination.locator(`[data-code="${code}"]`)).toHaveCount(1);
+	await expect(
+		page.getByRole('button', { name: 'Save', exact: true })
+	).toBeVisible();
+}
+
 async function expectUpdateBanner(
 	page: Page,
 	version: string,
@@ -166,7 +226,10 @@ async function expectUpdateBanner(
 	);
 	await expect(banner).toHaveAttribute('data-update-version', version);
 	await expect(banner.locator('a, details, summary')).toHaveCount(0);
-	await expect(banner.getByRole('button')).toHaveCount(1);
+	await expect(banner.getByRole('button')).toHaveCount(2);
+	await expect(banner.getByTestId('pwa-update-accept')).toHaveAccessibleName(
+		pwaMessages[language].updateAccept
+	);
 	await expect(banner.getByTestId('pwa-update-dismiss')).toHaveAccessibleName(
 		pwaMessages[language].close
 	);
@@ -496,6 +559,288 @@ test('a failed worker replacement never announces an available update', async ({
 	await expect(page.getByTestId('pwa-update-banner')).toHaveCount(0);
 });
 
+test('accepting an update preserves saved data and rejects other open draft tabs across immutable deployments', async ({
+	page,
+	context,
+	request,
+	browserName
+}) => {
+	test.setTimeout(90_000);
+	const courses = JSON.parse(await readFile('static/courseData.json', 'utf8'));
+	await ready(page);
+	const v1 = deploymentVersion();
+	const firstDeployment = deployment();
+	const durableCourses = await storedCourses(page);
+	expect(durableCourses.records).toBe(Object.keys(courses).length);
+	const savedBefore = await page.evaluate(() =>
+		localStorage.getItem('userData')
+	);
+	const initialTime = await page.evaluate(() => performance.timeOrigin);
+	const oldLazyAsset = await page.evaluate(async (version) => {
+		const loaded = new Set(
+			performance.getEntriesByType('resource').map((entry) => entry.name)
+		);
+		const cache = await caches.open(`planit-console-shell-${version}`);
+		return (await cache.keys())
+			.map((request) => request.url)
+			.find((url) => /\/nodes\/[^/]+\.js$/.test(url) && !loaded.has(url));
+	}, v1);
+	expect(oldLazyAsset).toBeTruthy();
+	const oldPath = new URL(oldLazyAsset!).pathname;
+	const oldOriginalPath = firstDeployment.networkAssets.get(oldPath)!;
+	expect(oldOriginalPath).toBeTruthy();
+	const oldResponse = await request.get(oldLazyAsset!);
+	expect(oldResponse.status()).toBe(200);
+	const oldBytes = await oldResponse.text();
+	const sharedImport = oldBytes.match(/["'](\.\.\/chunks\/[^"']+\.js)["']/);
+	expect(sharedImport).not.toBeNull();
+	const oldSharedAsset = new URL(sharedImport![1], oldLazyAsset!).href;
+	const oldSharedPath = new URL(oldSharedAsset).pathname;
+	expect(firstDeployment.networkAssets.has(oldSharedPath)).toBe(true);
+	const oldSharedResponse = await request.get(oldSharedAsset);
+	expect(oldSharedResponse.status()).toBe(200);
+	const oldSharedBytes = await oldSharedResponse.text();
+
+	const otherTab = await context.newPage();
+	await ready(otherTab);
+	const otherTime = await otherTab.evaluate(() => performance.timeOrigin);
+	await moveWishlistCourse(page, '02340124', 1);
+	await moveWishlistCourse(otherTab, '02340141', 0);
+	const otherDraft = await otherTab
+		.locator('[data-code]')
+		.evaluateAll((cards) =>
+			cards.map((card) => card.getAttribute('data-code'))
+		);
+	let reloads = 0;
+	let otherReloads = 0;
+	page.on('domcontentloaded', () => reloads++);
+	otherTab.on('domcontentloaded', () => otherReloads++);
+
+	revision++;
+	const v2 = deploymentVersion();
+	const secondDeployment = deployment();
+	expect(
+		[...secondDeployment.networkAssets.keys()].some((path) =>
+			firstDeployment.networkAssets.has(path)
+		)
+	).toBe(false);
+	// APIRequestContext bypasses the browser/worker caches. The old build cannot
+	// accidentally pass the transition regression by fetching retired chunks.
+	expect((await request.get(oldLazyAsset!)).status()).toBe(404);
+	expect((await request.get(oldSharedAsset)).status()).toBe(404);
+	expect((await request.get(`${origin}${oldOriginalPath}`)).status()).toBe(404);
+	const replacementPath = [...secondDeployment.networkAssets].find(
+		([, original]) => original === oldOriginalPath
+	)![0];
+	const replacementResponse = await request.get(`${origin}${replacementPath}`);
+	expect(replacementResponse.status()).toBe(200);
+	expect(await replacementResponse.text()).not.toBe(oldBytes);
+	await page.evaluate(async () =>
+		(await navigator.serviceWorker.getRegistration())!.update()
+	);
+	await expect.poll(() => workerVersion(page, 'waiting')).toBe(v2);
+	await expectUpdateBanner(page, v2);
+	await expectUpdateBanner(otherTab, v2);
+	const accept = page.getByTestId('pwa-update-accept');
+	await expect(accept).toBeDisabled();
+	await expect(otherTab.getByTestId('pwa-update-accept')).toBeDisabled();
+	expect(await page.evaluate(() => localStorage.getItem('userData'))).toBe(
+		savedBefore
+	);
+	expect(await workerVersion(page, 'controller')).toBe(v1);
+	expect(reloads).toBe(0);
+	expect(otherReloads).toBe(0);
+
+	const save = page.getByRole('button', { name: 'Save', exact: true });
+	// Fail precisely the next real guest-plan write, then immediately restore
+	// native storage. A rejected Save is not permission to activate or reload.
+	await page.evaluate(() => {
+		const setItem = Storage.prototype.setItem;
+		Storage.prototype.setItem = function (key: string, value: string) {
+			if (this === localStorage && key === 'userData') {
+				Storage.prototype.setItem = setItem;
+				document.documentElement.dataset.planSaveFailed = 'true';
+				throw new DOMException(
+					'Simulated plan save storage failure',
+					'QuotaExceededError'
+				);
+			}
+			return setItem.call(this, key, value);
+		};
+	});
+	await save.click();
+	await expect(page.locator('html')).toHaveAttribute(
+		'data-plan-save-failed',
+		'true'
+	);
+	await expect(save).toBeVisible();
+	await expect(save).toBeEnabled();
+	await expect(accept).toBeDisabled();
+	await expect(
+		page.locator('[data-semester="1"] [data-code="02340124"]')
+	).toHaveCount(1);
+	expect(await page.evaluate(() => localStorage.getItem('userData'))).toBe(
+		savedBefore
+	);
+	expect(await workerVersion(page, 'controller')).toBe(v1);
+	expect(await workerVersion(page, 'waiting')).toBe(v2);
+	expect(reloads).toBe(0);
+
+	await save.click();
+	await expect(save).toHaveCount(0);
+	await expect(accept).toBeEnabled();
+	const savedDraft = await page.evaluate(() =>
+		localStorage.getItem('userData')
+	);
+	expect(savedDraft).not.toBe(savedBefore);
+	expect(JSON.parse(savedDraft!).semesters[1]).toContain('02340124');
+
+	// A dirty second tab is an actual controlled WindowClient, not a fabricated
+	// BroadcastChannel response. It must block activation, never lose its draft.
+	await accept.click();
+	await expect(page.getByTestId('pwa-update-action-error')).toHaveText(
+		pwaMessages.en.updateOtherTabs
+	);
+	expect(await workerVersion(page, 'active')).toBe(v1);
+	expect(await workerVersion(page, 'waiting')).toBe(v2);
+	expect(await workerVersion(otherTab, 'controller')).toBe(v1);
+	expect(await page.evaluate(() => performance.timeOrigin)).toBe(initialTime);
+	expect(await otherTab.evaluate(() => performance.timeOrigin)).toBe(otherTime);
+	expect(reloads).toBe(0);
+	expect(otherReloads).toBe(0);
+	await expect(
+		otherTab.locator('[data-semester="0"] [data-code="02340141"]')
+	).toHaveCount(1);
+	await expect(
+		otherTab.getByRole('button', { name: 'Save', exact: true })
+	).toBeVisible();
+	await expect(otherTab.getByTestId('pwa-update-accept')).toBeDisabled();
+	expect(
+		await otherTab
+			.locator('[data-code]')
+			.evaluateAll((cards) =>
+				cards.map((card) => card.getAttribute('data-code'))
+			)
+	).toEqual(otherDraft);
+	expect(await otherTab.evaluate(() => localStorage.getItem('userData'))).toBe(
+		savedDraft
+	);
+
+	await otherTab.close();
+	await expect(accept).toBeEnabled();
+	const acceptedReload = page.waitForEvent('domcontentloaded');
+	await accept.click();
+	await acceptedReload;
+	await expect.poll(() => workerVersion(page, 'controller')).toBe(v2);
+	await expect.poll(() => reloads).toBe(1);
+	await expect(page.getByTestId('pwa-update-banner')).toHaveCount(0);
+	await expect(page.getByTestId('pwa-status')).toHaveAttribute(
+		'data-state',
+		'ready',
+		{ timeout: 20000 }
+	);
+	expect(await workerVersion(page, 'active')).toBe(v2);
+	expect(await workerVersion(page, 'waiting')).toBeNull();
+	expect(await page.evaluate(() => performance.timeOrigin)).not.toBe(
+		initialTime
+	);
+	const newDocumentTime = await page.evaluate(() => performance.timeOrigin);
+	expect(await page.evaluate(() => localStorage.getItem('userData'))).toBe(
+		savedDraft
+	);
+	await expect(
+		page.locator('[data-semester="1"] [data-code="02340124"]')
+	).toHaveCount(1);
+	expect(await storedCourses(page)).toEqual(durableCourses);
+	const loadedV2Assets = await page.evaluate(() =>
+		performance
+			.getEntriesByType('resource')
+			.map((entry) => new URL(entry.name).pathname)
+			.filter((path) => path.startsWith('/_app/immutable/'))
+	);
+	expect(loadedV2Assets.length).toBeGreaterThan(0);
+	expect(
+		loadedV2Assets.every((path) => secondDeployment.networkAssets.has(path))
+	).toBe(true);
+
+	// Take the origin away as well as Chromium's network emulator. Neither new
+	// lazy navigation nor an old tab's retained chunk may fall back to the server.
+	originDisconnected = true;
+	server.closeAllConnections();
+	await expect(fetch(`${origin}/offline-outage-probe`)).rejects.toThrow();
+	if (browserName !== 'webkit') await context.setOffline(true);
+	const oldAssetResponse = page.waitForResponse(
+		(response) => response.url() === oldLazyAsset
+	);
+	const retainedBytes = await page.evaluate(async (url) => {
+		const response = await fetch(url, { cache: 'no-store' });
+		if (!response.ok) throw new Error(`Retired asset: ${response.status}`);
+		return response.text();
+	}, oldLazyAsset!);
+	expect((await oldAssetResponse).fromServiceWorker()).toBe(true);
+	expect(retainedBytes).toBe(oldBytes);
+	// Import, rather than merely fetch, the v1 node in the fresh v2 document.
+	// This forces its entire static dependency graph through the new controller,
+	// including SvelteKit shared chunks whose filenames are hash.js, not name.hash.js.
+	const importedChunks: { path: string; fromServiceWorker: boolean }[] = [];
+	page.on('response', (response) => {
+		const path = new URL(response.url()).pathname;
+		if (/\/_app\/immutable\/chunks\/[^/]+\.js$/.test(path))
+			importedChunks.push({
+				path,
+				fromServiceWorker: response.fromServiceWorker()
+			});
+	});
+	const importedExports = await page.evaluate(
+		async (url) => Object.keys(await import(url)),
+		oldLazyAsset!
+	);
+	expect(importedExports.length).toBeGreaterThan(0);
+	expect(importedChunks.some(({ path }) => path === oldSharedPath)).toBe(true);
+	expect(
+		importedChunks.every(
+			({ path, fromServiceWorker }) =>
+				fromServiceWorker && firstDeployment.networkAssets.has(path)
+		)
+	).toBe(true);
+	expect(
+		await page.evaluate(async (url) => {
+			const response = await fetch(url, { cache: 'no-store' });
+			if (!response.ok) throw new Error(`Retired chunk: ${response.status}`);
+			return response.text();
+		}, oldSharedAsset)
+	).toBe(oldSharedBytes);
+	const lazyResponses: { path: string; fromServiceWorker: boolean }[] = [];
+	page.on('response', (response) => {
+		const path = new URL(response.url()).pathname;
+		if (/\/_app\/immutable\/nodes\/[^/]+\.js$/.test(path))
+			lazyResponses.push({
+				path,
+				fromServiceWorker: response.fromServiceWorker()
+			});
+	});
+	await page.locator('[data-code="02340141"]').click();
+	await expect(page).toHaveURL(`${origin}/app/course/02340141`);
+	await expect(page.locator('main')).toContainText(courses['02340141'].name);
+	expect(
+		lazyResponses.some(
+			({ path, fromServiceWorker }) =>
+				fromServiceWorker &&
+				secondDeployment.networkAssets.has(path) &&
+				!loadedV2Assets.includes(path)
+		)
+	).toBe(true);
+	expect(await page.evaluate(() => performance.timeOrigin)).toBe(
+		newDocumentTime
+	);
+	expect(await page.evaluate(() => localStorage.getItem('userData'))).toBe(
+		savedDraft
+	);
+	expect(await storedCourses(page)).toEqual(durableCourses);
+	expect(reloads).toBe(1);
+	expect(otherReloads).toBe(0);
+});
+
 test('versioned dismissal preserves drafts until all tabs close and the new worker opens offline', async ({
 	page,
 	context,
@@ -532,20 +877,7 @@ test('versioned dismissal preserves drafts until all tabs close and the new work
 	// Make a real unsaved draft using native dragover in both engines. WebKit
 	// needs a second target hover before mouseup; do not dispatch synthetic events.
 	const destination = page.locator('[data-semester="1"]');
-	const destinationBounds = (await destination.boundingBox())!;
-	const position = { x: destinationBounds.width / 2, y: 24 };
-	await page
-		.getByTestId('plan-wishlist')
-		.locator('[data-code="02340124"]')
-		.hover();
-	await page.mouse.down();
-	try {
-		await destination.hover({ position });
-		await destination.hover({ position });
-	} finally {
-		await page.mouse.up();
-	}
-	await expect(destination.locator('[data-code="02340124"]')).toHaveCount(1);
+	await moveWishlistCourse(page, '02340124', 1);
 	const save = page.getByRole('button', { name: 'Save', exact: true });
 	await expect(save).toBeVisible();
 	const draftOrder = await page
@@ -727,8 +1059,8 @@ test('versioned dismissal preserves drafts until all tabs close and the new work
 	expect(await workerVersion(page, 'active')).toBe(v1);
 	expect(await workerVersion(otherTab, 'controller')).toBe(v1);
 
-	// Follow exactly the visible instruction: save, close every controlled client,
-	// then reopen. There is no skipWaiting, activation button or forced reload.
+	// The existing close-all-tabs path remains safe without accepting an update:
+	// save, close every controlled client, then reopen.
 	await save.click();
 	await expect(save).toHaveCount(0);
 	const savedDraft = await page.evaluate(() =>

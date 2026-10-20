@@ -15,7 +15,7 @@ describe('installed update banner', () => {
 	});
 
 	it.each(['en', 'he'] as const)(
-		'provides direct safe update instructions in %s without an activation action',
+		'provides direct safe update instructions in %s with a guarded activation action',
 		(language) => {
 			preferences.lang.lang = language;
 			const { body } = render(PwaUpdateBanner, {
@@ -30,8 +30,10 @@ describe('installed update banner', () => {
 			expect(body).toContain(pwaMessages[language].update);
 			expect(body).toContain('data-update-version="build-v2"');
 			expect(body).toContain('data-testid="pwa-update-dismiss"');
+			expect(body).toContain('data-testid="pwa-update-accept"');
+			expect(body).toContain(pwaMessages[language].updateAccept);
 			expect(body).toContain(`aria-label="${pwaMessages[language].close}"`);
-			expect(body.match(/<button\b/g)).toHaveLength(1);
+			expect(body.match(/<button\b/g)).toHaveLength(2);
 			expect(body).not.toMatch(/<(?:a|details)\b/);
 		}
 	);

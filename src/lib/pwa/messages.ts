@@ -24,8 +24,13 @@ export const pwaMessages = {
 			'Reconnect to load your account plan. Your draft stays in this window.',
 		offline:
 			'You’re offline. All downloaded course and catalog data and saved guest plans remain available once offline setup is complete. Plan editing, saving, account plans, sign-in and syncing need internet. Keep this window open until account changes finish syncing.',
-		update:
-			'Update available. Save your work, close all PlanIt tabs and windows, then reopen.',
+		update: 'Update available. Save your work before updating.',
+		updateAccept: 'Update',
+		updateBlocked: 'Save or cancel changes and wait for saving to finish.',
+		updateOtherTabs:
+			'Save your work in other PlanIt tabs and close them, then try Update again.',
+		updateFailed:
+			'Update could not finish. Your window was not reloaded. Try again.',
 		unavailable: 'Offline setup incomplete',
 		close: 'Dismiss update notice'
 	},
@@ -53,8 +58,12 @@ export const pwaMessages = {
 			'התחברו לאינטרנט כדי לטעון את התוכנית בחשבון. הטיוטה נשמרת בחלון הזה.',
 		offline:
 			'אין חיבור לאינטרנט. לאחר השלמת ההכנה, נתוני הקורסים והקטלוגים שהורדו ותוכניות אורח שמורות זמינים. עריכת תוכניות, שמירה, תוכניות בחשבון, התחברות וסנכרון דורשים אינטרנט. השאירו את החלון פתוח עד לסיום סנכרון השינויים בחשבון.',
-		update:
-			'עדכון זמין. שמרו, סגרו את כל הלשוניות והחלונות של PlanIt ופתחו מחדש.',
+		update: 'עדכון זמין. שמרו את השינויים לפני העדכון.',
+		updateAccept: 'עדכון',
+		updateBlocked: 'שמרו או בטלו שינויים והמתינו לסיום השמירה.',
+		updateOtherTabs:
+			'שמרו את השינויים בלשוניות האחרות של PlanIt וסגרו אותן, ואז נסו לעדכן שוב.',
+		updateFailed: 'העדכון לא הושלם. החלון לא נטען מחדש. נסו שוב.',
 		unavailable: 'ההכנה ללא אינטרנט לא הושלמה',
 		close: 'סגירת הודעת העדכון'
 	}

@@ -22,3 +22,21 @@ describe('PWA shell boundary', () => {
 			expect(isAppNavigation(path)).toBe(false);
 	});
 });
+
+import { isImmutableAppAsset } from './cache-policy';
+it('only permits immutable app file paths for retained-version fallback', () => {
+	expect(isImmutableAppAsset('/_app/immutable/nodes/2.Ab12.js')).toBe(true);
+	expect(isImmutableAppAsset('/_app/immutable/chunks/hkyq93-W.js')).toBe(true);
+	expect(
+		isImmutableAppAsset('/_app/immutable/workers/pdf.worker.B123.mjs')
+	).toBe(true);
+	expect(isImmutableAppAsset('/_app/immutable/assets/2.Ab12.css')).toBe(true);
+	for (const path of [
+		'/app/offline',
+		'/courseData.json',
+		'/_app/version.json',
+		'/service-worker.js',
+		'/_app/immutable/../secret'
+	])
+		expect(isImmutableAppAsset(path)).toBe(false);
+});

@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { onMount } from 'svelte';
+	import { updateSafety } from '$lib/pwa/update-safety';
 	import { browser } from '$app/environment';
 
 	import CourseElement from '$lib/components/CourseElement.svelte';
@@ -24,6 +26,12 @@
 	const hasChanges = $derived(
 		wishlist !== user.d.wishlist || semesters !== user.d.semesters
 	);
+
+	onMount(() => updateSafety.register(() => hasChanges));
+	$effect(() => {
+		void hasChanges;
+		updateSafety.refresh();
+	});
 
 	$effect(() => {
 		wishlist = user.d.wishlist;
@@ -51,6 +59,7 @@
 	});
 
 	async function onCancel() {
+		updateSafety.discardFailure();
 		wishlist = user.d.wishlist;
 		semesters = user.d.semesters;
 	}

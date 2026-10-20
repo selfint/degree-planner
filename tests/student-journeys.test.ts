@@ -6,6 +6,10 @@ import {
 	type TestInfo
 } from '@playwright/test';
 import { readFileSync, writeFileSync } from 'node:fs';
+import {
+	JourneyRecording,
+	journeyRecordingOptions
+} from './helpers/journey-recording';
 import { initializeGuestStorage } from './helpers/student-guest-storage';
 import {
 	intentionalWebKitFetchDiagnostic,
@@ -26,6 +30,17 @@ type JourneyDiagnostics = {
 	browserErrors: BrowserDiagnostic[];
 	runtimeErrors: { type: string; message: string }[];
 };
+const recordings = new Map<string, JourneyRecording>();
+test.beforeEach(async ({ context }, info) => {
+	const recording = new JourneyRecording(info);
+	recordings.set(info.testId, recording);
+	await recording.install(context);
+});
+test.afterEach(async ({}, info) => {
+	const recording = recordings.get(info.testId);
+	recordings.delete(info.testId);
+	await recording?.finish();
+});
 const diagnosticsByTest = new Map<string, JourneyDiagnostics>();
 
 test.afterEach(async ({}, info) => {
@@ -212,6 +227,8 @@ for (const language of ['en', 'he'] as const) {
 		browserName
 	}, info) => {
 		test.setTimeout(90_000);
+		const recording = recordings.get(info.testId)!;
+		info.annotations.push({ type: 'journey', description: 'setup-recovery' });
 		const diagnostics: JourneyDiagnostics = {
 			abortedUrls: new Set(),
 			browserErrors: [],
@@ -221,6 +238,11 @@ for (const language of ['en', 'he'] as const) {
 		await isolateGuest(context, language, undefined, diagnostics);
 		const text = labels[language];
 		await openSettings(page);
+		await recording.begin(
+			page,
+			'setup-and-save',
+			'Recover interrupted setup and save a course'
+		);
 		const original = await readPlan(page);
 		expect(original.degree).toBeUndefined();
 		const section = page.locator('.degree-section');
@@ -318,16 +340,23 @@ for (const language of ['en', 'he'] as const) {
 			await page.setViewportSize({ width: 320, height: 740 });
 			expect(await readPlan(page)).toEqual(saved);
 			await capture(page, info, 'saved-student-plan-narrow-other-language');
+			await recording.end(page);
 			const reopened = await context.newPage();
 			await reopened.goto(`${origin}/app/plan`);
+			await recording.begin(
+				reopened,
+				'reopen-plan',
+				'Reopen the saved plan in a new tab'
+			);
 			await expect(
 				reopened.locator(`[data-semester="1"] [data-code="${courseCode}"]`)
 			).toBeVisible();
 			expect(await readPlan(reopened)).toEqual(saved);
 			await expect(reopened.locator('html')).toHaveAttribute(
 				'data-theme',
-				'light'
+				recording.theme === 'light' ? 'dark' : 'light'
 			);
+			await recording.end(reopened);
 			await reopened.close();
 		});
 		// WebKit also reports its own blocked-fetch console diagnostic as a
@@ -353,6 +382,11 @@ for (const language of ['en', 'he'] as const) {
 		browser
 	}, info) => {
 		test.setTimeout(90_000);
+		const recording = recordings.get(info.testId)!;
+		info.annotations.push({
+			type: 'journey',
+			description: 'independent-share'
+		});
 		const text = labels[language];
 		const owner: GuestPlan = {
 			degree,
@@ -363,11 +397,22 @@ for (const language of ['en', 'he'] as const) {
 		};
 		await isolateGuest(context, language, owner);
 		await page.goto(`${origin}/app/plan`);
+		await recording.begin(
+			page,
+			'owner-share',
+			'Create a share link from the owner plan'
+		);
 		const share = page.getByRole('link', { name: text.share, exact: true });
 		await expect(share).toBeVisible();
 		const popupPromise = page.waitForEvent('popup');
 		await share.click();
 		const preview = await popupPromise;
+		await recording.end(page);
+		await recording.begin(
+			preview,
+			'share-preview',
+			'Inspect the generated share preview'
+		);
 		await expect(preview.locator('.preview-semester')).toHaveCount(3);
 		const shareUrl = preview.url();
 		expect(new URL(shareUrl).searchParams.get('semesters')).toBe(
@@ -375,8 +420,10 @@ for (const language of ['en', 'he'] as const) {
 		);
 		expect(await readPlan(page)).toEqual(owner);
 		await capture(preview, info, 'generated-share-preview');
+		await recording.end(preview);
 
 		const recipient = await browser.newContext({
+			...journeyRecordingOptions(),
 			viewport: page.viewportSize(),
 			serviceWorkers: 'block'
 		});
@@ -384,9 +431,15 @@ for (const language of ['en', 'he'] as const) {
 		// browser fixture. Starting another trace here would throw before import.
 		let journeyFailed = false;
 		try {
+			await recording.install(recipient);
 			await isolateGuest(recipient, language);
 			const copy = await recipient.newPage();
 			await copy.goto(shareUrl);
+			await recording.begin(
+				copy,
+				'recipient-import',
+				'An independent guest cancels, imports, reopens and edits the copy'
+			);
 			await expect(copy.locator('.preview-semester')).toHaveCount(3);
 			const initial = await readPlan(copy);
 			const importButton = copy.getByRole('button', {
@@ -445,11 +498,18 @@ for (const language of ['en', 'he'] as const) {
 				.poll(async () => (await readPlan(copy)).semesters)
 				.toEqual([[], [], ['02340141']]);
 			expect(await readPlan(page)).toEqual(owner);
+			await recording.end(copy);
+			await recording.begin(
+				page,
+				'owner-unchanged',
+				'Verify the owner plan is unchanged'
+			);
 			await page.reload();
 			await expect(
 				page.locator(`[data-semester="0"] [data-code="${courseCode}"]`)
 			).toBeVisible();
 			expect(await readPlan(page)).toEqual(owner);
+			await recording.end(page);
 		} catch (error) {
 			journeyFailed = true;
 			throw error;
@@ -471,6 +531,8 @@ for (const language of ['en', 'he'] as const) {
 		page,
 		context
 	}, info) => {
+		const recording = recordings.get(info.testId)!;
+		info.annotations.push({ type: 'journey', description: 'shorter-import' });
 		const text = labels[language];
 		const guest: GuestPlan = {
 			degree,
@@ -482,6 +544,11 @@ for (const language of ['en', 'he'] as const) {
 		await isolateGuest(context, language, guest);
 		const shareUrl = `${origin}/app/preview/${degree.join('/')}?semesters=${courseCode}~`;
 		await page.goto(shareUrl);
+		await recording.begin(
+			page,
+			'choose-current',
+			'Choose an in-range Current before importing a shorter plan'
+		);
 		const copy = page.getByRole('button', { name: text.copy, exact: true });
 		let dialogs = 0;
 		const dismissUnexpected = async (
@@ -527,12 +594,15 @@ for (const language of ['en', 'he'] as const) {
 			info,
 			'short-share-import-after-explicit-current-choice'
 		);
+		await recording.end(page);
 	});
 
 	test(`${language}: shortening the plan cannot remove its selected current semester`, async ({
 		page,
 		context
 	}, info) => {
+		const recording = recordings.get(info.testId)!;
+		info.annotations.push({ type: 'journey', description: 'safe-shortening' });
 		const guest: GuestPlan = {
 			degree,
 			exemptions: [],
@@ -542,6 +612,11 @@ for (const language of ['en', 'he'] as const) {
 		};
 		await isolateGuest(context, language, guest);
 		await openSettings(page);
+		await recording.begin(
+			page,
+			'protect-current',
+			'Explicitly move Current before shortening the plan'
+		);
 		const total = page.getByRole('combobox', {
 			name: labels[language].total,
 			exact: true
@@ -574,5 +649,6 @@ for (const language of ['en', 'he'] as const) {
 		await expect
 			.poll(() => readPlan(page))
 			.toEqual({ ...guest, currentSemester: 0, semesters: [[courseCode], []] });
+		await recording.end(page);
 	});
 }

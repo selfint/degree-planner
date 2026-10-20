@@ -3,35 +3,45 @@
 	import type { Picture } from 'imagetools-core';
 
 	type Props = {
-		src: Picture;
 		title: string;
 		children: Snippet;
-	};
+	} & ({ src: Picture; media?: never } | { media: Snippet; src?: never });
 
-	let { src, title, children }: Props = $props();
+	let { src, media, title, children }: Props = $props();
+	const headingId = $props.id();
 </script>
 
-<!-- Reserve the row width before a lazy image supplies its intrinsic size. -->
-<div class="w-full sm:flex sm:max-w-[64rem] sm:flex-row">
-	<div class="min-w-0 flex-1 sm:me-4">
-		<div
-			class="w-full rounded-[0.9375rem] border border-content-primary/30 bg-content-primary/10 p-2 bg-blend-color-burn backdrop-blur"
+<!-- Preserve the existing feature grid for either a lazy image or native media. -->
+<section
+	class="grid w-full min-w-0 gap-5 md:grid-cols-[minmax(0,1fr)_17rem] md:items-center md:gap-10"
+	aria-labelledby={headingId}
+>
+	<div class="min-w-0 md:order-2">
+		<h2
+			id={headingId}
+			class="text-2xl font-semibold leading-snug tracking-tight text-content-primary"
 		>
-			<enhanced:img
-				{src}
-				alt={title}
-				loading="lazy"
-				style:aspect-ratio={`${src.img.w} / ${src.img.h}`}
-				class="pointer-events-auto h-auto w-full rounded-[0.625rem] bg-transparent"
-			/>
-		</div>
-	</div>
-	<div class="me-3 mt-2 sm:min-w-[18.75rem] sm:max-w-[18.75rem] sm:flex-grow">
-		<h2 class="ms-3 text-2xl font-medium text-content-primary sm:ms-0">
 			{title}
 		</h2>
-		<p class="ms-3 text-wrap break-words text-content-secondary sm:ms-0">
+		<p class="mt-3 text-base leading-relaxed text-content-secondary">
 			{@render children()}
 		</p>
 	</div>
-</div>
+	<div class="min-w-0 md:order-1">
+		<div
+			class="w-full rounded-2xl border border-border bg-card-primary/80 p-2 shadow-sm"
+		>
+			{#if media}
+				{@render media()}
+			{:else if src}
+				<enhanced:img
+					{src}
+					alt={title}
+					loading="lazy"
+					style:aspect-ratio={`${src.img.w} / ${src.img.h}`}
+					class="pointer-events-auto h-auto w-full rounded-lg bg-transparent"
+				/>
+			{/if}
+		</div>
+	</div>
+</section>

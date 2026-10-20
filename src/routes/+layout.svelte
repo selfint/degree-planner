@@ -1,151 +1,54 @@
 <script lang="ts">
-	import { injectSpeedInsights } from '@vercel/speed-insights/sveltekit';
-	import { inject } from '@vercel/analytics';
-
 	import '../app.css';
-
-	import {
-		afterNavigate,
-		beforeNavigate,
-		goto,
-		onNavigate
-	} from '$app/navigation';
-	import { setContext } from 'svelte';
-	import { page } from '$app/state';
-	import {
-		createSearchNavigation,
-		searchNavigationContext
-	} from '$lib/searchNavigation.svelte';
-
-	const searchNavigation = createSearchNavigation(
-		() => page.url,
-		(url) => goto(url, { noScroll: true, keepFocus: true })
-	);
-	setContext(searchNavigationContext, searchNavigation);
-	beforeNavigate(({ to, type }) =>
-		searchNavigation.observeNavigation(to?.url, type)
-	);
-	// Kit can skip beforeNavigate during an existing navigation. onNavigate runs
-	// before teardown/focus emits blur; afterNavigate releases the draft guard.
-	onNavigate(({ to, type }) =>
-		searchNavigation.observeNavigation(to?.url, type)
-	);
-	afterNavigate(({ to, type }) =>
-		searchNavigation.observeNavigation(to?.url, type, true)
-	);
-
-	import {
-		user,
-		content,
-		setStorage,
-		localStorageMethod,
-		readStorage,
-		setUser
-	} from '$lib/stores.svelte';
-
-	import { cms } from '$lib/content';
-
+	import { onMount } from 'svelte';
+	import { page, navigating } from '$app/state';
+	import { content } from '$lib/preferences.svelte';
 	import TitleBar from './components/TitleBar.svelte';
-	import ThemeToggle from '$lib/components/ThemeToggle.svelte';
-	import Select from '$lib/components/Select.svelte';
-	import {
-		buildFirebaseStorage,
-		subscribeFirebase
-	} from '$lib/firebase.svelte';
-
-	injectSpeedInsights();
-	inject();
-
-	const { data: pageData, children } = $props();
-	const { firebase } = $derived(pageData);
-
-	$effect(() => {
-		const unsubscribe = firebase.auth.onAuthStateChanged(async (u) => {
-			if (u !== null) {
-				setStorage(buildFirebaseStorage(firebase));
-				setUser(await readStorage());
-				return subscribeFirebase(firebase, setUser);
-			} else {
-				setStorage(localStorageMethod);
-				setUser(await readStorage());
-			}
-		});
-
-		return () => unsubscribe();
+	import AppFooter from '$lib/components/AppFooter.svelte';
+	import ConsoleLoading from '$lib/components/ConsoleLoading.svelte';
+	import { shouldShowConsoleEntry } from '$lib/consoleNavigation';
+	const buildCommit = __PLANIT_BUILD_SHA__;
+	const { children } = $props();
+	const consoleRoute = $derived(/^\/app(?:\/|$)/.test(page.url.pathname));
+	const openingConsole = $derived(
+		shouldShowConsoleEntry(page.url.pathname, navigating.to?.url.pathname)
+	);
+	onMount(() => {
+		document.getElementById('console-boot')?.remove();
 	});
-
-	function onchangeLang(newValue: (typeof cms)[keyof typeof cms]): void {
-		localStorage.setItem('lang', newValue.lang);
-	}
 </script>
 
-<div dir={content.lang.dir} class="flex h-full min-h-screen flex-col">
-	<div class="w-full border-b-[1px] border-border bg-background">
-		<TitleBar
-			started={user.d.degree !== undefined}
-			searchQuery={searchNavigation.url.pathname === '/search'
-				? (searchNavigation.url.searchParams.get('q') ?? '')
-				: ''}
-			searchRevision={searchNavigation.externalRevision}
-			onSearch={searchNavigation.search}
-		/>
+<svelte:head>
+	{#if buildCommit}
+		<meta name="planit-build" content={buildCommit} />
+	{/if}
+</svelte:head>
+
+{#if consoleRoute}
+	{@render children()}
+{:else}
+	<div dir={content.lang.dir} class="flex min-h-screen flex-col">
+		<div class="border-b border-border bg-background">
+			<TitleBar
+				started={false}
+				searchQuery=""
+				searchRevision={0}
+				onSearch={() => {}}
+			/>
+		</div>
+		<main class="flex-grow">{@render children()}</main>
+		<AppFooter />
 	</div>
-
-	<main class="flex-grow">
-		{@render children()}
-	</main>
-
-	<footer
-		class="flex flex-row flex-wrap items-center justify-between gap-x-4 gap-y-2 border-t-2 border-border bg-background p-3 text-sm"
-	>
-		<p class="text-content-secondary sm:flex-row sm:space-x-2">
-			{content.lang.footer.createdBy}
-			<a
-				href="https://github.com/selfint"
-				target="_blank"
-				class="text-link hover:text-content-primary"
-			>
-				{content.lang.footer.author}
-			</a>
-		</p>
-
-		<div class="flex items-center gap-x-2">
-			<ThemeToggle />
-			<Select bind:value={content.lang} onchange={onchangeLang}>
-				<option value={cms.en}>en</option>
-				<option value={cms.he}>עב</option>
-			</Select>
-		</div>
-
-		<div class="flex flex-row">
-			<a
-				target="_blank"
-				href="https://github.com/selfint/degree-planner/issues/new/choose"
-				class="me-2 text-content-secondary hover:text-content-primary"
-			>
-				{content.lang.footer.reportIssue}
-			</a>
-			<a
-				href="https://github.com/selfint/degree-planner"
-				target="_blank"
-				class="text-content-secondary hover:text-content-primary"
-			>
-				<!-- GitHub Icon -->
-				<svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
-					<path
-						d="M12 0C5.37 0 0 5.37 0 12a12 12 0 008.19 11.46c.6.11.82-.26.82-.58v-2.12c-3.33.73-4.03-1.61-4.03-1.61-.55-1.42-1.34-1.8-1.34-1.8-1.1-.75.08-.73.08-.73 1.21.09 1.85 1.25 1.85 1.25 1.08 1.84 2.83 1.31 3.52 1 .11-.78.42-1.31.76-1.61-2.66-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.39 1.24-3.23-.12-.3-.54-1.52.12-3.17 0 0 1-.32 3.3 1.23a11.4 11.4 0 016 0c2.3-1.55 3.3-1.23 3.3-1.23.66 1.65.24 2.87.12 3.17.77.84 1.24 1.92 1.24 3.23 0 4.61-2.81 5.62-5.48 5.91.43.37.81 1.1.81 2.21v3.28c0 .33.22.7.83.58A12 12 0 0024 12c0-6.63-5.37-12-12-12z"
-					/>
-				</svg>
-			</a>
-		</div>
-	</footer>
-</div>
+{/if}
+{#if openingConsole}
+	<div class="fixed inset-0 z-50" data-testid="console-entry-loading">
+		<ConsoleLoading language={content.lang.lang} phase="opening" />
+	</div>
+{/if}
 
 <style lang="postcss">
-	@reference "tailwindcss";
-
 	:global(body) {
-		@apply bg-background;
+		background: rgb(var(--color-background));
 		overscroll-behavior-y: none;
 	}
 </style>

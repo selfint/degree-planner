@@ -12,6 +12,7 @@
 			}
 		</script>
 		<link rel="icon" href="%sveltekit.assets%/favicon.webp" />
+		<meta name="theme-color" content="#15252e" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -25,12 +26,179 @@
 			media="print"
 			onload="this.media = 'all'"
 		/>
-		<link rel="apple-touch-icon" href="%sveltekit.assets%/favicon.webp" />
+		<link rel="apple-touch-icon" href="%sveltekit.assets%/icons/icon-180.png" />
 		<title>PlanIt</title>
 
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">
+		<!-- Critical loader stays independent of app hydration; see ConsoleLoading.svelte. -->
+		<style id="console-loading-critical">
+			.console-loading {
+				--boot-bg: 25 25 29;
+				--boot-fg: 255 255 255;
+				--boot-muted: 173 181 185;
+				--boot-accent: 76 169 161;
+				box-sizing: border-box;
+				display: grid;
+				min-block-size: 100vh;
+				min-block-size: 100svh;
+				align-items: safe center;
+				justify-items: center;
+				overflow: auto;
+				padding: max(1.5rem, env(safe-area-inset-top))
+					max(1.5rem, env(safe-area-inset-right))
+					max(1.5rem, env(safe-area-inset-bottom))
+					max(1.5rem, env(safe-area-inset-left));
+				color: rgb(var(--boot-fg));
+				background-color: rgb(var(--boot-bg));
+				background-image: radial-gradient(
+					ellipse at 50% 35%,
+					rgb(var(--boot-accent) / 0.07),
+					transparent 62%
+				);
+				font-family:
+					system-ui,
+					-apple-system,
+					BlinkMacSystemFont,
+					'Segoe UI',
+					sans-serif;
+			}
+			[data-theme='light'] .console-loading {
+				--boot-bg: 248 250 252;
+				--boot-fg: 23 37 51;
+				--boot-muted: 67 82 97;
+				--boot-accent: 15 111 103;
+			}
+			.console-loading__content {
+				position: relative;
+				inline-size: min(100%, 18rem);
+				text-align: center;
+			}
+			.console-loading__brand {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				gap: 1rem;
+				direction: ltr;
+			}
+			.console-loading__logo {
+				display: block;
+				inline-size: 4.75rem;
+				block-size: 4.75rem;
+				object-fit: contain;
+			}
+			.console-loading__wordmark {
+				display: block;
+				inline-size: 9rem;
+				block-size: auto;
+				filter: invert(1);
+			}
+			[data-theme='light'] .console-loading__wordmark {
+				filter: none;
+			}
+			.console-loading__track {
+				direction: ltr;
+				overflow: hidden;
+				block-size: 0.1875rem;
+				margin-block-start: 2rem;
+				border-radius: 62.4375rem;
+				background: rgb(var(--boot-accent) / 0.14);
+			}
+			.console-loading__indicator {
+				display: block;
+				inline-size: 34%;
+				block-size: 100%;
+				border-radius: inherit;
+				background: rgb(var(--boot-accent));
+				animation: console-loading-travel 1.8s ease-in-out infinite alternate;
+			}
+			.console-loading__status {
+				position: absolute;
+				inline-size: 0.0625rem;
+				block-size: 0.0625rem;
+				padding: 0;
+				margin: 0;
+				overflow: hidden;
+				clip-path: inset(50%);
+				white-space: nowrap;
+			}
+			@keyframes console-loading-travel {
+				from {
+					transform: translateX(-30%);
+				}
+				to {
+					transform: translateX(225%);
+				}
+			}
+			@media (prefers-reduced-motion: reduce) {
+				.console-loading__indicator {
+					animation: none;
+					margin-inline: auto;
+				}
+			}
+		</style>
+		<section
+			id="console-boot"
+			class="console-loading"
+			hidden
+			aria-label="Loading PlanIt"
+			style="position: fixed; inset: 0; z-index: 100; display: none"
+		>
+			<div class="console-loading__content">
+				<div class="console-loading__brand" aria-label="PlanIt">
+					<img
+						id="console-boot-logo"
+						class="console-loading__logo"
+						width="76"
+						height="76"
+						alt=""
+					/>
+					<img
+						id="console-boot-wordmark"
+						class="console-loading__wordmark"
+						width="144"
+						height="49"
+						alt="PlanIt"
+					/>
+				</div>
+				<div class="console-loading__track" aria-hidden="true">
+					<span class="console-loading__indicator"></span>
+				</div>
+				<p
+					id="console-boot-detail"
+					class="console-loading__status"
+					role="status"
+				>
+					Loading courses…
+				</p>
+			</div>
+		</section>
+		<script>
+			if (/^\/app(?:\/|$)/.test(location.pathname)) {
+				const boot = document.getElementById('console-boot');
+				boot.hidden = false;
+				boot.style.display = 'grid';
+				// The landing never downloads these console-only brand assets.
+				document.getElementById('console-boot-logo').src =
+					'%sveltekit.assets%/brand/planit-logo.webp';
+				document.getElementById('console-boot-wordmark').src =
+					'%sveltekit.assets%/brand/planit-wordmark.svg';
+				try {
+					if (localStorage.getItem('lang') !== 'en') {
+						boot.dir = 'rtl';
+						boot.lang = 'he';
+						boot.setAttribute('aria-label', 'טעינת PlanIt');
+						document.getElementById('console-boot-detail').textContent =
+							'טוענים קורסים…';
+					}
+				} catch {}
+			}
+		</script>
+		<noscript
+			>JavaScript is required to open the planner. The landing page remains
+			readable.</noscript
+		>
 		<div style="display: contents">%sveltekit.body%</div>
 	</body>
 </html>

@@ -93,7 +93,7 @@
 <div
 	bind:this={row}
 	use:makeSortable
-	class="flex min-h-full flex-row items-start overflow-x-auto"
+	class="course-row flex flex-row items-stretch overflow-x-auto pb-1"
 >
 	<div class="margin" style={margin}></div>
 	{#if sortedCourses === undefined}
@@ -102,7 +102,7 @@
 				checkScheduleError === undefined
 					? undefined
 					: checkScheduleError(course)}
-			<div data-code={code} class="pe-2">
+			<div data-code={code} class="course-row-item shrink-0 pe-2">
 				{@render children({
 					code,
 					course,
@@ -118,7 +118,7 @@
 					checkScheduleError === undefined
 						? undefined
 						: checkScheduleError(course)}
-				<div data-code={code} class="pe-2">
+				<div data-code={code} class="course-row-item shrink-0 pe-2">
 					{@render children({
 						code,
 						course,
@@ -133,7 +133,7 @@
 					checkScheduleError === undefined
 						? undefined
 						: checkScheduleError(course)}
-				<div data-code={code} class="pe-2">
+				<div data-code={code} class="course-row-item shrink-0 pe-2">
 					{@render children({
 						code,
 						course,
@@ -145,3 +145,17 @@
 		{/await}
 	{/if}
 </div>
+
+<style>
+	/* Let the tallest intrinsic card size the row, then stretch through optional
+	   links/buttons. A percentage row minimum would include the heading above. */
+	.course-row-item,
+	.course-row-item > :global(a),
+	.course-row-item > :global(button) {
+		display: flex;
+	}
+	.course-row {
+		scrollbar-width: thin;
+		scrollbar-color: rgb(var(--color-content-secondary) / 0.4) transparent;
+	}
+</style>

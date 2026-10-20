@@ -115,5 +115,9 @@ export async function parseTranscript(
 		semesters.push([...new Set(current.semester)]);
 	}
 
+	// A readable PDF is not necessarily a transcript. Never offer an empty
+	// import that would erase exemptions and produce currentSemester = -1.
+	if (semesters.length === 0) return undefined;
+
 	return { semesters, exemptions };
 }

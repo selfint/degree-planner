@@ -1,0 +1,29 @@
+WEBVTT
+
+1
+00:00:00.005 --> 00:00:03.209
+Read a course card: One compact card, all the important details.
+
+2
+00:00:03.209 --> 00:00:08.053
+Course marker: Color is based on the course code. Circle: exam data. Square: no exam data.
+
+3
+00:00:08.053 --> 00:00:11.847
+Median: The smaller number is the historical median grade, when available.
+
+4
+00:00:11.847 --> 00:00:15.654
+Credits: The bold number is the credit value of the course.
+
+5
+00:00:15.654 --> 00:00:19.456
+Course name: The name stays readable for up to three lines. Open the course to see all its details.
+
+6
+00:00:19.456 --> 00:00:23.259
+Course code: The code uniquely identifies the course, including its leading zeroes.
+
+7
+00:00:23.259 --> 00:00:33.595
+Requirement warnings: Open the warning to check prerequisites, corequisites, exclusions, or semester availability.

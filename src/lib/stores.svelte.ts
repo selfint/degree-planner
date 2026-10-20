@@ -1,29 +1,10 @@
+import { updateSafety } from './pwa/update-safety';
 import { browser } from '$app/environment';
 import { loadDegreeName, loadRequirement } from './requirements';
-import { cms } from './content';
+import { content } from './preferences.svelte';
+import { assertPlanWritable, isPlanWritable } from './planAccess';
 
-function getLangPreference() {
-	const defaultLang = cms.he;
-
-	if (!browser) {
-		return defaultLang;
-	}
-
-	const localLang = localStorage.getItem('lang');
-
-	if (localLang === 'he') {
-		return cms.he;
-	}
-
-	if (localLang === 'en') {
-		return cms.en;
-	} else {
-		localStorage.setItem('lang', defaultLang.lang);
-		return defaultLang;
-	}
-}
-
-export let content = $state({ lang: getLangPreference() });
+export { content } from './preferences.svelte';
 
 const version = 4 as const;
 const defaultSemesters = Array(12).fill([]);
@@ -156,26 +137,10 @@ const loaders = [
 
 const migrations = [
 	function migrate_0_1(v0: UserDataV1): UserDataV1 {
-		// update version
-		localStorage.setItem('version', '1');
-
-		// save new user data
-		localStorage.setItem('userData', JSON.stringify(v0));
-
-		// clear old localStorage
-		localStorage.removeItem('username');
-		localStorage.removeItem('degree');
-		localStorage.removeItem('semesters');
-		localStorage.removeItem('currentSemester');
-		localStorage.removeItem('wishlist');
-
 		// other than that data is the same
 		return v0;
 	},
 	function migrate_1_2(v1: UserDataV1): UserDataV2 {
-		// update version
-		localStorage.setItem('version', '2');
-
 		const v2: UserDataV2 = { ...v1 };
 
 		// migrate degree and path
@@ -212,16 +177,10 @@ const migrations = [
 			v2.degree = degree;
 		}
 
-		// save new user data
-		localStorage.setItem('userData', JSON.stringify(v2));
-
 		// other than that data is the same
 		return v2;
 	},
 	function migrate_2_3(v2: UserDataV2): UserData {
-		// update version
-		localStorage.setItem('version', '3');
-
 		delete v2.username;
 
 		const v3: UserData = {
@@ -229,15 +188,9 @@ const migrations = [
 			...v2
 		};
 
-		// save new user data
-		localStorage.setItem('userData', JSON.stringify(v3));
-
 		return v3;
 	},
 	function migrate_3_4(v3: UserDataV3): UserData {
-		// update version
-		localStorage.setItem('version', '4');
-
 		if (v3.semesters.length === 0) {
 			v3.semesters = defaultSemesters;
 		}
@@ -245,9 +198,6 @@ const migrations = [
 		const v4: UserData = {
 			...v3
 		};
-
-		// save new user data
-		localStorage.setItem('userData', JSON.stringify(v4));
 
 		return v4;
 	}
@@ -276,7 +226,8 @@ const _requirement = $derived.by(() => {
 	const [degreeString, path] = _fineGrainedReactivityUserDegree.split(';');
 	const degree = degreeString.split(':') as Degree;
 
-	return loadRequirement(degree, path);
+	// Match degreeName: '-' is our internal no-path sentinel, not a catalog path.
+	return loadRequirement(degree, path === '-' ? undefined : path);
 });
 export const requirement = () => _requirement;
 
@@ -317,6 +268,7 @@ function readLocalStorage(): UserData {
 	}
 
 	let localVersion = parseInt(localStorage.getItem('version') ?? '0');
+	const originalVersion = localVersion;
 
 	if (localVersion > version) {
 		// try to load the user data with the latest loader
@@ -331,10 +283,29 @@ function readLocalStorage(): UserData {
 		localVersion++;
 	}
 
+	// Migrate in memory offline. Preserve the existing guest schema while
+	// keeping cached plans readable without rewriting stored data.
+	if (originalVersion < version && isPlanWritable()) {
+		localStorage.setItem('version', version.toString());
+		localStorage.setItem('userData', JSON.stringify(user));
+		if (originalVersion === 0) {
+			for (const key of [
+				'username',
+				'degree',
+				'semesters',
+				'currentSemester',
+				'wishlist'
+			]) {
+				localStorage.removeItem(key);
+			}
+		}
+	}
+
 	return user as UserData;
 }
 
 export async function writeLocalStorage(data: UserData): Promise<UserData> {
+	assertPlanWritable();
 	localStorage.setItem('version', version.toString());
 	localStorage.setItem('userData', JSON.stringify(data));
 
@@ -353,5 +324,8 @@ export const localStorageMethod: StorageMethod = {
 
 let _storage: StorageMethod = $state(localStorageMethod);
 export const readStorage = async () => await _storage.read();
-export const writeStorage = async (d: UserData) => await _storage.write(d);
+export const writeStorage = async (d: UserData) => {
+	assertPlanWritable();
+	return await updateSafety.write(() => _storage.write(d));
+};
 export const setStorage = (s: StorageMethod) => (_storage = s);

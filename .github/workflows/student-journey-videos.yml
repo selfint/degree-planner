@@ -1,0 +1,90 @@
+name: Student journey videos
+on:
+  workflow_dispatch:
+  push:
+    branches: [staging]
+    paths:
+      - 'src/**'
+      - 'static/courseData.json'
+      - 'static/courseDataStripped.json'
+      - 'static/catalogs.json'
+      - 'static/_catalogs/**'
+      - 'static/_courses/**'
+      - 'tests/student-journeys.test.ts'
+      - 'tests/helpers/**'
+      - 'tutorials/helpers/**'
+      - 'playwright.journeys.config.ts'
+      - 'scripts/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.nvmrc'
+      - 'svelte.config.js'
+      - 'vite.config.ts'
+      - 'tailwind.config.js'
+      - 'postcss.config.js'
+      - '.storybook/**'
+      - '.github/workflows/student-journey-videos.yml'
+  pull_request:
+    branches: [main, staging]
+    paths:
+      - 'src/**'
+      - 'static/courseData.json'
+      - 'static/courseDataStripped.json'
+      - 'static/catalogs.json'
+      - 'static/_catalogs/**'
+      - 'static/_courses/**'
+      - 'tests/student-journeys.test.ts'
+      - 'tests/helpers/**'
+      - 'tutorials/helpers/**'
+      - 'playwright.journeys.config.ts'
+      - 'scripts/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.nvmrc'
+      - 'svelte.config.js'
+      - 'vite.config.ts'
+      - 'tailwind.config.js'
+      - 'postcss.config.js'
+      - '.storybook/**'
+      - '.github/workflows/student-journey-videos.yml'
+permissions:
+  contents: read
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: Verify frame boundary extraction
+        run: npx vitest run scripts/journeyTimeline.test.mjs scripts/journeyManifest.test.mjs src/lib/journeyRecording.test.ts
+      - name: Record real student assertions in both languages and themes
+        run: RECORD_STUDENT_JOURNEYS=1 npx playwright test --config playwright.journeys.config.ts
+      - name: Package and install only complete asserted recordings
+        run: node scripts/packageJourneyVideos.mjs --install
+      - name: Upload raw evidence even after a failed assertion
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: student-journey-evidence-${{ github.sha }}
+          path: |
+            test-results/journeys-checks/
+            test-results/journeys-raw/
+          retention-days: 7
+          if-no-files-found: error
+      - name: Upload verified media for Storybook integration
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: student-journey-media-${{ github.sha }}
+          path: |
+            static/tutorials/journeys/
+            src/lib/journeyRecordings.json
+          retention-days: 7
+          if-no-files-found: error

@@ -1,4 +1,5 @@
 import Sortable from 'sortablejs';
+import { isPlanWritable, planOnline } from './planAccess';
 
 let cleanup: (() => void) | undefined;
 
@@ -7,11 +8,86 @@ export function endPlanDrag() {
 	cleanup = undefined;
 }
 
+type ActiveDrag = {
+	item: HTMLElement;
+	from: HTMLElement;
+	next: ChildNode | null;
+	interrupted: boolean;
+};
+let activeDrag: ActiveDrag | undefined;
+
+function canEditDrag() {
+	return isPlanWritable() && !activeDrag?.interrupted;
+}
+
+function restoreInterruptedDrag() {
+	if (!activeDrag) return;
+	const { item, from, next } = activeDrag;
+	from.insertBefore(item, next?.parentNode === from ? next : null);
+}
+
+/** Viewing courses remains possible when dragging is disabled offline. */
+export function makePlanSortable(el: HTMLElement, options?: Sortable.Options) {
+	if (!options) return;
+	const sortable = new Sortable(el, {
+		...options,
+		disabled: !isPlanWritable() || options.disabled,
+		onStart(event) {
+			activeDrag = {
+				item: event.item,
+				from: event.from,
+				next: event.item.nextSibling,
+				interrupted: !isPlanWritable()
+			};
+			options.onStart?.call(this, event);
+		},
+		onMove(event, originalEvent) {
+			if (!canEditDrag()) return false;
+			return options.onMove?.call(this, event, originalEvent);
+		},
+		onAdd(event) {
+			if (!canEditDrag()) return restoreInterruptedDrag();
+			options.onAdd?.call(this, event);
+		},
+		onUpdate(event) {
+			if (!canEditDrag()) return restoreInterruptedDrag();
+			options.onUpdate?.call(this, event);
+		},
+		onEnd(event) {
+			if (!canEditDrag()) restoreInterruptedDrag();
+			activeDrag = undefined;
+			options.onEnd?.call(this, event);
+		}
+	});
+	const unsubscribe = planOnline.subscribe((online) => {
+		if (!online && activeDrag) activeDrag.interrupted = true;
+		sortable.option('disabled', !online || !!options.disabled);
+	});
+	return {
+		destroy() {
+			const interruptedFallback = !!activeDrag && !!Sortable.ghost;
+			unsubscribe();
+			endPlanDrag();
+			Sortable.ghost?.remove();
+			sortable.destroy();
+			if (activeDrag?.from === el) activeDrag = undefined;
+			if (interruptedFallback) {
+				// Sortable 1.15 leaves its document-level ignoreNextClick flag set
+				// when destroy() interrupts fallback dragging. Consume that stale
+				// guard on the inert document target, never on a link or control.
+				// The document target has no link or button activation behavior.
+				document.dispatchEvent(new MouseEvent('click', { cancelable: true }));
+			}
+		}
+	};
+}
+
 /** Keep the preview out of document layout and scroll only real plan content. */
 export function startPlanDrag(
 	event: Sortable.SortableEvent & { originalEvent?: Event }
 ) {
 	endPlanDrag();
+	if (!canEditDrag()) return;
 	const ghost = Sortable.ghost;
 	if (!ghost) return; // Native mouse dragging supplies its own preview.
 

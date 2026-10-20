@@ -9,6 +9,19 @@
 	let { children, class: className = '' }: Props = $props();
 </script>
 
-<div class="w-[29vw] min-w-[29vw] max-w-[220px] sm:min-w-[220px] {className}">
+<div class="course-width {className}">
 	{@render children()}
 </div>
+
+<style>
+	.course-width {
+		/* Three complete mobile columns and a visible fourth invite rail scrolling. */
+		inline-size: calc((100vw - 2.5rem) / 3.25);
+		flex-shrink: 0;
+	}
+	@media (min-width: 40rem) {
+		.course-width {
+			inline-size: 10.5rem;
+		}
+	}
+</style>

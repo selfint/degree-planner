@@ -29,7 +29,7 @@ test('defaults to dark and supports keyboard switching with persistence', async 
 		.getByRole('link', { name: 'Get Started', exact: true })
 		.first()
 		.click();
-	await expect(page).toHaveURL(/\/settings/);
+	await expect(page).toHaveURL(/\/app\/settings/);
 	await expect(toggle).toHaveAttribute('aria-pressed', 'true');
 	await toggle.click();
 	await expect(page.locator('body')).toHaveCSS(
@@ -76,7 +76,7 @@ for (const { language, label, direction } of [
 				})
 			);
 		}, language);
-		await page.goto(origin + '/plan');
+		await page.goto(origin + '/app/plan');
 		const footer = page.locator('footer');
 		const toggle = footer.getByRole('button', { name: label, exact: true });
 		await toggle.click();
@@ -91,8 +91,14 @@ for (const { language, label, direction } of [
 			)
 		).toBe(true);
 		const box = await toggle.boundingBox();
-		expect(box?.width).toBeGreaterThanOrEqual(44);
-		expect(box?.height).toBeGreaterThanOrEqual(44);
+		// The console footer uses the compact 2.25rem control; the landing keeps 2.75rem.
+		const rem = await page.evaluate(() =>
+			Number.parseFloat(getComputedStyle(document.documentElement).fontSize)
+		);
+		expect(box?.width).toBeGreaterThanOrEqual(2.25 * rem);
+		expect(box?.height).toBeGreaterThanOrEqual(2.25 * rem);
+		await toggle.focus();
+		await expect(toggle).toBeFocused();
 		await expect(
 			page.locator('header').getByRole('button', { name: label, exact: true })
 		).toHaveCount(0);

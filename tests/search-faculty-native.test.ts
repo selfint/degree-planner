@@ -1,3 +1,4 @@
+import { expectSearchFiltersVisible } from './helpers/searchFilters';
 import { expect, test, type Page } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 
@@ -28,7 +29,8 @@ const chemistry = 'הפקולטה לכימיה';
 
 async function waitForSearchReady(page: Page) {
 	// The document load event can precede hydration and async course-data rendering.
-	// Give full-page loads their own readiness budget, not the filter assertions.
+	// Broad Hebrew queries took 7–10s in WebKit traces. Keep the existing startup
+	// budget while waiting for the always-visible native faculty control.
 	await page.locator('#search-faculty').waitFor({
 		state: 'visible',
 		timeout: 30_000
@@ -78,6 +80,8 @@ async function expectResults(page: Page, state: State) {
 			)
 		)
 		.toBe(expected.length);
+	// Filters stay visible after URL changes and Back/Forward, without extra clicks.
+	await expectSearchFiltersVisible(page);
 }
 
 async function chooseNativeFaculty(page: Page, faculty: string) {
@@ -111,8 +115,9 @@ for (const language of ['en', 'he']) {
 				(lang) => localStorage.setItem('lang', lang),
 				language
 			);
-			await page.goto(`/search?q=${q}`);
+			await page.goto(`/app/search?q=${q}`);
 			await waitForSearchReady(page);
+			await expectSearchFiltersVisible(page);
 			const state: State = {
 				q,
 				faculty: '',
@@ -138,6 +143,7 @@ for (const language of ['en', 'he']) {
 			await expectResults(page, state);
 			await page.reload();
 			await waitForSearchReady(page);
+			await expectSearchFiltersVisible(page);
 			await expectResults(page, state);
 			await page.locator('fieldset button').click();
 			const cleared = {

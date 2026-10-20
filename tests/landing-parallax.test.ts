@@ -1,9 +1,10 @@
 import { expect, test } from '@playwright/test';
+import { mediaGroups } from '../src/lib/tutorialMedia';
 
 const origin = 'http://localhost:4173';
 
 // Include enough layout state in CI artifacts to distinguish a scroll bug from
-// a late image/font reflow without weakening the document-height assertions.
+// a late poster/video/font reflow without weakening the document-height assertions.
 function layoutSnapshot() {
 	const box = (node: Element) => {
 		const { x, y, width, height } = node.getBoundingClientRect();
@@ -23,9 +24,22 @@ function layoutSnapshot() {
 			alt: node.alt,
 			complete: node.complete,
 			naturalWidth: node.naturalWidth,
-			section: box(
-				node.closest('picture')!.parentElement!.parentElement!.parentElement!
-			),
+			section: box(node.closest('section') ?? node),
+			...box(node)
+		})),
+		videos: Array.from(
+			document.querySelectorAll<HTMLVideoElement>('.landing video')
+		).map((node) => ({
+			id: node.closest('[data-testid]')?.getAttribute('data-testid'),
+			poster: node.poster,
+			currentSrc: node.currentSrc,
+			readyState: node.readyState,
+			networkState: node.networkState,
+			videoWidth: node.videoWidth,
+			videoHeight: node.videoHeight,
+			paused: node.paused,
+			currentTime: node.currentTime,
+			section: box(node.closest('article, section')!),
 			...box(node)
 		}))
 	};
@@ -164,7 +178,7 @@ for (const viewport of [
 				})
 				.first()
 				.click();
-			await expect(page).toHaveURL(/\/settings/);
+			await expect(page).toHaveURL(/\/app\/settings/);
 			await page.goBack();
 			await expect(glow).toBeVisible();
 			await page.mouse.wheel(0, 300);
@@ -339,23 +353,35 @@ test.describe('rapid mobile scrolling', () => {
 });
 
 for (const width of [390, 1280]) {
-	for (const language of ['en', 'he']) {
-		test(`lazy demo images reserve space before decoding in ${language} at ${width}`, async ({
+	for (const language of ['en', 'he'] as const) {
+		test(`cold landing videos reserve space before real poster and video decode in ${language} at ${width}`, async ({
 			page
 		}, testInfo) => {
+			test.setTimeout(90_000);
+			const theme = language === 'he' ? 'light' : 'dark';
 			await page.setViewportSize({ width, height: 844 });
 			await page.addInitScript(
-				(language) => localStorage.setItem('lang', language),
-				language
+				({ language, theme }) => {
+					localStorage.setItem('lang', language);
+					localStorage.setItem('theme', theme);
+				},
+				{ language, theme }
 			);
-			let releaseImages!: () => void;
-			const imagesMayLoad = new Promise<void>((resolve) => {
-				releaseImages = resolve;
+			let releaseMedia!: () => void;
+			const mediaMayLoad = new Promise<void>((resolve) => {
+				releaseMedia = resolve;
 			});
+			const heldPosters = new Set<string>();
+			const heldVideos = new Set<string>();
+			let released = false;
 			await page.route(
-				/-pic\.[^/]+\.(avif|webp|png)(?:\?.*)?$/,
+				/\/tutorials\/[^/]+\.(webp|mp4|webm)(?:\?.*)?$/,
 				async (route) => {
-					await imagesMayLoad;
+					const path = new URL(route.request().url()).pathname;
+					if (!released)
+						(path.endsWith('.webp') ? heldPosters : heldVideos).add(path);
+					// Hold real bytes, never fulfill a mocked poster or video response.
+					await mediaMayLoad;
 					await route.continue();
 				}
 			);
@@ -365,12 +391,23 @@ for (const width of [390, 1280]) {
 					'dir',
 					language === 'he' ? 'rtl' : 'ltr'
 				);
+				await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
 				await expect(page.locator('.landing-gradient')).toHaveAttribute(
 					'data-parallax',
 					/native|fallback/
 				);
-				// WebKit's fonts.ready waits for pending document resources, including
-				// the images deliberately held by this test. Load used faces directly.
+				const videos = page.locator('.landing video');
+				await expect(videos).toHaveCount(9);
+				await expect(
+					page.getByTestId('landing-tutorials').locator('video')
+				).toHaveCount(2);
+				for (const topic of mediaGroups.features)
+					await expect(page.getByTestId(topic).locator('video')).toHaveCount(1);
+				await expect(
+					page.locator('[data-testid="landing-tutorials"] ~ section img')
+				).toHaveCount(0);
+				// fonts.ready can wait for deliberately held resources in WebKit.
+				// Load the used faces directly before comparing document geometry.
 				await page.evaluate(() =>
 					Promise.all([
 						document.fonts.load('400 1rem "Noto Sans Hebrew"', 'PlanIt תכנן'),
@@ -378,65 +415,162 @@ for (const width of [390, 1280]) {
 						document.fonts.load('400 1rem Pacifico')
 					])
 				);
+				// Prove actual poster and video responses are held before exposing the
+				// remaining posters. Do not depend on nine concurrent network slots.
+				const firstVideo = videos.first();
+				await expect(firstVideo).toHaveAttribute('preload', 'none');
+				await firstVideo.scrollIntoViewIfNeeded();
+				await expect(firstVideo).toHaveAttribute(
+					'poster',
+					new RegExp(`-${language}-${theme}\\.webp$`)
+				);
+				const firstPoster = await firstVideo.evaluate(
+					(node) => new URL((node as HTMLVideoElement).poster).pathname
+				);
+				await expect.poll(() => heldPosters.has(firstPoster)).toBe(true);
+				expect(heldVideos.size, 'posters must not start video transfer').toBe(
+					0
+				);
+				await firstVideo.evaluate((node) => {
+					const video = node as HTMLVideoElement;
+					video.muted = true;
+					void video.play().catch(() => {});
+				});
+				await expect.poll(() => heldVideos.size).toBeGreaterThan(0);
+				// Trigger every real lazy poster through the existing IntersectionObserver.
+				// The gate holds all matching responses, including browser-queued requests.
+				// Do not replace sources, remove aspect ratios or change app loading policy.
+				for (let index = 0; index < 9; index++) {
+					const video = videos.nth(index);
+					await expect(video).toHaveAttribute('preload', 'none');
+					await video.scrollIntoViewIfNeeded();
+					await expect(video).toHaveAttribute(
+						'poster',
+						new RegExp(`-${language}-${theme}\\.webp$`)
+					);
+				}
+				const posterPaths = await videos.evaluateAll((nodes) =>
+					nodes.map(
+						(node) => new URL((node as HTMLVideoElement).poster).pathname
+					)
+				);
+				expect(new Set(posterPaths).size).toBe(9);
+				await page.evaluate(() => scrollTo(0, 0));
+				await expect.poll(() => page.evaluate(() => scrollY)).toBe(0);
 				const before = await page.evaluate(layoutSnapshot);
-				await testInfo.attach('layout-before-images', {
-					body: JSON.stringify(before, null, 2),
+				await testInfo.attach('layout-before-media', {
+					body: JSON.stringify(
+						{
+							...before,
+							heldPosters: [...heldPosters],
+							heldVideos: [...heldVideos]
+						},
+						null,
+						2
+					),
 					contentType: 'application/json'
 				});
-				expect(before.images).toHaveLength(7);
-				for (const image of before.images) {
-					expect(image.naturalWidth).toBe(0);
-					expect(image.width).toBeGreaterThan(0);
-					expect(image.height).toBeGreaterThan(0);
+				expect(before.videos.map((video) => video.id).sort()).toEqual(
+					[
+						...mediaGroups.tutorials.map((topic) => `tutorial-${topic}`),
+						...mediaGroups.features
+					].sort()
+				);
+				for (const video of before.videos) {
+					expect(video.readyState).toBe(0);
+					expect(video.videoWidth).toBe(0);
+					expect(video.videoHeight).toBe(0);
+					expect(video.width).toBeGreaterThan(0);
+					expect(video.height).toBeGreaterThan(0);
+					expect(video.width / video.height).toBeCloseTo(4 / 3, 2);
 				}
-				// Release the actual images only after recording the cold layout.
-				// Eager loading here makes the test deterministic without changing app policy.
-				await page
-					.locator('.landing img')
-					.evaluateAll((images) =>
-						images.forEach(
-							(image) => ((image as HTMLImageElement).loading = 'eager')
-						)
-					);
-				releaseImages();
-				await expect
-					.poll(() =>
-						page
-							.locator('.landing img')
-							.evaluateAll((images) =>
-								images.every(
-									(image) =>
-										(image as HTMLImageElement).complete &&
-										(image as HTMLImageElement).naturalWidth > 0
-								)
-							)
+				released = true;
+				releaseMedia();
+				// HTMLVideoElement exposes no poster decode promise. Decode each same
+				// real poster URL with Image, and separately require native video playback.
+				const decodedPosters = await videos.evaluateAll((nodes) =>
+					Promise.all(
+						nodes.map(async (node) => {
+							const video = node as HTMLVideoElement;
+							const image = new Image();
+							image.src = video.poster;
+							await image.decode();
+							return {
+								src: image.src,
+								width: image.naturalWidth,
+								height: image.naturalHeight
+							};
+						})
 					)
-					.toBe(true);
-				await page
-					.locator('.landing img')
-					.evaluateAll((images) =>
-						Promise.all(
-							images.map((image) => (image as HTMLImageElement).decode())
+				);
+				for (const poster of decodedPosters) {
+					expect(poster.width).toBe(960);
+					expect(poster.height).toBe(720);
+				}
+				for (let index = 0; index < 9; index++) {
+					const video = videos.nth(index);
+					await video.scrollIntoViewIfNeeded();
+					await video.evaluate(async (node) => {
+						const player = node as HTMLVideoElement;
+						player.muted = true;
+						await player.play();
+					});
+					await expect
+						.poll(() =>
+							video.evaluate((node) => (node as HTMLVideoElement).currentTime)
 						)
-					);
+						.toBeGreaterThan(0.1);
+					const decoded = await video.evaluate((node) => {
+						const player = node as HTMLVideoElement;
+						player.pause();
+						return {
+							width: player.videoWidth,
+							height: player.videoHeight,
+							readyState: player.readyState,
+							currentSrc: player.currentSrc,
+							sources: Array.from(player.querySelectorAll('source')).map(
+								(source) => source.src
+							),
+							error: player.error?.code ?? null
+						};
+					});
+					expect(decoded.width).toBe(960);
+					expect(decoded.height).toBe(720);
+					expect(decoded.readyState).toBeGreaterThanOrEqual(2);
+					expect(decoded.error).toBeNull();
+					expect(decoded.sources).toContain(decoded.currentSrc);
+				}
+				await page.evaluate(() => scrollTo(0, 0));
+				await expect.poll(() => page.evaluate(() => scrollY)).toBe(0);
 				const after = await page.evaluate(layoutSnapshot);
-				await testInfo.attach('layout-after-images', {
-					body: JSON.stringify(after, null, 2),
+				await testInfo.attach('layout-after-media', {
+					body: JSON.stringify({ ...after, decodedPosters }, null, 2),
 					contentType: 'application/json'
 				});
 				expect(after.height).toBe(before.height);
 				expect(after.landing).toEqual(before.landing);
 				expect(after.footer).toEqual(before.footer);
-				for (let i = 0; i < before.images.length; i++) {
+				expect(after.videos).toHaveLength(before.videos.length);
+				for (let i = 0; i < before.videos.length; i++) {
+					expect(after.videos[i].id).toBe(before.videos[i].id);
 					for (const dimension of ['x', 'y', 'width', 'height'] as const) {
-						expect(after.images[i][dimension]).toBeCloseTo(
-							before.images[i][dimension],
+						expect(after.videos[i][dimension]).toBeCloseTo(
+							before.videos[i][dimension],
+							1
+						);
+						expect(after.videos[i].section[dimension]).toBeCloseTo(
+							before.videos[i].section[dimension],
 							1
 						);
 					}
 				}
+				expect(
+					await page.evaluate(
+						() => document.documentElement.scrollWidth <= innerWidth
+					)
+				).toBe(true);
 			} finally {
-				releaseImages();
+				releaseMedia();
 				if (!page.isClosed()) await page.unrouteAll({ behavior: 'wait' });
 			}
 		});

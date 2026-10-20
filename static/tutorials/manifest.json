@@ -1,0 +1,254 @@
+[
+  {
+    "name": "course-card-en-light",
+    "duration": 33.66,
+    "width": 960,
+    "height": 720,
+    "sourceCommit": "afa2e701cbb83c69a121e115451257ae9c7d8612"
+  },
+  {
+    "name": "course-card-en-dark",
+    "duration": 33.595,
+    "width": 960,
+    "height": 720,
+    "sourceCommit": "afa2e701cbb83c69a121e115451257ae9c7d8612"
+  },
+  {
+    "name": "course-card-he-light",
+    "duration": 33.619,
+    "width": 960,
+    "height": 720,
+    "sourceCommit": "afa2e701cbb83c69a121e115451257ae9c7d8612"
+  },
+  {
+    "name": "course-card-he-dark",
+    "duration": 33.596,
+    "width": 960,
+    "height": 720,
+    "sourceCommit": "afa2e701cbb83c69a121e115451257ae9c7d8612"
+  },
+  {
+    "name": "plan-course-en-light",
+    "duration": 22.779,
+    "width": 960,
+    "height": 720,
+    "sourceCommit": "afa2e701cbb83c69a121e115451257ae9c7d8612"
+  },
+  {
+    "name": "plan-course-en-dark",
+    "duration": 22.873,
+    "width": 960,
+    "height": 720,
+    "sourceCommit": "afa2e701cbb83c69a121e115451257ae9c7d8612"
+  },
+  {
+    "name": "plan-course-he-light",
+    "duration": 22.901,
+    "width": 960,
+    "height": 720,
+    "sourceCommit": "afa2e701cbb83c69a121e115451257ae9c7d8612"
+  },
+  {
+    "name": "plan-course-he-dark",
+    "duration": 22.971,
+    "width": 960,
+    "height": 720,
+    "sourceCommit": "afa2e701cbb83c69a121e115451257ae9c7d8612"
+  },
+  {
+    "name": "feature-search-en-light",
+    "duration": 22.645,
+    "width": 960,
+    "height": 720,
+    "sourceCommit": "afa2e701cbb83c69a121e115451257ae9c7d8612"
+  },
+  {
+    "name": "feature-search-en-dark",
+    "duration": 22.619,
+    "width": 960,
+    "height": 720,
+    "sourceCommit": "afa2e701cbb83c69a121e115451257ae9c7d8612"
+  },
+  {
+    "name": "feature-search-he-light",
+    "duration": 22.797,
+    "width": 960,
+    "height": 720,
+    "sourceCommit": "afa2e701cbb83c69a121e115451257ae9c7d8612"
+  },
+  {
+    "name": "feature-search-he-dark",
+    "duration": 22.524,
+    "width": 960,
+    "height": 720,
+    "sourceCommit": "afa2e701cbb83c69a121e115451257ae9c7d8612"
+  },
+  {
+    "name": "feature-plan-en-light",
+    "duration": 20.4,
+    "width": 960,
+    "height": 720,
+    "sourceCommit": "afa2e701cbb83c69a121e115451257ae9c7d8612"
+  },
+  {
+    "name": "feature-plan-en-dark",
+    "duration": 20.29,
+    "width": 960,
+    "height": 720,
+    "sourceCommit": "afa2e701cbb83c69a121e115451257ae9c7d8612"
+  },
+  {
+    "name": "feature-plan-he-light",
+    "duration": 20.37,
+    "width": 960,
+    "height": 720,
+    "sourceCommit": "afa2e701cbb83c69a121e115451257ae9c7d8612"
+  },
+  {
+    "name": "feature-plan-he-dark",
+    "duration": 20.298,
+    "width": 960,
+    "height": 720,
+    "sourceCommit": "afa2e701cbb83c69a121e115451257ae9c7d8612"
+  },
+  {
+    "name": "feature-catalog-en-light",
+    "duration": 17.868,
+    "width": 960,
+    "height": 720,
+    "sourceCommit": "afa2e701cbb83c69a121e115451257ae9c7d8612"
+  },
+  {
+    "name": "feature-catalog-en-dark",
+    "duration": 17.973,
+    "width": 960,
+    "height": 720,
+    "sourceCommit": "afa2e701cbb83c69a121e115451257ae9c7d8612"
+  },
+  {
+    "name": "feature-catalog-he-light",
+    "duration": 18.166,
+    "width": 960,
+    "height": 720,
+    "sourceCommit": "afa2e701cbb83c69a121e115451257ae9c7d8612"
+  },
+  {
+    "name": "feature-catalog-he-dark",
+    "duration": 17.992,
+    "width": 960,
+    "height": 720,
+    "sourceCommit": "afa2e701cbb83c69a121e115451257ae9c7d8612"
+  },
+  {
+    "name": "feature-settings-en-light",
+    "duration": 21.007,
+    "width": 960,
+    "height": 720,
+    "sourceCommit": "afa2e701cbb83c69a121e115451257ae9c7d8612"
+  },
+  {
+    "name": "feature-settings-en-dark",
+    "duration": 21.293,
+    "width": 960,
+    "height": 720,
+    "sourceCommit": "afa2e701cbb83c69a121e115451257ae9c7d8612"
+  },
+  {
+    "name": "feature-settings-he-light",
+    "duration": 21.057,
+    "width": 960,
+    "height": 720,
+    "sourceCommit": "afa2e701cbb83c69a121e115451257ae9c7d8612"
+  },
+  {
+    "name": "feature-settings-he-dark",
+    "duration": 20.985,
+    "width": 960,
+    "height": 720,
+    "sourceCommit": "afa2e701cbb83c69a121e115451257ae9c7d8612"
+  },
+  {
+    "name": "feature-course-en-light",
+    "duration": 18.827,
+    "width": 960,
+    "height": 720,
+    "sourceCommit": "afa2e701cbb83c69a121e115451257ae9c7d8612"
+  },
+  {
+    "name": "feature-course-en-dark",
+    "duration": 18.781,
+    "width": 960,
+    "height": 720,
+    "sourceCommit": "afa2e701cbb83c69a121e115451257ae9c7d8612"
+  },
+  {
+    "name": "feature-course-he-light",
+    "duration": 18.908,
+    "width": 960,
+    "height": 720,
+    "sourceCommit": "afa2e701cbb83c69a121e115451257ae9c7d8612"
+  },
+  {
+    "name": "feature-course-he-dark",
+    "duration": 18.782,
+    "width": 960,
+    "height": 720,
+    "sourceCommit": "afa2e701cbb83c69a121e115451257ae9c7d8612"
+  },
+  {
+    "name": "feature-semester-en-light",
+    "duration": 25.86,
+    "width": 960,
+    "height": 720,
+    "sourceCommit": "afa2e701cbb83c69a121e115451257ae9c7d8612"
+  },
+  {
+    "name": "feature-semester-en-dark",
+    "duration": 25.686,
+    "width": 960,
+    "height": 720,
+    "sourceCommit": "afa2e701cbb83c69a121e115451257ae9c7d8612"
+  },
+  {
+    "name": "feature-semester-he-light",
+    "duration": 25.667,
+    "width": 960,
+    "height": 720,
+    "sourceCommit": "afa2e701cbb83c69a121e115451257ae9c7d8612"
+  },
+  {
+    "name": "feature-semester-he-dark",
+    "duration": 25.728,
+    "width": 960,
+    "height": 720,
+    "sourceCommit": "afa2e701cbb83c69a121e115451257ae9c7d8612"
+  },
+  {
+    "name": "feature-share-en-light",
+    "duration": 13.619,
+    "width": 960,
+    "height": 720,
+    "sourceCommit": "afa2e701cbb83c69a121e115451257ae9c7d8612"
+  },
+  {
+    "name": "feature-share-en-dark",
+    "duration": 13.685,
+    "width": 960,
+    "height": 720,
+    "sourceCommit": "afa2e701cbb83c69a121e115451257ae9c7d8612"
+  },
+  {
+    "name": "feature-share-he-light",
+    "duration": 13.83,
+    "width": 960,
+    "height": 720,
+    "sourceCommit": "afa2e701cbb83c69a121e115451257ae9c7d8612"
+  },
+  {
+    "name": "feature-share-he-dark",
+    "duration": 13.678,
+    "width": 960,
+    "height": 720,
+    "sourceCommit": "afa2e701cbb83c69a121e115451257ae9c7d8612"
+  }
+]

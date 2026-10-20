@@ -34,6 +34,11 @@ export const cms = {
 			author: 'Tom Selfin',
 			reportIssue: 'Report an issue'
 		},
+		error: {
+			notFound: 'Page Not Found',
+			loadFailed: 'Unable to load this page',
+			retry: 'Check your connection, then reload the page.'
+		},
 		landing: {
 			catchphrase: ['Plan your degree', 'with ease.'],
 			howItWorks: [
@@ -112,7 +117,7 @@ export const cms = {
 		},
 		settings: {
 			degree: 'Degree',
-			share: 'Share plan',
+			share: 'Share',
 			year: 'Year',
 			selectYear: 'Select year',
 			faculty: 'Faculty',
@@ -133,6 +138,16 @@ export const cms = {
 			revert: 'Revert to recommended',
 			upload: 'Upload transcript',
 			uploadLabel: 'Choose file',
+			uploadErrors: {
+				unrecognized:
+					'No semesters were recognized. Choose an original transcript PDF with selectable text, rather than a scanned image. Your plan has not been changed.',
+				invalid:
+					'We could not read this PDF. Choose a valid PDF and try again. Your plan has not been changed.',
+				password:
+					'This PDF requires a password. Choose a transcript PDF without password protection. Your plan has not been changed.',
+				failed:
+					'We could not import your transcript. Please try again. Your plan has not been changed.'
+			},
 			preview: 'Preview',
 			exemptions: 'Exemptions',
 			signInWith: 'Sign in with',
@@ -221,6 +236,11 @@ export const cms = {
 			createdBy: 'נוצר על ידי',
 			author: 'תום סלפין',
 			reportIssue: 'דווח על בעיה'
+		},
+		error: {
+			notFound: 'הדף לא נמצא',
+			loadFailed: 'לא ניתן לטעון את הדף',
+			retry: 'בדקו את החיבור לאינטרנט וטענו מחדש את הדף.'
 		},
 		landing: {
 			catchphrase: ['תכנן את התואר', 'בקלות.'],
@@ -320,7 +340,7 @@ export const cms = {
 		},
 		settings: {
 			degree: 'תואר',
-			share: 'שתף תוכנית',
+			share: 'שתף',
 			year: 'שנה',
 			selectYear: 'בחר שנה',
 			faculty: 'פקולטה',
@@ -341,6 +361,16 @@ export const cms = {
 			revert: 'חזור למומלצת',
 			upload: 'העלאת גיליון ציונים',
 			uploadLabel: 'בחר קובץ',
+			uploadErrors: {
+				unrecognized:
+					'לא זוהו סמסטרים בקובץ. בחרו גיליון ציונים מקורי עם טקסט שניתן לבחור, ולא תמונה סרוקה. התוכנית שלכם לא השתנתה.',
+				invalid:
+					'לא ניתן לקרוא את קובץ ה-PDF. בחרו קובץ PDF תקין ונסו שוב. התוכנית שלכם לא השתנתה.',
+				password:
+					'קובץ ה-PDF דורש סיסמה. בחרו גיליון ציונים ללא הגנת סיסמה. התוכנית שלכם לא השתנתה.',
+				failed:
+					'לא ניתן לייבא את גיליון הציונים. נסו שוב. התוכנית שלכם לא השתנתה.'
+			},
 			preview: 'צפייה מוקדמת',
 			exemptions: 'זיכויים',
 			signInWith: 'התחבר דרך',

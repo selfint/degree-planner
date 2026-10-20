@@ -10,7 +10,7 @@ export default defineConfig({
 	outputDir: 'test-results/journeys-checks',
 	workers: 1,
 	retries: 0,
-	timeout: 120_000,
+	timeout: 180_000,
 	use: {
 		baseURL,
 		browserName: 'chromium',
@@ -18,7 +18,7 @@ export default defineConfig({
 		video: { mode: 'on', size: { width: 960, height: 720 } },
 		serviceWorkers: 'block',
 		trace: 'on',
-		launchOptions: { slowMo: 120 }
+		launchOptions: { slowMo: 650 }
 	},
 	projects: ['light', 'dark'].map((theme) => ({
 		name: `journey-${theme}`,

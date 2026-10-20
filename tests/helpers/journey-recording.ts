@@ -103,13 +103,18 @@ export class JourneyRecording {
 			name,
 			title: this.info.title.startsWith('he:') ? (hebrew[name] ?? title) : title
 		});
-		await page.waitForTimeout(500);
+		await page.waitForTimeout(1_300);
+	}
+	async checkpoint(page: Page) {
+		// Only called at existing asserted screenshot checkpoints. Keep these real
+		// states readable without changing functional assertions or normal-test timing.
+		if (this.enabled) await page.waitForTimeout(2_400);
 	}
 	async end(page: Page) {
 		if (!this.enabled) return;
 		const entry = this.pages.get(page);
 		if (!entry?.active) throw new Error('Journey segment not started');
-		await page.waitForTimeout(650);
+		await page.waitForTimeout(1_700);
 		await this.boundary(page);
 		entry.active = false;
 	}

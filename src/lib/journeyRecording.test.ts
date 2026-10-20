@@ -1,5 +1,5 @@
 import { expect, it, vi } from 'vitest';
-import type { BrowserContext, TestInfo } from '@playwright/test';
+import type { BrowserContext, Page, TestInfo } from '@playwright/test';
 import { JourneyRecording } from '../../tests/helpers/journey-recording';
 const info = {
 	project: { use: { colorScheme: 'light' } },
@@ -36,4 +36,12 @@ it('never publishes metadata after a failed assertion', async () => {
 			true
 		).finish()
 	).resolves.toBeUndefined();
+});
+
+it('adds readable holds only at capture-mode checkpoints', async () => {
+	const page = { waitForTimeout: vi.fn() };
+	await new JourneyRecording(info, false).checkpoint(page as unknown as Page);
+	expect(page.waitForTimeout).not.toHaveBeenCalled();
+	await new JourneyRecording(info, true).checkpoint(page as unknown as Page);
+	expect(page.waitForTimeout).toHaveBeenCalledExactlyOnceWith(2400);
 });

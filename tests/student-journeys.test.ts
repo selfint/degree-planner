@@ -8,6 +8,7 @@ import {
 import { readFileSync, writeFileSync } from 'node:fs';
 import {
 	JourneyRecording,
+	journeyCaptureEnabled,
 	journeyRecordingOptions
 } from './helpers/journey-recording';
 import { initializeGuestStorage } from './helpers/student-guest-storage';
@@ -216,6 +217,7 @@ async function capture(page: Page, info: TestInfo, name: string) {
 	const path = info.outputPath(`${name}.png`);
 	await page.screenshot({ path });
 	await info.attach(name, { path, contentType: 'image/png' });
+	await recordings.get(info.testId)?.checkpoint(page);
 }
 
 test.use({ serviceWorkers: 'block', trace: 'on' });
@@ -226,7 +228,7 @@ for (const language of ['en', 'he'] as const) {
 		context,
 		browserName
 	}, info) => {
-		test.setTimeout(90_000);
+		test.setTimeout(journeyCaptureEnabled ? 180_000 : 90_000);
 		const recording = recordings.get(info.testId)!;
 		info.annotations.push({ type: 'journey', description: 'setup-recovery' });
 		const diagnostics: JourneyDiagnostics = {
@@ -381,7 +383,7 @@ for (const language of ['en', 'he'] as const) {
 		context,
 		browser
 	}, info) => {
-		test.setTimeout(90_000);
+		test.setTimeout(journeyCaptureEnabled ? 180_000 : 90_000);
 		const recording = recordings.get(info.testId)!;
 		info.annotations.push({
 			type: 'journey',

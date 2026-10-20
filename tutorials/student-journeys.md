@@ -46,3 +46,9 @@ Source checks (no browser launch):
 npx vitest run scripts/journeyTimeline.test.mjs scripts/journeyManifest.test.mjs src/lib/journeyRecording.test.ts
 RECORD_STUDENT_JOURNEYS=1 npx playwright test --config playwright.journeys.config.ts --list
 ```
+
+Capture pacing uses Chromium slow motion (650 ms per action), brief segment
+opening/closing holds, and 2.4-second holds at the existing asserted screenshot
+checkpoints. These are real browser states, not interpolated or stretched video.
+The recording flag gates every added hold and the recording-specific timeout;
+normal functional tests retain their original timing.

@@ -52,3 +52,21 @@ opening/closing holds, and 2.4-second holds at the existing asserted screenshot
 checkpoints. These are real browser states, not interpolated or stretched video.
 The recording flag gates every added hold and the recording-specific timeout;
 normal functional tests retain their original timing.
+
+## Motion capture
+
+Journey clicks and select changes use the shared `tutorials/helpers/motion.ts`
+primitive only with `RECORD_STUDENT_JOURNEYS=1`: reveal the real target with
+smooth ancestor scrolling, move the recording cursor continuously to it, hold
+350 ms, execute the original Playwright action, then hold 550 ms. Global
+`slowMo` is zero so it cannot multiply the timed pointer steps. Existing
+checkpoint and segment-boundary holds remain, including the owner → popup →
+independent recipient → unchanged-owner sequence. Normal tests call the original
+action directly with no motion or delay. None of these four journeys contains a
+drag; the landing feature recordings cover real drag interactions separately.
+
+Changing the motion primitive triggers regeneration of all 16 journey variants.
+Do not refresh the checked-in gallery until the real assertions pass and the
+packaged artifact is verified. Review moving frames throughout each scroll and
+cursor approach, not only endpoint screenshots, alongside full decode and
+manifest/hash validation.

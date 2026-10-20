@@ -1,3 +1,4 @@
+import { journeyAction } from './helpers/journey-motion';
 import {
 	expect,
 	test,
@@ -173,16 +174,22 @@ async function openSettings(page: Page) {
 async function chooseDegree(page: Page, language: Language) {
 	const text = labels[language];
 	const section = page.locator('.degree-section');
-	await section
-		.getByRole('combobox', { name: text.year, exact: true })
-		.selectOption(degree[0]);
-	await section
-		.getByRole('combobox', { name: text.faculty, exact: true })
-		.selectOption(degree[1]);
-	await section
-		.getByRole('combobox', { name: text.degree, exact: true })
-		.selectOption(degree[2]);
-	await section.getByRole('button', { name: text.save, exact: true }).click();
+	await journeyAction(
+		section.getByRole('combobox', { name: text.year, exact: true }),
+		(target) => target.selectOption(degree[0])
+	);
+	await journeyAction(
+		section.getByRole('combobox', { name: text.faculty, exact: true }),
+		(target) => target.selectOption(degree[1])
+	);
+	await journeyAction(
+		section.getByRole('combobox', { name: text.degree, exact: true }),
+		(target) => target.selectOption(degree[2])
+	);
+	await journeyAction(
+		section.getByRole('button', { name: text.save, exact: true }),
+		(target) => target.click()
+	);
 	await expect.poll(async () => (await readPlan(page)).degree).toEqual(degree);
 	await expect(
 		section.getByRole('button', { name: text.save, exact: true })
@@ -199,8 +206,13 @@ async function saveSemesterSetting(
 	const field = page.locator('.semester-field').filter({
 		has: page.getByRole('combobox', { name: text[setting], exact: true })
 	});
-	await field.getByRole('combobox').selectOption(String(value));
-	await field.getByRole('button', { name: text.save, exact: true }).click();
+	await journeyAction(field.getByRole('combobox'), (target) =>
+		target.selectOption(String(value))
+	);
+	await journeyAction(
+		field.getByRole('button', { name: text.save, exact: true }),
+		(target) => target.click()
+	);
 	await expect
 		.poll(async () => {
 			const plan = await readPlan(page);
@@ -250,30 +262,34 @@ for (const language of ['en', 'he'] as const) {
 		const section = page.locator('.degree-section');
 
 		await test.step('Cancel and navigation interruption cannot save a partial degree', async () => {
-			await section
-				.getByRole('combobox', { name: text.year, exact: true })
-				.selectOption(degree[0]);
+			await journeyAction(
+				section.getByRole('combobox', { name: text.year, exact: true }),
+				(target) => target.selectOption(degree[0])
+			);
 			await expect(
 				section.getByRole('button', { name: text.save, exact: true })
 			).toBeDisabled();
-			await section
-				.getByRole('button', { name: text.cancel, exact: true })
-				.click();
+			await journeyAction(
+				section.getByRole('button', { name: text.cancel, exact: true }),
+				(target) => target.click()
+			);
 			await expect(
 				section
 					.getByRole('combobox', { name: text.year, exact: true })
 					.locator('option:checked')
 			).toHaveText(text.selectYear);
 			expect(await readPlan(page)).toEqual(original);
-			await section
-				.getByRole('combobox', { name: text.year, exact: true })
-				.selectOption(degree[0]);
-			await section
-				.getByRole('combobox', { name: text.faculty, exact: true })
-				.selectOption(degree[1]);
+			await journeyAction(
+				section.getByRole('combobox', { name: text.year, exact: true }),
+				(target) => target.selectOption(degree[0])
+			);
+			await journeyAction(
+				section.getByRole('combobox', { name: text.faculty, exact: true }),
+				(target) => target.selectOption(degree[1])
+			);
 			const search = page.getByRole('search').getByRole('textbox');
-			await search.fill(courseCode);
-			await search.press('Enter');
+			await journeyAction(search, (target) => target.fill(courseCode));
+			await journeyAction(search, (target) => target.press('Enter'));
 			await expect(page).toHaveURL(
 				new RegExp(`/app/search\\?q=${courseCode}$`)
 			);
@@ -292,27 +308,29 @@ for (const language of ['en', 'he'] as const) {
 		await saveSemesterSetting(page, language, 'current', 1);
 		await test.step('Search, combine a real faculty filter, wish, then plan the course', async () => {
 			const search = page.getByRole('search').getByRole('textbox');
-			await search.fill(courseCode);
-			await search.press('Enter');
-			await page
-				.locator('#search-faculty')
-				.selectOption(courses[courseCode].faculty);
+			await journeyAction(search, (target) => target.fill(courseCode));
+			await journeyAction(search, (target) => target.press('Enter'));
+			await journeyAction(page.locator('#search-faculty'), (target) =>
+				target.selectOption(courses[courseCode].faculty)
+			);
 			await expect(page.locator('main ul > li')).toHaveCount(1);
-			await page
-				.locator(`main li[id="${courseCode}"]`)
-				.getByRole('button')
-				.click();
+			await journeyAction(
+				page.locator(`main li[id="${courseCode}"]`).getByRole('button'),
+				(target) => target.click()
+			);
 			const actions = page.getByTestId('course-plan-actions');
-			await actions
-				.getByRole('button', { name: text.wish, exact: true })
-				.click();
+			await journeyAction(
+				actions.getByRole('button', { name: text.wish, exact: true }),
+				(target) => target.click()
+			);
 			await expect
 				.poll(async () => (await readPlan(page)).wishlist)
 				.toEqual([courseCode]);
 			await page.reload();
-			await actions
-				.getByRole('button', { name: text.plan, exact: true })
-				.click();
+			await journeyAction(
+				actions.getByRole('button', { name: text.plan, exact: true }),
+				(target) => target.click()
+			);
 			await expect(
 				actions.getByRole('button', { name: new RegExp(`^${text.remove}`) })
 			).toBeVisible();
@@ -328,17 +346,24 @@ for (const language of ['en', 'he'] as const) {
 		});
 
 		const saved = await readPlan(page);
-		await page.locator('header nav a[href="/app/plan"]').click();
+		await journeyAction(
+			page.locator('header nav a[href="/app/plan"]'),
+			(target) => target.click()
+		);
 		await expect(
 			page.locator(`[data-semester="1"] [data-code="${courseCode}"]`)
 		).toBeVisible();
 		await capture(page, info, 'saved-student-plan');
 		await test.step('Theme, language, resize, and a new tab preserve the saved plan', async () => {
-			await page.locator('footer button[aria-pressed]').click();
-			await page
-				.locator('footer')
-				.getByRole('combobox')
-				.selectOption({ label: language === 'en' ? 'עב' : 'en' });
+			await journeyAction(
+				page.locator('footer button[aria-pressed]'),
+				(target) => target.click()
+			);
+			await journeyAction(
+				page.locator('footer').getByRole('combobox'),
+				(target) =>
+					target.selectOption({ label: language === 'en' ? 'עב' : 'en' })
+			);
 			await page.setViewportSize({ width: 320, height: 740 });
 			expect(await readPlan(page)).toEqual(saved);
 			await capture(page, info, 'saved-student-plan-narrow-other-language');
@@ -407,7 +432,7 @@ for (const language of ['en', 'he'] as const) {
 		const share = page.getByRole('link', { name: text.share, exact: true });
 		await expect(share).toBeVisible();
 		const popupPromise = page.waitForEvent('popup');
-		await share.click();
+		await journeyAction(share, (target) => target.click());
 		const preview = await popupPromise;
 		await recording.end(page);
 		await recording.begin(
@@ -449,11 +474,11 @@ for (const language of ['en', 'he'] as const) {
 				exact: true
 			});
 			copy.once('dialog', (dialog) => dialog.dismiss());
-			await importButton.click();
+			await journeyAction(importButton, (target) => target.click());
 			await expect(copy).toHaveURL(shareUrl);
 			expect(await readPlan(copy)).toEqual(initial);
 			copy.once('dialog', (dialog) => dialog.accept());
-			await importButton.click();
+			await journeyAction(importButton, (target) => target.click());
 			await expect(copy).toHaveURL(`${origin}/app/plan`);
 			await expect
 				.poll(() => readPlan(copy))
@@ -483,19 +508,25 @@ for (const language of ['en', 'he'] as const) {
 			);
 			// A planned course with unmet prerequisites first reveals its warnings.
 			// A second normal click opens the details; neither click edits the plan.
-			await card.locator('.course-open').click();
+			await journeyAction(card.locator('.course-open'), (target) =>
+				target.click()
+			);
 			await expect(requirementDetails).toHaveAttribute('aria-expanded', 'true');
 			await expect(card.locator('.course-warning-details')).toBeVisible();
 			await expect(copy).toHaveURL(`${origin}/app/plan`);
 			expect(await readPlan(copy)).toEqual(imported);
 			await capture(copy, info, 'imported-course-requirements-expanded');
-			await card.locator('.course-open').click();
+			await journeyAction(card.locator('.course-open'), (target) =>
+				target.click()
+			);
 			await expect(copy).toHaveURL(`${origin}/app/course/${courseCode}`);
 			expect(await readPlan(copy)).toEqual(imported);
-			await copy
-				.getByTestId('course-plan-actions')
-				.getByRole('button', { name: new RegExp(`^${text.remove}`) })
-				.click();
+			await journeyAction(
+				copy
+					.getByTestId('course-plan-actions')
+					.getByRole('button', { name: new RegExp(`^${text.remove}`) }),
+				(target) => target.click()
+			);
 			await expect
 				.poll(async () => (await readPlan(copy)).semesters)
 				.toEqual([[], [], ['02340141']]);
@@ -560,24 +591,24 @@ for (const language of ['en', 'he'] as const) {
 			await dialog.dismiss();
 		};
 		page.on('dialog', dismissUnexpected);
-		await copy.click();
+		await journeyAction(copy, (target) => target.click());
 		const error = page.getByTestId('preview-import-error');
 		await expect(error).toBeVisible();
 		expect(dialogs).toBe(0);
 		expect(await readPlan(page)).toEqual(guest);
 		await capture(page, info, 'short-share-import-rejected-with-plan-intact');
 		page.off('dialog', dismissUnexpected);
-		await error.getByRole('link').click();
+		await journeyAction(error.getByRole('link'), (target) => target.click());
 		await expect(page).toHaveURL(`${origin}/app/settings`);
 		await saveSemesterSetting(page, language, 'current', 1);
 		expect(await readPlan(page)).toEqual({ ...guest, currentSemester: 1 });
 		await page.goBack();
 		await expect(page).toHaveURL(shareUrl);
 		page.once('dialog', (dialog) => dialog.dismiss());
-		await copy.click();
+		await journeyAction(copy, (target) => target.click());
 		expect(await readPlan(page)).toEqual({ ...guest, currentSemester: 1 });
 		page.once('dialog', (dialog) => dialog.accept());
-		await copy.click();
+		await journeyAction(copy, (target) => target.click());
 		await expect(page).toHaveURL(`${origin}/app/plan`);
 		const imported = {
 			...guest,

@@ -59,6 +59,7 @@ it('reruns on app and canonical-data changes for both PRs and staging pushes', (
 		'static/_catalogs/**',
 		'static/_courses/**',
 		'tests/helpers/**',
+		'tutorials/helpers/**',
 		'scripts/**',
 		'package-lock.json'
 	])

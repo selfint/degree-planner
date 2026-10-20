@@ -1,3 +1,4 @@
+import { setPointerPosition } from '../../tutorials/helpers/motion';
 import type { BrowserContext, Page, TestInfo, Video } from '@playwright/test';
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
@@ -86,6 +87,10 @@ export class JourneyRecording {
 		}
 		if (entry.active) throw new Error('End the previous segment first');
 		await page.waitForLoadState('domcontentloaded');
+		// Start each stitched segment from a known real cursor position before
+		// its boundary, then retain timed motion through all subsequent actions.
+		await page.mouse.move(24, 24);
+		setPointerPosition(page, { x: 24, y: 24 });
 		await this.boundary(page);
 		entry.active = true;
 		this.order.push({ page, index: entry.segments.length });

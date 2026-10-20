@@ -18,7 +18,7 @@ export default defineConfig({
 		video: { mode: 'on', size: { width: 960, height: 720 } },
 		serviceWorkers: 'block',
 		trace: 'on',
-		launchOptions: { slowMo: 650 }
+		launchOptions: { slowMo: 0 }
 	},
 	projects: ['light', 'dark'].map((theme) => ({
 		name: `journey-${theme}`,

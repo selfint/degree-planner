@@ -1179,7 +1179,8 @@ async function expectPwaUpdateBanner(
 	page: Page,
 	language: 'en' | 'he',
 	visible: boolean,
-	version = 'storybook-update-v2'
+	version = 'storybook-update-v2',
+	actionState: 'ready' | 'blocked' | 'applying' = 'ready'
 ) {
 	const banner = page.getByTestId('pwa-update-banner');
 	await expect(banner).toHaveCount(visible ? 1 : 0);
@@ -1193,10 +1194,28 @@ async function expectPwaUpdateBanner(
 	);
 	await expect(banner).toHaveAttribute('data-update-version', version);
 	await expect(banner.locator('a, details, summary')).toHaveCount(0);
-	await expect(banner.getByRole('button')).toHaveCount(1);
+	await expect(banner.getByRole('button')).toHaveCount(2);
+	const accept = banner.getByRole('button', {
+		name: pwaMessages[language].updateAccept,
+		exact: true
+	});
+	await expect(accept).toHaveAttribute('data-testid', 'pwa-update-accept');
+	await expect(accept).toBeVisible();
+	await expect(accept).toBeEnabled({ enabled: actionState === 'ready' });
+	await expect(accept).toHaveAttribute(
+		'aria-busy',
+		String(actionState === 'applying')
+	);
+	if (actionState === 'blocked') {
+		await expect(accept).toHaveAccessibleDescription(
+			pwaMessages[language].updateBlocked
+		);
+		await expect(banner.getByTestId('pwa-update-blocked')).toBeVisible();
+	}
 	const dismiss = banner.getByTestId('pwa-update-dismiss');
 	await expect(dismiss).toHaveAccessibleName(pwaMessages[language].close);
-	await expect(dismiss).toBeEnabled();
+	await expect(dismiss).toBeVisible();
+	await expect(dismiss).toBeEnabled({ enabled: actionState !== 'applying' });
 	const dismissBounds = await dismiss.boundingBox();
 	for (const size of [dismissBounds!.width, dismissBounds!.height]) {
 		expect(size).toBeGreaterThanOrEqual(35.5);
@@ -1225,6 +1244,44 @@ async function expectPwaUpdateBanner(
 		await text.evaluate((element) => element.scrollWidth - element.clientWidth)
 	).toBeLessThanOrEqual(1);
 }
+
+test('PWA update actions reflect clean, unsaved, saving and applying states', async ({
+	page
+}) => {
+	test.setTimeout(60_000);
+	await page.setViewportSize({ width: 320, height: 800 });
+	for (const language of ['en', 'he'] as const) {
+		for (const [story, actionState] of [
+			['update', 'ready'],
+			['unsaved-plan-update', 'blocked'],
+			['saving-plan-update', 'blocked'],
+			['applying-update', 'applying']
+		] as const) {
+			await test.step(`${language}: ${story}`, async () => {
+				const id = `components-pwastatus--${story}`;
+				await page.goto(`${storyUrl(id)}&globals=language:${language}`);
+				await expect(page.locator('[data-story-rendered]')).toHaveAttribute(
+					'data-story-rendered',
+					id
+				);
+				await expectPwaUpdateBanner(
+					page,
+					language,
+					true,
+					'storybook-update-v2',
+					actionState
+				);
+				if (actionState === 'ready') {
+					await page.getByTestId('pwa-update-accept').click();
+					await expect(
+						page.getByText('Update requests (fixture only): 1', { exact: true })
+					).toBeVisible();
+					await expect(page.getByTestId('pwa-update-banner')).toBeVisible();
+				}
+			});
+		}
+	}
+});
 
 test('PWA footer keeps healthy readiness accessible and shows actionable status', async ({
 	page

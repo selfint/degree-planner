@@ -8,7 +8,9 @@ async function viewOfflineError(page: Page, timeout = 15000) {
 	const error = page.getByTestId('pwa-error');
 	await expect(error).toBeVisible({ timeout });
 	await expect(error.locator('details, summary')).toHaveCount(0);
-	await error.getByRole('link').click();
+	await error
+		.getByRole('button', { name: /error details|פרטי שגיאה/i })
+		.click();
 	await expect(page.getByTestId('pwa-status-details')).toBeVisible();
 }
 
@@ -1387,9 +1389,10 @@ test('signed-in offline users can read an unvisited course without exposing or e
 		)
 	).toBe(false);
 	await expect(
-		page
-			.getByTestId('pwa-error-detail')
-			.filter({ hasText: 'Offline app files could not be verified' })
+		page.getByTestId('pwa-error-detail').filter({
+			hasText:
+				/Some app files could not be downloaded|Offline setup took too long|Offline app files could not be verified/
+		})
 	).toBeVisible();
 	await expect(page.getByTestId('pwa-status-details')).toBeInViewport();
 	await expect(page.locator('main')).toBeHidden();

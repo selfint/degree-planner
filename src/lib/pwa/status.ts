@@ -21,6 +21,9 @@ const shellStatus = writable<OfflineShellStatus>({
 });
 export const offlineShellStatus = readonly(shellStatus);
 
+// Details are opt-in and never auto-expand a routine footer failure.
+export const offlineDetailsOpen = writable(false);
+
 export function publishOfflineShellStatus(next: OfflineShellStatus) {
 	shellStatus.update((current) => ({
 		...next,

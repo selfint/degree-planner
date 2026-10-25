@@ -1,3 +1,8 @@
+import {
+	readShellFailureReason,
+	type ShellFailureReason
+} from './shell-failure';
+
 export type ShellReadiness = 'preparing' | 'ready' | 'outdated' | 'unavailable';
 
 /** An online event can precede the worker's actual network restoration. */
@@ -38,27 +43,36 @@ export function readShellStatus(
 export function prepareOfflineShell(
 	controller: Pick<ServiceWorker, 'postMessage'>,
 	expectedVersion: string,
-	timeoutMs = 30000
+	timeoutMs = 30000,
+	onFailure?: (reason: ShellFailureReason) => void
 ): Promise<ShellReadiness> {
 	return new Promise((resolve) => {
 		const channel = new MessageChannel();
-		const finish = (status: ShellReadiness) => {
+		let finished = false;
+		const finish = (status: ShellReadiness, reason?: ShellFailureReason) => {
+			if (finished) return;
+			finished = true;
 			clearTimeout(timer);
 			channel.port1.close();
 			channel.port2.close();
+			if (status === 'unavailable') onFailure?.(reason ?? 'verification');
 			resolve(status);
 		};
-		const timer = setTimeout(() => finish('unavailable'), timeoutMs);
+		const timer = setTimeout(() => finish('unavailable', 'timeout'), timeoutMs);
 		channel.port1.onmessage = (event) =>
-			finish(readShellStatus(event.data, expectedVersion));
-		channel.port1.onmessageerror = () => finish('unavailable');
+			finish(
+				readShellStatus(event.data, expectedVersion),
+				readShellFailureReason(event.data?.reason)
+			);
+		channel.port1.onmessageerror = () =>
+			finish('unavailable', 'worker-unavailable');
 		try {
 			controller.postMessage(
 				{ type: 'PREPARE_OFFLINE_SHELL', version: expectedVersion },
 				[channel.port2]
 			);
 		} catch {
-			finish('unavailable');
+			finish('unavailable', 'worker-unavailable');
 		}
 	});
 }

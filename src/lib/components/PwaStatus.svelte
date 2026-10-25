@@ -22,6 +22,7 @@
 		type ShellReadiness
 	} from '$lib/pwa/shell-readiness';
 	import { publishOfflineShellStatus } from '$lib/pwa/status';
+	import type { ShellFailureReason } from '$lib/pwa/shell-failure';
 	import {
 		readWaitingWorkerVersion,
 		createUpdateVersionReader,
@@ -37,8 +38,8 @@
 	let updateVersion = $state<string | undefined>();
 	let updateVersionError = $state<string | undefined>();
 	let shell = $state<ShellReadiness>('preparing');
-	let shellError = $state<string | undefined>();
-	function setShell(status: ShellReadiness, error?: string) {
+	let shellError = $state<ShellFailureReason | undefined>();
+	function setShell(status: ShellReadiness, error?: ShellFailureReason) {
 		shell = status;
 		if (status === 'ready' || status === 'outdated') shellError = undefined;
 		else if (error) shellError = error;
@@ -132,8 +133,12 @@
 			const generation = ++checkGeneration;
 			checking = true;
 			setShell('preparing');
+			let failure: ShellFailureReason = 'verification';
 			const result = await prepareWithReconnectRetry(
-				() => prepareOfflineShell(controller, version),
+				() =>
+					prepareOfflineShell(controller, version, undefined, (reason) => {
+						failure = reason;
+					}),
 				() =>
 					!disposed &&
 					generation === checkGeneration &&
@@ -146,12 +151,7 @@
 				void checkShell();
 				return;
 			}
-			setShell(
-				result,
-				result === 'unavailable'
-					? 'Offline app files could not be verified. Check your connection and retry.'
-					: undefined
-			);
+			setShell(result, result === 'unavailable' ? failure : undefined);
 			void upgradeLegacyScope();
 		};
 		verifyShell = () => {
@@ -297,10 +297,7 @@
 					worker.state === 'redundant' &&
 					!registration.active
 				)
-					setShell(
-						'unavailable',
-						'The offline app installation did not finish.'
-					);
+					setShell('unavailable', 'installation');
 			};
 			worker.addEventListener('statechange', changed);
 			cleanups.push(() => worker.removeEventListener('statechange', changed));
@@ -308,10 +305,7 @@
 		async function registerShell() {
 			if (disposed || registering) return;
 			if (!import.meta.env.PROD || !('serviceWorker' in navigator)) {
-				setShell(
-					'unavailable',
-					'Service workers are unavailable in this browser.'
-				);
+				setShell('unavailable', 'unsupported');
 				return;
 			}
 			registering = true;
@@ -343,21 +337,14 @@
 				clearTimeout(controllerTimer);
 				controllerTimer = setTimeout(() => {
 					if (!disposed && !navigator.serviceWorker.controller)
-						setShell(
-							'unavailable',
-							'The offline app did not take control within 30 seconds.'
-						);
+						setShell('unavailable', 'timeout');
 				}, 30000);
 				void checkShell();
 				void navigator.serviceWorker.ready.then(() => {
 					if (!disposed) void checkShell();
 				});
-			} catch (error) {
-				if (!disposed)
-					setShell(
-						'unavailable',
-						error instanceof Error ? error.message : String(error)
-					);
+			} catch {
+				if (!disposed) setShell('unavailable', 'registration');
 			} finally {
 				registering = false;
 			}

@@ -11,4 +11,5 @@ const state = writable<OfflineShellStatus>({
 	updateReady: false
 });
 export const offlineShellStatus = { subscribe: state.subscribe };
+export const offlineDetailsOpen = writable(false);
 export const publishOfflineShellStatus = state.set;

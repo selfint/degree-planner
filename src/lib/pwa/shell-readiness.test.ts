@@ -105,4 +105,80 @@ describe('offline shell readiness', () => {
 			'unavailable'
 		);
 	});
+	it.each(['download', 'storage', 'build-changed', 'timeout'] as const)(
+		'preserves a bounded worker failure reason: %s',
+		async (reason) => {
+			const onFailure = vi.fn();
+			const controller = {
+				postMessage(
+					_message: unknown,
+					ports?: Transferable[] | StructuredSerializeOptions
+				) {
+					(
+						(Array.isArray(ports) ? ports : ports?.transfer)?.[0] as MessagePort
+					).postMessage({
+						type: 'OFFLINE_SHELL_STATUS',
+						version: 'current',
+						status: 'unavailable',
+						reason
+					});
+				}
+			};
+			expect(
+				await prepareOfflineShell(controller, 'current', 1000, onFailure)
+			).toBe('unavailable');
+			expect(onFailure).toHaveBeenCalledExactlyOnceWith(reason);
+		}
+	);
+	it('uses a safe fallback for older workers and rejects unrecognized diagnostic text', async () => {
+		for (const reason of [undefined, 'native English with private URL']) {
+			const onFailure = vi.fn();
+			await prepareOfflineShell(
+				{
+					postMessage(_message, ports) {
+						(
+							(Array.isArray(ports)
+								? ports
+								: ports?.transfer)?.[0] as MessagePort
+						).postMessage({
+							type: 'OFFLINE_SHELL_STATUS',
+							version: 'current',
+							status: 'unavailable',
+							reason
+						});
+					}
+				},
+				'current',
+				1000,
+				onFailure
+			);
+			expect(onFailure).toHaveBeenCalledExactlyOnceWith('verification');
+		}
+	});
+	it('does not attach a stale failure reason to ready or mismatched-build replies', async () => {
+		for (const version of ['current', 'old']) {
+			const onFailure = vi.fn();
+			const status = await prepareOfflineShell(
+				{
+					postMessage(_message, ports) {
+						(
+							(Array.isArray(ports)
+								? ports
+								: ports?.transfer)?.[0] as MessagePort
+						).postMessage({
+							type: 'OFFLINE_SHELL_STATUS',
+							version,
+							status: 'ready',
+							reason: 'download'
+						});
+					}
+				},
+				'current',
+				1000,
+				onFailure
+			);
+			expect(status).toBe(version === 'current' ? 'ready' : 'outdated');
+			expect(onFailure).not.toHaveBeenCalled();
+		}
+	});
 });

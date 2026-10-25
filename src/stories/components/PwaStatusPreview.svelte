@@ -7,17 +7,24 @@
 	import PwaStatusView from '$lib/components/PwaStatusView.svelte';
 	import PwaStatusDetails from '$lib/components/PwaStatusDetails.svelte';
 	import { setOfflinePublicData } from '../../../.storybook/mocks/offlineData';
-	import { publishOfflineShellStatus } from '../../../.storybook/mocks/pwaStatus';
+	import {
+		publishOfflineShellStatus,
+		offlineDetailsOpen
+	} from '../../../.storybook/mocks/pwaStatus';
 	let {
 		state: variant = 'preparing',
 		offline: fixtureOffline = false,
 		updateVersion: fixtureVersion = 'storybook-update-v2',
-		updateVersionError
+		updateVersionError,
+		width,
+		showErrorDetails = false
 	}: {
 		state?: string;
 		offline?: boolean;
 		updateVersion?: string;
 		updateVersionError?: string;
+		width?: number;
+		showErrorDetails?: boolean;
 	} = $props();
 	const refreshFailed = $derived(variant.startsWith('refresh'));
 	const allReady = $derived(
@@ -31,7 +38,9 @@
 				'refreshUpdate'
 			].includes(variant)
 	);
-	const shellUnavailable = $derived(variant === 'refreshShellUnavailable');
+	const shellUnavailable = $derived(
+		['refreshShellUnavailable', 'shellUnavailable'].includes(variant)
+	);
 	const refreshError = $derived(
 		refreshFailed
 			? 'Example course refresh failed: response validation rejected missing course names.'
@@ -74,71 +83,81 @@
 			error: setupError,
 			refreshError
 		});
-		publishOfflineShellStatus({ status: shell, updateReady });
+		publishOfflineShellStatus({
+			status: shell,
+			updateReady,
+			error: shellUnavailable ? 'verification' : undefined
+		});
+		offlineDetailsOpen.set(showErrorDetails);
 	});
 </script>
 
-<div class="w-full border-b border-border bg-background">
-	<TitleBar
-		started={true}
-		searchQuery=""
-		searchRevision={0}
-		onSearch={() => {}}
+<div class="pwa-story" style:width={width ? `${width}px` : undefined}>
+	<div class="w-full border-b border-border bg-background">
+		<TitleBar
+			started={true}
+			searchQuery=""
+			searchRevision={0}
+			onSearch={() => {}}
+		/>
+	</div>
+	<PwaUpdateBanner
+		visible={updateReady}
+		updateVersion={updateReady ? fixtureVersion : undefined}
+		{updateVersionError}
+		persistDismissal={false}
+		updateBlocked={variant === 'updateDirty' || variant === 'updateSaving'}
+		updateBusy={variant === 'updateApplying'}
+		updateActionError={variant === 'updateOtherTabs'
+			? pwaMessages[content.lang.lang].updateOtherTabs
+			: undefined}
+		onAccept={() => accepts++}
 	/>
+	<AppFooter
+		compact
+		persistPreferences={false}
+		update={{
+			status: shell,
+			updateReady,
+			updateVersion: updateReady ? fixtureVersion : undefined,
+			updateVersionError,
+			updateBlocked: variant === 'updateDirty' || variant === 'updateSaving',
+			updateBusy: variant === 'updateApplying',
+			updateActionError:
+				variant === 'updateOtherTabs'
+					? pwaMessages[content.lang.lang].updateOtherTabs
+					: undefined,
+			acceptUpdate: () => accepts++
+		}}
+	>
+		{#snippet pwa()}
+			<div data-testid="pwa-preview-slot" class="pwa-footer-controls">
+				<PwaStatusView
+					{allReady}
+					offline={fixtureOffline ||
+						variant === 'offline' ||
+						variant === 'offlineUpdate'}
+					cachedDataReady={allReady || shellUnavailable}
+					{refreshError}
+					{setupError}
+					unavailable={variant === 'unavailable' || shellUnavailable}
+					{shell}
+					showPreparing={variant !== 'initial'}
+					{updateReady}
+					onRetry={() => retries++}
+				/>
+			</div>
+			<PwaStatusDetails />
+		{/snippet}
+	</AppFooter>
 </div>
-<PwaUpdateBanner
-	visible={updateReady}
-	updateVersion={updateReady ? fixtureVersion : undefined}
-	{updateVersionError}
-	persistDismissal={false}
-	updateBlocked={variant === 'updateDirty' || variant === 'updateSaving'}
-	updateBusy={variant === 'updateApplying'}
-	updateActionError={variant === 'updateOtherTabs'
-		? pwaMessages[content.lang.lang].updateOtherTabs
-		: undefined}
-	onAccept={() => accepts++}
-/>
-<AppFooter
-	compact
-	persistPreferences={false}
-	update={{
-		status: shell,
-		updateReady,
-		updateVersion: updateReady ? fixtureVersion : undefined,
-		updateVersionError,
-		updateBlocked: variant === 'updateDirty' || variant === 'updateSaving',
-		updateBusy: variant === 'updateApplying',
-		updateActionError:
-			variant === 'updateOtherTabs'
-				? pwaMessages[content.lang.lang].updateOtherTabs
-				: undefined,
-		acceptUpdate: () => accepts++
-	}}
->
-	{#snippet pwa()}
-		<div data-testid="pwa-preview-slot" class="pwa-footer-controls">
-			<PwaStatusView
-				{allReady}
-				offline={fixtureOffline ||
-					variant === 'offline' ||
-					variant === 'offlineUpdate'}
-				cachedDataReady={allReady || shellUnavailable}
-				{refreshError}
-				{setupError}
-				unavailable={variant === 'unavailable' || shellUnavailable}
-				{shell}
-				showPreparing={variant !== 'initial'}
-				{updateReady}
-				onRetry={() => retries++}
-			/>
-		</div>
-		<PwaStatusDetails />
-	{/snippet}
-</AppFooter>
 {#if accepts}<output>Update requests (fixture only): {accepts}</output>{/if}
 {#if retries}<output>Retry requests: {retries}</output>{/if}
 
 <style>
+	.pwa-story {
+		max-inline-size: 100%;
+	}
 	/* Match the console's footer snippet without mounting its service lifecycle. */
 	.pwa-footer-controls {
 		display: flex;

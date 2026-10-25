@@ -1,5 +1,6 @@
 import { expectSearchFiltersVisible } from './helpers/searchFilters';
 import { expect, test, type Locator, type Page } from '@playwright/test';
+import { pwaMessages } from '../src/lib/pwa/messages';
 
 const origin = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:4173';
 // Fictional records exercise real routes, without altering production data.
@@ -141,7 +142,7 @@ async function expectCompactButtons(page: Page, buttons: Locator) {
 }
 
 for (const width of [320, 390]) {
-	for (const language of ['en', 'he']) {
+	for (const language of ['en', 'he'] as const) {
 		test.describe(`${width}px ${language} console buttons`, () => {
 			test.use({
 				viewport: { width, height: 664 },
@@ -152,6 +153,7 @@ for (const width of [320, 390]) {
 			test('keep complete single-line labels at one height across real routes', async ({
 				page
 			}) => {
+				const text = pwaMessages[language];
 				await page.addInitScript((language) => {
 					if (!localStorage.getItem('userData')) {
 						localStorage.setItem('lang', language);
@@ -298,14 +300,27 @@ for (const width of [320, 390]) {
 				await expect(page.getByTestId('pwa-install-help')).toHaveCount(0);
 				await expect(page.getByTestId('pwa-update-banner')).toHaveCount(0);
 				const retry = status.getByRole('button', {
-					name: language === 'en' ? 'Retry' : 'נסו שוב',
+					name: text.retry,
 					exact: true
 				});
+				const indicator = status.getByRole('button', {
+					name: text.errorDetails,
+					exact: true
+				});
+				const details = pwaRow.getByTestId('pwa-status-details');
 				await expect(status).toBeVisible();
+				await expect(indicator).toHaveAttribute(
+					'aria-controls',
+					'offline-status'
+				);
+				await expect(indicator).toHaveAttribute('aria-expanded', 'false');
+				await expect(details).toBeHidden();
 				await expect(page.locator('details.pwa-details')).toHaveCount(0);
 				await expectCompactButtons(page, retry);
+				await expect(retry).toHaveCSS('border-top-width', '0px');
+				await expect(retry).toHaveCSS('text-decoration-line', 'underline');
 				await expectWithinViewport(page, page.locator('header nav'));
-				const timeOrigin = await page.evaluate(() => performance.timeOrigin);
+				const documentIdentity = await page.evaluateHandle(() => document);
 				for (let attempt = 0; attempt < 2; attempt++) {
 					const attempts = await page
 						.locator('html')
@@ -320,22 +335,42 @@ for (const width of [320, 390]) {
 							)
 						)
 						.toBeGreaterThan(Number(attempts));
-					await status.getByRole('link').tap();
-					await expect(page).toHaveURL(
-						`${origin}/app/search?q=layout#offline-status`
-					);
-					const details = pwaRow.getByTestId('pwa-status-details');
+					await indicator.focus();
+					await indicator.press('Enter');
+					await expect(indicator).toBeFocused();
+					await expect(indicator).toHaveAttribute('aria-expanded', 'true');
+					await expect(page).toHaveURL(`${origin}/app/search?q=layout`);
+					await expect(details).toBeVisible();
+					await details.scrollIntoViewIfNeeded();
 					await expect(details).toBeInViewport();
-					await expect(details.getByTestId('pwa-error-detail')).toContainText(
+					await expect(details).toContainText(text.shellErrors.registration);
+					await expect(details).not.toContainText(
 						'Fixture denies offline installation'
+					);
+					await expect(details).toHaveCSS(
+						'direction',
+						language === 'he' ? 'rtl' : 'ltr'
+					);
+					await expect(pwaRow.getByTestId('pwa-status')).not.toHaveAttribute(
+						'data-state',
+						'ready'
 					);
 					await expect(details.locator('details, summary')).toHaveCount(0);
 					await expectWithinViewport(page, details);
-					expect(await page.evaluate(() => performance.timeOrigin)).toBe(
-						timeOrigin
-					);
+					expect(
+						await page.evaluate(
+							(original) => document === original,
+							documentIdentity
+						)
+					).toBe(true);
 					await expectNoDocumentOverflow(page);
+					await indicator.focus();
+					await indicator.press('Space');
+					await expect(indicator).toBeFocused();
+					await expect(indicator).toHaveAttribute('aria-expanded', 'false');
+					await expect(details).toBeHidden();
 				}
+				await documentIdentity.dispose();
 			});
 		});
 	}

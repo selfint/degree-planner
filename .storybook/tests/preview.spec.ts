@@ -13,6 +13,27 @@ async function expectCompactAction(button: Locator) {
 	expect(box!.height).toBeLessThanOrEqual(36.5);
 }
 
+async function openPwaErrorDetails(page: Page, language: 'en' | 'he') {
+	const trigger = page.getByTestId('pwa-error').getByRole('button', {
+		name: pwaMessages[language].errorDetails,
+		exact: true
+	});
+	await expect(trigger).toHaveAttribute('aria-controls', 'offline-status');
+	if ((await trigger.getAttribute('aria-expanded')) === 'false')
+		await trigger.click();
+	await expect(trigger).toHaveAttribute('aria-expanded', 'true');
+	await expect(page.getByTestId('pwa-status-details')).toBeVisible();
+	return trigger;
+}
+
+async function expectPwaTextAction(button: Locator) {
+	await expectCompactAction(button);
+	await expect(button).toHaveCSS('border-top-width', '0px');
+	await expect(button).toHaveCSS('font-size', '12px');
+	await expect(button).toHaveCSS('text-decoration-line', 'underline');
+	await expect(button).not.toHaveClass(/\bui-button\b/);
+}
+
 async function withRootFontSize(
 	page: Page,
 	pixels: number,
@@ -695,7 +716,7 @@ test('all stories render without live data, account access, or planner storage c
 			expect(
 				await page.evaluate(
 					() =>
-						(window as Window & { plannerStorageReads: string[] })
+						(window as unknown as Window & { plannerStorageReads: string[] })
 							.plannerStorageReads
 				)
 			).toEqual([]);
@@ -814,6 +835,8 @@ test('theme, language and reading direction are global controls', async ({
 		page.getByRole('group', { name: 'Filters', exact: true })
 	).toBeVisible();
 	await page.goto(storyUrl('components-pwastatus--update-refresh-failure'));
+	await expect(page.getByTestId('pwa-status-details')).toBeHidden();
+	await openPwaErrorDetails(page, 'en');
 	await expect(page.getByTestId('pwa-refresh-error')).toHaveText(
 		pwaMessages.en.cachedRefreshFailed
 	);
@@ -822,7 +845,7 @@ test('theme, language and reading direction are global controls', async ({
 		// the iframe: global changes must keep the active fixture's details.
 		await page.evaluate((language) => {
 			const channel = (
-				window as Window & {
+				window as unknown as Window & {
 					__STORYBOOK_ADDONS_CHANNEL__: {
 						emit: (event: string, payload: unknown) => void;
 					};
@@ -857,7 +880,7 @@ test('theme, language and reading direction are global controls', async ({
 	for (const state of ['ready', 'update', 'outdated', 'unavailable', 'ready']) {
 		await page.evaluate((state) => {
 			(
-				window as Window & {
+				window as unknown as Window & {
 					__STORYBOOK_ADDONS_CHANNEL__: {
 						emit: (event: string, payload: unknown) => void;
 					};
@@ -876,11 +899,52 @@ test('theme, language and reading direction are global controls', async ({
 			);
 			await expect(page.getByTestId('pwa-status-details')).toHaveCount(0);
 		} else {
+			await expect(page.getByTestId('pwa-status-details')).toBeHidden();
+			await openPwaErrorDetails(page, 'en');
 			await expect(page.getByTestId('pwa-incomplete')).toBeVisible();
 			await expect(page.getByTestId('pwa-error-detail')).toHaveText(
-				'Example offline setup failed: browser storage quota exceeded.'
+				pwaMessages.en.publicDataError
 			);
 		}
+	}
+	// A shell failure already opened by the user must retranslate in place too.
+	await page.goto(storyUrl('components-pwastatus--shell-failure'));
+	await expect(page.getByTestId('pwa-status-details')).toBeHidden();
+	await openPwaErrorDetails(page, 'en');
+	const shellDocument = await page.evaluateHandle(() => document);
+	try {
+		for (const language of ['he', 'en'] as const) {
+			await page.evaluate((language) => {
+				(
+					window as unknown as Window & {
+						__STORYBOOK_ADDONS_CHANNEL__: {
+							emit: (event: string, payload: unknown) => void;
+						};
+					}
+				).__STORYBOOK_ADDONS_CHANNEL__.emit('updateGlobals', {
+					globals: { language, direction: language === 'he' ? 'rtl' : 'ltr' }
+				});
+			}, language);
+			await expect(page.getByTestId('pwa-error-detail')).toHaveText(
+				pwaMessages[language].shellErrors.verification
+			);
+			await expect(page.getByTestId('pwa-error-detail')).toBeVisible();
+			await expect(
+				page.getByRole('button', {
+					name: pwaMessages[language].errorDetails,
+					exact: true
+				})
+			).toHaveAttribute('aria-expanded', 'true');
+			await expect(page.getByTestId('pwa-status-details')).toHaveCSS(
+				'direction',
+				language === 'he' ? 'rtl' : 'ltr'
+			);
+			expect(
+				await page.evaluate((original) => document === original, shellDocument)
+			).toBe(true);
+		}
+	} finally {
+		await shellDocument.dispose();
 	}
 });
 
@@ -1211,10 +1275,10 @@ async function expectPwaUpdateBanner(
 	await expect(footerAccept).toHaveCSS('font-size', '12px');
 	await expect(footerAccept).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
 	await expect(footerAccept).toHaveCSS('border-top-width', '0px');
-	const reportColor = await page
-		.locator('.footer-report')
+	const footerColor = await page
+		.locator('.footer-links')
 		.evaluate((element) => getComputedStyle(element).color);
-	await expect(footerAccept).toHaveCSS('color', reportColor);
+	await expect(footerAccept).toHaveCSS('color', footerColor);
 	await expect(page.getByTestId('footer-version')).toContainText(
 		language === 'he' ? 'גרסה' : 'Version'
 	);
@@ -1381,10 +1445,17 @@ test('PWA footer keeps healthy readiness accessible and shows actionable status'
 
 	for (const [width, language, theme, direction] of [
 		[320, 'he', 'light', 'rtl'],
-		[390, 'en', 'dark', 'ltr']
+		[390, 'en', 'dark', 'ltr'],
+		[390, 'he', 'dark', 'rtl']
 	] as const) {
 		await page.setViewportSize({ width, height: 800 });
-		for (const state of ['unavailable', 'outdated', 'update']) {
+		for (const state of [
+			'unavailable',
+			'shell-failure',
+			'outdated',
+			'update'
+		]) {
+			const failed = state === 'unavailable' || state === 'shell-failure';
 			await page.goto(
 				`${storyUrl(`components-pwastatus--${state}`)}&globals=language:${language};theme:${theme};direction:${direction}`
 			);
@@ -1397,13 +1468,9 @@ test('PWA footer keeps healthy readiness accessible and shows actionable status'
 			await expectPwaUpdateBanner(page, language, state === 'update');
 			await expect(root).toHaveAttribute(
 				'data-state',
-				state === 'unavailable'
-					? 'error'
-					: state === 'outdated'
-						? 'outdated'
-						: 'ready'
+				failed ? 'error' : state === 'outdated' ? 'outdated' : 'ready'
 			);
-			if (state !== 'unavailable') {
+			if (!failed) {
 				await expect(detail).toHaveCount(0);
 				await expect(root.locator('a, button')).toHaveCount(0);
 				await expect(page.getByTestId('pwa-incomplete')).toHaveCount(0);
@@ -1416,41 +1483,75 @@ test('PWA footer keeps healthy readiness accessible and shows actionable status'
 				}
 				continue;
 			}
-			await expect(detail).toBeVisible();
+			await expect(detail).toBeHidden();
+			if (state === 'shell-failure')
+				await page.screenshot({
+					path: test
+						.info()
+						.outputPath(
+							`pwa-shell-failure-collapsed-${width}-${language}-${theme}.png`
+						),
+					fullPage: true
+				});
 			await expect(detail).toHaveAttribute('id', 'offline-status');
+			const trigger = root.getByRole('button', {
+				name: pwaMessages[language].errorDetails,
+				exact: true
+			});
+			await expect(root.getByRole('link')).toHaveCount(0);
+			await expect(trigger).toHaveAttribute('aria-expanded', 'false');
+			const before = page.url();
+			await trigger.focus();
+			await trigger.press('Enter');
+			await expect(trigger).toBeFocused();
+			await expect(trigger).toHaveCSS('outline-style', 'solid');
+			await expect(trigger).toHaveAttribute('aria-expanded', 'true');
+			await expect(detail).toBeVisible();
 			await expect(detail).toHaveCSS('position', 'static');
+			await expect(detail).toHaveAccessibleName(
+				pwaMessages[language].offlineAccess
+			);
 			await expect(
 				page.getByTestId('pwa-footer-row').getByTestId('pwa-status-details')
 			).toHaveCount(1);
 			await expect(page.getByTestId('pwa-incomplete')).toBeVisible();
 			await expect(page.getByTestId('pwa-error')).toHaveCount(1);
 			await expect(page.getByTestId('pwa-error-detail')).toHaveText(
-				'Example offline setup failed: browser storage quota exceeded.'
+				state === 'shell-failure'
+					? pwaMessages[language].shellErrors.verification
+					: pwaMessages[language].publicDataError
 			);
-			await expect(page.getByTestId('pwa-error-detail')).toHaveAttribute(
-				'dir',
-				'auto'
-			);
+			await expect(detail).not.toContainText('Example offline setup failed');
+			await expect(detail).toHaveCSS('direction', direction);
+			if (state === 'shell-failure')
+				await page.screenshot({
+					path: test
+						.info()
+						.outputPath(
+							`pwa-shell-failure-details-${width}-${language}-${theme}.png`
+						),
+					fullPage: true
+				});
 			await expect(page.getByTestId('pwa-refresh-error')).toHaveCount(0);
 			const bounds = await detail.boundingBox();
 			expect(bounds!.x).toBeGreaterThanOrEqual(0);
 			expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(width);
-			const retry = root.getByRole('button', { name: /^(Retry|נסו שוב)$/ });
-			await expectCompactAction(retry);
+			const retry = root.getByRole('button', {
+				name: pwaMessages[language].retry,
+				exact: true
+			});
+			await expectPwaTextAction(retry);
 			await retry.click();
 			await expect(page.getByText('Retry requests: 1')).toBeVisible();
 			await expect(page.getByTestId('pwa-incomplete')).toBeVisible();
-			const link = root.getByRole('link');
-			await expect(link).toHaveCount(1);
-			await expect(link).toHaveAccessibleName(/\S/);
-			await expect(link).toHaveAttribute('href', '#offline-status');
-			const before = page.url();
-			await link.focus();
-			await link.press('Enter');
-			// Only the real error link targets this always-visible footer diagnostic.
-			await expect(detail).toBeFocused();
-			expect(page.url()).toBe(before);
+			await trigger.focus();
+			await trigger.press('Space');
+			await expect(trigger).toBeFocused();
+			await expect(trigger).toHaveAttribute('aria-expanded', 'false');
+			await expect(detail).toBeHidden();
+			await trigger.press('Enter');
 			await expect(detail).toBeVisible();
+			expect(page.url()).toBe(before);
 			await expect(
 				page.getByRole('button', { name: /^(Close|סגירה)$/ })
 			).toHaveCount(0);
@@ -1484,7 +1585,7 @@ test('offline updates keep the footer status visible after dismissal and retain 
 			page.evaluate(
 				({ id, updatedArgs }) => {
 					(
-						window as Window & {
+						window as unknown as Window & {
 							__STORYBOOK_ADDONS_CHANNEL__: {
 								emit: (event: string, payload: unknown) => void;
 							};
@@ -1552,23 +1653,29 @@ test('offline updates keep the footer status visible after dismissal and retain 
 				pwaMessages[language].cachedRefreshFailed
 			);
 			await expect(page.getByTestId('pwa-error')).toHaveCount(1);
-			const error = status.getByRole('link');
+			const error = status.getByRole('button', {
+				name: pwaMessages[language].errorDetails,
+				exact: true
+			});
 			await expect(error).toHaveCount(1);
 			await expect(error).toBeVisible();
 			await expect(error).toHaveText(language === 'he' ? 'שגיאה' : 'Error');
-			await expect(error).toHaveAttribute('href', '#offline-status');
+			await expect(error).toHaveAttribute('aria-controls', 'offline-status');
+			if (!dismissed)
+				await expect(page.getByTestId('pwa-status-details')).toBeHidden();
+			await openPwaErrorDetails(page, language);
 			const retry = status.getByRole('button', {
-				name: language === 'he' ? 'נסו שוב' : 'Retry',
+				name: pwaMessages[language].retry,
 				exact: true
 			});
-			await expectCompactAction(retry);
+			await expectPwaTextAction(retry);
 			await retry.click();
 			await expect(
 				page.getByText(`Retry requests: ${dismissed ? 2 : 1}`)
 			).toBeVisible();
 			await expect(page.getByTestId('pwa-refresh-error')).toBeVisible();
 			await expect(page.getByTestId('pwa-error-detail')).toHaveText(
-				'Example course refresh failed: response validation rejected missing course names.'
+				pwaMessages[language].cachedRefreshFailed
 			);
 			await expectPwaFooter(page);
 		}
@@ -1594,7 +1701,7 @@ test('PWA dismissal follows versions without reading or writing the real session
 		page.evaluate(
 			({ id, updatedArgs }) => {
 				(
-					window as Window & {
+					window as unknown as Window & {
 						__STORYBOOK_ADDONS_CHANNEL__: {
 							emit: (event: string, payload: unknown) => void;
 						};
@@ -1612,6 +1719,7 @@ test('PWA dismissal follows versions without reading or writing the real session
 		await changeArgs({ state });
 		await expectPwaUpdateBanner(page, 'en', false);
 	}
+	await openPwaErrorDetails(page, 'en');
 	await expect(page.getByTestId('pwa-refresh-error')).toBeVisible();
 	await changeArgs({ updateVersion: 'storybook-update-v3' });
 	await expectPwaUpdateBanner(page, 'en', true, 'storybook-update-v3');
@@ -1651,7 +1759,7 @@ test('PWA dismissal follows versions without reading or writing the real session
 	).toBe(0);
 });
 
-test('refresh failures preserve stored-data truth and one direct footer error', async ({
+test('refresh failures preserve stored-data truth and one compact footer disclosure', async ({
 	page
 }) => {
 	test.setTimeout(60_000);
@@ -1679,11 +1787,9 @@ test('refresh failures preserve stored-data truth and one direct footer error', 
 			await expect(
 				page.locator('details, summary, [role="dialog"]')
 			).toHaveCount(0);
-			await expect(root.getByRole('link')).toHaveCount(1);
-			await expect(root.getByRole('link')).toHaveAttribute(
-				'href',
-				'#offline-status'
-			);
+			await expect(root.getByRole('link')).toHaveCount(0);
+			await expect(detail).toBeHidden();
+			await openPwaErrorDetails(page, language);
 			await expect(page.getByTestId('pwa-error')).toHaveCount(1);
 			await expect(page.getByTestId('pwa-update-link')).toHaveCount(0);
 			await expect(page.getByTestId('pwa-refresh-error')).toHaveText(
@@ -1691,13 +1797,15 @@ test('refresh failures preserve stored-data truth and one direct footer error', 
 			);
 			await expect(page.getByTestId('pwa-refresh-error')).toBeVisible();
 			await expect(page.getByTestId('pwa-error-detail')).toHaveText(
-				'Example course refresh failed: response validation rejected missing course names.'
+				state === 'cached-refresh-shell-unavailable'
+					? [text.cachedRefreshFailed, text.shellErrors.verification]
+					: [text.cachedRefreshFailed]
 			);
-			await expect(page.getByTestId('pwa-error-detail')).toHaveAttribute(
-				'dir',
-				'auto'
+			await expect(detail).not.toContainText('Example course refresh failed');
+			await expect(detail).toHaveCSS('direction', direction);
+			await expect(page.getByTestId('pwa-incomplete')).toHaveCount(
+				state === 'cached-refresh-shell-unavailable' ? 1 : 0
 			);
-			await expect(page.getByTestId('pwa-incomplete')).toHaveCount(0);
 			await expectPwaUpdateBanner(
 				page,
 				language,
@@ -1714,8 +1822,8 @@ test('refresh failures preserve stored-data truth and one direct footer error', 
 				path: test.info().outputPath(`pwa-${state}-${width}.png`),
 				fullPage: true
 			});
-			const retry = root.getByRole('button', { name: /^(Retry|נסו שוב)$/ });
-			await expectCompactAction(retry);
+			const retry = root.getByRole('button', { name: text.retry, exact: true });
+			await expectPwaTextAction(retry);
 			await retry.click();
 			await expect(page.getByText('Retry requests: 1')).toBeVisible();
 			// A retry request does not dismiss a real failure or hide a pending update.

@@ -2,6 +2,8 @@
 import { build, files, version } from '$service-worker';
 import { isAppNavigation, isImmutableAppAsset } from './lib/pwa/cache-policy';
 import { activateIfSoleClient } from './lib/pwa/update-activation';
+import { ShellPreparationError } from './lib/pwa/shell-failure';
+import { withShellFetchDeadline } from './lib/pwa/shell-fetch';
 
 const worker = self as unknown as ServiceWorkerGlobalScope;
 const SHELL_PREFIX = 'planit-console-shell-';
@@ -34,43 +36,55 @@ function prepareShell(): Promise<void> {
 		// Fetch only this build's public shell. Never cache navigation responses,
 		// auth requests, or public JSON (which belongs to IndexedDB).
 		const fetched = await Promise.all(
-			missing.map(async (path) => {
-				const request = new Request(new URL(path, worker.location.origin), {
-					credentials: 'omit',
-					redirect: 'error',
-					cache: 'reload'
-				});
-				const response = await fetch(request);
-				if (
-					!response.ok ||
-					response.redirected ||
-					/\b(?:private|no-store)\b/i.test(
-						response.headers.get('cache-control') ?? ''
-					)
-				)
-					throw new Error('App asset is unavailable for offline storage');
-				if (
-					path !== SHELL &&
-					/text\/html/i.test(response.headers.get('content-type') ?? '')
-				)
-					throw new Error('An app asset returned an HTML fallback');
-				if (path === SHELL) {
-					const html = await response.clone().text();
-					// An old active worker may be repairing after a newer deployment.
-					// Never combine that deployment's HTML with the old build's scripts.
+			missing.map((path) =>
+				withShellFetchDeadline(async (signal) => {
+					const request = new Request(new URL(path, worker.location.origin), {
+						credentials: 'omit',
+						redirect: 'error',
+						cache: 'reload'
+					});
+					const response = await fetch(request, { signal });
 					if (
-						!response.headers.get('content-type')?.includes('text/html') ||
-						SHELL_ENTRIES.length < 2 ||
-						!SHELL_ENTRIES.every(
-							(entry) =>
-								html.includes(JSON.stringify(entry)) ||
-								html.includes(`'${entry}'`)
+						!response.ok ||
+						response.redirected ||
+						/\b(?:private|no-store)\b/i.test(
+							response.headers.get('cache-control') ?? ''
 						)
 					)
-						throw new Error('Offline shell belongs to another app build');
-				}
-				return { request, response };
-			})
+						throw new ShellPreparationError('download');
+					if (
+						path !== SHELL &&
+						/text\/html/i.test(response.headers.get('content-type') ?? '')
+					)
+						throw new ShellPreparationError('download');
+					// Include the response body in the deadline. Headers alone do not
+					// mean the download finished, particularly on mobile reconnect.
+					const body = await response.arrayBuffer();
+					if (path === SHELL) {
+						const html = await new Response(body).text();
+						// An old active worker may be repairing after a newer deployment.
+						// Never combine that deployment's HTML with the old build's scripts.
+						if (
+							!response.headers.get('content-type')?.includes('text/html') ||
+							SHELL_ENTRIES.length < 2 ||
+							!SHELL_ENTRIES.every(
+								(entry) =>
+									html.includes(JSON.stringify(entry)) ||
+									html.includes(`'${entry}'`)
+							)
+						)
+							throw new ShellPreparationError('build-changed');
+					}
+					return {
+						request,
+						response: new Response(body, {
+							status: response.status,
+							statusText: response.statusText,
+							headers: response.headers
+						})
+					};
+				})
+			)
 		);
 		await Promise.all(
 			fetched.map(({ request, response }) => cache.put(request, response))
@@ -82,10 +96,18 @@ function prepareShell(): Promise<void> {
 				(path) => !stored.has(new URL(path, worker.location.origin).href)
 			)
 		)
-			throw new Error('Offline app assets are incomplete');
-	})().finally(() => {
-		preparation = undefined;
-	});
+			throw new ShellPreparationError('verification');
+	})()
+		.catch((error) => {
+			// Cache API failures include unavailable storage and quota limits. Keep
+			// only a bounded reason code, not a native English exception or URL.
+			throw error instanceof ShellPreparationError
+				? error
+				: new ShellPreparationError('storage');
+		})
+		.finally(() => {
+			preparation = undefined;
+		});
 	return preparation;
 }
 
@@ -160,10 +182,14 @@ worker.addEventListener('message', (event) => {
 					status: 'ready',
 					version
 				});
-			} catch {
+			} catch (error) {
 				port.postMessage({
 					type: 'OFFLINE_SHELL_STATUS',
 					status: 'unavailable',
+					reason:
+						error instanceof ShellPreparationError
+							? error.reason
+							: 'verification',
 					version
 				});
 			}

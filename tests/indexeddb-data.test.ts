@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { pwaMessages } from '../src/lib/pwa/messages';
 
 // These tests isolate IndexedDB. Real airplane-mode shell coverage lives in pwa.test.ts.
 test.use({ serviceWorkers: 'block' });
@@ -484,27 +485,53 @@ test('reports a failed refresh while verified cached courses remain usable', asy
 	await expect(status).toHaveAttribute('data-refresh-state', 'error', {
 		timeout: 20000
 	});
-	const indicator = status.getByRole('link', {
-		name: 'Error. View details',
+	const indicator = status.getByRole('button', {
+		name: pwaMessages.en.errorDetails,
 		exact: true
 	});
-	const timeOrigin = await page.evaluate(() => performance.timeOrigin);
-	await expect(indicator).toHaveAttribute('href', '#offline-status');
+	const documentIdentity = await page.evaluateHandle(() => document);
+	const details = page.getByTestId('pwa-status-details');
+	await expect(indicator).toHaveAttribute('aria-controls', 'offline-status');
+	await expect(indicator).toHaveAttribute('aria-expanded', 'false');
+	await expect(details).toBeHidden();
 	await expect(status.locator('details, summary')).toHaveCount(0);
 	await expect(indicator).toBeVisible();
-	await indicator.click();
-	await expect(page).toHaveURL(origin + '/app/course/02340141#offline-status');
-	expect(await page.evaluate(() => performance.timeOrigin)).toBe(timeOrigin);
-	await expect(page.getByTestId('pwa-error-detail').first()).not.toBeEmpty();
+	await indicator.focus();
+	await indicator.press('Enter');
+	await expect(indicator).toBeFocused();
+	await expect(indicator).toHaveAttribute('aria-expanded', 'true');
+	await expect(details).toBeVisible();
+	await indicator.press('Space');
+	await expect(indicator).toHaveAttribute('aria-expanded', 'false');
+	await expect(details).toBeHidden();
+	await indicator.press('Enter');
+	await expect(details).toBeVisible();
+	await expect(page).toHaveURL(origin + '/app/course/02340141');
+	expect(
+		await page.evaluate((original) => document === original, documentIdentity)
+	).toBe(true);
+	await expect(page.getByTestId('pwa-error-detail').first()).toHaveText(
+		pwaMessages.en.cachedRefreshFailed
+	);
+	await expect(details).not.toContainText('/courseData.json');
 	await expect(page.getByTestId('pwa-refresh-error')).toHaveText(
-		'Refresh failed. Saved course data is still available.'
+		pwaMessages.en.cachedRefreshFailed
 	);
 	expect(await courseSnapshot(page)).toEqual(before);
 	await expectSavedPlanUnchanged(page);
 	await page.unroute('**/courseData.json*');
-	await status.getByRole('button', { name: 'Retry', exact: true }).click();
+	await status
+		.getByRole('button', { name: pwaMessages.en.retry, exact: true })
+		.click();
 	await expect(status).toHaveAttribute('data-refresh-state', 'idle', {
 		timeout: 20000
 	});
+	await expectCoursesReady(page);
+	await expect(page.getByTestId('pwa-refresh-error')).toHaveCount(0);
+	expect(
+		await page.evaluate((original) => document === original, documentIdentity)
+	).toBe(true);
+	await documentIdentity.dispose();
+	await expectSavedPlanUnchanged(page);
 	await expect(page.locator('main h1')).toContainText('קומבינטוריקה');
 });

@@ -683,6 +683,7 @@ describe('production SW shell readiness and repair handshake (VM)', () => {
 		expect(await shellStatus(sw)).toEqual({
 			type: 'OFFLINE_SHELL_STATUS',
 			status: 'unavailable',
+			reason: 'download',
 			version: appVersion
 		});
 		expect(sw.network).toHaveBeenCalledOnce();
@@ -706,6 +707,36 @@ describe('production SW shell readiness and repair handshake (VM)', () => {
 		sw.network.mockImplementation(shellNetwork);
 		expect(await shellStatus(sw)).toMatchObject({ status: 'ready' });
 	});
+	it.each(['headers', 'body'] as const)(
+		'times out stalled %s and allows a later repair instead of rejoining stalled work',
+		async (stage) => {
+			vi.useFakeTimers();
+			try {
+				const sw = harness();
+				const { cache, lazyAsset } = await installedShell(sw);
+				await cache.delete(lazyAsset);
+				sw.network.mockClear();
+				sw.network.mockImplementationOnce(() =>
+					stage === 'headers'
+						? new Promise<Response>(() => {})
+						: Promise.resolve(new Response(new ReadableStream()))
+				);
+				const pending = shellStatus(sw);
+				await vi.advanceTimersByTimeAsync(20_001);
+				expect(await pending).toMatchObject({
+					status: 'unavailable',
+					reason: 'timeout'
+				});
+				expect(await cache.match(lazyAsset)).toBeUndefined();
+				expect(await shellStatus(sw)).toMatchObject({ status: 'ready' });
+				expect(sw.network).toHaveBeenCalledTimes(2);
+				expect(await cache.match(lazyAsset)).toBeDefined();
+				expect(sw.skipWaiting).not.toHaveBeenCalled();
+			} finally {
+				vi.useRealTimers();
+			}
+		}
+	);
 
 	const rejectedShells = [
 		{

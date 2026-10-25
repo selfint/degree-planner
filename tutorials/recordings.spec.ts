@@ -219,7 +219,7 @@ for (const language of ['en', 'he'] as Language[]) {
 				await pause(page, 4000);
 				// Close/flush the recorded page before verifying persistence in a fresh
 				// page of the same guest context. Reload UI cannot leak into the clip.
-				await expect(page.getByTestId('pwa-error-detail')).toHaveCount(0);
+				await expect(page.getByTestId('pwa-error')).toHaveCount(0);
 				await recording.finish(`plan-course-${language}-${theme}`);
 				const reloaded = await recording.context.newPage();
 				await reloaded.goto('/app/plan');

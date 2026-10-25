@@ -229,7 +229,7 @@ export async function createRecording(
 				{ timeout: 60_000 }
 			);
 		}
-		await expect(page.getByTestId('pwa-error-detail')).toHaveCount(0);
+		await expect(page.getByTestId('pwa-error')).toHaveCount(0);
 		await page.evaluate(() => document.fonts.ready);
 		await installCursor(page);
 		await expect(page.locator('.demo-cursor')).toHaveCount(1);
@@ -266,7 +266,7 @@ export async function createRecording(
 			await preparePage();
 		},
 		async caption(title: string, text: string, target?: Locator) {
-			await expect(page.getByTestId('pwa-error-detail')).toHaveCount(0);
+			await expect(page.getByTestId('pwa-error')).toHaveCount(0);
 			const now = (Date.now() - started) / 1000;
 			if (captions.length) captions.at(-1)!.end = now;
 			captions.push({ start: now, end: now + 3, text: `${title}: ${text}` });

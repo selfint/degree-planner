@@ -319,7 +319,10 @@ async function capture(page: Page, info: TestInfo, name: string, route = name) {
 				'a[href="https://github.com/selfint/degree-planner/issues/new/choose"]'
 			)
 		).toBeVisible();
-		await expect(controls.getByRole('button')).toBeVisible();
+		// Update may also appear here; assert the actual preference control.
+		await expect(
+			controls.getByRole('button', { name: /^(Light mode|מצב בהיר)$/ })
+		).toBeVisible();
 		await expect(controls.getByRole('combobox')).toBeVisible();
 		expect
 			.soft(measurement.footerLayout, `${name}: real footer geometry exists`)

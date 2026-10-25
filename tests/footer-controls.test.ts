@@ -1,4 +1,5 @@
 import { writeFileSync } from 'node:fs';
+import { pwaMessages } from '../src/lib/pwa/messages';
 import { createServer, request as requestHttp } from 'node:http';
 import { request as requestHttps } from 'node:https';
 import {
@@ -150,6 +151,8 @@ async function settle(page: Page) {
 }
 
 async function expectPreferences(page: Page, language: Language, theme: Theme) {
+	await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
+	await expect(page.locator('html')).toHaveCSS('color-scheme', theme);
 	const footer = page.locator('footer');
 	const version = footer.getByTestId('footer-build-version');
 	await expect(version).not.toBeEmpty();
@@ -158,10 +161,12 @@ async function expectPreferences(page: Page, language: Language, theme: Theme) {
 	);
 	await expect(version).toHaveCSS('font-size', '12px');
 	await expect(version).toHaveCSS('direction', 'ltr');
-	const reportColor = await footer
-		.locator('.footer-report')
+	// Native select/keyboard interactions can leave the report link hovered.
+	// The version shares the normal muted footer color, not that hover color.
+	const footerColor = await footer
+		.locator('.footer-links')
 		.evaluate((element) => getComputedStyle(element).color);
-	await expect(version).toHaveCSS('color', reportColor);
+	await expect(version).toHaveCSS('color', footerColor);
 	await expect(footer.locator('.theme-toggle')).toHaveAccessibleName(
 		language === 'he' ? 'מצב בהיר' : 'Light mode'
 	);
@@ -169,8 +174,6 @@ async function expectPreferences(page: Page, language: Language, theme: Theme) {
 		'aria-pressed',
 		String(theme === 'light')
 	);
-	await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
-	await expect(page.locator('html')).toHaveCSS('color-scheme', theme);
 	await expect(footer.getByRole('combobox')).toHaveAccessibleName(
 		language === 'he' ? 'שפה' : 'Language'
 	);
@@ -1175,29 +1178,33 @@ for (const viewport of [
 							);
 						})
 					).toBe(true);
-					const errorLink = status.getByRole('link', {
-						name:
-							language === 'he' ? 'שגיאה. הצגת פרטים' : 'Error. View details',
+					const errorDetails = status.getByRole('button', {
+						name: pwaMessages[language].errorDetails,
 						exact: true
 					});
+					const detail = page.getByTestId('pwa-status-details');
 					const retry = status.getByRole('button', {
-						name: language === 'he' ? 'נסו שוב' : 'Retry',
+						name: pwaMessages[language].retry,
 						exact: true
 					});
-					await expect(errorLink).toBeVisible();
-					await expect(errorLink).toHaveAttribute('href', '#offline-status');
-					await expect(retry).toBeEnabled();
-					await expect(page.getByTestId('pwa-refresh-error')).toHaveText(
-						language === 'he'
-							? 'רענון הנתונים נכשל. נתוני הקורסים השמורים עדיין זמינים.'
-							: 'Refresh failed. Saved course data is still available.'
+					await expect(errorDetails).toBeVisible();
+					await expect(errorDetails).toHaveAttribute(
+						'aria-controls',
+						'offline-status'
 					);
-					await expect(
-						page.getByTestId('pwa-error-detail').first()
-					).toContainText('/courseData.json');
-					await expect(
-						page.getByTestId('pwa-error-detail').first()
-					).toContainText('(503)');
+					await expect(errorDetails).toHaveAttribute('aria-expanded', 'false');
+					await expect(detail).toBeHidden();
+					await expect(retry).toBeEnabled();
+					await expect(retry).toHaveCSS('border-top-width', '0px');
+					await expect(retry).toHaveCSS('text-decoration-line', 'underline');
+					await expect(page.getByTestId('pwa-refresh-error')).toHaveText(
+						pwaMessages[language].cachedRefreshFailed
+					);
+					await expect(page.getByTestId('pwa-error-detail')).toHaveText(
+						pwaMessages[language].cachedRefreshFailed
+					);
+					await expect(detail).not.toContainText('/courseData.json');
+					await expect(detail).not.toContainText('(503)');
 					// A retained Document handle is an identity sentinel, unlike WebKit's
 					// performance.timeOrigin, which can differ between reads.
 					const documentIdentity = await page.evaluateHandle(() => document);
@@ -1217,16 +1224,26 @@ for (const viewport of [
 					page.on('request', onRequest);
 					page.on('domcontentloaded', onDomContentLoaded);
 					try {
-						await errorLink.click();
-						await expect(page).toHaveURL(
-							`${appOrigin}/app/settings#offline-status`
+						await errorDetails.focus();
+						await errorDetails.press('Enter');
+						await expect(errorDetails).toBeFocused();
+						await expect(errorDetails).toHaveAttribute('aria-expanded', 'true');
+						await expect(detail).toBeVisible();
+						await errorDetails.press('Space');
+						await expect(errorDetails).toHaveAttribute(
+							'aria-expanded',
+							'false'
 						);
+						await expect(detail).toBeHidden();
+						await errorDetails.press('Enter');
+						await expect(detail).toBeVisible();
+						await expect(page).toHaveURL(`${appOrigin}/app/settings`);
 						expect(
 							await page.evaluate(
 								(originalDocument) => document === originalDocument,
 								documentIdentity
 							),
-							'error details anchor preserves the original Document'
+							'error disclosure preserves the original Document'
 						).toBe(true);
 						expect(
 							documentRequests,

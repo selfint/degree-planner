@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { content } from '$lib/preferences.svelte';
 	import { pwaMessages } from '$lib/pwa/messages';
+	import { offlineDetailsOpen } from '$lib/pwa/status';
 	import type { ShellReadiness } from '$lib/pwa/shell-readiness';
 	let {
 		allReady,
@@ -29,9 +30,7 @@
 	const hasError = $derived(
 		!!refreshError || !!setupError || (!allReady && unavailable)
 	);
-	const detailsLabel = $derived(
-		content.lang.lang === 'he' ? 'שגיאה. הצגת פרטים' : 'Error. View details'
-	);
+	const detailsLabel = $derived(text.errorDetails);
 </script>
 
 <div
@@ -62,25 +61,29 @@
 				? cachedDataReady
 					? text.cachedRefreshFailed
 					: text.refreshFailed
-				: shell === 'outdated'
-					? text.shellOutdated
-					: allReady
-						? text.ready
-						: showPreparing
-							? text.downloading
-							: ''}
+				: hasError
+					? text.unavailable
+					: shell === 'outdated'
+						? text.shellOutdated
+						: allReady
+							? text.ready
+							: showPreparing
+								? text.downloading
+								: ''}
 	</p>
 	{#if hasError}
 		<div class="pwa-actions" data-testid="pwa-error">
-			<a
-				href="#offline-status"
+			<button
+				type="button"
+				aria-controls="offline-status"
+				aria-expanded={$offlineDetailsOpen}
+				onclick={() => offlineDetailsOpen.update((open) => !open)}
 				aria-label={detailsLabel}
 				title={detailsLabel}
-				class="status-link has-error"
-				>{content.lang.lang === 'he' ? 'שגיאה' : 'Error'}</a
+				class="status-link has-error">{text.error}</button
 			>
 			<button type="button" class="retry-button" onclick={onRetry}
-				>{content.lang.lang === 'he' ? 'נסו שוב' : 'Retry'}</button
+				>{text.retry}</button
 			>
 		</div>
 	{/if}
@@ -122,11 +125,16 @@
 		color: rgb(var(--color-error));
 	}
 	.retry-button {
-		border: 0.0625rem solid rgb(var(--color-border));
-		padding-inline: 0.25rem;
-		background: rgb(var(--color-card-primary));
-		color: rgb(var(--color-content-primary));
-		font-weight: 600;
+		border: 0;
+		background: transparent;
+		color: rgb(var(--color-content-secondary));
+		text-decoration: underline;
+		text-underline-offset: 0.125rem;
+	}
+	.status-link:focus-visible,
+	.retry-button:focus-visible {
+		outline: 0.125rem solid rgb(var(--color-accent-primary));
+		outline-offset: 0.125rem;
 	}
 	.status-link:hover,
 	.retry-button:hover {

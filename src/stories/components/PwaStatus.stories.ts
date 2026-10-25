@@ -39,3 +39,11 @@ export const UpdateRefreshFailure: Story = { args: { state: 'refreshUpdate' } };
 export const CachedRefreshShellUnavailable: Story = {
 	args: { state: 'refreshShellUnavailable' }
 };
+
+// Real failure states use the shared theme, language, and direction controls.
+export const ShellFailure: Story = {
+	args: { state: 'shellUnavailable' }
+};
+export const ShellFailureDetails: Story = {
+	args: { state: 'shellUnavailable', showErrorDetails: true }
+};

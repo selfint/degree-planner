@@ -111,8 +111,7 @@ function registration() {
 		removeEventListener: vi.fn()
 	};
 }
-const registrationError =
-	'The browser did not return an offline app registration. Allow service workers, then retry.';
+const registrationError = 'registration';
 
 describe('actual offline shell registration result handling', () => {
 	it.each([undefined, null])(
@@ -175,7 +174,7 @@ describe('actual offline shell registration result handling', () => {
 		);
 	});
 
-	it('preserves native registration rejection details', async () => {
+	it('reports a stable reason instead of leaking native registration rejection text', async () => {
 		const h = harness();
 		h.serviceWorker.register.mockRejectedValue(
 			new Error('Registration denied by browser policy.')
@@ -183,7 +182,7 @@ describe('actual offline shell registration result handling', () => {
 		await h.lifecycle.register();
 		expect(h.setShell).toHaveBeenCalledExactlyOnceWith(
 			'unavailable',
-			'Registration denied by browser policy.'
+			'registration'
 		);
 		expect(h.lifecycle.registering()).toBe(false);
 		expect(h.watch).not.toHaveBeenCalled();

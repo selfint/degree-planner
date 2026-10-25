@@ -581,7 +581,7 @@ for (const topic of topics) {
 					}
 					return;
 				}
-				await expect(page.getByTestId('pwa-error-detail')).toHaveCount(0);
+				await expect(page.getByTestId('pwa-error')).toHaveCount(0);
 				await recording.finish(name);
 				if (
 					topic === 'feature-plan' ||

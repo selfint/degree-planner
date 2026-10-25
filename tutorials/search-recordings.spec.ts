@@ -98,7 +98,7 @@ for (const { name, language, theme } of mediaVariants('feature-search')) {
 				.toBe(originalPlan);
 			await recording.frame(`${name}-details`);
 			await pause(page, 3000);
-			await expect(page.getByTestId('pwa-error-detail')).toHaveCount(0);
+			await expect(page.getByTestId('pwa-error')).toHaveCount(0);
 			await recording.finish(name);
 		} finally {
 			await recording.context.close();

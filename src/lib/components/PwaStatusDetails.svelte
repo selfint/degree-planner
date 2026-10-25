@@ -5,7 +5,8 @@
 		subscribeOfflinePublicData,
 		type OfflinePublicDataState
 	} from '$lib/offlineData';
-	import { offlineShellStatus } from '$lib/pwa/status';
+	import { offlineShellStatus, offlineDetailsOpen } from '$lib/pwa/status';
+	import { readShellFailureReason } from '$lib/pwa/shell-failure';
 	import { pwaMessages } from '$lib/pwa/messages';
 
 	let publicData = $state<OfflinePublicDataState>({
@@ -20,35 +21,45 @@
 	const incomplete = $derived(
 		publicData.phase === 'error' || $offlineShellStatus.status === 'unavailable'
 	);
-	const errors = $derived(
-		[...new Set([refreshError, setupError, shellError])].filter(
-			(error): error is string => !!error
-		)
-	);
+	// Source diagnostics may contain raw browser English, URLs, or server text.
+	// Render only localized, bounded explanations, derived on every language change.
+	const messages = $derived([
+		...(refreshError && publicData.phase !== 'error'
+			? [
+					publicData.phase === 'ready'
+						? text.cachedRefreshFailed
+						: text.refreshFailed
+				]
+			: []),
+		...(setupError || publicData.phase === 'error'
+			? [text.publicDataError]
+			: []),
+		...(shellError || $offlineShellStatus.status === 'unavailable'
+			? [text.shellErrors[readShellFailureReason(shellError)]]
+			: [])
+	]);
+	$effect(() => {
+		if (!messages.length && !incomplete) offlineDetailsOpen.set(false);
+	});
 </script>
 
-{#if incomplete || errors.length}
+{#if incomplete || messages.length}
 	<section
 		id="offline-status"
 		data-testid="pwa-status-details"
-		aria-labelledby="offline-status-title"
-		tabindex="-1"
+		aria-label={text.offlineAccess}
+		hidden={!$offlineDetailsOpen}
 	>
-		<h2 id="offline-status-title">
-			{content.lang.lang === 'he' ? 'גישה ללא אינטרנט' : 'Offline access'}
-		</h2>
-		{#if refreshError && publicData.phase !== 'error'}
-			<p role="status" data-testid="pwa-refresh-error">
-				{publicData.phase === 'ready'
-					? text.cachedRefreshFailed
-					: text.refreshFailed}
-			</p>
-		{:else if incomplete || setupError || shellError}
-			<p role="status" data-testid="pwa-incomplete">{text.unavailable}</p>
-		{/if}
-		{#each errors as error}
-			<p class="error-detail" data-testid="pwa-error-detail" dir="auto">
-				{error}
+		{#each messages as message, index}
+			<p
+				role="status"
+				data-testid={index === 0 && refreshError && publicData.phase !== 'error'
+					? 'pwa-refresh-error'
+					: 'pwa-incomplete'}
+			>
+				<span class="error-detail" data-testid="pwa-error-detail"
+					>{message}</span
+				>
 			</p>
 		{/each}
 	</section>
@@ -67,13 +78,8 @@
 		line-height: 1.5;
 		color: rgb(var(--color-content-secondary));
 	}
-	h2 {
-		color: rgb(var(--color-content-primary));
-		font-size: 0.875rem;
-		font-weight: 600;
-	}
 	p {
-		margin-block-start: 0.375rem;
+		margin: 0;
 	}
 	.error-detail {
 		overflow-wrap: anywhere;

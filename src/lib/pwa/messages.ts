@@ -1,6 +1,30 @@
 export const pwaMessages = {
 	en: {
 		retry: 'Try again',
+		error: 'Error',
+		errorDetails: 'Offline setup error details',
+		offlineAccess: 'Offline access',
+		publicDataError:
+			'Course data could not be saved for offline use. Check your connection and available device storage, then try again.',
+		shellErrors: {
+			verification:
+				'Offline app files could not be verified. Check your connection and try again.',
+			download:
+				'Some app files could not be downloaded. Check your connection and try again.',
+			storage:
+				'Offline app files could not be saved. Check available device storage and browser permissions, then try again.',
+			'build-changed':
+				'The deployed app changed while offline files were being prepared. Try again online. If an update is offered, save your changes before updating.',
+			unsupported:
+				'This browser cannot prepare offline access. You can keep using PlanIt online.',
+			installation:
+				'Offline installation did not finish. Check your connection and try again.',
+			registration:
+				'The browser could not start offline setup. Check your connection and browser permissions, then try again.',
+			timeout:
+				'Offline setup took too long. Check your connection and try again.',
+			'worker-unavailable': 'Offline setup could not respond. Try again.'
+		},
 		refreshFailed: 'Refresh failed',
 		cachedRefreshFailed:
 			'Refresh failed. Saved course data is still available.',
@@ -36,6 +60,31 @@ export const pwaMessages = {
 	},
 	he: {
 		retry: 'נסו שוב',
+		error: 'שגיאה',
+		errorDetails: 'פרטי שגיאה בהכנה לשימוש ללא אינטרנט',
+		offlineAccess: 'גישה ללא אינטרנט',
+		publicDataError:
+			'לא ניתן לשמור את נתוני הקורסים לשימוש ללא אינטרנט. בדקו את החיבור ואת המקום הפנוי במכשיר ונסו שוב.',
+		shellErrors: {
+			verification:
+				'לא ניתן לוודא שקובצי היישום זמינים ללא אינטרנט. בדקו את החיבור ונסו שוב.',
+			download:
+				'לא ניתן להוריד חלק מקובצי היישום. בדקו את החיבור לאינטרנט ונסו שוב.',
+			storage:
+				'לא ניתן לשמור את קובצי היישום במכשיר. בדקו את המקום הפנוי ואת הרשאות האחסון בדפדפן ונסו שוב.',
+			'build-changed':
+				'היישום השתנה בזמן הכנת הקבצים לשימוש ללא אינטרנט. נסו שוב עם חיבור לאינטרנט. אם מוצע עדכון, שמרו שינויים לפני התקנתו.',
+			unsupported:
+				'הדפדפן הזה אינו מאפשר להכין גישה ללא אינטרנט. אפשר להמשיך להשתמש ב־PlanIt עם חיבור לאינטרנט.',
+			installation:
+				'ההתקנה לשימוש ללא אינטרנט לא הושלמה. בדקו את החיבור ונסו שוב.',
+			registration:
+				'הדפדפן לא הצליח להתחיל את ההכנה לשימוש ללא אינטרנט. בדקו את החיבור ואת הרשאות הדפדפן ונסו שוב.',
+			timeout:
+				'ההכנה לשימוש ללא אינטרנט ארכה יותר מדי זמן. בדקו את החיבור ונסו שוב.',
+			'worker-unavailable':
+				'לא התקבלה תגובה מההכנה לשימוש ללא אינטרנט. נסו שוב.'
+		},
 		refreshFailed: 'רענון הנתונים נכשל',
 		cachedRefreshFailed:
 			'רענון הנתונים נכשל. נתוני הקורסים השמורים עדיין זמינים.',

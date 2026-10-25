@@ -67,9 +67,9 @@ Planit is Apache-2.0 licensed; its license is retained in `assets/LICENSE.planit
 
 `provenance.json` records each published media file's byte size and SHA-256,
 with the exact recording commit, successful CI run and artifact identifier.
-The current complete set (including the Search feature) is 8,493,147 bytes. The landing fetches neither video
-format before deliberate playback; its two nearby WebP posters total 31–41 KB,
-depending on language and theme. MP4 playback remains under 600 KB per clip;
+The current complete nine-topic set is 29,255,062 bytes. The landing fetches neither video
+format before deliberate playback; its two nearby WebP posters total 31–42 KB,
+depending on language and theme. MP4 playback remains under 725 KB per clip;
 WebM is a fallback. Media is excluded from the app service-worker precache.
 
 ## Search feature recording and publication
@@ -108,24 +108,32 @@ variants at 320, 390 and 1280px, actual playback, fullscreen, live preference
 switching with playback of each selected source, WebM fallback, and the failure
 message without losing the feature description.
 
-The checked-in 36-clip set was recorded from GitHub's PR merge commit
-`afa2e701cbb83c69a121e115451257ae9c7d8612` (PR head
-`2e466e62`) in successful Actions run
-[39406470836](https://github.com/selfint/degree-planner/actions/runs/39406470836),
-artifact `12259028586`. All 70 checks passed before packaging. All 72 MP4/WebM
-files were fully decoded with FFmpeg, and start/middle/end frames across all 36
-clips were visually inspected before copying the complete packaged set.
-`provenance.json` records the exact source, artifact ZIP hash, per-file hashes and
-media durations. The nine-topic root manifest remains separate from the nested
-`journeys/` gallery and its independent provenance/inventory validation.
+The checked-in 36-clip set was recorded from the exact staging push commit
+`8e6af135bb4f9ee546c39bb5b604d8aff691b337` in successful Actions run
+[39472885967](https://github.com/selfint/degree-planner/actions/runs/39472885967),
+artifact `12291437449`. All 164 recording, motion and landing checks passed before
+packaging, including all four Settings variants. The artifact ZIP SHA-256 was
+verified against GitHub, all 72 MP4/WebM files were fully decoded with FFmpeg,
+and every clip was visually reviewed in all four language/theme variants.
+Consecutive native frames during the Plan drag and Catalog vertical/horizontal
+scrolls show intermediate motion, with orientation holds and the actual saved
+destination visible. `provenance.json` records the exact source, artifact ZIP
+hash, per-file hashes and media durations. The nine-topic root manifest remains
+separate from the unchanged nested `journeys/` gallery and its independent
+provenance/inventory validation.
 
 Two minor recording cosmetics remain visible: the lower duplicate prerequisite
 line in the English Plan warning partly overlaps its caption, and the unrelated
 external Google sign-in logo is unavailable in Settings' network-isolated guest
 context. Settings demonstrates degree selection only, not sign-in. The demonstrated
 controls, unique prerequisite alternatives and captions remain readable; no failure UI was
-hidden. Native playback of the newly integrated six players must still pass CI
-and deployed-preview checks; recording success alone does not establish it.
+hidden. The later Semester pointer approaches are slow and somewhat stepped,
+but their intermediate positions and completed exclusion/re-enable remain visible.
+Search changes its faculty selection without showing the opened option list.
+These are presentation limitations, not instantaneous scroll/drop failures.
+Native playback of these refreshed media files must still pass CI and deployed-preview
+checks after publication; the successful capture and local decode review do not
+establish playback of the refreshed files on the deployed site.
 
 For future regeneration, inspect all four variants per topic and update the
 complete asset set and provenance. Do not substitute fixtures, screenshot
@@ -147,8 +155,8 @@ Normal assertion runs retain their fast scrolling and drag path.
 All nine topics use the shared recording action helpers in every EN/HE and
 light/dark variant: course-card, plan-course, feature-search, feature-plan,
 feature-catalog, feature-settings, feature-course, feature-semester, feature-share
-(36 clips). The checked-in assets/provenance are not refreshed by this source
-change. After the complete recording CI succeeds, refresh the full artifact,
+(36 clips). The checked-in assets and provenance were refreshed from the successful run above.
+For each future regeneration, after the complete recording CI succeeds, refresh the full artifact,
 verify its digest and all codecs/durations, and inspect successive frames DURING
 scrolls and the Plan drag in all four variants, not only their before/after
 screenshots. Confirm intermediate positions, readable orientation and the actual

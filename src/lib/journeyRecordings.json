@@ -1,434 +1,434 @@
 [
-	{
-		"schema": 1,
-		"topic": "setup-recovery",
-		"language": "en",
-		"theme": "light",
-		"test": "en: a fresh student recovers interrupted degree setup and reopens a saved course",
-		"testFile": "tests/student-journeys.test.ts",
-		"status": "passed",
-		"commit": "9b8a58c85212cdae3ad20f96451ea44e5764bd51",
-		"run": "39407990698",
-		"segments": [
-			{
-				"page": 0,
-				"index": 0,
-				"name": "setup-and-save",
-				"title": "Recover interrupted setup and save a course"
-			},
-			{
-				"page": 1,
-				"index": 0,
-				"name": "reopen-plan",
-				"title": "Reopen the saved plan in a new tab"
-			}
-		],
-		"source": "/tutorials/journeys/setup-recovery-en-light",
-		"duration": 28.36
-	},
-	{
-		"schema": 1,
-		"topic": "setup-recovery",
-		"language": "en",
-		"theme": "dark",
-		"test": "en: a fresh student recovers interrupted degree setup and reopens a saved course",
-		"testFile": "tests/student-journeys.test.ts",
-		"status": "passed",
-		"commit": "9b8a58c85212cdae3ad20f96451ea44e5764bd51",
-		"run": "39407990698",
-		"segments": [
-			{
-				"page": 0,
-				"index": 0,
-				"name": "setup-and-save",
-				"title": "Recover interrupted setup and save a course"
-			},
-			{
-				"page": 1,
-				"index": 0,
-				"name": "reopen-plan",
-				"title": "Reopen the saved plan in a new tab"
-			}
-		],
-		"source": "/tutorials/journeys/setup-recovery-en-dark",
-		"duration": 28.520000000000003
-	},
-	{
-		"schema": 1,
-		"topic": "setup-recovery",
-		"language": "he",
-		"theme": "light",
-		"test": "he: a fresh student recovers interrupted degree setup and reopens a saved course",
-		"testFile": "tests/student-journeys.test.ts",
-		"status": "passed",
-		"commit": "9b8a58c85212cdae3ad20f96451ea44e5764bd51",
-		"run": "39407990698",
-		"segments": [
-			{
-				"page": 0,
-				"index": 0,
-				"name": "setup-and-save",
-				"title": "שחזור הגדרות שנקטעו ושמירת קורס"
-			},
-			{
-				"page": 1,
-				"index": 0,
-				"name": "reopen-plan",
-				"title": "פתיחה מחדש של התוכנית השמורה בלשונית חדשה"
-			}
-		],
-		"source": "/tutorials/journeys/setup-recovery-he-light",
-		"duration": 28.36
-	},
-	{
-		"schema": 1,
-		"topic": "setup-recovery",
-		"language": "he",
-		"theme": "dark",
-		"test": "he: a fresh student recovers interrupted degree setup and reopens a saved course",
-		"testFile": "tests/student-journeys.test.ts",
-		"status": "passed",
-		"commit": "9b8a58c85212cdae3ad20f96451ea44e5764bd51",
-		"run": "39407990698",
-		"segments": [
-			{
-				"page": 0,
-				"index": 0,
-				"name": "setup-and-save",
-				"title": "שחזור הגדרות שנקטעו ושמירת קורס"
-			},
-			{
-				"page": 1,
-				"index": 0,
-				"name": "reopen-plan",
-				"title": "פתיחה מחדש של התוכנית השמורה בלשונית חדשה"
-			}
-		],
-		"source": "/tutorials/journeys/setup-recovery-he-dark",
-		"duration": 28.32
-	},
-	{
-		"schema": 1,
-		"topic": "independent-share",
-		"language": "en",
-		"theme": "light",
-		"test": "en: a generated share link imports into an independent guest without changing its owner",
-		"testFile": "tests/student-journeys.test.ts",
-		"status": "passed",
-		"commit": "9b8a58c85212cdae3ad20f96451ea44e5764bd51",
-		"run": "39407990698",
-		"segments": [
-			{
-				"page": 0,
-				"index": 0,
-				"name": "owner-share",
-				"title": "Create a share link from the owner plan"
-			},
-			{
-				"page": 1,
-				"index": 0,
-				"name": "share-preview",
-				"title": "Inspect the generated share preview"
-			},
-			{
-				"page": 2,
-				"index": 0,
-				"name": "recipient-import",
-				"title": "An independent guest cancels, imports, reopens and edits the copy"
-			},
-			{
-				"page": 0,
-				"index": 1,
-				"name": "owner-unchanged",
-				"title": "Verify the owner plan is unchanged"
-			}
-		],
-		"source": "/tutorials/journeys/independent-share-en-light",
-		"duration": 25.72
-	},
-	{
-		"schema": 1,
-		"topic": "independent-share",
-		"language": "en",
-		"theme": "dark",
-		"test": "en: a generated share link imports into an independent guest without changing its owner",
-		"testFile": "tests/student-journeys.test.ts",
-		"status": "passed",
-		"commit": "9b8a58c85212cdae3ad20f96451ea44e5764bd51",
-		"run": "39407990698",
-		"segments": [
-			{
-				"page": 0,
-				"index": 0,
-				"name": "owner-share",
-				"title": "Create a share link from the owner plan"
-			},
-			{
-				"page": 1,
-				"index": 0,
-				"name": "share-preview",
-				"title": "Inspect the generated share preview"
-			},
-			{
-				"page": 2,
-				"index": 0,
-				"name": "recipient-import",
-				"title": "An independent guest cancels, imports, reopens and edits the copy"
-			},
-			{
-				"page": 0,
-				"index": 1,
-				"name": "owner-unchanged",
-				"title": "Verify the owner plan is unchanged"
-			}
-		],
-		"source": "/tutorials/journeys/independent-share-en-dark",
-		"duration": 26.2
-	},
-	{
-		"schema": 1,
-		"topic": "independent-share",
-		"language": "he",
-		"theme": "light",
-		"test": "he: a generated share link imports into an independent guest without changing its owner",
-		"testFile": "tests/student-journeys.test.ts",
-		"status": "passed",
-		"commit": "9b8a58c85212cdae3ad20f96451ea44e5764bd51",
-		"run": "39407990698",
-		"segments": [
-			{
-				"page": 0,
-				"index": 0,
-				"name": "owner-share",
-				"title": "יצירת קישור שיתוף מתוכנית הבעלים"
-			},
-			{
-				"page": 1,
-				"index": 0,
-				"name": "share-preview",
-				"title": "בדיקת התצוגה המקדימה של הקישור"
-			},
-			{
-				"page": 2,
-				"index": 0,
-				"name": "recipient-import",
-				"title": "אורח עצמאי מבטל, מייבא, פותח מחדש ועורך את העותק"
-			},
-			{
-				"page": 0,
-				"index": 1,
-				"name": "owner-unchanged",
-				"title": "אימות שתוכנית הבעלים לא השתנתה"
-			}
-		],
-		"source": "/tutorials/journeys/independent-share-he-light",
-		"duration": 25.68
-	},
-	{
-		"schema": 1,
-		"topic": "independent-share",
-		"language": "he",
-		"theme": "dark",
-		"test": "he: a generated share link imports into an independent guest without changing its owner",
-		"testFile": "tests/student-journeys.test.ts",
-		"status": "passed",
-		"commit": "9b8a58c85212cdae3ad20f96451ea44e5764bd51",
-		"run": "39407990698",
-		"segments": [
-			{
-				"page": 0,
-				"index": 0,
-				"name": "owner-share",
-				"title": "יצירת קישור שיתוף מתוכנית הבעלים"
-			},
-			{
-				"page": 1,
-				"index": 0,
-				"name": "share-preview",
-				"title": "בדיקת התצוגה המקדימה של הקישור"
-			},
-			{
-				"page": 2,
-				"index": 0,
-				"name": "recipient-import",
-				"title": "אורח עצמאי מבטל, מייבא, פותח מחדש ועורך את העותק"
-			},
-			{
-				"page": 0,
-				"index": 1,
-				"name": "owner-unchanged",
-				"title": "אימות שתוכנית הבעלים לא השתנתה"
-			}
-		],
-		"source": "/tutorials/journeys/independent-share-he-dark",
-		"duration": 25.72
-	},
-	{
-		"schema": 1,
-		"topic": "shorter-import",
-		"language": "en",
-		"theme": "light",
-		"test": "en: a returning student must choose an in-range Current before importing a shorter plan",
-		"testFile": "tests/student-journeys.test.ts",
-		"status": "passed",
-		"commit": "9b8a58c85212cdae3ad20f96451ea44e5764bd51",
-		"run": "39407990698",
-		"segments": [
-			{
-				"page": 0,
-				"index": 0,
-				"name": "choose-current",
-				"title": "Choose an in-range Current before importing a shorter plan"
-			}
-		],
-		"source": "/tutorials/journeys/shorter-import-en-light",
-		"duration": 13.84
-	},
-	{
-		"schema": 1,
-		"topic": "shorter-import",
-		"language": "en",
-		"theme": "dark",
-		"test": "en: a returning student must choose an in-range Current before importing a shorter plan",
-		"testFile": "tests/student-journeys.test.ts",
-		"status": "passed",
-		"commit": "9b8a58c85212cdae3ad20f96451ea44e5764bd51",
-		"run": "39407990698",
-		"segments": [
-			{
-				"page": 0,
-				"index": 0,
-				"name": "choose-current",
-				"title": "Choose an in-range Current before importing a shorter plan"
-			}
-		],
-		"source": "/tutorials/journeys/shorter-import-en-dark",
-		"duration": 13.88
-	},
-	{
-		"schema": 1,
-		"topic": "shorter-import",
-		"language": "he",
-		"theme": "light",
-		"test": "he: a returning student must choose an in-range Current before importing a shorter plan",
-		"testFile": "tests/student-journeys.test.ts",
-		"status": "passed",
-		"commit": "9b8a58c85212cdae3ad20f96451ea44e5764bd51",
-		"run": "39407990698",
-		"segments": [
-			{
-				"page": 0,
-				"index": 0,
-				"name": "choose-current",
-				"title": "בחירת סמסטר נוכחי תקין לפני ייבוא תוכנית קצרה"
-			}
-		],
-		"source": "/tutorials/journeys/shorter-import-he-light",
-		"duration": 13.92
-	},
-	{
-		"schema": 1,
-		"topic": "shorter-import",
-		"language": "he",
-		"theme": "dark",
-		"test": "he: a returning student must choose an in-range Current before importing a shorter plan",
-		"testFile": "tests/student-journeys.test.ts",
-		"status": "passed",
-		"commit": "9b8a58c85212cdae3ad20f96451ea44e5764bd51",
-		"run": "39407990698",
-		"segments": [
-			{
-				"page": 0,
-				"index": 0,
-				"name": "choose-current",
-				"title": "בחירת סמסטר נוכחי תקין לפני ייבוא תוכנית קצרה"
-			}
-		],
-		"source": "/tutorials/journeys/shorter-import-he-dark",
-		"duration": 13.88
-	},
-	{
-		"schema": 1,
-		"topic": "safe-shortening",
-		"language": "en",
-		"theme": "light",
-		"test": "en: shortening the plan cannot remove its selected current semester",
-		"testFile": "tests/student-journeys.test.ts",
-		"status": "passed",
-		"commit": "9b8a58c85212cdae3ad20f96451ea44e5764bd51",
-		"run": "39407990698",
-		"segments": [
-			{
-				"page": 0,
-				"index": 0,
-				"name": "protect-current",
-				"title": "Explicitly move Current before shortening the plan"
-			}
-		],
-		"source": "/tutorials/journeys/safe-shortening-en-light",
-		"duration": 9.4
-	},
-	{
-		"schema": 1,
-		"topic": "safe-shortening",
-		"language": "en",
-		"theme": "dark",
-		"test": "en: shortening the plan cannot remove its selected current semester",
-		"testFile": "tests/student-journeys.test.ts",
-		"status": "passed",
-		"commit": "9b8a58c85212cdae3ad20f96451ea44e5764bd51",
-		"run": "39407990698",
-		"segments": [
-			{
-				"page": 0,
-				"index": 0,
-				"name": "protect-current",
-				"title": "Explicitly move Current before shortening the plan"
-			}
-		],
-		"source": "/tutorials/journeys/safe-shortening-en-dark",
-		"duration": 9.36
-	},
-	{
-		"schema": 1,
-		"topic": "safe-shortening",
-		"language": "he",
-		"theme": "light",
-		"test": "he: shortening the plan cannot remove its selected current semester",
-		"testFile": "tests/student-journeys.test.ts",
-		"status": "passed",
-		"commit": "9b8a58c85212cdae3ad20f96451ea44e5764bd51",
-		"run": "39407990698",
-		"segments": [
-			{
-				"page": 0,
-				"index": 0,
-				"name": "protect-current",
-				"title": "שינוי מפורש של הסמסטר הנוכחי לפני קיצור התוכנית"
-			}
-		],
-		"source": "/tutorials/journeys/safe-shortening-he-light",
-		"duration": 9.32
-	},
-	{
-		"schema": 1,
-		"topic": "safe-shortening",
-		"language": "he",
-		"theme": "dark",
-		"test": "he: shortening the plan cannot remove its selected current semester",
-		"testFile": "tests/student-journeys.test.ts",
-		"status": "passed",
-		"commit": "9b8a58c85212cdae3ad20f96451ea44e5764bd51",
-		"run": "39407990698",
-		"segments": [
-			{
-				"page": 0,
-				"index": 0,
-				"name": "protect-current",
-				"title": "שינוי מפורש של הסמסטר הנוכחי לפני קיצור התוכנית"
-			}
-		],
-		"source": "/tutorials/journeys/safe-shortening-he-dark",
-		"duration": 9.36
-	}
+  {
+    "schema": 1,
+    "topic": "setup-recovery",
+    "language": "en",
+    "theme": "light",
+    "test": "en: a fresh student recovers interrupted degree setup and reopens a saved course",
+    "testFile": "tests/student-journeys.test.ts",
+    "status": "passed",
+    "commit": "31687216ecfdf0e358a27941300a6940c12af1aa",
+    "run": "39421183812",
+    "segments": [
+      {
+        "page": 0,
+        "index": 0,
+        "name": "setup-and-save",
+        "title": "Recover interrupted setup and save a course"
+      },
+      {
+        "page": 1,
+        "index": 0,
+        "name": "reopen-plan",
+        "title": "Reopen the saved plan in a new tab"
+      }
+    ],
+    "source": "/tutorials/journeys/setup-recovery-en-light",
+    "duration": 76.16
+  },
+  {
+    "schema": 1,
+    "topic": "setup-recovery",
+    "language": "en",
+    "theme": "dark",
+    "test": "en: a fresh student recovers interrupted degree setup and reopens a saved course",
+    "testFile": "tests/student-journeys.test.ts",
+    "status": "passed",
+    "commit": "31687216ecfdf0e358a27941300a6940c12af1aa",
+    "run": "39421183812",
+    "segments": [
+      {
+        "page": 0,
+        "index": 0,
+        "name": "setup-and-save",
+        "title": "Recover interrupted setup and save a course"
+      },
+      {
+        "page": 1,
+        "index": 0,
+        "name": "reopen-plan",
+        "title": "Reopen the saved plan in a new tab"
+      }
+    ],
+    "source": "/tutorials/journeys/setup-recovery-en-dark",
+    "duration": 75.76
+  },
+  {
+    "schema": 1,
+    "topic": "setup-recovery",
+    "language": "he",
+    "theme": "light",
+    "test": "he: a fresh student recovers interrupted degree setup and reopens a saved course",
+    "testFile": "tests/student-journeys.test.ts",
+    "status": "passed",
+    "commit": "31687216ecfdf0e358a27941300a6940c12af1aa",
+    "run": "39421183812",
+    "segments": [
+      {
+        "page": 0,
+        "index": 0,
+        "name": "setup-and-save",
+        "title": "שחזור הגדרות שנקטעו ושמירת קורס"
+      },
+      {
+        "page": 1,
+        "index": 0,
+        "name": "reopen-plan",
+        "title": "פתיחה מחדש של התוכנית השמורה בלשונית חדשה"
+      }
+    ],
+    "source": "/tutorials/journeys/setup-recovery-he-light",
+    "duration": 75.39999999999999
+  },
+  {
+    "schema": 1,
+    "topic": "setup-recovery",
+    "language": "he",
+    "theme": "dark",
+    "test": "he: a fresh student recovers interrupted degree setup and reopens a saved course",
+    "testFile": "tests/student-journeys.test.ts",
+    "status": "passed",
+    "commit": "31687216ecfdf0e358a27941300a6940c12af1aa",
+    "run": "39421183812",
+    "segments": [
+      {
+        "page": 0,
+        "index": 0,
+        "name": "setup-and-save",
+        "title": "שחזור הגדרות שנקטעו ושמירת קורס"
+      },
+      {
+        "page": 1,
+        "index": 0,
+        "name": "reopen-plan",
+        "title": "פתיחה מחדש של התוכנית השמורה בלשונית חדשה"
+      }
+    ],
+    "source": "/tutorials/journeys/setup-recovery-he-dark",
+    "duration": 76.03999999999999
+  },
+  {
+    "schema": 1,
+    "topic": "independent-share",
+    "language": "en",
+    "theme": "light",
+    "test": "en: a generated share link imports into an independent guest without changing its owner",
+    "testFile": "tests/student-journeys.test.ts",
+    "status": "passed",
+    "commit": "31687216ecfdf0e358a27941300a6940c12af1aa",
+    "run": "39421183812",
+    "segments": [
+      {
+        "page": 0,
+        "index": 0,
+        "name": "owner-share",
+        "title": "Create a share link from the owner plan"
+      },
+      {
+        "page": 1,
+        "index": 0,
+        "name": "share-preview",
+        "title": "Inspect the generated share preview"
+      },
+      {
+        "page": 2,
+        "index": 0,
+        "name": "recipient-import",
+        "title": "An independent guest cancels, imports, reopens and edits the copy"
+      },
+      {
+        "page": 0,
+        "index": 1,
+        "name": "owner-unchanged",
+        "title": "Verify the owner plan is unchanged"
+      }
+    ],
+    "source": "/tutorials/journeys/independent-share-en-light",
+    "duration": 37.239999999999995
+  },
+  {
+    "schema": 1,
+    "topic": "independent-share",
+    "language": "en",
+    "theme": "dark",
+    "test": "en: a generated share link imports into an independent guest without changing its owner",
+    "testFile": "tests/student-journeys.test.ts",
+    "status": "passed",
+    "commit": "31687216ecfdf0e358a27941300a6940c12af1aa",
+    "run": "39421183812",
+    "segments": [
+      {
+        "page": 0,
+        "index": 0,
+        "name": "owner-share",
+        "title": "Create a share link from the owner plan"
+      },
+      {
+        "page": 1,
+        "index": 0,
+        "name": "share-preview",
+        "title": "Inspect the generated share preview"
+      },
+      {
+        "page": 2,
+        "index": 0,
+        "name": "recipient-import",
+        "title": "An independent guest cancels, imports, reopens and edits the copy"
+      },
+      {
+        "page": 0,
+        "index": 1,
+        "name": "owner-unchanged",
+        "title": "Verify the owner plan is unchanged"
+      }
+    ],
+    "source": "/tutorials/journeys/independent-share-en-dark",
+    "duration": 37.519999999999996
+  },
+  {
+    "schema": 1,
+    "topic": "independent-share",
+    "language": "he",
+    "theme": "light",
+    "test": "he: a generated share link imports into an independent guest without changing its owner",
+    "testFile": "tests/student-journeys.test.ts",
+    "status": "passed",
+    "commit": "31687216ecfdf0e358a27941300a6940c12af1aa",
+    "run": "39421183812",
+    "segments": [
+      {
+        "page": 0,
+        "index": 0,
+        "name": "owner-share",
+        "title": "יצירת קישור שיתוף מתוכנית הבעלים"
+      },
+      {
+        "page": 1,
+        "index": 0,
+        "name": "share-preview",
+        "title": "בדיקת התצוגה המקדימה של הקישור"
+      },
+      {
+        "page": 2,
+        "index": 0,
+        "name": "recipient-import",
+        "title": "אורח עצמאי מבטל, מייבא, פותח מחדש ועורך את העותק"
+      },
+      {
+        "page": 0,
+        "index": 1,
+        "name": "owner-unchanged",
+        "title": "אימות שתוכנית הבעלים לא השתנתה"
+      }
+    ],
+    "source": "/tutorials/journeys/independent-share-he-light",
+    "duration": 37.519999999999996
+  },
+  {
+    "schema": 1,
+    "topic": "independent-share",
+    "language": "he",
+    "theme": "dark",
+    "test": "he: a generated share link imports into an independent guest without changing its owner",
+    "testFile": "tests/student-journeys.test.ts",
+    "status": "passed",
+    "commit": "31687216ecfdf0e358a27941300a6940c12af1aa",
+    "run": "39421183812",
+    "segments": [
+      {
+        "page": 0,
+        "index": 0,
+        "name": "owner-share",
+        "title": "יצירת קישור שיתוף מתוכנית הבעלים"
+      },
+      {
+        "page": 1,
+        "index": 0,
+        "name": "share-preview",
+        "title": "בדיקת התצוגה המקדימה של הקישור"
+      },
+      {
+        "page": 2,
+        "index": 0,
+        "name": "recipient-import",
+        "title": "אורח עצמאי מבטל, מייבא, פותח מחדש ועורך את העותק"
+      },
+      {
+        "page": 0,
+        "index": 1,
+        "name": "owner-unchanged",
+        "title": "אימות שתוכנית הבעלים לא השתנתה"
+      }
+    ],
+    "source": "/tutorials/journeys/independent-share-he-dark",
+    "duration": 37.12
+  },
+  {
+    "schema": 1,
+    "topic": "shorter-import",
+    "language": "en",
+    "theme": "light",
+    "test": "en: a returning student must choose an in-range Current before importing a shorter plan",
+    "testFile": "tests/student-journeys.test.ts",
+    "status": "passed",
+    "commit": "31687216ecfdf0e358a27941300a6940c12af1aa",
+    "run": "39421183812",
+    "segments": [
+      {
+        "page": 0,
+        "index": 0,
+        "name": "choose-current",
+        "title": "Choose an in-range Current before importing a shorter plan"
+      }
+    ],
+    "source": "/tutorials/journeys/shorter-import-en-light",
+    "duration": 24.84
+  },
+  {
+    "schema": 1,
+    "topic": "shorter-import",
+    "language": "en",
+    "theme": "dark",
+    "test": "en: a returning student must choose an in-range Current before importing a shorter plan",
+    "testFile": "tests/student-journeys.test.ts",
+    "status": "passed",
+    "commit": "31687216ecfdf0e358a27941300a6940c12af1aa",
+    "run": "39421183812",
+    "segments": [
+      {
+        "page": 0,
+        "index": 0,
+        "name": "choose-current",
+        "title": "Choose an in-range Current before importing a shorter plan"
+      }
+    ],
+    "source": "/tutorials/journeys/shorter-import-en-dark",
+    "duration": 24.64
+  },
+  {
+    "schema": 1,
+    "topic": "shorter-import",
+    "language": "he",
+    "theme": "light",
+    "test": "he: a returning student must choose an in-range Current before importing a shorter plan",
+    "testFile": "tests/student-journeys.test.ts",
+    "status": "passed",
+    "commit": "31687216ecfdf0e358a27941300a6940c12af1aa",
+    "run": "39421183812",
+    "segments": [
+      {
+        "page": 0,
+        "index": 0,
+        "name": "choose-current",
+        "title": "בחירת סמסטר נוכחי תקין לפני ייבוא תוכנית קצרה"
+      }
+    ],
+    "source": "/tutorials/journeys/shorter-import-he-light",
+    "duration": 24.28
+  },
+  {
+    "schema": 1,
+    "topic": "shorter-import",
+    "language": "he",
+    "theme": "dark",
+    "test": "he: a returning student must choose an in-range Current before importing a shorter plan",
+    "testFile": "tests/student-journeys.test.ts",
+    "status": "passed",
+    "commit": "31687216ecfdf0e358a27941300a6940c12af1aa",
+    "run": "39421183812",
+    "segments": [
+      {
+        "page": 0,
+        "index": 0,
+        "name": "choose-current",
+        "title": "בחירת סמסטר נוכחי תקין לפני ייבוא תוכנית קצרה"
+      }
+    ],
+    "source": "/tutorials/journeys/shorter-import-he-dark",
+    "duration": 25.16
+  },
+  {
+    "schema": 1,
+    "topic": "safe-shortening",
+    "language": "en",
+    "theme": "light",
+    "test": "en: shortening the plan cannot remove its selected current semester",
+    "testFile": "tests/student-journeys.test.ts",
+    "status": "passed",
+    "commit": "31687216ecfdf0e358a27941300a6940c12af1aa",
+    "run": "39421183812",
+    "segments": [
+      {
+        "page": 0,
+        "index": 0,
+        "name": "protect-current",
+        "title": "Explicitly move Current before shortening the plan"
+      }
+    ],
+    "source": "/tutorials/journeys/safe-shortening-en-light",
+    "duration": 16.84
+  },
+  {
+    "schema": 1,
+    "topic": "safe-shortening",
+    "language": "en",
+    "theme": "dark",
+    "test": "en: shortening the plan cannot remove its selected current semester",
+    "testFile": "tests/student-journeys.test.ts",
+    "status": "passed",
+    "commit": "31687216ecfdf0e358a27941300a6940c12af1aa",
+    "run": "39421183812",
+    "segments": [
+      {
+        "page": 0,
+        "index": 0,
+        "name": "protect-current",
+        "title": "Explicitly move Current before shortening the plan"
+      }
+    ],
+    "source": "/tutorials/journeys/safe-shortening-en-dark",
+    "duration": 17.44
+  },
+  {
+    "schema": 1,
+    "topic": "safe-shortening",
+    "language": "he",
+    "theme": "light",
+    "test": "he: shortening the plan cannot remove its selected current semester",
+    "testFile": "tests/student-journeys.test.ts",
+    "status": "passed",
+    "commit": "31687216ecfdf0e358a27941300a6940c12af1aa",
+    "run": "39421183812",
+    "segments": [
+      {
+        "page": 0,
+        "index": 0,
+        "name": "protect-current",
+        "title": "שינוי מפורש של הסמסטר הנוכחי לפני קיצור התוכנית"
+      }
+    ],
+    "source": "/tutorials/journeys/safe-shortening-he-light",
+    "duration": 16.72
+  },
+  {
+    "schema": 1,
+    "topic": "safe-shortening",
+    "language": "he",
+    "theme": "dark",
+    "test": "he: shortening the plan cannot remove its selected current semester",
+    "testFile": "tests/student-journeys.test.ts",
+    "status": "passed",
+    "commit": "31687216ecfdf0e358a27941300a6940c12af1aa",
+    "run": "39421183812",
+    "segments": [
+      {
+        "page": 0,
+        "index": 0,
+        "name": "protect-current",
+        "title": "שינוי מפורש של הסמסטר הנוכחי לפני קיצור התוכנית"
+      }
+    ],
+    "source": "/tutorials/journeys/safe-shortening-he-dark",
+    "duration": 17.28
+  }
 ]

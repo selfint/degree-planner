@@ -479,7 +479,7 @@ for (const topic of topics) {
 					const share = page.locator('a.plan-share');
 					await expect(share).toHaveAttribute('target', '_blank');
 					const href = await share.getAttribute('href');
-					expect(href).toContain('/app/preview/');
+					expect(href).toContain('/share/');
 					const donorBefore = await saved(page);
 					const recipient = await createRecording(
 						browser,
@@ -503,7 +503,7 @@ for (const topic of topics) {
 							recipient.page.locator('.preview-loading')
 						).toHaveCount(0);
 						expect(await saved(recipient.page)).toEqual(recipientBefore);
-						await recipient.start();
+						await recipient.start({ browserPreview: true });
 						await scene(
 							recipient,
 							language,
@@ -533,8 +533,15 @@ for (const topic of topics) {
 							confirmed = true;
 							await dialog.accept();
 						});
-						await click(recipient.page, copy);
+						const previewTimeOrigin = await recipient.page.evaluate(
+							() => performance.timeOrigin
+						);
+						await click(recipient.page, copy, { documentUrl: /\/app\/plan$/ });
 						await expect(recipient.page).toHaveURL(/\/app\/plan$/);
+						expect(
+							await recipient.page.evaluate(() => performance.timeOrigin)
+						).not.toBe(previewTimeOrigin);
+						await recipient.resumeAfterNavigation();
 						expect(confirmed).toBe(true);
 						await expect
 							.poll(async () => (await saved(recipient.page)).semesters)

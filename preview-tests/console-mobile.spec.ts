@@ -319,28 +319,38 @@ for (const language of ['en', 'he'] as const) {
 			.locator('header')
 			.getByRole('link', { name: 'PlanIt', exact: true });
 		await expect(logo).toHaveAttribute('href', '/');
+		await expect(logo).toHaveAttribute('target', '_blank');
 		const initialTimeOrigin = await page.evaluate(() => performance.timeOrigin);
 		const initialSavedPlan = await page.evaluate(() =>
 			localStorage.getItem('userData')
 		);
+		const opened = page.waitForEvent('popup');
 		await logo.click();
-		await expect(page).toHaveURL(new URL('/', baseURL).href);
-		await expect(page.locator('.landing')).toHaveAttribute(
+		const landing = await opened;
+		await expect(landing).toHaveURL(new URL('/', baseURL).href);
+		await expect(landing.locator('.landing')).toHaveAttribute(
 			'dir',
 			language === 'he' ? 'rtl' : 'ltr'
 		);
-		expect(await page.evaluate(() => performance.timeOrigin)).not.toBe(
+		expect(await landing.evaluate(() => window.opener)).toBeNull();
+		await expect(page).toHaveURL(new URL('/app/plan', baseURL).href);
+		expect(await page.evaluate(() => performance.timeOrigin)).toBe(
 			initialTimeOrigin
 		);
-		await page.locator('header a[href="/app/"]').click();
-		await expect(page).toHaveURL(/\/app\/plan$/);
-		await ready(page);
+		await landing.locator('header a[href="/app/"]').click();
+		await expect(landing).toHaveURL(/\/app\/plan$/);
+		await ready(landing);
+		expect(await landing.evaluate(() => localStorage.getItem('userData'))).toBe(
+			initialSavedPlan
+		);
+		await landing.close();
+		expect(context.pages()).toHaveLength(1);
 		expect(await page.evaluate(() => localStorage.getItem('userData'))).toBe(
 			initialSavedPlan
 		);
 		const onlineTimeOrigin = await page.evaluate(() => performance.timeOrigin);
 		evidence.checkpoints.push(
-			'brand-opens-landing-and-get-started-restores-saved-plan'
+			'brand-opens-separate-landing-tab-and-get-started-restores-saved-plan'
 		);
 
 		await watchConsoleEntry(page);

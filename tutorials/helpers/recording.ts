@@ -75,7 +75,11 @@ export async function moveTo(page: Page, target: Locator) {
 	});
 }
 
-export async function click(page: Page, target: Locator) {
+export async function click(
+	page: Page,
+	target: Locator,
+	{ documentUrl }: { documentUrl?: RegExp } = {}
+) {
 	await reveal(page, target);
 	await moveTo(page, target);
 	await pause(page, 300);
@@ -91,6 +95,15 @@ export async function click(page: Page, target: Locator) {
 	});
 	await page.mouse.down();
 	await pause(page, 80);
+	if (documentUrl) {
+		// A native document navigation removes this document's cursor. Do not
+		// evaluate its pressed state in a destroyed context or the new document.
+		await Promise.all([
+			page.waitForURL(documentUrl, { waitUntil: 'domcontentloaded' }),
+			page.mouse.up()
+		]);
+		return;
+	}
 	await page.mouse.up();
 	await page.evaluate(() => {
 		document.querySelector<HTMLElement>('.demo-cursor')!.dataset.pressed =
@@ -190,19 +203,42 @@ export async function createRecording(
 	);
 	let started = 0;
 	const captions: { start: number; end: number; text: string }[] = [];
-	return {
-		page,
-		context,
-		async start() {
-			// Genuine offline readiness; never hide a failure footer for a recording.
+	async function preparePage(browserPreview = false) {
+		if (browserPreview) {
+			// Public shares intentionally live outside worker scope. Verify that
+			// real browser-only UI instead of waiting for a nonexistent PWA status.
+			expect(new URL(page.url()).pathname).toMatch(
+				/^\/share\/[A-Za-z0-9_-]+\/[A-Za-z0-9_-]+\/[A-Za-z0-9_-]+\/?$/
+			);
+			await expect(page.locator('.preview-page')).toBeVisible();
+			await expect(page.getByTestId('footer-build-version')).toBeVisible();
+			for (const id of [
+				'pwa-footer-row',
+				'pwa-status',
+				'pwa-update-banner',
+				'footer-update'
+			])
+				await expect(page.getByTestId(id)).toHaveCount(0);
+		} else {
+			// Genuine offline readiness remains mandatory on every app document;
+			// never hide or bypass a failure footer for a recording.
+			expect(new URL(page.url()).pathname).toMatch(/^\/app(?:\/|$)/);
 			await expect(page.getByTestId('pwa-status')).toHaveAttribute(
 				'data-state',
 				'ready',
 				{ timeout: 60_000 }
 			);
-			await expect(page.getByTestId('pwa-error-detail')).toHaveCount(0);
-			await page.evaluate(() => document.fonts.ready);
-			await installCursor(page);
+		}
+		await expect(page.getByTestId('pwa-error-detail')).toHaveCount(0);
+		await page.evaluate(() => document.fonts.ready);
+		await installCursor(page);
+		await expect(page.locator('.demo-cursor')).toHaveCount(1);
+	}
+	return {
+		page,
+		context,
+		async start({ browserPreview = false }: { browserPreview?: boolean } = {}) {
+			await preparePage(browserPreview);
 			if (demo) {
 				// A removed slate gives the encoder an actual video-frame boundary,
 				// rather than estimating setup from asynchronous wall-clock duration.
@@ -219,6 +255,15 @@ export async function createRecording(
 				);
 			}
 			started = Date.now();
+		},
+		async resumeAfterNavigation() {
+			expect(
+				started,
+				'resume an existing recording, never restart its timeline'
+			).toBeGreaterThan(0);
+			// Restore cursor/caption styles after a native import navigation without
+			// emitting another slate or resetting video and caption timestamps.
+			await preparePage();
 		},
 		async caption(title: string, text: string, target?: Locator) {
 			await expect(page.getByTestId('pwa-error-detail')).toHaveCount(0);

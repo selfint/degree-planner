@@ -80,7 +80,7 @@ for (const width of [320, 390, 1280]) {
 					);
 					await expect(tutorial.locator('details, summary')).toHaveCount(0);
 					await expect(
-						tutorial.locator('xpath=ancestor::section').locator('p').first()
+						tutorial.locator('xpath=ancestor::section').locator('h2 + p')
 					).toBeVisible();
 					await video.scrollIntoViewIfNeeded();
 					expect(
@@ -218,7 +218,7 @@ for (const { language, theme, width } of [
 			await video.dispatchEvent('error');
 			await expect(tutorial.getByRole('status')).toBeVisible();
 			await expect(
-				tutorial.locator('xpath=ancestor::section').locator('p').first()
+				tutorial.locator('xpath=ancestor::section').locator('h2 + p')
 			).toBeVisible();
 		}
 	});
@@ -260,7 +260,7 @@ test('both unavailable media sources expose a real failure message and readable 
 		'The video could not load.'
 	);
 	await expect(
-		tutorial.locator('xpath=ancestor::section').locator('p').first()
+		tutorial.locator('xpath=ancestor::section').locator('h2 + p')
 	).toBeVisible();
 	await page.screenshot({ path: info.outputPath('real-media-failure.png') });
 });

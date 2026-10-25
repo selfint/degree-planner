@@ -36,8 +36,13 @@ async function expectCopy(
 ) {
 	const [title, description] = featureCopy(language, topic);
 	await expect(section.getByRole('heading', { level: 2 })).toHaveText(title);
+	// Media is first in the original layout, including its failure paragraph.
+	// Read the description attached to the heading, not the first paragraph.
+	const copy = section.locator('h2 + p');
+	await expect(copy).toHaveCount(1);
+	await expect(copy).toBeVisible();
 	await expect
-		.poll(async () => normalize(await section.locator('p').first().innerText()))
+		.poll(async () => normalize(await copy.innerText()))
 		.toBe(normalize(description));
 }
 

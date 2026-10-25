@@ -30,6 +30,26 @@ describe('feature media slot', () => {
 		expect(body).not.toContain('<img');
 		expect((body.match(/<section/g) ?? []).length).toBe(1);
 	});
+
+	it('keeps feature copy distinct from a media failure paragraph in the original media-first layout', () => {
+		const failedMedia = createRawSnippet(() => ({
+			render: () =>
+				'<div><video controls></video><p role="status">The video could not load.</p></div>'
+		}));
+		const { body } = render(ImgDemo, {
+			props: {
+				title: 'Search courses',
+				children: description,
+				media: failedMedia
+			}
+		});
+		// The old p.first() target is the status, while h2 + p targets copy.
+		expect(body.indexOf('<p role="status"')).toBeLessThan(body.indexOf('<h2'));
+		expect(body).toMatch(
+			/<h2[^>]*>Search courses<\/h2>\s*<p[^>]*>[\s\S]*Existing feature description[\s\S]*<\/p>/
+		);
+		expect(body).toContain('<p role="status">The video could not load.</p>');
+	});
 	it('keeps the original lazy image fallback for non-video callers', () => {
 		const src = {
 			sources: { webp: '/feature.webp' },

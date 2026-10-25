@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { intentionalWebKitFetchDiagnostic } from '../tests/helpers/student-journey-diagnostics';
+import {
+	intentionalWebKitFetchDiagnostic,
+	recordIntentionalAbort
+} from '../tests/helpers/student-journey-diagnostics';
 
 const url =
 	'https://firebase.googleapis.com/v1alpha/projects/-/apps/test-app/webConfig';
@@ -58,6 +61,57 @@ describe('intentional WebKit blocked-request diagnostics', () => {
 	])('preserves unrelated or incomplete errors: %j', (error) => {
 		expect(
 			intentionalWebKitFetchDiagnostic('webkit', error, new Set([url]))
+		).toBeUndefined();
+	});
+});
+
+describe('intentional abort completion ordering', () => {
+	it('waits for successful abort acknowledgment before classifying an early WebKit diagnostic', async () => {
+		let finish;
+		const acknowledgment = new Promise((resolve) => {
+			finish = resolve;
+		});
+		const aborted = new Set();
+		const pending = new Set();
+		const operation = recordIntentionalAbort(
+			url,
+			() => acknowledgment,
+			aborted,
+			pending
+		);
+		expect(pending.size).toBe(1);
+		expect(
+			intentionalWebKitFetchDiagnostic('webkit', diagnostic, aborted)
+		).toBeUndefined();
+		let checked = false;
+		const checking = Promise.all(pending).then(() => {
+			checked = true;
+			expect(
+				intentionalWebKitFetchDiagnostic('webkit', diagnostic, aborted)
+			).toBe(url);
+		});
+		await Promise.resolve();
+		expect(checked).toBe(false);
+		finish();
+		await Promise.all([operation, checking]);
+		expect(pending.size).toBe(0);
+	});
+	it('does not record evidence when the abort itself fails', async () => {
+		const aborted = new Set();
+		const pending = new Set();
+		const failure = new Error('Page closed before abort acknowledgment');
+		await expect(
+			recordIntentionalAbort(
+				url,
+				() => Promise.reject(failure),
+				aborted,
+				pending
+			)
+		).rejects.toBe(failure);
+		expect(aborted.size).toBe(0);
+		expect(pending.size).toBe(0);
+		expect(
+			intentionalWebKitFetchDiagnostic('webkit', diagnostic, aborted)
 		).toBeUndefined();
 	});
 });

@@ -15,6 +15,7 @@ import {
 import { initializeGuestStorage } from './helpers/student-guest-storage';
 import {
 	intentionalWebKitFetchDiagnostic,
+	recordIntentionalAbort,
 	type BrowserDiagnostic
 } from './helpers/student-journey-diagnostics';
 
@@ -29,6 +30,7 @@ const courses = JSON.parse(
 type Language = 'en' | 'he';
 type JourneyDiagnostics = {
 	abortedUrls: Set<string>;
+	pendingAborts: Set<Promise<void>>;
 	browserErrors: BrowserDiagnostic[];
 	runtimeErrors: { type: string; message: string }[];
 };
@@ -53,7 +55,11 @@ test.afterEach(async ({}, info) => {
 	writeFileSync(
 		path,
 		JSON.stringify(
-			{ ...diagnostics, abortedUrls: [...diagnostics.abortedUrls] },
+			{
+				abortedUrls: [...diagnostics.abortedUrls],
+				browserErrors: diagnostics.browserErrors,
+				runtimeErrors: diagnostics.runtimeErrors
+			},
 			null,
 			2
 		)
@@ -149,10 +155,14 @@ async function isolateGuest(
 	await context.route('**/*', async (route) => {
 		if (new URL(route.request().url()).origin === origin)
 			await route.continue();
-		else {
-			await route.abort('blockedbyclient');
-			diagnostics?.abortedUrls.add(route.request().url());
-		}
+		else if (diagnostics) {
+			await recordIntentionalAbort(
+				route.request().url(),
+				() => route.abort('blockedbyclient'),
+				diagnostics.abortedUrls,
+				diagnostics.pendingAborts
+			);
+		} else await route.abort('blockedbyclient');
 	});
 	await context.addInitScript(initializeGuestStorage, {
 		origin,
@@ -245,6 +255,7 @@ for (const language of ['en', 'he'] as const) {
 		info.annotations.push({ type: 'journey', description: 'setup-recovery' });
 		const diagnostics: JourneyDiagnostics = {
 			abortedUrls: new Set(),
+			pendingAborts: new Set(),
 			browserErrors: [],
 			runtimeErrors: []
 		};
@@ -389,6 +400,11 @@ for (const language of ['en', 'he'] as const) {
 		// WebKit also reports its own blocked-fetch console diagnostic as a
 		// pageerror. Keep every real JS error/rejection, and require exact evidence
 		// of our own route abort before classifying that single SDK diagnostic.
+		// WebKit may emit pageerror before Playwright acknowledges route.abort().
+		// Wait for our in-flight aborts before checking their successful evidence;
+		// do not exempt a request merely because we intended to block it.
+		while (diagnostics.pendingAborts.size)
+			await Promise.all(diagnostics.pendingAborts);
 		expect(diagnostics.runtimeErrors).toEqual([]);
 		const unexpected = diagnostics.browserErrors.filter((error) => {
 			const abortedUrl = intentionalWebKitFetchDiagnostic(

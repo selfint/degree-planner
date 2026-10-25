@@ -23,3 +23,21 @@ export function intentionalWebKitFetchDiagnostic(
 	);
 	return match && abortedUrls.has(match[1]) ? match[1] : undefined;
 }
+
+/** Keep successful route-abort evidence synchronized with final assertions. */
+export async function recordIntentionalAbort(
+	url: string,
+	abort: () => Promise<void>,
+	abortedUrls: Set<string>,
+	pendingAborts: Set<Promise<void>>
+): Promise<void> {
+	const pending = abort().then(() => {
+		abortedUrls.add(url);
+	});
+	pendingAborts.add(pending);
+	try {
+		await pending;
+	} finally {
+		pendingAborts.delete(pending);
+	}
+}

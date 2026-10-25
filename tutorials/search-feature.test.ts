@@ -66,9 +66,7 @@ for (const topic of mediaGroups.features) {
 					const section = page.locator('section').filter({ has: feature });
 					const copy = cms[language];
 					await expectCopy(section, language, topic);
-					const sections = page.locator(
-						'[data-testid="landing-tutorials"] ~ section'
-					);
+					const sections = page.locator('.landing section');
 					await expect(sections.locator('h2')).toHaveText([
 						copy.header.plan,
 						copy.header.catalog,
@@ -80,11 +78,9 @@ for (const topic of mediaGroups.features) {
 					]);
 					await expect(sections.locator('img')).toHaveCount(0);
 					await expect(sections.locator('video')).toHaveCount(7);
-					await expect(
-						page.getByTestId('landing-tutorials').locator('video')
-					).toHaveCount(2);
+					await expect(page.getByTestId('landing-tutorials')).toHaveCount(0);
 					await expect(section).toHaveClass(
-						/md:grid-cols-\[minmax\(0,1fr\)_17rem\]/
+						/sm:flex sm:max-w-\[1024px\] sm:flex-row/
 					);
 					const video = feature.locator('video');
 					await video.scrollIntoViewIfNeeded();

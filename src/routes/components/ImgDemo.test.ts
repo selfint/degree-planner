@@ -12,13 +12,15 @@ const media = createRawSnippet(() => ({
 }));
 
 describe('feature media slot', () => {
-	it('replaces only the media while preserving the original grid, heading and paragraph', () => {
+	it('replaces only the media while preserving the original layout, heading and paragraph', () => {
 		const { body } = render(ImgDemo, {
 			props: { title: 'Search courses', children: description, media }
 		});
-		expect(body).toContain('md:grid-cols-[minmax(0,1fr)_17rem]');
-		expect(body).toContain('md:order-2');
-		expect(body).toContain('md:order-1');
+		expect(body).toContain('sm:flex sm:max-w-[1024px] sm:flex-row');
+		expect(body).toContain('sm:min-w-[300px] sm:max-w-[300px]');
+		expect(body).toContain('rounded-[15px]');
+		expect(body.indexOf('<video')).toBeLessThan(body.indexOf('<h2'));
+		expect(body).not.toContain('md:order');
 		expect(body).toMatch(/<h2[^>]*>Search courses<\/h2>/);
 		expect(body).toMatch(
 			/<p[^>]*>[\s\S]*Existing feature description[\s\S]*<\/p>/
@@ -27,7 +29,7 @@ describe('feature media slot', () => {
 		expect(body).not.toContain('<img');
 		expect((body.match(/<section/g) ?? []).length).toBe(1);
 	});
-	it('keeps the original lazy image fallback for the other six slots', () => {
+	it('keeps the original lazy image fallback for non-video callers', () => {
 		const src = {
 			sources: { webp: '/feature.webp' },
 			img: { src: '/feature.webp', w: 960, h: 720 }

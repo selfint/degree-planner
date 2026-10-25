@@ -19,9 +19,10 @@ controls. Explanatory and marketing copy stays on the landing.
 
 ## Pages and states
 
-The landing uses a clearer introduction and aligned demonstration sections.
-Installation guidance is always visible at the bottom, without starting console
-services. Console navigation remains available before selecting a degree, and
+The landing preserves the original introduction, annotated course illustration,
+and media-first feature rows, replacing the seven static screenshots with the
+reviewed videos. Added tutorial and installation sections are not mounted on the
+landing. Console navigation remains available before selecting a degree, and
 mobile search has its own full-width row. Mobile planner rails show three full
 course cards and a visible fourth-card peek at 320px and 390px in both directions.
 The shared course card retains the original content hierarchy: marker/note and

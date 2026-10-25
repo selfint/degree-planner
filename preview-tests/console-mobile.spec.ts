@@ -489,7 +489,7 @@ test.describe('iPhone-user-agent install guidance (Chromium emulation only)', ()
 			'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1'
 	});
 
-	test('landing install guidance stays lightweight and is not repeated in the console footer', async ({
+	test('restored landing stays lightweight without extra install sections', async ({
 		page,
 		evidence
 	}, testInfo) => {
@@ -497,21 +497,15 @@ test.describe('iPhone-user-agent install guidance (Chromium emulation only)', ()
 		await expect(page.locator('.landing')).toHaveAttribute('dir', 'ltr');
 		const route = page.url();
 		const info = page.getByTestId('landing-install-info');
-		await expect(info).toBeVisible();
-		const help = info;
-		await expect(info.locator('details, summary')).toHaveCount(0);
-		await expect(help).toContainText('iPhone or iPad');
-		await expect(help).toContainText('Add to Home Screen');
-		await expect(help).toContainText(
-			'Browser and installed-app storage may be separate'
-		);
+		await expect(info).toHaveCount(0);
+		await expect(page.getByTestId('landing-tutorials')).toHaveCount(0);
+		await expect(page.locator('.landing video')).toHaveCount(7);
 		await noHorizontalOverflow(page);
-		await help.scrollIntoViewIfNeeded();
-		await screenshot(page, testInfo, 'iphone-install-help');
+		await screenshot(page, testInfo, 'iphone-original-landing');
 		await expect(page).toHaveURL(route);
 		expect(await page.evaluate(() => localStorage.getItem('lang'))).toBe('en');
 		// Include the console's 1500ms optional-provider delay in the observation
-		// window, so static guidance cannot accidentally start console services.
+		// window, so the public landing cannot accidentally start console services.
 		await page.waitForTimeout(1800);
 		expect(evidence.providerRequestCount).toBe(0);
 		expect(
@@ -529,7 +523,7 @@ test.describe('iPhone-user-agent install guidance (Chromium emulation only)', ()
 		await expect(page.locator('link[rel="manifest"]')).toHaveCount(0);
 		await expect(page.getByTestId('pwa-status')).toHaveCount(0);
 		evidence.checkpoints.push(
-			'iphone-ua-landing-help-without-console-bootstrap'
+			'iphone-ua-original-landing-without-console-bootstrap'
 		);
 		await page
 			.getByRole('link', { name: 'Get Started', exact: true })

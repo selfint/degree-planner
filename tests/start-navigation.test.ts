@@ -2,21 +2,14 @@ import { expect, test } from '@playwright/test';
 
 const origin = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:4173';
 
-for (const region of [
-	'header',
-	'main',
-	'[data-testid="landing-install-info"]'
-]) {
+for (const region of ['header', 'main']) {
 	test(`${region} Start link works before JavaScript loads`, async ({
 		page
 	}) => {
 		await page.route('**/_app/**/*.js', (route) => route.abort());
 		await page.goto(origin);
 		const start = page.locator(region).getByRole('link', {
-			name:
-				region === '[data-testid="landing-install-info"]'
-					? /^(Open PlanIt|פתיחת PlanIt)$/
-					: /^(Get Started|התחל)$/
+			name: /^(Get Started|התחל)$/
 		});
 		await expect(start).toBeVisible();
 		await start.click();

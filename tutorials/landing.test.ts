@@ -1,12 +1,16 @@
 import { expect, test } from '@playwright/test';
+import { mediaGroups } from '../src/lib/tutorialMedia';
 import { writeFile } from 'node:fs/promises';
+
+// Seven feature slots are exercised instead of the removed two-tutorial panel.
+test.setTimeout(120_000);
 
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:4173';
 
 for (const width of [320, 390, 1280]) {
 	for (const language of ['en', 'he']) {
 		for (const theme of ['light', 'dark']) {
-			test(`landing tutorials ${language} ${theme} ${width}`, async ({
+			test(`landing feature videos ${language} ${theme} ${width}`, async ({
 				page
 			}, info) => {
 				await page.setViewportSize({ width, height: 900 });
@@ -41,16 +45,16 @@ for (const width of [320, 390, 1280]) {
 						consoleRequests.push(pathname);
 				});
 				await page.goto(baseURL);
-				await expect(page.locator('#landing-title')).toBeVisible();
-				const tutorials = page.getByTestId('landing-tutorials');
+				await expect(page.locator('.landing h1')).toBeVisible();
+				const tutorials = page.locator('.landing');
 				await expect(tutorials).toBeVisible();
 				await expect(tutorials).toHaveAttribute(
 					'dir',
 					language === 'he' ? 'rtl' : 'ltr'
 				);
-				await expect(tutorials.locator('video')).toHaveCount(2);
-				for (const topic of ['course-card', 'plan-course']) {
-					const tutorial = tutorials.getByTestId(`tutorial-${topic}`);
+				await expect(tutorials.locator('video')).toHaveCount(7);
+				for (const topic of mediaGroups.features) {
+					const tutorial = tutorials.getByTestId(topic);
 					const video = tutorial.locator('video');
 					await expect(video).toHaveAttribute('preload', 'none');
 					const frame = await video.boundingBox();
@@ -75,9 +79,9 @@ for (const width of [320, 390, 1280]) {
 						language
 					);
 					await expect(tutorial.locator('details, summary')).toHaveCount(0);
-					await expect(tutorial.locator('.tutorial-steps li')).toHaveCount(
-						topic === 'course-card' ? 6 : 4
-					);
+					await expect(
+						tutorial.locator('xpath=ancestor::section').locator('p').first()
+					).toBeVisible();
 					await video.scrollIntoViewIfNeeded();
 					expect(
 						await video.evaluate((v) => (v as HTMLVideoElement).paused)
@@ -159,8 +163,8 @@ for (const { language, theme, width } of [
 			{ language, theme }
 		);
 		await page.goto(baseURL);
-		for (const topic of ['course-card', 'plan-course']) {
-			const tutorial = page.getByTestId(`tutorial-${topic}`);
+		for (const topic of mediaGroups.features) {
+			const tutorial = page.getByTestId(topic);
 			const video = tutorial.locator('video');
 			await expect(video.locator('source').first()).toHaveAttribute(
 				'src',
@@ -213,9 +217,9 @@ for (const { language, theme, width } of [
 			if (width < 500) await page.setViewportSize({ width, height: 900 });
 			await video.dispatchEvent('error');
 			await expect(tutorial.getByRole('status')).toBeVisible();
-			await expect(tutorial.locator('.tutorial-steps li')).toHaveCount(
-				topic === 'course-card' ? 6 : 4
-			);
+			await expect(
+				tutorial.locator('xpath=ancestor::section').locator('p').first()
+			).toBeVisible();
 		}
 	});
 }
@@ -226,7 +230,7 @@ test('both unavailable media sources expose a real failure message and readable 
 	await page.addInitScript(() => localStorage.setItem('lang', 'en'));
 	const failedSources = new Set<string>();
 	await page.route(
-		/\/tutorials\/course-card-en-.*\.(mp4|webm)$/,
+		/\/tutorials\/feature-course-en-.*\.(mp4|webm)$/,
 		async (route) => {
 			failedSources.add(new URL(route.request().url()).pathname);
 			await route.fulfill({
@@ -237,11 +241,11 @@ test('both unavailable media sources expose a real failure message and readable 
 		}
 	);
 	await page.goto(baseURL);
-	const tutorial = page.getByTestId('tutorial-course-card');
+	const tutorial = page.getByTestId('feature-course');
 	const video = tutorial.locator('video');
 	await expect(video.locator('source').first()).toHaveAttribute(
 		'src',
-		/\/course-card-en-.*\.mp4$/
+		/\/feature-course-en-.*\.mp4$/
 	);
 	await video.scrollIntoViewIfNeeded();
 	await video.evaluate((node) => {
@@ -255,7 +259,9 @@ test('both unavailable media sources expose a real failure message and readable 
 	await expect(tutorial.getByRole('status')).toContainText(
 		'The video could not load.'
 	);
-	await expect(tutorial.locator('.tutorial-steps li')).toHaveCount(6);
+	await expect(
+		tutorial.locator('xpath=ancestor::section').locator('p').first()
+	).toBeVisible();
 	await page.screenshot({ path: info.outputPath('real-media-failure.png') });
 });
 
@@ -267,7 +273,7 @@ test('live language and theme preferences replace media without autoplay', async
 		localStorage.setItem('theme', 'light');
 	});
 	await page.goto(baseURL);
-	const tutorial = page.getByTestId('tutorial-course-card');
+	const tutorial = page.getByTestId('feature-course');
 	const video = tutorial.locator('video');
 	await video.scrollIntoViewIfNeeded();
 	await video.evaluate(async (node) => (node as HTMLVideoElement).play());
@@ -279,13 +285,10 @@ test('live language and theme preferences replace media without autoplay', async
 	await page
 		.getByRole('combobox', { name: 'Language' })
 		.selectOption({ label: 'עב' });
-	await expect(page.getByTestId('landing-tutorials')).toHaveAttribute(
-		'dir',
-		'rtl'
-	);
+	await expect(page.locator('.landing')).toHaveAttribute('dir', 'rtl');
 	await expect(video.locator('source').first()).toHaveAttribute(
 		'src',
-		'/tutorials/course-card-he-light.mp4'
+		'/tutorials/feature-course-he-light.mp4'
 	);
 	expect(
 		await video.evaluate((node) => (node as HTMLVideoElement).paused)
@@ -293,7 +296,7 @@ test('live language and theme preferences replace media without autoplay', async
 	await page.locator('footer .theme-toggle').click();
 	await expect(video.locator('source').first()).toHaveAttribute(
 		'src',
-		'/tutorials/course-card-he-dark.mp4'
+		'/tutorials/feature-course-he-dark.mp4'
 	);
 	await expect(video.locator('track')).toHaveAttribute('srclang', 'he');
 	expect(
@@ -307,16 +310,16 @@ test('live language and theme preferences replace media without autoplay', async
 test('the WebM fallback remains playable when MP4 fails', async ({ page }) => {
 	await page.addInitScript(() => localStorage.setItem('lang', 'en'));
 	let mp4Failed = false;
-	await page.route(/\/tutorials\/course-card-en-.*\.mp4$/, async (route) => {
+	await page.route(/\/tutorials\/feature-course-en-.*\.mp4$/, async (route) => {
 		mp4Failed = true;
 		await route.fulfill({ status: 503, body: 'MP4 unavailable for this test' });
 	});
 	await page.goto(baseURL);
-	const tutorial = page.getByTestId('tutorial-course-card');
+	const tutorial = page.getByTestId('feature-course');
 	const video = tutorial.locator('video');
 	await expect(video.locator('source').first()).toHaveAttribute(
 		'src',
-		/\/course-card-en-.*\.mp4$/
+		/\/feature-course-en-.*\.mp4$/
 	);
 	await video.scrollIntoViewIfNeeded();
 	await video.evaluate(async (node) => (node as HTMLVideoElement).play());

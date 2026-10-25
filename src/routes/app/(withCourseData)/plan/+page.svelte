@@ -300,7 +300,8 @@
 		flex-shrink: 0;
 		white-space: nowrap;
 	}
-	.plan-share {
+	.plan-share,
+	.plan-toolbar :global(.plan-action .ui-button--primary) {
 		min-inline-size: var(--control-height);
 		padding-inline: 0.5rem;
 		background: #0f6f67;

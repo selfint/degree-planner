@@ -8,8 +8,8 @@ const meta = {
 	parameters: {
 		componentPath: 'src/routes/+page.svelte',
 		covers: [
-			'src/routes/components/Tutorials.svelte',
-			'src/routes/components/TutorialVideo.svelte',
+			'src/lib/components/CourseExplanation.svelte',
+			'src/routes/components/ImgDemo.svelte',
 			'src/routes/components/FeatureVideo.svelte',
 			'src/routes/components/NativeVideo.svelte'
 		],

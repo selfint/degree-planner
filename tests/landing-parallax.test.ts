@@ -397,15 +397,11 @@ for (const width of [390, 1280]) {
 					/native|fallback/
 				);
 				const videos = page.locator('.landing video');
-				await expect(videos).toHaveCount(9);
-				await expect(
-					page.getByTestId('landing-tutorials').locator('video')
-				).toHaveCount(2);
+				await expect(videos).toHaveCount(7);
+				await expect(page.getByTestId('landing-tutorials')).toHaveCount(0);
 				for (const topic of mediaGroups.features)
 					await expect(page.getByTestId(topic).locator('video')).toHaveCount(1);
-				await expect(
-					page.locator('[data-testid="landing-tutorials"] ~ section img')
-				).toHaveCount(0);
+				await expect(page.locator('.landing section img')).toHaveCount(0);
 				// fonts.ready can wait for deliberately held resources in WebKit.
 				// Load the used faces directly before comparing document geometry.
 				await page.evaluate(() =>
@@ -416,7 +412,7 @@ for (const width of [390, 1280]) {
 					])
 				);
 				// Prove actual poster and video responses are held before exposing the
-				// remaining posters. Do not depend on nine concurrent network slots.
+				// remaining posters. Do not depend on seven concurrent network slots.
 				const firstVideo = videos.first();
 				await expect(firstVideo).toHaveAttribute('preload', 'none');
 				await firstVideo.scrollIntoViewIfNeeded();
@@ -440,7 +436,7 @@ for (const width of [390, 1280]) {
 				// Trigger every real lazy poster through the existing IntersectionObserver.
 				// The gate holds all matching responses, including browser-queued requests.
 				// Do not replace sources, remove aspect ratios or change app loading policy.
-				for (let index = 0; index < 9; index++) {
+				for (let index = 0; index < 7; index++) {
 					const video = videos.nth(index);
 					await expect(video).toHaveAttribute('preload', 'none');
 					await video.scrollIntoViewIfNeeded();
@@ -454,7 +450,7 @@ for (const width of [390, 1280]) {
 						(node) => new URL((node as HTMLVideoElement).poster).pathname
 					)
 				);
-				expect(new Set(posterPaths).size).toBe(9);
+				expect(new Set(posterPaths).size).toBe(7);
 				await page.evaluate(() => scrollTo(0, 0));
 				await expect.poll(() => page.evaluate(() => scrollY)).toBe(0);
 				const before = await page.evaluate(layoutSnapshot);
@@ -471,10 +467,7 @@ for (const width of [390, 1280]) {
 					contentType: 'application/json'
 				});
 				expect(before.videos.map((video) => video.id).sort()).toEqual(
-					[
-						...mediaGroups.tutorials.map((topic) => `tutorial-${topic}`),
-						...mediaGroups.features
-					].sort()
+					[...mediaGroups.features].sort()
 				);
 				for (const video of before.videos) {
 					expect(video.readyState).toBe(0);
@@ -507,7 +500,7 @@ for (const width of [390, 1280]) {
 					expect(poster.width).toBe(960);
 					expect(poster.height).toBe(720);
 				}
-				for (let index = 0; index < 9; index++) {
+				for (let index = 0; index < 7; index++) {
 					const video = videos.nth(index);
 					await video.scrollIntoViewIfNeeded();
 					await video.evaluate(async (node) => {

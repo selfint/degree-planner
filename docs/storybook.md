@@ -12,7 +12,7 @@ All courses, catalogs, plans and authentication sessions are fictional and memor
 
 Deployed tests wait for each story’s play function, inspect every emitted story for render errors, unexpected requests and planner storage changes, exercise real interactions, and verify global controls. They also check that Storybook assets never enter app HTML or its service-worker cache. Failure stories distinguish cold setup causes, failed refreshes with usable stored data, and unavailable shells; combined update/error states retain one direct footer error link and retry action. All PWA states render the real TitleBar and AppFooter snippet. Update, OfflineUpdate and UpdateRefreshFailure render the compact PwaUpdateBanner directly below the header with save/close/reopen instructions and an accessible 36px Dismiss control; dismissal is scoped to the verified waiting version and never activates or reloads the app; Outdated has only a footer diagnostic because it does not represent an installed waiting worker. Healthy readiness remains screen-reader-accessible without visible text; preparation, offline state and exceptional details share the separate compact row. Author/report links and the running build version form a stack at the logical start, opposite the matched preference controls. A verified waiting update adds a text-only Update action beside the version; it remains after banner dismissal and shares the same dirty/saving/busy guards and actionable error explanation. The console titlebar keeps its brand, search and navigation on one row without PWA controls. Exceptional details remain visible without a dropdown; same-page error anchors preserve the current route. PWA tests exercise same-version dismissal, new-version resurfacing, and unchanged error details. OfflineUpdate preserves the visible footer Offline label before and after dismissal; a refresh failure still takes precedence with one Error link and Retry action. Search filters, course descriptions and semester study days keep their original always-visible placement. Mobile search results retain three equal card columns at 320px and 390px, with the same name clamp and reserved name space as normal cards. Overflow fixtures exercise related-course and catalog rails at their native initial, middle and end scroll positions, checking full-width scrollports with a 0.75rem logical card inset and reachable last courses. Card checks preserve original 12px typography and top metadata, retain the full name in the DOM and accessible link/button name, clamp visible names to three lines, and keep the code outside the clamp. Normal cards reserve five name lines plus one code line; squeezed cards retain their content-sized layout. Horizontal row shells match their tallest intrinsic contents. Settings keep account controls first and omit internal separators; catalog category totals remain numeric while only the two summary progress bars are shown. Compact actions stay 36px and do not wrap their labels.
 
-Landing-only NativeVideo, FeatureVideo, TutorialVideo and Tutorials components render through the real Pages/Landing stories. Their language and theme follow the global controls; native players stay paused until playback is requested. The shared CourseExplanation retains its independent story.
+NativeVideo and FeatureVideo render through the real Pages/Landing stories. The retained Tutorials and TutorialVideo components have standalone Components/Tutorials coverage and are not mounted in the restored landing. Their language and theme follow the global controls; native players stay paused until playback is requested. The shared CourseExplanation retains its independent story.
 
 ## Rendered UI
 
@@ -67,8 +67,8 @@ Landing-only NativeVideo, FeatureVideo, TutorialVideo and Tutorials components r
 | src/routes/app/(withCourseData)/settings/+page.svelte                        | Pages/Settings                    | Guest, SignedIn, ChooseDegree, EmptyPlan, CatalogLoading, ReadOnly, Exemptions, SignInFailed                                                                                                                                                                         |
 | src/routes/app/(withCourseData)/preview/[year]/[faculty]/[path]/+page.svelte | Pages/Shared plan                 | Default, Empty, Loading, ReadOnly                                                                                                                                                                                                                                    |
 
-| src/routes/components/Tutorials.svelte | Pages/Landing (composed) | Default, OpeningPlanner |
-| src/routes/components/TutorialVideo.svelte | Pages/Landing (composed) | Default, OpeningPlanner |
+| src/routes/components/Tutorials.svelte | Components/Tutorials | Default |
+| src/routes/components/TutorialVideo.svelte | Components/Tutorials (composed) | Default |
 | src/routes/components/FeatureVideo.svelte | Pages/Landing (composed) | Default, OpeningPlanner |
 | src/routes/components/NativeVideo.svelte | Pages/Landing (composed) | Default, OpeningPlanner |
 
@@ -80,7 +80,7 @@ Landing-only NativeVideo, FeatureVideo, TutorialVideo and Tutorials components r
 - src/routes/[...legacy]/+page.svelte: Empty legacy redirect placeholder.
 - src/routes/en/+page.svelte: Language-setting redirect without visible UI; importing it would write actual browser preferences.
 
-Inventory: 56 source files, 51 covered, 5 nonvisual exclusions; 44 story groups, 205 stories.
+Inventory: 56 source files, 51 covered, 5 nonvisual exclusions; 45 story groups, 206 stories.
 
 ## Asserted student journey recordings
 

@@ -9,19 +9,27 @@ const html = readFileSync(
 	'utf8'
 );
 
-test('the rendered landing page contains two tutorials and all seven feature players', () => {
-	assert.match(html, /id="landing-title"/, 'the real landing page rendered');
-	assert.match(
+test('the rendered landing page contains the original layout with seven feature players', () => {
+	assert.match(html, /class="landing flex/, 'the real landing page rendered');
+	assert.doesNotMatch(
 		html,
 		/data-testid="landing-tutorials"/,
-		'the rendered landing page must include the tutorial section'
+		'the rendered landing page must not add a tutorial section'
 	);
+	assert.doesNotMatch(html, /data-testid="landing-install-info"/);
+	assert.match(
+		html,
+		/viewBox="0 0 265 141"/,
+		'original annotated course illustration'
+	);
+	assert.match(
+		html,
+		/sm:min-w-\[300px\] sm:max-w-\[300px\]/,
+		'original description column'
+	);
+	assert.match(html, /mb-6 text-5xl/, 'original hero typography');
 	const videos = [...html.matchAll(/<video\b([^>]*?)>([\s\S]*?)<\/video>/g)];
-	assert.equal(
-		videos.length,
-		9,
-		'two tutorials plus seven features are rendered'
-	);
+	assert.equal(videos.length, 7, 'seven original feature slots are rendered');
 	for (const topic of [
 		'plan',
 		'catalog',
@@ -50,7 +58,7 @@ test('the rendered landing page contains two tutorials and all seven feature pla
 	}
 	assert.equal(
 		(html.match(/class="tutorial-steps/g) ?? []).length,
-		2,
-		'both transcripts are plain visible lists'
+		0,
+		'no extra tutorial transcripts change the original layout'
 	);
 });

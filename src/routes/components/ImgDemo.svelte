@@ -15,7 +15,7 @@
 	class="w-full min-w-0 sm:flex sm:max-w-[1024px] sm:flex-row"
 	aria-labelledby={headingId}
 >
-	<div class="min-w-0 flex-grow sm:me-4">
+	<div class="min-w-0 flex-1 sm:me-4">
 		<div
 			class="w-full rounded-[15px] border border-content-primary/30 bg-content-primary/10 p-2 bg-blend-color-burn backdrop-blur"
 		>

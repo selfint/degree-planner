@@ -19,6 +19,7 @@ describe('feature media slot', () => {
 		expect(body).toContain('sm:flex sm:max-w-[1024px] sm:flex-row');
 		expect(body).toContain('sm:min-w-[300px] sm:max-w-[300px]');
 		expect(body).toContain('rounded-[15px]');
+		expect(body).toContain('min-w-0 flex-1 sm:me-4');
 		expect(body.indexOf('<video')).toBeLessThan(body.indexOf('<h2'));
 		expect(body).not.toContain('md:order');
 		expect(body).toMatch(/<h2[^>]*>Search courses<\/h2>/);

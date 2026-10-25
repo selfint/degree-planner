@@ -476,6 +476,14 @@ for (const width of [390, 1280]) {
 					expect(video.width).toBeGreaterThan(0);
 					expect(video.height).toBeGreaterThan(0);
 					expect(video.width / video.height).toBeCloseTo(4 / 3, 2);
+					if (width === 1280) {
+						// Original 1024px container minus 24px padding. The 300px
+						// copy column, 28px margins and 18px frame leave 654px.
+						// These widths must be final even with every media byte held;
+						// aspect ratio alone cannot detect intrinsic shrink-to-fit.
+						expect(video.section.width).toBe(1000);
+						expect(video.width).toBe(654);
+					}
 				}
 				released = true;
 				releaseMedia();

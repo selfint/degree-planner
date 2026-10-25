@@ -41,8 +41,9 @@
 		</div>
 	</div>
 
+	<!-- Reserve the final row width before native media has intrinsic dimensions. -->
 	<div
-		class="mt-8 flex flex-col items-center gap-y-12 p-3 sm:mt-20 sm:max-w-[1024px]"
+		class="mt-8 flex w-full flex-col items-center gap-y-12 p-3 sm:mt-20 sm:max-w-[1024px]"
 	>
 		<div class="w-full sm:flex sm:max-w-[1024px] sm:flex-row">
 			<div

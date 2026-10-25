@@ -212,6 +212,17 @@ Install from your browser's menu (on iPhone/iPad, Share → Add to Home Screen;
 on macOS Safari, File → Add to Dock). Browser and installed-app storage can be
 separate, especially on iOS; verify your plan before switching or clearing data.
 
+Share links use `/share/...`, outside the installed app's `/app/` scope, and
+internally reuse the existing read-only preview and explicit copy/import flow.
+Existing `/app/preview/...` and legacy `/preview/...` links still work. Share and
+logo links open new tabs in an ordinary browser. In an installed app they use
+native out-of-scope navigation instead of an app-owned popup. The operating
+system chooses the browser presentation: on iOS this can be Safari View
+Controller rather than a separate Safari tab, as described in
+[Apple's web-app scope guidance](https://developer.apple.com/videos/play/wwdc2023/10120/).
+Browser tests cover link intent and independent guest imports, not the physical
+iOS Home Screen handoff.
+
 Saved guest plans remain in existing localStorage. Account plans and sync still
 require internet; this is not a private-plan IndexedDB migration. Editable planner
 routes remain guarded during account loading/failure. Public search and course details stay usable offline, including for signed-in

@@ -1,5 +1,19 @@
 # Explicit PWA updates
 
+The footer shows the running app's short Git commit from the existing compiled
+`VERCEL_GIT_COMMIT_SHA` value, with its full SHA available on hover. Non-Vercel
+builds show their compiled SvelteKit version instead. No package-version bump is
+needed, and a waiting worker or newer server response never changes this label.
+The service-worker protocol still uses SvelteKit's own build identity unchanged.
+
+When a waiting version has been verified, a native button styled like the report
+link adds a minimal Update action beside the version. It uses the exact same
+acceptance handler and live safety state as the banner, including after the
+banner is dismissed. Browser-only `/share/` previews display the running version
+without mounting the service-worker lifecycle, readiness diagnostics, or update
+actions because those documents are outside the `/app/` worker scope. Keyboard users can activate it with Enter or Space. Dirty,
+saving, and applying states disable it; blocked reasons and failures stay visible.
+
 The Update action is disabled while the current document has an unsaved plan or
 settings/transcript draft, a pending storage write, or a failed save. A successful
 retry or explicit discard clears a save failure; remaining drafts and writes still

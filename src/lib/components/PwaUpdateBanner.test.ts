@@ -108,7 +108,7 @@ describe('installed update banner', () => {
 		expect(body).toMatch(/<button[^>]*\bdisabled\b/);
 	});
 
-	it('keeps the banner before content and removes duplicate footer update/help UI', () => {
+	it('keeps the banner before content and shares its safe update state with the footer', () => {
 		const read = (path: string) =>
 			readFileSync(new URL(path, import.meta.url), 'utf8');
 		const layout = read('../../routes/app/+layout.svelte');
@@ -119,6 +119,14 @@ describe('installed update banner', () => {
 			'updateVersion={$offlineShellStatus.updateVersion}'
 		);
 		expect(layout.indexOf(banner)).toBeLessThan(layout.indexOf('<main'));
+		expect(layout).toContain(
+			'update={inPwaScope ? $offlineShellStatus : undefined}'
+		);
+		expect(layout).toContain(
+			"const inPwaScope = $derived(page.url.pathname.startsWith('/app/'))"
+		);
+		expect(layout).toContain('pwa={inPwaScope ? pwaControls : undefined}');
+		expect(layout).toMatch(/\{#if inPwaScope\}\s*<PwaUpdateBanner/);
 		expect(layout).not.toContain('pwa-install-help');
 		expect(read('./PwaStatusView.svelte')).not.toContain('pwa-update-link');
 		expect(read('./PwaStatusDetails.svelte')).not.toContain(

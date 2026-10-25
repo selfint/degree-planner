@@ -569,6 +569,16 @@ test('accepting an update preserves saved data and rejects other open draft tabs
 	const courses = JSON.parse(await readFile('static/courseData.json', 'utf8'));
 	await ready(page);
 	const v1 = deploymentVersion();
+	const runningVersion = page.getByTestId('footer-build-version');
+	const compiledCommit = await page.evaluate(
+		() =>
+			document
+				.querySelector('meta[name="planit-build"]')
+				?.getAttribute('content') ?? null
+	);
+	await expect(runningVersion).toHaveAttribute('title', compiledCommit || v1);
+	await expect(runningVersion).toHaveText(compiledCommit?.slice(0, 7) || v1);
+	await expect(page.getByTestId('footer-update')).toHaveCount(0);
 	const firstDeployment = deployment();
 	const durableCourses = await storedCourses(page);
 	expect(durableCourses.records).toBe(Object.keys(courses).length);
@@ -641,9 +651,13 @@ test('accepting an update preserves saved data and rejects other open draft tabs
 	await expect.poll(() => workerVersion(page, 'waiting')).toBe(v2);
 	await expectUpdateBanner(page, v2);
 	await expectUpdateBanner(otherTab, v2);
-	const accept = page.getByTestId('pwa-update-accept');
+	const accept = page.getByTestId('footer-update');
+	await expect(runningVersion).toHaveAttribute('title', compiledCommit || v1);
+	await page.getByTestId('pwa-update-dismiss').click();
+	await expect(page.getByTestId('pwa-update-banner')).toHaveCount(0);
+	await expect(accept).toBeVisible();
 	await expect(accept).toBeDisabled();
-	await expect(otherTab.getByTestId('pwa-update-accept')).toBeDisabled();
+	await expect(otherTab.getByTestId('footer-update')).toBeDisabled();
 	expect(await page.evaluate(() => localStorage.getItem('userData'))).toBe(
 		savedBefore
 	);
@@ -697,8 +711,11 @@ test('accepting an update preserves saved data and rejects other open draft tabs
 
 	// A dirty second tab is an actual controlled WindowClient, not a fabricated
 	// BroadcastChannel response. It must block activation, never lose its draft.
-	await accept.click();
-	await expect(page.getByTestId('pwa-update-action-error')).toHaveText(
+	await page.locator('.footer-report').focus();
+	await page.keyboard.press('Tab');
+	await expect(accept).toBeFocused();
+	await page.keyboard.press('Enter');
+	await expect(page.getByTestId('footer-update-error')).toHaveText(
 		pwaMessages.en.updateOtherTabs
 	);
 	expect(await workerVersion(page, 'active')).toBe(v1);
@@ -714,7 +731,7 @@ test('accepting an update preserves saved data and rejects other open draft tabs
 	await expect(
 		otherTab.getByRole('button', { name: 'Save', exact: true })
 	).toBeVisible();
-	await expect(otherTab.getByTestId('pwa-update-accept')).toBeDisabled();
+	await expect(otherTab.getByTestId('footer-update')).toBeDisabled();
 	expect(
 		await otherTab
 			.locator('[data-code]')
@@ -729,8 +746,12 @@ test('accepting an update preserves saved data and rejects other open draft tabs
 	await otherTab.close();
 	await expect(accept).toBeEnabled();
 	const acceptedReload = page.waitForEvent('domcontentloaded');
-	await accept.click();
+	await accept.focus();
+	await page.keyboard.press('Space');
 	await acceptedReload;
+	await expect(page.getByTestId('footer-update')).toHaveCount(0);
+	await expect(runningVersion).toHaveAttribute('title', compiledCommit || v2);
+	await expect(runningVersion).toHaveText(compiledCommit?.slice(0, 7) || v2);
 	await expect.poll(() => workerVersion(page, 'controller')).toBe(v2);
 	await expect.poll(() => reloads).toBe(1);
 	await expect(page.getByTestId('pwa-update-banner')).toHaveCount(0);
@@ -909,6 +930,9 @@ test('versioned dismissal preserves drafts until all tabs close and the new work
 	await expect(language).toHaveAccessibleName('שפה');
 	await page.locator('header').scrollIntoViewIfNeeded();
 	await expectUpdateBanner(page, v2, 'he');
+	await expect(page.getByTestId('footer-update')).toHaveAccessibleName('עדכון');
+	await expect(page.getByTestId('footer-update')).toBeDisabled();
+	await expect(page.getByTestId('footer-version')).toContainText('גרסה');
 	const hebrewBanner = page.getByTestId('pwa-update-banner');
 	await expect(hebrewBanner).toHaveCSS('direction', 'rtl');
 	await expect(hebrewBanner.getByTestId('pwa-update')).toHaveCSS(
@@ -974,6 +998,11 @@ test('versioned dismissal preserves drafts until all tabs close and the new work
 			sessionStorage.getItem('planit-dismissed-update-version')
 		)
 	).toBe(v2);
+	await expect(page.getByTestId('footer-update')).toBeDisabled();
+	await expect(page.getByTestId('footer-update')).toHaveAccessibleName(
+		'Update'
+	);
+	await expect(page.getByTestId('footer-version')).toContainText('Version');
 	await capture('dismissed-v2-mobile');
 	// Session dismissal belongs to one window and never activates the waiting worker.
 	await expectUpdateBanner(otherTab, v2);

@@ -142,6 +142,7 @@ async function measureNavigation(page: Page) {
 			viewport: { width: innerWidth, height: innerHeight },
 			theme: document.documentElement.dataset.theme,
 			compactHeader: matchMedia('(max-width: 39.99rem)').matches,
+			touchPointer: matchMedia('(any-pointer: coarse)').matches,
 			fineHover: matchMedia('(hover: hover) and (pointer: fine)').matches,
 			documentOverflow: document.documentElement.scrollWidth - innerWidth,
 			scrollX,
@@ -292,7 +293,7 @@ function expectPlanToolbar(
 		'Share text contrast meets WCAG AA for normal-sized text'
 	).toBeGreaterThanOrEqual(4.5);
 	expect(share.href).toBe(
-		`/app/preview/${guest.degree.join('/')}?semesters=${plannedCourseCode}%7E%7E`
+		`/share/${guest.degree.join('/')}?semesters=${plannedCourseCode}%7E%7E`
 	);
 	expect(share.target).toBe('_blank');
 	expect(share.rel.split(' ')).toEqual(
@@ -360,14 +361,15 @@ function expectNavigation(
 	const inputCenter = search.input.top + search.input.height / 2;
 
 	expect(state.theme).toBe(theme);
-	expect(logo.width, 'slightly enlarged original logo').toBe(
-		state.compactHeader ? 28 : 32
+	expect(logo.width, 'logo is exactly 5% larger').toBeCloseTo(
+		(state.compactHeader ? 28 : 32) * 1.05,
+		1
 	);
 	expect(logo.height, 'preserve the square original logo').toBe(logo.width);
-	expect(search.input.fontSize, 'use compact, consistent titlebar text').toBe(
-		'14px'
+	expect(search.input.fontSize, 'avoid iOS focus zoom on touch screens').toBe(
+		state.touchPointer ? '16px' : '14px'
 	);
-	expect(search.input.lineHeight).toBe('21px');
+	expect(search.input.lineHeight).toBe(state.touchPointer ? '24px' : '21px');
 	expect(search.placeholder.fontSize).toBe(search.input.fontSize);
 	expect(
 		search.input.width,
@@ -403,11 +405,11 @@ function expectNavigation(
 		active ? 1 : 0
 	);
 	for (const link of state.links) {
-		expect(link.fontSize, `${link.href} matches Search text size`).toBe(
-			search.input.fontSize
+		expect(link.fontSize, `${link.href} retains compact navigation text`).toBe(
+			'14px'
 		);
-		expect(link.lineHeight, `${link.href} matches Search line height`).toBe(
-			search.input.lineHeight
+		expect(link.lineHeight, `${link.href} retains compact line height`).toBe(
+			'21px'
 		);
 		expect(link.fontFamily, `${link.href} matches Search font`).toBe(
 			search.input.fontFamily
@@ -415,11 +417,7 @@ function expectNavigation(
 		expect(link.whiteSpace, `${link.href} stays on one line`).toBe('nowrap');
 		const isActive = link.href === `/app/${active}`;
 		const hover = state.fineHover && link.hover && !isActive;
-		const foreground = isActive
-			? palette.accent
-			: hover
-				? palette.primary
-				: palette.secondary;
+		const foreground = isActive ? palette.accent : palette.primary;
 		expect(link.current, link.href!).toBe(isActive ? 'page' : null);
 		expect(link.active, link.href!).toBe(isActive);
 		expect(link.color, `${link.href} foreground`).toBe(foreground);
@@ -701,19 +699,26 @@ for (const width of [320, 390]) {
 							)
 						).toEqual(guest);
 
-						// The brand intentionally leaves the console through a native
-						// document navigation. Only the saved guest plan is in scope.
+						// Ordinary browser tabs open the landing separately and keep the
+						// current plan, navigation history and unsaved state in place.
 						const brand = page.locator('header.title-bar .brand');
 						await expect(brand).toHaveAttribute('href', '/');
-						await expect(brand).toHaveAttribute('data-sveltekit-reload', '');
+						await expect(brand).toHaveAttribute('target', '_blank');
+						await expect(brand).toHaveAttribute('rel', /noopener/);
+						const previousUrl = page.url();
+						const opened = page.context().waitForEvent('page');
 						await brand.tap();
-						await expect(page).toHaveURL(`${origin}/`);
-						await expect(page.locator('.landing')).toHaveAttribute(
+						const landing = await opened;
+						await expect(landing).toHaveURL(`${origin}/`);
+						await expect(landing.locator('.landing')).toHaveAttribute(
 							'dir',
 							language === 'he' ? 'rtl' : 'ltr'
 						);
-						await expect(page.locator('.console-shell')).toHaveCount(0);
-						expect(await page.evaluate(() => performance.timeOrigin)).not.toBe(
+						await expect(landing.locator('.console-shell')).toHaveCount(0);
+						expect(await landing.evaluate(() => window.opener)).toBeNull();
+						await landing.close();
+						await expect(page).toHaveURL(previousUrl);
+						expect(await page.evaluate(() => performance.timeOrigin)).toBe(
 							timeOrigin
 						);
 						expect(
@@ -721,19 +726,7 @@ for (const width of [320, 390]) {
 								JSON.parse(localStorage.getItem('userData')!)
 							)
 						).toEqual(guest);
-						await page.locator('header a[href="/app/"]').tap();
-						await expectRoute(page, 'plan', language);
-						await expect(page.getByTestId('pwa-status')).toHaveAttribute(
-							'data-state',
-							'ready',
-							{ timeout: 60_000 }
-						);
-						await checkpoint('brand-roundtrip-saved-plan', 'plan', true);
-						expect(
-							await page.evaluate(() =>
-								JSON.parse(localStorage.getItem('userData')!)
-							)
-						).toEqual(guest);
+						await checkpoint('brand-keeps-console-plan', 'catalog', true);
 					} finally {
 						await saveEvidence(info, records);
 					}

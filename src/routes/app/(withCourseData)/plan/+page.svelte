@@ -15,6 +15,7 @@
 	import { startPlanDrag, endPlanDrag, makePlanSortable } from '$lib/planDrag';
 	import { fitPlanToViewport } from '$lib/fitPlanToViewport';
 	import { initializePlanScroll } from '$lib/initializePlanScroll';
+	import { browserLink } from '$lib/browserLinks';
 
 	const { data: pageData } = $props();
 	const { getCourseData } = $derived(pageData);
@@ -53,7 +54,7 @@
 		}
 		urlParams.append('semesters', semesters);
 
-		const link = `/app/preview/${year}/${faculty}/${degree}?${urlParams}`;
+		const link = `/share/${year}/${faculty}/${degree}?${urlParams}`;
 
 		return link;
 	});
@@ -101,8 +102,10 @@
 				{#if shareLink && user.d.semesters.some((s) => s.length > 0)}
 					<a
 						href={shareLink}
+						use:browserLink
+						data-sveltekit-reload
 						target="_blank"
-						rel="noopener noreferrer"
+						rel="external noopener noreferrer"
 						class="plan-share ui-button ui-button--primary"
 					>
 						{content.lang.settings.share}

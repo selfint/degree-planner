@@ -8,6 +8,7 @@
 	import PlanActionButton from '$lib/components/PlanActionButton.svelte';
 	import Spinner from '$lib/components/Spinner.svelte';
 	import { loadDegreeName } from '$lib/requirements.js';
+	import { navigateFromBrowserShare } from '$lib/browserShareRoutes';
 
 	const { data } = $props();
 	const { getCourseData } = $derived(data);
@@ -48,7 +49,8 @@
 			})
 		);
 
-		await goto('/app/plan');
+		// Persist above before entering /app/ with a controlled document.
+		await navigateFromBrowserShare('/app/plan', goto);
 	}
 
 	function getDegreeName(degree: Degree, userPath?: string): Promise<string> {

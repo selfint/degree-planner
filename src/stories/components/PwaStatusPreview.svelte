@@ -98,7 +98,23 @@
 		: undefined}
 	onAccept={() => accepts++}
 />
-<AppFooter compact persistPreferences={false}>
+<AppFooter
+	compact
+	persistPreferences={false}
+	update={{
+		status: shell,
+		updateReady,
+		updateVersion: updateReady ? fixtureVersion : undefined,
+		updateVersionError,
+		updateBlocked: variant === 'updateDirty' || variant === 'updateSaving',
+		updateBusy: variant === 'updateApplying',
+		updateActionError:
+			variant === 'updateOtherTabs'
+				? pwaMessages[content.lang.lang].updateOtherTabs
+				: undefined,
+		acceptUpdate: () => accepts++
+	}}
+>
 	{#snippet pwa()}
 		<div data-testid="pwa-preview-slot" class="pwa-footer-controls">
 			<PwaStatusView

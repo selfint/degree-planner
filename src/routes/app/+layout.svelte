@@ -12,13 +12,21 @@
 	} from '$lib/pwa/plan-visibility';
 	import { page } from '$app/state';
 	import {
+		browserShareDestination,
+		consolePathname,
+		navigateFromBrowserShare
+	} from '$lib/browserShareRoutes';
+	import {
 		createSearchNavigation,
 		searchNavigationContext
 	} from '$lib/searchNavigation.svelte';
 
 	const searchNavigation = createSearchNavigation(
 		() => page.url,
-		(url) => goto(url, { noScroll: true, keepFocus: true })
+		(url) =>
+			navigateFromBrowserShare(url, (destination) =>
+				goto(destination, { noScroll: true, keepFocus: true })
+			)
 	);
 	setContext(searchNavigationContext, searchNavigation);
 	beforeNavigate(({ to, type }) =>
@@ -49,6 +57,8 @@
 	import PwaStatusDetails from '$lib/components/PwaStatusDetails.svelte';
 	import PwaUpdateBanner from '$lib/components/PwaUpdateBanner.svelte';
 	import { offlineShellStatus } from '$lib/pwa/status';
+	// Browser share previews reuse this layout outside the worker's scope.
+	const inPwaScope = $derived(page.url.pathname.startsWith('/app/'));
 	import {
 		buildFirebaseStorage,
 		subscribeFirebase,
@@ -87,7 +97,7 @@
 	let retryAccount = () => {};
 	const plannerRoute = $derived(
 		/^\/app\/(plan|settings|catalog|semester|preview)(\/|$)/.test(
-			page.url.pathname
+			consolePathname(page.url.pathname)
 		)
 	);
 	const cloudPlanBlocked = $derived(
@@ -175,6 +185,9 @@
 
 <div
 	dir={content.lang.dir}
+	data-sveltekit-reload={browserShareDestination(page.url.pathname)
+		? true
+		: undefined}
 	class="console-shell flex h-full min-h-screen flex-col"
 >
 	<div class="w-full border-b border-border bg-background">
@@ -188,15 +201,17 @@
 		/>
 	</div>
 
-	<PwaUpdateBanner
-		visible={$offlineShellStatus.updateReady}
-		updateVersion={$offlineShellStatus.updateVersion}
-		updateVersionError={$offlineShellStatus.updateVersionError}
-		updateBlocked={$offlineShellStatus.updateBlocked}
-		updateBusy={$offlineShellStatus.updateBusy}
-		updateActionError={$offlineShellStatus.updateActionError}
-		onAccept={$offlineShellStatus.acceptUpdate}
-	/>
+	{#if inPwaScope}
+		<PwaUpdateBanner
+			visible={$offlineShellStatus.updateReady}
+			updateVersion={$offlineShellStatus.updateVersion}
+			updateVersionError={$offlineShellStatus.updateVersionError}
+			updateBlocked={$offlineShellStatus.updateBlocked}
+			updateBusy={$offlineShellStatus.updateBusy}
+			updateActionError={$offlineShellStatus.updateActionError}
+			onAccept={$offlineShellStatus.acceptUpdate}
+		/>
+	{/if}
 
 	<ConsoleAccountStatus
 		readOnly={!$planOnline}
@@ -211,14 +226,17 @@
 		{@render children()}
 	</main>
 
-	<AppFooter compact>
-		{#snippet pwa()}
-			<div class="pwa-footer-controls">
-				<PwaStatus {offline} />
-			</div>
-			<PwaStatusDetails />
-		{/snippet}
-	</AppFooter>
+	{#snippet pwaControls()}
+		<div class="pwa-footer-controls">
+			<PwaStatus {offline} />
+		</div>
+		<PwaStatusDetails />
+	{/snippet}
+	<AppFooter
+		compact
+		update={inPwaScope ? $offlineShellStatus : undefined}
+		pwa={inPwaScope ? pwaControls : undefined}
+	/>
 </div>
 
 <style lang="postcss">

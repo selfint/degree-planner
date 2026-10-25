@@ -14,7 +14,8 @@ const meta = {
 		covers: [
 			'src/lib/components/PwaStatus.svelte',
 			'src/lib/components/PwaStatusDetails.svelte',
-			'src/lib/components/PwaUpdateBanner.svelte'
+			'src/lib/components/PwaUpdateBanner.svelte',
+			'src/lib/components/FooterVersion.svelte'
 		]
 	}
 } satisfies Meta<typeof Preview>;

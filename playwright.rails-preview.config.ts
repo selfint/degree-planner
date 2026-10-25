@@ -10,6 +10,7 @@ export default defineConfig({
 		'course-catalog-rails.test.ts',
 		'remaining-course-rails.test.ts',
 		'search-faculty-width.test.ts',
+		'search-focus.test.ts',
 		'footer-controls.test.ts',
 		'console-navigation-styles.test.ts',
 		'search-three-columns.test.ts'

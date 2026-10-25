@@ -151,6 +151,17 @@ async function settle(page: Page) {
 
 async function expectPreferences(page: Page, language: Language, theme: Theme) {
 	const footer = page.locator('footer');
+	const version = footer.getByTestId('footer-build-version');
+	await expect(version).not.toBeEmpty();
+	await expect(footer.getByTestId('footer-version')).toContainText(
+		language === 'he' ? 'גרסה' : 'Version'
+	);
+	await expect(version).toHaveCSS('font-size', '12px');
+	await expect(version).toHaveCSS('direction', 'ltr');
+	const reportColor = await footer
+		.locator('.footer-report')
+		.evaluate((element) => getComputedStyle(element).color);
+	await expect(version).toHaveCSS('color', reportColor);
 	await expect(footer.locator('.theme-toggle')).toHaveAccessibleName(
 		language === 'he' ? 'מצב בהיר' : 'Light mode'
 	);

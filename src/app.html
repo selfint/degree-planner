@@ -175,7 +175,12 @@
 			</div>
 		</section>
 		<script>
-			if (/^\/app(?:\/|$)/.test(location.pathname)) {
+			if (
+				/^\/app(?:\/|$)/.test(location.pathname) ||
+				/^\/share\/[A-Za-z0-9_-]+\/[A-Za-z0-9_-]+\/[A-Za-z0-9_-]+\/?$/.test(
+					location.pathname
+				)
+			) {
 				const boot = document.getElementById('console-boot');
 				boot.hidden = false;
 				boot.style.display = 'grid';

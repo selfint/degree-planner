@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { runInNewContext } from 'node:vm';
 import ts from 'typescript';
 import { describe, expect, it, vi } from 'vitest';
+import { navigateFromBrowserShare } from '$lib/browserShareRoutes';
 
 // Execute the actual Svelte event handler, with only storage, confirmation and
 // navigation replaced. SSR does not invoke event handlers, and copying its
@@ -62,6 +63,7 @@ async function exercise(
 		writeStorage,
 		setUser,
 		goto,
+		navigateFromBrowserShare,
 		importError: false
 	};
 	const invoke = runInNewContext(`${handler}\nimportPlan`, environment);

@@ -32,7 +32,7 @@
 		justify-content: center;
 		padding: 0.375rem 0.5rem;
 		border-radius: 0.375rem;
-		color: rgb(var(--color-content-secondary));
+		color: rgb(var(--color-content-primary));
 		font-size: var(--titlebar-font-size, 0.875rem);
 		font-weight: 550;
 		line-height: 1.5;

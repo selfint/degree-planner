@@ -32,7 +32,8 @@ export const cms = {
 		footer: {
 			createdBy: 'Created by',
 			author: 'Tom Selfin',
-			reportIssue: 'Report an issue'
+			reportIssue: 'Report an issue',
+			version: 'Version'
 		},
 		error: {
 			notFound: 'Page Not Found',
@@ -235,7 +236,8 @@ export const cms = {
 		footer: {
 			createdBy: 'נוצר על ידי',
 			author: 'תום סלפין',
-			reportIssue: 'דווח על בעיה'
+			reportIssue: 'דווח על בעיה',
+			version: 'גרסה'
 		},
 		error: {
 			notFound: 'הדף לא נמצא',

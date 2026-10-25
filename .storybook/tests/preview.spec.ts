@@ -1061,9 +1061,9 @@ test('console titlebar keeps brand, search and navigation on one row without PWA
 					path: box('.search-icon path')
 				};
 			});
-			const logoSize = width < 640 ? 28 : 32;
-			expect(alignment.logo.width).toBe(logoSize);
-			expect(alignment.logo.height).toBe(logoSize);
+			const logoSize = (width < 640 ? 28 : 32) * 1.05;
+			expect(alignment.logo.width).toBeCloseTo(logoSize, 1);
+			expect(alignment.logo.height).toBeCloseTo(logoSize, 1);
 			expect(alignment.logo.y).toBeCloseTo(boxes.header.center, 1);
 			for (const icon of [alignment.icon, alignment.svg, alignment.path]) {
 				expect(icon.width).toBeCloseTo(width < 640 ? 14 : 16, 1);
@@ -1188,6 +1188,7 @@ async function expectPwaUpdateBanner(
 	await expect(page.getByTestId('pwa-update-link')).toHaveCount(0);
 	await expect(page.locator('footer').getByTestId('pwa-update')).toHaveCount(0);
 	if (!visible) return;
+	await page.mouse.move(0, 0);
 	await expect(banner).toBeVisible();
 	await expect(banner.getByRole('status')).toHaveText(
 		pwaMessages[language].update
@@ -1202,6 +1203,21 @@ async function expectPwaUpdateBanner(
 	await expect(accept).toHaveAttribute('data-testid', 'pwa-update-accept');
 	await expect(accept).toBeVisible();
 	await expect(accept).toBeEnabled({ enabled: actionState === 'ready' });
+	const footerAccept = page.getByTestId('footer-update');
+	await expect(footerAccept).toHaveAccessibleName(
+		pwaMessages[language].updateAccept
+	);
+	await expect(footerAccept).toBeEnabled({ enabled: actionState === 'ready' });
+	await expect(footerAccept).toHaveCSS('font-size', '12px');
+	await expect(footerAccept).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+	await expect(footerAccept).toHaveCSS('border-top-width', '0px');
+	const reportColor = await page
+		.locator('.footer-report')
+		.evaluate((element) => getComputedStyle(element).color);
+	await expect(footerAccept).toHaveCSS('color', reportColor);
+	await expect(page.getByTestId('footer-version')).toContainText(
+		language === 'he' ? 'גרסה' : 'Version'
+	);
 	await expect(accept).toHaveAttribute(
 		'aria-busy',
 		String(actionState === 'applying')
@@ -1211,6 +1227,9 @@ async function expectPwaUpdateBanner(
 			pwaMessages[language].updateBlocked
 		);
 		await expect(banner.getByTestId('pwa-update-blocked')).toBeVisible();
+		await expect(footerAccept).toHaveAccessibleDescription(
+			pwaMessages[language].updateBlocked
+		);
 	}
 	const dismiss = banner.getByTestId('pwa-update-dismiss');
 	await expect(dismiss).toHaveAccessibleName(pwaMessages[language].close);
@@ -1277,6 +1296,20 @@ test('PWA update actions reflect clean, unsaved, saving and applying states', as
 						page.getByText('Update requests (fixture only): 1', { exact: true })
 					).toBeVisible();
 					await expect(page.getByTestId('pwa-update-banner')).toBeVisible();
+					await page.getByTestId('pwa-update-dismiss').click();
+					const footerAccept = page.getByTestId('footer-update');
+					await page.locator('.footer-report').focus();
+					await page.keyboard.press('Tab');
+					await expect(footerAccept).toBeFocused();
+					await expect(footerAccept).toHaveCSS('outline-style', 'solid');
+					await page.keyboard.press('Enter');
+					await expect(
+						page.getByText('Update requests (fixture only): 2', { exact: true })
+					).toBeVisible();
+					await page.keyboard.press('Space');
+					await expect(
+						page.getByText('Update requests (fixture only): 3', { exact: true })
+					).toBeVisible();
 				}
 			});
 		}
@@ -1483,6 +1516,7 @@ test('offline updates keep the footer status visible after dismissal and retain 
 		await expectOffline();
 		await page.getByTestId('pwa-update-dismiss').click();
 		await expectPwaUpdateBanner(page, language, false);
+		await expect(page.getByTestId('footer-update')).toBeEnabled();
 		await expectOffline();
 		await page.screenshot({
 			path: test
@@ -1494,6 +1528,9 @@ test('offline updates keep the footer status visible after dismissal and retain 
 		// visible Offline state, without relying on a new component mount.
 		for (const state of ['offline', 'offlineUpdate']) {
 			await changeArgs({ state });
+			await expect(page.getByTestId('footer-update')).toHaveCount(
+				state === 'offlineUpdate' ? 1 : 0
+			);
 			await expectPwaUpdateBanner(page, language, false);
 			await expectOffline();
 		}

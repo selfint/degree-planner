@@ -7,9 +7,12 @@
 	import AppFooter from '$lib/components/AppFooter.svelte';
 	import ConsoleLoading from '$lib/components/ConsoleLoading.svelte';
 	import { shouldShowConsoleEntry } from '$lib/consoleNavigation';
+	import { consolePathname } from '$lib/browserShareRoutes';
 	const buildCommit = __PLANIT_BUILD_SHA__;
 	const { children } = $props();
-	const consoleRoute = $derived(/^\/app(?:\/|$)/.test(page.url.pathname));
+	const consoleRoute = $derived(
+		/^\/app(?:\/|$)/.test(consolePathname(page.url.pathname))
+	);
 	const openingConsole = $derived(
 		shouldShowConsoleEntry(page.url.pathname, navigating.to?.url.pathname)
 	);

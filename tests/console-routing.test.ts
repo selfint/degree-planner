@@ -171,11 +171,11 @@ for (const language of ['en', 'he'] as const) {
 	});
 }
 
-test.describe('PlanIt brand returns to landing', () => {
+test.describe('PlanIt brand opens landing separately', () => {
 	test.use({ isMobile: true, hasTouch: true });
 	for (const width of [320, 390]) {
 		for (const language of ['en', 'he'] as const) {
-			test(`${width}px ${language}: logo opens landing and Get Started returns to saved plan`, async ({
+			test(`${width}px ${language}: logo opens a new landing tab and Get Started retains the saved plan`, async ({
 				page
 			}) => {
 				const guest = {
@@ -204,15 +204,20 @@ test.describe('PlanIt brand returns to landing', () => {
 					.getByRole('link', { name: 'PlanIt', exact: true });
 				await expect(brand).toHaveAttribute('href', '/');
 				await expect(brand).toHaveAttribute('data-sveltekit-reload', '');
+				await expect(brand).toHaveAttribute('target', '_blank');
 				const consoleOrigin = await page.evaluate(() => performance.timeOrigin);
+				const opened = page.waitForEvent('popup');
 				await brand.tap();
-				await expect(page).toHaveURL(`${origin}/`);
-				await expect(page.locator('.landing')).toHaveAttribute(
+				const landing = await opened;
+				await expect(landing).toHaveURL(`${origin}/`);
+				await expect(landing.locator('.landing')).toHaveAttribute(
 					'dir',
 					language === 'he' ? 'rtl' : 'ltr'
 				);
-				await expect(page.locator('.console-shell')).toHaveCount(0);
-				expect(await page.evaluate(() => performance.timeOrigin)).not.toBe(
+				await expect(landing.locator('.console-shell')).toHaveCount(0);
+				expect(await landing.evaluate(() => window.opener)).toBeNull();
+				await expect(page).toHaveURL(`${origin}/app/plan`);
+				expect(await page.evaluate(() => performance.timeOrigin)).toBe(
 					consoleOrigin
 				);
 				expect(
@@ -220,20 +225,21 @@ test.describe('PlanIt brand returns to landing', () => {
 						JSON.parse(localStorage.getItem('userData')!)
 					)
 				).toEqual(guest);
-				await page.locator('header a[href="/app/"]').tap();
-				await expect(page).toHaveURL(`${origin}/app/plan`);
-				await expect(page.locator('[data-code="02340124"]')).toBeVisible({
+				await landing.locator('header a[href="/app/"]').tap();
+				await expect(landing).toHaveURL(`${origin}/app/plan`);
+				await expect(landing.locator('[data-code="02340124"]')).toBeVisible({
 					timeout: 30_000
 				});
-				await expect(page.locator('.console-shell')).toHaveAttribute(
+				await expect(landing.locator('.console-shell')).toHaveAttribute(
 					'dir',
 					language === 'he' ? 'rtl' : 'ltr'
 				);
 				expect(
-					await page.evaluate(() =>
+					await landing.evaluate(() =>
 						JSON.parse(localStorage.getItem('userData')!)
 					)
 				).toEqual(guest);
+				await landing.close();
 			});
 		}
 	}

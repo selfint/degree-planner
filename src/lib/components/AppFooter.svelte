@@ -4,14 +4,18 @@
 	import { cms } from '$lib/content';
 	import ThemeToggle from './ThemeToggle.svelte';
 	import Select from './Select.svelte';
+	import FooterVersion from './FooterVersion.svelte';
+	import type { OfflineShellStatus } from '$lib/pwa/status';
 
 	let {
 		persistPreferences = true,
 		compact = false,
+		update,
 		pwa
 	}: {
 		persistPreferences?: boolean;
 		compact?: boolean;
+		update?: OfflineShellStatus;
 		pwa?: Snippet;
 	} = $props();
 
@@ -52,6 +56,7 @@
 				target="_blank"
 				rel="noopener noreferrer">{content.lang.footer.reportIssue}</a
 			>
+			<FooterVersion {update} />
 		</div>
 		<div
 			class="preference-controls flex items-center gap-2"

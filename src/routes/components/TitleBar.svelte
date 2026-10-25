@@ -9,6 +9,7 @@
 	import { content } from '$lib/preferences.svelte';
 	import Settings from '$lib/components/Settings.svelte';
 	import GetStartedLink from '$lib/components/GetStartedLink.svelte';
+	import { browserLink } from '$lib/browserLinks';
 
 	type Props = {
 		started: boolean;
@@ -45,7 +46,15 @@
 </script>
 
 <header dir="ltr" class="title-bar" class:console={started}>
-	<a href="/" data-sveltekit-reload class="brand" aria-label="PlanIt">
+	<a
+		href="/"
+		use:browserLink
+		data-sveltekit-reload
+		target="_blank"
+		rel="external noopener noreferrer"
+		class="brand"
+		aria-label="PlanIt"
+	>
 		<enhanced:img src={Logo} loading="eager" alt="" class="brand-logo" />
 		<span class="brand-title">{@html Title}</span>
 	</a>
@@ -103,8 +112,8 @@
 		direction: ltr;
 	}
 	.brand :global(.brand-logo) {
-		inline-size: 2.75rem;
-		block-size: 2.75rem;
+		inline-size: 2.8875rem;
+		block-size: 2.8875rem;
 		object-fit: contain;
 	}
 	.brand-title {
@@ -124,8 +133,8 @@
 		grid-template-columns: auto minmax(0, 25rem) auto;
 	}
 	.console .brand :global(.brand-logo) {
-		inline-size: 2rem;
-		block-size: 2rem;
+		inline-size: 2.1rem;
+		block-size: 2.1rem;
 	}
 	.console .brand-title {
 		inline-size: 4rem;
@@ -179,6 +188,13 @@
 	input::placeholder {
 		color: rgb(var(--color-content-secondary));
 	}
+	@media (any-pointer: coarse) {
+		input {
+			/* iOS zooms focused inputs below 16px, including installed PWAs.
+			   Keep pinch zoom available and preserve the compact header geometry. */
+			font-size: max(16px, 1rem);
+		}
+	}
 	@media (max-width: 39.99rem) {
 		.console {
 			/* Reserve the global 2px outline plus 3px focus offset. */
@@ -189,8 +205,8 @@
 			gap: 0.125rem;
 		}
 		.console .brand :global(.brand-logo) {
-			inline-size: 1.75rem;
-			block-size: 1.75rem;
+			inline-size: 1.8375rem;
+			block-size: 1.8375rem;
 		}
 		.console .brand-title {
 			display: none;

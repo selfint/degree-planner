@@ -22,6 +22,7 @@
 		type ShellReadiness
 	} from '$lib/pwa/shell-readiness';
 	import { publishOfflineShellStatus } from '$lib/pwa/status';
+	import { createUpdateCheckScheduler } from '$lib/pwa/update-check-scheduler';
 	import type { ShellFailureReason } from '$lib/pwa/shell-failure';
 	import {
 		readWaitingWorkerVersion,
@@ -186,6 +187,8 @@
 		// without activating a waiting worker or replacing the current document.
 		let registering = false;
 		let currentRegistration: ServiceWorkerRegistration | undefined;
+		const updateChecks = createUpdateCheckScheduler(() => currentRegistration);
+		cleanups.push(() => updateChecks.dispose());
 		let reloadStarted = false;
 		acceptUpdate = async () => {
 			if (disposed || updateBusy || reloadStarted || updateSafety.blocked())
@@ -334,6 +337,7 @@
 					);
 					watchInstalling();
 				}
+				updateChecks.refresh();
 				clearTimeout(controllerTimer);
 				controllerTimer = setTimeout(() => {
 					if (!disposed && !navigator.serviceWorker.controller)

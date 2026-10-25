@@ -43,6 +43,7 @@ const createRegistration = new Function(
 	'setTimeout',
 	'clearTimeout',
 	'production',
+	'updateChecks',
 	transpileModule(
 		`
 		let disposed = false;
@@ -70,7 +71,8 @@ const createRegistration = new Function(
 	check: () => void,
 	timer: (...args: unknown[]) => unknown,
 	clearTimer: (...args: unknown[]) => void,
-	production: boolean
+	production: boolean,
+	updateChecks: { refresh: () => void }
 ) => {
 	register: () => Promise<void>;
 	dispose: () => void;
@@ -91,6 +93,7 @@ function harness() {
 	const check = vi.fn();
 	const timer = vi.fn();
 	const clearTimer = vi.fn();
+	const updateChecks = { refresh: vi.fn() };
 	const lifecycle = createRegistration(
 		{ serviceWorker },
 		setShell,
@@ -99,9 +102,19 @@ function harness() {
 		check,
 		timer,
 		clearTimer,
-		true
+		true,
+		updateChecks
 	);
-	return { serviceWorker, setShell, reconcile, watch, check, timer, lifecycle };
+	return {
+		serviceWorker,
+		setShell,
+		reconcile,
+		watch,
+		check,
+		timer,
+		lifecycle,
+		updateChecks
+	};
 }
 function registration() {
 	return {
@@ -130,6 +143,7 @@ describe('actual offline shell registration result handling', () => {
 			expect(h.watch).not.toHaveBeenCalled();
 			expect(h.check).not.toHaveBeenCalled();
 			expect(h.timer).not.toHaveBeenCalled();
+			expect(h.updateChecks.refresh).not.toHaveBeenCalled();
 			expect(h.serviceWorker.ready.then).not.toHaveBeenCalled();
 		}
 	);
@@ -162,6 +176,10 @@ describe('actual offline shell registration result handling', () => {
 			expect.any(Function)
 		);
 		expect(h.check).toHaveBeenCalledOnce();
+		expect(h.updateChecks.refresh).toHaveBeenCalledOnce();
+		expect(valid.addEventListener.mock.invocationCallOrder[0]).toBeLessThan(
+			h.updateChecks.refresh.mock.invocationCallOrder[0]
+		);
 		expect(h.timer).toHaveBeenCalledExactlyOnceWith(
 			expect.any(Function),
 			30_000

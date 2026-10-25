@@ -3,6 +3,10 @@ import { createServer, type Server } from 'node:http';
 import { readFile, readdir } from 'node:fs/promises';
 import { pwaMessages } from '../src/lib/pwa/messages';
 import { createPwaDeployment } from './helpers/pwa-deployment';
+import {
+	UPDATE_CHECK_INTERVAL_MS,
+	UPDATE_CHECK_STORAGE_KEY
+} from '../src/lib/pwa/update-check-scheduler';
 
 async function viewOfflineError(page: Page, timeout = 15000) {
 	const error = page.getByTestId('pwa-error');
@@ -523,6 +527,56 @@ test('a never-visited course loads offline while guest plan editing stays read-o
 	await expect(page.getByTestId('plan-read-only')).toBeVisible();
 	await context.setOffline(false);
 	await expect(page.getByTestId('plan-read-only')).toHaveCount(0);
+});
+
+test('hourly discovery finds a waiting update without activating or reloading', async ({
+	page
+}) => {
+	await page.clock.install();
+	await ready(page);
+	const readCheck = () =>
+		page.evaluate(
+			(key) => JSON.parse(localStorage.getItem(key) ?? 'null'),
+			UPDATE_CHECK_STORAGE_KEY
+		);
+	await expect
+		.poll(async () => (await readCheck())?.lastCheckedAt)
+		.toBeGreaterThan(0);
+	const initial = await readCheck();
+	const before = await page.evaluate(() => ({
+		timeOrigin: performance.timeOrigin,
+		plan: localStorage.getItem('userData')
+	}));
+	await page.clock.pauseAt(
+		new Date(await page.evaluate(() => Date.now() + 1000))
+	);
+	// Playwright's fake Date can be fractional, but fastForward truncates ticks.
+	const remaining = Math.ceil(
+		initial.lastAttemptAt +
+			UPDATE_CHECK_INTERVAL_MS -
+			(await page.evaluate(() => Date.now()))
+	);
+	expect(remaining).toBeGreaterThan(0);
+	revision = 2;
+	await page.clock.fastForward(remaining - 1);
+	expect((await readCheck()).lastAttemptAt).toBe(initial.lastAttemptAt);
+	await expect(page.getByTestId('pwa-update-banner')).toHaveCount(0);
+	await page.clock.fastForward(1);
+	await expectUpdateBanner(page, deploymentVersion());
+	await expect
+		.poll(async () => (await readCheck())?.lastCheckedAt)
+		.toBeGreaterThan(initial.lastCheckedAt);
+	expect(
+		await page.evaluate(async () => {
+			const registration = await navigator.serviceWorker.getRegistration();
+			return {
+				active: registration?.active?.state,
+				waiting: registration?.waiting?.state,
+				timeOrigin: performance.timeOrigin,
+				plan: localStorage.getItem('userData')
+			};
+		})
+	).toEqual({ active: 'activated', waiting: 'installed', ...before });
 });
 
 test('a failed worker replacement never announces an available update', async ({

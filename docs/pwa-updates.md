@@ -33,6 +33,33 @@ conservative live-client/version design; deleting all old caches or merely keepi
 the latest two builds is unsafe for long-lived tabs. Browser storage eviction is
 still possible and is reported through the existing shell-readiness checks.
 
+## Automatic update discovery
+
+Once the `/app/` registration is available, the app checks whether an update
+check is due. The explicit check runs at startup when there is no recent attempt,
+then at most once an hour while the page is visible and online. Focus, visibility,
+page restore, and reconnect events check the same timestamp, so returning after
+an hour triggers a check without waiting another hour. Hidden/offline pages do
+not poll or consume an attempt. This does not promise background execution when
+an installed app is suspended or closed, including on iOS.
+
+The origin-local `planit:pwa:update-check:/app/` record stores `lastAttemptAt`
+before requesting `registration.update()` and `lastCheckedAt` only after that
+request resolves. Failed or timed-out requests retain the previous success and
+are throttled for an hour too. An update request resolving is not proof that a
+new worker installed or its offline shell is ready; the existing worker-version
+and readiness checks remain authoritative. A 30-second wait bounds stalled
+checks, and invalid/future timestamps are treated as due rather than blocking
+checks indefinitely.
+
+A short Web Lock coordinates the persisted attempt between tabs when supported.
+Without usable Web Locks, shared storage is best-effort deduplication; when storage is
+blocked, the per-page memory throttle still works. None of this replaces the
+existing activation safety gates. Browser-owned registration/navigation update
+checks may also run independently. Discovery never activates a waiting worker,
+reloads the page, or changes saved plans. `/share/` previews and unrelated worker
+registrations are excluded.
+
 ## Verification
 
 - Unit tests execute the actual acceptance action, plan Save and storage boundary,

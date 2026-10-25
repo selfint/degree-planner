@@ -36,8 +36,11 @@ refreshes use the same compact indicator with their actual cause. Valid stored
 data remains readable, and only a successful refresh of the failed resource
 clears its error. Selected-degree data uses this same reporting path.
 
-The startup view contains the existing brand and an indeterminate bar, plus a
-localized screen-reader status. The root layout shows it only when entering the
+The startup view contains the existing brand and visible localized stage text
+below the bar. Data preparation shows the actual count of validated, persisted
+data files completed; application loading, cache checks and final initialization
+remain indeterminate rather than estimating elapsed-time progress. The root
+layout shows it only when entering the
 console from outside `/app`; internal tabs, history and offline client navigation
 retain the current document without the full-screen startup overlay.
 

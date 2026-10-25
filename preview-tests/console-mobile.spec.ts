@@ -244,8 +244,21 @@ for (const language of ['en', 'he'] as const) {
 			await expect.poll(() => dataRequested).toBe(true);
 			await expect(page.locator('#console-boot')).toBeVisible();
 			await expect(page.locator('#console-boot-detail')).toHaveText(
-				language === 'he' ? 'טוענים קורסים…' : 'Loading courses…'
+				language === 'he'
+					? 'טוענים קורסים… קובצי נתונים שהושלמו: 1 מתוך 2'
+					: 'Loading courses… 1 of 2 data files complete'
 			);
+			await expect(page.locator('#console-boot-detail')).toBeVisible();
+			await expect(page.locator('#console-boot-detail')).toHaveCSS(
+				'clip-path',
+				'none'
+			);
+			await expect(
+				page.locator('#console-boot').getByRole('progressbar')
+			).toHaveAttribute('aria-valuenow', '1');
+			await expect(
+				page.locator('#console-boot').getByRole('progressbar')
+			).toHaveAttribute('aria-valuemax', '2');
 			await expect(page.locator('#console-boot')).toHaveCSS(
 				'background-color',
 				theme === 'light' ? 'rgb(248, 250, 252)' : 'rgb(25, 25, 29)'

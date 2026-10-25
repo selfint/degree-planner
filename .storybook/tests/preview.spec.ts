@@ -825,8 +825,48 @@ test('theme, language and reading direction are global controls', async ({
 		page.getByRole('img', { name: 'PlanIt', exact: true })
 	).toBeVisible();
 	await expect(page.locator('.console-loading__track')).toBeVisible();
-	await expect(page.getByRole('status')).toHaveText('Loading courses…');
-	await expect(page.getByRole('status')).toHaveCSS('clip-path', 'inset(50%)');
+	await expect(page.getByRole('status')).toHaveText(
+		'Loading courses… 1 of 2 data files complete'
+	);
+	await expect(page.getByRole('status')).toBeVisible();
+	await expect(page.getByRole('status')).toHaveCSS('clip-path', 'none');
+	await expect(
+		page.getByRole('progressbar', { name: 'Loading data files' })
+	).toHaveAttribute('aria-valuenow', '1');
+	await expect(page.getByRole('progressbar')).toHaveAttribute(
+		'aria-valuemin',
+		'0'
+	);
+	await expect(page.getByRole('progressbar')).toHaveAttribute(
+		'aria-valuemax',
+		'2'
+	);
+	await expect(page.locator('.console-loading__indicator')).toHaveCSS(
+		'animation-name',
+		'none'
+	);
+	const track = await page.locator('.console-loading__track').boundingBox();
+	const status = await page.getByRole('status').boundingBox();
+	expect(track).not.toBeNull();
+	expect(status).not.toBeNull();
+	expect(status!.y).toBeGreaterThan(track!.y + track!.height);
+	await page.goto(
+		`${storyUrl('components-consoleloading--courses')}&globals=theme:light;language:he;direction:rtl`
+	);
+	await expect(page.locator('.console-loading')).toHaveAttribute('lang', 'he');
+	await expect(page.locator('.console-loading')).toHaveAttribute('dir', 'rtl');
+	await expect(page.getByRole('status')).toHaveText(
+		'טוענים קורסים… קובצי נתונים שהושלמו: 1 מתוך 2'
+	);
+	await expect(page.getByRole('status')).toBeVisible();
+	await expect(page.getByRole('status')).toHaveCSS('clip-path', 'none');
+	await expect(
+		page.getByRole('progressbar', { name: 'טעינת קובצי נתונים' })
+	).toHaveAttribute('aria-valuenow', '1');
+	await expect(page.getByRole('progressbar')).toHaveAttribute(
+		'aria-valuemax',
+		'2'
+	);
 	await page.goto(
 		`${storyUrl('components-searchfilters--default')}&globals=theme:light;language:en;direction:ltr`
 	);

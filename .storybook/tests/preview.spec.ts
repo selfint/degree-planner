@@ -841,8 +841,8 @@ test('theme, language and reading direction are global controls', async ({
 		pwaMessages.en.cachedRefreshFailed
 	);
 	for (const language of ['he', 'en'] as const) {
-		// Use the same Storybook channel event as its toolbar, without reloading
-		// the iframe: global changes must keep the active fixture's details.
+		// Use the toolbar channel without reloading the iframe. Storybook may
+		// recreate the fixture and restore its default collapsed disclosure.
 		await page.evaluate((language) => {
 			const channel = (
 				window as unknown as Window & {
@@ -871,6 +871,7 @@ test('theme, language and reading direction are global controls', async ({
 		await expect(page.getByTestId('pwa-refresh-error')).toHaveText(
 			pwaMessages[language].cachedRefreshFailed
 		);
+		await openPwaErrorDetails(page, language);
 		await expect(page.getByTestId('pwa-error-detail')).toBeVisible();
 		await expect(page.getByTestId('pwa-error')).toBeVisible();
 		await expectPwaUpdateBanner(page, language, true);
@@ -907,7 +908,8 @@ test('theme, language and reading direction are global controls', async ({
 			);
 		}
 	}
-	// A shell failure already opened by the user must retranslate in place too.
+	// Reopen the shell fixture after toolbar rerenders and verify retranslation
+	// without a document navigation. Actual footer language changes are separate.
 	await page.goto(storyUrl('components-pwastatus--shell-failure'));
 	await expect(page.getByTestId('pwa-status-details')).toBeHidden();
 	await openPwaErrorDetails(page, 'en');
@@ -928,6 +930,7 @@ test('theme, language and reading direction are global controls', async ({
 			await expect(page.getByTestId('pwa-error-detail')).toHaveText(
 				pwaMessages[language].shellErrors.verification
 			);
+			await openPwaErrorDetails(page, language);
 			await expect(page.getByTestId('pwa-error-detail')).toBeVisible();
 			await expect(
 				page.getByRole('button', {
@@ -1723,6 +1726,8 @@ test('PWA dismissal follows versions without reading or writing the real session
 	await expect(page.getByTestId('pwa-refresh-error')).toBeVisible();
 	await changeArgs({ updateVersion: 'storybook-update-v3' });
 	await expectPwaUpdateBanner(page, 'en', true, 'storybook-update-v3');
+	// Updating story args restores its default disclosure state.
+	await openPwaErrorDetails(page, 'en');
 	await page.getByTestId('pwa-update-dismiss').click();
 	await expectPwaUpdateBanner(page, 'en', false);
 	await expect(page.getByTestId('pwa-refresh-error')).toBeVisible();
@@ -1739,6 +1744,7 @@ test('PWA dismissal follows versions without reading or writing the real session
 		'alert'
 	);
 	await expect(page.getByTestId('pwa-update-dismiss')).toBeDisabled();
+	await openPwaErrorDetails(page, 'en');
 	await expect(page.getByTestId('pwa-refresh-error')).toBeVisible();
 	await changeArgs({
 		updateVersion: 'storybook-update-v4',

@@ -287,3 +287,34 @@ describe('startup refresh results', () => {
 		}
 	});
 });
+
+it('counts only validated persisted datasets, never failures, as boot progress', async () => {
+	vi.resetModules();
+	vi.stubGlobal('window', {});
+	vi.stubGlobal('indexedDB', new IDBFactory());
+	vi.stubGlobal('navigator', { onLine: true });
+	try {
+		const { preparePublicCourseData } = await import('./publicData');
+		const progress = vi.fn();
+		const fetcher = vi.fn<typeof fetch>().mockImplementation(async (url) => {
+			if (String(url) === '/courseData.json') return response(courses);
+			return response({ corrupt: true });
+		});
+		const result = await preparePublicCourseData(fetcher, progress);
+		expect(result.ready).toBe(false);
+		expect(result.refreshed).toBe(false);
+		expect(result.refreshError).toContain(
+			'Invalid public data: /catalogs.json'
+		);
+		expect(progress.mock.calls.map(([value]) => value.completed)).toEqual([
+			0, 1
+		]);
+		expect(progress).toHaveBeenLastCalledWith({
+			completed: 1,
+			total: 2,
+			pending: ['/catalogs.json']
+		});
+	} finally {
+		vi.unstubAllGlobals();
+	}
+});

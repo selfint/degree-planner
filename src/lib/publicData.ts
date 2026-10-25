@@ -1,3 +1,4 @@
+import type { DataLoadingProgress } from './consoleLoading';
 import {
 	createIndexedDbStore,
 	type CachedResource,
@@ -528,7 +529,10 @@ export async function readPublicCourseDataReadiness() {
 }
 
 /** Synchronize existing JSON at startup; readiness describes durable offline data. */
-export async function preparePublicCourseData(fetcher: typeof fetch = fetch) {
+export async function preparePublicCourseData(
+	fetcher: typeof fetch = fetch,
+	onProgress?: (progress: DataLoadingProgress) => void
+) {
 	if (typeof window === 'undefined') return { ready: false, courseCount: 0 };
 	const { resources, courses } = browserRepositories();
 	const shouldRefresh = navigator.onLine !== false;
@@ -540,10 +544,32 @@ export async function preparePublicCourseData(fetcher: typeof fetch = fetch) {
 			.current()
 			.map(({ url }) => url)
 			.filter((url) => url !== '/courseData.json' && url !== '/catalogs.json');
+		const pending = new Set([
+			'/courseData.json',
+			'/catalogs.json',
+			...failedResources
+		]);
+		const total = pending.size;
+		const notify = () =>
+			onProgress?.({
+				completed: total - pending.size,
+				total,
+				pending: [...pending]
+			});
+		notify();
+		const track = async (url: string, work: Promise<unknown>) => {
+			await work;
+			// Completion means a validated response, not elapsed time or bytes guessed
+			// from Content-Length (which may describe compressed transfer sizes).
+			pending.delete(url);
+			notify();
+		};
 		const results = await Promise.allSettled([
-			courses.sync(fetcher),
-			resources.revalidate('/catalogs.json', fetcher),
-			...failedResources.map((url) => resources.revalidate(url, fetcher))
+			track('/courseData.json', courses.sync(fetcher)),
+			track('/catalogs.json', resources.revalidate('/catalogs.json', fetcher)),
+			...failedResources.map((url) =>
+				track(url, resources.revalidate(url, fetcher))
+			)
 		]);
 		refreshed = results.every((result) => result.status === 'fulfilled');
 	} else {

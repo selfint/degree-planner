@@ -1,3 +1,4 @@
+import type { DataLoadingProgress } from './consoleLoading';
 import {
 	preparePublicCourseData,
 	readPublicCourseDataReadiness,
@@ -15,6 +16,18 @@ export type OfflinePublicDataState = {
 let state: OfflinePublicDataState = { phase: 'idle', courseCount: 0 };
 const listeners = new Set<(state: OfflinePublicDataState) => void>();
 let preparing: Promise<OfflinePublicDataState> | undefined;
+let latestProgress: DataLoadingProgress | undefined;
+const progressListeners = new Set<(progress: DataLoadingProgress) => void>();
+function publishProgress(progress: DataLoadingProgress) {
+	latestProgress = progress;
+	for (const listener of progressListeners) {
+		try {
+			listener(progress);
+		} catch (error) {
+			reportSubscriberError(error);
+		}
+	}
+}
 let stopRefreshSubscription: (() => void) | undefined;
 
 export function subscribeOfflinePublicData(
@@ -70,8 +83,25 @@ function publish(next: OfflinePublicDataState) {
 }
 
 /** Automatically called on first open and reconnect. No private data is fetched here. */
-export function prepareOfflinePublicData(): Promise<OfflinePublicDataState> {
-	if (preparing) return preparing;
+export function prepareOfflinePublicData(
+	onProgress?: (progress: DataLoadingProgress) => void
+): Promise<OfflinePublicDataState> {
+	if (!preparing) latestProgress = undefined;
+	if (onProgress) {
+		progressListeners.add(onProgress);
+		if (latestProgress) {
+			try {
+				onProgress(latestProgress);
+			} catch (error) {
+				reportSubscriberError(error);
+			}
+		}
+	}
+	const observed = (pending: Promise<OfflinePublicDataState>) =>
+		onProgress
+			? pending.finally(() => progressListeners.delete(onProgress))
+			: pending;
+	if (preparing) return observed(preparing);
 	preparing = (async () => {
 		if (state.phase === 'ready') {
 			const durable = await readPublicCourseDataReadiness();
@@ -85,7 +115,7 @@ export function prepareOfflinePublicData(): Promise<OfflinePublicDataState> {
 				phase: 'loading',
 				courseCount: state.courseCount
 			});
-		return preparePublicCourseData();
+		return preparePublicCourseData(undefined, publishProgress);
 	})()
 		.then((result) => {
 			const { ready, courseCount } = result;
@@ -118,11 +148,13 @@ export function prepareOfflinePublicData(): Promise<OfflinePublicDataState> {
 		.finally(() => {
 			preparing = undefined;
 		});
-	return preparing;
+	return observed(preparing);
 }
 
 /** Open a complete cached console immediately, then revalidate in the background. */
-export async function bootstrapOfflinePublicData(): Promise<OfflinePublicDataState> {
+export async function bootstrapOfflinePublicData(
+	onProgress?: (progress: DataLoadingProgress) => void
+): Promise<OfflinePublicDataState> {
 	const cached = await readPublicCourseDataReadiness();
 	if (cached.ready) {
 		const ready = publish({
@@ -132,5 +164,5 @@ export async function bootstrapOfflinePublicData(): Promise<OfflinePublicDataSta
 		void prepareOfflinePublicData();
 		return ready;
 	}
-	return prepareOfflinePublicData();
+	return prepareOfflinePublicData(onProgress);
 }

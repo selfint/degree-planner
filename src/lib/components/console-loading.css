@@ -77,15 +77,22 @@
 	background: rgb(var(--boot-accent));
 	animation: console-loading-travel 1.8s ease-in-out infinite alternate;
 }
+.console-loading__track--measured {
+	direction: inherit;
+}
+.console-loading__track--measured .console-loading__indicator {
+	animation: none;
+	margin-inline: 0;
+}
+.console-loading__track--error .console-loading__indicator {
+	animation: none;
+}
 .console-loading__status {
-	position: absolute;
-	inline-size: 0.0625rem;
-	block-size: 0.0625rem;
-	padding: 0;
-	margin: 0;
-	overflow: hidden;
-	clip-path: inset(50%);
-	white-space: nowrap;
+	margin: 0.875rem 0 0;
+	color: rgb(var(--boot-muted));
+	font-size: 0.8125rem;
+	line-height: 1.6;
+	text-wrap: balance;
 }
 @keyframes console-loading-travel {
 	from {
@@ -96,7 +103,8 @@
 	}
 }
 @media (prefers-reduced-motion: reduce) {
-	.console-loading__indicator {
+	.console-loading__track:not(.console-loading__track--measured)
+		.console-loading__indicator {
 		animation: none;
 		margin-inline: auto;
 	}

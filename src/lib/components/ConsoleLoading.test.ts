@@ -31,18 +31,19 @@ describe('console loading presentation', () => {
 		for (const markup of [shell, component]) {
 			expect(markup).toContain('role="status"');
 			expect(markup).not.toContain('aria-busy="true"');
-			expect(markup).not.toContain('aria-valuenow');
+			if (markup === shell) expect(markup).not.toContain('aria-valuenow');
 		}
 		expect(css).toContain('prefers-reduced-motion: reduce');
 		expect(css).toMatch(/animation:\s*none/);
 	});
 
-	it('keeps only branding and the bar visible, with a screen-reader status', () => {
+	it('shows a compact visible stage below the bar', () => {
 		for (const markup of [shell, component]) {
 			expect(markup).not.toContain('console-loading__title');
 			expect(markup).not.toContain('console-loading__description');
 		}
-		expect(css).toContain('clip-path: inset(50%)');
+		expect(css).not.toContain('clip-path: inset(50%)');
+		expect(css).toContain('font-size: 0.8125rem');
 		expect(css).not.toMatch(/\dpx/);
 	});
 

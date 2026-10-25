@@ -275,3 +275,36 @@ it('keeps the actual setup error visible during retry until durable recovery', a
 	expect(snapshots.at(-1)).toEqual({ phase: 'ready', error: undefined });
 	unsubscribe();
 });
+
+it('replays and forwards measured progress to a later bootstrap sharing preparation', async () => {
+	let report!: (
+		progress: import('./consoleLoading').DataLoadingProgress
+	) => void;
+	let finish!: (result: { ready: boolean; courseCount: number }) => void;
+	prepare.mockImplementation((_fetch, onProgress) => {
+		report = onProgress;
+		return new Promise((resolve) => {
+			finish = resolve;
+		});
+	});
+	const { prepareOfflinePublicData } = await import('./offlineData');
+	const initial = prepareOfflinePublicData();
+	report({ completed: 1, total: 2, pending: ['/courseData.json'] });
+	const observer = vi.fn();
+	const joined = prepareOfflinePublicData(observer);
+	expect(observer).toHaveBeenCalledWith({
+		completed: 1,
+		total: 2,
+		pending: ['/courseData.json']
+	});
+	report({ completed: 2, total: 2, pending: [] });
+	expect(observer).toHaveBeenLastCalledWith({
+		completed: 2,
+		total: 2,
+		pending: []
+	});
+	finish({ ready: true, courseCount: 20 });
+	await Promise.all([initial, joined]);
+	report({ completed: 0, total: 2, pending: [] });
+	expect(observer).toHaveBeenCalledTimes(2);
+});

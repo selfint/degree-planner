@@ -1,22 +1,19 @@
 <script lang="ts">
 	import './console-loading.css';
+	import { loadingText, type ConsoleLoadingState } from '$lib/consoleLoading';
 
 	type Props = {
 		language?: 'en' | 'he';
-		phase?: 'courses' | 'opening';
+		state?: ConsoleLoadingState;
 		direction?: 'ltr' | 'rtl';
 	};
-	const { language = 'en', phase = 'courses', direction }: Props = $props();
+	const {
+		language = 'en',
+		direction,
+		state = { phase: 'opening' }
+	}: Props = $props();
 	const hebrew = $derived(language === 'he');
-	const status = $derived(
-		phase === 'courses'
-			? hebrew
-				? 'טוענים קורסים…'
-				: 'Loading courses…'
-			: hebrew
-				? 'פותחים את PlanIt…'
-				: 'Opening PlanIt…'
-	);
+	const status = $derived(loadingText(state, hebrew));
 </script>
 
 <section
@@ -42,8 +39,27 @@
 				alt="PlanIt"
 			/>
 		</div>
-		<div class="console-loading__track" aria-hidden="true">
-			<span class="console-loading__indicator"></span>
+		<div
+			class="console-loading__track"
+			class:console-loading__track--measured={state.phase === 'data'}
+			class:console-loading__track--error={state.phase === 'error'}
+			role={state.phase === 'error' ? undefined : 'progressbar'}
+			aria-hidden={state.phase === 'error' ? true : undefined}
+			aria-label={state.phase === 'data'
+				? hebrew
+					? 'טעינת קובצי נתונים'
+					: 'Loading data files'
+				: status}
+			aria-valuemin={state.phase === 'data' ? 0 : undefined}
+			aria-valuemax={state.phase === 'data' ? state.total : undefined}
+			aria-valuenow={state.phase === 'data' ? state.completed : undefined}
+		>
+			<span
+				class="console-loading__indicator"
+				style:inline-size={state.phase === 'data'
+					? `${(100 * state.completed) / state.total}%`
+					: undefined}
+			></span>
 		</div>
 		<p class="console-loading__status" role="status">{status}</p>
 	</div>

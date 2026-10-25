@@ -5,6 +5,7 @@
 	import { content } from '$lib/preferences.svelte';
 	import TitleBar from './components/TitleBar.svelte';
 	import AppFooter from '$lib/components/AppFooter.svelte';
+	import { consoleLoading } from '$lib/consoleLoading';
 	import ConsoleLoading from '$lib/components/ConsoleLoading.svelte';
 	import { shouldShowConsoleEntry } from '$lib/consoleNavigation';
 	import { consolePathname } from '$lib/browserShareRoutes';
@@ -45,7 +46,7 @@
 {/if}
 {#if openingConsole}
 	<div class="fixed inset-0 z-50" data-testid="console-entry-loading">
-		<ConsoleLoading language={content.lang.lang} phase="opening" />
+		<ConsoleLoading language={content.lang.lang} state={$consoleLoading} />
 	</div>
 {/if}
 

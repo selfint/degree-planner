@@ -284,8 +284,20 @@ for (const language of ['en', 'he'] as const) {
 					foreground
 				);
 				await expect(page.locator('#console-boot-detail')).toHaveText(
-					language === 'he' ? 'טוענים קורסים…' : 'Loading courses…'
+					language === 'he'
+						? 'טוענים קורסים… קובצי נתונים שהושלמו: 1 מתוך 2'
+						: 'Loading courses… 1 of 2 data files complete'
 				);
+				await expect(page.locator('#console-boot-detail')).toBeVisible();
+				await expect(
+					page.locator('#console-boot [role=progressbar]')
+				).toHaveAttribute('aria-valuenow', '1');
+				await expect(
+					page.locator('#console-boot [role=progressbar]')
+				).toHaveAttribute('aria-valuemax', '2');
+				await page.screenshot({
+					path: test.info().outputPath('measured-loading.png')
+				});
 				// Analytics scheduling starts after the console mounts, not while
 				// its mandatory full course dataset is still downloading.
 				await page.waitForTimeout(1800);
@@ -362,7 +374,7 @@ for (const language of ['en', 'he'] as const) {
 			await expect(boot.getByRole('heading')).toHaveCount(0);
 			await expect(boot.locator('.console-loading__track')).toBeVisible();
 			await expect(boot.getByRole('status')).toHaveText(
-				language === 'he' ? 'טוענים קורסים…' : 'Loading courses…'
+				language === 'he' ? 'טוענים את היישום…' : 'Loading application…'
 			);
 			await expect
 				.poll(() =>

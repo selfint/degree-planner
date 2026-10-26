@@ -33,13 +33,16 @@ jobs:
       - name: Fetch and validate SAP data before replacing outputs
         run: node scripts/refreshSAPData.mjs
 
-      - name: Update static/_catalogs
-        run: node scripts/generateCatalogsStatic.mjs
+      - name: Generate public catalog JSON from the validated SAP response
+        run: node scripts/generateCatalogData.mjs
+
+      - name: Validate catalog snapshot
+        run: node scripts/validateCatalogData.mjs
 
       - name: Check if data has changed
         run: |
-          if git diff --quiet static/courseData.json && git diff --quiet static/_catalogs; then
-            echo "No changes to static/_catalogs or static/courseData.json, stopping the workflow."
+          if git diff --quiet -- static/courseData.json static/catalogs.json static/_catalogs; then
+            echo "No changes to course or catalog JSON, stopping the workflow."
             gh run cancel ${{ github.run_id }}
             gh run watch ${{ github.run_id }}
           fi
@@ -49,6 +52,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add static/courseData.json
+          git add static/catalogs.json
           git add static/_catalogs
           git commit -m "[Automated] Update data"
           git push --force origin generate-data

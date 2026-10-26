@@ -20,6 +20,7 @@ type Decrement<N extends number> = N extends 3 ? 2 : N extends 2 ? 1 : 0;
 // See https://kit.svelte.dev/docs/types#app
 // for information about these interfaces
 declare global {
+	const __PLANIT_BUILD_SHA__: string | null;
 	namespace App {
 		// interface Error {}
 		// interface Locals {}

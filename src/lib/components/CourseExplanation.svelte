@@ -1,6 +1,13 @@
+<script lang="ts">
+	import type { SVGAttributes } from 'svelte/elements';
+	import { content } from '$lib/preferences.svelte';
+	let props: SVGAttributes<SVGSVGElement> = $props();
+</script>
+
 <svg
-	{...$$props}
-	{...$$restProps}
+	{...props}
+	role="img"
+	aria-label={content.lang.landing.courseCard}
 	fill="currentColor"
 	viewBox="0 0 265 141"
 	xmlns="http://www.w3.org/2000/svg"

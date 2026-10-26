@@ -197,40 +197,40 @@
 
 <fieldset
 	bind:this={fieldset}
-	class="mb-3 min-w-0 text-base text-content-secondary"
+	class="search-filters min-w-0 text-sm text-content-primary"
 >
-	<legend class="mb-2 text-lg text-content-primary"
-		>{content.lang.search.filters}</legend
-	>
-	<div class="flex flex-wrap items-center gap-x-4 gap-y-3">
-		<label class="inline-flex cursor-pointer items-center gap-x-2">
+	<legend class="filter-legend">{content.lang.search.filters}</legend>
+	<div class="filter-grid">
+		<label class="filter-available">
 			<input
 				type="checkbox"
 				checked={filters.available}
 				onchange={(e) => onchange({ available: e.currentTarget.checked })}
-				class="h-4 w-4 cursor-pointer accent-accent-primary"
+				class="h-5 w-5 shrink-0 cursor-pointer accent-accent-primary"
 			/>
 			{content.lang.search.available}
 		</label>
-		<div class="inline-flex max-w-full items-center gap-x-2">
+		<div class="filter-field">
 			<label for="search-faculty">{content.lang.search.faculty}</label>
-			<select
-				id="search-faculty"
-				bind:this={facultyInput}
-				value={filters.faculty}
-				onchange={(e) => onchange({ faculty: e.currentTarget.value })}
-				class="min-w-0 max-w-full rounded-md border border-border bg-background p-1 text-content-secondary focus-visible:outline-accent-primary"
-			>
-				<option value="">{content.lang.search.allFaculties}</option>
-				{#if filters.faculty && !faculties.includes(filters.faculty)}
-					<option value={filters.faculty}>{filters.faculty}</option>
-				{/if}
-				{#each faculties as faculty}
-					<option value={faculty}>{faculty}</option>
-				{/each}
-			</select>
+			<span class="select-frame">
+				<select
+					id="search-faculty"
+					bind:this={facultyInput}
+					value={filters.faculty}
+					onchange={(e) => onchange({ faculty: e.currentTarget.value })}
+					class="ui-field w-full max-w-full"
+				>
+					<option value="">{content.lang.search.allFaculties}</option>
+					{#if filters.faculty && !faculties.includes(filters.faculty)}
+						<option value={filters.faculty}>{filters.faculty}</option>
+					{/if}
+					{#each faculties as faculty}
+						<option value={faculty}>{faculty}</option>
+					{/each}
+				</select>
+			</span>
 		</div>
-		<div class="inline-flex max-w-full flex-wrap items-center gap-x-2 gap-y-1">
+		<div class="filter-range">
 			<label id="search-points-min-label" for="search-points-min-input"
 				>{content.lang.search.minPoints}</label
 			>
@@ -251,12 +251,9 @@
 				ontouchcancel={updatePoints}
 				onkeyup={updatePoints}
 				onchange={updatePoints}
-				class="h-2 w-24 cursor-pointer accent-accent-primary"
+				class="range-input"
 			/>
-			<label
-				for="search-points-min-input"
-				class="inline-flex min-h-11 cursor-text items-center"
-			>
+			<label for="search-points-min-input" class="number-field">
 				<input
 					id="search-points-min-input"
 					type="number"
@@ -268,11 +265,11 @@
 					oninput={(e) => previewPoints(e.currentTarget, 'pointsMin')}
 					onblur={(e) => commitNumber(e.currentTarget, 'pointsMin')}
 					onkeydown={(e) => stepNumber(e, 'pointsMin')}
-					class="h-8 w-16 rounded-md border border-border bg-background px-1 py-1 text-center text-base text-content-secondary focus-visible:outline-accent-primary"
+					class="ui-field w-full text-center tabular-nums"
 				/>
 			</label>
 		</div>
-		<div class="inline-flex max-w-full flex-wrap items-center gap-x-2 gap-y-1">
+		<div class="filter-range">
 			<label id="search-points-max-label" for="search-points-max-input"
 				>{content.lang.search.maxPoints}</label
 			>
@@ -293,12 +290,9 @@
 				ontouchcancel={updatePoints}
 				onkeyup={updatePoints}
 				onchange={updatePoints}
-				class="h-2 w-24 cursor-pointer accent-accent-primary"
+				class="range-input"
 			/>
-			<label
-				for="search-points-max-input"
-				class="inline-flex min-h-11 cursor-text items-center"
-			>
+			<label for="search-points-max-input" class="number-field">
 				<input
 					id="search-points-max-input"
 					type="number"
@@ -310,11 +304,11 @@
 					oninput={(e) => previewPoints(e.currentTarget, 'pointsMax')}
 					onblur={(e) => commitNumber(e.currentTarget, 'pointsMax')}
 					onkeydown={(e) => stepNumber(e, 'pointsMax')}
-					class="h-8 w-16 rounded-md border border-border bg-background px-1 py-1 text-center text-base text-content-secondary focus-visible:outline-accent-primary"
+					class="ui-field w-full text-center tabular-nums"
 				/>
 			</label>
 		</div>
-		<label class="inline-flex min-h-11 cursor-text items-center gap-x-2">
+		<label class="filter-field">
 			<span>{content.lang.search.minMedian}</span>
 			<input
 				type="number"
@@ -326,14 +320,14 @@
 				inputmode="decimal"
 				onblur={(e) => commitNumber(e.currentTarget, 'medianMin')}
 				onkeydown={commitOnEnter}
-				class="h-8 w-16 rounded-md border border-border bg-background px-1 py-1 text-center text-base text-content-secondary focus-visible:outline-accent-primary"
+				class="ui-field w-full text-center tabular-nums"
 			/>
 		</label>
 		<button
 			type="button"
 			disabled={!hasSearchFilters(filters, maxPoints) && !hasUncommittedInput}
 			onclick={clear}
-			class="rounded-md border border-border px-2 py-1 text-content-primary hover:bg-card-primary disabled:cursor-default disabled:opacity-40"
+			class="ui-button ui-button--secondary filter-clear"
 		>
 			{content.lang.search.clearFilters}
 		</button>
@@ -341,11 +335,72 @@
 </fieldset>
 
 <style>
+	.search-filters {
+		min-inline-size: 0;
+		margin-block-end: 0.625rem;
+		padding-block-end: 0.625rem;
+		border-block-end: 1px solid rgb(var(--color-border));
+	}
+	.filter-legend {
+		padding-block-end: 0.375rem;
+		font-size: 0.8125rem;
+		font-weight: 600;
+	}
+	.filter-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+		gap: 0.625rem 1rem;
+		padding-block-start: 0.25rem;
+	}
+	.filter-field {
+		display: grid;
+		align-content: start;
+		gap: 0.25rem;
+		min-inline-size: 0;
+	}
+	.filter-available {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		min-block-size: 2.25rem;
+		cursor: pointer;
+		align-self: end;
+	}
+	.filter-range {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) 4.5rem;
+		align-items: center;
+		gap: 0.25rem 0.625rem;
+		min-inline-size: 0;
+	}
+	.filter-range > label:first-child {
+		grid-column: 1 / -1;
+	}
+	.range-input {
+		inline-size: 100%;
+		min-inline-size: 0;
+		block-size: 2.25rem;
+		cursor: pointer;
+		accent-color: rgb(var(--color-accent-primary));
+	}
+	.number-field {
+		min-inline-size: 0;
+		cursor: text;
+	}
+	.filter-clear {
+		align-self: end;
+		justify-self: start;
+	}
+	/* Leave finger room around the narrow slider track without enlarging every control. */
+	@media (pointer: coarse) {
+		.range-input {
+			block-size: 2.75rem;
+		}
+	}
 	/* Keep decimal values readable in compact fields without desktop spin buttons. */
 	input[type='number'] {
 		appearance: textfield;
 	}
-
 	input[type='number']::-webkit-inner-spin-button,
 	input[type='number']::-webkit-outer-spin-button {
 		-webkit-appearance: none;

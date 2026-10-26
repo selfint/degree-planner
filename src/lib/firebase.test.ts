@@ -32,7 +32,7 @@ vi.mock('firebase/analytics', () => ({
 	getAnalytics: mocks.getAnalytics
 }));
 
-import { initFirebase } from './firebase.svelte';
+import { initFirebase, startOptionalAnalytics } from './firebase.svelte';
 
 beforeEach(() => {
 	vi.resetAllMocks();
@@ -47,12 +47,13 @@ describe('Firebase startup', () => {
 		const services = await initFirebase();
 		expect(services.auth).toBe(mocks.auth);
 		expect(services.firestore).toBe(mocks.firestore);
+		expect(mocks.isSupported).not.toHaveBeenCalled();
 	}, 250);
 
 	it('does not fail startup when the analytics probe rejects', async () => {
 		mocks.isSupported.mockRejectedValue(new Error('IndexedDB unavailable'));
-		await expect(initFirebase()).resolves.toMatchObject({ auth: mocks.auth });
-		await Promise.resolve();
+		const services = await initFirebase();
+		await expect(startOptionalAnalytics(services)).resolves.toBeUndefined();
 		expect(mocks.getAnalytics).not.toHaveBeenCalled();
 	});
 
@@ -61,8 +62,8 @@ describe('Firebase startup', () => {
 		mocks.getAnalytics.mockImplementation(() => {
 			throw new Error('Analytics blocked');
 		});
-		await expect(initFirebase()).resolves.toMatchObject({ auth: mocks.auth });
-		await Promise.resolve();
+		const services = await initFirebase();
+		await expect(startOptionalAnalytics(services)).resolves.toBeUndefined();
 	});
 
 	it('still waits for auth persistence instead of assuming a guest session', async () => {

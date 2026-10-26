@@ -1,0 +1,159 @@
+name: Tutorial videos
+
+on:
+  push:
+    branches: ['staging']
+    paths:
+      - 'tutorials/**'
+      - 'tutorials/landing.test.ts'
+      - 'playwright.tutorials.config.ts'
+      - 'scripts/packageTutorialVideos.mjs'
+      - 'scripts/tutorialTimeline*'
+      - 'scripts/mergeLandingTutorialShards*'
+      - 'src/**'
+      - 'static/courseData.json'
+      - 'static/tutorials/**'
+      - '.github/workflows/tutorials.yml'
+  pull_request:
+    branches: ['main', 'staging']
+    paths:
+      - 'tutorials/**'
+      - 'tutorials/landing.test.ts'
+      - 'src/**'
+      - 'static/courseData.json'
+      - 'static/tutorials/**'
+      - 'playwright.tutorials.config.ts'
+      - 'scripts/packageTutorialVideos.mjs'
+      - 'scripts/tutorialTimeline*'
+      - 'scripts/mergeLandingTutorialShards*'
+      - '.github/workflows/tutorials.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Type-check tutorial helpers and scenarios
+        run: npx tsc --project tutorials/tsconfig.json
+      - name: Check timeline and shard validation
+        run: npx vitest run scripts/tutorialTimeline.test.mjs scripts/tutorialMotion.test.mjs scripts/tutorialAssets.test.mjs scripts/mergeLandingTutorialShards.test.mjs
+      - run: npx playwright install --with-deps chromium
+      - name: Retain every browser assertion without capture pauses
+        run: npx playwright test --config=playwright.tutorials.config.ts
+      - name: Check production-rendered tutorial semantics
+        if: success() || failure()
+        run: node --test tutorials/ssr.test.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tutorials-checks-${{ github.sha }}
+          path: test-results/tutorials-checks/
+          retention-days: 7
+          if-no-files-found: ignore
+
+  record:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: true
+      max-parallel: 7
+      matrix:
+        topic:
+          [
+            feature-search,
+            feature-plan,
+            feature-catalog,
+            feature-settings,
+            feature-course,
+            feature-semester,
+            feature-share
+          ]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npx tsc --project tutorials/tsconfig.json
+      - run: npx playwright install --with-deps chromium
+      - name: Install video packaging tools
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: Record four landing variants serially on this independent runner
+        env:
+          TOPIC: ${{ matrix.topic }}
+        run: PW_DEMO=on npx playwright test --config=playwright.tutorials.config.ts tutorials/feature-recordings.spec.ts tutorials/search-recordings.spec.ts --grep "$TOPIC recording" --workers=1
+      - name: Encode only this topic on its recording runner
+        env:
+          TOPIC: ${{ matrix.topic }}
+        run: node scripts/packageTutorialVideos.mjs --group=features --topic="$TOPIC"
+      - name: Upload successful media shard
+        uses: actions/upload-artifact@v4
+        with:
+          name: landing-shard-${{ github.sha }}-${{ matrix.topic }}
+          path: test-results/tutorials-media/
+          retention-days: 7
+          if-no-files-found: error
+      - name: Preserve capture evidence even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: landing-evidence-${{ github.sha }}-${{ matrix.topic }}
+          path: |
+            test-results/tutorials-checks/
+            test-results/tutorials-raw/
+          retention-days: 7
+          if-no-files-found: error
+
+  tutorials:
+    needs: [acceptance, record]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Require successful acceptance and all requested recordings
+        env:
+          ACCEPTANCE: ${{ needs.acceptance.result }}
+          RECORD: ${{ needs.record.result }}
+          EVENT: ${{ github.event_name }}
+        run: |
+          test "$ACCEPTANCE" = success
+          if [ "$EVENT" = push ]; then test "$RECORD" = success; else test "$RECORD" = skipped; fi
+      - uses: actions/checkout@v4
+        if: success() && github.event_name == 'push'
+      - uses: actions/setup-node@v4
+        if: success() && github.event_name == 'push'
+        with:
+          node-version-file: .nvmrc
+      - uses: actions/download-artifact@v4
+        if: success() && github.event_name == 'push'
+        with:
+          pattern: landing-shard-${{ github.sha }}-*
+          path: test-results/tutorials-shards
+      - name: Normalize shard directories
+        if: success() && github.event_name == 'push'
+        run: |
+          for dir in test-results/tutorials-shards/landing-shard-${{ github.sha }}-*; do
+            mv "$dir" "test-results/tutorials-shards/${dir##*landing-shard-${{ github.sha }}-}"
+          done
+      - name: Fail closed unless all 28 current-source landing variants are present
+        if: success() && github.event_name == 'push'
+        run: node scripts/mergeLandingTutorialShards.mjs
+      - name: Upload validated landing-only publication bundle
+        if: success() && github.event_name == 'push'
+        uses: actions/upload-artifact@v4
+        with:
+          name: tutorials-${{ github.sha }}
+          path: test-results/tutorials-media/
+          retention-days: 7
+          if-no-files-found: error

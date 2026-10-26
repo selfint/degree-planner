@@ -3,11 +3,15 @@
 
 	import { browser } from '$app/environment';
 
-	import { content } from '$lib/stores.svelte';
+	import { content } from '$lib/preferences.svelte';
 	import { cms } from '$lib/content';
 
 	if (browser) {
-		localStorage.setItem('lang', 'en');
+		try {
+			localStorage.setItem('lang', 'en');
+		} catch {
+			// Continue with the in-memory preference when storage is unavailable.
+		}
 		content.lang = cms.en;
 
 		goto('/');

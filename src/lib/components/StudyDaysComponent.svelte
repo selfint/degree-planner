@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { generateColor } from '$lib/colors';
+	import { content } from '$lib/stores.svelte';
 
 	type Props = {
 		semester: Promise<Course[]>;
@@ -83,53 +84,74 @@
 </script>
 
 {#await Promise.all([days0, days1]) then [days0, days1]}
-	<div>
-		<div class="mb-1 flex flex-row flex-wrap text-white">
-			{#if days0 !== undefined}
-				<div
-					style="background: {generateColor(days0.first[0].code)}"
-					class="mb-0.5 mr-0.5 w-fit border {days0.first[0].code ===
-					course?.code
-						? 'border-content-primary'
-						: 'border-transparent'} p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
-				>
-					{days0.first[1].getDate()}/{days0.first[1].getMonth() + 1}
-				</div>
-				{#each days0.next as [c, days]}
-					<div
-						style="background: {generateColor(c.code)}"
-						class="mb-0.5 mr-0.5 w-6 border {c.code === course?.code
-							? 'border-content-primary'
-							: 'border-transparent'} p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
-					>
-						{days}
+	{#if days0 !== undefined || days1 !== undefined}
+		<div class="study-days">
+			{#each [days0, days1] as days, round}
+				{#if days !== undefined}
+					<div class="exam-round">
+						<span class="sr-only">
+							{content.lang.lang === 'he'
+								? `מועד ${round === 0 ? 'א' : 'ב'}`
+								: `Exam round ${round + 1}`}
+						</span>
+						<span
+							style="background: {generateColor(days.first[0].code)}"
+							class="study-chip"
+							class:selected={days.first[0].code === course?.code}
+							title={`${days.first[0].name ?? days.first[0].code}: ${days.first[1].getDate()}/${days.first[1].getMonth() + 1}`}
+						>
+							{days.first[1].getDate()}/{days.first[1].getMonth() + 1}
+						</span>
+						{#each days.next as [c, gap]}
+							<span
+								style="background: {generateColor(c.code)}"
+								class="study-chip"
+								class:selected={c.code === course?.code}
+								title={`${c.name ?? c.code}: ${gap} ${content.lang.lang === 'he' ? 'ימים ללמידה' : 'study days'}`}
+							>
+								{gap}
+							</span>
+						{/each}
 					</div>
-				{/each}
-			{/if}
+				{/if}
+			{/each}
 		</div>
-
-		<div class="flex flex-row flex-wrap text-white">
-			{#if days1 !== undefined}
-				<div
-					style="background: {generateColor(days1.first[0].code)}"
-					class="mb-0.5 mr-0.5 w-fit border {days1.first[0].code ===
-					course?.code
-						? 'border-content-primary'
-						: 'border-transparent'} p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
-				>
-					{days1.first[1].getDate()}/{days1.first[1].getMonth() + 1}
-				</div>
-				{#each days1.next as [c, days]}
-					<div
-						style="background: {generateColor(c.code)}"
-						class="mb-0.5 mr-0.5 w-6 border {c.code === course?.code
-							? 'border-content-primary'
-							: 'border-transparent'} p-0 pb-0.5 pl-1 pr-1 pt-0.5 text-center text-xs leading-none"
-					>
-						{days}
-					</div>
-				{/each}
-			{/if}
-		</div>
-	</div>
+	{/if}
 {/await}
+
+<style>
+	.study-days {
+		display: grid;
+		gap: 0.25rem;
+	}
+	.exam-round {
+		position: relative;
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.1875rem;
+	}
+	/* Keep the accessible round label inside its own row, including at an
+	   RTL viewport edge and inside a horizontally scrolled course card. */
+	.exam-round > .sr-only {
+		inset-block-start: 0;
+		inset-inline-start: 0;
+		margin: 0;
+	}
+	.study-chip {
+		min-inline-size: 1.375rem;
+		border: 0.0625rem solid transparent;
+		border-radius: 0.25rem;
+		padding: 0.125rem 0.25rem;
+		color: #fff;
+		font-size: 0.625rem;
+		font-variant-numeric: tabular-nums;
+		line-height: 1.25;
+		text-align: center;
+	}
+	.study-chip.selected {
+		border-color: rgb(var(--color-content-primary));
+		outline: 0.0625rem solid rgb(var(--color-content-primary));
+		outline-offset: 0.0625rem;
+	}
+</style>

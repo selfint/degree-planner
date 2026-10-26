@@ -4,7 +4,7 @@ import { createSearchNavigation } from './searchNavigation.svelte';
 import { readSearchFilters, type SearchFilters } from './search';
 
 function harness() {
-	let pageUrl = new URL('https://example.com/search?q=1040&keep=yes');
+	let pageUrl = new URL('https://example.com/app/search?q=1040&keep=yes');
 	const requests: {
 		url: URL;
 		finish: () => void;
@@ -132,7 +132,7 @@ describe('search navigation', () => {
 	it('restores external back/forward URLs instead of pending state', async () => {
 		const { navigation, requests, external } = harness();
 		const pending = navigation.updateFilters({ pointsMin: 3 }, 20);
-		external('https://example.com/search?q=other&pointsMax=4');
+		external('https://example.com/app/search?q=other&pointsMax=4');
 		expect(Object.fromEntries(navigation.url.searchParams)).toEqual({
 			q: 'other',
 			pointsMax: '4'
@@ -144,7 +144,7 @@ describe('search navigation', () => {
 	});
 
 	it('ignores delayed beforeNavigate callbacks from superseded own requests', async () => {
-		let pageUrl = new URL('https://example.com/search?q=1040');
+		let pageUrl = new URL('https://example.com/app/search?q=1040');
 		const finish: (() => void)[] = [];
 		const urls: URL[] = [];
 		const navigation = createSearchNavigation(
@@ -173,7 +173,7 @@ describe('search navigation', () => {
 	});
 
 	it('reconciles an external completion when its before callback was skipped', async () => {
-		let pageUrl = new URL('https://example.com/search?q=1040&pointsMin=3');
+		let pageUrl = new URL('https://example.com/app/search?q=1040&pointsMin=3');
 		let resolve!: () => void;
 		const navigation = createSearchNavigation(
 			() => pageUrl,
@@ -183,7 +183,7 @@ describe('search navigation', () => {
 				})
 		);
 		const pending = navigation.updateFilters({ available: true }, 20);
-		pageUrl = new URL('https://example.com/search?q=1040&pointsMin=3');
+		pageUrl = new URL('https://example.com/app/search?q=1040&pointsMin=3');
 		navigation.observeNavigation(pageUrl, 'popstate');
 		expect(navigation.externalRevision).toBe(1);
 		resolve();
@@ -193,7 +193,7 @@ describe('search navigation', () => {
 
 	it('ignores blur commits caused by external navigation and accepts new edits after rendering', async () => {
 		let pageUrl = new URL(
-			'https://example.com/search?q=1040&available=&pointsMin=3'
+			'https://example.com/app/search?q=1040&available=&pointsMin=3'
 		);
 		const requests: URL[] = [];
 		const navigation = createSearchNavigation(
@@ -203,7 +203,9 @@ describe('search navigation', () => {
 				pageUrl = url;
 			}
 		);
-		const previous = new URL('https://example.com/search?q=1040&pointsMin=3');
+		const previous = new URL(
+			'https://example.com/app/search?q=1040&pointsMin=3'
+		);
 		navigation.observeNavigation(previous, 'popstate');
 		await navigation.updateFilters({ pointsMin: 4.2 }, 20);
 		expect(requests).toHaveLength(0);

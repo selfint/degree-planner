@@ -1,8 +1,9 @@
 /// <reference path="./types.d.ts"/>
-import { resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import * as sap from './SAPClient.mjs';
+import { buildCatalogData } from './catalogData.mjs';
 import { readCatalogBaseline } from './catalogBaseline.mjs';
 import { assertNotEmptyReplacement, readJsonIfPresent } from './dataOutput.mjs';
 
@@ -27,9 +28,11 @@ if (
 	import.meta.url === pathToFileURL(resolve(process.argv[1])).href
 ) {
 	try {
-		const path = resolve('catalogs.json');
+		const path = resolve('scripts/.cache/catalogs.raw.json');
 		const catalogs = await generateCatalogs();
 		assertNotEmptyReplacement(readJsonIfPresent(path), catalogs, 'catalogs');
+		buildCatalogData(catalogs);
+		mkdirSync(dirname(path), { recursive: true });
 		writeFileSync(path, JSON.stringify(catalogs, null, '\t'));
 	} catch (error) {
 		console.error(error.message);

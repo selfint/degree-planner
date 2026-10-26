@@ -166,6 +166,12 @@
 	.preview-actions {
 		flex-shrink: 0;
 	}
+	.preview-actions :global(.plan-action .ui-button--primary) {
+		min-inline-size: var(--control-height);
+		padding-inline: 0.5rem;
+		background: #0f6f67;
+		color: #fff;
+	}
 	.preview-loading {
 		display: inline-block;
 		inline-size: 1.25rem;

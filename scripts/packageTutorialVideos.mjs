@@ -20,7 +20,15 @@ function timestamp(seconds) {
 }
 const manifest = [];
 const group = process.argv.find((arg) => arg.startsWith('--group='))?.slice(8);
-for (const topic of selectMediaTopics(group)) {
+const selectedTopics = selectMediaTopics(group);
+const requestedTopic = process.argv
+	.find((arg) => arg.startsWith('--topic='))
+	?.slice(8);
+if (requestedTopic && !selectedTopics.includes(requestedTopic))
+	throw new Error(
+		`Topic ${requestedTopic} is not in media group ${group ?? 'tutorials'}`
+	);
+for (const topic of requestedTopic ? [requestedTopic] : selectedTopics) {
 	for (const language of ['en', 'he']) {
 		for (const theme of ['light', 'dark']) {
 			const name = `${topic}-${language}-${theme}`;

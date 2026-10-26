@@ -1,6 +1,7 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
+import { mediaGroups } from '../src/lib/tutorialMedia.ts';
 
 const root = new URL('../static/tutorials/', import.meta.url);
 const manifest = JSON.parse(
@@ -11,6 +12,57 @@ const provenance = JSON.parse(
 );
 
 describe('published tutorial media provenance', () => {
+	it('retains the complete landing and in-app inventory with honest recording sources', () => {
+		const expectedNames = Object.values(mediaGroups)
+			.flat()
+			.flatMap((topic) =>
+				['en', 'he'].flatMap((language) =>
+					['light', 'dark'].map((theme) => `${topic}-${language}-${theme}`)
+				)
+			);
+		expect(manifest.map((entry) => entry.name).sort()).toEqual(
+			expectedNames.sort()
+		);
+		if (provenance.schemaVersion !== 2) {
+			// Existing homogeneous publications retain their original provenance.
+			expect(provenance.schemaVersion).toBeUndefined();
+			for (const entry of manifest)
+				expect(entry.sourceCommit).toBe(provenance.sourceCommit);
+			return;
+		}
+		// Scoped refreshes may mix recording commits, never pretend one run made all clips.
+		expect(provenance.sourceCommit).toBeUndefined();
+		expect(provenance.sources.length).toBeGreaterThan(0);
+		const commits = provenance.sources.map((source) => source.sourceCommit);
+		expect(new Set(commits).size).toBe(commits.length);
+		for (const source of provenance.sources) {
+			expect(source.sourceCommit).toMatch(/^[a-f0-9]{40}$/);
+			expect(source.run).toMatch(
+				/^https:\/\/github\.com\/selfint\/degree-planner\/actions\/runs\/\d+$/
+			);
+			expect(Number.isSafeInteger(source.artifact)).toBe(true);
+			expect(source.artifact).toBeGreaterThan(0);
+			expect(source.artifactName).toContain(source.sourceCommit);
+			expect(source.artifactZipSha256).toMatch(/^[a-f0-9]{64}$/);
+		}
+		for (const entry of manifest) {
+			expect(commits).toContain(entry.sourceCommit);
+			for (const extension of ['mp4', 'webm', 'webp', 'vtt']) {
+				const file = provenance.files.find(
+					(file) => file.file === `${entry.name}.${extension}`
+				);
+				expect(file?.sourceCommit).toBe(entry.sourceCommit);
+			}
+		}
+		expect(new Set(manifest.map((entry) => entry.sourceCommit))).toEqual(
+			new Set(commits)
+		);
+		// The manifest is an aggregate index, not a recording from either source.
+		expect(
+			provenance.files.find((file) => file.file === 'manifest.json')
+				?.sourceCommit
+		).toBeNull();
+	});
 	it('contains complete four-variant sets and all playable formats/posters/captions', () => {
 		const topics = new Set(
 			manifest.map((entry) => entry.name.replace(/-(en|he)-(light|dark)$/, ''))
@@ -23,8 +75,7 @@ describe('published tutorial media provenance', () => {
 					expect(entries).toHaveLength(1);
 					expect(entries[0]).toMatchObject({
 						width: 960,
-						height: 720,
-						sourceCommit: provenance.sourceCommit
+						height: 720
 					});
 					for (const extension of ['mp4', 'webm', 'webp', 'vtt']) {
 						const contents = readFileSync(

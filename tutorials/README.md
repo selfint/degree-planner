@@ -92,9 +92,28 @@ The shared inventory in `src/lib/tutorialMedia.ts` distinguishes existing
 tutorials from feature recordings; inventory membership is not publication.
 Packaging without arguments still selects only the original two tutorials.
 `--group=features` selects all seven features, and `--group=all` selects all nine topics.
-The Tutorial videos CI workflow records and packages all 36 variants and retains
-raw videos, timing JSON, keyframes, packaged media and the source-commit manifest
-in its existing `tutorials-<commit>` artifact. Missing variants fail packaging.
+The Tutorial videos CI workflow records and packages only the 28 landing-feature
+variants on staging pushes. Seven independent topic runners each record four
+variants serially with one browser worker, then encode that topic on the same
+runner. There is no concurrent capture within a browser. Pull requests run all
+acceptance assertions without duplicate recording work. The separate acceptance
+job retains the in-app recording scenarios as assertions without video capture.
+
+Only after acceptance and every recording runner succeed, the aggregate job
+validates the exact seven shards, 28 unique variants, current source commit and
+complete nonempty MP4/WebM/poster/caption inventory. It uploads the landing-only
+`tutorials-<commit>` artifact (files at the artifact root). Each topic also retains
+`landing-evidence-<commit>-<topic>` with raw video, timing JSON and keyframes.
+Missing, duplicate, stale-source or unexpected assets fail closed; checked-in
+media is never a fallback. `--group=features --topic=feature-plan` packages just
+one explicit topic; the default and full-group packaging modes remain available.
+
+Publication is manual and separate: replace only these 28 landing variants, merge
+their manifest entries with the unchanged eight in-app entries, and retain each
+clip's true source commit in scoped provenance. Leave the nested journeys assets
+and provenance unchanged. Read-only CI never commits or publishes media itself.
+Runtime improvement depends on the slowest topic and runner availability; measure
+it from a successful run rather than assuming a wall-time guarantee.
 
 All seven feature images are replaced by their own recordings, using the existing
 sections, headings, paragraphs, order and grids. Both original tutorials remain. Each

@@ -36,7 +36,7 @@ const copy = {
 } as const;
 
 for (const { name, language, theme } of mediaVariants('feature-search')) {
-	test(`search feature recording ${language} ${theme}`, async ({
+	test(`feature-search recording ${language} ${theme}`, async ({
 		browser,
 		baseURL
 	}) => {

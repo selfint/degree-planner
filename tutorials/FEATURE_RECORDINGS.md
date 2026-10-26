@@ -31,14 +31,17 @@ is blocked. Inventory membership does not publish assets or replace landing text
 
 ## Production and review
 
-    PW_DEMO=on npx playwright test --config=playwright.tutorials.config.ts
-    node scripts/packageTutorialVideos.mjs --group=all
+    PW_DEMO=on npx playwright test --config=playwright.tutorials.config.ts tutorials/feature-recordings.spec.ts tutorials/search-recordings.spec.ts
+    node scripts/packageTutorialVideos.mjs --group=features
 
-The complete inventory is 36 clips (two existing tutorials plus seven features).
-`--group=features` requires all 28 feature clips, not only Search. Running one
-scenario alone is useful for debugging, but cannot package a complete group.
-The workflow has 60 minutes for the single-worker production recordings and
-36 MP4/WebM/poster/caption encodes. Failed/missing recordings fail packaging.
+Landing generation requires 28 clips (seven features × EN/HE × light/dark).
+The workflow uses seven independent topic runners, each recording and encoding
+four variants serially. Each runner has a 30-minute safety timeout, not a runtime
+promise. All existing acceptance assertions still run separately without capture
+pauses, including the eight in-app variants. No in-app or journey media is regenerated.
+The aggregate artifact requires every exact current-source landing shard and all
+acceptance checks to pass. Failed/missing recordings never use old media as fallback.
+See README for artifact layout and manual scoped publication requirements.
 
 Source/unit checks and test discovery do not establish browser correctness.
 Review every CI-generated language/theme variant, captions and poster for

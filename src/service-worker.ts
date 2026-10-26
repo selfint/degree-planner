@@ -4,6 +4,7 @@ import { isAppNavigation, isImmutableAppAsset } from './lib/pwa/cache-policy';
 import { activateIfSoleClient } from './lib/pwa/update-activation';
 import { ShellPreparationError } from './lib/pwa/shell-failure';
 import { withShellFetchDeadline } from './lib/pwa/shell-fetch';
+import { servePinnedShell } from './lib/pwa/pinned-shell';
 
 const worker = self as unknown as ServiceWorkerGlobalScope;
 const SHELL_PREFIX = 'planit-console-shell-';
@@ -221,10 +222,9 @@ worker.addEventListener('fetch', (event) => {
 
 	if (request.mode === 'navigate' && isAppNavigation(url.pathname)) {
 		event.respondWith(
-			fetch(request).catch(
-				async () =>
-					(await caches.match(SHELL, { cacheName: SHELL_CACHE })) ??
-					Response.error()
+			servePinnedShell(
+				() => caches.match(SHELL, { cacheName: SHELL_CACHE }),
+				prepareShell
 			)
 		);
 	} else if (

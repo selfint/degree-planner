@@ -1,12 +1,11 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import { configDefaults, defineConfig } from 'vitest/config';
 import { enhancedImages } from '@sveltejs/enhanced-img';
+import { readBuildCommit } from './scripts/buildIdentity.mjs';
 
 export default defineConfig({
 	define: {
-		__PLANIT_BUILD_SHA__: JSON.stringify(
-			process.env.VERCEL_GIT_COMMIT_SHA ?? null
-		)
+		__PLANIT_BUILD_SHA__: JSON.stringify(readBuildCommit())
 	},
 	plugins: [enhancedImages(), sveltekit()],
 	test: {

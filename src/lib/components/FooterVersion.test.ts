@@ -11,6 +11,7 @@ vi.mock('$lib/preferences.svelte', () => ({ content: preferences }));
 import FooterVersion from './FooterVersion.svelte';
 
 const commit = '557d6290ab0c91608d8bbd3819e3ea9256a5a276';
+const build = `${commit}-1234567890abcdef`;
 const waiting: OfflineShellStatus = {
 	status: 'ready',
 	updateReady: true,
@@ -22,7 +23,11 @@ function markup(
 	buildCommit: string | null = commit
 ) {
 	return render(FooterVersion, {
-		props: { update, buildCommit, appVersion: 'local-build-123' }
+		props: {
+			update,
+			buildCommit,
+			appVersion: buildCommit ? build : 'local-build-123'
+		}
 	}).body;
 }
 function action(body: string) {
@@ -34,13 +39,20 @@ beforeEach(() => {
 });
 
 describe('footer running version and safe update action', () => {
-	it('shows the compiled short commit with the full version available, never the waiting build', () => {
+	it('shows the canonical compiled artifact identity, not merely its commit or waiting build', () => {
 		const body = markup(waiting);
 		expect(body).toContain('Version');
-		expect(body).toContain(`title="${commit}"`);
-		expect(body).toContain('>557d629</bdi>');
+		expect(body).toContain(`title="${build}"`);
+		expect(body).toContain('>557d629-12345678</bdi>');
 		expect(body).toContain('dir="ltr"');
 		expect(body).not.toContain('next-build');
+	});
+	it('distinguishes different artifacts built from the same source commit', () => {
+		const body = render(FooterVersion, {
+			props: { buildCommit: commit, appVersion: `${commit}-fedcba0987654321` }
+		}).body;
+		expect(body).toContain('>557d629-fedcba09</bdi>');
+		expect(body).toContain(`data-build-commit="${commit}"`);
 	});
 	it('uses the compiled Kit identity when the deployment does not provide a commit', () => {
 		expect(markup(undefined, null)).toContain('>local-build-123</bdi>');
@@ -88,7 +100,7 @@ describe('footer running version and safe update action', () => {
 	it('marks a pending acceptance busy and keeps its running version unchanged', () => {
 		const body = markup({ ...waiting, updateBusy: true });
 		expect(action(body)).toContain('aria-busy="true"');
-		expect(body).toContain('>557d629</bdi>');
+		expect(body).toContain('>557d629-12345678</bdi>');
 	});
 	it('reports a multi-tab refusal without hiding the retry action', () => {
 		const body = markup({

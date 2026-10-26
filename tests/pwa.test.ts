@@ -1,6 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 import { createServer, type Server } from 'node:http';
-import { readFile, readdir } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import { pwaMessages } from '../src/lib/pwa/messages';
 import { createPwaDeployment } from './helpers/pwa-deployment';
 import {
@@ -18,22 +18,18 @@ async function viewOfflineError(page: Page, timeout = 15000) {
 	await expect(page.getByTestId('pwa-status-details')).toBeVisible();
 }
 
-// Proxy the real build as distinct deployments, including disjoint immutable
-// asset URLs. Only the current deployment is available from the network; old
-// tabs must really use their cached scripts after deployment/activation.
-// Native workers install, wait, cache and activate without lifecycle mocks.
+// Serve genuine independently compiled releases. Old-only immutable assets
+// disappear from the network; workers must retain their own coherent graph.
 let server: Server;
 let origin: string;
 let revision = 1;
-let buildVersion: string;
-let immutablePaths: string[];
-const deployments = new Map<number, ReturnType<typeof createPwaDeployment>>();
+const deployments = new Map<
+	number,
+	Awaited<ReturnType<typeof createPwaDeployment>>
+>();
 function deployment() {
-	let current = deployments.get(revision);
-	if (!current) {
-		current = createPwaDeployment(buildVersion, revision, immutablePaths);
-		deployments.set(revision, current);
-	}
+	const current = deployments.get(revision);
+	if (!current) throw new Error(`Missing compiled release ${revision}`);
 	return current;
 }
 const deploymentVersion = () => deployment().version;
@@ -46,34 +42,14 @@ let denyWorkerUpdate = false;
 test.use({ serviceWorkers: 'allow' });
 
 test.beforeAll(async () => {
-	const worker = await readFile(
-		'.svelte-kit/output/client/service-worker.js',
-		'utf8'
-	);
-	const manifest = JSON.parse(
-		await readFile('.svelte-kit/output/client/_app/version.json', 'utf8')
-	);
-	if (
-		typeof manifest.version !== 'string' ||
-		!/^[\w.-]+$/.test(manifest.version)
-	)
-		throw new Error('Production build version must be a nonempty safe string');
-	buildVersion = manifest.version;
-	immutablePaths = (
-		await readdir('.svelte-kit/output/client/_app/immutable', {
-			recursive: true,
-			withFileTypes: true
-		})
-	)
-		.filter((entry) => entry.isFile())
-		.map((entry) => {
-			const path = `${entry.parentPath}/${entry.name}`.replaceAll('\\', '/');
-			return path.slice(path.indexOf('/_app/immutable/'));
-		});
-	if (!worker.includes(JSON.stringify(buildVersion)))
-		throw new Error(
-			'Expected the exact compiled build-version literal in the production worker'
-		);
+	const root = process.env.PLANIT_PWA_FIXTURES;
+	if (!root)
+		throw new Error('Run Playwright with pwa-build-fixtures global setup');
+	for (const release of [1, 2, 3])
+		deployments.set(release, await createPwaDeployment(root, release));
+	expect(
+		new Set([...deployments.values()].map(({ version }) => version)).size
+	).toBe(3);
 	server = createServer(async (request, response) => {
 		if (originDisconnected) {
 			request.socket.destroy();
@@ -103,38 +79,60 @@ test.beforeAll(async () => {
 				response.end(
 					serveLegacyWorker
 						? "self.addEventListener('activate', event => event.waitUntil(self.clients.claim()));"
-						: current.rewrite(worker)
+						: current.worker
 				);
 				return;
 			}
 			const immutable = path.startsWith('/_app/immutable/');
-			const originalPath = immutable ? current.networkAssets.get(path) : path;
-			// In particular, never let Vite's preview fallback serve the previous
-			// deployment or the build's original immutable paths.
-			if (!originalPath) {
-				response.writeHead(404, { 'cache-control': 'no-store' });
-				response.end('This immutable asset is no longer deployed');
+			if (immutable) {
+				const file = current.networkAssets.get(path);
+				response.writeHead(file ? 200 : 404, {
+					'content-type': path.endsWith('.css')
+						? 'text/css'
+						: path.endsWith('.webp')
+							? 'image/webp'
+							: path.endsWith('.png')
+								? 'image/png'
+								: path.endsWith('.svg')
+									? 'image/svg+xml'
+									: path.endsWith('.woff2')
+										? 'font/woff2'
+										: 'application/javascript',
+					'cache-control': file
+						? 'public, max-age=31536000, immutable'
+						: 'no-store'
+				});
+				response.end(
+					file
+						? await readFile(file)
+						: 'This immutable asset is no longer deployed'
+				);
 				return;
 			}
-			const upstream = await fetch(
-				`http://localhost:4173${originalPath}${url.search}`
-			);
-			const contentType =
-				upstream.headers.get('content-type') ?? 'application/octet-stream';
+			if (current.html[path]) {
+				response.writeHead(200, {
+					'content-type': 'text/html',
+					'cache-control': 'no-cache'
+				});
+				response.end(current.html[path]);
+				return;
+			}
+			if (path === '/_app/version.json') {
+				response.writeHead(200, {
+					'content-type': 'application/json',
+					'cache-control': 'no-cache'
+				});
+				response.end(JSON.stringify({ version: current.version }));
+				return;
+			}
+			// Shared public data/static resources are not application HTML.
+			const upstream = await fetch(`http://localhost:4173${path}${url.search}`);
 			response.writeHead(upstream.status, {
-				'content-type': contentType,
-				'cache-control': immutable
-					? 'public, max-age=31536000, immutable'
-					: 'no-cache'
+				'content-type':
+					upstream.headers.get('content-type') ?? 'application/octet-stream',
+				'cache-control': 'no-cache'
 			});
-			const body = Buffer.from(await upstream.arrayBuffer());
-			response.end(
-				/\.(?:m?js|css)$/.test(path) ||
-					path === '/_app/version.json' ||
-					contentType.includes('text/html')
-					? current.rewrite(body.toString('utf8'))
-					: body
-			);
+			response.end(Buffer.from(await upstream.arrayBuffer()));
 		} catch {
 			response.writeHead(502);
 			response.end();
@@ -626,14 +624,7 @@ test('accepting an update preserves saved data and rejects other open draft tabs
 	await ready(page);
 	const v1 = deploymentVersion();
 	const runningVersion = page.getByTestId('footer-build-version');
-	const compiledCommit = await page.evaluate(
-		() =>
-			document
-				.querySelector('meta[name="planit-build"]')
-				?.getAttribute('content') ?? null
-	);
-	await expect(runningVersion).toHaveAttribute('title', compiledCommit || v1);
-	await expect(runningVersion).toHaveText(compiledCommit?.slice(0, 7) || v1);
+	await expect(runningVersion).toHaveAttribute('title', v1);
 	await expect(page.getByTestId('footer-update')).toHaveCount(0);
 	const firstDeployment = deployment();
 	const durableCourses = await storedCourses(page);
@@ -642,24 +633,38 @@ test('accepting an update preserves saved data and rejects other open draft tabs
 		localStorage.getItem('userData')
 	);
 	const initialTime = await page.evaluate(() => performance.timeOrigin);
-	const oldLazyAsset = await page.evaluate(async (version) => {
-		const loaded = new Set(
-			performance.getEntriesByType('resource').map((entry) => entry.name)
-		);
-		const cache = await caches.open(`planit-console-shell-${version}`);
-		return (await cache.keys())
-			.map((request) => request.url)
-			.find((url) => /\/nodes\/[^/]+\.js$/.test(url) && !loaded.has(url));
-	}, v1);
+	const retiredPaths = [...firstDeployment.networkAssets.keys()].filter(
+		(path) => !deployments.get(2)!.networkAssets.has(path)
+	);
+	const oldLazyAsset = await page.evaluate(
+		async ({ version, retiredPaths }) => {
+			const loaded = new Set(
+				performance.getEntriesByType('resource').map((entry) => entry.name)
+			);
+			const cache = await caches.open(`planit-console-shell-${version}`);
+			return (await cache.keys())
+				.map((request) => request.url)
+				.find(
+					(url) =>
+						/\/nodes\/[^/]+\.js$/.test(url) &&
+						!loaded.has(url) &&
+						retiredPaths.includes(new URL(url).pathname)
+				);
+		},
+		{ version: v1, retiredPaths }
+	);
 	expect(oldLazyAsset).toBeTruthy();
 	const oldPath = new URL(oldLazyAsset!).pathname;
-	const oldOriginalPath = firstDeployment.networkAssets.get(oldPath)!;
-	expect(oldOriginalPath).toBeTruthy();
+	expect(firstDeployment.networkAssets.has(oldPath)).toBe(true);
 	const oldResponse = await request.get(oldLazyAsset!);
 	expect(oldResponse.status()).toBe(200);
 	const oldBytes = await oldResponse.text();
-	const sharedImport = oldBytes.match(/["'](\.\.\/chunks\/[^"']+\.js)["']/);
-	expect(sharedImport).not.toBeNull();
+	const sharedImport = [
+		...oldBytes.matchAll(/["'](\.\.\/chunks\/[^"']+\.js)["']/g)
+	].find((match) =>
+		retiredPaths.includes(new URL(match[1], oldLazyAsset!).pathname)
+	);
+	expect(sharedImport).toBeTruthy();
 	const oldSharedAsset = new URL(sharedImport![1], oldLazyAsset!).href;
 	const oldSharedPath = new URL(oldSharedAsset).pathname;
 	expect(firstDeployment.networkAssets.has(oldSharedPath)).toBe(true);
@@ -685,22 +690,12 @@ test('accepting an update preserves saved data and rejects other open draft tabs
 	revision++;
 	const v2 = deploymentVersion();
 	const secondDeployment = deployment();
-	expect(
-		[...secondDeployment.networkAssets.keys()].some((path) =>
-			firstDeployment.networkAssets.has(path)
-		)
-	).toBe(false);
-	// APIRequestContext bypasses the browser/worker caches. The old build cannot
-	// accidentally pass the transition regression by fetching retired chunks.
+	// Actual compilers may share unchanged chunks; require the selected lazy
+	// module and its dependency to be retired, rather than fake disjoint hashes.
+	expect(secondDeployment.networkAssets.has(oldPath)).toBe(false);
+	expect(secondDeployment.networkAssets.has(oldSharedPath)).toBe(false);
 	expect((await request.get(oldLazyAsset!)).status()).toBe(404);
 	expect((await request.get(oldSharedAsset)).status()).toBe(404);
-	expect((await request.get(`${origin}${oldOriginalPath}`)).status()).toBe(404);
-	const replacementPath = [...secondDeployment.networkAssets].find(
-		([, original]) => original === oldOriginalPath
-	)![0];
-	const replacementResponse = await request.get(`${origin}${replacementPath}`);
-	expect(replacementResponse.status()).toBe(200);
-	expect(await replacementResponse.text()).not.toBe(oldBytes);
 	await page.evaluate(async () =>
 		(await navigator.serviceWorker.getRegistration())!.update()
 	);
@@ -708,7 +703,7 @@ test('accepting an update preserves saved data and rejects other open draft tabs
 	await expectUpdateBanner(page, v2);
 	await expectUpdateBanner(otherTab, v2);
 	const accept = page.getByTestId('footer-update');
-	await expect(runningVersion).toHaveAttribute('title', compiledCommit || v1);
+	await expect(runningVersion).toHaveAttribute('title', v1);
 	await page.getByTestId('pwa-update-dismiss').click();
 	await expect(page.getByTestId('pwa-update-banner')).toHaveCount(0);
 	await expect(accept).toBeVisible();
@@ -806,8 +801,7 @@ test('accepting an update preserves saved data and rejects other open draft tabs
 	await page.keyboard.press('Space');
 	await acceptedReload;
 	await expect(page.getByTestId('footer-update')).toHaveCount(0);
-	await expect(runningVersion).toHaveAttribute('title', compiledCommit || v2);
-	await expect(runningVersion).toHaveText(compiledCommit?.slice(0, 7) || v2);
+	await expect(runningVersion).toHaveAttribute('title', v2);
 	await expect.poll(() => workerVersion(page, 'controller')).toBe(v2);
 	await expect.poll(() => reloads).toBe(1);
 	await expect(page.getByTestId('pwa-update-banner')).toHaveCount(0);
@@ -1648,4 +1642,175 @@ test('a failed public-data persistence keeps the existing root registration even
 		'data-state',
 		'ready'
 	);
+});
+
+test('controlled reloads and new tabs stay on A online and offline until explicit B acceptance', async ({
+	page,
+	context,
+	request,
+	browserName
+}) => {
+	test.setTimeout(90_000);
+	await ready(page);
+	const a = deploymentVersion();
+	const saved = await page.evaluate(() => localStorage.getItem('userData'));
+	const courses = await storedCourses(page);
+	const assertA = async (tab: Page) => {
+		await expect(tab.getByTestId('footer-build-version')).toHaveAttribute(
+			'title',
+			a
+		);
+		await expect(tab.locator('html')).toHaveAttribute('data-pwa-release', '1');
+		expect(await workerVersion(tab, 'controller')).toBe(a);
+	};
+	await assertA(page);
+	// Rechecking identical deployed bytes must not invent a waiting update.
+	await page.evaluate(async () =>
+		(await navigator.serviceWorker.getRegistration())!.update()
+	);
+	expect(await workerVersion(page, 'waiting')).toBeNull();
+	await expect(page.getByTestId('pwa-update-banner')).toHaveCount(0);
+	revision = 2;
+	const b = deploymentVersion();
+	// Independent network evidence: the origin actually serves release B HTML.
+	expect(await (await request.get(`${origin}/app/plan`)).text()).toContain(
+		'data-pwa-release="2"'
+	);
+	await page.evaluate(async () =>
+		(await navigator.serviceWorker.getRegistration())!.update()
+	);
+	await expect.poll(() => workerVersion(page, 'waiting')).toBe(b);
+	for (let reload = 0; reload < 2; reload++) {
+		const response = await page.reload();
+		expect(response?.fromServiceWorker()).toBe(true);
+		await assertA(page);
+		await expectUpdateBanner(page, b);
+	}
+	const newTab = await context.newPage();
+	await ready(newTab);
+	await assertA(newTab);
+	await expectUpdateBanner(newTab, b);
+	await newTab.close();
+	originDisconnected = true;
+	server.closeAllConnections();
+	await expect(fetch(`${origin}/offline-outage-probe`)).rejects.toThrow();
+	if (browserName !== 'webkit') await context.setOffline(true);
+	await page.goto(`${origin}/app/course/02340141`);
+	await assertA(page);
+	await expect(page.locator('main')).toContainText(
+		JSON.parse(await readFile('static/courseData.json', 'utf8'))['02340141']
+			.name
+	);
+	await page.reload();
+	await assertA(page);
+	originDisconnected = false;
+	if (browserName !== 'webkit') await context.setOffline(false);
+	await page.goto(`${origin}/app/plan`);
+	await assertA(page);
+	await expect(page.getByTestId('pwa-update-accept')).toBeEnabled();
+	await page.getByTestId('pwa-update-accept').click();
+	await expect(page.getByTestId('footer-build-version')).toHaveAttribute(
+		'title',
+		b
+	);
+	await expect(page.locator('html')).toHaveAttribute('data-pwa-release', '2');
+	await expect.poll(() => workerVersion(page, 'controller')).toBe(b);
+	for (let reload = 0; reload < 2; reload++) {
+		await page.reload();
+		await expect(page.getByTestId('footer-build-version')).toHaveAttribute(
+			'title',
+			b
+		);
+		await page.evaluate(async () =>
+			(await navigator.serviceWorker.getRegistration())!.update()
+		);
+		expect(await workerVersion(page, 'waiting')).toBeNull();
+		await expect(page.getByTestId('pwa-update-banner')).toHaveCount(0);
+		await expect(page.getByTestId('footer-update')).toHaveCount(0);
+	}
+	expect(await page.evaluate(() => localStorage.getItem('userData'))).toBe(
+		saved
+	);
+	expect(await storedCourses(page)).toEqual(courses);
+});
+
+test('evicted A shell never loads B HTML and manual recovery protects another tab draft', async ({
+	page,
+	context
+}) => {
+	test.setTimeout(90_000);
+	await ready(page);
+	const a = deploymentVersion();
+	const saved = await page.evaluate(() => localStorage.getItem('userData'));
+	const courses = await storedCourses(page);
+	const draftTab = await context.newPage();
+	await ready(draftTab);
+	await moveWishlistCourse(draftTab, '02340124', 1);
+	const draftTime = await draftTab.evaluate(() => performance.timeOrigin);
+	revision = 2;
+	const b = deploymentVersion();
+	await page.evaluate(async () =>
+		(await navigator.serviceWorker.getRegistration())!.update()
+	);
+	await expect.poll(() => workerVersion(page, 'waiting')).toBe(b);
+	const deleted = await page.evaluate(async (version) => {
+		const cache = await caches.open(`planit-console-shell-${version}`);
+		return cache.delete('/app/offline');
+	}, a);
+	expect(deleted).toBe(true);
+	const response = await page.reload();
+	expect(response?.status()).toBe(503);
+	expect(response?.fromServiceWorker()).toBe(true);
+	await expect(page.locator('#recover-app')).toBeVisible();
+	await expect(page.locator('html')).not.toHaveAttribute(
+		'data-pwa-release',
+		'2'
+	);
+	await expect(page.getByTestId('footer-build-version')).toHaveCount(0);
+	expect(await workerVersion(page, 'controller')).toBe(a);
+	expect(
+		await page.evaluate(
+			() =>
+				performance
+					.getEntriesByType('resource')
+					.filter((entry) => entry.name.includes('/_app/immutable/')).length
+		)
+	).toBe(0);
+	await page.locator('#recover-app').click();
+	await expect(page.locator('#recovery-status')).toContainText(
+		'Save your work in other PlanIt windows'
+	);
+	expect(await workerVersion(page, 'controller')).toBe(a);
+	expect(await workerVersion(page, 'waiting')).toBe(b);
+	expect(await draftTab.evaluate(() => performance.timeOrigin)).toBe(draftTime);
+	await expect(
+		draftTab.locator('[data-semester="1"] [data-code="02340124"]')
+	).toHaveCount(1);
+	await expect(
+		draftTab.getByRole('button', { name: 'Save', exact: true })
+	).toBeVisible();
+	expect(await page.evaluate(() => localStorage.getItem('userData'))).toBe(
+		saved
+	);
+	await draftTab.getByRole('button', { name: 'Save', exact: true }).click();
+	await expect(
+		draftTab.getByRole('button', { name: 'Save', exact: true })
+	).toHaveCount(0);
+	const savedDraft = await draftTab.evaluate(() =>
+		localStorage.getItem('userData')
+	);
+	expect(savedDraft).not.toBe(saved);
+	await draftTab.close();
+	await page.locator('#recover-app').click();
+	await expect(page.getByTestId('footer-build-version')).toHaveAttribute(
+		'title',
+		b
+	);
+	await expect(page.locator('html')).toHaveAttribute('data-pwa-release', '2');
+	await expect(page.getByTestId('pwa-update-banner')).toHaveCount(0);
+	expect(await workerVersion(page, 'controller')).toBe(b);
+	expect(await page.evaluate(() => localStorage.getItem('userData'))).toBe(
+		savedDraft
+	);
+	expect(await storedCourses(page)).toEqual(courses);
 });

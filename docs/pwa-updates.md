@@ -1,10 +1,46 @@
 # Explicit PWA updates
 
-The footer shows the running app's short Git commit from the existing compiled
-`VERCEL_GIT_COMMIT_SHA` value, with its full SHA available on hover. Non-Vercel
-builds show their compiled SvelteKit version instead. No package-version bump is
-needed, and a waiting worker or newer server response never changes this label.
-The service-worker protocol still uses SvelteKit's own build identity unchanged.
+## One build identity and one installed document
+
+The footer, SvelteKit client, worker protocol, and shell-cache namespace share a
+single deterministic build identity. `scripts/buildIdentity.mjs` combines Git
+provenance with a fingerprint of application source, build configuration and
+lockfile, required shell static assets, and toolchain/mode. The footer abbreviates
+the commit portion but retains the fingerprint; its full identity is available
+on hover. A Git SHA alone is not an artifact identity. Identical inputs produce
+identical identities, while changed application inputs at the same commit cannot
+alias the previous cache. Build time and deployment IDs are not inputs.
+Independent fetched course data and tutorial media are not shell identity inputs.
+When introducing build-affecting environment configuration, update the input
+contract and tests explicitly; never hash private secrets or all of `process.env`.
+
+Every controlled `/app/` document navigation, online or offline, receives the
+serving worker's cached, data-free SPA shell. That build resolves the original
+URL, including trailing slashes and unknown/new routes. A newer network deployment
+cannot advance the page while its worker is still waiting for acceptance. App
+assets remain pinned to their immutable URLs. Marketing, authentication, API,
+and browser-share documents are outside this navigation policy.
+
+If the installed shell is missing, repair fetches and validates that worker's own
+entry-point graph before storing it. A mismatched newer shell is never executed.
+If repair fails, a self-contained localized recovery document offers Retry or an
+explicit Update action. Recovery uses the same version-bound sole-client protocol,
+never clears storage, and never loads a newer application bundle before acceptance.
+An already-ready waiting worker can be used offline; a new update check is bounded.
+
+### Lifecycle boundaries
+
+This policy guarantees the document returned by a **controlled navigation** matches
+the worker that serves it. It does not assert that every already-open document
+always matches its controller. A first uncontrolled load can race deployment, and
+an old network-first worker already installed on a device retains its old policy
+until one explicit update replaces it. These are migration/initial-load boundaries,
+not evidence that a reported device followed either particular path.
+
+Likewise, accepted activation can change the controller before the final guarded
+reload. If the user starts a draft during activation, the old document remains
+open, retained immutable caches remain available, and an explicit retry is kept.
+Draft safety takes priority over forcibly making the document match the controller.
 
 When a waiting version has been verified, a native button styled like the report
 link adds a minimal Update action beside the version. It uses the exact same
@@ -62,12 +98,21 @@ registrations are excluded.
 
 ## Verification
 
+- Two clean identical-input Vite builds must produce the same canonical identity
+  **and byte-identical service-worker scripts**; stable labels alone are not enough
+  because browsers compare worker script bytes.
+- Controlled online reload/new-tab/offline navigations must remain on A while B
+  waits; explicit safe acceptance must advance to B and repeated checks/reloads
+  must not re-offer B. Evicted A shells must never execute network B implicitly.
+- Recovery tests execute the actual emitted inline protocol clients, including
+  successful acceptance and refusal while other app windows exist.
+
 - Unit tests execute the actual acceptance action, plan Save and storage boundary,
   and settings discard handlers with isolated data and controlled dependencies.
 - `vite build` followed by `vitest run --config vitest.integration.config.ts`
   exercises the emitted worker in a VM and checks real immutable asset names.
-- `tests/pwa.test.ts` uses native service workers and revision-specific immutable
-  URLs throughout the real compiled module graph. Retired URLs return 404 at the
+- `tests/pwa.test.ts` uses native service workers and independently compiled deployment
+  snapshots throughout the real module graph. Retired URLs return 404 at the
   origin. The acceptance regression imports a retired node's dependency graph
   offline, preserves saved plan/IndexedDB state, and checks new lazy navigation.
 - Run the browser suite in Chromium and the configured WebKit shell project before

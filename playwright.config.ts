@@ -9,6 +9,7 @@ const durableData =
 	/downloads every canonical course|reopens an exact previously visited course|reports a failed refresh/;
 
 export default defineConfig({
+	globalSetup: './tests/helpers/pwa-build-fixtures.ts',
 	webServer: {
 		command: 'npm run build && npm run preview',
 		port: 4173,
@@ -78,7 +79,7 @@ export default defineConfig({
 		{
 			name: 'webkit-shell',
 			testMatch: 'pwa.test.ts',
-			grep: /first opening|versioned dismissal|accepting an update|hourly discovery/,
+			grep: /first opening|versioned dismissal|accepting an update|hourly discovery|controlled reloads|evicted A shell/,
 			use: { browserName: 'webkit' }
 		}
 	]

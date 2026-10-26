@@ -1101,3 +1101,142 @@ it('rejects automatic root-scope updates before touching caches or the network',
 		'old durable shell'
 	);
 });
+
+// These exercise the unmodified emitted worker, including serialized recovery
+// code. Native registration/controller lifecycle remains a browser-CI gate.
+describe('production installed-document version coherence (VM)', () => {
+	it.each(['/app/plan', '/app/plan/', '/app/settings', '/app/future-route'])(
+		'pins online navigation %s to the installed build while a newer release is on the network',
+		async (path) => {
+			const sw = harness();
+			await sw.install();
+			sw.network.mockClear();
+			sw.network.mockResolvedValue(
+				shellResponse('new deployment HTML must not execute')
+			);
+			const response = await sw.dispatch('fetch', { request: navigation(path) })
+				.response;
+			expect(await response!.text()).toBe(offlineHtml);
+			expect(sw.network).not.toHaveBeenCalled();
+			expect(sw.skipWaiting).not.toHaveBeenCalled();
+		}
+	);
+	it('repairs an evicted navigation shell only from a verified same-build response', async () => {
+		const sw = harness();
+		const { cache } = await installedShell(sw);
+		await cache.delete('/app/offline');
+		sw.network.mockClear();
+		const response = await sw.dispatch('fetch', {
+			request: navigation('/app/plan')
+		}).response;
+		expect(await response!.text()).toBe(offlineHtml);
+		expect(await (await cache.match('/app/offline'))!.text()).toBe(offlineHtml);
+		expect(sw.network).toHaveBeenCalledOnce();
+		expect(new URL(sw.network.mock.calls[0][0].url).pathname).toBe(
+			'/app/offline'
+		);
+	});
+	it.each(['accepted', 'other-tabs'] as const)(
+		'never executes a mismatched network document; compiled recovery handles %s through the guarded protocol',
+		async (activationStatus) => {
+			const sw = harness();
+			const { cache } = await installedShell(sw);
+			await cache.delete('/app/offline');
+			sw.network.mockResolvedValue(
+				shellResponse('different deployment entry points')
+			);
+			const response = await sw.dispatch('fetch', {
+				request: navigation('/app/plan')
+			}).response;
+			expect(response!.status).toBe(503);
+			const html = await response!.text();
+			expect(html).not.toContain('different deployment entry points');
+			expect(await cache.match('/app/offline')).toBeUndefined();
+			const script = html.match(/<script>([\s\S]*?)<\/script>/)?.[1];
+			expect(script).toBeDefined();
+			let click!: () => Promise<void>;
+			const button = {
+				disabled: false,
+				setAttribute() {},
+				addEventListener: (_type: string, handler: () => Promise<void>) => {
+					click = handler;
+				}
+			};
+			const status = { textContent: '' };
+			const reload = vi.fn();
+			const changed = new Set<() => void>();
+			const calls: unknown[] = [];
+			const container = {
+				controller: {} as object,
+				addEventListener: (_type: string, callback: () => void) =>
+					changed.add(callback),
+				removeEventListener: (_type: string, callback: () => void) =>
+					changed.delete(callback),
+				getRegistration: async () => ({
+					waiting: target,
+					installing: null,
+					update: async () => {}
+				})
+			};
+			const target = {
+				state: 'installed',
+				postMessage(
+					message: { type: string; version?: string },
+					ports: MessagePort[]
+				) {
+					calls.push(message);
+					if (message.type === 'GET_OFFLINE_SHELL_VERSION')
+						ports[0].postMessage({
+							type: 'OFFLINE_SHELL_VERSION',
+							version: 'new-verified-build'
+						});
+					else {
+						expect(message).toEqual({
+							type: 'ACCEPT_UPDATE',
+							version: 'new-verified-build'
+						});
+						if (activationStatus === 'accepted') {
+							container.controller = target;
+							changed.forEach((callback) => callback());
+						}
+						ports[0].postMessage({
+							type: 'UPDATE_ACTIVATION',
+							version: 'new-verified-build',
+							status: activationStatus
+						});
+					}
+				}
+			};
+			runInNewContext(
+				script!,
+				{
+					document: {
+						documentElement: { lang: '', dir: '', dataset: {} },
+						getElementById: (id: string) =>
+							id === 'recover-app' ? button : status
+					},
+					localStorage: {
+						getItem: (key: string) => (key === 'lang' ? 'en' : 'dark')
+					},
+					navigator: { serviceWorker: container },
+					location: { href: `${origin}/app/plan`, reload },
+					MessageChannel,
+					setTimeout,
+					clearTimeout,
+					console
+				},
+				{ timeout: 1000 }
+			);
+			expect(calls).toEqual([]);
+			expect(reload).not.toHaveBeenCalled();
+			await click();
+			expect(calls).toHaveLength(2);
+			expect(reload).toHaveBeenCalledTimes(
+				activationStatus === 'accepted' ? 1 : 0
+			);
+			if (activationStatus === 'other-tabs')
+				expect(status.textContent).toContain('Save your work');
+			expect(button.disabled).toBe(false);
+		}
+	);
+});

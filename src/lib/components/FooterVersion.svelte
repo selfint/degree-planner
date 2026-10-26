@@ -14,11 +14,14 @@
 		update?: OfflineShellStatus;
 	} = $props();
 	const reasonId = $props.id();
-	// Both identities are compiled into this app, not fetched from a newer server
-	// deployment or the waiting worker. Local builds retain Kit's build identity.
-	const runningVersion = $derived(buildCommit || appVersion);
+	// Display the same artifact identity used by Kit, its worker and cache. The
+	// commit alone cannot distinguish builds with different source/config inputs.
+	const runningVersion = $derived(appVersion);
 	const shortVersion = $derived(
-		buildCommit ? buildCommit.slice(0, 7) : appVersion
+		appVersion.replace(
+			/^([a-f0-9]{40,64})(-[a-f0-9]{16})$/,
+			(_, sha, suffix) => `${sha.slice(0, 7)}${suffix.slice(0, 9)}`
+		)
 	);
 	const hasUpdate = $derived(update?.updateReady && !!update.updateVersion);
 	const error = $derived(
@@ -34,8 +37,11 @@
 <div class="footer-version" data-testid="footer-version">
 	<span class="version-label">
 		{content.lang.footer.version}
-		<bdi dir="ltr" title={runningVersion} data-testid="footer-build-version"
-			>{shortVersion}</bdi
+		<bdi
+			dir="ltr"
+			title={runningVersion}
+			data-build-commit={buildCommit ?? undefined}
+			data-testid="footer-build-version">{shortVersion}</bdi
 		>
 	</span>
 	{#if hasUpdate}

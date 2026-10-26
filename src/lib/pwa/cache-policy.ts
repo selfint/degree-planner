@@ -1,20 +1,8 @@
+/** Every document inside the console namespace belongs to its installed build.
+ * Let that build resolve routes (including its own 404), rather than leaking a
+ * newer network shell through trailing slashes or newly deployed route names. */
 export function isAppNavigation(pathname: string): boolean {
-	return (
-		[
-			'/app',
-			'/app/',
-			'/app/plan',
-			'/app/settings',
-			'/app/catalog',
-			'/app/semester',
-			'/app/search',
-			'/app/offline'
-		].includes(pathname) ||
-		/^\/app\/course\/\d{8}\/?$/.test(pathname) ||
-		/^\/app\/preview\/[A-Za-z0-9_-]+\/[A-Za-z0-9_-]+\/[A-Za-z0-9_-]+\/?$/.test(
-			pathname
-		)
-	);
+	return pathname === '/app' || pathname.startsWith('/app/');
 }
 
 /** Only the build's immutable asset namespace can use retained cache entries.

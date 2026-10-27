@@ -154,6 +154,33 @@ Native playback of these refreshed media files must still pass CI and deployed-p
 checks after publication; the successful capture and local decode review do not
 establish playback of the refreshed files on the deployed site.
 
+### Reviewed smooth-motion refresh (not published)
+
+A replacement 36-clip landing set was recorded from the exact staging push
+commit `8e6af135bb4f9ee546c39bb5b604d8aff691b337` in successful Actions run
+[39472885967](https://github.com/selfint/degree-planner/actions/runs/39472885967),
+artifact `12291437449`. All 164 recording, motion and landing checks passed before
+packaging, including all four Settings variants. This is a reviewed candidate,
+not the checked-in or deployed media set. This documentation-only update leaves
+videos, posters, captions, manifests and provenance unchanged.
+
+The candidate artifact ZIP SHA-256 was verified against GitHub. All 72 MP4/WebM
+files were fully decoded with FFmpeg, and every clip was visually reviewed in
+all four language/theme variants. Consecutive native frames during the Plan
+drag and Catalog vertical/horizontal scrolls show intermediate motion, with
+orientation holds and the actual saved destination visible.
+
+The candidate still has presentation limitations: later Semester pointer
+approaches are slow and somewhat stepped, although intermediate positions and
+completed exclusion/re-enable remain visible. Search changes its faculty
+selection without showing the opened option list. These observations do not
+establish that the replacement media is published.
+
+Native playback of replacement media must pass CI and deployed-preview checks
+after publication. Successful capture and local decode review alone do not
+establish playback of those files on the deployed site. Publish captions,
+manifests and provenance only with their matching complete media set.
+
 For future regeneration, inspect all four variants per topic and update the
 complete asset set and provenance. Do not substitute fixtures, screenshot
 animations or unrelated clips for missing footage.

@@ -162,7 +162,9 @@ for (const topic of mediaGroups.features) {
 			if (language === 'he' && theme === 'dark')
 				await page.locator('footer .theme-toggle').click();
 			if (language === 'en' && theme === 'dark')
-				await page.locator('footer select').selectOption({ label: 'en' });
+				await page
+					.locator('footer .language-control select')
+					.selectOption({ label: 'en' });
 			await expect(video.locator('source').first()).toHaveAttribute(
 				'src',
 				`/tutorials/${topic}-${language}-${theme}.mp4`

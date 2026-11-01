@@ -187,9 +187,9 @@ async function expectFooterComposition(page: Page) {
 async function expectFooterPreferenceGeometry(page: Page, compact: boolean) {
 	await expectFooterComposition(page);
 	const controls = page.locator('footer .preference-controls');
-	const toggle = controls.getByRole('button');
-	const language = controls.getByRole('combobox');
-	await expect(toggle).toBeEnabled();
+	const toggle = controls.locator('.theme-toggle');
+	const language = controls.locator('.language-control select');
+	await expect(toggle.locator('.theme-select')).toBeEnabled();
 	const [button, select, icon] = await Promise.all([
 		toggle.boundingBox(),
 		language.boundingBox(),
@@ -1021,7 +1021,7 @@ test('footer preferences have equal centered controls and leave real planner pre
 				await page.goto(
 					`${storyUrl(`components-appfooter--${state}`)}&globals=language:${language};direction:${direction};theme:dark`
 				);
-				const select = page.getByRole('combobox');
+				const select = page.locator('.language-control select');
 				await expect(select.locator('option:checked')).toHaveText(
 					language === 'he' ? 'עב' : 'en'
 				);
@@ -1032,7 +1032,7 @@ test('footer preferences have equal centered controls and leave real planner pre
 						.outputPath(`footer-controls-${state}-${width}-${language}.png`),
 					fullPage: false
 				});
-				await page.getByRole('button').click();
+				await page.locator('.theme-select').selectOption('light');
 				await expect(page.locator('html')).toHaveAttribute(
 					'data-theme',
 					'light'
@@ -1050,6 +1050,28 @@ test('footer preferences have equal centered controls and leave real planner pre
 			}
 		}
 	}
+});
+
+test('system theme follows the device inside Storybook without changing saved preferences', async ({
+	page
+}) => {
+	await page.emulateMedia({ colorScheme: 'dark' });
+	await page.addInitScript(() => localStorage.setItem('theme', 'light'));
+	await page.goto(
+		`${storyUrl('components-appfooter--compact')}&globals=language:en;theme:system`
+	);
+	const select = page.locator('.theme-select');
+	await expect(select).toHaveValue('system');
+	await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+	await page.emulateMedia({ colorScheme: 'light' });
+	await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+	await select.selectOption('dark');
+	await page.emulateMedia({ colorScheme: 'dark' });
+	await page.emulateMedia({ colorScheme: 'light' });
+	await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+	expect(await page.evaluate(() => localStorage.getItem('theme'))).toBe(
+		'light'
+	);
 });
 
 test('footer and installation links are mocked and cannot leave the story', async ({

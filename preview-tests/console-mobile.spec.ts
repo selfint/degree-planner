@@ -187,14 +187,14 @@ for (const language of ['en', 'he'] as const) {
 			await scriptsReady;
 			await route.continue();
 		});
-		const select = page.locator('footer select');
+		const select = page.locator('footer .language-control select');
 		try {
 			await page.goto('/', { waitUntil: 'commit' });
 			await expect(page.locator('.landing')).toBeVisible();
 			// A native selection cannot be accepted before its persistence and
 			// language handlers exist. Both preference controls share this contract.
 			await expect(select).toBeDisabled();
-			await expect(page.locator('footer button[aria-pressed]')).toBeDisabled();
+			await expect(page.locator('footer .theme-select')).toBeDisabled();
 		} finally {
 			releaseScripts();
 		}
@@ -204,9 +204,9 @@ for (const language of ['en', 'he'] as const) {
 		await select.selectOption({ label: 'en' });
 		if (language === 'he') await select.selectOption({ label: 'עב' });
 		const theme = language === 'en' ? 'light' : 'dark';
-		const toggle = page.locator('footer button[aria-pressed]');
-		await toggle.click();
-		if (theme === 'dark') await toggle.click();
+		const toggle = page.locator('footer .theme-select');
+		await toggle.selectOption('light');
+		if (theme === 'dark') await toggle.selectOption('dark');
 		await expect(page.locator('.landing')).toHaveAttribute(
 			'dir',
 			language === 'he' ? 'rtl' : 'ltr'

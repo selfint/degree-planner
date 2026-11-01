@@ -366,12 +366,11 @@ for (const language of ['en', 'he'] as const) {
 		).toBeVisible();
 		await capture(page, info, 'saved-student-plan');
 		await test.step('Theme, language, resize, and a new tab preserve the saved plan', async () => {
-			await journeyAction(
-				page.locator('footer button[aria-pressed]'),
-				(target) => target.click()
+			await journeyAction(page.locator('footer .theme-select'), (target) =>
+				target.selectOption(recording.theme === 'light' ? 'dark' : 'light')
 			);
 			await journeyAction(
-				page.locator('footer').getByRole('combobox'),
+				page.locator('footer .language-control select'),
 				(target) =>
 					target.selectOption({ label: language === 'en' ? 'עב' : 'en' })
 			);

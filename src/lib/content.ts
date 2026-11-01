@@ -21,6 +21,10 @@ export const cms = {
 		},
 		header: {
 			searchPlaceholder: 'Search',
+			theme: 'Theme',
+			themeLight: 'Light',
+			themeDark: 'Dark',
+			themeSystem: 'System',
 			lightMode: 'Light mode',
 			switchToLight: 'Switch to light mode',
 			switchToDark: 'Switch to dark mode',
@@ -224,6 +228,10 @@ export const cms = {
 			loading: 'טוען'
 		},
 		header: {
+			theme: 'ערכת נושא',
+			themeLight: 'בהיר',
+			themeDark: 'כהה',
+			themeSystem: 'מערכת',
 			lightMode: 'מצב בהיר',
 			switchToLight: 'מעבר למצב בהיר',
 			switchToDark: 'מעבר למצב כהה',

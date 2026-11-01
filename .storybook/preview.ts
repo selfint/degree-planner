@@ -9,7 +9,7 @@ const preview: Preview = {
 			description: 'Application color theme',
 			toolbar: {
 				icon: 'circlehollow',
-				items: ['dark', 'light'],
+				items: ['dark', 'light', 'system'],
 				dynamicTitle: true
 			}
 		},

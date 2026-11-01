@@ -321,9 +321,9 @@ async function capture(page: Page, info: TestInfo, name: string, route = name) {
 		).toBeVisible();
 		// Update may also appear here; assert the actual preference control.
 		await expect(
-			controls.getByRole('button', { name: /^(Light mode|מצב בהיר)$/ })
+			controls.getByRole('combobox', { name: /^(Theme|ערכת נושא)$/ })
 		).toBeVisible();
-		await expect(controls.getByRole('combobox')).toBeVisible();
+		await expect(controls.locator('.language-control select')).toBeVisible();
 		expect
 			.soft(measurement.footerLayout, `${name}: real footer geometry exists`)
 			.not.toBeNull();

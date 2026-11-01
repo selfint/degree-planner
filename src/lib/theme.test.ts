@@ -1,7 +1,14 @@
 import { readFileSync } from 'node:fs';
 import { runInNewContext } from 'node:vm';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { applyTheme, parseTheme, saveTheme } from './theme';
+import {
+	applyTheme,
+	parseTheme,
+	parseThemePreference,
+	saveTheme,
+	resolveTheme,
+	watchSystemTheme
+} from './theme';
 
 const template = readFileSync('src/app.html', 'utf8');
 const bootstrap = template.match(/<script>([\s\S]*?)<\/script>/)![1];
@@ -41,6 +48,61 @@ describe('theme preference', () => {
 			}
 		});
 		expect(document.documentElement.dataset.theme).toBe('dark');
+	});
+
+	it('recognizes system without changing explicit stored choices', () => {
+		expect(parseThemePreference('system')).toBe('system');
+		expect(resolveTheme('system', true)).toBe('dark');
+		expect(resolveTheme('system', false)).toBe('light');
+		expect(resolveTheme('light', true)).toBe('light');
+		expect(resolveTheme('dark', false)).toBe('dark');
+	});
+
+	it.each([true, false])(
+		'resolves system before hydration: dark=%s',
+		(matches) => {
+			const document = {
+				documentElement: { dataset: { theme: 'dark', themePreference: '' } }
+			};
+			runInNewContext(bootstrap, {
+				document,
+				localStorage: { getItem: () => 'system' },
+				matchMedia: () => ({ matches })
+			});
+			expect(document.documentElement.dataset.theme).toBe(
+				matches ? 'dark' : 'light'
+			);
+			expect(document.documentElement.dataset.themePreference).toBe('system');
+		}
+	);
+
+	it('follows system changes only in system mode and cleans up', () => {
+		const root = { dataset: { theme: 'dark', themePreference: 'system' } };
+		let change = () => {};
+		const media = {
+			matches: false,
+			addEventListener: vi.fn((_event, cb) => {
+				change = cb;
+			}),
+			removeEventListener: vi.fn()
+		};
+		vi.stubGlobal('document', { documentElement: root });
+		vi.stubGlobal('window', { matchMedia: () => media });
+		const setItem = vi.fn();
+		vi.stubGlobal('localStorage', { setItem });
+		const stop = watchSystemTheme();
+		expect(root.dataset.theme).toBe('light');
+		media.matches = true;
+		change();
+		expect(root.dataset.theme).toBe('dark');
+		saveTheme('light');
+		change();
+		expect(root.dataset.theme).toBe('light');
+		saveTheme('system');
+		expect(root.dataset.theme).toBe('dark');
+		expect(setItem).toHaveBeenLastCalledWith('theme', 'system');
+		stop();
+		expect(media.removeEventListener).toHaveBeenCalledWith('change', change);
 	});
 
 	it('applies and persists the selected mode', () => {

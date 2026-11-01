@@ -70,7 +70,9 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 				context
 			}) => {
 				if (language === 'he') {
-					await page.locator('footer select').selectOption({ label: 'עב' });
+					await page
+						.locator('footer .language-control select')
+						.selectOption({ label: 'עב' });
 				}
 				const card = page.locator('[data-code="10400001"]');
 				await card.scrollIntoViewIfNeeded();
@@ -150,7 +152,9 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 				context
 			}) => {
 				if (language === 'he') {
-					await page.locator('footer select').selectOption({ label: 'עב' });
+					await page
+						.locator('footer .language-control select')
+						.selectOption({ label: 'עב' });
 				}
 				const touch = await context.newCDPSession(page);
 				const scroller = page.getByTestId('semester-scroller');
@@ -235,7 +239,9 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 				await expect(page.locator('.sortable-fallback')).toHaveCount(0);
 				await expect(page.locator('[data-plan-drag-overlay]')).toHaveCount(0);
 				await expect(page.locator('[data-code]')).toHaveCount(3);
-				await page.locator('footer select').selectOption({ label: 'en' });
+				await page
+					.locator('footer .language-control select')
+					.selectOption({ label: 'en' });
 				const cancel = page.getByRole('button', {
 					name: 'Cancel',
 					exact: true
@@ -253,7 +259,9 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 				context
 			}) => {
 				if (language === 'he')
-					await page.locator('footer select').selectOption({ label: 'עב' });
+					await page
+						.locator('footer .language-control select')
+						.selectOption({ label: 'עב' });
 				const touch = await context.newCDPSession(page);
 				const rect = (await page
 					.locator('[data-code="10400001"]')

@@ -28,6 +28,7 @@ export default defineConfig({
 		{
 			name: 'webkit',
 			testMatch: [
+				'theme.test.ts',
 				'landing-parallax.test.ts',
 				'landing-install.test.ts',
 				'search-faculty-native.test.ts',

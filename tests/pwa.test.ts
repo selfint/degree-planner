@@ -973,7 +973,7 @@ test('versioned dismissal preserves drafts until all tabs close and the new work
 	await capture('waiting-v2-mobile');
 	// Exercise the real native footer language control in this same waiting-worker
 	// session, retaining the unsaved draft and returning to English afterward.
-	const language = page.locator('footer').getByRole('combobox');
+	const language = page.locator('footer .language-control select');
 	await language.scrollIntoViewIfNeeded();
 	await expect(language).toHaveAccessibleName('Language');
 	await language.selectOption({ label: 'עב' });

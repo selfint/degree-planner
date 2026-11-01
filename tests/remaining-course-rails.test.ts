@@ -586,7 +586,7 @@ for (const width of [320, 390, 1180, 1440]) {
 				// Change the actual native preference after reaching the end. Browsers
 				// may retain or clamp their position; neither behavior is a reset rule.
 				const otherLanguage: Language = language === 'he' ? 'en' : 'he';
-				const languageSelect = page.locator('footer').getByRole('combobox');
+				const languageSelect = page.locator('footer .language-control select');
 				await languageSelect.selectOption({
 					label: otherLanguage === 'he' ? 'עב' : 'en'
 				});

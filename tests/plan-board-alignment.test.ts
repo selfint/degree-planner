@@ -391,7 +391,7 @@ for (const viewport of [
 				expect(initial.gapAfterTallestWishlistCard).toBeGreaterThanOrEqual(0);
 
 				const otherLanguage = language === 'en' ? 'he' : 'en';
-				await page.locator('footer select').selectOption({
+				await page.locator('footer .language-control select').selectOption({
 					label: otherLanguage === 'he' ? 'עב' : 'en'
 				});
 				await expect(page.locator('.console-shell')).toHaveAttribute(
@@ -421,7 +421,7 @@ for (const viewport of [
 				// Restore the named case's viewport/language before its catalog evidence.
 				await page.setViewportSize(viewport);
 				await page
-					.locator('footer select')
+					.locator('footer .language-control select')
 					.selectOption({ label: language === 'he' ? 'עב' : 'en' });
 				await page.locator('header.title-bar a[href="/app/catalog"]').click();
 				await expect(page).toHaveURL(`${origin}/app/catalog`);

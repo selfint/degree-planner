@@ -96,3 +96,12 @@ After entry, hourly/reconnect/focus checks only offer the update banner. Returni
 to an existing backgrounded app is part of that same session, not a fresh entry.
 The user accepts mid-session updates explicitly. No automatic data deletion or
 plan-format change accompanies this policy.
+
+### Theme preference
+
+The footer theme picker offers Dark, Light and System. Existing explicit choices
+and the default dark appearance are preserved. System follows the device color
+scheme before the first paint and while the app is open; the saved preference
+stays `system` rather than storing its currently resolved light/dark value.
+Manual choices ignore later device changes. The preference synchronizes across
+tabs and applies to landing, console and shared-plan pages.

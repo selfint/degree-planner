@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { mountShellRecovery, shellRecoveryScript } from './shell-recovery';
 
 function setup(lang = 'en', theme = 'dark', storageDenied = false) {
+	vi.stubGlobal('matchMedia', () => ({ matches: false }));
 	let click!: () => Promise<void>;
 	const button = {
 		disabled: false,
@@ -63,6 +64,10 @@ afterEach(() => {
 	vi.useRealTimers();
 });
 describe('explicit installed shell recovery', () => {
+	it('resolves a saved system theme in the recovery shell', () => {
+		setup('en', 'system');
+		expect(document.documentElement.dataset.theme).toBe('light');
+	});
 	it('does nothing until clicked and activates only the verified target before reload', async () => {
 		const s = setup();
 		expect(s.registration.update).not.toHaveBeenCalled();

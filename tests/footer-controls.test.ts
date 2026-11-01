@@ -167,17 +167,14 @@ async function expectPreferences(page: Page, language: Language, theme: Theme) {
 		.locator('.footer-links')
 		.evaluate((element) => getComputedStyle(element).color);
 	await expect(version).toHaveCSS('color', footerColor);
-	await expect(footer.locator('.theme-toggle')).toHaveAccessibleName(
-		language === 'he' ? 'מצב בהיר' : 'Light mode'
+	await expect(footer.locator('.theme-select')).toHaveAccessibleName(
+		language === 'he' ? 'ערכת נושא' : 'Theme'
 	);
-	await expect(footer.locator('.theme-toggle')).toHaveAttribute(
-		'aria-pressed',
-		String(theme === 'light')
-	);
-	await expect(footer.getByRole('combobox')).toHaveAccessibleName(
+	await expect(footer.locator('.theme-select')).toHaveValue(theme);
+	await expect(footer.locator('.language-control select')).toHaveAccessibleName(
 		language === 'he' ? 'שפה' : 'Language'
 	);
-	await expect(footer.locator('option:checked')).toHaveText(
+	await expect(footer.locator('.language-control option:checked')).toHaveText(
 		language === 'he' ? 'עב' : 'en'
 	);
 	await expect
@@ -206,7 +203,7 @@ async function expectSettingsReady(page: Page, language: Language) {
 	await expect(page.locator('.settings-page .no-path')).toHaveText(
 		language === 'he' ? 'אין מסלולים בתואר' : 'Degree has no paths'
 	);
-	await expect(page.locator('footer .theme-toggle')).toBeEnabled();
+	await expect(page.locator('footer .theme-select')).toBeEnabled();
 	await expect(page.getByTestId('pwa-status')).toHaveAttribute(
 		'data-state',
 		'ready',
@@ -325,8 +322,10 @@ async function measureFooter(page: Page) {
 		const links = footer.querySelector('.footer-links')!;
 		const credit = footer.querySelector('.footer-credit')!;
 		const report = footer.querySelector('.footer-report')!;
-		const toggle = footer.querySelector<HTMLButtonElement>('.theme-toggle')!;
-		const select = footer.querySelector<HTMLSelectElement>('select')!;
+		const toggle = footer.querySelector<HTMLElement>('.theme-toggle')!;
+		const select = footer.querySelector<HTMLSelectElement>(
+			'.language-control select'
+		)!;
 		const selectStyle = getComputedStyle(select);
 		const chevrons = footer.querySelectorAll(
 			'.language-control .language-chevron'
@@ -1031,8 +1030,9 @@ for (const viewport of [
 					await expectGuestSettings(page, language);
 					await expectHealthyPwa(page, language);
 					const footer = page.locator('footer');
-					const toggle = footer.locator('.theme-toggle');
-					const select = footer.locator('select');
+					const toggle = footer.locator('.theme-select');
+					const toggleFrame = footer.locator('.theme-toggle');
+					const select = footer.locator('.language-control select');
 					await expect(footer).toHaveCount(1);
 					await expect(footer.getByTestId('pwa-footer-row')).toHaveCount(1);
 					await expect(footer.getByTestId('pwa-install-help')).toHaveCount(0);
@@ -1050,7 +1050,7 @@ for (const viewport of [
 					);
 
 					const changedTheme = theme === 'light' ? 'dark' : 'light';
-					await toggle.tap();
+					await toggle.selectOption(changedTheme);
 					await expectPreferences(page, language, changedTheme);
 					expectMatchingControls(
 						await capture(page, info, 'settings-theme-tapped')
@@ -1073,7 +1073,7 @@ for (const viewport of [
 						)
 						.focus();
 					await page.keyboard.press('Tab');
-					await expectVisibleFocus(toggle, toggle);
+					await expectVisibleFocus(toggle, toggleFrame);
 					expectMatchingControls(
 						await capture(page, info, 'settings-theme-focus')
 					);
@@ -1095,8 +1095,11 @@ for (const viewport of [
 					await expectSettingsReady(page, language);
 					await expect(select).toBeFocused();
 					await page.keyboard.press('Shift+Tab');
-					await expectVisibleFocus(toggle, toggle);
-					await page.keyboard.press('Space');
+					await expectVisibleFocus(toggle, toggleFrame);
+					await page.keyboard.press('Home');
+					if (theme === 'light') await page.keyboard.press('ArrowDown');
+					await page.keyboard.press('Enter');
+					await page.keyboard.press('Escape');
 					await expectPreferences(page, language, theme);
 					expectMatchingControls(
 						await capture(page, info, 'settings-keyboard-restored')
@@ -1107,7 +1110,7 @@ for (const viewport of [
 					await select.selectOption({
 						label: changedLanguage === 'he' ? 'עב' : 'en'
 					});
-					await toggle.tap();
+					await toggle.selectOption(changedTheme);
 					await expectPreferences(page, changedLanguage, changedTheme);
 					await page.reload();
 					await expectSettingsReady(page, changedLanguage);
@@ -1337,7 +1340,7 @@ test.describe('normal landing footer controls', () => {
 	}, info) => {
 		await prepareGuest(page, 'en', 'dark');
 		await page.goto(origin);
-		await expect(page.locator('footer .theme-toggle')).toBeEnabled();
+		await expect(page.locator('footer .theme-select')).toBeEnabled();
 		await expectPreferences(page, 'en', 'dark');
 		expectMatchingControls(
 			await capture(page, info, 'landing-normal-footer'),

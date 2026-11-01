@@ -85,8 +85,16 @@
 			content.lang = selected;
 			Object.assign(content.lang, { dir });
 		});
+		document.documentElement.dataset.themePreference =
+			theme === 'system' ? 'system' : theme === 'light' ? 'light' : 'dark';
 		document.documentElement.dataset.theme =
-			theme === 'light' ? 'light' : 'dark';
+			theme === 'system'
+				? matchMedia('(prefers-color-scheme: dark)').matches
+					? 'dark'
+					: 'light'
+				: theme === 'light'
+					? 'light'
+					: 'dark';
 		document.documentElement.lang = selected.lang;
 		document.documentElement.dir = dir;
 	});

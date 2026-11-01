@@ -15,7 +15,15 @@ export function mountShellRecovery(
 	let theme = 'dark';
 	try {
 		language = localStorage.getItem('lang') === 'en' ? 'en' : 'he';
-		theme = localStorage.getItem('theme') === 'light' ? 'light' : 'dark';
+		const preference = localStorage.getItem('theme');
+		theme =
+			preference === 'system'
+				? matchMedia('(prefers-color-scheme: dark)').matches
+					? 'dark'
+					: 'light'
+				: preference === 'light'
+					? 'light'
+					: 'dark';
 	} catch {
 		/* Match the app defaults when preference storage is unavailable. */
 	}

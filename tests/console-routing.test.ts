@@ -88,7 +88,7 @@ for (const errorName of ['SecurityError', 'QuotaExceededError']) {
 		await expect(page.locator('main')).toBeVisible();
 		const errors: string[] = [];
 		page.on('pageerror', (error) => errors.push(error.message));
-		const language = page.locator('footer select');
+		const language = page.locator('footer .language-control select');
 		await language.selectOption({ label: 'עב' });
 		await expect(page.locator('main').locator('..')).toHaveAttribute(
 			'dir',

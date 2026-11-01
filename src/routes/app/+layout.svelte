@@ -90,6 +90,8 @@
 	const { data: pageData, children } = $props();
 	const { firebase } = $derived(pageData);
 
+	let entryPending = $state(true);
+	let entryError = $state(false);
 	let authReady = $state(false);
 	let offline = $state(false);
 	let signedIn = $state(false);
@@ -183,12 +185,27 @@
 	<meta name="apple-mobile-web-app-title" content="PlanIt" />
 </svelte:head>
 
+{#if inPwaScope && entryError && !entryPending}
+	<p role="alert" class="text-center text-sm" data-testid="pwa-entry-error">
+		{content.lang.lang === 'he'
+			? 'לא ניתן לבדוק עדכונים. אפשר להמשיך להשתמש בגרסה הנוכחית.'
+			: 'Could not check for updates. You can keep using this version.'}
+	</p>
+{/if}
+{#if inPwaScope && entryPending}
+	<p class="entry-update-status" role="status" data-testid="pwa-entry-update">
+		{content.lang.lang === 'he' ? 'בודקים עדכונים…' : 'Checking for updates…'}
+	</p>
+{/if}
+
 <div
 	dir={content.lang.dir}
 	data-sveltekit-reload={browserShareDestination(page.url.pathname)
 		? true
 		: undefined}
 	class="console-shell flex h-full min-h-screen flex-col"
+	inert={inPwaScope && entryPending}
+	aria-busy={inPwaScope && entryPending}
 >
 	<div class="w-full border-b border-border bg-background">
 		<TitleBar
@@ -228,7 +245,11 @@
 
 	{#snippet pwaControls()}
 		<div class="pwa-footer-controls">
-			<PwaStatus {offline} />
+			<PwaStatus
+				{offline}
+				onEntryFinished={() => (entryPending = false)}
+				onEntryError={() => (entryError = true)}
+			/>
 		</div>
 		<PwaStatusDetails />
 	{/snippet}
@@ -241,6 +262,15 @@
 
 <style lang="postcss">
 	@reference "tailwindcss";
+	.entry-update-status {
+		position: fixed;
+		z-index: 100;
+		inset-block-start: 0.5rem;
+		inset-inline: 1rem;
+		text-align: center;
+		padding: 0.5rem;
+		background: rgb(var(--color-background));
+	}
 
 	.pwa-footer-controls {
 		display: flex;

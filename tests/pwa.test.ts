@@ -1644,94 +1644,91 @@ test('a failed public-data persistence keeps the existing root registration even
 	);
 });
 
-test('controlled reloads and new tabs stay on A online and offline until explicit B acceptance', async ({
-	page,
-	context,
-	request,
-	browserName
-}) => {
-	test.setTimeout(90_000);
-	await ready(page);
-	const a = deploymentVersion();
-	const saved = await page.evaluate(() => localStorage.getItem('userData'));
-	const courses = await storedCourses(page);
-	const assertA = async (tab: Page) => {
-		await expect(tab.getByTestId('footer-build-version')).toHaveAttribute(
-			'title',
-			a
+for (const offlineEntry of [false, true]) {
+	test(`fresh entry automatically applies B ${offlineEntry ? 'offline' : 'online'} while mid-session and other-tab work stay on A`, async ({
+		page,
+		context,
+		request,
+		browserName
+	}) => {
+		test.setTimeout(90_000);
+		await ready(page);
+		const a = deploymentVersion();
+		const saved = await page.evaluate(() => localStorage.getItem('userData'));
+		const courses = await storedCourses(page);
+		const initialTime = await page.evaluate(() => performance.timeOrigin);
+		const otherTab = await context.newPage();
+		await ready(otherTab);
+		revision = 2;
+		const b = deploymentVersion();
+		expect(await (await request.get(`${origin}/app/plan`)).text()).toContain(
+			'data-pwa-release="2"'
 		);
-		await expect(tab.locator('html')).toHaveAttribute('data-pwa-release', '1');
-		expect(await workerVersion(tab, 'controller')).toBe(a);
-	};
-	await assertA(page);
-	// Rechecking identical deployed bytes must not invent a waiting update.
-	await page.evaluate(async () =>
-		(await navigator.serviceWorker.getRegistration())!.update()
-	);
-	expect(await workerVersion(page, 'waiting')).toBeNull();
-	await expect(page.getByTestId('pwa-update-banner')).toHaveCount(0);
-	revision = 2;
-	const b = deploymentVersion();
-	// Independent network evidence: the origin actually serves release B HTML.
-	expect(await (await request.get(`${origin}/app/plan`)).text()).toContain(
-		'data-pwa-release="2"'
-	);
-	await page.evaluate(async () =>
-		(await navigator.serviceWorker.getRegistration())!.update()
-	);
-	await expect.poll(() => workerVersion(page, 'waiting')).toBe(b);
-	for (let reload = 0; reload < 2; reload++) {
-		const response = await page.reload();
-		expect(response?.fromServiceWorker()).toBe(true);
-		await assertA(page);
+		await page.evaluate(async () =>
+			(await navigator.serviceWorker.getRegistration())!.update()
+		);
+		await expect.poll(() => workerVersion(page, 'waiting')).toBe(b);
 		await expectUpdateBanner(page, b);
-	}
-	const newTab = await context.newPage();
-	await ready(newTab);
-	await assertA(newTab);
-	await expectUpdateBanner(newTab, b);
-	await newTab.close();
-	originDisconnected = true;
-	server.closeAllConnections();
-	await expect(fetch(`${origin}/offline-outage-probe`)).rejects.toThrow();
-	if (browserName !== 'webkit') await context.setOffline(true);
-	await page.goto(`${origin}/app/course/02340141`);
-	await assertA(page);
-	await expect(page.locator('main')).toContainText(
-		JSON.parse(await readFile('static/courseData.json', 'utf8'))['02340141']
-			.name
-	);
-	await page.reload();
-	await assertA(page);
-	originDisconnected = false;
-	if (browserName !== 'webkit') await context.setOffline(false);
-	await page.goto(`${origin}/app/plan`);
-	await assertA(page);
-	await expect(page.getByTestId('pwa-update-accept')).toBeEnabled();
-	await page.getByTestId('pwa-update-accept').click();
-	await expect(page.getByTestId('footer-build-version')).toHaveAttribute(
-		'title',
-		b
-	);
-	await expect(page.locator('html')).toHaveAttribute('data-pwa-release', '2');
-	await expect.poll(() => workerVersion(page, 'controller')).toBe(b);
-	for (let reload = 0; reload < 2; reload++) {
+		await page.evaluate(() => {
+			window.dispatchEvent(new Event('focus'));
+			window.dispatchEvent(new Event('pageshow'));
+			document.dispatchEvent(new Event('visibilitychange'));
+		});
+		expect(await page.evaluate(() => performance.timeOrigin)).toBe(initialTime);
+		expect(await workerVersion(page, 'controller')).toBe(a);
+		// Entry must never activate underneath another app document.
+		await page.reload();
+		await expect(page.getByTestId('pwa-entry-update')).toHaveCount(0);
+		await expectUpdateBanner(page, b);
+		expect(await workerVersion(page, 'controller')).toBe(a);
+		await otherTab.close();
+		if (offlineEntry) {
+			originDisconnected = true;
+			server.closeAllConnections();
+			if (browserName !== 'webkit') await context.setOffline(true);
+		}
 		await page.reload();
 		await expect(page.getByTestId('footer-build-version')).toHaveAttribute(
 			'title',
 			b
 		);
-		await page.evaluate(async () =>
-			(await navigator.serviceWorker.getRegistration())!.update()
-		);
-		expect(await workerVersion(page, 'waiting')).toBeNull();
+		await expect(page.locator('html')).toHaveAttribute('data-pwa-release', '2');
+		await expect.poll(() => workerVersion(page, 'controller')).toBe(b);
 		await expect(page.getByTestId('pwa-update-banner')).toHaveCount(0);
-		await expect(page.getByTestId('footer-update')).toHaveCount(0);
-	}
-	expect(await page.evaluate(() => localStorage.getItem('userData'))).toBe(
-		saved
+		originDisconnected = false;
+		if (browserName !== 'webkit') await context.setOffline(false);
+		const updatedTime = await page.evaluate(() => performance.timeOrigin);
+		await page.waitForTimeout(250);
+		expect(await page.evaluate(() => performance.timeOrigin)).toBe(updatedTime);
+		expect(await page.evaluate(() => localStorage.getItem('userData'))).toBe(
+			saved
+		);
+		expect(await storedCourses(page)).toEqual(courses);
+	});
+}
+
+test('fresh entry checks for B even with a recent persisted hourly check', async ({
+	page
+}) => {
+	test.setTimeout(90_000);
+	await ready(page);
+	await page.evaluate(
+		(key) =>
+			localStorage.setItem(
+				key,
+				JSON.stringify({ lastAttemptAt: Date.now(), lastCheckedAt: Date.now() })
+			),
+		UPDATE_CHECK_STORAGE_KEY
 	);
-	expect(await storedCourses(page)).toEqual(courses);
+	revision = 2;
+	const b = deploymentVersion();
+	await page.reload();
+	await expect(page.getByTestId('footer-build-version')).toHaveAttribute(
+		'title',
+		b
+	);
+	await expect.poll(() => workerVersion(page, 'controller')).toBe(b);
+	await expect(page.getByTestId('pwa-update-banner')).toHaveCount(0);
 });
 
 test('evicted A shell never loads B HTML and manual recovery protects another tab draft', async ({

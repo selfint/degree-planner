@@ -925,3 +925,31 @@ describe('update timeouts, stale results and disposal', () => {
 		expect(vi.getTimerCount()).toBe(0);
 	});
 });
+
+describe('explicit fresh app entry', () => {
+	it('checks despite a recent persisted attempt, while focus remains throttled', async () => {
+		const h = harness();
+		h.storage.seed({ lastAttemptAt: START - 1000 });
+		const scheduler = h.start();
+		await flush();
+		expect(h.update).not.toHaveBeenCalled();
+		await scheduler.checkOnEntry();
+		expect(h.update).toHaveBeenCalledOnce();
+		h.emit('focus');
+		h.emit('pageshow');
+		h.setVisibility('visible');
+		await flush();
+		expect(h.update).toHaveBeenCalledOnce();
+	});
+	it('does not force an offline or disposed entry to fetch', async () => {
+		const h = harness();
+		h.win.navigator.onLine = false;
+		const scheduler = h.start();
+		await scheduler.checkOnEntry();
+		expect(h.update).not.toHaveBeenCalled();
+		scheduler.dispose();
+		h.win.navigator.onLine = true;
+		await scheduler.checkOnEntry();
+		expect(h.update).not.toHaveBeenCalled();
+	});
+});

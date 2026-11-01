@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { parse } from 'svelte/compiler';
 import { ScriptTarget, transpileModule } from 'typescript';
 import { describe, expect, it, vi } from 'vitest';
+import { isAppUpdateRegistration } from '../pwa/entry-update';
 
 const source = readFileSync(
 	new URL('./PwaStatus.svelte', import.meta.url),
@@ -44,9 +45,13 @@ const createRegistration = new Function(
 	'clearTimeout',
 	'production',
 	'updateChecks',
+	'isAppUpdateRegistration',
 	transpileModule(
 		`
 		let disposed = false;
+		let entryPending = false;
+		const entryUpdate = { finish() {}, run() {} };
+		const location = {origin:'https://planit.test'};
 		let registering = false;
 		let currentRegistration;
 		let controllerTimer;
@@ -72,7 +77,8 @@ const createRegistration = new Function(
 	timer: (...args: unknown[]) => unknown,
 	clearTimer: (...args: unknown[]) => void,
 	production: boolean,
-	updateChecks: { refresh: () => void }
+	updateChecks: { refresh: () => void },
+	validate: typeof isAppUpdateRegistration
 ) => {
 	register: () => Promise<void>;
 	dispose: () => void;
@@ -84,6 +90,7 @@ const createRegistration = new Function(
 function harness() {
 	const serviceWorker = {
 		register: vi.fn(),
+		getRegistration: vi.fn().mockResolvedValue(undefined),
 		ready: { then: vi.fn() },
 		controller: null
 	};
@@ -95,7 +102,7 @@ function harness() {
 	const clearTimer = vi.fn();
 	const updateChecks = { refresh: vi.fn() };
 	const lifecycle = createRegistration(
-		{ serviceWorker },
+		{ serviceWorker, onLine: true },
 		setShell,
 		reconcile,
 		watch,
@@ -103,7 +110,8 @@ function harness() {
 		timer,
 		clearTimer,
 		true,
-		updateChecks
+		updateChecks,
+		isAppUpdateRegistration
 	);
 	return {
 		serviceWorker,
@@ -118,6 +126,8 @@ function harness() {
 }
 function registration() {
 	return {
+		scope: 'https://planit.test/app/',
+		active: null,
 		waiting: null,
 		installing: null,
 		addEventListener: vi.fn(),
@@ -215,6 +225,7 @@ describe('actual offline shell registration result handling', () => {
 			})
 		);
 		const pending = h.lifecycle.register();
+		await Promise.resolve();
 		h.lifecycle.dispose();
 		finish(undefined);
 		await pending;
@@ -223,4 +234,13 @@ describe('actual offline shell registration result handling', () => {
 		expect(h.lifecycle.registering()).toBe(false);
 		expect(h.watch).not.toHaveBeenCalled();
 	});
+});
+
+it('reuses the exact existing app registration without a network registration, even when online is reported', async () => {
+	const h = harness();
+	const existing = registration();
+	h.serviceWorker.getRegistration.mockResolvedValue(existing);
+	await h.lifecycle.register();
+	expect(h.serviceWorker.register).not.toHaveBeenCalled();
+	expect(h.lifecycle.current()).toBe(existing);
 });

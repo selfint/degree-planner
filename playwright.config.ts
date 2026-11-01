@@ -79,7 +79,7 @@ export default defineConfig({
 		{
 			name: 'webkit-shell',
 			testMatch: 'pwa.test.ts',
-			grep: /first opening|versioned dismissal|accepting an update|hourly discovery|controlled reloads|evicted A shell/,
+			grep: /first opening|versioned dismissal|accepting an update|hourly discovery|fresh entry|evicted A shell/,
 			use: { browserName: 'webkit' }
 		}
 	]

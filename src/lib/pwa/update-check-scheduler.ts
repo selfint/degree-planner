@@ -18,7 +18,8 @@ type SchedulerDocument = Pick<
 >;
 
 /** Check for a waiting update, never activate it or reload any document.
- * Attempts (including failures) are limited to one per hour. Offline/hidden
+ * Background attempts (including failures) are limited to one per hour; fresh
+ * entry checks bypass that throttle. Offline/hidden
  * skips consume no attempt. A resolved update records success separately; it
  * does not mean a new version exists, or that its offline shell is ready. */
 export function createUpdateCheckScheduler(
@@ -170,8 +171,8 @@ export function createUpdateCheckScheduler(
 			}
 		}
 	}
-	function claimIfDue() {
-		if (!eligible() || remaining(now()) > 0) return;
+	function claimIfDue(force = false) {
+		if (!eligible() || (!force && remaining(now()) > 0)) return;
 		const registration = getRegistration();
 		if (!registration) return;
 		const startedAt = now();
@@ -184,11 +185,11 @@ export function createUpdateCheckScheduler(
 		});
 		return { registration, startedAt };
 	}
-	function refresh() {
+	async function runCheck(force = false) {
 		clearTimeout(timer);
 		timer = undefined;
 		if (!eligible() || checking) return;
-		if (remaining(now()) > 0) {
+		if (!force && remaining(now()) > 0) {
 			schedule();
 			return;
 		}
@@ -198,9 +199,16 @@ export function createUpdateCheckScheduler(
 		// lock other tabs forever. Without Web Locks, sharing the persisted
 		// attempt is best-effort deduplication, not an activation safety lock.
 		let attempt: ReturnType<typeof claimIfDue>;
-		void coordinate(() => {
-			attempt = claimIfDue();
-		})
+		// Entry checks are per document, not coalesced with another tab. The
+		// worker separately guards activation against other open app clients.
+		if (force) attempt = claimIfDue(true);
+		return (
+			force
+				? Promise.resolve(true)
+				: coordinate(() => {
+						attempt = claimIfDue();
+					})
+		)
 			.then(async (claimed) => {
 				if (!claimed) coordinationRetryAt = now() + COORDINATION_RETRY_MS;
 				if (!attempt || disposed) return;
@@ -215,11 +223,15 @@ export function createUpdateCheckScheduler(
 					});
 				}
 				// Failures/timeouts leave last success untouched and retry after an hour.
+				return success;
 			})
 			.finally(() => {
 				checking = false;
 				schedule();
 			});
+	}
+	function refresh() {
+		void runCheck();
 	}
 	const storageChanged = (event: Event) => {
 		const { key } = event as StorageEvent;
@@ -232,6 +244,8 @@ export function createUpdateCheckScheduler(
 	refresh();
 	return {
 		refresh,
+		// A new app entry must check even when another session checked recently.
+		checkOnEntry: () => runCheck(true),
 		dispose() {
 			disposed = true;
 			clearTimeout(timer);

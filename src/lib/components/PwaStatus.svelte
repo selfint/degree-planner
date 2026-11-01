@@ -1,5 +1,13 @@
 <script lang="ts">
-	let { offline = false }: { offline?: boolean } = $props();
+	let {
+		offline = false,
+		onEntryFinished = () => {},
+		onEntryError = () => {}
+	}: {
+		offline?: boolean;
+		onEntryFinished?: () => void;
+		onEntryError?: () => void;
+	} = $props();
 	import PwaStatusView from './PwaStatusView.svelte';
 	import { updateSafety } from '$lib/pwa/update-safety';
 	import {
@@ -22,6 +30,10 @@
 		type ShellReadiness
 	} from '$lib/pwa/shell-readiness';
 	import { publishOfflineShellStatus } from '$lib/pwa/status';
+	import {
+		createEntryUpdate,
+		isAppUpdateRegistration
+	} from '$lib/pwa/entry-update';
 	import { createUpdateCheckScheduler } from '$lib/pwa/update-check-scheduler';
 	import type { ShellFailureReason } from '$lib/pwa/shell-failure';
 	import {
@@ -30,6 +42,7 @@
 		hasWaitingUpdate
 	} from '$lib/pwa/service-worker-update';
 
+	let entryPending = $state(true);
 	let updateBusy = $state(false);
 	let updateActionError = $state<string>();
 	let acceptedUpdate = $state<{ worker: ServiceWorker; version: string }>();
@@ -48,7 +61,7 @@
 	$effect(() => {
 		publishOfflineShellStatus({
 			status: shell,
-			updateReady: updateReady || !!acceptedUpdate,
+			updateReady: !entryPending && (updateReady || !!acceptedUpdate),
 			updateVersion: acceptedUpdate?.version ?? updateVersion,
 			updateBlocked: $updateSafety,
 			updateBusy,
@@ -188,6 +201,19 @@
 		let registering = false;
 		let currentRegistration: ServiceWorkerRegistration | undefined;
 		const updateChecks = createUpdateCheckScheduler(() => currentRegistration);
+		const entryUpdate = createEntryUpdate({
+			currentVersion: version,
+			finished: () => {
+				if (disposed) return;
+				entryPending = false;
+				onEntryFinished();
+				updateChecks.refresh();
+			},
+			failed: () => {
+				onEntryError();
+			}
+		});
+		cleanups.push(() => entryUpdate.finish());
 		cleanups.push(() => updateChecks.dispose());
 		let reloadStarted = false;
 		acceptUpdate = async () => {
@@ -309,18 +335,29 @@
 			if (disposed || registering) return;
 			if (!import.meta.env.PROD || !('serviceWorker' in navigator)) {
 				setShell('unavailable', 'unsupported');
+				entryUpdate.finish();
 				return;
 			}
 			registering = true;
 			try {
-				const registration = await navigator.serviceWorker.register(
-					'/service-worker.js',
-					{ scope: '/app/', updateViaCache: 'none' }
-				);
+				const existing = await navigator.serviceWorker.getRegistration('/app/');
+				const registration =
+					existing && isAppUpdateRegistration(existing, location.origin)
+						? existing
+						: navigator.onLine
+							? await navigator.serviceWorker.register('/service-worker.js', {
+									scope: '/app/',
+									updateViaCache: 'none'
+								})
+							: existing;
 				if (disposed) return;
 				if (!registration)
 					throw new Error(
 						'The browser did not return an offline app registration. Allow service workers, then retry.'
+					);
+				if (!isAppUpdateRegistration(registration, location.origin))
+					throw new Error(
+						'The offline app registration has an unexpected scope or script.'
 					);
 				currentRegistration = registration;
 				reconcileUpdateReady();
@@ -337,7 +374,17 @@
 					);
 					watchInstalling();
 				}
-				updateChecks.refresh();
+				if (entryPending) {
+					void entryUpdate.run(
+						registration,
+						() => updateChecks.checkOnEntry(),
+						async (worker, verifiedVersion) => {
+							if (disposed || registration.waiting !== worker) return;
+							updateVersion = verifiedVersion;
+							await acceptUpdate();
+						}
+					);
+				} else updateChecks.refresh();
 				clearTimeout(controllerTimer);
 				controllerTimer = setTimeout(() => {
 					if (!disposed && !navigator.serviceWorker.controller)
@@ -349,6 +396,7 @@
 				});
 			} catch {
 				if (!disposed) setShell('unavailable', 'registration');
+				entryUpdate.finish();
 			} finally {
 				registering = false;
 			}

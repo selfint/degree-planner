@@ -82,3 +82,17 @@ controlled update transitions stay in the production-build proxy suite.
 The startup screen uses the existing PlanIt logo and wordmark with an indeterminate progress line. Localized status is available to screen readers without extra visible copy. It respects reduced motion, light/dark preferences, right-to-left layout and short screens. It does not invent a download percentage. The critical pre-hydration markup and hydrated component share tested styling; landing visits do not request the console brand assets.
 
 Storybook exposes 193 meaningful states across 44 groups. Every reusable component and visible route screen is inventoried; lifecycle-only wrappers use the same extracted presentation components without starting account or storage services. Theme, language and direction are global toolbar controls. The canvas keeps the default available size. See [the component inventory](storybook.md).
+
+## Update timing
+
+Each fresh entry to `/app/` checks for an app update even if the persisted hourly
+check is recent. Editing is held briefly while the check and any ready update
+are applied. An already installed waiting update can be applied offline. Failed
+or timed-out detection releases the current app with an explanation; a late
+result cannot reload an editable session. Other open app tabs and unsaved or
+pending writes still prevent activation/reload.
+
+After entry, hourly/reconnect/focus checks only offer the update banner. Returning
+to an existing backgrounded app is part of that same session, not a fresh entry.
+The user accepts mid-session updates explicitly. No automatic data deletion or
+plan-format change accompanies this policy.

@@ -37,8 +37,8 @@ recordings before copying that complete directory to `static/tutorials`.
     npx playwright test --config=playwright.tutorials.config.ts tutorials/landing.test.ts
 
 The real production-rendered HTML test was committed and observed failing on the
-missing tutorial section before adding the landing components. It now verifies
-all nine accessible native players and both original visible transcripts. The browser suite
+missing tutorial section before adding the landing components. It verifies the seven landing-feature players; the two original tutorials remain
+available separately in the application and Storybook. The browser suite
 also checks both languages/themes at 320, 390 and 1280px, no media transfer before
 play, no console/data boot on landing, keyboard focus, playback, pause and failure
 fallback, native fullscreen and live preference changes. CI runs these assertions normally; unexpected failures fail the job.
@@ -65,12 +65,23 @@ Planit is Apache-2.0 licensed; its license is retained in `assets/LICENSE.planit
 
 ## Checked-in media
 
-`provenance.json` records each published media file's byte size and SHA-256,
-with the exact recording commit, successful CI run and artifact identifier.
-The current complete nine-topic set is 29,255,062 bytes. The landing fetches neither video
-format before deliberate playback; its two nearby WebP posters total 31–42 KB,
-depending on language and theme. MP4 playback remains under 725 KB per clip;
-WebM is a fallback. Media is excluded from the app service-worker precache.
+`provenance.json` records every published media file's byte size and SHA-256.
+Schema version 2 preserves the exact source of each clip: the 28 landing-feature
+variants come from staging `f8cfe32cbd1839039d25402111263639b6907978`, successful
+[run 40299428275](https://github.com/selfint/degree-planner/actions/runs/40299428275),
+artifact `12642265137`. Its ZIP SHA-256 is
+`e0ada8435c4ff709da72a5fe2bcd39f418164825ae35198343b927175711a89b`.
+The eight in-app tutorial variants retain source `8e6af135` and their original
+artifact provenance. Nested Storybook journeys remain unchanged. The root
+manifest aggregates both sources; it is not itself a recording.
+
+The refreshed Plan clips show Save matching Share in both languages and themes.
+All 56 refreshed MP4/WebM encodings were fully decoded after recovering the
+accepted artifact; their source commit, complete inventory, captions and digest
+were revalidated. Publication and preview playback must be checked separately.
+Media stays outside the app service-worker cache. HTTP responses use
+`max-age=0, must-revalidate` with ETags, so existing URLs revalidate on reload.
+An already-open player can retain buffered old media until the page reloads.
 
 ## Search feature recording and publication
 
@@ -116,7 +127,7 @@ Runtime improvement depends on the slowest topic and runner availability; measur
 it from a successful run rather than assuming a wall-time guarantee.
 
 All seven feature images are replaced by their own recordings, using the existing
-sections, headings, paragraphs, order and grids. Both original tutorials remain. Each
+sections, headings, paragraphs, order and grids. Both original tutorials remain available separately. Each
 native player follows the landing preferences, loads no video before playback,
 and recreates the player when language or theme changes. Run the focused checks:
 
@@ -127,7 +138,7 @@ variants at 320, 390 and 1280px, actual playback, fullscreen, live preference
 switching with playback of each selected source, WebM fallback, and the failure
 message without losing the feature description.
 
-The checked-in 36-clip set was recorded from the exact staging push commit
+The previous homogeneous 36-clip set was recorded from the exact staging push commit
 `8e6af135bb4f9ee546c39bb5b604d8aff691b337` in successful Actions run
 [39472885967](https://github.com/selfint/degree-planner/actions/runs/39472885967),
 artifact `12291437449`. All 164 recording, motion and landing checks passed before
@@ -174,7 +185,7 @@ Normal assertion runs retain their fast scrolling and drag path.
 All nine topics use the shared recording action helpers in every EN/HE and
 light/dark variant: course-card, plan-course, feature-search, feature-plan,
 feature-catalog, feature-settings, feature-course, feature-semester, feature-share
-(36 clips). The checked-in assets and provenance were refreshed from the successful run above.
+(36 clips). The current scoped landing refresh and retained in-app sources are recorded above.
 For each future regeneration, after the complete recording CI succeeds, refresh the full artifact,
 verify its digest and all codecs/durations, and inspect successive frames DURING
 scrolls and the Plan drag in all four variants, not only their before/after

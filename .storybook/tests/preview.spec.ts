@@ -2160,6 +2160,16 @@ test('console surfaces remain readable and usable at narrow and wide widths', as
 						await expect(account.locator('img[alt="Google Logo"]')).toHaveCount(
 							1
 						);
+						await expect
+							.poll(() =>
+								account
+									.locator('img[alt="Google Logo"]')
+									.evaluate(
+										(image: HTMLImageElement) =>
+											image.complete && image.naturalWidth > 0
+									)
+							)
+							.toBe(true);
 						await expectSingleRenderedLine(account.getByRole('heading'));
 					}
 					for (const text of await page

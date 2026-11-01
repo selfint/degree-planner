@@ -15,6 +15,7 @@
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import AsyncButton from '$lib/components/AsyncButton.svelte';
 	import Spinner from '$lib/components/Spinner.svelte';
+	import googleLogo from '$lib/assets/google.svg';
 
 	const { data: pageData } = $props();
 	const { getCourseData, firebase, catalogs } = $derived(pageData);
@@ -79,7 +80,7 @@
 				<span class="account-action">
 					<span>{content.lang.settings.signInWith}</span>
 					<img
-						src="https://www.svgrepo.com/show/355037/google.svg"
+						src={googleLogo}
 						loading="lazy"
 						alt="Google Logo"
 						class="h-5 w-5 shrink-0"

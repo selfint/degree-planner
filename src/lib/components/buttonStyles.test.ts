@@ -31,6 +31,24 @@ function svelteFiles(dir: string): string[] {
 }
 
 describe('shared action styling', () => {
+	it('bundles the real sign-in logo locally instead of relying on third-party image requests', () => {
+		const settings = readFileSync(
+			'src/routes/app/(withCourseData)/settings/+page.svelte',
+			'utf8'
+		);
+		expect(settings).toContain(
+			"import googleLogo from '$lib/assets/google.svg'"
+		);
+		expect(settings).toContain('src={googleLogo}');
+		expect(settings).not.toContain('https://www.svgrepo.com');
+		const icon = readFileSync('src/lib/assets/google.svg', 'utf8');
+		expect(icon).toContain('viewBox="0 0 24 24"');
+		expect(icon.match(/<path /g)).toHaveLength(4);
+		expect(icon).not.toMatch(/<(?:script|image|foreignObject)\b/);
+		expect(readFileSync('.storybook/main.ts', 'utf8')).not.toContain(
+			'data:image/svg+xml'
+		);
+	});
 	it('owns approved Save/Share colors and compact spacing globally', () => {
 		expect(declarations(':root')).toMatchObject({
 			'--button-primary-background': '15 111 103',

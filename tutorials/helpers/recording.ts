@@ -203,6 +203,20 @@ export async function createRecording(
 	);
 	let started = 0;
 	const captions: { start: number; end: number; text: string }[] = [];
+	async function assertSignInArtwork() {
+		// A recording must show the real local sign-in artwork, never a broken image.
+		const googleLogo = page.locator('img[alt="Google Logo"]');
+		if (await googleLogo.count()) {
+			await expect
+				.poll(() =>
+					googleLogo.evaluate(
+						(image: HTMLImageElement) =>
+							image.complete && image.naturalWidth > 0
+					)
+				)
+				.toBe(true);
+		}
+	}
 	async function preparePage(browserPreview = false) {
 		if (browserPreview) {
 			// Public shares intentionally live outside worker scope. Verify that
@@ -230,6 +244,7 @@ export async function createRecording(
 			);
 		}
 		await expect(page.getByTestId('pwa-error')).toHaveCount(0);
+		await assertSignInArtwork();
 		await page.evaluate(() => document.fonts.ready);
 		await installCursor(page);
 		await expect(page.locator('.demo-cursor')).toHaveCount(1);
@@ -267,6 +282,7 @@ export async function createRecording(
 		},
 		async caption(title: string, text: string, target?: Locator) {
 			await expect(page.getByTestId('pwa-error')).toHaveCount(0);
+			await assertSignInArtwork();
 			const now = (Date.now() - started) / 1000;
 			if (captions.length) captions.at(-1)!.end = now;
 			captions.push({ start: now, end: now + 3, text: `${title}: ${text}` });

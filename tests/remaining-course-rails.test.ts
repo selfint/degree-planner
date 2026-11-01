@@ -59,11 +59,10 @@ async function prepare(page: Page, language: Language) {
 		},
 		{ language, guest }
 	);
-	// Allow the existing public sign-in image; block optional analytics/auth
-	// traffic and never fulfill application data or perform sign-in.
+	// All UI assets are local; block optional analytics/auth traffic and never
+	// fulfill application data or perform sign-in.
 	await page.route('**/*', (route) =>
-		new URL(route.request().url()).origin === origin ||
-		route.request().url() === 'https://www.svgrepo.com/show/355037/google.svg'
+		new URL(route.request().url()).origin === origin
 			? route.continue()
 			: route.abort()
 	);
@@ -497,6 +496,16 @@ for (const width of [320, 390, 1180, 1440]) {
 				await expect(root.locator(':scope > h1')).toHaveClass(/\bsr-only\b/);
 				await expect(root.locator(':scope > .account-section')).toBeVisible();
 				await expect(root.locator('.account-section button')).toBeEnabled();
+				await expect
+					.poll(() =>
+						root
+							.locator('img[alt="Google Logo"]')
+							.evaluate(
+								(image: HTMLImageElement) =>
+									image.complete && image.naturalWidth > 0
+							)
+					)
+					.toBe(true);
 				const top = await root.evaluate(
 					(root) =>
 						root.querySelector('.account-section')!.getBoundingClientRect()

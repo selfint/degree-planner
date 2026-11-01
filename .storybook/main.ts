@@ -43,14 +43,6 @@ const config: StorybookConfig = {
 					if (match && isolatedModules[match[1]])
 						return mock(isolatedModules[match[1]]);
 				},
-				transform(source, id) {
-					// Keep the real settings UI while making its decorative third-party image local.
-					if (id.includes('/settings/+page.svelte'))
-						return source.replace(
-							'https://www.svgrepo.com/show/355037/google.svg',
-							"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ctext x='2' y='20' font-size='24' fill='%234285f4'%3EG%3C/text%3E%3C/svg%3E"
-						);
-				},
 				generateBundle(_options, bundle) {
 					for (const output of Object.values(bundle)) {
 						if (output.type !== 'chunk') continue;

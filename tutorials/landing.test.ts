@@ -293,7 +293,7 @@ test('live language and theme preferences replace media without autoplay', async
 	expect(
 		await video.evaluate((node) => (node as HTMLVideoElement).paused)
 	).toBe(true);
-	await page.locator('footer .theme-toggle').click();
+	await page.locator('footer .theme-select').selectOption('dark');
 	await expect(video.locator('source').first()).toHaveAttribute(
 		'src',
 		'/tutorials/feature-course-he-dark.mp4'

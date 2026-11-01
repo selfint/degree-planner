@@ -160,7 +160,7 @@ for (const topic of mediaGroups.features) {
 					.getByRole('combobox', { name: 'Language' })
 					.selectOption({ label: 'עב' });
 			if (language === 'he' && theme === 'dark')
-				await page.locator('footer .theme-toggle').click();
+				await page.locator('footer .theme-select').selectOption('dark');
 			if (language === 'en' && theme === 'dark')
 				await page
 					.locator('footer .language-control select')

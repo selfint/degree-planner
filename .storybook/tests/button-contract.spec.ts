@@ -72,7 +72,9 @@ test('async primitive keeps its lock, keyboard focus, and secondary variant', as
 	).toBeDisabled();
 	await page.getByRole('button', { name: 'Complete demo action' }).click();
 	await expect(primary).toBeEnabled();
-	await primary.focus();
+	// Use real keyboard navigation: programmatic focus after a pointer action
+	// intentionally does not trigger :focus-visible in Chromium.
+	await page.getByRole('button', { name: 'Export plan' }).press('Shift+Tab');
 	await expect(primary).toHaveCSS('outline-style', 'solid');
 	await primary.press('Enter');
 	await expect(primary).toBeDisabled();

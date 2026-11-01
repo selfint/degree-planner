@@ -110,10 +110,7 @@
 	{#if transcript === undefined}
 		<div class="upload-field">
 			<div class="upload-actions">
-				<label
-					class="ui-button ui-button--primary upload-trigger"
-					class:upload-disabled={uploading || !$planOnline}
-				>
+				<label class="ui-button ui-button--primary upload-trigger">
 					{content.lang.settings.uploadLabel}
 					<input
 						type="file"
@@ -238,12 +235,8 @@
 		opacity: 0;
 		cursor: pointer;
 	}
-	.upload-disabled,
-	.upload-disabled input {
+	.upload-trigger input:disabled {
 		cursor: not-allowed;
-	}
-	.upload-disabled {
-		opacity: 0.45;
 	}
 	.preview-header {
 		display: flex;

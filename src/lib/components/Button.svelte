@@ -1,21 +1,25 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import type { HTMLButtonAttributes } from 'svelte/elements';
 
-	type Props = {
+	type Props = HTMLButtonAttributes & {
 		variant: 'primary' | 'secondary';
-		onclick: () => void;
 		children: Snippet;
-		disabled?: boolean;
 	};
 
-	let { variant, onclick, children, disabled = false }: Props = $props();
+	let {
+		variant,
+		children,
+		type = 'button',
+		class: className = '',
+		...attributes
+	}: Props = $props();
 </script>
 
 <button
-	{disabled}
-	type="button"
-	class="ui-button ui-button--{variant}"
-	{onclick}
+	{...attributes}
+	{type}
+	class="ui-button ui-button--{variant} {className}"
 >
 	{@render children()}
 </button>

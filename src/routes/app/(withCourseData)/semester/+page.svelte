@@ -313,12 +313,13 @@
 		>
 			{#snippet children({ code, course })}
 				<button
+					type="button"
 					class="rounded-[var(--radius-card)] text-start {disabled.includes(
 						code
 					)
 						? 'opacity-50'
 						: ''}"
-					onmousedown={() => toggleCourseDisabled(code)}
+					onclick={() => toggleCourseDisabled(code)}
 				>
 					<CourseElement {code} {course} />
 				</button>
@@ -375,12 +376,13 @@
 		<CourseRow {getCourseData} courses={semester}>
 			{#snippet children({ code, course })}
 				<button
+					type="button"
 					class="rounded-[var(--radius-card)] text-start {disabled.includes(
 						code
 					)
 						? 'opacity-50'
 						: ''}"
-					onmousedown={() => toggleCourseDisabled(code)}
+					onclick={() => toggleCourseDisabled(code)}
 				>
 					<CourseElement {code} {course} />
 				</button>
@@ -434,8 +436,9 @@
 						>
 							{#snippet children({ code, course, scheduleError })}
 								<button
+									type="button"
 									class="rounded-[var(--radius-card)] text-start"
-									onmousedown={() => goto(`/app/course/${code}`)}
+									onclick={() => goto(`/app/course/${code}`)}
 								>
 									<CourseElement
 										{code}
@@ -470,8 +473,9 @@
 						>
 							{#snippet children({ code, course, scheduleError })}
 								<button
+									type="button"
 									class="rounded-[var(--radius-card)] text-start"
-									onmousedown={() => goto(`/app/course/${code}`)}
+									onclick={() => goto(`/app/course/${code}`)}
 								>
 									<CourseElement
 										{code}

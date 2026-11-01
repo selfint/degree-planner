@@ -19,6 +19,9 @@
 		--landing-glow: 76 169 161;
 		--radius-card: 0.375rem;
 		--control-height: 2.25rem;
+		/* Action colors are independent of decorative accent colors. */
+		--button-primary-background: 15 111 103;
+		--button-primary-content: 255 255 255;
 		--shadow-card: none;
 	}
 
@@ -88,8 +91,10 @@
 	}
 
 	.ui-button--primary {
-		background: rgb(var(--color-accent-primary));
-		color: rgb(var(--color-content-on-accent));
+		min-inline-size: var(--control-height);
+		padding-inline: 0.5rem;
+		background: rgb(var(--button-primary-background));
+		color: rgb(var(--button-primary-content));
 	}
 
 	.ui-button--secondary {
@@ -98,11 +103,12 @@
 		color: rgb(var(--color-content-primary));
 	}
 
-	.ui-button:not(:disabled):hover {
+	.ui-button:not(:disabled):not(:has(input:disabled)):hover {
 		box-shadow: 0 0 0 0.1875rem rgb(var(--color-accent-primary) / 0.14);
 	}
 
-	.ui-button:disabled {
+	.ui-button:disabled,
+	.ui-button:has(input:disabled) {
 		cursor: not-allowed;
 		opacity: 0.45;
 	}

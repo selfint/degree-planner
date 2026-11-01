@@ -177,6 +177,7 @@
 				>
 					{#each wishlist as course}
 						<button
+							type="button"
 							data-code={course}
 							dir={content.lang.dir}
 							class="shrink-0 rounded-[var(--radius-card)] text-start"
@@ -300,13 +301,7 @@
 		flex-shrink: 0;
 		white-space: nowrap;
 	}
-	.plan-share,
-	.plan-toolbar :global(.plan-action .ui-button--primary) {
-		min-inline-size: var(--control-height);
-		padding-inline: 0.5rem;
-		background: #0f6f67;
-		color: #fff;
-	}
+
 	.wishlist-rail > button {
 		display: flex;
 	}

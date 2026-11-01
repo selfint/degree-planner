@@ -97,6 +97,15 @@ async function expectCompactButtons(page: Page, buttons: Locator) {
 	expect(await buttons.count()).toBeGreaterThan(0);
 	for (const button of await buttons.all()) {
 		await button.scrollIntoViewIfNeeded();
+		if (
+			await button.evaluate((element) =>
+				element.classList.contains('ui-button--primary')
+			)
+		) {
+			await expect(button).toHaveCSS('background-color', 'rgb(15, 111, 103)');
+			await expect(button).toHaveCSS('color', 'rgb(255, 255, 255)');
+			await expect(button).toHaveCSS('padding-inline-start', '8px');
+		}
 		const box = await button.evaluate((element) => {
 			const bounds = element.getBoundingClientRect();
 			const style = getComputedStyle(element);

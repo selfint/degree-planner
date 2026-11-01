@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import Spinner from './Spinner.svelte';
+	import Button from './Button.svelte';
 
 	type Props = {
 		variant: 'primary' | 'secondary';
@@ -60,16 +61,16 @@
 	});
 </script>
 
-<button
-	type="button"
+<Button
+	{variant}
 	disabled={disabled || inProgress}
 	aria-busy={inProgress}
 	aria-describedby={ariaDescribedby}
-	class="ui-button relative ui-button--{variant}"
+	class="relative"
 	{onclick}
 >
 	<span class:opacity-0={inProgress}>{@render children()}</span>
 	{#if inProgress}
 		<span class="absolute h-4 w-4" aria-hidden="true"><Spinner /></span>
 	{/if}
-</button>
+</Button>

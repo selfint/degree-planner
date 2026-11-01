@@ -716,6 +716,11 @@ for (const width of [320, 390, 1180, 1440]) {
 				expect(keyboardEnd.rail.focused).toBe(true);
 				expect(Math.abs(keyboardEnd.rail.scrollLeft)).toBeGreaterThan(0);
 				const importButton = page.locator('.preview-actions button');
+				await expect(importButton).toHaveCSS(
+					'background-color',
+					'rgb(15, 111, 103)'
+				);
+				await expect(importButton).toHaveCSS('color', 'rgb(255, 255, 255)');
 				page.once('dialog', (dialog) => dialog.dismiss());
 				await importButton.click();
 				await expect(rail).toBeVisible();

@@ -101,6 +101,7 @@
 			{#each filteredResults as course (course.code)}
 				<li id={course.code} class="min-w-0">
 					<button
+						type="button"
 						class="search-result text-start"
 						class:opacity-60={!course.current}
 						onclick={() => goto(`/app/course/${course.code}`)}

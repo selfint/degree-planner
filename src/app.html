@@ -191,10 +191,14 @@
 			</div>
 		</section>
 		<script>
+			const appBase = '%sveltekit.assets%';
+			const appPath = location.pathname.startsWith(`${appBase}/`)
+				? location.pathname.slice(appBase.length)
+				: location.pathname;
 			if (
-				/^\/app(?:\/|$)/.test(location.pathname) ||
+				/^\/app(?:\/|$)/.test(appPath) ||
 				/^\/share\/[A-Za-z0-9_-]+\/[A-Za-z0-9_-]+\/[A-Za-z0-9_-]+\/?$/.test(
-					location.pathname
+					appPath
 				)
 			) {
 				const boot = document.getElementById('console-boot');

@@ -26,7 +26,7 @@ const html = {};
 for (const path of [
 	'/',
 	'/app/',
-	'/app/offline',
+	'/app/offline/',
 	'/app/plan',
 	'/app/course/02340124',
 	'/app/course/02340141'
@@ -36,7 +36,7 @@ for (const path of [
 	const prerendered = join(
 		directory,
 		'../prerendered/pages',
-		path === '/' ? 'index.html' : `${path.slice(1)}.html`
+		path.endsWith('/') ? `${path.slice(1)}index.html` : `${path.slice(1)}.html`
 	);
 	try {
 		html[path] = await readFile(prerendered, 'utf8');

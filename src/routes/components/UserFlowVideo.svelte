@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { withBase } from '$lib/deploymentPaths';
 	import { onMount } from 'svelte';
 	import { content } from '$lib/preferences.svelte';
 	import {
@@ -59,7 +60,7 @@
 	{#if recording && hydrated}
 		{#key recording.source}
 			<NativeVideo
-				source={recording.source}
+				source={withBase(recording.source)}
 				{title}
 				{language}
 				captions={language === 'he' ? 'תיאורים בעברית' : 'English descriptions'}

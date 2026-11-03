@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { withBase } from '$lib/deploymentPaths';
 	import Logo from '$lib/assets/logo.webp?enhanced';
 	import Title from '$lib/assets/Title.svg?raw';
 
@@ -47,7 +48,7 @@
 
 <header dir="ltr" class="title-bar" class:console={started}>
 	<a
-		href="/"
+		href={withBase('/')}
 		use:browserLink
 		data-sveltekit-reload
 		target="_blank"

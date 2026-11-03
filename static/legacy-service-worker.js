@@ -2,6 +2,7 @@
 // Registered only when replacing this app's former root worker, after the new
 // /app/ shell is verified. Never caches data, intercepts landing, claims clients,
 // or activates over an old tab with unsaved edits.
+const base = new URL('.', self.location.href).pathname.replace(/\/$/, '');
 self.addEventListener('fetch', (rawEvent) => {
 	const event =
 		/** @type {Event & {request: Request, respondWith(response: Promise<Response>): void}} */ (
@@ -12,13 +13,17 @@ self.addEventListener('fetch', (rawEvent) => {
 		event.request.method === 'GET' &&
 		event.request.mode === 'navigate' &&
 		url.origin === self.location.origin &&
+		url.pathname.startsWith(`${base}/`) &&
 		/^\/(?:plan|settings|catalog|semester|search|course|preview|offline)(?:\/|$)/.test(
-			url.pathname
+			url.pathname.slice(base.length)
 		)
 	) {
 		event.respondWith(
 			Promise.resolve(
-				Response.redirect(`${url.origin}/app${url.pathname}${url.search}`, 302)
+				Response.redirect(
+					`${url.origin}${base}/app${url.pathname.slice(base.length)}${url.search}`,
+					302
+				)
 			)
 		);
 	}

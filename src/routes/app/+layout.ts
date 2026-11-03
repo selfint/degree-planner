@@ -3,6 +3,9 @@ import { initFirebase } from '$lib/firebase.svelte';
 import { bootstrapOfflinePublicData } from '$lib/offlineData';
 import { reportConsoleLoading } from '$lib/consoleLoading';
 export const ssr = false;
+// Emit real HTML for fixed console routes while dynamic course/share routes
+// remain available through the static host's fallback.
+export const prerender = 'auto';
 let generation = 0;
 export const load: LayoutLoad = async () => {
 	let active = true;

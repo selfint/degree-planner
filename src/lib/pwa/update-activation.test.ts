@@ -70,3 +70,35 @@ describe('explicit worker activation', () => {
 		).rejects.toThrow();
 	});
 });
+
+it('accepts only this project’s clients and blocks another project tab in its scope', async () => {
+	const client = { id: 'a', url: 'https://plan.test/degree-planner/app/plan' };
+	const dependencies = {
+		origin: 'https://plan.test',
+		base: '/degree-planner',
+		version: 'v2',
+		clients: vi.fn(async () => [
+			client,
+			{ id: 'root', url: 'https://plan.test/app/plan' }
+		]),
+		prepare: vi.fn(async () => {}),
+		activate: vi.fn(async () => {})
+	};
+	expect(await activateIfSoleClient('v2', client, dependencies)).toBe(
+		'accepted'
+	);
+	expect(
+		await activateIfSoleClient(
+			'v2',
+			{ id: 'root', url: 'https://plan.test/app/plan' },
+			dependencies
+		)
+	).toBe('invalid');
+	dependencies.clients.mockResolvedValue([
+		client,
+		{ id: 'b', url: 'https://plan.test/degree-planner/app/offline' }
+	]);
+	expect(await activateIfSoleClient('v2', client, dependencies)).toBe(
+		'other-tabs'
+	);
+});

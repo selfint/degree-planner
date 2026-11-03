@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { withBase } from '$lib/deploymentPaths';
 	import './console-loading.css';
 	import { loadingText, type ConsoleLoadingState } from '$lib/consoleLoading';
 
@@ -26,14 +27,14 @@
 		<div class="console-loading__brand" aria-label="PlanIt">
 			<img
 				class="console-loading__logo"
-				src="/brand/planit-logo.webp"
+				src={withBase('/brand/planit-logo.webp')}
 				width="76"
 				height="76"
 				alt=""
 			/>
 			<img
 				class="console-loading__wordmark"
-				src="/brand/planit-wordmark.svg"
+				src={withBase('/brand/planit-wordmark.svg')}
 				width="144"
 				height="49"
 				alt="PlanIt"

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { withBase } from '$lib/deploymentPaths';
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import { updateSafety } from '$lib/pwa/update-safety';
@@ -54,7 +55,7 @@
 		}
 		urlParams.append('semesters', semesters);
 
-		const link = `/share/${year}/${faculty}/${degree}?${urlParams}`;
+		const link = withBase(`/share/${year}/${faculty}/${degree}?${urlParams}`);
 
 		return link;
 	});
@@ -181,7 +182,7 @@
 							data-code={course}
 							dir={content.lang.dir}
 							class="shrink-0 rounded-[var(--radius-card)] text-start"
-							onclick={() => goto(`/app/course/${course}`)}
+							onclick={() => goto(withBase(`/app/course/${course}`))}
 						>
 							<CourseElement
 								code={course}
@@ -215,7 +216,7 @@
 						index={semesterIndex}
 						{semester}
 						isCurrent={semesterIndex === user.d.currentSemester}
-						href={`/app/semester?c=${semesterIndex}`}
+						href={withBase(`/app/semester?c=${semesterIndex}`)}
 						sortable={{
 							group: 'semesters',
 							// Keep the touch preview outside transformed/clipped scrollers.
@@ -275,7 +276,7 @@
 								dir={content.lang.dir}
 							>
 								<CourseElement
-									onOpen={() => goto(`/app/course/${code}`)}
+									onOpen={() => goto(withBase(`/app/course/${code}`))}
 									{code}
 									{course}
 									squeeze={true}

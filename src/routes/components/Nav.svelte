@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { withBase } from '$lib/deploymentPaths';
 	import type { Snippet } from 'svelte';
 	import { page } from '$app/state';
 
@@ -10,12 +11,12 @@
 	let { target, children }: Props = $props();
 
 	const active = $derived(
-		'/app/' + target === page.url.pathname.replace(/\/$/, '')
+		withBase('/app/' + target) === page.url.pathname.replace(/\/$/, '')
 	);
 </script>
 
 <a
-	href="/app/{target}"
+	href={withBase(`/app/${target}`)}
 	class="nav-link"
 	class:active
 	aria-current={active ? 'page' : undefined}

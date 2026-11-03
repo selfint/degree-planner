@@ -20,6 +20,7 @@ import { resolve } from 'node:path';
 import { runInNewContext } from 'node:vm';
 import { IDBFactory } from 'fake-indexeddb';
 import { describe, expect, it, vi } from 'vitest';
+vi.mock('$app/paths', () => ({ base: '' }));
 import {
 	createPublicDataRepository,
 	PUBLIC_DATA_SCHEMA_VERSION
@@ -34,7 +35,7 @@ const bundlePath = resolve('.svelte-kit/output/client/service-worker.js');
 // Fail loudly if no production build is present; never silently skip this gate.
 const bundle = readFileSync(bundlePath, 'utf8');
 const offlineHtml = readFileSync(
-	resolve('.svelte-kit/output/prerendered/pages/app/offline.html'),
+	resolve('.svelte-kit/output/prerendered/pages/app/offline/index.html'),
 	'utf8'
 );
 const { version: appVersion } = JSON.parse(
@@ -106,7 +107,7 @@ function shellResponse(html = offlineHtml, init: ResponseInit = {}) {
 
 async function shellNetwork(request: Request) {
 	const pathname = new URL(request.url).pathname;
-	return pathname === '/app/offline'
+	return pathname === '/app/offline/'
 		? shellResponse()
 		: new Response(`network:${pathname}`);
 }
@@ -323,7 +324,7 @@ describe('production SW + real public repository ownership boundary (VM)', () =>
 		const paths = sw.network.mock.calls.map(
 			([request]) => new URL(request.url).pathname
 		);
-		expect(paths).toContain('/app/offline');
+		expect(paths).toContain('/app/offline/');
 		expect(paths.some((path) => path.startsWith('/_app/immutable/'))).toBe(
 			true
 		);
@@ -517,7 +518,7 @@ describe('production SW shell/privacy/lifecycle guards (VM)', () => {
 			new Response('old shared chunk')
 		);
 		await retained.put(
-			'/app/offline',
+			'/app/offline/',
 			new Response('obsolete HTML must not render')
 		);
 		const unrelated = await sw.caches.open('other-product-cache');
@@ -579,7 +580,7 @@ describe('production SW shell/privacy/lifecycle guards (VM)', () => {
 			)!;
 			await (
 				await sw.caches.open('planit-console-shell-obsolete-test')
-			).put('/app/offline', new Response('old shell'));
+			).put('/app/offline/', new Response('old shell'));
 			await (
 				await sw.caches.open('unrelated-cache')
 			).put('/sentinel', new Response('keep me'));
@@ -620,7 +621,9 @@ describe('production SW shell readiness and repair handshake (VM)', () => {
 		expect(shellEntryPaths.length).toBeGreaterThanOrEqual(2);
 		for (const entry of shellEntryPaths)
 			expect(await cache.match(entry)).toBeDefined();
-		expect(await (await cache.match('/app/offline'))!.text()).toBe(offlineHtml);
+		expect(await (await cache.match('/app/offline/'))!.text()).toBe(
+			offlineHtml
+		);
 		sw.network.mockClear();
 		sw.network.mockRejectedValue(new TypeError('offline'));
 		expect(await shellStatus(sw)).toEqual({
@@ -688,7 +691,9 @@ describe('production SW shell readiness and repair handshake (VM)', () => {
 		});
 		expect(sw.network).toHaveBeenCalledOnce();
 		expect(await cache.match(lazyAsset)).toBeUndefined();
-		expect(await (await cache.match('/app/offline'))!.text()).toBe(offlineHtml);
+		expect(await (await cache.match('/app/offline/'))!.text()).toBe(
+			offlineHtml
+		);
 		sw.network.mockClear();
 		sw.network.mockImplementation(shellNetwork);
 		expect(await shellStatus(sw)).toMatchObject({ status: 'ready' });
@@ -809,7 +814,7 @@ describe('production SW shell readiness and repair handshake (VM)', () => {
 		async ({ response }) => {
 			const sw = harness();
 			const { cache, lazyAsset } = await installedShell(sw);
-			await cache.delete('/app/offline');
+			await cache.delete('/app/offline/');
 			sw.network.mockClear();
 			sw.network.mockImplementation(async () => response());
 			expect(await shellStatus(sw)).toMatchObject({
@@ -818,14 +823,14 @@ describe('production SW shell readiness and repair handshake (VM)', () => {
 			});
 			expect(sw.network).toHaveBeenCalledOnce();
 			expect(new URL(sw.network.mock.calls[0][0].url).pathname).toBe(
-				'/app/offline'
+				'/app/offline/'
 			);
-			expect(await cache.match('/app/offline')).toBeUndefined();
+			expect(await cache.match('/app/offline/')).toBeUndefined();
 			expect(await cache.match(lazyAsset)).toBeDefined();
 			// A rejected repair must not leave a permanently rejected preparation promise.
 			sw.network.mockImplementation(shellNetwork);
 			expect(await shellStatus(sw)).toMatchObject({ status: 'ready' });
-			expect(await (await cache.match('/app/offline'))!.text()).toBe(
+			expect(await (await cache.match('/app/offline/'))!.text()).toBe(
 				offlineHtml
 			);
 			expect(sw.skipWaiting).not.toHaveBeenCalled();
@@ -1025,7 +1030,7 @@ describe('two actual production worker versions sharing CacheStorage (VM)', () =
 			).put('/sentinel', new Response('unchanged'));
 			const current = harness(factory, { entries: old.entries });
 			current.network.mockImplementation(async (request) =>
-				new URL(request.url).pathname === '/app/offline'
+				new URL(request.url).pathname === '/app/offline/'
 					? shellResponse()
 					: new Response(`new:${new URL(request.url).pathname}`)
 			);
@@ -1124,16 +1129,18 @@ describe('production installed-document version coherence (VM)', () => {
 	it('repairs an evicted navigation shell only from a verified same-build response', async () => {
 		const sw = harness();
 		const { cache } = await installedShell(sw);
-		await cache.delete('/app/offline');
+		await cache.delete('/app/offline/');
 		sw.network.mockClear();
 		const response = await sw.dispatch('fetch', {
 			request: navigation('/app/plan')
 		}).response;
 		expect(await response!.text()).toBe(offlineHtml);
-		expect(await (await cache.match('/app/offline'))!.text()).toBe(offlineHtml);
+		expect(await (await cache.match('/app/offline/'))!.text()).toBe(
+			offlineHtml
+		);
 		expect(sw.network).toHaveBeenCalledOnce();
 		expect(new URL(sw.network.mock.calls[0][0].url).pathname).toBe(
-			'/app/offline'
+			'/app/offline/'
 		);
 	});
 	it.each(['accepted', 'other-tabs'] as const)(
@@ -1141,7 +1148,7 @@ describe('production installed-document version coherence (VM)', () => {
 		async (activationStatus) => {
 			const sw = harness();
 			const { cache } = await installedShell(sw);
-			await cache.delete('/app/offline');
+			await cache.delete('/app/offline/');
 			sw.network.mockResolvedValue(
 				shellResponse('different deployment entry points')
 			);
@@ -1151,7 +1158,7 @@ describe('production installed-document version coherence (VM)', () => {
 			expect(response!.status).toBe(503);
 			const html = await response!.text();
 			expect(html).not.toContain('different deployment entry points');
-			expect(await cache.match('/app/offline')).toBeUndefined();
+			expect(await cache.match('/app/offline/')).toBeUndefined();
 			const script = html.match(/<script>([\s\S]*?)<\/script>/)?.[1];
 			expect(script).toBeDefined();
 			let click!: () => Promise<void>;

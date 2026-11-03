@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { withBase } from '$lib/deploymentPaths';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 
@@ -309,7 +310,7 @@
 			{semester}
 			{disabled}
 			isCurrent={currentSemester === user.d.currentSemester}
-			href={'/app/plan'}
+			href={withBase('/app/plan')}
 		>
 			{#snippet children({ code, course })}
 				<button
@@ -438,7 +439,7 @@
 								<button
 									type="button"
 									class="rounded-[var(--radius-card)] text-start"
-									onclick={() => goto(`/app/course/${code}`)}
+									onclick={() => goto(withBase(`/app/course/${code}`))}
 								>
 									<CourseElement
 										{code}
@@ -475,7 +476,7 @@
 								<button
 									type="button"
 									class="rounded-[var(--radius-card)] text-start"
-									onclick={() => goto(`/app/course/${code}`)}
+									onclick={() => goto(withBase(`/app/course/${code}`))}
 								>
 									<CourseElement
 										{code}

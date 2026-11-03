@@ -70,6 +70,25 @@ describe('Storybook deployment', () => {
 		}
 	});
 
+	it('copies Storybook into the Pages artifact, not only the Kit client output', async () => {
+		const root = await fixture();
+		await mkdir(join(root, 'build'));
+		const run = vi.fn((_node, args) => {
+			const output = args[args.indexOf('--output-dir') + 1];
+			mkdirSync(output, { recursive: true });
+			writeFileSync(join(output, 'index.html'), 'Storybook manager');
+			writeFileSync(join(output, 'iframe.html'), 'Storybook preview');
+			return { status: 0 };
+		});
+		await buildStorybook({ root, env: { PAGES_BUILD: 'true' }, run });
+		expect(
+			await readFile(join(root, 'build/storybook/index.html'), 'utf8')
+		).toBe('Storybook manager');
+		expect(
+			await readFile(join(root, 'build/storybook/iframe.html'), 'utf8')
+		).toBe('Storybook preview');
+	});
+
 	it('fails the deployment when Storybook fails instead of publishing an empty route', async () => {
 		const root = await fixture();
 		await expect(

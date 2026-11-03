@@ -21,6 +21,8 @@ type Decrement<N extends number> = N extends 3 ? 2 : N extends 2 ? 1 : 0;
 // for information about these interfaces
 declare global {
 	const __PLANIT_BUILD_SHA__: string | null;
+	const __PLANIT_STATIC_BUILD__: boolean;
+	const __PLANIT_STORYBOOK_ENABLED__: boolean;
 	namespace App {
 		// interface Error {}
 		// interface Locals {}

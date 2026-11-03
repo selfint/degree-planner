@@ -8,7 +8,7 @@
 	"scripts": {
 		"dev": "vite dev",
 		"generate-catalogs": "node scripts/validateCatalogData.mjs && node scripts/generateCoursesStatic.mjs && node scripts/generateCourseDataStripped.mjs",
-		"build": "npm run generate-catalogs && vite build && node scripts/buildStorybook.mjs",
+		"build": "npm run generate-catalogs && vite build && node scripts/finalizePages.mjs && node scripts/buildStorybook.mjs",
 		"preview": "vite preview",
 		"start-firebase-emulators": "firebase emulators:start",
 		"test": "npm run test:integration && npm run test:unit -- --run && npm run test:sap",
@@ -26,12 +26,14 @@
 		"storybook": "storybook dev -p 6006 --disable-telemetry",
 		"build-storybook": "storybook build --disable-telemetry",
 		"test:storybook": "playwright test --config playwright.storybook.config.ts",
-		"test:sap": "vitest run --config vitest.sap.config.ts"
+		"test:sap": "vitest run --config vitest.sap.config.ts",
+		"build:pages": "PAGES_BUILD=true npm run build"
 	},
 	"devDependencies": {
 		"@playwright/test": "^1.57.0",
 		"@storybook/sveltekit": "10.6.2",
 		"@sveltejs/adapter-auto": "^7.0.0",
+		"@sveltejs/adapter-static": "^3.0.10",
 		"@sveltejs/enhanced-img": "^0.9.2",
 		"@sveltejs/kit": "^2.49.5",
 		"@sveltejs/vite-plugin-svelte": "^6.2.4",

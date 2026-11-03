@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { withBase } from '$lib/deploymentPaths';
 	import { onMount } from 'svelte';
 	import { updateSafety } from '$lib/pwa/update-safety';
 	import { isPlanWritable, planOnline } from '$lib/planAccess';
@@ -51,7 +52,7 @@
 			})
 		);
 
-		await goto('/app/plan');
+		await goto(withBase('/app/plan'));
 	}
 
 	async function onCancel() {

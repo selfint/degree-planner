@@ -19,6 +19,7 @@
 	import { onMount } from 'svelte';
 	import { afterNavigate } from '$app/navigation';
 	import { version } from '$app/environment';
+	import { base } from '$app/paths';
 	import {
 		subscribeOfflinePublicData,
 		prepareOfflinePublicData,
@@ -108,7 +109,7 @@
 					location.href
 				);
 				if (
-					registration?.scope !== `${location.origin}/app/` ||
+					registration?.scope !== `${location.origin}${base}/app/` ||
 					registration.active !== controller
 				)
 					return;
@@ -121,12 +122,13 @@
 					)
 						return;
 					if (
-						old.scope === `${location.origin}/` &&
-						old.active?.scriptURL === `${location.origin}/service-worker.js`
+						old.scope === `${location.origin}${base}/` &&
+						old.active?.scriptURL ===
+							`${location.origin}${base}/service-worker.js`
 					) {
 						await navigator.serviceWorker.register(
-							'/legacy-service-worker.js',
-							{ scope: '/', updateViaCache: 'none' }
+							`${base}/legacy-service-worker.js`,
+							{ scope: `${base}/`, updateViaCache: 'none' }
 						);
 					}
 				}
@@ -200,7 +202,9 @@
 		// without activating a waiting worker or replacing the current document.
 		let registering = false;
 		let currentRegistration: ServiceWorkerRegistration | undefined;
-		const updateChecks = createUpdateCheckScheduler(() => currentRegistration);
+		const updateChecks = createUpdateCheckScheduler(() => currentRegistration, {
+			base
+		});
 		const entryUpdate = createEntryUpdate({
 			currentVersion: version,
 			finished: () => {
@@ -340,22 +344,27 @@
 			}
 			registering = true;
 			try {
-				const existing = await navigator.serviceWorker.getRegistration('/app/');
+				const existing = await navigator.serviceWorker.getRegistration(
+					`${base}/app/`
+				);
 				const registration =
-					existing && isAppUpdateRegistration(existing, location.origin)
+					existing && isAppUpdateRegistration(existing, location.origin, base)
 						? existing
 						: navigator.onLine
-							? await navigator.serviceWorker.register('/service-worker.js', {
-									scope: '/app/',
-									updateViaCache: 'none'
-								})
+							? await navigator.serviceWorker.register(
+									`${base}/service-worker.js`,
+									{
+										scope: `${base}/app/`,
+										updateViaCache: 'none'
+									}
+								)
 							: existing;
 				if (disposed) return;
 				if (!registration)
 					throw new Error(
 						'The browser did not return an offline app registration. Allow service workers, then retry.'
 					);
-				if (!isAppUpdateRegistration(registration, location.origin))
+				if (!isAppUpdateRegistration(registration, location.origin, base))
 					throw new Error(
 						'The offline app registration has an unexpected scope or script.'
 					);

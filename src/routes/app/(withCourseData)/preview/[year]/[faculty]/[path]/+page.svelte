@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { withBase } from '$lib/deploymentPaths';
 	import { goto } from '$app/navigation';
 
 	import CourseElement from '$lib/components/CourseElement.svelte';
@@ -50,7 +51,7 @@
 		);
 
 		// Persist above before entering /app/ with a controlled document.
-		await navigateFromBrowserShare('/app/plan', goto);
+		await navigateFromBrowserShare(withBase('/app/plan'), goto);
 	}
 
 	function getDegreeName(degree: Degree, userPath?: string): Promise<string> {
@@ -95,7 +96,7 @@
 				{content.lang.lang === 'he'
 					? 'בחרו ושמרו סמסטר נוכחי תקין ב'
 					: 'Choose and save a valid current semester in'}
-				<a href="/app/settings" class="underline"
+				<a href={withBase('/app/settings')} class="underline"
 					>{content.lang.landing.settings.header}</a
 				>.
 				{content.lang.lang === 'he'
@@ -125,7 +126,7 @@
 						isCurrent={false}
 					>
 						{#snippet children({ code, course })}
-							<a class="preview-course" href={`/app/course/${code}`}>
+							<a class="preview-course" href={withBase(`/app/course/${code}`)}>
 								<CourseElement {code} {course} squeeze={true} />
 							</a>
 						{/snippet}

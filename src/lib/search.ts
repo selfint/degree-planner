@@ -1,3 +1,4 @@
+import { withBase } from './deploymentPaths';
 export const searchFilterKeys = [
 	'available',
 	'faculty',
@@ -199,8 +200,9 @@ export function matchesSearchFilters(
 }
 
 export function createSearchUrl(currentUrl: URL, query: string): URL {
-	const url = new URL('/app/search', currentUrl);
-	if (currentUrl.pathname === '/app/search') url.search = currentUrl.search;
+	const url = new URL(withBase('/app/search'), currentUrl);
+	if (currentUrl.pathname === withBase('/app/search'))
+		url.search = currentUrl.search;
 	url.searchParams.set('q', query);
 	return url;
 }

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { withBase } from '$lib/deploymentPaths';
 	import {
 		afterNavigate,
 		beforeNavigate,
@@ -58,7 +59,7 @@
 	import PwaUpdateBanner from '$lib/components/PwaUpdateBanner.svelte';
 	import { offlineShellStatus } from '$lib/pwa/status';
 	// Browser share previews reuse this layout outside the worker's scope.
-	const inPwaScope = $derived(page.url.pathname.startsWith('/app/'));
+	const inPwaScope = $derived(page.url.pathname.startsWith(withBase('/app/')));
 	import {
 		buildFirebaseStorage,
 		subscribeFirebase,
@@ -180,7 +181,7 @@
 </script>
 
 <svelte:head>
-	<link rel="manifest" href="/manifest.webmanifest" />
+	<link rel="manifest" href={withBase('/manifest.webmanifest')} />
 	<meta name="apple-mobile-web-app-capable" content="yes" />
 	<meta name="apple-mobile-web-app-title" content="PlanIt" />
 </svelte:head>
@@ -210,7 +211,7 @@
 	<div class="w-full border-b border-border bg-background">
 		<TitleBar
 			started={true}
-			searchQuery={searchNavigation.url.pathname === '/app/search'
+			searchQuery={searchNavigation.url.pathname === withBase('/app/search')
 				? (searchNavigation.url.searchParams.get('q') ?? '')
 				: ''}
 			searchRevision={searchNavigation.externalRevision}

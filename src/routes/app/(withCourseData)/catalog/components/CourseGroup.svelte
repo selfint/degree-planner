@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { withBase } from '$lib/deploymentPaths';
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import LoadingCourseElement from '$lib/components/LoadingCourseElement.svelte';
 	import CourseRow from '$lib/components/CourseRow.svelte';
@@ -109,7 +110,7 @@
 				{:else}
 					<CourseRow {getCourseData} courses={group} indent={0}>
 						{#snippet children({ code, course })}
-							<a href={`/app/course/${code}`}>
+							<a href={withBase(`/app/course/${code}`)}>
 								<CourseElement {code} {course}>
 									{#snippet note(course)}
 										{@const index = getCourseSemester(course)}

@@ -1,16 +1,18 @@
+import { withBase, withoutBase } from './deploymentPaths';
 const browserSharePath =
 	/^\/share\/[A-Za-z0-9_-]+\/[A-Za-z0-9_-]+\/[A-Za-z0-9_-]+\/?$/;
 
 /** Reuse the existing preview without redirecting its browser URL into PWA scope. */
 export function browserShareDestination(pathname: string): string | undefined {
-	return browserSharePath.test(pathname)
-		? pathname.replace(/^\/share\//, '/app/preview/')
+	const route = withoutBase(pathname);
+	return browserSharePath.test(route)
+		? withBase(route.replace(/^\/share\//, '/app/preview/'))
 		: undefined;
 }
 
 /** Shared previews retain the same shell and account-readiness gates. */
 export function consolePathname(pathname: string): string {
-	return browserShareDestination(pathname) ?? pathname;
+	return withoutBase(browserShareDestination(pathname) ?? pathname);
 }
 
 /** Enter service-worker scope with a new document, never an uncontrolled SPA page. */
@@ -23,7 +25,7 @@ export async function navigateFromBrowserShare(
 		if (
 			browserShareDestination(window.location.pathname) &&
 			next.origin === window.location.origin &&
-			/^\/app(?:\/|$)/.test(next.pathname)
+			/^\/app(?:\/|$)/.test(withoutBase(next.pathname))
 		) {
 			window.location.assign(next.href);
 			return;

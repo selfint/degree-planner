@@ -2,14 +2,17 @@ import { readFileSync } from 'node:fs';
 import { runInNewContext } from 'node:vm';
 import { describe, expect, it } from 'vitest';
 const source = readFileSync('static/legacy-service-worker.js', 'utf8');
-function dispatch(path: string, mode = 'navigate', method = 'GET') {
+function dispatch(path: string, mode = 'navigate', method = 'GET', base = '') {
 	let listener: (event: unknown) => void = () => {};
 	let response: Promise<Response> | undefined;
 	runInNewContext(source, {
 		URL,
 		Response,
 		self: {
-			location: { origin: 'https://example.test' },
+			location: {
+				origin: 'https://example.test',
+				href: `https://example.test${base}/legacy-service-worker.js`
+			},
 			addEventListener: (_: string, callback: typeof listener) => {
 				listener = callback;
 			}
@@ -50,4 +53,25 @@ describe('legacy installed launch bridge', () => {
 		expect(source).not.toContain('clients.claim(');
 		expect(source).not.toContain('caches.');
 	});
+});
+
+it('isolates the legacy bridge to its deployment prefix', async () => {
+	const response = await dispatch(
+		'/degree-planner/plan?q=1',
+		'navigate',
+		'GET',
+		'/degree-planner'
+	);
+	expect(response?.headers.get('location')).toBe(
+		'https://example.test/degree-planner/app/plan?q=1'
+	);
+	for (const path of [
+		'/plan',
+		'/other/plan',
+		'/degree-planner-other/plan',
+		'/degree-planner/app/plan'
+	])
+		expect(
+			dispatch(path, 'navigate', 'GET', '/degree-planner')
+		).toBeUndefined();
 });

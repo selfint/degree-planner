@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { withBase } from '$lib/deploymentPaths';
 	import { page } from '$app/state';
 	import { getContext } from 'svelte';
 	import { PERSONAL_PLAN_READY } from '$lib/pwa/plan-visibility';
@@ -379,7 +380,7 @@
 							{/if}
 							<div class="course-dependency-group">
 								{#each group as code}
-									<a href={`/app/course/${code}`}>
+									<a href={withBase(`/app/course/${code}`)}>
 										<CourseElement {code} course={getCourseData(code)}>
 											{#snippet note()}
 												{@const index = getCourseSemester(code)}
@@ -424,7 +425,7 @@
 							courses={course.connections?.adjacent ?? []}
 						>
 							{#snippet children({ code, course })}
-								<a href={`/app/course/${code}`}>
+								<a href={withBase(`/app/course/${code}`)}>
 									<CourseElement {code} {course}>
 										{#snippet note()}
 											{@const index = getCourseSemester(code)}
@@ -467,7 +468,7 @@
 						courses={course.connections?.exclusive ?? []}
 					>
 						{#snippet children({ code, course })}
-							<a href={`/app/course/${code}`}>
+							<a href={withBase(`/app/course/${code}`)}>
 								<CourseElement {code} {course}>
 									{#snippet note()}
 										{@const index = getCourseSemester(code)}
@@ -506,7 +507,7 @@
 						</h2>
 						<div class="course-dependants course-inset flex flex-wrap gap-2">
 							{#each dependants as course}
-								<a href={`/app/course/${course.code}`}>
+								<a href={withBase(`/app/course/${course.code}`)}>
 									<CourseElement code={course.code} {course}>
 										{#snippet note()}
 											{@const index = getCourseSemester(course.code)}

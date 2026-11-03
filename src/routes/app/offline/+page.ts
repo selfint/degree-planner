@@ -2,3 +2,4 @@
 // when the service worker serves this HTML for an offline navigation.
 export const ssr = false;
 export const prerender = true;
+export const trailingSlash = 'always';

@@ -46,6 +46,7 @@ const createRegistration = new Function(
 	'production',
 	'updateChecks',
 	'isAppUpdateRegistration',
+	'base',
 	transpileModule(
 		`
 		let disposed = false;
@@ -78,7 +79,8 @@ const createRegistration = new Function(
 	clearTimer: (...args: unknown[]) => void,
 	production: boolean,
 	updateChecks: { refresh: () => void },
-	validate: typeof isAppUpdateRegistration
+	validate: typeof isAppUpdateRegistration,
+	base: string
 ) => {
 	register: () => Promise<void>;
 	dispose: () => void;
@@ -87,7 +89,7 @@ const createRegistration = new Function(
 	cleanup: () => void;
 };
 
-function harness() {
+function harness(base = '') {
 	const serviceWorker = {
 		register: vi.fn(),
 		getRegistration: vi.fn().mockResolvedValue(undefined),
@@ -111,7 +113,8 @@ function harness() {
 		clearTimer,
 		true,
 		updateChecks,
-		isAppUpdateRegistration
+		isAppUpdateRegistration,
+		base
 	);
 	return {
 		serviceWorker,
@@ -243,4 +246,26 @@ it('reuses the exact existing app registration without a network registration, e
 	await h.lifecycle.register();
 	expect(h.serviceWorker.register).not.toHaveBeenCalled();
 	expect(h.lifecycle.current()).toBe(existing);
+});
+
+it('registers a worker and scope under the project prefix', async () => {
+	const h = harness('/degree-planner');
+	const registration = {
+		scope: 'https://planit.test/degree-planner/app/',
+		active: null,
+		waiting: null,
+		installing: null,
+		addEventListener: vi.fn(),
+		removeEventListener: vi.fn()
+	};
+	h.serviceWorker.register.mockResolvedValue(registration);
+	await h.lifecycle.register();
+	expect(h.serviceWorker.getRegistration).toHaveBeenCalledWith(
+		'/degree-planner/app/'
+	);
+	expect(h.serviceWorker.register).toHaveBeenCalledWith(
+		'/degree-planner/service-worker.js',
+		{ scope: '/degree-planner/app/', updateViaCache: 'none' }
+	);
+	expect(h.lifecycle.current()).toBe(registration);
 });

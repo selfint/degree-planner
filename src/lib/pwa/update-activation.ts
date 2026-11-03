@@ -1,3 +1,4 @@
+import { isAppNavigation } from './cache-policy';
 type ClientIdentity = { id: string; url: string };
 export type ActivationStatus = 'accepted' | 'other-tabs' | 'invalid' | 'failed';
 
@@ -9,6 +10,7 @@ export async function activateIfSoleClient(
 	source: ClientIdentity | undefined,
 	dependencies: {
 		origin: string;
+		base?: string;
 		version: string;
 		clients: () => Promise<ClientIdentity[]>;
 		prepare: () => Promise<void>;
@@ -19,7 +21,7 @@ export async function activateIfSoleClient(
 		const url = new URL(client.url);
 		return (
 			url.origin === dependencies.origin &&
-			(url.pathname === '/app' || url.pathname.startsWith('/app/'))
+			isAppNavigation(url.pathname, dependencies.base)
 		);
 	};
 	if (requestedVersion !== dependencies.version || !source || !isApp(source))

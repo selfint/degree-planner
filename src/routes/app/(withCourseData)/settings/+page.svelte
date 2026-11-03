@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { withBase } from '$lib/deploymentPaths';
 	import { user, content, writeStorage, setUser } from '$lib/stores.svelte';
 
 	import DegreeSection from './components/DegreeSection.svelte';
@@ -158,7 +159,7 @@
 			<h2 class="section-title">{content.lang.settings.exemptions}</h2>
 			<CourseRow {getCourseData} courses={user.d.exemptions}>
 				{#snippet children({ code, course })}
-					<a class="block" href={`/app/course/${code}`}>
+					<a class="block" href={withBase(`/app/course/${code}`)}>
 						<CourseElement {code} {course} />
 					</a>
 				{/snippet}

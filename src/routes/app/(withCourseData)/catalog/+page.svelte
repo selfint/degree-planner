@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { withBase } from '$lib/deploymentPaths';
 	import { user, content, requirement, degreeName } from '$lib/stores.svelte';
 	import { getDegreeRequirementCourses } from '$lib/requirements';
 	import CourseRow from '$lib/components/CourseRow.svelte';
@@ -148,7 +149,7 @@
 		</section>
 	{:else}
 		<div class="catalog-empty catalog-empty-degree catalog-inset">
-			<a class="ui-button ui-button--secondary" href="/app/settings"
+			<a class="ui-button ui-button--secondary" href={withBase('/app/settings')}
 				>{content.lang.settings.selectDegree}</a
 			>
 		</div>
@@ -161,7 +162,7 @@
 			</h2>
 			<CourseRow {getCourseData} courses={user.d.wishlist} indent={1}>
 				{#snippet children({ code, course, index })}
-					<a href={`/app/course/${code}`}>
+					<a href={withBase(`/app/course/${code}`)}>
 						<CourseElement
 							{code}
 							{course}
@@ -237,7 +238,7 @@
 						</div>
 						<CourseRow {getCourseData} courses={list.courses} indent={1}>
 							{#snippet children({ code, course, index })}
-								<a href={`/app/course/${code}`}>
+								<a href={withBase(`/app/course/${code}`)}>
 									<CourseElement {code} {course} {index}>
 										{#snippet note(course)}
 											{@render courseNote(course)}

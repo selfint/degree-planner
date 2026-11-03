@@ -5,12 +5,14 @@ import {
 
 export function isAppUpdateRegistration(
 	registration: ServiceWorkerRegistration,
-	origin: string
+	origin: string,
+	base = ''
 ) {
 	return (
-		registration.scope === `${origin}/app/` &&
+		registration.scope === `${origin}${base}/app/` &&
 		[registration.active, registration.waiting, registration.installing].every(
-			(worker) => !worker || worker.scriptURL === `${origin}/service-worker.js`
+			(worker) =>
+				!worker || worker.scriptURL === `${origin}${base}/service-worker.js`
 		)
 	);
 }

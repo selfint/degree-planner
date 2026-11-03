@@ -1,3 +1,4 @@
+import { withBase } from './deploymentPaths';
 import type { DataLoadingProgress } from './consoleLoading';
 import {
 	createIndexedDbStore,
@@ -199,13 +200,16 @@ export function createPublicDataRepository({
 				const response = await Promise.race([
 					// Older installed workers ignore query URLs, avoiding their stale
 					// CacheStorage fallback while a shell-only update waits safely.
-					fetcher(bypassServiceWorker() ? `${key}?__planit_idb=1` : key, {
-						headers,
-						signal: controller.signal,
-						cache: 'no-cache',
-						credentials: 'omit',
-						redirect: 'error'
-					}),
+					fetcher(
+						withBase(bypassServiceWorker() ? `${key}?__planit_idb=1` : key),
+						{
+							headers,
+							signal: controller.signal,
+							cache: 'no-cache',
+							credentials: 'omit',
+							redirect: 'error'
+						}
+					),
 					timeout
 				]);
 				if (

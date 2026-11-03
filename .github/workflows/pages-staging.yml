@@ -1,0 +1,88 @@
+name: Pages staging
+
+on:
+  push:
+    branches: ['feat/github-pages-staging']
+  workflow_dispatch:
+    inputs:
+      deploy:
+        description: 'Publish to the existing repository Pages site (replaces its current content)'
+        type: boolean
+        default: false
+      expected_url:
+        description: 'Exact approved Pages URL; required for publication'
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        base: ['', '/degree-planner']
+    env:
+      PAGES_BUILD: 'true'
+      BASE_PATH: ${{ matrix.base }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run build:pages
+      - run: npx playwright install --with-deps chromium
+      - name: Test the actual static artifact (no SSR server)
+        run: npx playwright test --config playwright.pages.config.ts
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: pages-qa-${{ strategy.job-index }}
+          path: test-results/
+
+  # Never runs automatically. A branch build is not a separate Pages site.
+  # The repository already has Pages, so publication requires an approved URL.
+  deploy:
+    if: github.event_name == 'workflow_dispatch' && inputs.deploy && inputs.expected_url != ''
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    concurrency:
+      group: pages-staging-publish
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - uses: actions/configure-pages@v5
+        id: pages
+      - name: Refuse publication to an unapproved existing site
+        env:
+          ACTUAL_URL: ${{ steps.pages.outputs.base_url }}
+          EXPECTED_URL: ${{ inputs.expected_url }}
+        run: |
+          test "${ACTUAL_URL%/}" = "${EXPECTED_URL%/}" || {
+            echo 'The configured Pages destination differs from the approved URL.'
+            exit 1
+          }
+      - run: npm ci
+      - run: npm run build:pages
+        env:
+          BASE_PATH: ${{ steps.pages.outputs.base_path }}
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: build
+      - uses: actions/deploy-pages@v4
+        id: deployment

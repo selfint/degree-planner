@@ -45,3 +45,23 @@ it('only permits immutable app file paths for retained-version fallback', () => 
 	])
 		expect(isImmutableAppAsset(path)).toBe(false);
 });
+
+it('isolates console navigation and immutable assets to a project base', () => {
+	const base = '/degree-planner';
+	expect(isAppNavigation(`${base}/app`, base)).toBe(true);
+	expect(isAppNavigation(`${base}/app/plan`, base)).toBe(true);
+	expect(
+		isImmutableAppAsset(`${base}/_app/immutable/chunks/test.js`, base)
+	).toBe(true);
+	for (const path of [
+		'/app/plan',
+		'/other/app/plan',
+		'/degree-planner-other/app/plan'
+	])
+		expect(isAppNavigation(path, base)).toBe(false);
+	for (const path of [
+		'/_app/immutable/chunks/test.js',
+		'/degree-planner-other/_app/immutable/chunks/test.js'
+	])
+		expect(isImmutableAppAsset(path, base)).toBe(false);
+});

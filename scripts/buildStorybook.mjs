@@ -16,7 +16,8 @@ export async function buildStorybook({
 	const output = resolve(root, 'storybook-static');
 	const destinations = [
 		'.svelte-kit/output/client',
-		'.vercel/output/static'
+		'.vercel/output/static',
+		...(env.PAGES_BUILD === 'true' ? ['build'] : [])
 	].map((path) => resolve(root, path));
 	// Clean reused workspaces too, so a production build cannot retain preview output.
 	await Promise.all(

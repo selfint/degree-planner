@@ -13,7 +13,8 @@ export const BUILD_CONFIG_FILES = [
 	'tailwind.config.js',
 	'postcss.config.js',
 	'tsconfig.json',
-	'scripts/buildIdentity.mjs'
+	'scripts/buildIdentity.mjs',
+	'scripts/finalizePages.mjs'
 ];
 const SHELL_STATIC_FILES = [
 	'manifest.webmanifest',
@@ -43,12 +44,14 @@ export function isBuildInputPath(path) {
 /** The version describes reproducible build inputs, never build time or a
  * deployment ID. A commit is provenance, not sufficient cache identity.
  * @param {{ files: Iterable<[string, string | Uint8Array]>, commit?: string | null,
- * mode?: string, nodeVersion?: string, platform?: string, arch?: string }} options
+ * mode?: string, basePath?: string, staticBuild?: boolean, nodeVersion?: string, platform?: string, arch?: string }} options
  */
 export function computeBuildIdentity({
 	files,
 	commit = null,
 	mode = 'production',
+	basePath = '',
+	staticBuild = false,
 	nodeVersion = process.version,
 	platform = process.platform,
 	arch = process.arch
@@ -63,8 +66,11 @@ export function computeBuildIdentity({
 		hash.update(body);
 	};
 	// No runtime secrets or unused PUBLIC_/VITE_ environment variables are read.
-	// The only current environment-dependent app branch is import.meta.env.PROD.
-	add('toolchain', JSON.stringify({ mode, nodeVersion, platform, arch }));
+	// Include explicit public build settings, never the full environment.
+	add(
+		'toolchain',
+		JSON.stringify({ mode, basePath, staticBuild, nodeVersion, platform, arch })
+	);
 	for (const [path, bytes] of [...files]
 		.filter(([path]) => isBuildInputPath(path))
 		.sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))) {
@@ -111,6 +117,8 @@ export function readBuildIdentity(directory = root, env = process.env) {
 	return computeBuildIdentity({
 		files,
 		commit: readBuildCommit(env, directory),
-		mode: env.NODE_ENV ?? 'production'
+		mode: env.NODE_ENV ?? 'production',
+		basePath: env.BASE_PATH ?? '',
+		staticBuild: env.PAGES_BUILD === 'true'
 	});
 }

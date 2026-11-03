@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { withBase } from '$lib/deploymentPaths';
 	import { goto } from '$app/navigation';
 
 	import { browser } from '$app/environment';
@@ -14,6 +15,6 @@
 		}
 		content.lang = cms.en;
 
-		goto('/');
+		goto(withBase('/'));
 	}
 </script>

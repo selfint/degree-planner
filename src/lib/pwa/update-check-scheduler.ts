@@ -1,7 +1,6 @@
 /** Browser-owned registration/navigation checks can still happen independently. */
 export const UPDATE_CHECK_INTERVAL_MS = 60 * 60 * 1000;
 export const UPDATE_CHECK_STORAGE_KEY = 'planit:pwa:update-check:/app/';
-const CHECK_LOCK = UPDATE_CHECK_STORAGE_KEY;
 export const UPDATE_CHECK_TIMEOUT_MS = 30_000;
 const COORDINATION_RETRY_MS = 60_000;
 
@@ -27,11 +26,13 @@ export function createUpdateCheckScheduler(
 	{
 		window: win = window,
 		document: doc = document,
-		now = Date.now
+		now = Date.now,
+		base = ''
 	}: {
 		window?: SchedulerWindow;
 		document?: SchedulerDocument;
 		now?: () => number;
+		base?: string;
 	} = {}
 ) {
 	let disposed = false;
@@ -41,12 +42,13 @@ export function createUpdateCheckScheduler(
 	let coordinationRetryAt = 0;
 	let locksUnavailable = false;
 	let cancelPending: (() => void) | undefined;
-	const expectedScope = `${win.location.origin}/app/`;
+	const expectedScope = `${win.location.origin}${base}/app/`;
+	const storageKey = `planit:pwa:update-check:${base}/app/`;
 
 	function readRecord(): CheckRecord | undefined {
 		let stored: CheckRecord | undefined;
 		try {
-			const raw = win.localStorage.getItem(UPDATE_CHECK_STORAGE_KEY);
+			const raw = win.localStorage.getItem(storageKey);
 			if (raw !== null) {
 				const value = JSON.parse(raw);
 				if (value && typeof value === 'object') stored = value;
@@ -66,10 +68,7 @@ export function createUpdateCheckScheduler(
 	function writeRecord(record: CheckRecord) {
 		memoryRecord = record;
 		try {
-			win.localStorage.setItem(
-				UPDATE_CHECK_STORAGE_KEY,
-				JSON.stringify(record)
-			);
+			win.localStorage.setItem(storageKey, JSON.stringify(record));
 		} catch {
 			// Checking for an update must not depend on storage permission.
 		}
@@ -101,11 +100,11 @@ export function createUpdateCheckScheduler(
 			registration?.installing ?? registration?.waiting ?? registration?.active;
 		return (
 			!disposed &&
-			win.location.pathname.startsWith('/app/') &&
+			win.location.pathname.startsWith(`${base}/app/`) &&
 			registration?.scope === expectedScope &&
 			(!newestWorker ||
 				newestWorker.scriptURL ===
-					`${win.location.origin}/service-worker.js`) &&
+					`${win.location.origin}${base}/service-worker.js`) &&
 			doc.visibilityState === 'visible' &&
 			win.navigator.onLine
 		);
@@ -152,7 +151,7 @@ export function createUpdateCheckScheduler(
 				run();
 				return true;
 			}
-			return await locks.request(CHECK_LOCK, { ifAvailable: true }, (lock) => {
+			return await locks.request(storageKey, { ifAvailable: true }, (lock) => {
 				if (!lock) return false;
 				run();
 				return true;
@@ -235,7 +234,7 @@ export function createUpdateCheckScheduler(
 	}
 	const storageChanged = (event: Event) => {
 		const { key } = event as StorageEvent;
-		if (key === UPDATE_CHECK_STORAGE_KEY || key === null) refresh();
+		if (key === storageKey || key === null) refresh();
 	};
 	const windowEvents = ['online', 'offline', 'focus', 'pageshow'] as const;
 	for (const event of windowEvents) win.addEventListener(event, refresh);

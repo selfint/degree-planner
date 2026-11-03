@@ -123,7 +123,7 @@ describe('installed update banner', () => {
 			'update={inPwaScope ? $offlineShellStatus : undefined}'
 		);
 		expect(layout).toContain(
-			"const inPwaScope = $derived(page.url.pathname.startsWith('/app/'))"
+			"const inPwaScope = $derived(page.url.pathname.startsWith(withBase('/app/')))"
 		);
 		expect(layout).toContain('pwa={inPwaScope ? pwaControls : undefined}');
 		expect(layout).toMatch(/\{#if inPwaScope\}\s*<PwaUpdateBanner/);

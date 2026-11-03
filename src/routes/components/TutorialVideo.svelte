@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { withBase } from '$lib/deploymentPaths';
 	import { onMount } from 'svelte';
 	import { tutorialCopy, type TutorialTopic } from '$lib/tutorials';
 	import type { Theme } from '$lib/theme';
@@ -14,7 +15,7 @@
 	} = $props();
 	const copy = $derived(tutorialCopy[language]);
 	const tutorial = $derived(copy[topic]);
-	const source = $derived(`/tutorials/${topic}-${language}-${theme}`);
+	const source = $derived(withBase(`/tutorials/${topic}-${language}-${theme}`));
 	let video: HTMLVideoElement;
 	let nearby = $state(false);
 	let failed = $state(false);

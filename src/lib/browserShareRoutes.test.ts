@@ -26,7 +26,10 @@ describe('browser share preview route', () => {
 		const manifest = JSON.parse(
 			readFileSync('static/manifest.webmanifest', 'utf8')
 		);
-		expect(manifest.scope).toBe('/app/');
+		expect(
+			new URL(manifest.scope, 'https://example.test/manifest.webmanifest')
+				.pathname
+		).toBe('/app/');
 		expect(url.pathname.startsWith(manifest.scope)).toBe(false);
 	});
 	it('allows the same trailing-slash behavior as the existing preview', () => {
@@ -105,28 +108,30 @@ describe('pre-hydration browser preview loader', () => {
 	const script = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].find(
 		(match) => match[1].includes('location.pathname')
 	)![1];
-	it.each([
-		sharePath,
-		`${sharePath}/`,
-		'/app/plan',
-		'/',
-		'/share/a/b',
-		'/share/a/b/c/extra'
-	])('matches the routed shell only: %s', (pathname) => {
-		const elements = new Map<string, Record<string, unknown>>();
-		const get = (id: string) => {
-			if (!elements.has(id))
-				elements.set(id, { hidden: true, style: { display: 'none' } });
-			return elements.get(id)!;
-		};
-		runInNewContext(script, {
-			location: { pathname },
-			document: { getElementById: get },
-			localStorage: { getItem: () => 'en' }
+	describe.each(['', '/degree-planner'])('deployment prefix %s', (prefix) => {
+		it.each([
+			sharePath,
+			`${sharePath}/`,
+			'/app/plan',
+			'/',
+			'/share/a/b',
+			'/share/a/b/c/extra'
+		])('matches the routed shell only: %s', (pathname) => {
+			const elements = new Map<string, Record<string, unknown>>();
+			const get = (id: string) => {
+				if (!elements.has(id))
+					elements.set(id, { hidden: true, style: { display: 'none' } });
+				return elements.get(id)!;
+			};
+			runInNewContext(script.replaceAll('%sveltekit.assets%', prefix), {
+				location: { pathname: `${prefix}${pathname}` },
+				document: { getElementById: get },
+				localStorage: { getItem: () => 'en' }
+			});
+			const isShell =
+				pathname.startsWith('/app/') ||
+				browserShareDestination(pathname) !== undefined;
+			expect(get('console-boot').hidden).toBe(!isShell);
 		});
-		const isShell =
-			pathname.startsWith('/app/') ||
-			browserShareDestination(pathname) !== undefined;
-		expect(get('console-boot').hidden).toBe(!isShell);
 	});
 });

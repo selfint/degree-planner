@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { withBase } from '$lib/deploymentPaths';
 	import { onMount } from 'svelte';
 	import { content } from '$lib/preferences.svelte';
 	import { parseTheme, type Theme } from '$lib/theme';
@@ -15,7 +16,7 @@
 	let theme = $state<Theme>('dark');
 	let hydrated = $state(false);
 	const language = $derived(content.lang.lang === 'en' ? 'en' : 'he');
-	const source = $derived(`/tutorials/${topic}-${language}-${theme}`);
+	const source = $derived(withBase(`/tutorials/${topic}-${language}-${theme}`));
 	onMount(() => {
 		const syncTheme = () =>
 			(theme = parseTheme(document.documentElement.dataset.theme));

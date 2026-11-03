@@ -102,11 +102,12 @@ function harness(sharedStorage = storage()) {
 		setRegistration(next: typeof registration | undefined) {
 			current = next;
 		},
-		start(now?: () => number) {
+		start(now?: () => number, base = '') {
 			const scheduler = createUpdateCheckScheduler(() => current, {
 				window: win as unknown as SchedulerOptions['window'],
 				document: doc,
-				now
+				now,
+				base
 			});
 			schedulers.push(scheduler);
 			return scheduler;
@@ -952,4 +953,19 @@ describe('explicit fresh app entry', () => {
 		await scheduler.checkOnEntry();
 		expect(h.update).not.toHaveBeenCalled();
 	});
+});
+
+it('isolates project checks and throttle storage from the root app', async () => {
+	const h = harness();
+	h.win.location.pathname = '/degree-planner/app/plan';
+	h.registration.scope = `${ORIGIN}/degree-planner/app/`;
+	h.registration.active = worker(`${ORIGIN}/degree-planner/service-worker.js`);
+	const scheduler = h.start(() => START, '/degree-planner');
+	await scheduler.checkOnEntry();
+	expect(h.update).toHaveBeenCalled();
+	expect(
+		h.storage.api.getItem('planit:pwa:update-check:/degree-planner/app/')
+	).not.toBeNull();
+	expect(h.storage.api.getItem(UPDATE_CHECK_STORAGE_KEY)).toBeNull();
+	scheduler.dispose();
 });

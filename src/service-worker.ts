@@ -7,9 +7,11 @@ import { withShellFetchDeadline } from './lib/pwa/shell-fetch';
 import { servePinnedShell } from './lib/pwa/pinned-shell';
 
 const worker = self as unknown as ServiceWorkerGlobalScope;
-const SHELL_PREFIX = 'planit-console-shell-';
+// A project deployment must never share caches or registrations with sibling apps.
+const BASE = new URL('.', worker.location.href).pathname.replace(/\/$/, '');
+const SHELL_PREFIX = `planit-console-shell-${BASE ? `${encodeURIComponent(BASE)}-` : ''}`;
 const SHELL_CACHE = `${SHELL_PREFIX}${version}`;
-const SHELL = '/app/offline';
+const SHELL = `${BASE}/app/offline/`;
 // Landing demo screenshots are not required by the console.
 const ASSETS = new Set(
 	[...build, ...files].filter(
@@ -116,7 +118,7 @@ worker.addEventListener('install', (event) => {
 	// An old registration automatically checks this same script URL. Keep its
 	// previous offline start route intact until the page verifies /app/ and
 	// explicitly installs the redirect-only compatibility worker at root.
-	if (worker.registration?.scope === `${worker.location.origin}/`) {
+	if (worker.registration?.scope === `${worker.location.origin}${BASE}/`) {
 		event.waitUntil(
 			Promise.reject(
 				new Error('Legacy root scope requires the verified console transition')
@@ -142,6 +144,7 @@ worker.addEventListener('message', (event) => {
 							: undefined;
 					status = await activateIfSoleClient(event.data.version, source, {
 						origin: worker.location.origin,
+						base: BASE,
 						version,
 						clients: () =>
 							worker.clients.matchAll({
@@ -220,7 +223,7 @@ worker.addEventListener('fetch', (event) => {
 	)
 		return;
 
-	if (request.mode === 'navigate' && isAppNavigation(url.pathname)) {
+	if (request.mode === 'navigate' && isAppNavigation(url.pathname, BASE)) {
 		event.respondWith(
 			servePinnedShell(
 				() => caches.match(SHELL, { cacheName: SHELL_CACHE }),
@@ -228,14 +231,14 @@ worker.addEventListener('fetch', (event) => {
 			)
 		);
 	} else if (
-		(ASSETS.has(url.pathname) || isImmutableAppAsset(url.pathname)) &&
+		(ASSETS.has(url.pathname) || isImmutableAppAsset(url.pathname, BASE)) &&
 		!url.search
 	) {
 		event.respondWith(
 			(async () => {
 				const current = await caches.match(request, { cacheName: SHELL_CACHE });
 				if (current) return current;
-				if (isImmutableAppAsset(url.pathname)) {
+				if (isImmutableAppAsset(url.pathname, BASE)) {
 					for (const name of await caches.keys()) {
 						if (!name.startsWith(SHELL_PREFIX) || name === SHELL_CACHE)
 							continue;

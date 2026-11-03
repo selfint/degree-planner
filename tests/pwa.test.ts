@@ -61,7 +61,7 @@ test.beforeAll(async () => {
 			const current = deployment();
 			const url = new URL(request.url ?? '/', origin);
 			const path = url.pathname;
-			if (denyConsoleShell && request.url === '/app/offline') {
+			if (denyConsoleShell && request.url === '/app/offline/') {
 				response.writeHead(503);
 				response.end();
 				return;
@@ -1209,7 +1209,7 @@ test('versioned dismissal preserves drafts until all tabs close and the new work
 test('caches contain only public assets and do not delete unrelated storage', async ({
 	page
 }) => {
-	await page.goto(`${origin}/app/offline`);
+	await page.goto(`${origin}/app/offline/`);
 	await page.evaluate(async () => {
 		await caches.open('another-app-cache');
 	});
@@ -1752,7 +1752,7 @@ test('evicted A shell never loads B HTML and manual recovery protects another ta
 	await expect.poll(() => workerVersion(page, 'waiting')).toBe(b);
 	const deleted = await page.evaluate(async (version) => {
 		const cache = await caches.open(`planit-console-shell-${version}`);
-		return cache.delete('/app/offline');
+		return cache.delete('/app/offline/');
 	}, a);
 	expect(deleted).toBe(true);
 	const response = await page.reload();

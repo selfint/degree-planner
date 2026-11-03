@@ -12,12 +12,28 @@ on:
       expected_url:
         description: 'Exact approved Pages URL; required for publication'
         type: string
-        default: ''
+        default: 'https://tom.selfin.io/degree-planner/'
 
 permissions:
   contents: read
 
+env:
+  APPROVED_PAGES_URL: https://tom.selfin.io/degree-planner/
+
 jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    permissions:
+      pages: read
+    steps:
+      - name: Read the existing Pages source and destination
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api repos/${{ github.repository }}/pages > pages.json
+          jq '{html_url, cname, build_type, source}' pages.json
+          test "$(jq -r '.html_url' pages.json | sed 's:/*$::')" = "${APPROVED_PAGES_URL%/}"
+
   verify:
     runs-on: ubuntu-latest
     strategy:
@@ -44,11 +60,11 @@ jobs:
           name: pages-qa-${{ strategy.job-index }}
           path: test-results/
 
-  # Never runs automatically. A branch build is not a separate Pages site.
-  # The repository already has Pages, so publication requires an approved URL.
+  # The owner approved replacing this existing Pages site on 2026-11-03.
+  # Keep the branch and exact destination bounded; never change a custom domain.
   deploy:
-    if: github.event_name == 'workflow_dispatch' && inputs.deploy && inputs.expected_url != ''
-    needs: verify
+    if: github.ref == 'refs/heads/feat/github-pages-staging' && (github.event_name == 'push' || (inputs.deploy && inputs.expected_url == 'https://tom.selfin.io/degree-planner/'))
+    needs: [inspect, verify]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -71,12 +87,21 @@ jobs:
       - name: Refuse publication to an unapproved existing site
         env:
           ACTUAL_URL: ${{ steps.pages.outputs.base_url }}
-          EXPECTED_URL: ${{ inputs.expected_url }}
+          EXPECTED_URL: ${{ env.APPROVED_PAGES_URL }}
         run: |
           test "${ACTUAL_URL%/}" = "${EXPECTED_URL%/}" || {
             echo 'The configured Pages destination differs from the approved URL.'
             exit 1
           }
+      - name: Verify Pages uses the approved Actions publishing source
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mode=$(gh api repos/${{ github.repository }}/pages --jq '.build_type')
+          if [ "$mode" != 'workflow' ]; then
+            echo "::error::Pages uses $mode publishing. The repository owner must select GitHub Actions under Settings > Pages > Build and deployment; the workflow token cannot change that administrative setting."
+            exit 1
+          fi
       - run: npm ci
       - run: npm run build:pages
         env:

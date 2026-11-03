@@ -410,10 +410,11 @@ test('manifest and correctly sized icons support installation', async ({
 	).json();
 	expect(manifest).toMatchObject({
 		id: '/',
-		start_url: '/app/',
-		scope: '/app/',
 		display: 'standalone'
 	});
+	const manifestUrl = `${origin}/manifest.webmanifest`;
+	expect(new URL(manifest.start_url, manifestUrl).href).toBe(`${origin}/app/`);
+	expect(new URL(manifest.scope, manifestUrl).href).toBe(`${origin}/app/`);
 	// Pre-hydration branding is part of the installed shell, including cold reloads.
 	const shellAssets = await page.evaluate(async () => {
 		const names = (await caches.keys()).filter((name) =>
@@ -440,7 +441,7 @@ test('manifest and correctly sized icons support installation', async ({
 				image.src = src;
 				await image.decode();
 				return [image.naturalWidth, image.naturalHeight];
-			}, icon.src)
+			}, new URL(icon.src, manifestUrl).href)
 		).toEqual([size, size]);
 	}
 	const cdp = await page.context().newCDPSession(page);

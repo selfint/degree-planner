@@ -19,8 +19,10 @@ the client router. A first direct dynamic request has HTTP 404 status on Pages,
 although the app then renders the route. Installed offline navigations use the
 cached shell at `app/offline/`.
 
-The Pages staging workflow automatically builds and browser-tests both root and
-repository-prefix artifacts. It does **not** automatically publish them.
+The Pages staging workflow builds and browser-tests both root and repository-prefix
+artifacts. The owner approved replacing the existing Pages site on 2026-11-03.
+Pushes to this staging migration branch can publish only to the verified
+`https://tom.selfin.io/degree-planner/` destination after those checks pass.
 `vercel.json` disables Vercel Git deployments for `feat/github-pages-staging`
 only. Other branches retain their existing behavior.
 
@@ -32,19 +34,21 @@ GitHub permits one Pages site per repository. At preparation time,
 artifact replaces that site's content. A branch alone is not an isolated site.
 The current source settings were not accessible from the signed-out browser.
 
-Do not publish until the owner explicitly approves replacing that existing site
-or selects a separate repository. No production switch, DNS change, or merge is
-part of this branch.
+The owner approved replacing this existing site with the staging app on 2026-11-03.
+The workflow reads Pages metadata, refuses any destination mismatch, and requires
+GitHub Actions as the publishing source. The built-in workflow token cannot
+change that administrative setting. It preserves the custom
+domain and does not change production hosting, DNS, or branch protections.
 
-After confirming the destination, Pages must use GitHub Actions as its source
-and permit the intended branch in its `github-pages` environment. Run the
-workflow manually with `deploy=true` and the exact approved Pages URL as
-`expected_url`. The workflow reads the current Pages metadata, refuses a URL
-mismatch, rebuilds with the reported base path, uploads the Pages artifact, and
-uses the official `actions/deploy-pages` action. Manual workflow dispatch
-requires the workflow to exist on the repository's default branch; deciding how
-to enable the initial deployment is a separate authorized setup step, not a
-reason to merge this migration into production.
+Deployment stays within the existing `github-pages` environment and its configured
+approvals/branch rules. If the workflow token cannot read or update Pages settings,
+or the environment blocks the branch, stop and request the specific necessary
+setup action. Do not create alternate credentials or bypass environment rules.
+
+Manual dispatch is also available once this workflow exists on the default branch;
+it must use `deploy=true` and the exact approved URL. Initial deployment uses the
+feature branch's push workflow, so no default/staging branch merge is required.
+The official configure/upload/deploy Pages actions build with the actual base path.
 
 Official references:
 

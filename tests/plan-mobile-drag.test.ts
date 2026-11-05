@@ -767,15 +767,19 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 				await page.setViewportSize({ width: 360, height: 540 });
 				const touch = await context.newCDPSession(page);
 				const secondSemester = page.locator('[data-semester="1"]');
-				const rect = (await secondSemester.boundingBox())!;
-				expect(rect.height).toBeGreaterThanOrEqual(128);
-				const lastOccupied = (await page
-					.locator('[data-semester="0"] [data-code]')
-					.last()
-					.boundingBox())!;
-				const bottomSpacing = await page
-					.locator('.plan-page')
-					.evaluate((plan) => {
+				// setViewportSize acknowledges the viewport change before the browser
+				// necessarily dispatches resize. Resize handlers run before animation
+				// frame callbacks, so measure only after that rendering boundary.
+				await page.evaluate(
+					() =>
+						new Promise<void>((resolve) =>
+							requestAnimationFrame(() => resolve())
+						)
+				);
+				// Read related geometry in one task, rather than mixing measurements
+				// from different layouts across separate protocol round trips.
+				const { rect, lastOccupied, bottomSpacing, pageSize, footerHeight } =
+					await page.locator('.plan-page').evaluate((plan) => {
 						const rail = plan.querySelector(
 							'[data-testid="semester-scroller"]'
 						)!;
@@ -787,11 +791,30 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 							rail.getBoundingClientRect().bottom -
 								row.getBoundingClientRect().bottom
 						);
-						return (
-							parseFloat(getComputedStyle(plan).marginBottom) +
-							visualBottomInset
+						const occupied = plan.querySelectorAll(
+							'[data-semester="0"] [data-code]'
 						);
+						return {
+							rect: plan
+								.querySelector('[data-semester="1"]')!
+								.getBoundingClientRect()
+								.toJSON(),
+							lastOccupied: occupied[occupied.length - 1]
+								.getBoundingClientRect()
+								.toJSON(),
+							bottomSpacing:
+								parseFloat(getComputedStyle(plan).marginBottom) +
+								visualBottomInset,
+							pageSize: {
+								height: document.documentElement.scrollHeight,
+								scrollY: window.scrollY
+							},
+							footerHeight: document
+								.querySelector('footer')!
+								.getBoundingClientRect().height
+						};
 					});
+				expect(rect.height).toBeGreaterThanOrEqual(128);
 				// Dense chrome can now leave room below the real courses. Fill exactly
 				// that remaining viewport space, or the real list when it is longer.
 				const expectedBottom = Math.max(
@@ -800,12 +823,6 @@ for (const device of ['Pixel 7', 'iPhone 13']) {
 					rect.y + 128
 				);
 				expect(rect.y + rect.height).toBeCloseTo(expectedBottom, 0);
-				const pageSize = await page.evaluate(() => ({
-					height: document.documentElement.scrollHeight,
-					scrollY: window.scrollY
-				}));
-				const footerHeight = (await page.locator('footer').boundingBox())!
-					.height;
 				expect(pageSize.height).toBeLessThanOrEqual(
 					Math.max(
 						540,

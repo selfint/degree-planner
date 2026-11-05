@@ -46,7 +46,7 @@ async function setup(page: Page, plan: unknown = seed) {
 			if (request.method() === 'POST') {
 				const raw = request.postDataBuffer()!;
 				let parsed;
-				if (url.searchParams.get('compression') === 'gzip-js')
+				if (raw[0] === 0x1f && raw[1] === 0x8b)
 					parsed = JSON.parse(gunzipSync(raw).toString());
 				else {
 					const text = raw.toString();
@@ -57,7 +57,9 @@ async function setup(page: Page, plan: unknown = seed) {
 						parsed = JSON.parse(Buffer.from(data, 'base64').toString());
 					}
 				}
-				events.push(...(Array.isArray(parsed) ? parsed : [parsed]));
+				events.push(
+					...(Array.isArray(parsed) ? parsed : (parsed.batch ?? [parsed]))
+				);
 			}
 			return route.fulfill({
 				status: 200,

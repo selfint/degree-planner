@@ -110,7 +110,8 @@ export function trackPageView(pathname: string) {
 
 /** No identity is attached: this is first selection per browser storage, not per account. */
 export function trackFirstDegreeSelection(hadDegree: boolean) {
-	if (!browser) return;
+	initialize();
+	if (!client) return;
 	try {
 		degreeSelected ||= localStorage.getItem(degreeMarker) === '1';
 	} catch {

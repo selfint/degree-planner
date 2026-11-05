@@ -220,81 +220,90 @@
 				<bdi dir="auto">{course.about}</bdi>
 			</p>
 		{/if}
-	{/await}
 
-	{#if showPersonalPlan}
-		<div class="course-actions course-inset" data-testid="course-plan-actions">
-			{#if courseState === 'planned'}
-				<PlanActionButton
-					showOfflineReason={false}
-					variant="secondary"
-					onclick={removeCourseFromSemesters}
-					bind:buttonNamespace
-					name="un-plan"
-				>
-					{content.lang.course.removeFromSemester}
-					{getSeasonAndIndex(
-						user.d.semesters.findIndex((s) => s.includes(code))
-					)}
-				</PlanActionButton>
-			{:else}
-				<PlanActionButton
-					showOfflineReason={false}
-					variant="primary"
-					onclick={planCourse}
-					bind:buttonNamespace
-					name="plan"
-				>
-					{content.lang.course.plan}
-				</PlanActionButton>
-				{#if courseState === 'wished'}
+		<!--
+			Keep actions in the resolved-details block so a description cannot
+			move an enabled button between pointer down and pointer up.
+		-->
+		{#if showPersonalPlan}
+			<div
+				class="course-actions course-inset"
+				data-testid="course-plan-actions"
+			>
+				{#if courseState === 'planned'}
 					<PlanActionButton
 						showOfflineReason={false}
 						variant="secondary"
-						onclick={removeCourseFromWishlist}
+						onclick={removeCourseFromSemesters}
 						bind:buttonNamespace
-						name="un-wish"
+						name="un-plan"
 					>
-						{content.lang.course.removeFromWishlist}
-					</PlanActionButton>
-				{:else if courseState === 'exempt'}
-					<PlanActionButton
-						showOfflineReason={false}
-						variant="secondary"
-						onclick={removeCourseFromExemptions}
-						bind:buttonNamespace
-						name="un-exempt"
-					>
-						{content.lang.course.removeFromExemption}
+						{content.lang.course.removeFromSemester}
+						{getSeasonAndIndex(
+							user.d.semesters.findIndex((s) => s.includes(code))
+						)}
 					</PlanActionButton>
 				{:else}
 					<PlanActionButton
 						showOfflineReason={false}
-						variant="secondary"
-						onclick={addCourseToWishlist}
+						variant="primary"
+						onclick={planCourse}
 						bind:buttonNamespace
-						name="wish"
+						name="plan"
 					>
-						{content.lang.course.wishlist}
+						{content.lang.course.plan}
 					</PlanActionButton>
-					<PlanActionButton
-						showOfflineReason={false}
-						variant="secondary"
-						onclick={addCourseToExemptions}
-						bind:buttonNamespace
-						name="exempt"
-					>
-						{content.lang.course.exempt}
-					</PlanActionButton>
+					{#if courseState === 'wished'}
+						<PlanActionButton
+							showOfflineReason={false}
+							variant="secondary"
+							onclick={removeCourseFromWishlist}
+							bind:buttonNamespace
+							name="un-wish"
+						>
+							{content.lang.course.removeFromWishlist}
+						</PlanActionButton>
+					{:else if courseState === 'exempt'}
+						<PlanActionButton
+							showOfflineReason={false}
+							variant="secondary"
+							onclick={removeCourseFromExemptions}
+							bind:buttonNamespace
+							name="un-exempt"
+						>
+							{content.lang.course.removeFromExemption}
+						</PlanActionButton>
+					{:else}
+						<PlanActionButton
+							showOfflineReason={false}
+							variant="secondary"
+							onclick={addCourseToWishlist}
+							bind:buttonNamespace
+							name="wish"
+						>
+							{content.lang.course.wishlist}
+						</PlanActionButton>
+						<PlanActionButton
+							showOfflineReason={false}
+							variant="secondary"
+							onclick={addCourseToExemptions}
+							bind:buttonNamespace
+							name="exempt"
+						>
+							{content.lang.course.exempt}
+						</PlanActionButton>
+					{/if}
 				{/if}
-			{/if}
-			{#if !$planOnline}
-				<span class="course-offline" role="status"
-					>{content.lang.lang === 'he' ? 'ללא אינטרנט' : 'Offline'}</span
-				>
-			{/if}
-		</div>
-	{:else}
+				{#if !$planOnline}
+					<span class="course-offline" role="status"
+						>{content.lang.lang === 'he' ? 'ללא אינטרנט' : 'Offline'}</span
+					>
+				{/if}
+			</div>
+		{/if}
+	{/await}
+
+	{#if !showPersonalPlan}
 		<p
 			role="status"
 			class="ui-notice course-notice course-inset"

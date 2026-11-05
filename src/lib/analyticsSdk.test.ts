@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+import { gunzipSync } from 'node:zlib';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { privacyConfig } from './analyticsPolicy';
 
@@ -76,17 +77,29 @@ describe('real PostHog SDK privacy boundary', () => {
 		await vi.waitFor(() => expect(beacons).toHaveLength(1));
 		expect(beacons[0].url).toContain('https://posthog.example.test/e/');
 		const data = beacons[0].data;
-		const body =
+		const bytes =
 			typeof data === 'string'
-				? data
-				: await new Promise<string>((resolve) => {
-						const reader = new FileReader();
-						reader.onload = () => resolve(String(reader.result));
-						reader.readAsText(data as Blob);
-					});
+				? Buffer.from(data)
+				: Buffer.from(
+						await new Promise<ArrayBuffer>((resolve) => {
+							const reader = new FileReader();
+							reader.onload = () => resolve(reader.result as ArrayBuffer);
+							reader.readAsArrayBuffer(data as Blob);
+						})
+					);
+		const body = (
+			bytes[0] === 0x1f && bytes[1] === 0x8b ? gunzipSync(bytes) : bytes
+		).toString();
 		// No remote flags, replay, surveys or config requests bypass this boundary.
 		expect(fetch).not.toHaveBeenCalled();
-		expect(body).not.toContain('PRIVATE');
+		const encoded = new URLSearchParams(body).get('data');
+		const payload = encoded ? JSON.parse(atob(encoded)) : JSON.parse(body);
+		expect(payload.batch).toHaveLength(1);
+		expect(payload.batch[0].properties).toMatchObject({
+			page: 'share',
+			distinct_id: id
+		});
+		expect(JSON.stringify(payload)).not.toContain('PRIVATE');
 		client.opt_out_capturing();
 	});
 });

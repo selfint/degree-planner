@@ -185,7 +185,8 @@ describe('analytics lifecycle', () => {
 			if (condition === 'dnt') vi.stubGlobal('navigator', { doNotTrack: '1' });
 			if (condition === 'gpc')
 				vi.stubGlobal('navigator', { globalPrivacyControl: true });
-			const { trackPageView, trackEvent } = await import('./analytics');
+			const { trackPageView, trackEvent, trackFirstDegreeSelection } =
+				await import('./analytics');
 			trackPageView('/');
 			trackEvent('start_clicked');
 			expect(mocks.init).not.toHaveBeenCalled();

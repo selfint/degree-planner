@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { trackFirstDegreeSelection } from '$lib/analytics';
 	import { withBase } from '$lib/deploymentPaths';
 	import { user, content, writeStorage, setUser } from '$lib/stores.svelte';
 
@@ -40,6 +41,7 @@
 		newDegree: Degree,
 		newPath?: string
 	): Promise<boolean> {
+		const hadDegree = user.d.degree !== undefined;
 		setUser(
 			await writeStorage({
 				...user.d,
@@ -48,6 +50,7 @@
 			})
 		);
 
+		trackFirstDegreeSelection(hadDegree);
 		return true;
 	}
 

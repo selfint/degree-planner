@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { trackEvent } from '$lib/analytics';
 	import { withBase } from '$lib/deploymentPaths';
 	import { onMount } from 'svelte';
 	import { updateSafety } from '$lib/pwa/update-safety';
@@ -52,6 +53,7 @@
 			})
 		);
 
+		trackEvent('grade_import_saved');
 		await goto(withBase('/app/plan'));
 	}
 
@@ -83,6 +85,7 @@
 				uploadError = 'unrecognized';
 			} else {
 				transcript = result;
+				trackEvent('grade_file_uploaded');
 			}
 		} catch (error) {
 			uploadError = getTranscriptImportErrorKind(error);

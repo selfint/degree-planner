@@ -55,6 +55,7 @@ async function exercise(
 	});
 	const goto = vi.fn(async () => {});
 	const environment = {
+		trackEvent: vi.fn(),
 		user,
 		data: structuredClone({ ...shared, semesters }),
 		content: {

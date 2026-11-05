@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { trackEvent } from '$lib/analytics';
 	import { withBase } from '$lib/deploymentPaths';
 	import { goto } from '$app/navigation';
 
@@ -17,6 +18,7 @@
 	let importError = $state(false);
 
 	async function importPlan() {
+		trackEvent('copy_plan_clicked');
 		importError = false;
 		const currentSemester = user.d.currentSemester;
 		// Import replaces the semester list, but the receiver chooses Current.
@@ -49,6 +51,8 @@
 				)
 			})
 		);
+
+		trackEvent('plan_copied');
 
 		// Persist above before entering /app/ with a controlled document.
 		await navigateFromBrowserShare(withBase('/app/plan'), goto);

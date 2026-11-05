@@ -1,0 +1,22 @@
+import { defineConfig } from '@playwright/test';
+
+const base = process.env.BASE_PATH ?? '/degree-planner';
+export default defineConfig({
+	testDir: 'analytics-tests',
+	timeout: 60_000,
+	workers: 1,
+	use: {
+		baseURL: `http://127.0.0.1:4178${base}/`,
+		serviceWorkers: 'block',
+		trace: 'retain-on-failure',
+		screenshot: 'only-on-failure',
+		launchOptions: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH
+			? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH }
+			: undefined
+	},
+	webServer: {
+		command: 'node scripts/servePages.mjs',
+		url: `http://127.0.0.1:4178${base}/`,
+		timeout: 30_000
+	}
+});

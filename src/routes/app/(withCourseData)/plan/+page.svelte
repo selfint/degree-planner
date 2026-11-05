@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { trackCourseAdditions, trackEvent } from '$lib/analytics';
 	import { withBase } from '$lib/deploymentPaths';
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
@@ -68,7 +69,9 @@
 
 	let buttonNamespace = $state('');
 	async function onSave() {
+		const before = user.d;
 		setUser(await writeStorage({ ...user.d, wishlist, semesters }));
+		trackCourseAdditions(before, user.d, 'plan_board');
 	}
 </script>
 
@@ -103,6 +106,7 @@
 				{#if shareLink && user.d.semesters.some((s) => s.length > 0)}
 					<a
 						href={shareLink}
+						onclick={() => trackEvent('share_plan_clicked')}
 						use:browserLink
 						data-sveltekit-reload
 						target="_blank"

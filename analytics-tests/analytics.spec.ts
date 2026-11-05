@@ -185,7 +185,10 @@ test('private shared-plan URLs, referrer, queries and fragments never reach tele
 test('valid transcript preview is distinct from saving; rejected files and cancellation never count as saves', async ({
 	page
 }) => {
-	const { events, count } = await setup(page);
+	const { events, count } = await setup(page, {
+		...seed,
+		semesters: Array.from({ length: 12 }, () => [])
+	});
 	await page.goto(path('/app/settings'));
 	await ready(page);
 	const upload = page.locator('.upload-section');

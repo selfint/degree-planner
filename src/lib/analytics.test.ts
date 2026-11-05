@@ -206,6 +206,17 @@ describe('analytics lifecycle', () => {
 		analytics = await import('./analytics');
 		expect(() => analytics.trackEvent('start_clicked')).not.toThrow();
 	});
+	it('does not initialize or store identifiers on Storybook routes', async () => {
+		vi.stubGlobal('window', {
+			location: { pathname: '/degree-planner/storybook/iframe.html' }
+		});
+		const { trackEvent, trackFirstDegreeSelection } =
+			await import('./analytics');
+		trackEvent('start_clicked');
+		trackFirstDegreeSelection(false);
+		expect(mocks.init).not.toHaveBeenCalled();
+		expect(values.size).toBe(0);
+	});
 	it('persists only an anonymous ID and keeps it across document loads', async () => {
 		let analytics = await import('./analytics');
 		analytics.trackPageView('/');

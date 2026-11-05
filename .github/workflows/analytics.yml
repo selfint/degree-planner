@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'src/**'
+      - '.env.production'
       - 'analytics-tests/**'
       - 'playwright.analytics.config.ts'
       - 'package*.json'

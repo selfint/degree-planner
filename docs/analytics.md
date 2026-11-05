@@ -1,22 +1,27 @@
 # PostHog analytics
 
 PostHog is optional, independent of the existing Google/Firebase Analytics and
-Vercel integrations. Nothing in this change deploys the app or enables a project.
+Vercel integrations. Nothing in this change deploys the app.
 
 ## Configuration
 
-Set these **build-time** public variables in the intended hosting environment:
+The approved project token and US ingestion host are set in the intentionally
+tracked `.env.production`, containing only public browser configuration. Hosting
+and CI environment variables override those defaults. Local development remains
+off, and Storybook/unrecognized routes do not initialize analytics.
+
+To configure another project, set these **build-time** public variables:
 
 - `PUBLIC_POSTHOG_KEY`: the PostHog **project token**, never a personal API key.
 - `PUBLIC_POSTHOG_HOST`: the matching HTTPS ingestion host from that project's
   setup page. Do not use the dashboard URL or guess the project's region.
 
 Both are required. An absent/invalid configuration is a no-op. `.env.example`
-contains blank placeholders. Local development is off unless
+contains blank placeholders for local overrides. Local development is off unless
 `PUBLIC_POSTHOG_ENABLE_DEV=true`; production builds do not need that switch.
 Static Pages builds embed these public values and need a new build after changes.
 The public project token is expected to be visible in the browser bundle.
-This PR does not add a token to the repository or change Pages deployment settings.
+No personal API key is committed. Pages deployment settings remain unchanged.
 
 ## Events and definitions
 

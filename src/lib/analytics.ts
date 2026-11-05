@@ -38,6 +38,8 @@ function browserId(): string {
 
 function initialize() {
 	if (!browser || initialized) return;
+	// Component stories and unrelated host routes must never pollute product metrics.
+	if (!analyticsPage(window.location.pathname)) return;
 	initialized = true;
 	const config = publicEnv as Record<string, string>;
 	const key = config.PUBLIC_POSTHOG_KEY?.trim();

@@ -87,6 +87,6 @@ describe('real PostHog SDK privacy boundary', () => {
 		// No remote flags, replay, surveys or config requests bypass this boundary.
 		expect(fetch).not.toHaveBeenCalled();
 		expect(body).not.toContain('PRIVATE');
-		client.opt_out_capturing({ clear_persistence: true });
+		client.opt_out_capturing();
 	});
 });

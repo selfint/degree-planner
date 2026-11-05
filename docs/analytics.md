@@ -86,7 +86,8 @@ and offline requests affect the counts. No login identity is sent or merged.
   of raw session-entry/share URLs. It does not change existing plan storage.
 - The UUID is passed as an explicitly anonymous bootstrap ID. Never call
   `identify`, `alias`, `group`, or set person properties in this integration.
-- DNT and Global Privacy Control disable initialization. Requests carry
+- DNT and Global Privacy Control disable initialization. Disabled analytics
+  writes neither the anonymous browser ID nor the first-degree marker. Requests carry
   `$process_person_profile:false` and `$geoip_disable:true`.
 - Configure **Discard IP data** in the PostHog project before enabling collection.
   Do not rely on the deprecated `ip:false` SDK option. The provider still receives

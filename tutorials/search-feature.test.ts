@@ -201,6 +201,11 @@ for (const topic of mediaGroups.features) {
 		await page.goto('/');
 		const feature = page.getByTestId(topic);
 		const video = feature.locator('video');
+		// Wait for the client player to replace the Hebrew/dark SSR player.
+		await expect(video.locator('source').first()).toHaveAttribute(
+			'src',
+			`/tutorials/${topic}-en-light.mp4`
+		);
 		await video.scrollIntoViewIfNeeded();
 		await video.evaluate(async (node) => (node as HTMLVideoElement).play());
 		await expect
@@ -217,14 +222,23 @@ for (const topic of mediaGroups.features) {
 	test(`${topic} media failure leaves the existing description available`, async ({
 		page
 	}) => {
-		await page.addInitScript(() => localStorage.setItem('lang', 'en'));
+		await page.addInitScript(() => {
+			localStorage.setItem('lang', 'en');
+			localStorage.setItem('theme', 'light');
+		});
 		await page.route(
 			new RegExp(`/tutorials/${topic}-.*\\.(mp4|webm)$`),
 			(route) => route.fulfill({ status: 503, body: 'Unavailable' })
 		);
 		await page.goto('/');
 		const feature = page.getByTestId(topic);
-		await feature.locator('video').evaluate((node) => {
+		const video = feature.locator('video');
+		// Starting the SSR player would lose its error state during hydration.
+		await expect(video.locator('source').first()).toHaveAttribute(
+			'src',
+			`/tutorials/${topic}-en-light.mp4`
+		);
+		await video.evaluate((node) => {
 			const video = node as HTMLVideoElement;
 			video.load();
 			void video.play().catch(() => {});

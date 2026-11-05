@@ -8,12 +8,30 @@ const origin = 'http://127.0.0.1:4178';
 const path = (value: string) => `${base}${value}`;
 const guest = {
 	degree: ['2024_200', '00002120', 'SC00001320_CG00006382'],
-	path: 'CG00006246',
+	path: 'CG00006385',
 	exemptions: [],
 	semesters: [[], []],
 	currentSemester: 0,
 	wishlist: ['02340124']
 };
+
+// Match loadDegreeName's direct-child lookup before starting the browser tests.
+const requirementsFile = `static/_catalogs/${guest.degree.join('/')}/requirementsData.json`;
+const requirement: {
+	nested?: { name: string; nested?: unknown[]; courses?: string[] }[];
+} = JSON.parse(readFileSync(requirementsFile, 'utf8'));
+const selectedPath = requirement.nested?.find(
+	(node) => node.name === guest.path
+);
+if (
+	!guest.path ||
+	!selectedPath ||
+	!((selectedPath.nested?.length ?? 0) + (selectedPath.courses?.length ?? 0))
+) {
+	throw new Error(
+		`Pages guest fixture must select a nonempty direct path in ${requirementsFile}: ${guest.path}`
+	);
+}
 
 test.beforeEach(async ({ page }) => {
 	await page.addInitScript((guest) => {
@@ -112,8 +130,7 @@ test('cold dynamic and legacy links hydrate through the real 404 fallback', asyn
 test('cold shared-plan URL preserves its browser route and actual preview content', async ({
 	page
 }) => {
-	const share =
-		'/share/2024_200/00002120/SC00001320_CG00006382?semesters=02340124&path=CG00006246';
+	const share = `/share/${guest.degree.join('/')}?semesters=02340124&path=${guest.path}`;
 	const response = await page.goto(path(share));
 	expect(response?.status()).toBe(404);
 	await expect(page.locator('.preview-page')).toBeVisible({ timeout: 30_000 });

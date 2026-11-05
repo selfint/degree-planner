@@ -1,3 +1,4 @@
+import { compatiblePlan } from './planCompatibility';
 import { updateSafety } from './pwa/update-safety';
 import { browser } from '$app/environment';
 import { loadDegreeName, loadRequirement } from './requirements';
@@ -145,7 +146,7 @@ const migrations = [
 
 		// migrate degree and path
 		if (v1.degree !== undefined) {
-			const degree = v1.degree;
+			const degree = [...v1.degree] as Degree;
 
 			degree[0] = '2024_200';
 
@@ -165,8 +166,8 @@ const migrations = [
 					degree[2] = 'SC00001314_CG00006245';
 					v2.path = 'CG00006253';
 				} else {
-					// default to 3 year path
-					degree[2] = 'SC00001320_CG00006382';
+					// default to the three-year Computer Sciences degree and path
+					degree[2] = 'SC00001314_CG00006245';
 					v2.path = 'CG00006246';
 				}
 			} else {
@@ -181,22 +182,20 @@ const migrations = [
 		return v2;
 	},
 	function migrate_2_3(v2: UserDataV2): UserData {
-		delete v2.username;
+		const plan = { ...v2 };
+		delete plan.username;
 
 		const v3: UserData = {
 			exemptions: [],
-			...v2
+			...plan
 		};
 
 		return v3;
 	},
 	function migrate_3_4(v3: UserDataV3): UserData {
-		if (v3.semesters.length === 0) {
-			v3.semesters = defaultSemesters;
-		}
-
 		const v4: UserData = {
-			...v3
+			...v3,
+			semesters: v3.semesters.length === 0 ? defaultSemesters : v3.semesters
 		};
 
 		return v4;
@@ -205,7 +204,7 @@ const migrations = [
 
 export const user: { d: UserData } = $state({ d: readLocalStorage() });
 export function setUser(data: UserData) {
-	user.d = data;
+	user.d = compatiblePlan(data);
 }
 
 // decouple the user degree/path from the rest of the user object
@@ -272,7 +271,7 @@ function readLocalStorage(): UserData {
 
 	if (localVersion > version) {
 		// try to load the user data with the latest loader
-		return loaders[version]();
+		return compatiblePlan(loaders[version]());
 	}
 
 	let user = loaders[localVersion]();
@@ -282,6 +281,8 @@ function readLocalStorage(): UserData {
 		user = migrations[localVersion](user);
 		localVersion++;
 	}
+
+	user = compatiblePlan(user);
 
 	// Migrate in memory offline. Preserve the existing guest schema while
 	// keeping cached plans readable without rewriting stored data.
@@ -323,7 +324,7 @@ export const localStorageMethod: StorageMethod = {
 };
 
 let _storage: StorageMethod = $state(localStorageMethod);
-export const readStorage = async () => await _storage.read();
+export const readStorage = async () => compatiblePlan(await _storage.read());
 export const writeStorage = async (d: UserData) => {
 	assertPlanWritable();
 	return await updateSafety.write(() => _storage.write(d));

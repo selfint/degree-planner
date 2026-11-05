@@ -42,6 +42,11 @@ jobs:
         with:
           name: board-alignment-${{ matrix.browser }}
           path: |
+            test-results/course-actions-loading-*/
+            test-results/plan-dependencies-*/
+            test-results/search-focus-*/
+            test-results/pwa-browser-links-*/
+            test-results/console-button-layout-*/
             test-results/plan-board-alignment-*/
             test-results/footer-controls-*/
             test-results/console-navigation-styles-*/

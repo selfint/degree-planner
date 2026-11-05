@@ -204,3 +204,27 @@ test.describe('offline Pages artifact', () => {
 		await expect(page.getByTestId('plan-read-only')).toBeVisible();
 	});
 });
+
+test('historical three-year CS shared link resolves without rewriting the URL or saved guest', async ({
+	page
+}) => {
+	const errors: string[] = [];
+	page.on('pageerror', (error) => errors.push(error.message));
+	const share =
+		'/share/2024_200/00002120/SC00001320_CG00006382?semesters=02340124&path=CG00006246';
+	const response = await page.goto(path(share));
+	expect(response?.status()).toBe(404);
+	await expect(page.locator('.preview-page')).toBeVisible({ timeout: 30_000 });
+	await expect(page.locator('.preview-heading h1')).toContainText(
+		'B.SC. IN COMPUTER SCIENCES (3 YEARS)'
+	);
+	await expect(page.locator('.preview-heading h1')).toContainText(
+		'Path: Compter Science 3 Years'
+	);
+	await expect(page.locator('.preview-course')).toContainText(course.name);
+	expect(page.url()).toBe(`${origin}${path(share)}`);
+	expect(
+		await page.evaluate(() => JSON.parse(localStorage.getItem('userData')!))
+	).toEqual(guest);
+	expect(errors).toEqual([]);
+});

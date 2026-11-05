@@ -3,6 +3,7 @@ import { runInNewContext } from 'node:vm';
 import ts from 'typescript';
 import { describe, expect, it, vi } from 'vitest';
 import { withBase } from '$lib/deploymentPaths';
+import { load } from './+page';
 import { navigateFromBrowserShare } from '$lib/browserShareRoutes';
 
 // Execute the actual Svelte event handler, with only storage, confirmation and
@@ -35,7 +36,8 @@ const shared = {
 async function exercise(
 	currentSemester: number,
 	confirmed = true,
-	semesters = shared.semesters
+	semesters = shared.semesters,
+	selection: { degree: string[]; userPath: string | undefined } = shared
 ) {
 	const initial = {
 		degree: ['2024_200', '00002120', 'SC00001320_CG00006382'],
@@ -57,7 +59,7 @@ async function exercise(
 	const environment = {
 		trackEvent: vi.fn(),
 		user,
-		data: structuredClone({ ...shared, semesters }),
+		data: structuredClone({ ...shared, ...selection, semesters }),
 		content: {
 			lang: { preview: { overwriteWarning: 'Overwrite the current plan?' } }
 		},
@@ -121,5 +123,31 @@ describe('shared preview import event handler', () => {
 		const result = await exercise(0, true, []);
 		expect(result.writeStorage).not.toHaveBeenCalled();
 		expect(result.importError).toBe(true);
+	});
+});
+
+it('copies a historical shared link using its repaired loader selection before writing', async () => {
+	const url = new URL(
+		'https://example.test/share/2024_200/00002120/SC00001320_CG00006382?semesters=02340124~~02340141&path=CG00006246'
+	);
+	const data = await load({
+		params: {
+			year: '2024_200',
+			faculty: '00002120',
+			path: 'SC00001320_CG00006382'
+		},
+		url
+	} as Parameters<typeof load>[0]);
+	if (!data) throw new Error('Missing preview data');
+	const result = await exercise(1, true, data.semesters, {
+		degree: data.degree,
+		userPath: data.userPath
+	});
+	expect(result.writeStorage).toHaveBeenCalledWith({
+		...result.initial,
+		degree: ['2024_200', '00002120', 'SC00001314_CG00006245'],
+		path: 'CG00006246',
+		semesters: data.semesters,
+		wishlist: ['01040184']
 	});
 });

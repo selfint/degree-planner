@@ -130,3 +130,160 @@ describe('degree requirement selection', () => {
 		}
 	);
 });
+
+describe('legacy three-year CS plans', () => {
+	const degree: Degree = ['2024_200', '00002120', 'SC00001314_CG00006245'];
+	const affected: UserData = {
+		...plan,
+		exemptions: ['01040031'],
+		semesters: [['02340124', '02340124'], [], ['02340141']],
+		currentSemester: 2,
+		degree: ['2024_200', '00002120', 'SC00001320_CG00006382'],
+		path: 'CG00006246'
+	};
+
+	it.each([0, 1])(
+		'migrates original v%s three-year input to the actual CS degree',
+		async (version) => {
+			const legacy = {
+				semesters: affected.semesters,
+				currentSemester: affected.currentSemester,
+				wishlist: affected.wishlist,
+				degree: ['2023_2024', 'computer_science', '3_year'],
+				username: 'Guest'
+			};
+			values.set('version', String(version));
+			if (version === 0) {
+				values.delete('userData');
+				for (const [key, value] of Object.entries(legacy)) {
+					values.set(
+						key,
+						typeof value === 'string' ? value : JSON.stringify(value)
+					);
+				}
+			} else values.set('userData', JSON.stringify(legacy));
+			const { user } = await import('./stores.svelte');
+			expect(user.d).toEqual({ ...affected, exemptions: [], degree });
+			expect(JSON.parse(values.get('userData')!)).toEqual({
+				...affected,
+				exemptions: [],
+				degree
+			});
+		}
+	);
+
+	it.each([0, 1, 2, 3])(
+		'keeps v%s storage untouched when migrating offline',
+		async (version) => {
+			network.onLine = false;
+			values.set('version', String(version));
+			if (version < 2) {
+				const legacy = {
+					...affected,
+					degree: ['2023_2024', 'computer_science', '3_year'],
+					username: 'Guest'
+				};
+				values.set('userData', JSON.stringify(legacy));
+				if (version === 0) {
+					for (const [key, value] of Object.entries(legacy)) {
+						values.set(
+							key,
+							typeof value === 'string' ? value : JSON.stringify(value)
+						);
+					}
+				}
+			} else values.set('userData', JSON.stringify(affected));
+			const before = new Map(values);
+			const { user } = await import('./stores.svelte');
+			expect(user.d).toEqual({
+				...affected,
+				exemptions: version === 0 ? [] : affected.exemptions,
+				degree
+			});
+			expect(values).toEqual(before);
+			expect(storage.setItem).not.toHaveBeenCalled();
+			expect(storage.removeItem).not.toHaveBeenCalled();
+		}
+	);
+
+	it.each([2, 3])(
+		'repairs an affected v%s plan while retaining its contents on normal migration',
+		async (version) => {
+			values.set('version', String(version));
+			values.set('userData', JSON.stringify(affected));
+			const { user } = await import('./stores.svelte');
+			expect(user.d).toEqual({ ...affected, degree });
+			expect(JSON.parse(values.get('userData')!)).toEqual({
+				...affected,
+				degree
+			});
+			expect(values.get('version')).toBe('4');
+		}
+	);
+
+	it.each([true, false])(
+		'repairs v4 in memory without rewriting storage (online=%s)',
+		async (online) => {
+			values.set('userData', JSON.stringify(affected));
+			network.onLine = online;
+			const before = new Map(values);
+			const { user, readStorage } = await import('./stores.svelte');
+			expect(user.d).toEqual({ ...affected, degree });
+			await expect(readStorage()).resolves.toEqual({ ...affected, degree });
+			expect(values).toEqual(before);
+			expect(storage.setItem).not.toHaveBeenCalled();
+			expect(storage.removeItem).not.toHaveBeenCalled();
+		}
+	);
+
+	it('repairs account reads and snapshots without writing to either account or guest storage', async () => {
+		const { setStorage, readStorage, setUser, user, writeStorage } =
+			await import('./stores.svelte');
+		const account = structuredClone(affected);
+		const before = new Map(values);
+		const adapter = {
+			read: vi.fn().mockResolvedValue(account),
+			write: vi.fn(async (data) => data)
+		};
+		setStorage(adapter);
+		const result = await readStorage();
+		expect(result).toEqual({ ...affected, degree });
+		setUser(account);
+		expect(user.d).toEqual(result);
+		expect(account).toEqual(affected);
+		expect(adapter.write).not.toHaveBeenCalled();
+		expect(values).toEqual(before);
+		expect(storage.setItem).not.toHaveBeenCalled();
+		await writeStorage(result);
+		expect(adapter.write).toHaveBeenCalledWith(result);
+		expect(values).toEqual(before);
+	});
+});
+
+describe('future-version read compatibility', () => {
+	it.each([true, false])(
+		'normalizes the initial read without downgrading or writing (online=%s)',
+		async (online) => {
+			network.onLine = online;
+			const future = {
+				...plan,
+				degree: ['2024_200', '00002120', 'SC00001320_CG00006382'],
+				path: 'CG00006246',
+				futureField: { retain: true }
+			};
+			values.set('version', '5');
+			values.set('userData', JSON.stringify(future));
+			const before = new Map(values);
+			const { user, readStorage } = await import('./stores.svelte');
+			const expected = {
+				...future,
+				degree: ['2024_200', '00002120', 'SC00001314_CG00006245']
+			};
+			expect(user.d).toEqual(expected);
+			await expect(readStorage()).resolves.toEqual(expected);
+			expect(values).toEqual(before);
+			expect(storage.setItem).not.toHaveBeenCalled();
+			expect(storage.removeItem).not.toHaveBeenCalled();
+		}
+	);
+});

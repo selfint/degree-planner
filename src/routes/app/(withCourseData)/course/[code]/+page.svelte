@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { trackCourseAdditions } from '$lib/analytics';
 	import { withBase } from '$lib/deploymentPaths';
 	import { page } from '$app/state';
 	import { getContext } from 'svelte';
@@ -71,6 +72,7 @@
 
 	async function planCourse(): Promise<void> {
 		if (!personalPlanReady()) return;
+		const before = user.d;
 		setUser(
 			await writeStorage({
 				...user.d,
@@ -80,6 +82,7 @@
 				wishlist: user.d.wishlist.filter((c) => c !== code)
 			})
 		);
+		trackCourseAdditions(before, user.d, 'course_detail');
 	}
 
 	async function removeCourseFromSemesters(): Promise<void> {
@@ -114,12 +117,14 @@
 
 	async function addCourseToWishlist(): Promise<void> {
 		if (!personalPlanReady()) return;
+		const before = user.d;
 		setUser(
 			await writeStorage({
 				...user.d,
 				wishlist: [...new Set([...user.d.wishlist, code])] as CourseCode[]
 			})
 		);
+		trackCourseAdditions(before, user.d, 'course_detail');
 	}
 
 	async function removeCourseFromWishlist(): Promise<void> {

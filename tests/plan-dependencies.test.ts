@@ -119,6 +119,10 @@ test('a wishlist course still opens on the first click', async ({ page }) => {
 test('planned course navigation and warnings are separate keyboard controls', async ({
 	page
 }) => {
+	// Programmatic focus does not auto-wait for the startup shell to leave inert.
+	const shell = page.locator('.console-shell');
+	await expect(shell).toHaveAttribute('aria-busy', 'false');
+	await expect(shell).not.toHaveAttribute('inert');
 	const card = page.locator('[data-code="10400001"]');
 	await expect(card.locator('button button, a button, button a')).toHaveCount(
 		0
@@ -128,6 +132,7 @@ test('planned course navigation and warnings are separate keyboard controls', as
 		exact: true
 	});
 	await toggle.focus();
+	await expect(toggle).toBeFocused();
 	await page.keyboard.press('Enter');
 	await expect(toggle).toHaveAttribute('aria-expanded', 'true');
 	await expect(
@@ -137,6 +142,7 @@ test('planned course navigation and warnings are separate keyboard controls', as
 	await expect(toggle).toHaveAttribute('aria-expanded', 'false');
 	const open = card.locator('.course-open');
 	await open.focus();
+	await expect(open).toBeFocused();
 	await page.keyboard.press('Enter');
 	await expect(toggle).toHaveAttribute('aria-expanded', 'true');
 	await expect(page).toHaveURL(/\/app\/plan$/);

@@ -6,10 +6,14 @@ on:
   pull_request:
     branches: ['main', 'staging']
 
+# Disable PostHog ingestion in locally built test artifacts.
+env:
+  PUBLIC_POSTHOG_KEY: ''
+
 jobs:
   browser:
     name: Browser tests (${{ matrix.browser }})
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -111,7 +115,7 @@ jobs:
     # Each supported branch uses its own preview alias. Never test a fork or a
     # newer branch build while labelling it as this event's exact head.
     if: (github.event_name == 'pull_request' && github.head_ref == 'feat/console-migration' && github.event.pull_request.head.repo.full_name == github.repository) || (github.event_name == 'push' && github.ref == 'refs/heads/staging')
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     permissions:
       contents: read

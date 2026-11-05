@@ -31,7 +31,8 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-      - run: npm run test:unit -- --run
+      # Existing unit fixtures are root-relative; prefix coverage uses built browser tests.
+      - run: BASE_PATH='' npm run test:unit -- --run
       - run: npm run build:pages
       - run: npx playwright install --with-deps chromium
       - run: npx playwright test --config playwright.analytics.config.ts

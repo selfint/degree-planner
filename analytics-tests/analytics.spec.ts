@@ -18,6 +18,33 @@ const seed = {
 	wishlist: []
 };
 
+const diagnostics = new WeakMap<Page, string[]>();
+test.afterEach(async ({ page }, info) => {
+	if (info.status === info.expectedStatus) return;
+	console.log(
+		'Analytics browser diagnostics',
+		JSON.stringify({
+			messages: diagnostics.get(page),
+			browser: await page
+				.evaluate(() => ({
+					url: location.pathname,
+					userAgent: navigator.userAgent,
+					webdriver: navigator.webdriver,
+					dnt: navigator.doNotTrack,
+					secure: isSecureContext,
+					uuid: typeof crypto.randomUUID,
+					storage: Object.entries(localStorage).filter(([key]) =>
+						key.includes('analytics')
+					),
+					posthogGlobals: Object.keys(window).filter((key) =>
+						/posthog|planit/.test(key)
+					)
+				}))
+				.catch(() => 'page closed')
+		})
+	);
+});
+
 async function ready(page: Page) {
 	await expect(page.locator('.console-shell')).not.toHaveAttribute('inert', '');
 	await expect(page.locator('.console-shell > main')).not.toHaveAttribute(
@@ -27,10 +54,19 @@ async function ready(page: Page) {
 }
 async function setup(page: Page, plan: unknown = seed) {
 	const events: Event[] = [];
+	const messages: string[] = [];
+	diagnostics.set(page, messages);
+	page.on('console', (message) => messages.push(message.text()));
+	page.on('pageerror', (error) => messages.push(error.message));
+	page.on('request', (request) => {
+		if (request.url().includes('posthog'))
+			messages.push(request.method() + ' ' + request.url());
+	});
 	const requests: string[] = [];
 	await page.context().addInitScript(() => {
 		// Real SDK deliberately excludes automated browsers; test only explicit capture.
 		Object.defineProperty(navigator, 'webdriver', { get: () => false });
+		Object.defineProperty(navigator, 'userAgentData', { get: () => undefined });
 	});
 	await page.context().addInitScript(initializeGuestStorage, {
 		origin,

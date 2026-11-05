@@ -3,6 +3,8 @@ name: Pages staging
 on:
   push:
     branches: ['feat/github-pages-staging']
+  pull_request:
+    branches: ['staging']
   workflow_dispatch:
     inputs:
       deploy:
@@ -22,7 +24,8 @@ env:
 
 jobs:
   inspect:
-    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-24.04
     permissions:
       pages: read
     steps:
@@ -35,13 +38,15 @@ jobs:
           test "$(jq -r '.html_url' pages.json | sed 's:/*$::')" = "${APPROVED_PAGES_URL%/}"
 
   verify:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
         base: ['', '/degree-planner']
     env:
       PAGES_BUILD: 'true'
+      # Static-host QA must not send events to the production analytics project.
+      PUBLIC_POSTHOG_KEY: ''
       BASE_PATH: ${{ matrix.base }}
     steps:
       - uses: actions/checkout@v4
@@ -65,7 +70,7 @@ jobs:
   deploy:
     if: github.ref == 'refs/heads/feat/github-pages-staging' && (github.event_name == 'push' || (inputs.deploy && inputs.expected_url == 'https://tom.selfin.io/degree-planner/'))
     needs: [inspect, verify]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
       pages: write

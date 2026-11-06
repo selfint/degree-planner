@@ -11,10 +11,7 @@
 		disabled?: boolean;
 		emptyOptions?: boolean;
 	} = $props();
-	let selected = $state('');
-	$effect(() => {
-		selected = initialValue;
-	});
+	let selected = $derived(initialValue);
 	const he = $derived(content.lang.lang === 'he');
 </script>
 

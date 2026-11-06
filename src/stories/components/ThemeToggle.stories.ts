@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/sveltekit';
-import { userEvent, within } from 'storybook/test';
 import Preview from './ShellPreview.svelte';
 const meta = {
 	title: 'Components/ThemeToggle',

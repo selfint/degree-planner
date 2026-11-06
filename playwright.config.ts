@@ -28,6 +28,7 @@ export default defineConfig({
 		{
 			name: 'webkit',
 			testMatch: [
+				'course-actions-loading.test.ts',
 				'theme.test.ts',
 				'landing-parallax.test.ts',
 				'landing-install.test.ts',
@@ -49,6 +50,7 @@ export default defineConfig({
 				'search-faculty-width.test.ts',
 				'search-focus.test.ts',
 				'course-card-navigation.test.ts',
+				'course-actions-loading.test.ts',
 				'course-catalog-rails.test.ts',
 				'remaining-course-rails.test.ts',
 				'console-button-layout.test.ts',

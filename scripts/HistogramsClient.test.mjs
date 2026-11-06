@@ -1,4 +1,3 @@
-/// <reference path="./types.d.ts"/>
 import * as hist from './HistogramsClient.mjs';
 
 import { suite, test } from 'vitest';

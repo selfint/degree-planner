@@ -1,4 +1,5 @@
 import type { PageLoad } from './$types';
+import { compatiblePlan } from '$lib/planCompatibility';
 
 export const load: PageLoad = ({ params, url }) => {
 	const { year, faculty, path } = params;
@@ -12,11 +13,17 @@ export const load: PageLoad = ({ params, url }) => {
 
 	const userPath = url.searchParams.get('path') ?? undefined;
 
-	const degree = [year, faculty, path] as Degree;
+	// Old shared links can contain the same historical migration mismatch as
+	// saved plans. Normalize before displaying the title or copying the plan,
+	// without rewriting the original URL or changing its semester data.
+	const selection = compatiblePlan({
+		degree: [year, faculty, path] as Degree,
+		path: userPath
+	});
 
 	return {
-		degree,
+		degree: selection.degree,
 		semesters,
-		userPath
+		userPath: selection.path
 	};
 };

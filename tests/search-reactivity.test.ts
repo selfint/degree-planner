@@ -175,7 +175,7 @@ for (const language of ['English', 'Hebrew']) {
 				await page.setViewportSize({ width: 320, height: 812 });
 			await page.goto('/app/search?q=1040');
 			await expectSearchFiltersVisible(page);
-			let state = defaults();
+			const state = defaults();
 			await expectState(page, state);
 			const history = [{ ...state }];
 			for (const action of order) {

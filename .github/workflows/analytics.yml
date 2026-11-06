@@ -1,0 +1,44 @@
+name: Analytics validation
+
+on:
+  pull_request:
+    paths:
+      - 'src/**'
+      - '.env.production'
+      - 'analytics-tests/**'
+      - 'playwright.analytics.config.ts'
+      - 'package*.json'
+      - '.github/workflows/analytics.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  analytics:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        base: ['', '/degree-planner']
+    env:
+      BASE_PATH: ${{ matrix.base }}
+      PUBLIC_POSTHOG_KEY: phc_test_only
+      PUBLIC_POSTHOG_HOST: https://posthog.example.test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      # Existing unit fixtures are root-relative; prefix coverage uses built browser tests.
+      - run: BASE_PATH='' npm run test:unit -- --run
+      - run: npm run build:pages
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test --config playwright.analytics.config.ts
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: analytics-qa-${{ strategy.job-index }}
+          path: test-results/

@@ -20,11 +20,16 @@ although the app then renders the route. Installed offline navigations use the
 cached shell at `app/offline/`.
 
 The Pages staging workflow builds and browser-tests both root and repository-prefix
-artifacts. The owner approved replacing the existing Pages site on 2026-11-03.
-Pushes to this staging migration branch can publish only to the verified
-`https://tom.selfin.io/degree-planner/` destination after those checks pass.
-`vercel.json` disables Vercel Git deployments for `feat/github-pages-staging`
-only. Other branches retain their existing behavior.
+artifacts on Ubuntu 24.04, which is supported by the pinned Playwright release.
+Pull requests to `staging` run only static build/browser validation, with production
+analytics disabled. They cannot enter the deployment job.
+
+The owner approved replacing the existing Pages site on 2026-11-03. Only pushes
+to `feat/github-pages-staging` (or its explicitly approved manual dispatch) can
+publish to `https://tom.selfin.io/degree-planner/` after those checks pass.
+The combined Pages and analytics PR uses `feat/posthog-analytics`; updating that
+branch does not publish Pages. `vercel.json` disables Vercel Git deployments for
+both feature branches. Other branches retain their existing behavior.
 
 ## Existing site and publication gate
 

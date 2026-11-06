@@ -1,0 +1,303 @@
+import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
+import {
+	analyticsPage,
+	privacyConfig,
+	sanitizeAnalyticsEvent
+} from './analyticsPolicy';
+
+const mocks = vi.hoisted(() => ({
+	capture: vi.fn(),
+	init: vi.fn(),
+	env: {
+		PUBLIC_POSTHOG_KEY: 'phc_test_only',
+		PUBLIC_POSTHOG_HOST: 'https://analytics.example.test',
+		PUBLIC_POSTHOG_ENABLE_DEV: 'true'
+	},
+	runtime: { browser: true, dev: true }
+}));
+vi.mock('$app/environment', () => mocks.runtime);
+vi.mock('$env/static/public', () => mocks.env);
+vi.mock('posthog-js/dist/module.slim.no-external.js', () => ({
+	default: { init: mocks.init }
+}));
+vi.mock('$app/paths', () => ({ base: '/degree-planner' }));
+let values: Map<string, string>;
+beforeEach(() => {
+	vi.resetModules();
+	vi.clearAllMocks();
+	mocks.runtime.browser = true;
+	mocks.runtime.dev = true;
+	mocks.env.PUBLIC_POSTHOG_KEY = 'phc_test_only';
+	mocks.env.PUBLIC_POSTHOG_HOST = 'https://analytics.example.test';
+	mocks.env.PUBLIC_POSTHOG_ENABLE_DEV = 'true';
+	mocks.init.mockReturnValue({ capture: mocks.capture });
+	values = new Map();
+	vi.stubGlobal('window', {
+		location: { pathname: '/degree-planner/app/plan' }
+	});
+	vi.stubGlobal('navigator', {});
+	vi.stubGlobal('localStorage', {
+		getItem: (key: string) => values.get(key),
+		setItem: (key: string, value: string) => values.set(key, value)
+	});
+});
+afterEach(() => vi.unstubAllGlobals());
+
+describe('analytics privacy boundary', () => {
+	it.each([
+		['/', 'landing'],
+		['/degree-planner/', 'landing'],
+		['/en', 'landing'],
+		['/app/plan/', 'plan'],
+		['/degree-planner/app/catalog', 'catalog'],
+		['/app/settings', 'settings'],
+		['/app/semester', 'semester'],
+		['/share/SECRET_YEAR/SECRET_FACULTY/SECRET_DEGREE', 'share'],
+		['/app/preview/SECRET_YEAR/SECRET_FACULTY/SECRET_DEGREE', 'share'],
+		['/app/course/SECRET_COURSE', 'course'],
+		['/app/search', 'search'],
+		['/app/offline', 'offline'],
+		['/app/', undefined],
+		['/something', undefined]
+	])('classifies %s without private route details', (path, page) => {
+		expect(analyticsPage(path)).toBe(page);
+	});
+	it('strips arbitrary SDK, URL, identity, plan, grade, referrer and person fields', () => {
+		const id = '019ab123-0000-7000-8000-000000000001';
+		const result = sanitizeAnalyticsEvent({
+			event: '$pageview',
+			uuid: id,
+			$set: { email: 'SECRET_EMAIL' },
+			$set_once: { $initial_current_url: 'SECRET_URL' },
+			properties: {
+				token: 'phc_test_only',
+				distinct_id: id,
+				$session_id: id,
+				page: 'share',
+				$device_id: 'SECRET_FIREBASE_ID',
+				$current_url: 'SECRET_QUERY',
+				$referrer: 'SECRET_REFERRER',
+				grades: [99],
+				filename: 'SECRET_FILE',
+				semester: 'SECRET_COURSE',
+				$set: { name: 'SECRET_NAME' },
+				$set_once: { $initial_current_url: 'SECRET_URL' },
+				source: 'SECRET_SOURCE',
+				$process_person_profile: true
+			}
+		});
+		expect(result?.properties).toEqual({
+			token: 'phc_test_only',
+			distinct_id: id,
+			$session_id: id,
+			$process_person_profile: false,
+			$geoip_disable: true,
+			page: 'share',
+			$pathname: '/degree-planner/share'
+		});
+		expect(JSON.stringify(result)).not.toContain('SECRET');
+		expect(result).not.toHaveProperty('$set');
+		expect(result).not.toHaveProperty('$set_once');
+	});
+	it('drops unknown auto events, raw account IDs and invalid pages', () => {
+		for (const event of [
+			'$identify',
+			'$snapshot',
+			'$exception',
+			'$autocapture'
+		])
+			expect(
+				sanitizeAnalyticsEvent({ uuid: 'test', event, properties: {} })
+			).toBeNull();
+		expect(
+			sanitizeAnalyticsEvent({
+				uuid: 'test',
+				event: 'start_clicked',
+				properties: { distinct_id: 'firebase-user' }
+			})
+		).toBeNull();
+		expect(
+			sanitizeAnalyticsEvent({
+				uuid: 'test',
+				event: '$pageview',
+				properties: {
+					distinct_id: '019ab123-0000-7000-8000-000000000001',
+					page: 'SECRET'
+				}
+			})
+		).toBeNull();
+	});
+	it('never enables optional or remotely configured capture', () => {
+		expect(privacyConfig).toMatchObject({
+			autocapture: false,
+			capture_pageview: false,
+			capture_pageleave: false,
+			disable_session_recording: true,
+			capture_exceptions: false,
+			capture_heatmaps: false,
+			capture_performance: false,
+			capture_dead_clicks: false,
+			rageclick: false,
+			disable_surveys: true,
+			advanced_disable_flags: true,
+			disable_external_dependency_loading: true,
+			person_profiles: 'never',
+			save_referrer: false,
+			save_campaign_params: false,
+			respect_dnt: true
+		});
+	});
+});
+
+describe('analytics lifecycle', () => {
+	it('deduplicates hydration, aliases and query-only page updates, but counts return visits', async () => {
+		const { trackPageView } = await import('./analytics');
+		for (const path of [
+			'/',
+			'/en',
+			'/',
+			'/app/catalog',
+			'/app/catalog',
+			'/app/course/02340124',
+			'/app/catalog',
+			'/unknown',
+			'/app/catalog'
+		])
+			trackPageView(path);
+		expect(mocks.init).toHaveBeenCalledOnce();
+		expect(mocks.capture.mock.calls.map((args) => args[1].page)).toEqual([
+			'landing',
+			'catalog',
+			'course',
+			'catalog',
+			'catalog'
+		]);
+	});
+	it.each(['key', 'host', 'invalidHost', 'dev', 'ssr', 'dnt', 'gpc'])(
+		'is a no-op for %s',
+		async (condition) => {
+			if (condition === 'key') mocks.env.PUBLIC_POSTHOG_KEY = '';
+			if (condition === 'host') mocks.env.PUBLIC_POSTHOG_HOST = '';
+			if (condition === 'invalidHost')
+				mocks.env.PUBLIC_POSTHOG_HOST = 'http://unsafe.test';
+			if (condition === 'dev') mocks.env.PUBLIC_POSTHOG_ENABLE_DEV = 'false';
+			if (condition === 'ssr') mocks.runtime.browser = false;
+			if (condition === 'dnt') vi.stubGlobal('navigator', { doNotTrack: '1' });
+			if (condition === 'gpc')
+				vi.stubGlobal('navigator', { globalPrivacyControl: true });
+			const { trackPageView, trackEvent } = await import('./analytics');
+			trackPageView('/');
+			trackEvent('start_clicked');
+			expect(mocks.init).not.toHaveBeenCalled();
+			expect(mocks.capture).not.toHaveBeenCalled();
+		}
+	);
+	it('does not break an action if init or capture throws', async () => {
+		mocks.init.mockImplementationOnce(() => {
+			throw Error('blocked');
+		});
+		let analytics = await import('./analytics');
+		expect(() => analytics.trackEvent('start_clicked')).not.toThrow();
+		vi.resetModules();
+		mocks.capture.mockImplementationOnce(() => {
+			throw Error('blocked');
+		});
+		analytics = await import('./analytics');
+		expect(() => analytics.trackEvent('start_clicked')).not.toThrow();
+	});
+	it('does not initialize or store identifiers on Storybook routes', async () => {
+		vi.stubGlobal('window', {
+			location: { pathname: '/degree-planner/storybook/iframe.html' }
+		});
+		const { trackEvent, trackFirstDegreeSelection } =
+			await import('./analytics');
+		trackEvent('start_clicked');
+		trackFirstDegreeSelection(false);
+		expect(mocks.init).not.toHaveBeenCalled();
+		expect(values.size).toBe(0);
+	});
+	it('persists only an anonymous ID and keeps it across document loads', async () => {
+		let analytics = await import('./analytics');
+		analytics.trackPageView('/');
+		const id = mocks.init.mock.calls[0][1].bootstrap.distinctID;
+		expect([...values.values()]).toEqual([id]);
+		vi.resetModules();
+		analytics = await import('./analytics');
+		analytics.trackPageView('/');
+		expect(mocks.init.mock.calls[1][1].bootstrap.distinctID).toBe(id);
+		expect(mocks.init.mock.calls[1][1]).toMatchObject({
+			persistence: 'memory',
+			disable_persistence: true
+		});
+	});
+	it('counts first degree once across reloads and never counts an existing degree', async () => {
+		let analytics = await import('./analytics');
+		analytics.trackFirstDegreeSelection(false);
+		analytics.trackFirstDegreeSelection(false);
+		vi.resetModules();
+		analytics = await import('./analytics');
+		analytics.trackFirstDegreeSelection(false);
+		expect(mocks.capture).toHaveBeenCalledOnce();
+		values.clear();
+		vi.resetModules();
+		mocks.capture.mockClear();
+		analytics = await import('./analytics');
+		analytics.trackFirstDegreeSelection(true);
+		analytics.trackFirstDegreeSelection(false);
+		expect(mocks.capture).not.toHaveBeenCalled();
+	});
+	it('uses memory fallback when storage is denied', async () => {
+		vi.stubGlobal('localStorage', {
+			getItem: () => {
+				throw Error('denied');
+			},
+			setItem: () => {
+				throw Error('denied');
+			}
+		});
+		const { trackFirstDegreeSelection } = await import('./analytics');
+		trackFirstDegreeSelection(false);
+		trackFirstDegreeSelection(false);
+		expect(mocks.capture).toHaveBeenCalledOnce();
+	});
+	it('counts additions once per new placement without sending course or semester IDs', async () => {
+		const { trackCourseAdditions } = await import('./analytics');
+		const before = {
+			wishlist: ['02340124', '02340141'],
+			semesters: [['01040184', '03240033'], []],
+			exemptions: [],
+			currentSemester: 0
+		} as UserData;
+		trackCourseAdditions(
+			before,
+			{
+				...before,
+				wishlist: [...before.wishlist].reverse(),
+				semesters: [[...before.semesters[0]].reverse(), []]
+			},
+			'plan_board'
+		);
+		expect(mocks.capture).not.toHaveBeenCalled();
+		trackCourseAdditions(
+			before,
+			{
+				...before,
+				wishlist: ['02340124', '01040184', '01040184'],
+				semesters: [['01040184'], ['03240033', '02340141', '02340141']]
+			},
+			'plan_board'
+		);
+		expect(mocks.capture.mock.calls.map((args) => args[0])).toEqual([
+			'course_added_to_wishlist',
+			'course_added_to_semester',
+			'course_added_to_semester'
+		]);
+		expect(
+			mocks.capture.mock.calls.every(
+				(args) =>
+					JSON.stringify(args[1]) ===
+					JSON.stringify({ page: 'plan', source: 'plan_board' })
+			)
+		).toBe(true);
+	});
+});

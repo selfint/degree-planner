@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { withBase } from '$lib/deploymentPaths';
+	import { trackFirstDegreeSelection } from '$lib/analytics';
+	import { resolve } from '$app/paths';
 	import { user, content, writeStorage, setUser } from '$lib/stores.svelte';
 
 	import DegreeSection from './components/DegreeSection.svelte';
@@ -40,6 +41,7 @@
 		newDegree: Degree,
 		newPath?: string
 	): Promise<boolean> {
+		const hadDegree = user.d.degree !== undefined;
 		setUser(
 			await writeStorage({
 				...user.d,
@@ -48,6 +50,7 @@
 			})
 		);
 
+		trackFirstDegreeSelection(hadDegree);
 		return true;
 	}
 
@@ -159,7 +162,7 @@
 			<h2 class="section-title">{content.lang.settings.exemptions}</h2>
 			<CourseRow {getCourseData} courses={user.d.exemptions}>
 				{#snippet children({ code, course })}
-					<a class="block" href={withBase(`/app/course/${code}`)}>
+					<a class="block" href={resolve(`/app/course/${code}`)}>
 						<CourseElement {code} {course} />
 					</a>
 				{/snippet}

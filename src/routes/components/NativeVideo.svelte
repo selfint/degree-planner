@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { SvelteSet } from 'svelte/reactivity';
 
 	let {
 		source,
@@ -17,7 +18,7 @@
 	let video: HTMLVideoElement;
 	let nearby = $state(false);
 	let failed = $state(false);
-	const failedSources = new Set<string>();
+	const failedSources = new SvelteSet<string>();
 
 	function sourceFailed(format: string) {
 		failedSources.add(format);

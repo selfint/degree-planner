@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { keyedItems } from '$lib/keyedItems';
 	import { onMount } from 'svelte';
 	import { updateSafety } from '$lib/pwa/update-safety';
 	import AsyncButton from '$lib/components/AsyncButton.svelte';
@@ -9,6 +10,7 @@
 	import Select from '$lib/components/Select.svelte';
 	import Spinner from '$lib/components/Spinner.svelte';
 	import { loadRequirement } from '$lib/requirements';
+	import { getCatalogFaculty, isDegreeSelection } from '$lib/catalogSelection';
 
 	import { user, content } from '$lib/stores.svelte';
 
@@ -94,11 +96,7 @@
 		d?: string,
 		p?: string
 	): Promise<boolean> {
-		let c = catalogs;
-
-		// @ts-expect-error
-		const catalog = c[y]?.[f]?.[d];
-		if (catalog === undefined) {
+		if (!isDegreeSelection(catalogs, [y, f, d])) {
 			return false;
 		}
 
@@ -132,6 +130,13 @@
 		path = userPath;
 	}
 
+	async function saveDegree() {
+		const selection = [year, faculty, degree];
+		if (!isDegreeSelection(catalogs, selection)) return;
+		const didChange = await onChange(selection, path);
+		if (!didChange) reset();
+	}
+
 	function getFaculties(year?: Year): { value: string; display: string }[] {
 		if (year === undefined) {
 			return [];
@@ -154,11 +159,11 @@
 			return [];
 		}
 
-		let c = catalogs;
-
-		const entries: [string, { he: string; en: string }][] = Object.entries(
-			// @ts-expect-error
-			c[year][faculty]
+		const entries = Object.entries(
+			getCatalogFaculty(catalogs, year, faculty) ?? {}
+		).filter(
+			(entry): entry is [string, I18N] =>
+				typeof entry[1] === 'object' && entry[1] !== null
 		);
 
 		return entries
@@ -174,11 +179,12 @@
 		faculty?: string,
 		degree?: string
 	): Promise<{ value: string; display: string }[]> {
-		if ([year, faculty, degree].includes(undefined)) {
+		const selection = [year, faculty, degree];
+		if (!isDegreeSelection(catalogs, selection)) {
 			return [];
 		}
 
-		let r = await loadRequirement([year, faculty, degree] as Degree);
+		const r = await loadRequirement(selection);
 
 		return (r.nested ?? [])
 			.filter(({ en }) => en.toLowerCase().includes('path'))
@@ -218,7 +224,7 @@
 				<option value={undefined} disabled>
 					{content.lang.settings.selectYear}
 				</option>
-				{#each years as yearSemester}
+				{#each years as yearSemester (yearSemester)}
 					{@const [year, semester] = yearSemester.split('_')}
 					<option value={yearSemester}>
 						{year}
@@ -241,7 +247,7 @@
 				<option value={undefined} disabled>
 					{content.lang.settings.selectFaculty}
 				</option>
-				{#each faculties as { display, value }}
+				{#each faculties as { display, value } (value)}
 					<option {value}>{display}</option>
 				{/each}
 			</Select>
@@ -259,7 +265,7 @@
 				<option value={undefined} disabled>
 					{content.lang.settings.selectDegree}
 				</option>
-				{#each degrees as { display, value }}
+				{#each degrees as { display, value } (value)}
 					<option {value}>{display}</option>
 				{/each}
 			</Select>
@@ -285,7 +291,7 @@
 								<option value={undefined} disabled>
 									{content.lang.settings.selectPath}
 								</option>
-								{#each paths as { display, value }}
+								{#each keyedItems(paths, (path) => path.value) as { key, value: { display, value } } (key)}
 									<option {value}>{display}</option>
 								{/each}
 							</Select>
@@ -310,14 +316,7 @@
 				<PlanActionButton
 					disabled={!isValid}
 					variant="primary"
-					onclick={async () => {
-						// @ts-expect-error We validated the choice in `choiceIsValid`
-						const didChange = await onChange([year, faculty, degree], path);
-
-						if (!didChange) {
-							reset();
-						}
-					}}
+					onclick={saveDegree}
 					bind:buttonNamespace
 					name="save-degree"
 				>

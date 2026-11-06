@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { withBase } from '$lib/deploymentPaths';
 	import { onMount } from 'svelte';
+	import { SvelteSet } from 'svelte/reactivity';
 	import { tutorialCopy, type TutorialTopic } from '$lib/tutorials';
 	import type { Theme } from '$lib/theme';
 
@@ -19,7 +20,7 @@
 	let video: HTMLVideoElement;
 	let nearby = $state(false);
 	let failed = $state(false);
-	const failedSources = new Set<string>();
+	const failedSources = new SvelteSet<string>();
 
 	function sourceFailed(format: string) {
 		// Source errors do not bubble to the video. One failed format can still
@@ -116,7 +117,7 @@
 			<ol
 				class="tutorial-steps mt-3 list-decimal space-y-3 ps-5 text-sm leading-relaxed text-content-secondary marker:text-accent-primary"
 			>
-				{#each tutorial.steps as step}
+				{#each tutorial.steps as step, index (index)}
 					<li class="ps-1">
 						<strong class="font-medium text-content-primary"
 							>{step.title}.</strong

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { keyedItems } from '$lib/keyedItems';
 	import { generateColor } from '$lib/colors';
 	import { content } from '$lib/stores.svelte';
 
@@ -45,10 +46,7 @@
 				}
 			})
 
-			.filter<[Course, Date]>(
-				// @ts-expect-error
-				([_, t]) => t !== undefined
-			)
+			.filter((entry): entry is [Course, Date] => entry[1] !== undefined)
 			.toSorted((a, b) => a[1].getTime() - b[1].getTime());
 
 		const first = courseTests[0];
@@ -86,7 +84,7 @@
 {#await Promise.all([days0, days1]) then [days0, days1]}
 	{#if days0 !== undefined || days1 !== undefined}
 		<div class="study-days">
-			{#each [days0, days1] as days, round}
+			{#each [days0, days1] as days, round (round)}
 				{#if days !== undefined}
 					<div class="exam-round">
 						<span class="sr-only">
@@ -102,7 +100,7 @@
 						>
 							{days.first[1].getDate()}/{days.first[1].getMonth() + 1}
 						</span>
-						{#each days.next as [c, gap]}
+						{#each keyedItems(days.next, ([course]) => course.code) as { key, value: [c, gap] } (key)}
 							<span
 								style="background: {generateColor(c.code)}"
 								class="study-chip"

@@ -1,6 +1,11 @@
 <script lang="ts">
 	import '../app.css';
 	import { onMount } from 'svelte';
+	import { afterNavigate } from '$app/navigation';
+	import { trackPageView } from '$lib/analytics';
+	afterNavigate(({ to }) => {
+		if (to) trackPageView(to.url.pathname);
+	});
 	import { page, navigating } from '$app/state';
 	import { content } from '$lib/preferences.svelte';
 	import TitleBar from './components/TitleBar.svelte';

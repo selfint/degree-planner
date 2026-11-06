@@ -29,7 +29,6 @@
 		squeeze = false,
 		scheduleError,
 		tests,
-		index = 0,
 		styleOnCourse,
 		onOpen
 	}: Props = $props();
@@ -128,7 +127,7 @@
 		{:then course}
 			<div class="course-copy text-start text-content-primary" dir="auto">
 				<span class="course-name" title={course.name}>{course.name}</span>
-				{' '}<span class="course-code text-content-secondary" dir="ltr"
+				&#32;<span class="course-code text-content-secondary" dir="ltr"
 					>{code}</span
 				>
 			</div>

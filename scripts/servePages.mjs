@@ -42,7 +42,9 @@ createServer(async (req, res) => {
 		let exists;
 		try {
 			exists = await stat(path);
-		} catch {}
+		} catch {
+			// A missing path may still resolve to an extensionless HTML page.
+		}
 		if (exists?.isDirectory()) {
 			if (!url.pathname.endsWith('/')) {
 				res.writeHead(301, { Location: `${url.pathname}/${url.search}` }).end();
@@ -53,7 +55,9 @@ createServer(async (req, res) => {
 			try {
 				await stat(`${path}.html`);
 				path += '.html';
-			} catch {}
+			} catch {
+				// Let the normal file read select the static 404 page.
+			}
 		}
 		let body,
 			status = 200;

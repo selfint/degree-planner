@@ -171,7 +171,8 @@ for (const width of [320, 390]) {
 							'userData',
 							JSON.stringify({
 								degree: ['2024_200', '00002120', 'SC00001320_CG00006382'],
-								path: 'CG00006246',
+								// Keep the long physics label without triggering legacy CS repair.
+								path: 'CG00006385',
 								semesters: Array.from({ length: 15 }, () => []),
 								currentSemester: 12,
 								exemptions: [],
@@ -211,11 +212,20 @@ for (const width of [320, 390]) {
 				await expect(description).toBeVisible();
 				await expect(description).toContainText(course.about);
 				await expect(page.locator('details.course-description')).toHaveCount(0);
-				const descriptionBounds = await description.boundingBox();
-				const actionsBounds = await actions.boundingBox();
-				expect(
-					descriptionBounds!.y + descriptionBounds!.height
-				).toBeLessThanOrEqual(actionsBounds!.y);
+				// Read sibling geometry in one frame, not across startup layout changes.
+				const geometry = await page
+					.locator('.course-page')
+					.evaluate((course) => ({
+						descriptionBottom: course
+							.querySelector('.course-description')!
+							.getBoundingClientRect().bottom,
+						actionsTop: course
+							.querySelector('[data-testid="course-plan-actions"]')!
+							.getBoundingClientRect().top
+					}));
+				expect(geometry.descriptionBottom).toBeLessThanOrEqual(
+					geometry.actionsTop
+				);
 				await expectCompactButtons(page, actions.locator('button.ui-button'));
 				await actions
 					.getByRole('button', {

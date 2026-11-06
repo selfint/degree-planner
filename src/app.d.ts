@@ -1,5 +1,4 @@
 import catalogs from '../static/catalogs.json';
-import courseData from '../static/courseDataStripped.json';
 
 // type gymnastics to get catalogs in a type-safe way
 // credit: https://chatgpt.com/share/67137b39-7de8-8002-a4aa-0556e0c86b5a
@@ -236,8 +235,10 @@ declare global {
 	type Catalogs = typeof catalogs;
 	type Degree = NestedKeys<Catalogs>;
 
-	type _CourseData = typeof courseData;
-	type CourseCode = keyof _CourseData;
+	// Plans and refreshed catalogs may contain codes absent from the bundled
+	// snapshot. Keep those identifiers so missing courses can render placeholders.
+	// Public course payloads are validated separately by publicDataSchema.
+	type CourseCode = string;
 	type CourseData = Record<CourseCode, Course>;
 	type FullCourseData = Record<CourseCode, FullCourse>;
 

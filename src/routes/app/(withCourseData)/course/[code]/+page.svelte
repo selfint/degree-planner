@@ -1,5 +1,7 @@
 <script lang="ts">
-	import { withBase } from '$lib/deploymentPaths';
+	import { keyedItems } from '$lib/keyedItems';
+	import { trackCourseAdditions } from '$lib/analytics';
+	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import { getContext } from 'svelte';
 	import { PERSONAL_PLAN_READY } from '$lib/pwa/plan-visibility';
@@ -71,6 +73,7 @@
 
 	async function planCourse(): Promise<void> {
 		if (!personalPlanReady()) return;
+		const before = user.d;
 		setUser(
 			await writeStorage({
 				...user.d,
@@ -80,6 +83,7 @@
 				wishlist: user.d.wishlist.filter((c) => c !== code)
 			})
 		);
+		trackCourseAdditions(before, user.d, 'course_detail');
 	}
 
 	async function removeCourseFromSemesters(): Promise<void> {
@@ -114,12 +118,14 @@
 
 	async function addCourseToWishlist(): Promise<void> {
 		if (!personalPlanReady()) return;
+		const before = user.d;
 		setUser(
 			await writeStorage({
 				...user.d,
 				wishlist: [...new Set([...user.d.wishlist, code])] as CourseCode[]
 			})
 		);
+		trackCourseAdditions(before, user.d, 'course_detail');
 	}
 
 	async function removeCourseFromWishlist(): Promise<void> {
@@ -215,81 +221,90 @@
 				<bdi dir="auto">{course.about}</bdi>
 			</p>
 		{/if}
-	{/await}
 
-	{#if showPersonalPlan}
-		<div class="course-actions course-inset" data-testid="course-plan-actions">
-			{#if courseState === 'planned'}
-				<PlanActionButton
-					showOfflineReason={false}
-					variant="secondary"
-					onclick={removeCourseFromSemesters}
-					bind:buttonNamespace
-					name="un-plan"
-				>
-					{content.lang.course.removeFromSemester}
-					{getSeasonAndIndex(
-						user.d.semesters.findIndex((s) => s.includes(code))
-					)}
-				</PlanActionButton>
-			{:else}
-				<PlanActionButton
-					showOfflineReason={false}
-					variant="primary"
-					onclick={planCourse}
-					bind:buttonNamespace
-					name="plan"
-				>
-					{content.lang.course.plan}
-				</PlanActionButton>
-				{#if courseState === 'wished'}
+		<!--
+			Keep actions in the resolved-details block so a description cannot
+			move an enabled button between pointer down and pointer up.
+		-->
+		{#if showPersonalPlan}
+			<div
+				class="course-actions course-inset"
+				data-testid="course-plan-actions"
+			>
+				{#if courseState === 'planned'}
 					<PlanActionButton
 						showOfflineReason={false}
 						variant="secondary"
-						onclick={removeCourseFromWishlist}
+						onclick={removeCourseFromSemesters}
 						bind:buttonNamespace
-						name="un-wish"
+						name="un-plan"
 					>
-						{content.lang.course.removeFromWishlist}
-					</PlanActionButton>
-				{:else if courseState === 'exempt'}
-					<PlanActionButton
-						showOfflineReason={false}
-						variant="secondary"
-						onclick={removeCourseFromExemptions}
-						bind:buttonNamespace
-						name="un-exempt"
-					>
-						{content.lang.course.removeFromExemption}
+						{content.lang.course.removeFromSemester}
+						{getSeasonAndIndex(
+							user.d.semesters.findIndex((s) => s.includes(code))
+						)}
 					</PlanActionButton>
 				{:else}
 					<PlanActionButton
 						showOfflineReason={false}
-						variant="secondary"
-						onclick={addCourseToWishlist}
+						variant="primary"
+						onclick={planCourse}
 						bind:buttonNamespace
-						name="wish"
+						name="plan"
 					>
-						{content.lang.course.wishlist}
+						{content.lang.course.plan}
 					</PlanActionButton>
-					<PlanActionButton
-						showOfflineReason={false}
-						variant="secondary"
-						onclick={addCourseToExemptions}
-						bind:buttonNamespace
-						name="exempt"
-					>
-						{content.lang.course.exempt}
-					</PlanActionButton>
+					{#if courseState === 'wished'}
+						<PlanActionButton
+							showOfflineReason={false}
+							variant="secondary"
+							onclick={removeCourseFromWishlist}
+							bind:buttonNamespace
+							name="un-wish"
+						>
+							{content.lang.course.removeFromWishlist}
+						</PlanActionButton>
+					{:else if courseState === 'exempt'}
+						<PlanActionButton
+							showOfflineReason={false}
+							variant="secondary"
+							onclick={removeCourseFromExemptions}
+							bind:buttonNamespace
+							name="un-exempt"
+						>
+							{content.lang.course.removeFromExemption}
+						</PlanActionButton>
+					{:else}
+						<PlanActionButton
+							showOfflineReason={false}
+							variant="secondary"
+							onclick={addCourseToWishlist}
+							bind:buttonNamespace
+							name="wish"
+						>
+							{content.lang.course.wishlist}
+						</PlanActionButton>
+						<PlanActionButton
+							showOfflineReason={false}
+							variant="secondary"
+							onclick={addCourseToExemptions}
+							bind:buttonNamespace
+							name="exempt"
+						>
+							{content.lang.course.exempt}
+						</PlanActionButton>
+					{/if}
 				{/if}
-			{/if}
-			{#if !$planOnline}
-				<span class="course-offline" role="status"
-					>{content.lang.lang === 'he' ? 'ללא אינטרנט' : 'Offline'}</span
-				>
-			{/if}
-		</div>
-	{:else}
+				{#if !$planOnline}
+					<span class="course-offline" role="status"
+						>{content.lang.lang === 'he' ? 'ללא אינטרנט' : 'Offline'}</span
+					>
+				{/if}
+			</div>
+		{/if}
+	{/await}
+
+	{#if !showPersonalPlan}
 		<p
 			role="status"
 			class="ui-notice course-notice course-inset"
@@ -358,7 +373,8 @@
 					<h2 class="course-section-title course-inset">
 						{content.lang.common.dependencies}
 					</h2>
-					<!-- svelte-ignore a11y_no_noninteractive_tabindex (Keyboard users need to focus this region to scroll through the course dependencies.) -->
+					<!-- Keyboard users need to focus this region to scroll through the course dependencies. -->
+					<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 					<div
 						bind:this={depRow}
 						dir={content.lang.dir}
@@ -370,7 +386,7 @@
 						aria-label={content.lang.common.dependencies}
 						tabindex="0"
 					>
-						{#each dependencies(course) as group, i}
+						{#each keyedItems( dependencies(course), (group) => JSON.stringify(group) ) as { key, value: group }, i (key)}
 							{#if i !== 0}
 								<p
 									class="course-dependency-or flex flex-col justify-center text-sm text-content-secondary"
@@ -379,8 +395,8 @@
 								</p>
 							{/if}
 							<div class="course-dependency-group">
-								{#each group as code}
-									<a href={withBase(`/app/course/${code}`)}>
+								{#each keyedItems(group, (code) => code) as { key, value: code } (key)}
+									<a href={resolve(`/app/course/${code}`)}>
 										<CourseElement {code} course={getCourseData(code)}>
 											{#snippet note()}
 												{@const index = getCourseSemester(code)}
@@ -425,7 +441,7 @@
 							courses={course.connections?.adjacent ?? []}
 						>
 							{#snippet children({ code, course })}
-								<a href={withBase(`/app/course/${code}`)}>
+								<a href={resolve(`/app/course/${code}`)}>
 									<CourseElement {code} {course}>
 										{#snippet note()}
 											{@const index = getCourseSemester(code)}
@@ -468,7 +484,7 @@
 						courses={course.connections?.exclusive ?? []}
 					>
 						{#snippet children({ code, course })}
-							<a href={withBase(`/app/course/${code}`)}>
+							<a href={resolve(`/app/course/${code}`)}>
 								<CourseElement {code} {course}>
 									{#snippet note()}
 										{@const index = getCourseSemester(code)}
@@ -506,8 +522,8 @@
 							{content.lang.common.dependants}
 						</h2>
 						<div class="course-dependants course-inset flex flex-wrap gap-2">
-							{#each dependants as course}
-								<a href={withBase(`/app/course/${course.code}`)}>
+							{#each keyedItems(dependants, (course) => course.code) as { key, value: course } (key)}
+								<a href={resolve(`/app/course/${course.code}`)}>
 									<CourseElement code={course.code} {course}>
 										{#snippet note()}
 											{@const index = getCourseSemester(course.code)}

@@ -6,10 +6,31 @@ on:
   pull_request:
     branches: ['main', 'staging']
 
+# Disable PostHog ingestion in locally built test artifacts.
+env:
+  PUBLIC_POSTHOG_KEY: ''
+
 jobs:
+  quality:
+    name: Types, formatting and ESLint
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Validate catalog snapshot and prepare derived data
+        run: npm run generate-catalogs
+      - name: Check types and Svelte diagnostics
+        run: npm run check
+      - name: Check authored source formatting and ESLint rules
+        run: npm run lint
+
   browser:
     name: Browser tests (${{ matrix.browser }})
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -31,13 +52,18 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps ${{ matrix.browser }}
       - name: Verify narrow mobile controls, board and course rails before the full suite
-        run: npx playwright test tests/search-focus.test.ts tests/pwa-browser-links.test.ts tests/console-button-layout.test.ts tests/footer-controls.test.ts tests/console-navigation-styles.test.ts tests/search-three-columns.test.ts tests/plan-board-alignment.test.ts tests/course-catalog-rails.test.ts tests/remaining-course-rails.test.ts tests/search-faculty-width.test.ts tests/student-journeys.test.ts --project="${{ matrix.project }}"
+        run: npx playwright test tests/course-actions-loading.test.ts tests/plan-dependencies.test.ts tests/search-focus.test.ts tests/pwa-browser-links.test.ts tests/console-button-layout.test.ts tests/footer-controls.test.ts tests/console-navigation-styles.test.ts tests/search-three-columns.test.ts tests/plan-board-alignment.test.ts tests/course-catalog-rails.test.ts tests/remaining-course-rails.test.ts tests/search-faculty-width.test.ts tests/student-journeys.test.ts --project="${{ matrix.project }}"
       - name: Upload focused board alignment screenshots
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: board-alignment-${{ matrix.browser }}
           path: |
+            test-results/course-actions-loading-*/
+            test-results/plan-dependencies-*/
+            test-results/search-focus-*/
+            test-results/pwa-browser-links-*/
+            test-results/console-button-layout-*/
             test-results/plan-board-alignment-*/
             test-results/footer-controls-*/
             test-results/console-navigation-styles-*/
@@ -111,7 +137,7 @@ jobs:
     # Each supported branch uses its own preview alias. Never test a fork or a
     # newer branch build while labelling it as this event's exact head.
     if: (github.event_name == 'pull_request' && github.head_ref == 'feat/console-migration' && github.event.pull_request.head.repo.full_name == github.repository) || (github.event_name == 'push' && github.ref == 'refs/heads/staging')
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     permissions:
       contents: read

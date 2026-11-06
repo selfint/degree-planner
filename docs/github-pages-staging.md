@@ -7,8 +7,9 @@ The workflow remains at `.github/workflows/pages-staging.yml` for continuity.
 ## Automatic deployment from main
 
 Once this workflow is merged into `main`, every push to `main`, including a PR
-merge, builds and browser-tests both root and repository-prefix static artifacts.
-Only after both checks and the existing-site inspection pass can the deployment
+merge, triggers static validation and deployment. Validation builds and
+browser-tests both root and repository-prefix artifacts. Only after both checks
+and the existing-site inspection pass can the deployment
 job publish. Existing `github-pages` environment approvals and branch rules still
 apply, so an environment approval may be required before publication completes.
 
@@ -63,9 +64,17 @@ settings, the custom domain, DNS, branch protections or Firebase configuration.
 Deployment stays within the existing `github-pages` environment and its configured
 approvals/branch rules. If the workflow token cannot read Pages metadata, or the
 environment blocks `main`, request the specific necessary setup action. Do not
-create alternate credentials or bypass environment rules. The existing
-`pages-staging-publish` concurrency group is retained to serialize publication
-with any already-running release workflow; an active deployment is not cancelled.
+create alternate credentials or bypass environment rules. Workflow-level
+concurrency prevents overlapping validation/publication runs for the same ref.
+GitHub may replace pending runs and does not guarantee commit-order execution;
+active runs are not cancelled. The existing `pages-staging-publish` deployment
+lock is also retained to serialize publication with any already-running release.
+
+Immediately before uploading the artifact, the deployment job reads the current
+`main` SHA. If it no longer matches the run's commit, the run emits a notice and
+skips both upload and deployment. This also prevents a rerun of an older commit
+from replacing the current app. A newer main push can still arrive after this
+check, but its deployment must wait for the active publication lock.
 
 Manual dispatch is available once this workflow exists on the default branch.
 Select `main` and leave `deploy=false` for validation only. To republish `main`,

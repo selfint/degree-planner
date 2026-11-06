@@ -16,6 +16,12 @@ on:
         type: string
         default: 'https://tom.selfin.io/degree-planner/'
 
+# Serialize validation and publication for each ref, not just the deploy job.
+# Let an active deployment finish; newer pending runs replace older pending runs.
+concurrency:
+  group: pages-workflow-${{ github.ref }}
+  cancel-in-progress: false
+
 permissions:
   contents: read
 
@@ -112,8 +118,22 @@ jobs:
       - run: npm run build:pages
         env:
           BASE_PATH: ${{ steps.pages.outputs.base_path }}
+      - name: Publish only the current main commit
+        id: current-main
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          current_sha=$(gh api repos/${{ github.repository }}/git/ref/heads/main --jq '.object.sha')
+          if [ "$current_sha" = "$GITHUB_SHA" ]; then
+            echo 'publish=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'publish=false' >> "$GITHUB_OUTPUT"
+            echo "::notice::Skipping publication: $GITHUB_SHA was superseded by main at $current_sha."
+          fi
       - uses: actions/upload-pages-artifact@v3
+        if: steps.current-main.outputs.publish == 'true'
         with:
           path: build
       - uses: actions/deploy-pages@v4
+        if: steps.current-main.outputs.publish == 'true'
         id: deployment

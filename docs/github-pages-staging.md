@@ -16,17 +16,15 @@ apply, so an environment approval may be required before publication completes.
 Pull requests targeting `main` or `staging` run the same static build/browser
 validation with production analytics disabled. Pull requests and pushes to
 feature or staging branches cannot enter this workflow's deployment job.
-The review sequence is:
+Review and merge the combined [PR #230](https://github.com/selfint/degree-planner/pull/230)
+into `main` once. It includes the app promotion, analytics changes, and Pages
+automation. That merge activates automatic publication after the gates pass.
+The former promotion PR #178 is superseded; there is no intermediate staging merge.
 
-1. Merge the configuration PR into `staging`. This does not deploy Pages.
-2. Merge the existing [staging-to-main promotion PR #178](https://github.com/selfint/degree-planner/pull/178)
-   into `main`. This activates automatic publication and publishes that merged
-   app after the gates pass.
-
-The promotion includes the app already merged into `staging`, because the older
+The combined PR includes the app already merged into `staging`, because the older
 `main` branch does not contain the static Pages build, routes or tests. Review
-the promotion's full app diff as well as the separate Pages automation change.
-Opening either PR does not deploy it.
+the complete app diff and the Pages automation together. Opening the PR does
+not deploy it.
 
 ## Build and test
 

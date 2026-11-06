@@ -23,6 +23,7 @@ vi.mock('posthog-js/dist/module.slim.no-external.js', () => ({
 vi.mock('$app/paths', () => ({ base: '/degree-planner' }));
 let values: Map<string, string>;
 beforeEach(() => {
+	vi.useFakeTimers();
 	vi.resetModules();
 	vi.clearAllMocks();
 	mocks.runtime.browser = true;
@@ -33,6 +34,7 @@ beforeEach(() => {
 	mocks.init.mockReturnValue({ capture: mocks.capture });
 	values = new Map();
 	vi.stubGlobal('window', {
+		addEventListener: vi.fn(),
 		location: { pathname: '/degree-planner/app/plan' }
 	});
 	vi.stubGlobal('navigator', {});
@@ -41,7 +43,11 @@ beforeEach(() => {
 		setItem: (key: string, value: string) => values.set(key, value)
 	});
 });
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => {
+	vi.clearAllTimers();
+	vi.useRealTimers();
+	vi.unstubAllGlobals();
+});
 
 describe('analytics privacy boundary', () => {
 	it.each([
@@ -87,6 +93,7 @@ describe('analytics privacy boundary', () => {
 			}
 		});
 		expect(result?.properties).toEqual({
+			auth_status: 'unknown',
 			token: 'phc_test_only',
 			distinct_id: id,
 			$session_id: id,
@@ -164,6 +171,7 @@ describe('analytics lifecycle', () => {
 			'/app/catalog'
 		])
 			trackPageView(path);
+		vi.runAllTimers();
 		expect(mocks.init).toHaveBeenCalledOnce();
 		expect(mocks.capture.mock.calls.map((args) => args[1].page)).toEqual([
 			'landing',
@@ -296,8 +304,142 @@ describe('analytics lifecycle', () => {
 			mocks.capture.mock.calls.every(
 				(args) =>
 					JSON.stringify(args[1]) ===
-					JSON.stringify({ page: 'plan', source: 'plan_board' })
+					JSON.stringify({
+						page: 'plan',
+						source: 'plan_board',
+						auth_status: 'unknown'
+					})
 			)
 		).toBe(true);
 	});
+});
+
+describe('authentication segmentation', () => {
+	async function setup() {
+		const analytics = await import('./analytics');
+		const { observeAnalyticsAuth } = await import('./analyticsAuth');
+		let resolve!: (user: object | null) => void;
+		let fail!: (error: unknown) => void;
+		const auth = {
+			onAuthStateChanged: vi.fn((next, error) => {
+				resolve = next;
+				fail = error;
+				return () => {};
+			})
+		};
+		observeAnalyticsAuth(auth);
+		observeAnalyticsAuth(auth);
+		expect(auth.onAuthStateChanged).toHaveBeenCalledOnce();
+		return { ...analytics, resolve, fail };
+	}
+	it('waits briefly for resolved auth on app entry without losing visit time', async () => {
+		const { trackPageView, resolve } = await setup();
+		const entered = new Date();
+		trackPageView('/app/plan');
+		expect(mocks.capture).not.toHaveBeenCalled();
+		vi.advanceTimersByTime(100);
+		resolve({ uid: 'SECRET_ID', email: 'SECRET_EMAIL' });
+		expect(mocks.capture).toHaveBeenCalledWith(
+			'$pageview',
+			{ page: 'plan', auth_status: 'signed_in' },
+			expect.objectContaining({ timestamp: entered })
+		);
+		vi.runAllTimers();
+		expect(mocks.capture).toHaveBeenCalledOnce();
+		expect(JSON.stringify(mocks.capture.mock.calls)).not.toContain('SECRET');
+	});
+	it('uses unknown for unresolved, failed, and lazy landing auth, and updates login/logout', async () => {
+		const { trackPageView, trackEvent, resolve, fail } = await setup();
+		trackPageView('/');
+		trackEvent('start_clicked');
+		resolve(null);
+		trackEvent('start_clicked');
+		resolve({ uid: 'SECRET' });
+		trackEvent('start_clicked');
+		resolve(null);
+		trackEvent('start_clicked');
+		fail(new Error('unavailable'));
+		trackEvent('start_clicked');
+		expect(mocks.capture.mock.calls.map((call) => call[1].auth_status)).toEqual(
+			['unknown', 'unknown', 'signed_out', 'signed_in', 'signed_out', 'unknown']
+		);
+	});
+	it('contains observer registration failures and keeps auth unknown', async () => {
+		const { observeAnalyticsAuth, analyticsAuthStatus } =
+			await import('./analyticsAuth');
+		expect(() =>
+			observeAnalyticsAuth({
+				onAuthStateChanged() {
+					throw new Error('unavailable');
+				}
+			})
+		).not.toThrow();
+		expect(analyticsAuthStatus()).toBe('unknown');
+	});
+	it('flushes a short visit on pagehide before the auth timeout', async () => {
+		const { trackPageView } = await setup();
+		trackPageView('/app/plan');
+		const callback = vi
+			.mocked(window.addEventListener)
+			.mock.calls.find(([event]) => event === 'pagehide')?.[1] as () => void;
+		callback();
+		vi.runAllTimers();
+		expect(mocks.capture).toHaveBeenCalledOnce();
+		expect(mocks.capture.mock.calls[0][1]).toEqual({
+			page: 'plan',
+			auth_status: 'unknown'
+		});
+	});
+	it('times out unresolved pageviews once and never retroactively relabels them', async () => {
+		const { trackPageView, resolve } = await setup();
+		trackPageView('/app/plan');
+		vi.advanceTimersByTime(1000);
+		expect(mocks.capture).toHaveBeenCalledWith(
+			'$pageview',
+			{ page: 'plan', auth_status: 'unknown' },
+			expect.any(Object)
+		);
+		resolve(null);
+		trackPageView('/app/plan');
+		expect(mocks.capture).toHaveBeenCalledOnce();
+	});
+	it('flushes departed pages and preserves page-before-action order', async () => {
+		const { trackPageView, trackEvent, resolve } = await setup();
+		trackPageView('/app/plan');
+		trackPageView('/app/catalog');
+		trackEvent('start_clicked');
+		resolve({});
+		vi.runAllTimers();
+		expect(
+			mocks.capture.mock.calls.map((call) => [
+				call[0],
+				call[1].page,
+				call[1].auth_status
+			])
+		).toEqual([
+			['$pageview', 'plan', 'unknown'],
+			['$pageview', 'catalog', 'unknown'],
+			['start_clicked', 'plan', 'unknown']
+		]);
+	});
+	it.each(['signed_in', 'signed_out', 'unknown', 'SECRET_EMAIL', null, {}])(
+		'allowlists auth status %j',
+		(status) => {
+			const result = sanitizeAnalyticsEvent({
+				event: 'start_clicked',
+				uuid: 'test',
+				properties: {
+					distinct_id: '019ab123-0000-7000-8000-000000000001',
+					auth_status: status,
+					uid: 'SECRET_ID'
+				}
+			});
+			expect(result?.properties.auth_status).toBe(
+				['signed_in', 'signed_out', 'unknown'].includes(status as string)
+					? status
+					: 'unknown'
+			);
+			expect(JSON.stringify(result)).not.toContain('SECRET');
+		}
+	);
 });

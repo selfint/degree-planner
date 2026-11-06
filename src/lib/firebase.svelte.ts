@@ -1,3 +1,4 @@
+import { observeAnalyticsAuth } from './analyticsAuth';
 import { initializeApp, type FirebaseApp } from 'firebase/app';
 import { browser } from '$app/environment';
 import {
@@ -84,6 +85,7 @@ export async function initFirebase(): Promise<FirebaseServices> {
 	}
 
 	await auth.setPersistence(browserLocalPersistence);
+	if (browser) observeAnalyticsAuth(auth);
 
 	const services: FirebaseServices = { app, auth, firestore };
 

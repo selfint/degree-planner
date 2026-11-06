@@ -117,6 +117,8 @@ test('landing funnel, stable browser identity and one pageview per completed SPA
 	await page.goto(path('/'));
 	await expect.poll(() => count('$pageview')).toBe(1);
 	expect(events[0].properties.page).toBe('landing');
+	expect(events[0].properties.auth_status).toBe('unknown');
+	expect(events[0].properties.$session_id).toMatch(/^[0-9a-f-]{36}$/i);
 	await page
 		.getByRole('link', { name: 'Get Started', exact: true })
 		.first()
@@ -134,10 +136,28 @@ test('landing funnel, stable browser identity and one pageview per completed SPA
 	expect(
 		events.filter((e) => e.event === '$pageview').map((e) => e.properties.page)
 	).toEqual(['landing', 'plan', 'catalog', 'plan']);
+	const appPageviews = events.filter(
+		(event) =>
+			event.event === '$pageview' && event.properties.page !== 'landing'
+	);
+	expect(
+		appPageviews.every((event) => event.properties.auth_status === 'signed_out')
+	).toBe(true);
+	const appSession = appPageviews[0].properties.$session_id;
+	expect(appSession).toMatch(/^[0-9a-f-]{36}$/i);
+	expect(
+		new Set(appPageviews.map((event) => event.properties.$session_id)).size
+	).toBe(1);
 	await page.reload();
 	await ready(page);
 	await expect.poll(() => count('$pageview')).toBe(5);
 	expect(new Set(events.map((e) => e.properties.distinct_id)).size).toBe(1);
+	const reloaded = events
+		.filter((event) => event.event === '$pageview')
+		.at(-1)!;
+	expect(reloaded.properties.$session_id).toMatch(/^[0-9a-f-]{36}$/i);
+	expect(reloaded.properties.$session_id).not.toBe(appSession);
+	expect(reloaded.properties.auth_status).toBe('signed_out');
 	expect(requests.every((url) => new URL(url).pathname === '/e/')).toBe(true);
 });
 

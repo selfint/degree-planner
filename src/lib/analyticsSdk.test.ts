@@ -1,11 +1,12 @@
 // @vitest-environment jsdom
 import { gunzipSync } from 'node:zlib';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { privacyConfig } from './analyticsPolicy';
+import { anonymousId, privacyConfig } from './analyticsPolicy';
 
 // Exercise the actual bundled SDK, not a mocked capture/init API.
 describe('real PostHog SDK privacy boundary', () => {
 	afterEach(() => {
+		vi.useRealTimers();
 		vi.restoreAllMocks();
 		vi.unstubAllGlobals();
 		localStorage.clear();
@@ -59,6 +60,7 @@ describe('real PostHog SDK privacy boundary', () => {
 			$process_person_profile: false,
 			$geoip_disable: true
 		});
+		expect(result?.properties.$session_id).toMatch(anonymousId);
 		expect(JSON.stringify(result)).not.toContain('PRIVATE');
 		expect(
 			JSON.stringify({
@@ -101,5 +103,64 @@ describe('real PostHog SDK privacy boundary', () => {
 		});
 		expect(JSON.stringify(payload)).not.toContain('PRIVATE');
 		client.opt_out_capturing();
+	});
+	it('counts memory-only sessions across events and rotates after inactivity or a new document', async () => {
+		vi.useFakeTimers({ toFake: ['Date'] });
+		const started = new Date('2026-11-06T12:00:00Z').getTime();
+		vi.setSystemTime(started);
+		Object.defineProperty(navigator, 'sendBeacon', {
+			configurable: true,
+			value: () => true
+		});
+		vi.stubGlobal('fetch', vi.fn());
+		const { default: posthog } =
+			await import('posthog-js/dist/module.slim.no-external.js');
+		const config = {
+			...privacyConfig,
+			api_host: 'https://posthog.example.test',
+			bootstrap: {
+				distinctID: '019ab123-0000-7000-8000-000000000002',
+				isIdentifiedID: false
+			}
+		};
+		const client = posthog.init('phc_test_only', config, 'sessionTest')!;
+		const capture = (event: '$pageview' | 'start_clicked' = '$pageview') =>
+			client.capture(
+				event,
+				{ page: 'plan' },
+				{ transport: 'sendBeacon', send_instantly: true }
+			)?.properties.$session_id;
+		const first = capture();
+		expect(first).toMatch(anonymousId);
+		vi.setSystemTime(started + 29 * 60_000);
+		expect(capture('start_clicked')).toBe(first);
+		vi.setSystemTime(started + 58 * 60_000);
+		expect(capture()).toBe(first);
+		// Inactivity is measured from the last captured event, not the first.
+		vi.setSystemTime(started + 89 * 60_000);
+		const next = capture();
+		expect(next).toMatch(anonymousId);
+		expect(next).not.toBe(first);
+
+		// A fresh SDK instance models a new document with the same browser UUID.
+		const reloaded = posthog.init(
+			'phc_test_only',
+			config,
+			'sessionReloadTest'
+		)!;
+		const reloadedEvent = reloaded.capture(
+			'$pageview',
+			{ page: 'plan' },
+			{ transport: 'sendBeacon', send_instantly: true }
+		);
+		expect(reloadedEvent?.properties.distinct_id).toBe(
+			config.bootstrap.distinctID
+		);
+		expect(reloadedEvent?.properties.$session_id).toMatch(anonymousId);
+		expect(reloadedEvent?.properties.$session_id).not.toBe(next);
+		expect(localStorage.length).toBe(0);
+		expect(sessionStorage.length).toBe(0);
+		client.opt_out_capturing();
+		reloaded.opt_out_capturing();
 	});
 });

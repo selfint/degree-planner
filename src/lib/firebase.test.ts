@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { observeAnalyticsAuth } from './analyticsAuth';
 
 const mocks = vi.hoisted(() => ({
 	app: {},
@@ -10,6 +11,8 @@ const mocks = vi.hoisted(() => ({
 	withConverter:
 		vi.fn<(converter: { toFirestore(data: UserData): unknown }) => object>()
 }));
+
+vi.mock('./analyticsAuth', () => ({ observeAnalyticsAuth: vi.fn() }));
 
 vi.mock('$app/environment', () => ({ browser: true }));
 vi.mock('firebase/app', () => ({ initializeApp: () => mocks.app }));
@@ -89,6 +92,7 @@ describe('Firebase startup', () => {
 		mocks.isSupported.mockReturnValue(new Promise(() => {}));
 		const services = await initFirebase();
 		expect(services.auth).toBe(mocks.auth);
+		expect(observeAnalyticsAuth).toHaveBeenCalledWith(mocks.auth);
 		expect(services.firestore).toBe(mocks.firestore);
 		expect(mocks.isSupported).not.toHaveBeenCalled();
 	}, 250);

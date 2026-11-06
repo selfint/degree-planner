@@ -61,6 +61,37 @@ not as a first manual degree selection. Uploading here means parsing locally,
 not sending the PDF to PostHog. A canceled preview counts a parsed upload but not
 a saved import. Copy plan means importing into one's own plan, not clipboard copy.
 
+## Authentication status and sessions
+
+Every event has the allowlisted `auth_status` value `signed_in`, `signed_out`,
+or `unknown`. It reflects the resolved Firebase authentication state when the
+event is captured. The observer attaches only when the application initializes
+Firebase; analytics never starts authentication or delays application boot.
+Initial app pageviews wait at most one second for authentication to resolve,
+preserving their navigation timestamp. Navigation, actions, and page exit flush
+any pending view without adding another pageview. Login/logout changes subsequent
+events without changing the anonymous browser ID.
+
+A fresh landing visit, slow/failed authentication, and data collected before this
+property existed cannot be classified as signed out. Keep them unknown or only
+in the unfiltered total. Auth splits start with the new build; old events cannot
+be backfilled reliably. A browser can appear in both signed-in and signed-out
+unique counts, so those counts must not be added to calculate the total.
+
+The bundled SDK already emits a random `$session_id`; no custom session-start
+event or extra persistent identifier is necessary. Count **unique sessions**
+(`unique_session`) on `$pageview` to measure sessions with a recognized pageview.
+Within one document, navigation and actions share the session until 30 minutes
+without captured activity or the SDK's 24-hour maximum. These are sessions with
+pageviews, not every mouse movement or all unobserved activity.
+
+SDK persistence intentionally remains memory-only to avoid saving private
+session-entry URLs. A reload, full-document navigation, or new tab starts a new
+session even when the anonymous browser ID stays the same. Label the metric
+**Sessions (memory-only)**; it is not a cross-tab, refresh-deduplicated visit count.
+See [PostHog sessions](https://posthog.com/docs/data/sessions) and
+[JavaScript persistence](https://posthog.com/docs/libraries/js/persistence).
+
 ## Suggested dashboard
 
 - Acquisition funnel: unique browsers doing `$pageview` with `page=landing`,
@@ -69,11 +100,16 @@ a saved import. Copy plan means importing into one's own plan, not clipboard cop
   `catalog, plan, settings, semester, share, search, course, offline`, grouped by
   calendar month. Label it **monthly active browsers**. Use all pages for site MAU.
 - Operations: total events per day/week for the explicit action events.
-- Page traffic: `$pageview` counts, broken down by `page`.
+- Page traffic: both total `$pageview` counts and unique anonymous browsers
+  (`dau` over the selected period), broken down by `page`.
+- Sessions: unique `$session_id` on `$pageview`, with the memory-only caveat above.
+- Show unfiltered total, signed-in, and signed-out series for each metric.
+  Keep unknown/pre-update traffic visible rather than silently calling it signed out.
 - Adoption: unique browsers for first-degree, saved import and saved copy.
 
-Unique anonymous browsers are not verified people or logged-in users. Browser
-storage resets, private browsing, multiple devices/origins, DNT/GPC, blockers,
+Unique anonymous browsers are not verified people or unique user accounts, even
+when filtered to signed-in events. Account-level deduplication across devices is
+not collected. Browser storage resets, private browsing, multiple devices/origins, DNT/GPC, blockers,
 and offline requests affect the counts. No login identity is sent or merged.
 
 ## Privacy boundary
@@ -82,11 +118,12 @@ and offline requests affect the counts. No login identity is sent or merged.
 - Autocapture, automatic pageviews/pageleave, recording, exceptions, heatmaps,
   performance, rage/dead clicks, surveys, remote configuration/flags, person
   profiles, referrers and campaign capture are disabled.
-- Only explicit allowed event names and enum properties survive `before_send`.
+- Only explicit allowed event names and enum properties (including authentication
+  status) survive `before_send`.
   All raw URLs, queries, fragments, referrers, names, emails, Firebase IDs,
   degree/course IDs, semesters, grades, filenames, file content, `$set` and
   `$set_once` fields are removed. `$pathname` is a fixed sanitized page path.
-- SDK state is memory-only. The application persists only a random UUID and a
+- SDK state, including session/window IDs, is memory-only. The application persists only a random UUID and a
   first-degree boolean for analytics. This avoids the SDK's default persistence
   of raw session-entry/share URLs. It does not change existing plan storage.
 - The UUID is passed as an explicitly anonymous bootstrap ID. Never call
@@ -115,7 +152,9 @@ Repeat build and browser checks with `BASE_PATH=''` for root hosting.
 The browser suite intercepts every request to the test host, decodes actual SDK
 payloads, and blocks unrelated external requests. It does not send events to a
 real project. It exercises the landing funnel, persistent random ID, navigation,
-course operations, share/copy confirmation, file failure/cancel/save, and private
+course operations, session stability within SPA navigation and rotation on reload,
+authentication status, share/copy confirmation, file failure/cancel/save, and private
 URL/referrer stripping including storage. The analytics workflow tests both base
 paths and never deploys. Unit tests cover disabled configuration, failed writes,
-first-degree repetition, storage failures, event allowlisting and route dedupe.
+first-degree repetition, storage failures, event allowlisting, route dedupe,
+unknown authentication, login/logout changes, and session inactivity rotation.

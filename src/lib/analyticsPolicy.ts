@@ -29,6 +29,7 @@ export const analyticsEvents = [
 	'plan_copied'
 ] as const;
 export type AnalyticsEvent = (typeof analyticsEvents)[number];
+export type AnalyticsAuthStatus = 'signed_in' | 'signed_out' | 'unknown';
 export type AnalyticsSource = 'course_detail' | 'plan_board';
 
 /** Deliberately discard all identifiers, search terms, queries and fragments. */
@@ -64,6 +65,11 @@ export function sanitizeAnalyticsEvent(
 		return null;
 	if (event.event === '$pageview' && !isPage(input.page)) return null;
 	const properties: Record<string, unknown> = {
+		auth_status: ['signed_in', 'signed_out', 'unknown'].includes(
+			input.auth_status
+		)
+			? input.auth_status
+			: 'unknown',
 		token: input.token,
 		distinct_id: input.distinct_id,
 		$process_person_profile: false,

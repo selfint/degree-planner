@@ -1,3 +1,4 @@
+import { analyticsAuthStatus, onAnalyticsAuthChange } from './analyticsAuth';
 import { browser, dev } from '$app/environment';
 import * as publicEnv from '$env/static/public';
 // No optional extensions or remotely loaded scripts, even if project settings change.
@@ -17,6 +18,36 @@ let client: PostHog | undefined;
 let initialized = false;
 let lastPage: AnalyticsPage | undefined;
 let degreeSelected = false;
+let pendingPage: { page: AnalyticsPage; timestamp: Date } | undefined;
+let pendingTimer: ReturnType<typeof setTimeout> | undefined;
+
+function flushPendingPage() {
+	if (pendingTimer) clearTimeout(pendingTimer);
+	pendingTimer = undefined;
+	const pending = pendingPage;
+	pendingPage = undefined;
+	if (pending) capturePage(pending.page, pending.timestamp);
+}
+
+onAnalyticsAuthChange(() => {
+	if (analyticsAuthStatus() !== 'unknown') flushPendingPage();
+});
+
+function capturePage(page: AnalyticsPage, timestamp: Date) {
+	try {
+		client?.capture(
+			'$pageview',
+			{ page, auth_status: analyticsAuthStatus() },
+			{
+				transport: 'sendBeacon',
+				send_instantly: true,
+				timestamp
+			}
+		);
+	} catch {
+		/* analytics is optional */
+	}
+}
 const degreeMarker = 'planit.analytics.degree-selected.v1';
 const browserIdKey = 'planit.analytics.browser-id.v1';
 
@@ -71,6 +102,8 @@ function initialize() {
 			},
 			'planit'
 		);
+		// Preserve short visits if the document leaves before auth resolves.
+		window.addEventListener('pagehide', flushPendingPage);
 	} catch {
 		// Analytics must never prevent navigation, a save or an offline startup.
 	}
@@ -81,10 +114,15 @@ export function trackEvent(
 	source?: AnalyticsSource
 ) {
 	initialize();
+	flushPendingPage();
 	try {
 		client?.capture(
 			event,
-			{ page: analyticsPage(window.location.pathname), source },
+			{
+				page: analyticsPage(window.location.pathname),
+				source,
+				auth_status: analyticsAuthStatus()
+			},
 			{ transport: 'sendBeacon', send_instantly: true }
 		);
 	} catch {
@@ -97,16 +135,19 @@ export function trackPageView(pathname: string) {
 	initialize();
 	const page = analyticsPage(pathname);
 	if (page === lastPage) return;
+	// Resolve the previous visit before moving on; never relabel a departed
+	// page using the authentication state from a later navigation.
+	flushPendingPage();
 	lastPage = page;
-	if (!page) return;
-	try {
-		client?.capture(
-			'$pageview',
-			{ page },
-			{ transport: 'sendBeacon', send_instantly: true }
-		);
-	} catch {
-		/* analytics is optional */
+	if (!page || !client) return;
+	const timestamp = new Date();
+	if (page !== 'landing' && analyticsAuthStatus() === 'unknown') {
+		pendingPage = { page, timestamp };
+		// A short, bounded wait only for telemetry. App boot never awaits auth
+		// for analytics, and lazy landing-page visits remain honestly unknown.
+		pendingTimer = setTimeout(flushPendingPage, 1000);
+	} else {
+		capturePage(page, timestamp);
 	}
 }
 

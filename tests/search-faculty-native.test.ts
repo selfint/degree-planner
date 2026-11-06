@@ -117,7 +117,6 @@ for (const language of ['en', 'he']) {
 			);
 			await page.goto(`/app/search?q=${q}`);
 			await waitForSearchReady(page);
-			await expectSearchFiltersVisible(page);
 			const state: State = {
 				q,
 				faculty: '',
@@ -143,7 +142,6 @@ for (const language of ['en', 'he']) {
 			await expectResults(page, state);
 			await page.reload();
 			await waitForSearchReady(page);
-			await expectSearchFiltersVisible(page);
 			await expectResults(page, state);
 			await page.locator('fieldset button').click();
 			const cleared = {

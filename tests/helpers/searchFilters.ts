@@ -7,8 +7,8 @@ export async function expectSearchFiltersVisible(page: Page) {
 	await expect(page.locator('#console-boot')).toHaveCount(0);
 	await expect(page.locator('details.search-filters')).toHaveCount(0);
 	await expect(filters.locator('legend')).toBeVisible();
-	for (const control of await filters.locator('input, select, button').all())
-		await expect(control).toBeVisible();
+	const controls = await filters.locator('input, select, button').all();
+	await Promise.all(controls.map((control) => expect(control).toBeVisible()));
 	const position = await filters.evaluate((element) => ({
 		bottom: element.getBoundingClientRect().bottom,
 		headingTop: document.querySelector('main h1')!.getBoundingClientRect().top

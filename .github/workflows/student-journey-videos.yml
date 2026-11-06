@@ -64,6 +64,8 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
+      - name: Prefer the runner's official HTTPS Ubuntu archive
+        run: sudo bash scripts/preferUbuntuArchive.sh
       - run: npx playwright install --with-deps chromium
       - run: sudo apt-get update && sudo apt-get install -y ffmpeg
       - name: Verify frame boundary extraction

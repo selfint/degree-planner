@@ -138,7 +138,9 @@ export function writeSearchFilters(
 	maxPoints: number
 ) {
 	searchFilterKeys.forEach((key) => params.delete(key));
-	if (filters.available) params.set('available', '');
+	// Keys were cleared above. append also syncs an empty presence flag to a
+	// SvelteURL owner, whose set() treats missing and empty values as unchanged.
+	if (filters.available) params.append('available', '');
 	if (filters.faculty) params.set('faculty', filters.faculty);
 	if (filters.pointsMin > 0) params.set('pointsMin', String(filters.pointsMin));
 	if (filters.pointsMax < maxPoints)

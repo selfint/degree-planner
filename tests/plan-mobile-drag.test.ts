@@ -62,7 +62,8 @@ test.beforeEach(async ({ page }) => {
 
 for (const device of ['Pixel 7', 'iPhone 13']) {
 	test.describe(`${device} (Chromium touch emulation)`, () => {
-		const { defaultBrowserType: _, ...mobile } = devices[device];
+		const mobile = { ...devices[device] };
+		Reflect.deleteProperty(mobile, 'defaultBrowserType');
 		test.use(mobile);
 		for (const language of ['en', 'he']) {
 			test(`touch drag stays visible under the finger outside the semester scroller (${language})`, async ({

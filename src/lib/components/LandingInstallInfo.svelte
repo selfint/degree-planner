@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { withBase } from '$lib/deploymentPaths';
+	import { resolve } from '$app/paths';
 	import { content } from '$lib/preferences.svelte';
 
 	const messages = {
@@ -57,7 +57,7 @@
 				</p>
 			</div>
 			<a
-				href={withBase('/app/')}
+				href={resolve('/app/')}
 				data-sveltekit-reload
 				class="ui-button ui-button--primary min-h-11"
 			>

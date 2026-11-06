@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { withBase } from '$lib/deploymentPaths';
 	import Logo from '$lib/assets/logo.webp?enhanced';
-	import Title from '$lib/assets/Title.svg?raw';
+	import BrandTitle from '$lib/components/BrandTitle.svelte';
 
 	import SearchIcon from '$lib/components/SearchIcon.svelte';
 
@@ -26,14 +26,10 @@
 	$effect(() => {
 		// A filter-only navigation must not overwrite an unfinished query draft.
 		// History/external navigation does discard drafts, even when q is unchanged.
-		searchRevision;
+		void searchRevision;
 		query = committedQuery;
 	});
-	let placeholder: string = $state(content.lang.header.searchPlaceholder);
-
-	$effect(() => {
-		placeholder = content.lang.header.searchPlaceholder;
-	});
+	let placeholder: string = $derived(content.lang.header.searchPlaceholder);
 
 	let selected = $state(false);
 	const textStyle = $derived(
@@ -57,7 +53,7 @@
 		aria-label="PlanIt"
 	>
 		<enhanced:img src={Logo} loading="eager" alt="" class="brand-logo" />
-		<span class="brand-title">{@html Title}</span>
+		<span class="brand-title"><BrandTitle /></span>
 	</a>
 	{#if !started}
 		<GetStartedLink />

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { keyedItems } from '$lib/keyedItems';
 	import { generateColor } from '$lib/colors';
 	import { content } from '$lib/stores.svelte';
 
@@ -15,7 +16,7 @@
 			{content.lang.common.semester}
 		</h2>
 		<div class="flex w-full flex-row justify-start">
-			{#each scheduleError.season as season}
+			{#each keyedItems(scheduleError.season, (season) => season) as { key, value: season } (key)}
 				<p class="me-2 text-start text-xs text-content-secondary">
 					{content.lang.common.seasons[season]}
 				</p>
@@ -29,14 +30,14 @@
 			{content.lang.common.dependencies}
 		</h2>
 		<div class="mb-0 gap-y-2 text-start text-xs">
-			{#each scheduleError.dependencies as group, i}
+			{#each keyedItems( scheduleError.dependencies, (group) => JSON.stringify(group.map(({ course }) => course.code)) ) as { key, value: group }, i (key)}
 				{#if i !== 0}
 					<p class="w-full text-center text-content-secondary">
 						{content.lang.common.or}
 					</p>
 				{/if}
 				<div>
-					{#each group as { course: dep, taken }}
+					{#each keyedItems(group, ({ course }) => course.code) as { key, value: { course: dep, taken } } (key)}
 						<div class="mb-1 flex flex-row justify-start text-content-primary">
 							<div
 								style="background: {generateColor(dep.code)}"
@@ -76,7 +77,7 @@
 			{content.lang.common.adjacencies}
 		</h2>
 		<div class="space-y-1 text-start text-xs">
-			{#each scheduleError.adjacencies as { course: adj, taken }}
+			{#each keyedItems(scheduleError.adjacencies, ({ course }) => course.code) as { key, value: { course: adj, taken } } (key)}
 				<div class="text-content-primary">
 					<div class="flex flex-row justify-between">
 						<div>
@@ -112,7 +113,7 @@
 			{content.lang.common.exclusives}
 		</h2>
 		<div class="space-y-1 text-start text-xs">
-			{#each scheduleError.exclusives as course}
+			{#each keyedItems(scheduleError.exclusives, (course) => course.code) as { key, value: course } (key)}
 				<div class="text-content-primary">
 					<div class="flex flex-row justify-between">
 						<div>

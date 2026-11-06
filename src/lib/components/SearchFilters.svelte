@@ -16,31 +16,18 @@
 		onclear: () => void;
 	};
 	const { filters, faculties, maxPoints, onchange, onclear }: Props = $props();
-	let pointsMin = $state(0);
-	let pointsMax = $state(0);
-	let pointsMinText = $state('0.0');
-	let pointsMaxText = $state('0.0');
-	let medianText = $state('0.0');
-	let hasUncommittedInput = $state(false);
-	let facultyInput: HTMLSelectElement;
-	let fieldset: HTMLFieldSetElement;
-
+	// Isolate committed scalar values so unrelated filter updates preserve drafts.
 	const committedMin = $derived(filters.pointsMin);
 	const committedMax = $derived(filters.pointsMax);
 	const committedMedian = $derived(filters.medianMin);
-	// Unrelated filter updates must not overwrite unfinished number/slider drafts.
-	$effect(() => {
-		pointsMin = committedMin;
-		pointsMinText = committedMin.toFixed(1);
-	});
-	$effect(() => {
-		pointsMax = committedMax;
-		pointsMaxText = committedMax.toFixed(1);
-	});
-
-	$effect(() => {
-		medianText = committedMedian.toFixed(1);
-	});
+	let pointsMin = $derived(committedMin);
+	let pointsMax = $derived(committedMax);
+	let pointsMinText = $derived(committedMin.toFixed(1));
+	let pointsMaxText = $derived(committedMax.toFixed(1));
+	let medianText = $derived(committedMedian.toFixed(1));
+	let hasUncommittedInput = $state(false);
+	let facultyInput: HTMLSelectElement;
+	let fieldset: HTMLFieldSetElement;
 
 	function clear() {
 		// A change and reset can happen before Svelte renders the intermediate value.
@@ -224,7 +211,7 @@
 					{#if filters.faculty && !faculties.includes(filters.faculty)}
 						<option value={filters.faculty}>{filters.faculty}</option>
 					{/if}
-					{#each faculties as faculty}
+					{#each faculties as faculty, index (`${faculty}-${index}`)}
 						<option value={faculty}>{faculty}</option>
 					{/each}
 				</select>

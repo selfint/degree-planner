@@ -1,7 +1,6 @@
-/// <reference path="./types.d.ts"/>
-/// <reference path="../src/app.d.ts"/>
+/** @import {} from '../src/app' */
 
-import { writeFileSync as _writeFileSync, readFileSync, mkdirSync } from 'fs';
+import { writeFileSync as _writeFileSync, readFileSync } from 'fs';
 import { join } from 'path';
 import * as sap from './SAPClient.mjs';
 

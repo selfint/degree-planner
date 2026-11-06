@@ -2,11 +2,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
 	app: {},
-	auth: { setPersistence: vi.fn() },
+	auth: { setPersistence: vi.fn(), currentUser: { uid: 'test-user' } },
 	firestore: {},
 	analytics: {},
 	isSupported: vi.fn(),
-	getAnalytics: vi.fn()
+	getAnalytics: vi.fn(),
+	withConverter:
+		vi.fn<(converter: { toFirestore(data: UserData): unknown }) => object>()
 }));
 
 vi.mock('$app/environment', () => ({ browser: true }));
@@ -21,7 +23,7 @@ vi.mock('firebase/auth', () => ({
 vi.mock('firebase/firestore', () => ({
 	getFirestore: () => mocks.firestore,
 	connectFirestoreEmulator: vi.fn(),
-	collection: vi.fn(),
+	collection: () => ({ withConverter: mocks.withConverter }),
 	getDoc: vi.fn(),
 	doc: vi.fn(),
 	setDoc: vi.fn(),
@@ -32,13 +34,54 @@ vi.mock('firebase/analytics', () => ({
 	getAnalytics: mocks.getAnalytics
 }));
 
-import { initFirebase, startOptionalAnalytics } from './firebase.svelte';
+import {
+	buildFirebaseStorage,
+	initFirebase,
+	startOptionalAnalytics
+} from './firebase.svelte';
 
 beforeEach(() => {
 	vi.resetAllMocks();
 	mocks.auth.setPersistence.mockResolvedValue(undefined);
 	mocks.isSupported.mockResolvedValue(false);
 	mocks.getAnalytics.mockReturnValue(mocks.analytics);
+});
+
+describe('Firebase plan serialization', () => {
+	const selectedDegree: Degree = [
+		'2024_200',
+		'00002120',
+		'SC00001314_CG00006245'
+	];
+
+	it.each([undefined, selectedDegree])(
+		'preserves persisted codes and serializes degree %j',
+		async (degree) => {
+			const services = await initFirebase();
+			const data: UserData = {
+				exemptions: ['09999997'],
+				semesters: [['09999998', '02340124'], []],
+				currentSemester: 1,
+				wishlist: ['09999999'],
+				degree,
+				path: degree ? 'CG00006246' : undefined
+			};
+			await expect(buildFirebaseStorage(services).write(data)).resolves.toBe(
+				data
+			);
+			const converter = mocks.withConverter.mock.calls[0][0];
+
+			expect(converter.toFirestore(data)).toEqual({
+				version: 4,
+				exemptions: ['09999997'],
+				semesters: ['09999998-02340124', ''],
+				currentSemester: 1,
+				wishlist: ['09999999'],
+				degree: degree ?? null,
+				path: degree ? 'CG00006246' : null
+			});
+		}
+	);
 });
 
 describe('Firebase startup', () => {

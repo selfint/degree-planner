@@ -9,9 +9,8 @@
 		pointsMax: 6,
 		medianMin: 0
 	};
-	let filters = $state<Filters>({ ...defaults });
-	$effect(() => {
-		filters = selected
+	let filters = $derived<Filters>(
+		selected
 			? {
 					available: true,
 					faculty: unknownFaculty ? 'Archived faculty' : 'Example science',
@@ -19,8 +18,8 @@
 					pointsMax: 4,
 					medianMin: 80
 				}
-			: { ...defaults };
-	});
+			: { ...defaults }
+	);
 </script>
 
 <SearchFilters

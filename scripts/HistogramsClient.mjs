@@ -1,9 +1,10 @@
+/** @import { Result } from './types' */
 const histograms = `https://michael-maltsev.github.io/technion-histograms`;
 
 /**
  * Fetches the median score for a course from a remote source.
  * @param {string} code - The course code.
- * @returns {Promise<Result<number | undefined, number>} A promise that resolves to the median score or undefined if not available.
+ * @returns {Promise<Result<number | undefined, number>>} A promise that resolves to the median score or undefined if not available.
  */
 async function _getMedian(code) {
 	// Parse course code in SMXXXXXXXX format
@@ -33,7 +34,7 @@ async function _getMedian(code) {
 					`Course ${code} median: Rate limit exceeded for ${url}. Rate limit details: Limit=${rateLimitLimit}, Used=${rateLimitUsed}, Remaining=${rateLimitRemaining}, Reset=${rateLimitReset}`
 				);
 			}
-		} catch (e) {
+		} catch {
 			// ignore
 		}
 

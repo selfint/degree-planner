@@ -23,7 +23,7 @@
 		variant === 'interactive' || variant === 'interactiveRequirements'
 	);
 	$effect(() => {
-		variant;
+		void variant;
 		opened = 0;
 	});
 	const course = $derived(

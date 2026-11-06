@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { withBase } from '$lib/deploymentPaths';
+	import { resolve } from '$app/paths';
 	import { getContext } from 'svelte';
 	import {
 		searchNavigationContext,
@@ -105,7 +105,7 @@
 						type="button"
 						class="search-result text-start"
 						class:opacity-60={!course.current}
-						onclick={() => goto(withBase(`/app/course/${course.code}`))}
+						onclick={() => goto(resolve(`/app/course/${course.code}`))}
 					>
 						<CourseElement code={course.code} {course}>
 							{#snippet note()}

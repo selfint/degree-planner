@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { keyedItems } from '$lib/keyedItems';
 	import { content } from '$lib/stores.svelte';
 
 	type Props = {
@@ -25,11 +26,11 @@
 	}
 </script>
 
-{#each requirements ?? [] as requirementGroup}
+{#each keyedItems( requirements ?? [], (group) => JSON.stringify(group.map((req) => req.name)) ) as { key, value: requirementGroup } (key)}
 	{@const reqGroup =
 		slice === undefined ? requirementGroup : requirementGroup.slice(-slice)}
 	<div class="requirement-path">
-		{#each reqGroup as req, i}
+		{#each keyedItems(reqGroup, (req) => req.name) as { key, value: req }, i (key)}
 			{#if i > 0}<span class="path-separator" aria-hidden="true">/</span>{/if}
 			<span title={content.lang.lang === 'he' ? req.he : req.en}
 				>{formatName(req)}</span

@@ -156,7 +156,15 @@ replacement, validators, storage denial, and cross-tab revision coverage.
 
 ## Testing
 
-Install dependencies with `npm ci`. The test suites can be run independently:
+Install dependencies with `npm ci`. Run `npm run check` for TypeScript and
+Svelte diagnostics, and `npm run lint` for Prettier and ESLint checks of authored
+source and configuration. CI also runs these checks after catalog validation.
+Generated data snapshots, recording metadata, and frozen compatibility fixtures
+are excluded from style checks. Their schema, data, provenance, and behavior
+remain covered by the existing validation and regression suites. `npm run format`
+formats authored files without rewriting those generated or frozen artifacts.
+
+The test suites can be run independently:
 
 - `npm run test:integration` runs the Playwright browser tests, building and serving
   the app automatically. Install browsers first with

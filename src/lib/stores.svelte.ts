@@ -237,16 +237,13 @@ const _degreeName = $derived.by(() => {
 	}
 
 	// parse serialized user degree
-	let [degreeString, path] = _fineGrainedReactivityUserDegree.split(';') as [
-		string,
-		string | undefined
-	];
+	const [degreeString, serializedPath] = _fineGrainedReactivityUserDegree.split(
+		';'
+	) as [string, string | undefined];
 
 	const degree = degreeString.split(':') as Degree;
 
-	if (path === '-') {
-		path = undefined;
-	}
+	const path = serializedPath === '-' ? undefined : serializedPath;
 
 	const lang = content.lang.lang;
 	const catalogName = content.lang.common.catalog;
@@ -277,7 +274,7 @@ function readLocalStorage(): UserData {
 	let user = loaders[localVersion]();
 	while (localVersion < version) {
 		// TODO: explicitly migrate versions not in a loop
-		// @ts-expect-error
+		// @ts-expect-error Each migration accepts the preceding version and returns the next schema.
 		user = migrations[localVersion](user);
 		localVersion++;
 	}

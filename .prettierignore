@@ -1,4 +1,21 @@
-# Ignore files for PNPM, NPM and YARN
+# Package-manager lockfiles
 pnpm-lock.yaml
 package-lock.json
 yarn.lock
+
+# Generated public-data snapshots and build-time course views. Validate their
+# schemas and content with generate-catalogs and the data regression suites.
+static/_catalogs/
+static/catalogs.json
+static/courseData.json
+static/courseDataStripped.json
+static/_courses/
+
+# Generated recording metadata. Integrity/provenance tests validate these files.
+src/lib/journeyRecordings.json
+static/tutorials/journeys/provenance.json
+tutorials/journeys-provenance.json
+
+# Frozen compatibility oracles: preserve the historical implementation bytes.
+integration/fixtures/legacy-service-worker.js
+scripts/fixtures/legacyCatalogPipeline.mjs

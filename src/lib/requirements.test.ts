@@ -11,8 +11,7 @@ import {
 } from './requirements';
 
 async function localFetch(
-	input: string | URL | globalThis.Request,
-	init?: RequestInit
+	input: string | URL | globalThis.Request
 ): Promise<Response> {
 	// assert input is string
 	if (typeof input !== 'string') {
@@ -29,6 +28,59 @@ async function localFetch(
 }
 
 describe('Requirements', () => {
+	it.each([
+		{
+			degree: [
+				'2021_200',
+				'00002010',
+				'SC00001403_CG00001315'
+			] satisfies Degree,
+			year: catalogs['2021_200'],
+			faculty: catalogs['2021_200']['00002010'],
+			program: catalogs['2021_200']['00002010']['SC00001403_CG00001315']
+		},
+		{
+			degree: [
+				'2025_200',
+				'00002080',
+				'SC00001391_CG00010379'
+			] satisfies Degree,
+			year: catalogs['2025_200'],
+			faculty: catalogs['2025_200']['00002080'],
+			program: catalogs['2025_200']['00002080']['SC00001391_CG00010379']
+		}
+	])(
+		'looks up the program for the selected degree $degree',
+		async (fixture) => {
+			const result = await loadCatalog(
+				Promise.resolve(catalogs),
+				fixture.degree,
+				undefined,
+				localFetch
+			);
+			expect(result.i18n).toEqual({
+				en: `${fixture.faculty.en} (catalog ${fixture.year.en}) - ${fixture.program.en}`,
+				he: `${fixture.faculty.he} (קטלוג ${fixture.year.he}) - ${fixture.program.he}`
+			});
+		}
+	);
+
+	it('reports when a saved program is missing from the loaded faculty', async () => {
+		const updatedCatalogs = structuredClone(catalogs);
+		Reflect.deleteProperty(
+			updatedCatalogs['2024_200']['00002120'],
+			'SC00001314_CG00006245'
+		);
+		await expect(
+			loadCatalog(
+				Promise.resolve(updatedCatalogs),
+				['2024_200', '00002120', 'SC00001314_CG00006245'],
+				undefined,
+				localFetch
+			)
+		).rejects.toThrow('Unknown degree program SC00001314_CG00006245');
+	});
+
 	it.each(['en', 'he'] as const)(
 		'loads degree names from JSON in %s without legacy text leaves',
 		async (lang) => {

@@ -44,7 +44,7 @@
 		{copy.intro}
 	</p>
 	<div class="mt-8 space-y-12 sm:mt-10 sm:space-y-16">
-		{#each topics as topic}
+		{#each topics as topic (topic)}
 			{#key `${topic}-${language}-${theme}-${hydrated}`}
 				<TutorialVideo {topic} {language} {theme} />
 			{/key}

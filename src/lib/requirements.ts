@@ -13,10 +13,7 @@ export async function loadRequirement(
 		_fetch
 	);
 
-	let pathCatalog: Requirement | undefined = undefined;
 	if (path !== undefined) {
-		pathCatalog = requirement.nested?.find((nested) => nested.name === path);
-
 		requirement.nested = requirement.nested?.filter(
 			(nested) =>
 				nested.name === path || nested.en.toLowerCase().includes('elective')
@@ -42,11 +39,13 @@ export async function loadCatalog(
 		loadRequirement(userDegree, path, _fetch)
 	]);
 	const yearCatalog: I18N = _catalogs[year];
-	const facultyCatalog: I18N = _catalogs[year][faculty];
-
-	// TODO why does this not work?
-	// @ts-expect-error
-	const catalog: I18N = _catalogs[year][faculty][degree];
+	// Each faculty contains only a subset of the catalog's program codes. Model
+	// that membership explicitly instead of losing the Degree tuple correlation.
+	const facultyCatalog: I18N & Partial<Record<Degree[2], I18N>> =
+		_catalogs[year][faculty];
+	const catalog = facultyCatalog[degree];
+	if (catalog === undefined)
+		throw new Error(`Unknown degree program ${degree}`);
 
 	const catalogLevels = [yearCatalog, facultyCatalog, catalog];
 
@@ -66,7 +65,7 @@ export async function loadCatalog(
 	function buildCatalogName(levels: I18N[], lang: 'en' | 'he'): string {
 		const catalogName = lang === 'en' ? 'catalog' : 'קטלוג';
 
-		let [year, faculty, degree, path] = levels;
+		const [year, faculty, degree, path] = levels;
 		const yearName = applyI18n(year, lang);
 		const facultyName = applyI18n(faculty, lang);
 		const degreeName = applyI18n(degree, lang);

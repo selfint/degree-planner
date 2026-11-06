@@ -1,5 +1,8 @@
 <script lang="ts">
+	import { keyedItems } from '$lib/keyedItems';
 	import { trackCourseAdditions, trackEvent } from '$lib/analytics';
+	import { SvelteURLSearchParams } from 'svelte/reactivity';
+	import { resolve } from '$app/paths';
 	import { withBase } from '$lib/deploymentPaths';
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
@@ -50,7 +53,7 @@
 
 		const semesters = user.d.semesters.map((s) => s.join('-')).join('~');
 
-		const urlParams = new URLSearchParams();
+		const urlParams = new SvelteURLSearchParams();
 		if (user.d.path !== undefined) {
 			urlParams.append('path', user.d.path);
 		}
@@ -180,13 +183,13 @@
 					dir={content.lang.dir}
 					class="wishlist-rail me-3 ms-3 flex min-h-12 min-w-[calc(100%-1.5rem)] shrink-0 flex-row items-stretch justify-start gap-x-2 sm:me-5 sm:ms-5 sm:min-w-[calc(100%-2.5rem)]"
 				>
-					{#each wishlist as course}
+					{#each keyedItems(wishlist, (code) => code) as { key, value: course } (key)}
 						<button
 							type="button"
 							data-code={course}
 							dir={content.lang.dir}
 							class="shrink-0 rounded-[var(--radius-card)] text-start"
-							onclick={() => goto(withBase(`/app/course/${course}`))}
+							onclick={() => goto(resolve(`/app/course/${course}`))}
 						>
 							<CourseElement
 								code={course}
@@ -213,14 +216,14 @@
 			class="semester-board"
 		>
 			{#key semesters.map((s) => s.join('-')).join(',')}
-				{#each semesters as semester, semesterIndex}
+				{#each semesters as semester, semesterIndex (semesterIndex)}
 					<Semester
 						board
 						{getCourseData}
 						index={semesterIndex}
 						{semester}
 						isCurrent={semesterIndex === user.d.currentSemester}
-						href={withBase(`/app/semester?c=${semesterIndex}`)}
+						href={`/app/semester?c=${semesterIndex}`}
 						sortable={{
 							group: 'semesters',
 							// Keep the touch preview outside transformed/clipped scrollers.
@@ -280,7 +283,7 @@
 								dir={content.lang.dir}
 							>
 								<CourseElement
-									onOpen={() => goto(withBase(`/app/course/${code}`))}
+									onOpen={() => goto(resolve(`/app/course/${code}`))}
 									{code}
 									{course}
 									squeeze={true}

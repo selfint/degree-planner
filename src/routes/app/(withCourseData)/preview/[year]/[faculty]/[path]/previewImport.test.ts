@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { runInNewContext } from 'node:vm';
 import ts from 'typescript';
 import { describe, expect, it, vi } from 'vitest';
-import { withBase } from '$lib/deploymentPaths';
+import { resolve } from '$app/paths';
 import { load } from './+page';
 import { navigateFromBrowserShare } from '$lib/browserShareRoutes';
 
@@ -68,7 +68,7 @@ async function exercise(
 		setUser,
 		goto,
 		navigateFromBrowserShare,
-		withBase,
+		resolve,
 		importError: false
 	};
 	const invoke = runInNewContext(`${handler}\nimportPlan`, environment);
@@ -99,7 +99,7 @@ describe('shared preview import event handler', () => {
 		});
 		expect(result.confirm).toHaveBeenCalledOnce();
 		expect(result.writeStorage).toHaveBeenCalledOnce();
-		expect(result.goto).toHaveBeenCalledWith(withBase('/app/plan'));
+		expect(result.goto).toHaveBeenCalledWith(resolve('/app/plan'));
 		expect(result.importError).toBe(false);
 	});
 

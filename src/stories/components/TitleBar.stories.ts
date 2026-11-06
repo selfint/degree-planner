@@ -1,10 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/sveltekit';
-import { userEvent, within } from 'storybook/test';
 import Preview from './ShellPreview.svelte';
 const meta = {
 	title: 'Components/TitleBar',
 	component: Preview,
-	parameters: { componentPath: 'src/routes/components/TitleBar.svelte' },
+	parameters: {
+		componentPath: 'src/routes/components/TitleBar.svelte',
+		covers: ['src/lib/components/BrandTitle.svelte']
+	},
 	args: { kind: 'TitleBar' }
 } satisfies Meta<typeof Preview>;
 export default meta;

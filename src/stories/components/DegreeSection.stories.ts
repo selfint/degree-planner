@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/sveltekit';
-import { userEvent } from 'storybook/test';
 import Preview from './SettingsSectionsPreview.svelte';
 const meta = {
 	title: 'Components/DegreeSection',

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { keyedItems } from '$lib/keyedItems';
 	import { onMount } from 'svelte';
 	import { content } from '$lib/preferences.svelte';
 	import {
@@ -50,7 +51,7 @@
 		aria-label={text.offlineAccess}
 		hidden={!$offlineDetailsOpen}
 	>
-		{#each messages as message, index}
+		{#each keyedItems(messages, (message) => message) as { key, value: message }, index (key)}
 			<p
 				role="status"
 				data-testid={index === 0 && refreshError && publicData.phase !== 'error'

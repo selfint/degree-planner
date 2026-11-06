@@ -1,4 +1,3 @@
-/// <reference path="./types.d.ts"/>
 import { dirname, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { mkdirSync, writeFileSync } from 'node:fs';

@@ -52,7 +52,7 @@
 		)
 	);
 	$effect.pre(() => {
-		storyId;
+		void storyId;
 		const p = planner;
 		const url = pageUrl;
 		untrack(() => {

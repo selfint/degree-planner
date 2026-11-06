@@ -11,6 +11,23 @@ env:
   PUBLIC_POSTHOG_KEY: ''
 
 jobs:
+  quality:
+    name: Types, formatting and ESLint
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Validate catalog snapshot and prepare derived data
+        run: npm run generate-catalogs
+      - name: Check types and Svelte diagnostics
+        run: npm run check
+      - name: Check authored source formatting and ESLint rules
+        run: npm run lint
+
   browser:
     name: Browser tests (${{ matrix.browser }})
     runs-on: ubuntu-24.04

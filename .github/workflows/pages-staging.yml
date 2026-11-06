@@ -1,0 +1,139 @@
+name: GitHub Pages
+
+on:
+  push:
+    branches: ['main']
+  pull_request:
+    branches: ['main', 'staging']
+  workflow_dispatch:
+    inputs:
+      deploy:
+        description: 'Publish to the existing repository Pages site (replaces its current content)'
+        type: boolean
+        default: false
+      expected_url:
+        description: 'Exact approved Pages URL; required for publication'
+        type: string
+        default: 'https://tom.selfin.io/degree-planner/'
+
+# Serialize validation and publication for each ref, not just the deploy job.
+# Let an active deployment finish; newer pending runs replace older pending runs.
+concurrency:
+  group: pages-workflow-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  APPROVED_PAGES_URL: https://tom.selfin.io/degree-planner/
+
+jobs:
+  inspect:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-24.04
+    permissions:
+      pages: read
+    steps:
+      - name: Read the existing Pages source and destination
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api repos/${{ github.repository }}/pages > pages.json
+          jq '{html_url, cname, build_type, source}' pages.json
+          test "$(jq -r '.html_url' pages.json | sed 's:/*$::')" = "${APPROVED_PAGES_URL%/}"
+
+  verify:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        base: ['', '/degree-planner']
+    env:
+      PAGES_BUILD: 'true'
+      # Static-host QA must not send events to the production analytics project.
+      PUBLIC_POSTHOG_KEY: ''
+      BASE_PATH: ${{ matrix.base }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run build:pages
+      - run: npx playwright install --with-deps chromium
+      - name: Test the actual static artifact (no SSR server)
+        run: npx playwright test --config playwright.pages.config.ts
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: pages-qa-${{ strategy.job-index }}
+          path: test-results/
+
+  # Publish merged main commits to the existing, explicitly approved Pages site.
+  # Keep the branch and exact destination bounded; never change a custom domain.
+  deploy:
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.deploy && inputs.expected_url == 'https://tom.selfin.io/degree-planner/'))
+    needs: [inspect, verify]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    concurrency:
+      # Share the original lock with any already-running Pages release.
+      group: pages-staging-publish
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - uses: actions/configure-pages@v5
+        id: pages
+      - name: Refuse publication to an unapproved existing site
+        env:
+          ACTUAL_URL: ${{ steps.pages.outputs.base_url }}
+          EXPECTED_URL: ${{ env.APPROVED_PAGES_URL }}
+        run: |
+          test "${ACTUAL_URL%/}" = "${EXPECTED_URL%/}" || {
+            echo 'The configured Pages destination differs from the approved URL.'
+            exit 1
+          }
+      - name: Verify Pages uses the approved Actions publishing source
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mode=$(gh api repos/${{ github.repository }}/pages --jq '.build_type')
+          if [ "$mode" != 'workflow' ]; then
+            echo "::error::Pages uses $mode publishing. The repository owner must select GitHub Actions under Settings > Pages > Build and deployment; the workflow token cannot change that administrative setting."
+            exit 1
+          fi
+      - run: npm ci
+      - run: npm run build:pages
+        env:
+          BASE_PATH: ${{ steps.pages.outputs.base_path }}
+      - name: Publish only the current main commit
+        id: current-main
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          current_sha=$(gh api repos/${{ github.repository }}/git/ref/heads/main --jq '.object.sha')
+          if [ "$current_sha" = "$GITHUB_SHA" ]; then
+            echo 'publish=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'publish=false' >> "$GITHUB_OUTPUT"
+            echo "::notice::Skipping publication: $GITHUB_SHA was superseded by main at $current_sha."
+          fi
+      - uses: actions/upload-pages-artifact@v3
+        if: steps.current-main.outputs.publish == 'true'
+        with:
+          path: build
+      - uses: actions/deploy-pages@v4
+        if: steps.current-main.outputs.publish == 'true'
+        id: deployment

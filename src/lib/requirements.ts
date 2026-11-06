@@ -1,3 +1,5 @@
+import { loadPublicJson } from './publicData';
+
 export async function loadRequirement(
 	userDegree: Degree,
 	path: string | undefined = undefined,
@@ -6,14 +8,12 @@ export async function loadRequirement(
 		init?: RequestInit
 	) => Promise<Response> = fetch
 ): Promise<Requirement> {
-	const requirement: Requirement = await _fetch(
-		['/_catalogs', ...userDegree, 'requirementsData.json'].join('/')
-	).then((r) => r.json());
+	const requirement = await loadPublicJson<Requirement>(
+		['/_catalogs', ...userDegree, 'requirementsData.json'].join('/'),
+		_fetch
+	);
 
-	let pathCatalog: Requirement | undefined = undefined;
 	if (path !== undefined) {
-		pathCatalog = requirement.nested?.find((nested) => nested.name === path);
-
 		requirement.nested = requirement.nested?.filter(
 			(nested) =>
 				nested.name === path || nested.en.toLowerCase().includes('elective')
@@ -39,11 +39,13 @@ export async function loadCatalog(
 		loadRequirement(userDegree, path, _fetch)
 	]);
 	const yearCatalog: I18N = _catalogs[year];
-	const facultyCatalog: I18N = _catalogs[year][faculty];
-
-	// TODO why does this not work?
-	// @ts-expect-error
-	const catalog: I18N = _catalogs[year][faculty][degree];
+	// Each faculty contains only a subset of the catalog's program codes. Model
+	// that membership explicitly instead of losing the Degree tuple correlation.
+	const facultyCatalog: I18N & Partial<Record<Degree[2], I18N>> =
+		_catalogs[year][faculty];
+	const catalog = facultyCatalog[degree];
+	if (catalog === undefined)
+		throw new Error(`Unknown degree program ${degree}`);
 
 	const catalogLevels = [yearCatalog, facultyCatalog, catalog];
 
@@ -63,7 +65,7 @@ export async function loadCatalog(
 	function buildCatalogName(levels: I18N[], lang: 'en' | 'he'): string {
 		const catalogName = lang === 'en' ? 'catalog' : 'קטלוג';
 
-		let [year, faculty, degree, path] = levels;
+		const [year, faculty, degree, path] = levels;
 		const yearName = applyI18n(year, lang);
 		const facultyName = applyI18n(faculty, lang);
 		const degreeName = applyI18n(degree, lang);
@@ -150,31 +152,28 @@ export async function loadDegreeName(
 	lang: 'en' | 'he',
 	catalogName: string,
 	degree: Degree,
-	path?: string
+	path?: string,
+	_fetch: typeof fetch = fetch
 ): Promise<string> {
-	const [year, faculty, _degree] = degree;
-
-	const _fetch = (values: string[]) =>
-		fetch(['/_catalogs', ...values, lang].join('/')).then((r) => r.text());
-
-	const _yearName = _fetch([year]);
-	const _facultyName = _fetch([year, faculty]);
-	const _degreeName = _fetch([year, faculty, _degree]);
-
-	if (path === undefined) {
-		const [yearName, facultyName, degreeName] = await Promise.all([
-			_yearName,
-			_facultyName,
-			_degreeName
+	const [year, faculty, program] = degree;
+	type Manifest = Record<
+		string,
+		I18N & Record<string, I18N & Record<string, I18N>>
+	>;
+	const [catalogs, requirement]: [Manifest, Requirement | undefined] =
+		await Promise.all([
+			loadPublicJson<Manifest>('/catalogs.json', _fetch),
+			path === undefined
+				? Promise.resolve(undefined)
+				: loadRequirement(degree, undefined, _fetch)
 		]);
-		return `${facultyName} (${catalogName} ${yearName}) - ${degreeName}`;
-	} else {
-		const [yearName, facultyName, degreeName, pathName] = await Promise.all([
-			_yearName,
-			_facultyName,
-			_degreeName,
-			_fetch([year, faculty, _degree, 'requirement', path])
-		]);
-		return `${facultyName} (${catalogName} ${yearName}) - ${degreeName} ${pathName}`;
-	}
+	const yearName = catalogs[year][lang];
+	const facultyName = catalogs[year][faculty][lang];
+	const degreeName = catalogs[year][faculty][program][lang];
+	const title = `${facultyName} (${catalogName} ${yearName}) - ${degreeName}`;
+	if (path === undefined) return title;
+	const selectedPath = requirement?.nested?.find((node) => node.name === path);
+	if (selectedPath === undefined)
+		throw new Error(`Unknown degree path ${path}`);
+	return `${title} ${selectedPath[lang]}`;
 }

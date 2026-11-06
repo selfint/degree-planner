@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { keyedItems } from '$lib/keyedItems';
 	import { generateColor } from '$lib/colors';
 	import { content } from '$lib/stores.svelte';
 
@@ -10,13 +11,13 @@
 </script>
 
 {#if scheduleError.season !== undefined}
-	<div class="items-baseline p-2 pb-1 pt-1">
-		<h2 class="text-start text-sm text-content-primary">
+	<div class="warning-section items-baseline">
+		<h2 class="mb-1 text-start text-xs font-semibold text-content-primary">
 			{content.lang.common.semester}
 		</h2>
 		<div class="flex w-full flex-row justify-start">
-			{#each scheduleError.season as season}
-				<p class="me-2 text-center text-xs text-content-secondary">
+			{#each keyedItems(scheduleError.season, (season) => season) as { key, value: season } (key)}
+				<p class="me-2 text-start text-xs text-content-secondary">
 					{content.lang.common.seasons[season]}
 				</p>
 			{/each}
@@ -24,23 +25,23 @@
 	</div>
 {/if}
 {#if scheduleError.dependencies.length > 0}
-	<div class="p-2 pb-1 pt-1">
-		<h2 class="text-start text-sm text-content-primary">
+	<div class="warning-section">
+		<h2 class="mb-1 text-start text-xs font-semibold text-content-primary">
 			{content.lang.common.dependencies}
 		</h2>
 		<div class="mb-0 gap-y-2 text-start text-xs">
-			{#each scheduleError.dependencies as group, i}
+			{#each keyedItems( scheduleError.dependencies, (group) => JSON.stringify(group.map(({ course }) => course.code)) ) as { key, value: group }, i (key)}
 				{#if i !== 0}
 					<p class="w-full text-center text-content-secondary">
 						{content.lang.common.or}
 					</p>
 				{/if}
 				<div>
-					{#each group as { course: dep, taken }}
-						<div class="flex flex-row justify-start text-content-primary">
+					{#each keyedItems(group, ({ course }) => course.code) as { key, value: { course: dep, taken } } (key)}
+						<div class="mb-1 flex flex-row justify-start text-content-primary">
 							<div
 								style="background: {generateColor(dep.code)}"
-								class="me-1 mt-0.5 h-3 w-3 min-w-3 {dep.tests
+								class="me-1.5 mt-1 h-2 w-2 min-w-2 {dep.tests
 									? 'rounded-full'
 									: ''}"
 							></div>
@@ -58,7 +59,7 @@
 										{/if}
 									</span>
 								</div>
-								<span class="flex-nowrap text-content-secondary">
+								<span class="flex-nowrap tabular-nums text-content-secondary">
 									{dep.code}
 								</span>
 							</div>
@@ -71,10 +72,12 @@
 {/if}
 
 {#if scheduleError.adjacencies.length > 0}
-	<div class="p-2 pb-1 pt-1">
-		<h2 class="text-start text-sm text-content-primary">Adjacencies</h2>
+	<div class="warning-section">
+		<h2 class="mb-1 text-start text-xs font-semibold text-content-primary">
+			{content.lang.common.adjacencies}
+		</h2>
 		<div class="space-y-1 text-start text-xs">
-			{#each scheduleError.adjacencies as { course: adj, taken }}
+			{#each keyedItems(scheduleError.adjacencies, ({ course }) => course.code) as { key, value: { course: adj, taken } } (key)}
 				<div class="text-content-primary">
 					<div class="flex flex-row justify-between">
 						<div>
@@ -93,7 +96,9 @@
 						</div>
 						<div
 							style="background: {generateColor(adj.code)}"
-							class="h-4 w-4 min-w-4 {adj.tests ? 'rounded-full' : ''}"
+							class="ms-1.5 mt-1 h-2 w-2 min-w-2 {adj.tests
+								? 'rounded-full'
+								: ''}"
 						></div>
 					</div>
 				</div>
@@ -103,12 +108,12 @@
 {/if}
 
 {#if scheduleError.exclusives.length > 0}
-	<div class="p-2 pb-1 pt-1">
-		<h2 class="text-start text-sm text-content-primary">
+	<div class="warning-section">
+		<h2 class="mb-1 text-start text-xs font-semibold text-content-primary">
 			{content.lang.common.exclusives}
 		</h2>
 		<div class="space-y-1 text-start text-xs">
-			{#each scheduleError.exclusives as course}
+			{#each keyedItems(scheduleError.exclusives, (course) => course.code) as { key, value: course } (key)}
 				<div class="text-content-primary">
 					<div class="flex flex-row justify-between">
 						<div>
@@ -121,7 +126,9 @@
 						</div>
 						<div
 							style="background: {generateColor(course.code)}"
-							class="h-4 w-4 min-w-4 {course.tests ? 'rounded-full' : ''}"
+							class="ms-1.5 mt-1 h-2 w-2 min-w-2 {course.tests
+								? 'rounded-full'
+								: ''}"
 						></div>
 					</div>
 				</div>
@@ -129,3 +136,13 @@
 		</div>
 	</div>
 {/if}
+
+<style>
+	.warning-section {
+		padding: 0.625rem;
+		line-height: 1.5;
+	}
+	.warning-section + .warning-section {
+		border-block-start: 0.0625rem solid rgb(var(--color-border));
+	}
+</style>

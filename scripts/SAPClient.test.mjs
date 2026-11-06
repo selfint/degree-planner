@@ -1,4 +1,3 @@
-/// <reference path="./types.d.ts"/>
 import * as sap from './SAPClient.mjs';
 
 import { suite, test } from 'vitest';

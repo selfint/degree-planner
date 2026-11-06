@@ -1,0 +1,68 @@
+import { fileURLToPath } from 'node:url';
+import { dirname, resolve } from 'node:path';
+import type { StorybookConfig } from '@storybook/sveltekit';
+
+const mock = (file: string) =>
+	fileURLToPath(new URL(`./mocks/${file}`, import.meta.url));
+const isolatedModules: Record<string, string> = {
+	'stores.svelte': 'stores.svelte.ts',
+	'preferences.svelte': 'preferences.svelte.ts',
+	theme: 'theme.ts',
+	offlineData: 'offlineData.ts',
+	'pwa/status': 'pwaStatus.ts',
+	planAccess: 'planAccess.ts',
+	requirements: 'requirements.ts',
+	transcriptParser: 'transcriptParser.ts',
+	'firebase.svelte': 'firebase.svelte.ts'
+};
+const config: StorybookConfig = {
+	stories: ['../src/stories/**/*.stories.ts'],
+	framework: '@storybook/sveltekit',
+	addons: [],
+	// Only public branding and tutorial media, never catalogs or service workers.
+	staticDirs: [
+		{ from: '../static/brand', to: '/brand' },
+		{ from: '../static/tutorials', to: '/tutorials' }
+	],
+	core: { disableTelemetry: true },
+	async viteFinal(config) {
+		config.plugins = [
+			{
+				name: 'storybook-isolate-planner-state',
+				enforce: 'pre',
+				resolveId(source, importer) {
+					if (source === 'pdfjs-dist/build/pdf.worker.min.mjs?url')
+						return mock('pdfWorker.ts');
+					const absolute =
+						source.startsWith('.') && importer
+							? resolve(dirname(importer), source)
+							: source;
+					const match = absolute.match(
+						/(?:^\$lib\/|\/src\/lib\/)(.+?)(?:\.(?:ts|js))?$/
+					);
+					if (match && isolatedModules[match[1]])
+						return mock(isolatedModules[match[1]]);
+				},
+				generateBundle(_options, bundle) {
+					for (const output of Object.values(bundle)) {
+						if (output.type !== 'chunk') continue;
+						for (const id of Object.keys(output.modules)) {
+							if (
+								/\/src\/lib\/(?:stores\.svelte|preferences\.svelte|theme|firebase\.svelte|publicData|publicDataStore|requirements|offlineData|transcriptParser)\.ts$/.test(
+									id
+								) ||
+								/\/src\/lib\/pwa\/status\.ts$/.test(id) ||
+								/\/node_modules\/(?:@firebase|firebase|pdfjs-dist)\//.test(id)
+							)
+								this.error(`A live planner module entered Storybook: ${id}`);
+						}
+					}
+				}
+			},
+			...(config.plugins ?? [])
+		];
+		config.base = './';
+		return config;
+	}
+};
+export default config;

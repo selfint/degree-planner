@@ -1,29 +1,11 @@
+import { compatiblePlan } from './planCompatibility';
+import { updateSafety } from './pwa/update-safety';
 import { browser } from '$app/environment';
 import { loadDegreeName, loadRequirement } from './requirements';
-import { cms } from './content';
+import { content } from './preferences.svelte';
+import { assertPlanWritable, isPlanWritable } from './planAccess';
 
-function getLangPreference() {
-	const defaultLang = cms.he;
-
-	if (!browser) {
-		return defaultLang;
-	}
-
-	const localLang = localStorage.getItem('lang');
-
-	if (localLang === 'he') {
-		return cms.he;
-	}
-
-	if (localLang === 'en') {
-		return cms.en;
-	} else {
-		localStorage.setItem('lang', defaultLang.lang);
-		return defaultLang;
-	}
-}
-
-export let content = $state({ lang: getLangPreference() });
+export { content } from './preferences.svelte';
 
 const version = 4 as const;
 const defaultSemesters = Array(12).fill([]);
@@ -156,31 +138,15 @@ const loaders = [
 
 const migrations = [
 	function migrate_0_1(v0: UserDataV1): UserDataV1 {
-		// update version
-		localStorage.setItem('version', '1');
-
-		// save new user data
-		localStorage.setItem('userData', JSON.stringify(v0));
-
-		// clear old localStorage
-		localStorage.removeItem('username');
-		localStorage.removeItem('degree');
-		localStorage.removeItem('semesters');
-		localStorage.removeItem('currentSemester');
-		localStorage.removeItem('wishlist');
-
 		// other than that data is the same
 		return v0;
 	},
 	function migrate_1_2(v1: UserDataV1): UserDataV2 {
-		// update version
-		localStorage.setItem('version', '2');
-
 		const v2: UserDataV2 = { ...v1 };
 
 		// migrate degree and path
 		if (v1.degree !== undefined) {
-			const degree = v1.degree;
+			const degree = [...v1.degree] as Degree;
 
 			degree[0] = '2024_200';
 
@@ -200,8 +166,8 @@ const migrations = [
 					degree[2] = 'SC00001314_CG00006245';
 					v2.path = 'CG00006253';
 				} else {
-					// default to 3 year path
-					degree[2] = 'SC00001320_CG00006382';
+					// default to the three-year Computer Sciences degree and path
+					degree[2] = 'SC00001314_CG00006245';
 					v2.path = 'CG00006246';
 				}
 			} else {
@@ -212,42 +178,25 @@ const migrations = [
 			v2.degree = degree;
 		}
 
-		// save new user data
-		localStorage.setItem('userData', JSON.stringify(v2));
-
 		// other than that data is the same
 		return v2;
 	},
 	function migrate_2_3(v2: UserDataV2): UserData {
-		// update version
-		localStorage.setItem('version', '3');
-
-		delete v2.username;
+		const plan = { ...v2 };
+		delete plan.username;
 
 		const v3: UserData = {
 			exemptions: [],
-			...v2
+			...plan
 		};
-
-		// save new user data
-		localStorage.setItem('userData', JSON.stringify(v3));
 
 		return v3;
 	},
 	function migrate_3_4(v3: UserDataV3): UserData {
-		// update version
-		localStorage.setItem('version', '4');
-
-		if (v3.semesters.length === 0) {
-			v3.semesters = defaultSemesters;
-		}
-
 		const v4: UserData = {
-			...v3
+			...v3,
+			semesters: v3.semesters.length === 0 ? defaultSemesters : v3.semesters
 		};
-
-		// save new user data
-		localStorage.setItem('userData', JSON.stringify(v4));
 
 		return v4;
 	}
@@ -255,7 +204,7 @@ const migrations = [
 
 export const user: { d: UserData } = $state({ d: readLocalStorage() });
 export function setUser(data: UserData) {
-	user.d = data;
+	user.d = compatiblePlan(data);
 }
 
 // decouple the user degree/path from the rest of the user object
@@ -276,7 +225,8 @@ const _requirement = $derived.by(() => {
 	const [degreeString, path] = _fineGrainedReactivityUserDegree.split(';');
 	const degree = degreeString.split(':') as Degree;
 
-	return loadRequirement(degree, path);
+	// Match degreeName: '-' is our internal no-path sentinel, not a catalog path.
+	return loadRequirement(degree, path === '-' ? undefined : path);
 });
 export const requirement = () => _requirement;
 
@@ -287,16 +237,13 @@ const _degreeName = $derived.by(() => {
 	}
 
 	// parse serialized user degree
-	let [degreeString, path] = _fineGrainedReactivityUserDegree.split(';') as [
-		string,
-		string | undefined
-	];
+	const [degreeString, serializedPath] = _fineGrainedReactivityUserDegree.split(
+		';'
+	) as [string, string | undefined];
 
 	const degree = degreeString.split(':') as Degree;
 
-	if (path === '-') {
-		path = undefined;
-	}
+	const path = serializedPath === '-' ? undefined : serializedPath;
 
 	const lang = content.lang.lang;
 	const catalogName = content.lang.common.catalog;
@@ -317,24 +264,46 @@ function readLocalStorage(): UserData {
 	}
 
 	let localVersion = parseInt(localStorage.getItem('version') ?? '0');
+	const originalVersion = localVersion;
 
 	if (localVersion > version) {
 		// try to load the user data with the latest loader
-		return loaders[version]();
+		return compatiblePlan(loaders[version]());
 	}
 
 	let user = loaders[localVersion]();
 	while (localVersion < version) {
 		// TODO: explicitly migrate versions not in a loop
-		// @ts-expect-error
+		// @ts-expect-error Each migration accepts the preceding version and returns the next schema.
 		user = migrations[localVersion](user);
 		localVersion++;
+	}
+
+	user = compatiblePlan(user);
+
+	// Migrate in memory offline. Preserve the existing guest schema while
+	// keeping cached plans readable without rewriting stored data.
+	if (originalVersion < version && isPlanWritable()) {
+		localStorage.setItem('version', version.toString());
+		localStorage.setItem('userData', JSON.stringify(user));
+		if (originalVersion === 0) {
+			for (const key of [
+				'username',
+				'degree',
+				'semesters',
+				'currentSemester',
+				'wishlist'
+			]) {
+				localStorage.removeItem(key);
+			}
+		}
 	}
 
 	return user as UserData;
 }
 
 export async function writeLocalStorage(data: UserData): Promise<UserData> {
+	assertPlanWritable();
 	localStorage.setItem('version', version.toString());
 	localStorage.setItem('userData', JSON.stringify(data));
 
@@ -352,6 +321,9 @@ export const localStorageMethod: StorageMethod = {
 };
 
 let _storage: StorageMethod = $state(localStorageMethod);
-export const readStorage = async () => await _storage.read();
-export const writeStorage = async (d: UserData) => await _storage.write(d);
+export const readStorage = async () => compatiblePlan(await _storage.read());
+export const writeStorage = async (d: UserData) => {
+	assertPlanWritable();
+	return await updateSafety.write(() => _storage.write(d));
+};
 export const setStorage = (s: StorageMethod) => (_storage = s);

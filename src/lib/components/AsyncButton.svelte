@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import Spinner from './Spinner.svelte';
+	import Button from './Button.svelte';
 
 	type Props = {
 		variant: 'primary' | 'secondary';
@@ -9,6 +10,7 @@
 		buttonNamespace?: string;
 		name?: string;
 		disabled?: boolean;
+		ariaDescribedby?: string;
 	};
 
 	let {
@@ -17,18 +19,14 @@
 		children,
 		buttonNamespace: namespace = $bindable(),
 		name,
-		disabled: _disabled = false
+		disabled: _disabled = false,
+		ariaDescribedby
 	}: Props = $props();
-
-	const bg = $derived(
-		variant === 'primary'
-			? 'bg-accent-primary text-content-on-accent'
-			: 'bg-card-secondary text-content-primary'
-	);
 
 	let inProgress = $state(false);
 
 	async function onclick() {
+		if (inProgress || disabled) return;
 		try {
 			inProgress = true;
 
@@ -63,17 +61,16 @@
 	});
 </script>
 
-{#if inProgress}
-	<div class="h-7 w-7">
-		<Spinner />
-	</div>
-{:else}
-	<button
-		{disabled}
-		class="h-full rounded-md border border-transparent p-0.5 pl-3 pr-3 leading-tight {bg}"
-		{onclick}
-		class:opacity-50={disabled}
-	>
-		{@render children()}
-	</button>
-{/if}
+<Button
+	{variant}
+	disabled={disabled || inProgress}
+	aria-busy={inProgress}
+	aria-describedby={ariaDescribedby}
+	class="relative"
+	{onclick}
+>
+	<span class:opacity-0={inProgress}>{@render children()}</span>
+	{#if inProgress}
+		<span class="absolute h-4 w-4" aria-hidden="true"><Spinner /></span>
+	{/if}
+</Button>

@@ -121,17 +121,19 @@ describe('search filter options and URLs', () => {
 	});
 	it('preserves filters and safely encodes a new search term on the search page', () => {
 		const url = createSearchUrl(
-			new URL('https://example.com/search?q=old&faculty=Math&available#old'),
+			new URL(
+				'https://example.com/app/search?q=old&faculty=Math&available#old'
+			),
 			'A&B + #?'
 		);
-		expect(url.pathname).toBe('/search');
+		expect(url.pathname).toBe('/app/search');
 		expect(url.hash).toBe('');
 		expect(url.searchParams.get('q')).toBe('A&B + #?');
 		expect(url.searchParams.get('faculty')).toBe('Math');
 		expect(url.searchParams.has('available')).toBe(true);
 		expect(
 			createSearchUrl(
-				new URL('https://example.com/semester?index=2'),
+				new URL('https://example.com/app/semester?index=2'),
 				'Algebra'
 			).search
 		).toBe('?q=Algebra');

@@ -1,0 +1,1038 @@
+{
+	"schemaVersion": 2,
+	"sources": [
+		{
+			"sourceCommit": "8e6af135bb4f9ee546c39bb5b604d8aff691b337",
+			"sourceCommitKind": "GitHub staging push commit recorded by GITHUB_SHA",
+			"run": "https://github.com/selfint/degree-planner/actions/runs/39472885967",
+			"artifact": 12291437449,
+			"artifactName": "tutorials-8e6af135bb4f9ee546c39bb5b604d8aff691b337",
+			"artifactZipSha256": "4aaa9a0fe1c421a5cb4aab4dc1f96b57a1ff7365716e1cef566fb0580d2a936a"
+		},
+		{
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"sourceCommitKind": "GitHub staging push commit recorded by GITHUB_SHA",
+			"run": "https://github.com/selfint/degree-planner/actions/runs/40299428275",
+			"artifact": 12642265137,
+			"artifactName": "tutorials-f8cfe32cbd1839039d25402111263639b6907978",
+			"artifactZipSha256": "e0ada8435c4ff709da72a5fe2bcd39f418164825ae35198343b927175711a89b"
+		}
+	],
+	"totalBytes": 32002055,
+	"files": [
+		{
+			"file": "course-card-en-dark.mp4",
+			"bytes": 413618,
+			"sha256": "8c6b09da7b87aeb7e13430f5b3a66e129228abea18fcb6def1884002b91ce2da",
+			"duration": 39.56,
+			"codec": "h264",
+			"sourceCommit": "8e6af135bb4f9ee546c39bb5b604d8aff691b337"
+		},
+		{
+			"file": "course-card-en-dark.vtt",
+			"bytes": 828,
+			"sha256": "1c86e27e5f9e1c002f6df0f0fa89e056b6d0b58515a3df079840e0013e764d20",
+			"sourceCommit": "8e6af135bb4f9ee546c39bb5b604d8aff691b337"
+		},
+		{
+			"file": "course-card-en-dark.webm",
+			"bytes": 466749,
+			"sha256": "d618997d689a95c540b849528d5591306886b81d28372418d7d073fa171d441a",
+			"duration": 39.56,
+			"codec": "vp9",
+			"sourceCommit": "8e6af135bb4f9ee546c39bb5b604d8aff691b337"
+		},
+		{
+			"file": "course-card-en-dark.webp",
+			"bytes": 18586,
+			"sha256": "7263ca7ec854dbe194ec0e344df236282ac3d0510671434018ebeadf92d8d4d5",
+			"sourceCommit": "8e6af135bb4f9ee546c39bb5b604d8aff691b337"
+		},
+		{
+			"file": "course-card-en-light.mp4",
+			"bytes": 423891,
+			"sha256": "60ffba38158b7596b7dabec3bb9d2e9da846ee12305660dc26e3dd2ff8c63e75",
+			"duration": 39.44,
+			"codec": "h264",
+			"sourceCommit": "8e6af135bb4f9ee546c39bb5b604d8aff691b337"
+		},
+		{
+			"file": "course-card-en-light.vtt",
+			"bytes": 828,
+			"sha256": "6476fd358eaaf0fc236c900bed4f0729da3a600d83b06601a668942c4fce3df9",
+			"sourceCommit": "8e6af135bb4f9ee546c39bb5b604d8aff691b337"
+		},
+		{
+			"file": "course-card-en-light.webm",
+			"bytes": 485355,
+			"sha256": "a012437133ba58f3a72e8781a44e89ad99fafb8054a9c53302a8aa9dcd4b2804",
+			"duration": 39.44,
+			"codec": "vp9",
+			"sourceCommit": "8e6af135bb4f9ee546c39bb5b604d8aff691b337"
+		},
+		{
+			"file": "course-card-en-light.webp",
+			"bytes": 19798,
+			"sha256": "837d054ec799a85576ecb2f6940cb727aa63526eb7bc54c2d68a5efd971f69fc",
+			"sourceCommit": "8e6af135bb4f9ee546c39bb5b604d8aff691b337"
+		},
+		{
+			"file": "course-card-he-dark.mp4",
+			"bytes": 378217,
+			"sha256": "1224b0e039832697b5cbbe0544ec8a51cf98a4df1fb8a7656c67e94f070df678",
+			"duration": 39.44,
+			"codec": "h264",
+			"sourceCommit": "8e6af135bb4f9ee546c39bb5b604d8aff691b337"
+		},
+		{
+			"file": "course-card-he-dark.vtt",
+			"bytes": 1118,
+			"sha256": "d34b2b9470fc1dde7f4c80f2377500ee13eb57e4a52a4e82b1f44960f70eb9b0",
+			"sourceCommit": "8e6af135bb4f9ee546c39bb5b604d8aff691b337"
+		},
+		{
+			"file": "course-card-he-dark.webm",
+			"bytes": 397440,
+			"sha256": "e0313f78ada14f0b980c56176ff4ae0275eb3a65bd78175329dc0eeea83ce007",
+			"duration": 39.44,
+			"codec": "vp9",
+			"sourceCommit": "8e6af135bb4f9ee546c39bb5b604d8aff691b337"
+		},
+		{
+			"file": "course-card-he-dark.webp",
+			"bytes": 15078,
+			"sha256": "15eff67b38dfa850939aa8bfb2e0191dda0c969932f592d891fd7c993f10d200",
+			"sourceCommit": "8e6af135bb4f9ee546c39bb5b604d8aff691b337"
+		},
+		{
+			"file": "course-card-he-light.mp4",
+			"bytes": 402367,
+			"sha256": "81550f8449869ea25d5496e8e60a50e1c5dcb3c1713cece20f3343e54e47048f",
+			"duration": 39.48,
+			"codec": "h264",
+			"sourceCommit": "8e6af135bb4f9ee546c39bb5b604d8aff691b337"
+		},
+		{
+			"file": "course-card-he-light.vtt",
+			"bytes": 1118,
+			"sha256": "2c0346b636e3ceb2d8437096b1f4cd5e494309dce220e70dae310ca28c246ded",
+			"sourceCommit": "8e6af135bb4f9ee546c39bb5b604d8aff691b337"
+		},
+		{
+			"file": "course-card-he-light.webm",
+			"bytes": 435812,
+			"sha256": "a9df983b9539e3e334c186ceda4413480529b1f9b5084fff25b846450610f689",
+			"duration": 39.48,
+			"codec": "vp9",
+			"sourceCommit": "8e6af135bb4f9ee546c39bb5b604d8aff691b337"
+		},
+		{
+			"file": "course-card-he-light.webp",
+			"bytes": 16232,
+			"sha256": "3c9554c1df009202f25a273c055ab2934f3fbac338d73340bfc46f28b9e8beb4",
+			"sourceCommit": "8e6af135bb4f9ee546c39bb5b604d8aff691b337"
+		},
+		{
+			"file": "feature-catalog-en-dark.mp4",
+			"bytes": 767869,
+			"sha256": "864fa9e27bbdc7dcde432f2cbeb7be552b3ae09503aba491df481573944dbe8d",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 35.12,
+			"codec": "h264"
+		},
+		{
+			"file": "feature-catalog-en-dark.vtt",
+			"bytes": 376,
+			"sha256": "462cdea319547c563b4b95ceab912a79360bb89e0ea79a1eaec7bdac52656dc6",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-catalog-en-dark.webm",
+			"bytes": 1041399,
+			"sha256": "0c493e427f740ba1cb82cd7ba10245a8f71feb7e5796dab11d4618ae8eaa28e2",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 35.12,
+			"codec": "vp9"
+		},
+		{
+			"file": "feature-catalog-en-dark.webp",
+			"bytes": 55610,
+			"sha256": "ab6d21cc13b443cc0f8f0e0ea0a1495b374ebe52a53049bfe916de8daabfb8ad",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-catalog-en-light.mp4",
+			"bytes": 742758,
+			"sha256": "e68dacbde02545a67ddf2103723b4b853b9a85d0c225b9de37b7baff0dbea669",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 36.32,
+			"codec": "h264"
+		},
+		{
+			"file": "feature-catalog-en-light.vtt",
+			"bytes": 376,
+			"sha256": "912d3e672c23bfaf9820f5ad68abb8b9a574e6a974d7b6139508491a9e1fdd29",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-catalog-en-light.webm",
+			"bytes": 1020342,
+			"sha256": "e2d66bc2e5aa75ff9d4fd85d8fa6ba401055d7881eec8ecab1528e8cd5c85202",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 36.32,
+			"codec": "vp9"
+		},
+		{
+			"file": "feature-catalog-en-light.webp",
+			"bytes": 57324,
+			"sha256": "a72517be3fdb6409559779bd9ee655cf410224c7a995096650431235dc309e84",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-catalog-he-dark.mp4",
+			"bytes": 626545,
+			"sha256": "bdb5fc8d700daa5ea8f42fb1d1385248bf1b8d9fefe6b50e8259f6e7db398888",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 32.4,
+			"codec": "h264"
+		},
+		{
+			"file": "feature-catalog-he-dark.vtt",
+			"bytes": 515,
+			"sha256": "24279d0afeeeed4c7061aad1d9d1f82a4a5a8c49a597e16dca5794aed173c4a5",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-catalog-he-dark.webm",
+			"bytes": 820736,
+			"sha256": "59f6af98e9dd16925f606c88eacc9664d7c37a1547b65ce74275051c43cf83cc",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 32.4,
+			"codec": "vp9"
+		},
+		{
+			"file": "feature-catalog-he-dark.webp",
+			"bytes": 42758,
+			"sha256": "7eae2eb004c017771f3d1819be8950aae912e0c81bc86aa56c3e66594194ab9c",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-catalog-he-light.mp4",
+			"bytes": 673846,
+			"sha256": "e71fff9d85c3f534e99745223b39009e04360daaa01245e9ab5c8df9b40e0f58",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 33.68,
+			"codec": "h264"
+		},
+		{
+			"file": "feature-catalog-he-light.vtt",
+			"bytes": 515,
+			"sha256": "fb7cc8158458d074c83df41126c15d309cfd0dfa195a4802698bbb605b1dbaea",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-catalog-he-light.webm",
+			"bytes": 843856,
+			"sha256": "91e2b29b04e324152834ce39689e87c0961af793002c3785f4edd287b7e7713c",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 33.68,
+			"codec": "vp9"
+		},
+		{
+			"file": "feature-catalog-he-light.webp",
+			"bytes": 44768,
+			"sha256": "278f2a4a1c51a5a32ea6af81722f457ebae030a06bc46965d0333f3ebceefe06",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-course-en-dark.mp4",
+			"bytes": 303532,
+			"sha256": "01d54f18e0051c82da95407b04bc1ddafc0f409065ac64d11ea51fb2db5a751e",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 25.8,
+			"codec": "h264"
+		},
+		{
+			"file": "feature-course-en-dark.vtt",
+			"bytes": 468,
+			"sha256": "fe38f9003bf67a2439d3f95a1f359d09e301b10b675caa84f405cbbf69471ed5",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-course-en-dark.webm",
+			"bytes": 467377,
+			"sha256": "bd413776704fc233be3eaa74399421fade39fbcaffcfd1743f46d267649fbc42",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 25.8,
+			"codec": "vp9"
+		},
+		{
+			"file": "feature-course-en-dark.webp",
+			"bytes": 18802,
+			"sha256": "701414cff6666dcbbfb66ac25bf5810db3a4519dfaf4c49d44d9a10291c5b7f2",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-course-en-light.mp4",
+			"bytes": 283170,
+			"sha256": "6023250e38f08ef44a059c3446895d029839c736c158ae1e057efaf6773381e9",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 26.16,
+			"codec": "h264"
+		},
+		{
+			"file": "feature-course-en-light.vtt",
+			"bytes": 468,
+			"sha256": "9ed6b2f2f78407c3055d364ce213e944d4675811fa4207d9ce67fbc128b37b0b",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-course-en-light.webm",
+			"bytes": 432034,
+			"sha256": "85ea2626c8ca0871c9cf45868796c1980264d48b7723538b40049f9e8199a012",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 26.16,
+			"codec": "vp9"
+		},
+		{
+			"file": "feature-course-en-light.webp",
+			"bytes": 19794,
+			"sha256": "364a7996eb733f36068add43bb7a050281dec0eff46d347f0363ba3050405884",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-course-he-dark.mp4",
+			"bytes": 262649,
+			"sha256": "583fb7bb6282d55124b2d731d2867d38faeb2fe0c35b131e7a8ef89f240a2ba1",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 25.8,
+			"codec": "h264"
+		},
+		{
+			"file": "feature-course-he-dark.vtt",
+			"bytes": 552,
+			"sha256": "ecd1f2dfaceb7d0b51428a0a0bc3c2624f4912c0f9cf177754d7ac6e5cfb9b7d",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-course-he-dark.webm",
+			"bytes": 390609,
+			"sha256": "c9f804f7de84392de7258a67d4bfad7d653947f11a3b5a3d08b5b1764801c21d",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 25.8,
+			"codec": "vp9"
+		},
+		{
+			"file": "feature-course-he-dark.webp",
+			"bytes": 14196,
+			"sha256": "7c23c1309459afc842554fa27a57c61f937fd57cb371dab7d3cc4efbd9d5a5c6",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-course-he-light.mp4",
+			"bytes": 279293,
+			"sha256": "7875c64ba5b91ef9a637801c5de36125ebcf0a3e41221082d703f092ecc1315a",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 26.04,
+			"codec": "h264"
+		},
+		{
+			"file": "feature-course-he-light.vtt",
+			"bytes": 552,
+			"sha256": "c20841a3ed9c756dbed4524886ed48457719095f187b9c52a83a3941e96f0ce1",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-course-he-light.webm",
+			"bytes": 408069,
+			"sha256": "9d0b5d78a1894a51352000d5d4002f6620988970cf22051ebca98a6717900886",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 26.04,
+			"codec": "vp9"
+		},
+		{
+			"file": "feature-course-he-light.webp",
+			"bytes": 15108,
+			"sha256": "cd91d336b939cc77eb9ecde180fb3ce424fe2d14b0e79405d065b7c2d71aef11",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-plan-en-dark.mp4",
+			"bytes": 283731,
+			"sha256": "4b31741169ac56c8691b6041c1d432a0343c4bfcc56506b88504f191453f875b",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 31.8,
+			"codec": "h264"
+		},
+		{
+			"file": "feature-plan-en-dark.vtt",
+			"bytes": 465,
+			"sha256": "244715b2f9e6c03523b353d464d2aa8257320c19fba8f3a184cb9562e8533ca4",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-plan-en-dark.webm",
+			"bytes": 350672,
+			"sha256": "5c5fa94e96972cc50e804d1077a74524c59376b25d9c536fba6deff9ef289d4b",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 31.8,
+			"codec": "vp9"
+		},
+		{
+			"file": "feature-plan-en-dark.webp",
+			"bytes": 24552,
+			"sha256": "3200237c6c8c462e878bc352b484e9c5831dedace80d88f43e2d1296995f8519",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-plan-en-light.mp4",
+			"bytes": 290974,
+			"sha256": "8d80d6ed6e37e5c145e712f2fc321b7a597c597746733424fcaec33469726396",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 32.56,
+			"codec": "h264"
+		},
+		{
+			"file": "feature-plan-en-light.vtt",
+			"bytes": 465,
+			"sha256": "5db2ed3f8eff9eec0e24f1c5ab3201f5134cc77db4534e0ce3b9f7d362d9f3fe",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-plan-en-light.webm",
+			"bytes": 376672,
+			"sha256": "2272625dc06ed6cec51798b171a5d5931258d00bd318b95e7cf1191d24b4f1ac",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 32.56,
+			"codec": "vp9"
+		},
+		{
+			"file": "feature-plan-en-light.webp",
+			"bytes": 25802,
+			"sha256": "7945bfc6d89b64ea13b1829ca34c8de02eefd06c17614d54e603ced2aa7d437a",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-plan-he-dark.mp4",
+			"bytes": 255295,
+			"sha256": "a95fa918537ec0d1502748af5799ad24b03b416ffdd72493eff6e48fa95968ee",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 31.84,
+			"codec": "h264"
+		},
+		{
+			"file": "feature-plan-he-dark.vtt",
+			"bytes": 616,
+			"sha256": "35f1d4805f4b6dce7aab760d17debcc854580dffedaf8a71e92779513810293b",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-plan-he-dark.webm",
+			"bytes": 302056,
+			"sha256": "a02acda22df039327dc561c4f14cdc0a83c7e4961857def4b76c62f74f5bdbf9",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 31.84,
+			"codec": "vp9"
+		},
+		{
+			"file": "feature-plan-he-dark.webp",
+			"bytes": 19504,
+			"sha256": "888e86a7cc091960a715b8ed32ce60cb3729f17071c5ba699d4094f8deda5582",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-plan-he-light.mp4",
+			"bytes": 267410,
+			"sha256": "3f9aa783c6fd2db65e77ec711e5696bc8e491d3560a578247ade28a58fa0fb2b",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 31.76,
+			"codec": "h264"
+		},
+		{
+			"file": "feature-plan-he-light.vtt",
+			"bytes": 616,
+			"sha256": "7c2c4a39674777e758bc60158ca72d52bdd25e0df6861d3b20d5c2a64c1dd7ff",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-plan-he-light.webm",
+			"bytes": 321447,
+			"sha256": "6cbb1b871faaef654d29b425b0430f2160d044e68878ed718c63af92a785449f",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 31.76,
+			"codec": "vp9"
+		},
+		{
+			"file": "feature-plan-he-light.webp",
+			"bytes": 20702,
+			"sha256": "84948fa87101e92c90743ac82cddf97e3cdd982022e475959b0036d9c711df4f",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-search-en-dark.mp4",
+			"bytes": 285418,
+			"sha256": "17000d20efd4bca78646d6a492f4cbbc43e979ccd2a20842449f7fa54fae881b",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 28.68,
+			"codec": "h264"
+		},
+		{
+			"file": "feature-search-en-dark.vtt",
+			"bytes": 453,
+			"sha256": "895c64aed3e5d845abc65239fa93c64c750822575067b69c48477870b850cbe2",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-search-en-dark.webm",
+			"bytes": 379812,
+			"sha256": "e8fe68a9847824ec3b19c6af24225ce5409972eef57559b9200d252a54e3298b",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 28.68,
+			"codec": "vp9"
+		},
+		{
+			"file": "feature-search-en-dark.webp",
+			"bytes": 27054,
+			"sha256": "4fafc6cf34b73650bea882992fbdbb96f44cbea96eaef093a1fa491276477349",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-search-en-light.mp4",
+			"bytes": 302273,
+			"sha256": "5f1c0d188e02edf478b903e5770650feca0869b27ce5cb8fc9ce1eabee544a6b",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 28.96,
+			"codec": "h264"
+		},
+		{
+			"file": "feature-search-en-light.vtt",
+			"bytes": 453,
+			"sha256": "44918632dfd09c9c96ee12376e64e6fe424c3caa83821fba96138dfe61fb5fc0",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-search-en-light.webm",
+			"bytes": 412479,
+			"sha256": "a259e8fd8a67f186308dfe62d11c235d3e63f31f5e66c8a1ae32c223328781d0",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 28.96,
+			"codec": "vp9"
+		},
+		{
+			"file": "feature-search-en-light.webp",
+			"bytes": 28018,
+			"sha256": "7cf6d00fb6b97fb9e4a8e27f64fa8170528d52ed5587577b78de2c2b7ac7a481",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-search-he-dark.mp4",
+			"bytes": 278307,
+			"sha256": "1731fcb502242394716448294cca4b2e66194afa01f08f06a3691569fc55fdc0",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 28.76,
+			"codec": "h264"
+		},
+		{
+			"file": "feature-search-he-dark.vtt",
+			"bytes": 640,
+			"sha256": "1c12cd83f4030ad07973d71e84fb1e8405250406e9deb6a4591f6953552cf370",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-search-he-dark.webm",
+			"bytes": 296380,
+			"sha256": "ec7d228c888fb61ae3ccb879623e19f67c4a01929b0ed003f1a08f4ad2bba2f6",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 28.76,
+			"codec": "vp9"
+		},
+		{
+			"file": "feature-search-he-dark.webp",
+			"bytes": 22422,
+			"sha256": "8f4b670fbedb40a0097badb12a18c0afbf457b21082c80fa83aa4ed5b4fc8750",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-search-he-light.mp4",
+			"bytes": 271923,
+			"sha256": "eb78a038ee8376aada3ad553d934e00ce796d7f8cfa48bcc616a811078187bb7",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 28.8,
+			"codec": "h264"
+		},
+		{
+			"file": "feature-search-he-light.vtt",
+			"bytes": 640,
+			"sha256": "514feac9bf1eb24183b80e7609d07f7e4588f2e36f9c0184f262fa50cbce25fc",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-search-he-light.webm",
+			"bytes": 305548,
+			"sha256": "538a877cd66ea2d700504f7758eab532fc00c837e79909e118c636d0f1d9a5f8",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 28.8,
+			"codec": "vp9"
+		},
+		{
+			"file": "feature-search-he-light.webp",
+			"bytes": 23780,
+			"sha256": "91f3c47c09e0f5e93a59b8042ec1220fa215a002c4d5f1d3e6b49aaf3effbdc5",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-semester-en-dark.mp4",
+			"bytes": 578062,
+			"sha256": "dbffdd1682d05b4a8365b26089370ceed5e891dba6534851b38cfe12b0ccefd1",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 67.56,
+			"codec": "h264"
+		},
+		{
+			"file": "feature-semester-en-dark.vtt",
+			"bytes": 369,
+			"sha256": "9c83b2ef7264b03c515580f4e0b06100020f06151b6d9b60abdd8e9519fdf271",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-semester-en-dark.webm",
+			"bytes": 929817,
+			"sha256": "5c6d12e0dece3e6b10a94ef5b17aa3be717a6560d05e9ba5d5cf181eafb971f7",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 67.56,
+			"codec": "vp9"
+		},
+		{
+			"file": "feature-semester-en-dark.webp",
+			"bytes": 36348,
+			"sha256": "62cffe4bc6baf9d18fe420004e99d951828a52b73cfbd16bb9f3aeb28acc1d05",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-semester-en-light.mp4",
+			"bytes": 557631,
+			"sha256": "f5de2f3c4392fb208d33573f36252439a23ad94e2d95609b0df42512f1a0fbd7",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 68.44,
+			"codec": "h264"
+		},
+		{
+			"file": "feature-semester-en-light.vtt",
+			"bytes": 369,
+			"sha256": "8dca9f8d74b10810114feb3c18e0b81d45de8b4dc3bfd30d3b09f3b74713e21c",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-semester-en-light.webm",
+			"bytes": 935081,
+			"sha256": "395fe2d4f4268fa4d31576b29d140a1a07b9b143aa3c62465bc466e233a23ebb",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 68.44,
+			"codec": "vp9"
+		},
+		{
+			"file": "feature-semester-en-light.webp",
+			"bytes": 38686,
+			"sha256": "72bb677818832768162c182cea097ac53d9e15a2804308a9fc5c7705e9f7447c",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-semester-he-dark.mp4",
+			"bytes": 477525,
+			"sha256": "628d57b0b02faef07c68106d019d948c9ae001af32726be196fdaa47a68d0023",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 67.52,
+			"codec": "h264"
+		},
+		{
+			"file": "feature-semester-he-dark.vtt",
+			"bytes": 512,
+			"sha256": "57051eaa0a975c4b25f9912ad5cf5ffb216d7b88528c02727e800ff5a6e2feb9",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-semester-he-dark.webm",
+			"bytes": 739383,
+			"sha256": "f055ca83d2359a0b881c31e0f9cae7eea1365c870d05c3a48d29bacd13b4cae2",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 67.52,
+			"codec": "vp9"
+		},
+		{
+			"file": "feature-semester-he-dark.webp",
+			"bytes": 30074,
+			"sha256": "cd89bd2754f3e5cfc002c8d8a3bcfb81585ad2575f9126d83fea9919a4770891",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-semester-he-light.mp4",
+			"bytes": 508297,
+			"sha256": "314a57dde91adfd11fca2e657644e0060e8168c0f59450d2b233d330f7463615",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 67.92,
+			"codec": "h264"
+		},
+		{
+			"file": "feature-semester-he-light.vtt",
+			"bytes": 512,
+			"sha256": "1cf2e71b6fff164fa4fd37fab476c6916b8d09d948ceb2ab9ad7524dc9ebdaac",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-semester-he-light.webm",
+			"bytes": 775825,
+			"sha256": "651a095e9b34b9ab61c0f2992420d57b57de8cc4dcc79bdb2c1f9679aa01be91",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 67.92,
+			"codec": "vp9"
+		},
+		{
+			"file": "feature-semester-he-light.webp",
+			"bytes": 32296,
+			"sha256": "674846936cb90d40f9601a677d2f3c0362d6a2e4676fbb25be205cba04e7af49",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-settings-en-dark.mp4",
+			"bytes": 353465,
+			"sha256": "c2448252099a9e1056bb61e3ef7d147211f16205191d901b63b549b658957691",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 32.24,
+			"codec": "h264"
+		},
+		{
+			"file": "feature-settings-en-dark.vtt",
+			"bytes": 323,
+			"sha256": "421fb53d6db5cc68eb49ac11e2420e77675514add91ad378948ac597636b0635",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-settings-en-dark.webm",
+			"bytes": 507286,
+			"sha256": "3ea98587f1a182652114bb2fd89c444177eac4d043443758f3b938c4b827291f",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 32.24,
+			"codec": "vp9"
+		},
+		{
+			"file": "feature-settings-en-dark.webp",
+			"bytes": 31520,
+			"sha256": "273f5f7e9f19af11bb99195cc1745389f01f17fa9fc0c587898a5ffd362cfcf9",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-settings-en-light.mp4",
+			"bytes": 354829,
+			"sha256": "026033c4b1001a0a289b794253578d3bcaedf894e404a3cb139ffe281e5ed531",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 32.88,
+			"codec": "h264"
+		},
+		{
+			"file": "feature-settings-en-light.vtt",
+			"bytes": 323,
+			"sha256": "ed8be2df6e4230fc30bca32fe954f1f60dca467314981c9f15ff14aa214a2926",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-settings-en-light.webm",
+			"bytes": 482643,
+			"sha256": "5461b06293cca2b361cd2309cdc4e919f95df979b7ca441dd61639bb5839f154",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 32.88,
+			"codec": "vp9"
+		},
+		{
+			"file": "feature-settings-en-light.webp",
+			"bytes": 32502,
+			"sha256": "38a5a1fdf342cc1ff1fdb74feb545b415d9e13d065bcbe4443d8801f5b5a8566",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-settings-he-dark.mp4",
+			"bytes": 282850,
+			"sha256": "9171f709d8a9203d3232a43f14485130ee86ccd07b857fb37bff557c2c7deb89",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 32.84,
+			"codec": "h264"
+		},
+		{
+			"file": "feature-settings-he-dark.vtt",
+			"bytes": 403,
+			"sha256": "4bd3229d4d82ffa81d47d426b405be24be4ef65d174f2ae6d18af214f309380a",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-settings-he-dark.webm",
+			"bytes": 338680,
+			"sha256": "7464a6eda9d5e0fc04e20ea5c8e52593fc246cae3a5e62be73227b80aea521f2",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 32.84,
+			"codec": "vp9"
+		},
+		{
+			"file": "feature-settings-he-dark.webp",
+			"bytes": 23154,
+			"sha256": "535b04c3849b1b535404262d1998137ff0a0138d8c312f113426e7e9fa2471b9",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-settings-he-light.mp4",
+			"bytes": 298829,
+			"sha256": "3b85a0437c8b8f0e6cb653aded96be03b33647017a2fef69cd3ac193b72c15de",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 32.64,
+			"codec": "h264"
+		},
+		{
+			"file": "feature-settings-he-light.vtt",
+			"bytes": 403,
+			"sha256": "5041e75e83bff9e4e48d142b297487c3a9afe09244fa4b552285de444d715697",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-settings-he-light.webm",
+			"bytes": 369739,
+			"sha256": "dc41eb17387641cd98e451c57cb27ac97981e153f28ade1798ab0b3cb94c2b43",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 32.64,
+			"codec": "vp9"
+		},
+		{
+			"file": "feature-settings-he-light.webp",
+			"bytes": 24290,
+			"sha256": "1cbb260cc8c68e3be60921acd83577b6b254d10ea2d710dc55ae39fb79d06b1f",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-share-en-dark.mp4",
+			"bytes": 197553,
+			"sha256": "ee2af46345cd4415e739f81c22c52677a1a6d67cfbe603ae9052996a256e5ff3",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 17.52,
+			"codec": "h264"
+		},
+		{
+			"file": "feature-share-en-dark.vtt",
+			"bytes": 458,
+			"sha256": "d0729b63f127efa67ce91600363411dfb1801b1426506ad0e9ed7a8453b49dc6",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-share-en-dark.webm",
+			"bytes": 253595,
+			"sha256": "3a73c0ff2025c2d2b3831d3d363abd67ef0b7d105d6625c5c87e56f35b3fae98",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 17.52,
+			"codec": "vp9"
+		},
+		{
+			"file": "feature-share-en-dark.webp",
+			"bytes": 32776,
+			"sha256": "ca197a1122e6741e74b7d5e3702b887d85415f1ce689ee9e13a36fda3d6441ca",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-share-en-light.mp4",
+			"bytes": 221861,
+			"sha256": "d420868bf4229babba28034a24b32367cffb0fe9fc8bae985213682b0afb649d",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 17.8,
+			"codec": "h264"
+		},
+		{
+			"file": "feature-share-en-light.vtt",
+			"bytes": 458,
+			"sha256": "03eb54f71cd9aabd4dd07121fb332e43ed3be70cc5a17a4a38737d92c7beaa2a",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-share-en-light.webm",
+			"bytes": 255732,
+			"sha256": "d6bde300e80066d531a80f51a99698993756d244d669a507d8ebe08b8bd26b1c",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 17.8,
+			"codec": "vp9"
+		},
+		{
+			"file": "feature-share-en-light.webp",
+			"bytes": 33920,
+			"sha256": "3c391af6098f09b5c867443c26ca407ecd0056a5e8b9d9c131fa24dfcd6a55f6",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-share-he-dark.mp4",
+			"bytes": 151142,
+			"sha256": "96b4ef6a7b82ca4a8e6a6e38fc40be250032c7200e208bc3e4dee08ef524d3b3",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 17.6,
+			"codec": "h264"
+		},
+		{
+			"file": "feature-share-he-dark.vtt",
+			"bytes": 579,
+			"sha256": "75238ca4a86a2371231f4a0e00eb28d31c5664db587a9038d2a6307bf73a7027",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-share-he-dark.webm",
+			"bytes": 203675,
+			"sha256": "7baf74c719202c490b2c13464fcaf3585d054a538b5eb869110a76298a0408e5",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 17.6,
+			"codec": "vp9"
+		},
+		{
+			"file": "feature-share-he-dark.webp",
+			"bytes": 25132,
+			"sha256": "678d975570d249356c225e0103307491a91de0d49d823c3736fc0665e696a36c",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-share-he-light.mp4",
+			"bytes": 158986,
+			"sha256": "8e3dec0e579e35f977a9a63df8c26c5b85fe3065343795a47108878be224731e",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 17.48,
+			"codec": "h264"
+		},
+		{
+			"file": "feature-share-he-light.vtt",
+			"bytes": 579,
+			"sha256": "f6062c08fd2e7754a0d46ea47f52b64502cc73823a6ba2de1ba0fa43c8cbf207",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "feature-share-he-light.webm",
+			"bytes": 210516,
+			"sha256": "eb1b1bb4cf102c22e1713b68112a0f00973bdb668b6b732c5a773037aa83d084",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978",
+			"duration": 17.48,
+			"codec": "vp9"
+		},
+		{
+			"file": "feature-share-he-light.webp",
+			"bytes": 26340,
+			"sha256": "533f2ddfceba7f8e66cefce2db1e67ff75a070ac440e64a3277f4540c159bb5a",
+			"sourceCommit": "f8cfe32cbd1839039d25402111263639b6907978"
+		},
+		{
+			"file": "manifest.json",
+			"bytes": 5724,
+			"sha256": "7759084fc04804dfbba401fa99fde5ee1d800ada0e3f1d302eab990c38ef525a",
+			"sourceCommit": null
+		},
+		{
+			"file": "plan-course-en-dark.mp4",
+			"bytes": 339197,
+			"sha256": "cec2caf9a086031241149d46f83a9d3d5d4f72f99a07ec045d5a038c50c716cc",
+			"duration": 30.32,
+			"codec": "h264",
+			"sourceCommit": "8e6af135bb4f9ee546c39bb5b604d8aff691b337"
+		},
+		{
+			"file": "plan-course-en-dark.vtt",
+			"bytes": 459,
+			"sha256": "e6ec518d10fc2619ff1881d6d821f91236d3c6942140d67f5e9ddbf6e0a717cd",
+			"sourceCommit": "8e6af135bb4f9ee546c39bb5b604d8aff691b337"
+		},
+		{
+			"file": "plan-course-en-dark.webm",
+			"bytes": 466707,
+			"sha256": "d734578fef9e54e9183ffd0df8946ca30b4825b140984c05981c8134cea5e0c2",
+			"duration": 30.32,
+			"codec": "vp9",
+			"sourceCommit": "8e6af135bb4f9ee546c39bb5b604d8aff691b337"
+		},
+		{
+			"file": "plan-course-en-dark.webp",
+			"bytes": 20422,
+			"sha256": "013297fa84ca13fa1be6aad12a05751dcac49c8ca69dd2001084429472764cb9",
+			"sourceCommit": "8e6af135bb4f9ee546c39bb5b604d8aff691b337"
+		},
+		{
+			"file": "plan-course-en-light.mp4",
+			"bytes": 336449,
+			"sha256": "8983cf065f9314cc213bba266cf294690fc0c77ea60a607183320384ca255324",
+			"duration": 29.96,
+			"codec": "h264",
+			"sourceCommit": "8e6af135bb4f9ee546c39bb5b604d8aff691b337"
+		},
+		{
+			"file": "plan-course-en-light.vtt",
+			"bytes": 459,
+			"sha256": "57350d6dcba8537e99b8af35fcc1e5b9f2cddfc77884b8c241e3594170235860",
+			"sourceCommit": "8e6af135bb4f9ee546c39bb5b604d8aff691b337"
+		},
+		{
+			"file": "plan-course-en-light.webm",
+			"bytes": 465240,
+			"sha256": "cccaa391e6525da705ee57a4c66469dd7262c7f410b38cfc2b9d0f7d053a450b",
+			"duration": 29.96,
+			"codec": "vp9",
+			"sourceCommit": "8e6af135bb4f9ee546c39bb5b604d8aff691b337"
+		},
+		{
+			"file": "plan-course-en-light.webp",
+			"bytes": 21494,
+			"sha256": "ef49b18e21fada3f723a691d6790193d3d27d11a95e1a08b577e9ea14cce2f7e",
+			"sourceCommit": "8e6af135bb4f9ee546c39bb5b604d8aff691b337"
+		},
+		{
+			"file": "plan-course-he-dark.mp4",
+			"bytes": 327180,
+			"sha256": "be0dcf1007366cda43798f6103b1d2f2bd4af85e085865f55745dd3d8b76ccd8",
+			"duration": 30.16,
+			"codec": "h264",
+			"sourceCommit": "8e6af135bb4f9ee546c39bb5b604d8aff691b337"
+		},
+		{
+			"file": "plan-course-he-dark.vtt",
+			"bytes": 620,
+			"sha256": "6022a8c998dfd771fe763acd58c61ffaee657d669c62c0bb99ed8f8438c830ab",
+			"sourceCommit": "8e6af135bb4f9ee546c39bb5b604d8aff691b337"
+		},
+		{
+			"file": "plan-course-he-dark.webm",
+			"bytes": 395714,
+			"sha256": "139a241c84d8c49d29c624a3f6817654dcc0f6143ce53d5c8567f3e4edb79239",
+			"duration": 30.16,
+			"codec": "vp9",
+			"sourceCommit": "8e6af135bb4f9ee546c39bb5b604d8aff691b337"
+		},
+		{
+			"file": "plan-course-he-dark.webp",
+			"bytes": 16382,
+			"sha256": "7d2216b4d6dbbace06ed5c4dfb70b52e7f3457b606f3e10917fe653226d3ea99",
+			"sourceCommit": "8e6af135bb4f9ee546c39bb5b604d8aff691b337"
+		},
+		{
+			"file": "plan-course-he-light.mp4",
+			"bytes": 361708,
+			"sha256": "975196f02ceed275c5cb800385e2546dcf373a7fc6791ac7c1985ee7ecf06efe",
+			"duration": 30.44,
+			"codec": "h264",
+			"sourceCommit": "8e6af135bb4f9ee546c39bb5b604d8aff691b337"
+		},
+		{
+			"file": "plan-course-he-light.vtt",
+			"bytes": 620,
+			"sha256": "ff5dca9173e0c40261f7e69c210d7a95bf090eec64a8481f09495acaa0b6e258",
+			"sourceCommit": "8e6af135bb4f9ee546c39bb5b604d8aff691b337"
+		},
+		{
+			"file": "plan-course-he-light.webm",
+			"bytes": 421000,
+			"sha256": "c624ba99278d6a4b8e25649d29e748d6dcf0a8feb96be908504dc81c646e349e",
+			"duration": 30.44,
+			"codec": "vp9",
+			"sourceCommit": "8e6af135bb4f9ee546c39bb5b604d8aff691b337"
+		},
+		{
+			"file": "plan-course-he-light.webp",
+			"bytes": 17472,
+			"sha256": "815d3656a9e4dcbf1f83feee5f12b2089bb345bc7a1a687f94429a844ea2d8b8",
+			"sourceCommit": "8e6af135bb4f9ee546c39bb5b604d8aff691b337"
+		}
+	]
+}

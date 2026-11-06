@@ -304,6 +304,38 @@ describe('query-scoped bilingual and required data (offline)', () => {
 	});
 });
 
+test('omits OData metadata from all public collection shapes', async () => {
+	const withMetadata = (row) => ({ ...row, __metadata: { uri: 'internal' } });
+	batches(
+		[part([withMetadata(semesters[1])])],
+		[part([withMetadata(faculties[1])])],
+		[part([withMetadata(faculties[1])])],
+		[part([withMetadata(degrees[1])])],
+		[part([withMetadata(degrees[1])])],
+		[part([withMetadata(course)])],
+		[part([withMetadata(course)])]
+	);
+	const semesterRows = await sap.getSemesterYears();
+	const facultyRows = await sap.getFaculties(semesterRows);
+	const degreeRows = await sap.getDegrees(facultyRows);
+	const courseRows = await sap.getCourses(semesterRows);
+	const detailRows = await sap.getCourseData(courseRows.flat());
+	for (const row of [
+		...semesterRows,
+		...facultyRows,
+		...degreeRows.flat(),
+		...courseRows.flat(),
+		...detailRows.flat()
+	]) {
+		expect(row).not.toHaveProperty('__metadata');
+	}
+	expect(semesterRows).toEqual([semesters[1]]);
+	expect(courseRows[0][0]).toEqual(course);
+	expect(detailRows[0][0]).not.toHaveProperty('Peryr');
+	expect(detailRows[0][0]).not.toHaveProperty('Perid');
+	expect(detailRows[0][0].Name).toBe(course.Name);
+});
+
 test('preserves SAP batch GET framing and the public course detail shape', async () => {
 	batches([part([course])]);
 	const [[result]] = await sap.getCourseData([course]);

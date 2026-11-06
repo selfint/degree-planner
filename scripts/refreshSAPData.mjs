@@ -1,6 +1,7 @@
-import { existsSync, readdirSync, writeFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { buildCatalogData } from './catalogData.mjs';
 import { generateCatalogs } from './generateCatalogsRaw.mjs';
 import { generateCourseData } from './generateCourseData.mjs';
 import { assertNotEmptyReplacement, readJsonIfPresent } from './dataOutput.mjs';
@@ -13,11 +14,13 @@ export async function refreshSAPData({
 	fetchCatalogs = generateCatalogs
 } = {}) {
 	const coursesPath = resolve(root, 'static/courseData.json');
-	const catalogsPath = resolve(root, 'catalogs.json');
+	const catalogsPath = resolve(root, 'scripts/.cache/catalogs.raw.json');
 	const staticCatalogsPath = resolve(root, 'static/_catalogs');
 	const previousCourses = readJsonIfPresent(coursesPath);
 	const previousCatalogs =
 		readJsonIfPresent(catalogsPath) ??
+		readJsonIfPresent(resolve(root, 'catalogs.json')) ??
+		readJsonIfPresent(resolve(root, 'static/catalogs.json')) ??
 		(existsSync(staticCatalogsPath)
 			? readdirSync(staticCatalogsPath)
 			: undefined);
@@ -25,6 +28,9 @@ export async function refreshSAPData({
 	const catalogs = await fetchCatalogs({ root });
 	assertNotEmptyReplacement(previousCourses, courses, 'course data');
 	assertNotEmptyReplacement(previousCatalogs, catalogs, 'catalogs');
+	// Conversion must also accept the full incoming snapshot before any output changes.
+	buildCatalogData(catalogs);
+	mkdirSync(dirname(catalogsPath), { recursive: true });
 	writeFileSync(coursesPath, JSON.stringify(courses, null, '\t'));
 	writeFileSync(catalogsPath, JSON.stringify(catalogs, null, '\t'));
 }

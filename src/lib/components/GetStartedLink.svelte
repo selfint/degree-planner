@@ -1,16 +1,22 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import { navigating } from '$app/state';
-	import { content } from '$lib/stores.svelte';
+	import { content } from '$lib/preferences.svelte';
 	import Spinner from './Spinner.svelte';
+	import { trackEvent } from '$lib/analytics';
 
-	const pending = $derived(navigating.to?.url.pathname === '/settings');
+	const pending = $derived(
+		navigating.to?.url.pathname.startsWith(resolve('/app')) ?? false
+	);
 </script>
 
 <!-- Navigation must work before hydration, including slow Firebase startup. -->
 <a
-	href="/settings"
+	href={resolve('/app/')}
+	onclick={() => trackEvent('start_clicked')}
+	data-sveltekit-reload
 	aria-busy={pending}
-	class="inline-flex h-full items-center justify-center gap-2 rounded-md border border-transparent bg-accent-primary px-3 py-0.5 leading-tight text-content-on-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-primary"
+	class="ui-button ui-button--primary min-h-11 px-5"
 >
 	{content.lang.common.getStarted}
 	{#if pending}

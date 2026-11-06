@@ -21,6 +21,7 @@ export default {
 				'dark-100': 'rgb(49, 49, 53)',
 				'dark-50': 'rgb( 51, 51, 55)',
 				background: 'rgb(var(--color-background) / <alpha-value>)',
+				'surface-raised': 'rgb(var(--color-surface-raised) / <alpha-value>)',
 				'card-primary': 'rgb(var(--color-card-primary) / <alpha-value>)',
 				'card-secondary': 'rgb(var(--color-card-secondary) / <alpha-value>)',
 				'content-primary': 'rgb(var(--color-content-primary) / <alpha-value>)',

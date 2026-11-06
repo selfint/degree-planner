@@ -1,24 +1,25 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import type { HTMLButtonAttributes } from 'svelte/elements';
 
-	type Props = {
+	type Props = HTMLButtonAttributes & {
 		variant: 'primary' | 'secondary';
-		onclick: () => void;
 		children: Snippet;
 	};
 
-	let { variant, onclick, children }: Props = $props();
-
-	const bg = $derived(
-		variant === 'primary'
-			? 'bg-accent-primary text-content-on-accent'
-			: 'bg-card-secondary text-content-primary'
-	);
+	let {
+		variant,
+		children,
+		type = 'button',
+		class: className = '',
+		...attributes
+	}: Props = $props();
 </script>
 
 <button
-	class="h-full rounded-md border border-transparent p-0.5 pl-3 pr-3 leading-tight {bg}"
-	{onclick}
+	{...attributes}
+	{type}
+	class="ui-button ui-button--{variant} {className}"
 >
 	{@render children()}
 </button>

@@ -1,4 +1,5 @@
 import { tick } from 'svelte';
+import { SvelteMap, SvelteURL } from 'svelte/reactivity';
 import {
 	createSearchUrl,
 	readSearchFilters,
@@ -16,7 +17,7 @@ export function createSearchNavigation(
 ) {
 	let intendedUrl = $state<URL>();
 	let revision = 0;
-	const inFlight = new Map<number, string>();
+	const inFlight = new SvelteMap<number, string>();
 	let externalRevision = $state(0);
 	let externalNavigation = false;
 	const currentUrl = () => intendedUrl ?? getPageUrl();
@@ -69,7 +70,7 @@ export function createSearchNavigation(
 			maxPoints: number
 		) {
 			if (externalNavigation) return Promise.resolve();
-			const url = new URL(currentUrl());
+			const url = new SvelteURL(currentUrl());
 			if (patch) {
 				writeSearchFilters(
 					url.searchParams,

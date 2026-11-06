@@ -1,0 +1,335 @@
+{
+	"sourceCommit": "31687216ecfdf0e358a27941300a6940c12af1aa",
+	"run": "39421183812",
+	"runUrl": "https://github.com/selfint/degree-planner/actions/runs/39421183812",
+	"artifactId": "12264418881",
+	"artifactSha256": "01f3dab1e1ef927d28c01fd7f72704e35fa0dd5e699c8ac6f4e410ff68cf1744",
+	"files": [
+		{
+			"file": "independent-share-en-dark.mp4",
+			"bytes": 379955,
+			"sha256": "5dae5e61e8040e3472efb0ea10fea5b21724c2572da39b70ddbfc1956a173027"
+		},
+		{
+			"file": "independent-share-en-dark.vtt",
+			"bytes": 317,
+			"sha256": "62dc3410af6d43db27103cbed66b7502e64e577d3482c6f72ec67ad8821e57d9"
+		},
+		{
+			"file": "independent-share-en-dark.webm",
+			"bytes": 387303,
+			"sha256": "501405f2c91ec879bcd94659c3f37fa8051a8ee998d4aa03403d821f2b0780e0"
+		},
+		{
+			"file": "independent-share-en-dark.webp",
+			"bytes": 4410,
+			"sha256": "8db414f566ee2b3ad26a80c827f06a9d895c47de1a57ee6feed9eda340983fb7"
+		},
+		{
+			"file": "independent-share-en-light.mp4",
+			"bytes": 402051,
+			"sha256": "2b6f9e383739e6666a7e8785fbc29c1fefc87279fee1bd7e76aca96af68490e0"
+		},
+		{
+			"file": "independent-share-en-light.vtt",
+			"bytes": 317,
+			"sha256": "43bdb7c1a516c8e1f08ce640bb16bcb9e742b70d3d417790f772ab06d176b609"
+		},
+		{
+			"file": "independent-share-en-light.webm",
+			"bytes": 404434,
+			"sha256": "9ed9efa4d52b5187ffecbcc78ab5629cd1631046c445b27600c8e36aeed8c04b"
+		},
+		{
+			"file": "independent-share-en-light.webp",
+			"bytes": 4928,
+			"sha256": "4c8694c9e7822e613417d4e2a23c105be1179178b4e8a0627ed0242a55b4000f"
+		},
+		{
+			"file": "independent-share-he-dark.mp4",
+			"bytes": 335359,
+			"sha256": "3bc96471d056b6dce83808faad7a2aded34558f419109350674b1db49e200bc7"
+		},
+		{
+			"file": "independent-share-he-dark.vtt",
+			"bytes": 402,
+			"sha256": "33834084d3663f5b747a907a0255b522bf60749a324462634039db86db93be90"
+		},
+		{
+			"file": "independent-share-he-dark.webm",
+			"bytes": 345657,
+			"sha256": "3174913328f0d9d12fec7ba5af612036428d47658f90073cd354921adc1b426b"
+		},
+		{
+			"file": "independent-share-he-dark.webp",
+			"bytes": 4408,
+			"sha256": "7519f4229d1b70ad33427950fd4adb2e1b0750a26af4fca38c95c77b10dc9c04"
+		},
+		{
+			"file": "independent-share-he-light.mp4",
+			"bytes": 366156,
+			"sha256": "8417bbfec0f8c20e9a8eac458bf350fa8f62cf0934d7fa18caa93b5ac8fc2ab7"
+		},
+		{
+			"file": "independent-share-he-light.vtt",
+			"bytes": 402,
+			"sha256": "00e6f0580f7912db75a9eedab9a36b1d1e0ffa49d2bc78b9d9f168c78c19d90f"
+		},
+		{
+			"file": "independent-share-he-light.webm",
+			"bytes": 375445,
+			"sha256": "74b9c5ae8e1c2897bed771a92f2fd6d00bb970d502942b01b34ed4d64a1f73ad"
+		},
+		{
+			"file": "independent-share-he-light.webp",
+			"bytes": 4868,
+			"sha256": "6c5e36eeb72625f1be54c52f1421560d7b3b83fc0d2ff30a8815b12de9f3a88b"
+		},
+		{
+			"file": "provenance.json",
+			"bytes": 12825,
+			"sha256": "a84a03d79d361d03d6b16477dd5fb3a4580a4250bd5e6c00f3643f446116a375"
+		},
+		{
+			"file": "safe-shortening-en-dark.mp4",
+			"bytes": 148758,
+			"sha256": "11b4c73059c34a974e1c4c4a77ac9e8568cc6e2c295c3c8c93879cbf153ca67a"
+		},
+		{
+			"file": "safe-shortening-en-dark.vtt",
+			"bytes": 92,
+			"sha256": "29a8506d8970f75764783cb7165eecf697eca6bc5b67b837d6ebe2875b117416"
+		},
+		{
+			"file": "safe-shortening-en-dark.webm",
+			"bytes": 161974,
+			"sha256": "dae56defbc7c4bfc3e628de5f3cf5cbbe9dfe496738f2c1c557805fb4d735d1f"
+		},
+		{
+			"file": "safe-shortening-en-dark.webp",
+			"bytes": 18516,
+			"sha256": "424edf766d98b91736c44bfa160cd3c9b35d0f06fe7439e000a84d207b8cfee2"
+		},
+		{
+			"file": "safe-shortening-en-light.mp4",
+			"bytes": 167140,
+			"sha256": "8a6891f43357a594b0eaa2f4ff5d4205354cbf84239f5903c0b87860b2ca3cab"
+		},
+		{
+			"file": "safe-shortening-en-light.vtt",
+			"bytes": 92,
+			"sha256": "3def34538f2beac1d5a9b25a91208a5b9d56288d1e0f3841ae0cc542dfc906ea"
+		},
+		{
+			"file": "safe-shortening-en-light.webm",
+			"bytes": 173350,
+			"sha256": "86127626bac4c95a32bd3d42e20c4eca380e7d2b80ddc269c99799ffe6abfcdd"
+		},
+		{
+			"file": "safe-shortening-en-light.webp",
+			"bytes": 18366,
+			"sha256": "27c90863afdf43b207e61a40f06d2fe06a487fb5ac06ff5a6f1ae01ea5bf8b20"
+		},
+		{
+			"file": "safe-shortening-he-dark.mp4",
+			"bytes": 144216,
+			"sha256": "8bf48b71128023c92d128c04cfe4b7f964fdfc0ea09b57b98fdadac9f15d3e99"
+		},
+		{
+			"file": "safe-shortening-he-dark.vtt",
+			"bytes": 129,
+			"sha256": "136a6b3b2ba8067e7ab4fd460030244289416700778714b2f2e6a9cfd209e859"
+		},
+		{
+			"file": "safe-shortening-he-dark.webm",
+			"bytes": 150992,
+			"sha256": "08f2979b1e84961a2adca10a30ae0baed792a57123e4e221dcc34483051856c6"
+		},
+		{
+			"file": "safe-shortening-he-dark.webp",
+			"bytes": 15752,
+			"sha256": "28c46454d9df2b34a7bd1b824103ff1368a2f8ae971800082edd7fd4a0f8df1f"
+		},
+		{
+			"file": "safe-shortening-he-light.mp4",
+			"bytes": 161026,
+			"sha256": "724a271df1125274e92b4f0ccb5196d6c1da4a5fa548f81aec901a5338953295"
+		},
+		{
+			"file": "safe-shortening-he-light.vtt",
+			"bytes": 129,
+			"sha256": "de30780246b1802621bfaa9c04a412eb56fd12b5cf4b095772bd48048c8c6374"
+		},
+		{
+			"file": "safe-shortening-he-light.webm",
+			"bytes": 159570,
+			"sha256": "f5d6519082265624897547c31d11a661a8c7b453aeb0f90deead7f4e9ecea407"
+		},
+		{
+			"file": "safe-shortening-he-light.webp",
+			"bytes": 15474,
+			"sha256": "0c0f089f33bb7a4d1190592db6a620c1c8b5d142507502d837ac78405b052e49"
+		},
+		{
+			"file": "setup-recovery-en-dark.mp4",
+			"bytes": 646316,
+			"sha256": "fe270e9af2fa7eb890f0c357d186e82b2cea6567d512f6fdc769d8f265800490"
+		},
+		{
+			"file": "setup-recovery-en-dark.vtt",
+			"bytes": 153,
+			"sha256": "0f6b2af177bfd59a5f51ccaf181a8df0b8e3f78b8e66199e79584ac87a0ebcfa"
+		},
+		{
+			"file": "setup-recovery-en-dark.webm",
+			"bytes": 686985,
+			"sha256": "cc82cde2b1d14dd18439930ed9ffe43961cf59fca463fd418818c1178be5bd96"
+		},
+		{
+			"file": "setup-recovery-en-dark.webp",
+			"bytes": 13240,
+			"sha256": "cf3e75983f1f73b47556a530dc663311b1a7de2e11fa30ad91684bf83d91f1b9"
+		},
+		{
+			"file": "setup-recovery-en-light.mp4",
+			"bytes": 662636,
+			"sha256": "64a108cb4285f49f5928d790f74e96f587f5c2782b90fdb35e3ce908de102319"
+		},
+		{
+			"file": "setup-recovery-en-light.vtt",
+			"bytes": 153,
+			"sha256": "f1c72f9bc34bc8b388b331fd1a2299c83c3eb1b2bdc722513d185c87db7f0168"
+		},
+		{
+			"file": "setup-recovery-en-light.webm",
+			"bytes": 703202,
+			"sha256": "a0658d32657bb8bd71850e6cc9b56005b63d2f3382c9e048a39f130649baaf94"
+		},
+		{
+			"file": "setup-recovery-en-light.webp",
+			"bytes": 13450,
+			"sha256": "3bc282ea55cd06ec7add0188cc96ed659cab67dd441cb3b38d02494d8ac5bbea"
+		},
+		{
+			"file": "setup-recovery-he-dark.mp4",
+			"bytes": 610791,
+			"sha256": "d63906e273e6d6e207d9eb3209409a9687f0b7836d17767e97f47ef976e868cd"
+		},
+		{
+			"file": "setup-recovery-he-dark.vtt",
+			"bytes": 210,
+			"sha256": "03065def3523e02cd1960059ee620a1a1c508bf93ce57e36a40c921506db3902"
+		},
+		{
+			"file": "setup-recovery-he-dark.webm",
+			"bytes": 643112,
+			"sha256": "9395d6f64fb3b6e8a7dce1f07d15f74412028b98d8eca7edcbfbc9d4d228d129"
+		},
+		{
+			"file": "setup-recovery-he-dark.webp",
+			"bytes": 11708,
+			"sha256": "2eea39b54557a9b449b9e97a12d9616098ae3eb562ab950e145be8284376fc9f"
+		},
+		{
+			"file": "setup-recovery-he-light.mp4",
+			"bytes": 638454,
+			"sha256": "87349c25b2ed9dcd247b3f8fa433d55d7213ddbf338fba0ee87643e0deb3e6a7"
+		},
+		{
+			"file": "setup-recovery-he-light.vtt",
+			"bytes": 210,
+			"sha256": "c982b3fea98707bffdbfd2b0501c56d2c41a478a75b11eb2a20e22090d7b6afd"
+		},
+		{
+			"file": "setup-recovery-he-light.webm",
+			"bytes": 675993,
+			"sha256": "176170249062cc86767e761250e11cf4218a973ee3b4fd0493a9b1887c775735"
+		},
+		{
+			"file": "setup-recovery-he-light.webp",
+			"bytes": 11670,
+			"sha256": "4c8e939ef83f5c1bbb807bf24b6b7086c8524f71eb6857625ce078d072a04260"
+		},
+		{
+			"file": "shorter-import-en-dark.mp4",
+			"bytes": 217890,
+			"sha256": "b9d5f79ebcf567e64e047f73d3084ff3ef6ab7303e79a019cbf2f90a746641e7"
+		},
+		{
+			"file": "shorter-import-en-dark.vtt",
+			"bytes": 100,
+			"sha256": "fac7937d5725eae39523089f354e9fb1d5a810436a1e54edcc74b9348bc25fe9"
+		},
+		{
+			"file": "shorter-import-en-dark.webm",
+			"bytes": 245167,
+			"sha256": "de46c6e913e5127fd20ce9a703789911bb7513d7e06005e664e3f639750bf095"
+		},
+		{
+			"file": "shorter-import-en-dark.webp",
+			"bytes": 4420,
+			"sha256": "8ff3559e690af045688e82ab1859fd82191dfa33d3e5e9055773a79f9f8821ea"
+		},
+		{
+			"file": "shorter-import-en-light.mp4",
+			"bytes": 242739,
+			"sha256": "0db910f51a3065bc5b5120e6f8f908004fdc1903c99e65d74dae7b171a7d4d91"
+		},
+		{
+			"file": "shorter-import-en-light.vtt",
+			"bytes": 100,
+			"sha256": "d95e1652d85578ff87574875792b6f02e1bd6de2af96e60425e361e116104f14"
+		},
+		{
+			"file": "shorter-import-en-light.webm",
+			"bytes": 272331,
+			"sha256": "afda4b4de5a67b51f7cf4e675b2775d6efe111e2eff75547ab0baadc9dafa056"
+		},
+		{
+			"file": "shorter-import-en-light.webp",
+			"bytes": 4926,
+			"sha256": "c90a582fadc82fba18c6c4459c3cc21be21fc1ace6b8cfedcbce0a598fd5cd6a"
+		},
+		{
+			"file": "shorter-import-he-dark.mp4",
+			"bytes": 207308,
+			"sha256": "09f85ebdfa57304a375901422d0be9057381c7816eb1c9a1de116d9ba7fba494"
+		},
+		{
+			"file": "shorter-import-he-dark.vtt",
+			"bytes": 125,
+			"sha256": "30313c44d1dd484b9547652a64b565426321f9f6f02be3cc6269aff953c72fc1"
+		},
+		{
+			"file": "shorter-import-he-dark.webm",
+			"bytes": 207507,
+			"sha256": "20497b5d2f26246a4932fc13202fe9ad76f23b56ef37796a26ca4f420d06243d"
+		},
+		{
+			"file": "shorter-import-he-dark.webp",
+			"bytes": 4424,
+			"sha256": "5c8844de14d9dffe0e838e651cfbbeab744775c4c7f03d438001803eb8508a77"
+		},
+		{
+			"file": "shorter-import-he-light.mp4",
+			"bytes": 204994,
+			"sha256": "ffd8d9f16052dafb915f9e69bd6265ce33a75c74aa4bc7086d06c57847743784"
+		},
+		{
+			"file": "shorter-import-he-light.vtt",
+			"bytes": 125,
+			"sha256": "da941048ad7487a04090a56d0367dac357c5bf20f2be5bbfd86a2664e3a28e2c"
+		},
+		{
+			"file": "shorter-import-he-light.webm",
+			"bytes": 221301,
+			"sha256": "fc67c126363947bad20436c47cd5839ad34c0c97aca3313915eb356aa7e81594"
+		},
+		{
+			"file": "shorter-import-he-light.webp",
+			"bytes": 4898,
+			"sha256": "98c067a23f0f6ab8e6645c626537c66dfda60154a72f05ea682ffb95c83479db"
+		}
+	],
+	"totalBytes": 11521451
+}

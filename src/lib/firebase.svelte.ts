@@ -1,3 +1,4 @@
+import { observeAnalyticsAuth } from './analyticsAuth';
 import { initializeApp, type FirebaseApp } from 'firebase/app';
 import { browser } from '$app/environment';
 import {
@@ -8,11 +9,8 @@ import {
 	GoogleAuthProvider,
 	browserLocalPersistence
 } from 'firebase/auth';
-import {
-	getAnalytics,
-	isSupported,
-	type Analytics as FirebaseAnalytics
-} from 'firebase/analytics';
+import type { Analytics as FirebaseAnalytics } from 'firebase/analytics';
+import { assertPlanWritable } from '$lib/planAccess';
 import {
 	getFirestore,
 	type Firestore as FirebaseFirestore,
@@ -87,21 +85,24 @@ export async function initFirebase(): Promise<FirebaseServices> {
 	}
 
 	await auth.setPersistence(browserLocalPersistence);
+	if (browser) observeAnalyticsAuth(auth);
 
 	const services: FirebaseServices = { app, auth, firestore };
-	if (browser) {
-		// Analytics can stall on IndexedDB or fail in restricted browsers. It is
-		// optional and must never hold up hydration or planner navigation.
-		void isSupported()
-			.then((supported) => {
-				if (supported) services.analytics = getAnalytics(app);
-			})
-			.catch(() => {
-				// Planning and authentication remain available without analytics.
-			});
-	}
 
 	return services;
+}
+
+/** Optional instrumentation never delays console authentication or data boot. */
+export async function startOptionalAnalytics(
+	services: FirebaseServices
+): Promise<void> {
+	if (!browser || !navigator.onLine) return;
+	try {
+		const { isSupported, getAnalytics } = await import('firebase/analytics');
+		if (await isSupported()) services.analytics = getAnalytics(services.app);
+	} catch {
+		/* Planning remains available when instrumentation is blocked. */
+	}
 }
 
 function getUserDocRef(
@@ -117,13 +118,16 @@ function getUserDocRef(
 	}
 
 	function decodeSemesters(encodedSemesters: string[]): CourseCode[][] {
-		return (encodedSemesters.map((s) =>
+		return encodedSemesters.map((s) =>
 			s.split(courseSeparator).filter((c) => c !== '')
-		) ?? []) as CourseCode[][];
+		);
 	}
 
 	const users = collection(firebase.firestore, 'users').withConverter({
 		toFirestore: (data: UserData) => {
+			// Serialize the selected tuple without expanding the catalog's full
+			// Degree union through the nullish expression.
+			const degree: [string, string, string] | undefined = data.degree;
 			const firestoreData: FirestoreData = {
 				version: 4,
 				exemptions: data.exemptions,
@@ -132,7 +136,7 @@ function getUserDocRef(
 				),
 				currentSemester: data.currentSemester ?? 0,
 				wishlist: data.wishlist,
-				degree: data.degree ?? null,
+				degree: degree ?? null,
 				path: data.path ?? null
 			};
 
@@ -147,30 +151,30 @@ function getUserDocRef(
 						exemptions: [],
 						semesters: decodeSemesters(data.semesters),
 						currentSemester: data.currentSemester,
-						wishlist: data.wishlist as CourseCode[],
+						wishlist: data.wishlist,
 						degree: (data.degree ?? undefined) as Degree | undefined,
 						path: data.path ?? undefined
 					};
 
 				case 3:
 					return {
-						exemptions: data.exemptions as CourseCode[],
+						exemptions: data.exemptions,
 						semesters:
 							data.semesters.length === 0
 								? Array(12).fill([])
 								: decodeSemesters(data.semesters),
 						currentSemester: data.currentSemester,
-						wishlist: data.wishlist as CourseCode[],
+						wishlist: data.wishlist,
 						degree: (data.degree ?? undefined) as Degree | undefined,
 						path: data.path ?? undefined
 					};
 
 				case 4:
 					return {
-						exemptions: data.exemptions as CourseCode[],
+						exemptions: data.exemptions,
 						semesters: decodeSemesters(data.semesters),
 						currentSemester: data.currentSemester,
-						wishlist: data.wishlist as CourseCode[],
+						wishlist: data.wishlist,
 						degree: (data.degree ?? undefined) as Degree | undefined,
 						path: data.path ?? undefined
 					};
@@ -192,6 +196,7 @@ async function writeFirebase(
 		return data;
 	}
 
+	assertPlanWritable();
 	await setDoc(userDoc, data);
 
 	return data;

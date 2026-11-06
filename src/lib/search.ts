@@ -1,3 +1,4 @@
+import { withBase } from './deploymentPaths';
 export const searchFilterKeys = [
 	'available',
 	'faculty',
@@ -137,7 +138,9 @@ export function writeSearchFilters(
 	maxPoints: number
 ) {
 	searchFilterKeys.forEach((key) => params.delete(key));
-	if (filters.available) params.set('available', '');
+	// Keys were cleared above. append also syncs an empty presence flag to a
+	// SvelteURL owner, whose set() treats missing and empty values as unchanged.
+	if (filters.available) params.append('available', '');
 	if (filters.faculty) params.set('faculty', filters.faculty);
 	if (filters.pointsMin > 0) params.set('pointsMin', String(filters.pointsMin));
 	if (filters.pointsMax < maxPoints)
@@ -199,8 +202,9 @@ export function matchesSearchFilters(
 }
 
 export function createSearchUrl(currentUrl: URL, query: string): URL {
-	const url = new URL('/search', currentUrl);
-	if (currentUrl.pathname === '/search') url.search = currentUrl.search;
+	const url = new URL(withBase('/app/search'), currentUrl);
+	if (currentUrl.pathname === withBase('/app/search'))
+		url.search = currentUrl.search;
 	url.searchParams.set('q', query);
 	return url;
 }

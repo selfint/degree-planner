@@ -1,5 +1,4 @@
 import catalogs from '../static/catalogs.json';
-import courseData from '../static/courseDataStripped.json';
 
 // type gymnastics to get catalogs in a type-safe way
 // credit: https://chatgpt.com/share/67137b39-7de8-8002-a4aa-0556e0c86b5a
@@ -20,6 +19,9 @@ type Decrement<N extends number> = N extends 3 ? 2 : N extends 2 ? 1 : 0;
 // See https://kit.svelte.dev/docs/types#app
 // for information about these interfaces
 declare global {
+	const __PLANIT_BUILD_SHA__: string | null;
+	const __PLANIT_STATIC_BUILD__: boolean;
+	const __PLANIT_STORYBOOK_ENABLED__: boolean;
 	namespace App {
 		// interface Error {}
 		// interface Locals {}
@@ -233,8 +235,10 @@ declare global {
 	type Catalogs = typeof catalogs;
 	type Degree = NestedKeys<Catalogs>;
 
-	type _CourseData = typeof courseData;
-	type CourseCode = keyof _CourseData;
+	// Plans and refreshed catalogs may contain codes absent from the bundled
+	// snapshot. Keep those identifiers so missing courses can render placeholders.
+	// Public course payloads are validated separately by publicDataSchema.
+	type CourseCode = string;
 	type CourseData = Record<CourseCode, Course>;
 	type FullCourseData = Record<CourseCode, FullCourse>;
 

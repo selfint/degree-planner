@@ -1,13 +1,18 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { observeAnalyticsAuth } from './analyticsAuth';
 
 const mocks = vi.hoisted(() => ({
 	app: {},
-	auth: { setPersistence: vi.fn() },
+	auth: { setPersistence: vi.fn(), currentUser: { uid: 'test-user' } },
 	firestore: {},
 	analytics: {},
 	isSupported: vi.fn(),
-	getAnalytics: vi.fn()
+	getAnalytics: vi.fn(),
+	withConverter:
+		vi.fn<(converter: { toFirestore(data: UserData): unknown }) => object>()
 }));
+
+vi.mock('./analyticsAuth', () => ({ observeAnalyticsAuth: vi.fn() }));
 
 vi.mock('$app/environment', () => ({ browser: true }));
 vi.mock('firebase/app', () => ({ initializeApp: () => mocks.app }));
@@ -21,7 +26,7 @@ vi.mock('firebase/auth', () => ({
 vi.mock('firebase/firestore', () => ({
 	getFirestore: () => mocks.firestore,
 	connectFirestoreEmulator: vi.fn(),
-	collection: vi.fn(),
+	collection: () => ({ withConverter: mocks.withConverter }),
 	getDoc: vi.fn(),
 	doc: vi.fn(),
 	setDoc: vi.fn(),
@@ -32,7 +37,11 @@ vi.mock('firebase/analytics', () => ({
 	getAnalytics: mocks.getAnalytics
 }));
 
-import { initFirebase } from './firebase.svelte';
+import {
+	buildFirebaseStorage,
+	initFirebase,
+	startOptionalAnalytics
+} from './firebase.svelte';
 
 beforeEach(() => {
 	vi.resetAllMocks();
@@ -41,18 +50,57 @@ beforeEach(() => {
 	mocks.getAnalytics.mockReturnValue(mocks.analytics);
 });
 
+describe('Firebase plan serialization', () => {
+	const selectedDegree: Degree = [
+		'2024_200',
+		'00002120',
+		'SC00001314_CG00006245'
+	];
+
+	it.each([undefined, selectedDegree])(
+		'preserves persisted codes and serializes degree %j',
+		async (degree) => {
+			const services = await initFirebase();
+			const data: UserData = {
+				exemptions: ['09999997'],
+				semesters: [['09999998', '02340124'], []],
+				currentSemester: 1,
+				wishlist: ['09999999'],
+				degree,
+				path: degree ? 'CG00006246' : undefined
+			};
+			await expect(buildFirebaseStorage(services).write(data)).resolves.toBe(
+				data
+			);
+			const converter = mocks.withConverter.mock.calls[0][0];
+
+			expect(converter.toFirestore(data)).toEqual({
+				version: 4,
+				exemptions: ['09999997'],
+				semesters: ['09999998-02340124', ''],
+				currentSemester: 1,
+				wishlist: ['09999999'],
+				degree: degree ?? null,
+				path: degree ? 'CG00006246' : null
+			});
+		}
+	);
+});
+
 describe('Firebase startup', () => {
 	it('does not wait for an analytics support probe that never settles', async () => {
 		mocks.isSupported.mockReturnValue(new Promise(() => {}));
 		const services = await initFirebase();
 		expect(services.auth).toBe(mocks.auth);
+		expect(observeAnalyticsAuth).toHaveBeenCalledWith(mocks.auth);
 		expect(services.firestore).toBe(mocks.firestore);
+		expect(mocks.isSupported).not.toHaveBeenCalled();
 	}, 250);
 
 	it('does not fail startup when the analytics probe rejects', async () => {
 		mocks.isSupported.mockRejectedValue(new Error('IndexedDB unavailable'));
-		await expect(initFirebase()).resolves.toMatchObject({ auth: mocks.auth });
-		await Promise.resolve();
+		const services = await initFirebase();
+		await expect(startOptionalAnalytics(services)).resolves.toBeUndefined();
 		expect(mocks.getAnalytics).not.toHaveBeenCalled();
 	});
 
@@ -61,8 +109,8 @@ describe('Firebase startup', () => {
 		mocks.getAnalytics.mockImplementation(() => {
 			throw new Error('Analytics blocked');
 		});
-		await expect(initFirebase()).resolves.toMatchObject({ auth: mocks.auth });
-		await Promise.resolve();
+		const services = await initFirebase();
+		await expect(startOptionalAnalytics(services)).resolves.toBeUndefined();
 	});
 
 	it('still waits for auth persistence instead of assuming a guest session', async () => {

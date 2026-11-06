@@ -1,0 +1,9 @@
+{
+	"$schema": "https://openapi.vercel.sh/vercel.json",
+	"git": {
+		"deploymentEnabled": {
+			"feat/github-pages-staging": false,
+			"feat/posthog-analytics": false
+		}
+	}
+}

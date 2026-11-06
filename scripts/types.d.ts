@@ -1,4 +1,4 @@
-type TreeOnDemandSetResponse = {
+export type TreeOnDemandSetResponse = {
 	ParentStext: string;
 	Short: string;
 	HasChildren: boolean;
@@ -20,7 +20,7 @@ type TreeOnDemandSetResponse = {
 	Orgid: string;
 };
 
-type Track = {
+export type Track = {
 	Otjid: string;
 	Peryr: string;
 	Perid: SemesterNumber;
@@ -30,41 +30,31 @@ type Track = {
 	ZzQualifications: I18N;
 };
 
-type TreeHead = {
+export type TreeHead = {
 	courses?: string[];
 	children?: Tree[];
 };
 
-type Tree = {
+export type Tree = {
 	Otjid: string;
 	Name: I18N;
 	courses?: string[];
 	children?: Tree[];
 };
 
-type I18N = {
+export type I18N = {
 	en: string;
 	he: string;
 };
 
-type Catalog = {
+export type Catalog = {
 	track: Track;
 	tree: TreeHead;
 };
 
-type Track = {
-	Otjid: string;
-	Peryr: string;
-	Perid: string;
-	Name: string;
-	OrgId: string;
-	OrgText: string;
-	ZzQualifications: string;
-};
+export type Degree = Track[];
 
-type Degree = Track[];
-
-type Faculty = {
+export type Faculty = {
 	Name: I18N;
 	PiqYear: string;
 	PiqSession: string;
@@ -72,21 +62,21 @@ type Faculty = {
 	ZzOrgName: string;
 };
 
-type SemesterNumber = '200' | '201' | '202';
+export type SemesterNumber = '200' | '201' | '202';
 
-type SemesterYear = {
+export type SemesterYear = {
 	PiqSession: SemesterNumber;
 	PiqYear: string;
 	IsCurrent: 0 | -1;
 };
 
-type CourseHeader = {
+export type CourseHeader = {
 	Otjid: string;
 	Peryr: string;
 	Perid: string;
 };
 
-type Result<T, E> =
+export type Result<T, E> =
 	| {
 			status: 'ok';
 			value: T;

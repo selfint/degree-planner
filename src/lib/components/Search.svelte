@@ -1,46 +1,61 @@
 <script lang="ts">
 	import SearchIcon from '$lib/components/SearchIcon.svelte';
-
-	type Props = {
-		onsubmit: (query: string) => void;
-	};
-
-	let { onsubmit: _onsubmit }: Props = $props();
-
-	const onsubmit = (e: Event) => {
-		e.preventDefault();
-		_onsubmit(query);
-	};
-
+	import { content } from '$lib/preferences.svelte';
+	type Props = { onsubmit: (query: string) => void };
+	let { onsubmit: submit }: Props = $props();
 	let query = $state('');
-	let placeholder = $state('Search');
-
-	let selected = $state(false);
-	const textStyle = $derived(
-		selected ? 'text-content-primary' : 'text-content-secondary'
-	);
 </script>
 
-<div
-	class="flex h-fit w-fit flex-row items-center justify-start rounded-md bg-card-primary pb-1 pl-2 pr-1 pt-1 {textStyle}"
+<form
+	class="search-field"
+	role="search"
+	onsubmit={(event) => {
+		event.preventDefault();
+		submit(query);
+	}}
 >
-	<div class="min-w-3">
-		<SearchIcon class="h-3" />
-	</div>
-	<form class="ml-1" {onsubmit}>
-		<input
-			type="text"
-			{placeholder}
-			onfocus={() => {
-				selected = true;
-				placeholder = '';
-			}}
-			onblur={() => {
-				selected = false;
-				placeholder = 'Search';
-			}}
-			bind:value={query}
-			class="w-full max-w-28 border-none bg-transparent font-thin {textStyle} focus:outline-none"
-		/>
-	</form>
-</div>
+	<input
+		type="text"
+		aria-label={content.lang.header.searchPlaceholder}
+		placeholder={content.lang.header.searchPlaceholder}
+		bind:value={query}
+		class="min-w-0 flex-1 bg-transparent text-base text-content-primary placeholder:text-content-secondary focus:outline-none"
+	/>
+	<button
+		type="submit"
+		aria-label={content.lang.header.searchPlaceholder}
+		class="search-submit"
+	>
+		<SearchIcon class="h-5 w-5" />
+	</button>
+</form>
+
+<style>
+	.search-field {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		inline-size: min(100%, 24rem);
+		min-block-size: 2.75rem;
+		padding-inline-start: 0.875rem;
+		border: 0.0625rem solid rgb(var(--color-border));
+		border-radius: 0.75rem;
+		background: rgb(var(--color-card-primary));
+	}
+	.search-field:focus-within {
+		border-color: rgb(var(--color-accent-primary));
+		box-shadow: 0 0 0 0.1875rem rgb(var(--color-accent-primary) / 0.12);
+	}
+	.search-submit {
+		display: grid;
+		place-items: center;
+		min-inline-size: 2.75rem;
+		min-block-size: 2.75rem;
+		border-radius: 0.625rem;
+		color: rgb(var(--color-content-secondary));
+	}
+	.search-submit:hover {
+		background: rgb(var(--color-card-secondary));
+		color: rgb(var(--color-content-primary));
+	}
+</style>

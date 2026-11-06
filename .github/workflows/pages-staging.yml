@@ -1,10 +1,10 @@
-name: Pages staging
+name: GitHub Pages
 
 on:
   push:
-    branches: ['feat/github-pages-staging']
+    branches: ['main']
   pull_request:
-    branches: ['staging']
+    branches: ['main', 'staging']
   workflow_dispatch:
     inputs:
       deploy:
@@ -65,10 +65,10 @@ jobs:
           name: pages-qa-${{ strategy.job-index }}
           path: test-results/
 
-  # The owner approved replacing this existing Pages site on 2026-11-03.
+  # Publish merged main commits to the existing, explicitly approved Pages site.
   # Keep the branch and exact destination bounded; never change a custom domain.
   deploy:
-    if: github.ref == 'refs/heads/feat/github-pages-staging' && (github.event_name == 'push' || (inputs.deploy && inputs.expected_url == 'https://tom.selfin.io/degree-planner/'))
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.deploy && inputs.expected_url == 'https://tom.selfin.io/degree-planner/'))
     needs: [inspect, verify]
     runs-on: ubuntu-24.04
     permissions:
@@ -76,6 +76,7 @@ jobs:
       pages: write
       id-token: write
     concurrency:
+      # Share the original lock with any already-running Pages release.
       group: pages-staging-publish
       cancel-in-progress: false
     environment:

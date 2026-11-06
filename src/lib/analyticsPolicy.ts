@@ -24,6 +24,8 @@ export const analyticsEvents = [
 	'grade_import_saved',
 	'course_added_to_wishlist',
 	'course_added_to_semester',
+	'courses_shuffled',
+	'plan_updated',
 	'share_plan_clicked',
 	'copy_plan_clicked',
 	'plan_copied'
@@ -91,9 +93,11 @@ export function sanitizeAnalyticsEvent(
 		);
 	}
 	if (
-		['course_added_to_wishlist', 'course_added_to_semester'].includes(
-			event.event
-		) &&
+		[
+			'course_added_to_wishlist',
+			'course_added_to_semester',
+			'courses_shuffled'
+		].includes(event.event) &&
 		(input.source === 'course_detail' || input.source === 'plan_board')
 	)
 		properties.source = input.source;

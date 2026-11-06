@@ -238,6 +238,119 @@ test('private shared-plan URLs, referrer, queries and fragments never reach tele
 	expect(requests.every((url) => new URL(url).pathname === '/e/')).toBe(true);
 });
 
+test('course shuffle counts only a saved move; Save clicks include failures and retries', async ({
+	page
+}) => {
+	const { events, count } = await setup(page);
+	await page.goto(path('/app/plan'));
+	await ready(page);
+	const first = page.locator('[data-semester="0"]');
+	const second = page.locator('[data-semester="1"]');
+	const course = '[data-code="02340141"]';
+	const save = page.getByRole('button', { name: 'Save', exact: true });
+	const move = async () => {
+		const box = (await second.boundingBox())!;
+		await first.locator(course).dragTo(second, {
+			targetPosition: { x: box.width / 2, y: box.height - 20 }
+		});
+		await expect(second.locator(course)).toHaveCount(1);
+		await expect(first.locator(course)).toHaveCount(0);
+	};
+	await move();
+	expect(count('courses_shuffled')).toBe(0);
+	expect(count('plan_updated')).toBe(0);
+	await page.getByRole('button', { name: 'Cancel', exact: true }).click();
+	await expect(first.locator(course)).toHaveCount(1);
+	expect(count('courses_shuffled')).toBe(0);
+	expect(count('plan_updated')).toBe(0);
+	await move();
+	const savedBefore = await page.evaluate(() =>
+		localStorage.getItem('userData')
+	);
+	await page.evaluate(() => {
+		const setItem = Storage.prototype.setItem;
+		Storage.prototype.setItem = function (key: string, value: string) {
+			if (this === localStorage && key === 'userData') {
+				Storage.prototype.setItem = setItem;
+				throw new DOMException('Simulated save failure', 'QuotaExceededError');
+			}
+			return setItem.call(this, key, value);
+		};
+	});
+	await save.click();
+	await expect.poll(() => count('plan_updated')).toBe(1);
+	await expect(save).toBeEnabled();
+	expect(count('courses_shuffled')).toBe(0);
+	expect(await page.evaluate(() => localStorage.getItem('userData'))).toBe(
+		savedBefore
+	);
+	await save.click();
+	await expect.poll(() => count('courses_shuffled')).toBe(1);
+	expect(count('plan_updated')).toBe(2);
+	await expect(save).toHaveCount(0);
+	const actions = events.filter((event) =>
+		['courses_shuffled', 'plan_updated'].includes(event.event)
+	);
+	expect(actions.map((event) => event.event)).toEqual([
+		'plan_updated',
+		'plan_updated',
+		'courses_shuffled'
+	]);
+	for (const event of actions) {
+		expect(event.properties).toMatchObject({
+			page: 'plan',
+			auth_status: 'signed_out',
+			$process_person_profile: false,
+			$geoip_disable: true
+		});
+	}
+	expect(JSON.stringify(events)).not.toMatch(
+		/02340141|semesters|2026_200|SC00001356/
+	);
+	await page.reload();
+	await ready(page);
+	await expect(second.locator(course)).toHaveCount(1);
+	await expect.poll(() => count('$pageview')).toBe(2);
+	expect(count('courses_shuffled')).toBe(1);
+	expect(count('plan_updated')).toBe(2);
+});
+
+test('saving an initial placement or a reorder is not a course shuffle', async ({
+	page
+}) => {
+	const { count } = await setup(page, { ...seed, wishlist: ['02340124'] });
+	await page.goto(path('/app/plan'));
+	await ready(page);
+	const first = page.locator('[data-semester="0"]');
+	const save = page.getByRole('button', { name: 'Save', exact: true });
+	const box = (await first.boundingBox())!;
+	await page
+		.getByTestId('plan-wishlist')
+		.locator('[data-code="02340124"]')
+		.dragTo(first, {
+			targetPosition: { x: box.width / 2, y: box.height - 20 }
+		});
+	await expect(first.locator('[data-code]')).toHaveCount(2);
+	await save.click();
+	await expect.poll(() => count('course_added_to_semester')).toBe(1);
+	expect(count('plan_updated')).toBe(1);
+	expect(count('courses_shuffled')).toBe(0);
+	await first
+		.locator('[data-code="02340124"]')
+		.dragTo(first.locator('[data-code="02340141"]'), {
+			targetPosition: { x: 20, y: 5 }
+		});
+	await expect(first.locator('[data-code]').first()).toHaveAttribute(
+		'data-code',
+		'02340124'
+	);
+	await save.click();
+	await expect.poll(() => count('plan_updated')).toBe(2);
+	await expect(save).toHaveCount(0);
+	expect(count('courses_shuffled')).toBe(0);
+	expect(count('course_added_to_semester')).toBe(1);
+});
+
 test('valid transcript preview is distinct from saving; rejected files and cancellation never count as saves', async ({
 	page
 }) => {

@@ -1,6 +1,10 @@
 <script lang="ts">
 	import { keyedItems } from '$lib/keyedItems';
-	import { trackCourseAdditions, trackEvent } from '$lib/analytics';
+	import {
+		trackCourseAdditions,
+		trackCourseMoves,
+		trackEvent
+	} from '$lib/analytics';
 	import { SvelteURLSearchParams } from 'svelte/reactivity';
 	import { resolve } from '$app/paths';
 	import { withBase } from '$lib/deploymentPaths';
@@ -72,9 +76,12 @@
 
 	let buttonNamespace = $state('');
 	async function onSave() {
+		// This measures the Save action, not a successful write.
+		trackEvent('plan_updated');
 		const before = user.d;
 		setUser(await writeStorage({ ...user.d, wishlist, semesters }));
 		trackCourseAdditions(before, user.d, 'plan_board');
+		trackCourseMoves(before, user.d);
 	}
 </script>
 

@@ -187,3 +187,19 @@ export function trackCourseAdditions(
 		}
 	}
 }
+
+/** One event per course moved between semesters, only after persistence succeeds. */
+export function trackCourseMoves(before: UserData, after: UserData) {
+	for (const code of new Set(before.semesters.flat())) {
+		const leftSemester = before.semesters.some(
+			(semester, index) =>
+				semester.includes(code) && !after.semesters[index]?.includes(code)
+		);
+		const enteredSemester = after.semesters.some(
+			(semester, index) =>
+				semester.includes(code) && !before.semesters[index]?.includes(code)
+		);
+		if (leftSemester && enteredSemester)
+			trackEvent('courses_shuffled', 'plan_board');
+	}
+}

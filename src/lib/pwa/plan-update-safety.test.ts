@@ -31,6 +31,8 @@ const savePlan = new Function(
 	'wishlist',
 	'semesters',
 	'trackCourseAdditions',
+	'trackCourseMoves',
+	'trackEvent',
 	transpileModule(`${save}; return onSave();`, {
 		compilerOptions: { target: ScriptTarget.ES2022 }
 	}).outputText
@@ -65,20 +67,26 @@ describe('actual plan Save and storage update boundary', () => {
 		);
 		setStorage({ read: async () => saved, write });
 		const trackCourseAdditions = vi.fn();
+		const trackCourseMoves = vi.fn();
+		const trackEvent = vi.fn();
 		const pending = savePlan(
 			setUser,
 			writeStorage,
 			user,
 			wishlist,
 			semesters,
-			trackCourseAdditions
+			trackCourseAdditions,
+			trackCourseMoves,
+			trackEvent
 		);
+		expect(trackEvent).toHaveBeenCalledExactlyOnceWith('plan_updated');
 		expect(get(updateSafety)).toBe(true);
 		expect(updateSafety.blocked()).toBe(true);
 		expect(user.d.wishlist).toEqual([]);
 		reject(new Error('Fictional storage failure'));
 		await expect(pending).rejects.toThrow('Fictional storage failure');
 		expect(trackCourseAdditions).not.toHaveBeenCalled();
+		expect(trackCourseMoves).not.toHaveBeenCalled();
 		expect(get(updateSafety)).toBe(true);
 		expect(user.d.wishlist).toEqual([]);
 		setStorage({ read: async () => saved, write: async (data) => data });
@@ -88,9 +96,13 @@ describe('actual plan Save and storage update boundary', () => {
 			user,
 			wishlist,
 			semesters,
-			trackCourseAdditions
+			trackCourseAdditions,
+			trackCourseMoves,
+			trackEvent
 		);
+		expect(trackEvent).toHaveBeenCalledTimes(2);
 		expect(trackCourseAdditions).toHaveBeenCalledOnce();
+		expect(trackCourseMoves).toHaveBeenCalledExactlyOnceWith(saved, user.d);
 		updateSafety.refresh();
 		expect(user.d.wishlist).toEqual(wishlist);
 		expect(updateSafety.blocked()).toBe(false);

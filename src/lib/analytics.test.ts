@@ -134,6 +134,34 @@ describe('analytics privacy boundary', () => {
 			})
 		).toBeNull();
 	});
+	it.each(['courses_shuffled', 'plan_updated'])(
+		'allows %s without exposing course, semester, plan or account data',
+		(event) => {
+			for (const auth_status of ['signed_in', 'signed_out', 'unknown']) {
+				const result = sanitizeAnalyticsEvent({
+					uuid: 'test',
+					event,
+					properties: {
+						distinct_id: '019ab123-0000-7000-8000-000000000001',
+						page: 'plan',
+						source: 'plan_board',
+						auth_status,
+						course: 'SECRET_COURSE',
+						from_semester: 'SECRET_SOURCE',
+						to_semester: 'SECRET_TARGET',
+						plan: 'SECRET_PLAN',
+						uid: 'SECRET_ACCOUNT'
+					}
+				});
+				expect(result?.event).toBe(event);
+				expect(result?.properties.auth_status).toBe(auth_status);
+				expect(result?.properties.source).toBe(
+					event === 'courses_shuffled' ? 'plan_board' : undefined
+				);
+				expect(JSON.stringify(result)).not.toContain('SECRET');
+			}
+		}
+	);
 	it('never enables optional or remotely configured capture', () => {
 		expect(privacyConfig).toMatchObject({
 			autocapture: false,
@@ -153,6 +181,63 @@ describe('analytics privacy boundary', () => {
 			save_campaign_params: false,
 			respect_dnt: true
 		});
+	});
+});
+
+describe('saved course moves', () => {
+	const before = {
+		wishlist: ['02340124'],
+		semesters: [['01040184', '03240033'], ['02340141'], []],
+		exemptions: [],
+		currentSemester: 0
+	} as UserData;
+	it.each([
+		['unchanged', before.semesters],
+		['same-semester reorder', [['03240033', '01040184'], ['02340141'], []]],
+		[
+			'initial placement',
+			[['01040184', '03240033'], ['02340141', '02340124'], []]
+		],
+		['removal or move to wishlist', [['01040184'], ['02340141'], []]],
+		[
+			'copy without removal',
+			[['01040184', '03240033'], ['02340141', '01040184'], []]
+		]
+	])('does not count %s as a shuffle', async (_, semesters) => {
+		const { trackCourseMoves } = await import('./analytics');
+		trackCourseMoves(before, { ...before, semesters } as UserData);
+		expect(mocks.capture).not.toHaveBeenCalled();
+	});
+	it('does not count duplicate cleanup as a move', async () => {
+		const { trackCourseMoves } = await import('./analytics');
+		trackCourseMoves(
+			{
+				...before,
+				semesters: [
+					['01040184', '01040184', '03240033'],
+					['02340141', '01040184'],
+					[]
+				]
+			},
+			before
+		);
+		expect(mocks.capture).not.toHaveBeenCalled();
+	});
+	it('counts each moved course once, including multiple courses saved together', async () => {
+		const { trackCourseMoves } = await import('./analytics');
+		trackCourseMoves(before, {
+			...before,
+			semesters: [[], ['02340141', '01040184', '01040184'], ['03240033']]
+		});
+		expect(mocks.capture).toHaveBeenCalledTimes(2);
+		for (const call of mocks.capture.mock.calls) {
+			expect(call[0]).toBe('courses_shuffled');
+			expect(call[1]).toEqual({
+				page: 'plan',
+				source: 'plan_board',
+				auth_status: 'unknown'
+			});
+		}
 	});
 });
 

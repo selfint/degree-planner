@@ -34,6 +34,8 @@ No personal API key is committed. Pages deployment settings remain unchanged.
 | `grade_import_saved`         | The user saves the transcript and persistence succeeds                   | `page`           |
 | `course_added_to_wishlist`   | New wishlist membership successfully saved                               | `page`, `source` |
 | `course_added_to_semester`   | New course placement in a destination semester successfully saved        | `page`, `source` |
+| `courses_shuffled`           | A course is successfully saved in a different semester                   | `page`, `source` |
+| `plan_updated`               | Enabled plan-board Save button activated, before persistence             | `page`           |
 | `share_plan_clicked`         | Share my plan link activated                                             | `page`           |
 | `copy_plan_clicked`          | Copy plan button activated, before confirmation                          | `page`           |
 | `plan_copied`                | Shared plan successfully saved to the recipient's plan                   | `page`           |
@@ -51,6 +53,21 @@ or share detail changes stay in the same page category and are not separate view
 course placement. Dragging then canceling, reordering inside the same list,
 removal, duplicate adds, hydration, sign-in reads, and import bulk copies do not
 inflate these events. Moving a course between semesters counts one new placement.
+
+`courses_shuffled` counts each course with a saved departure from one semester
+and a new arrival in another. It is emitted after a successful plan-board save,
+once per moved course, even when several courses are saved together. It measures
+the net saved move, not every intermediate drag. Initial placements, wishlist
+transfers, duplicate copies, same-semester reorders, canceled edits and failed
+saves do not count. A cross-semester move also retains the existing
+`course_added_to_semester` event; do not sum those two series as distinct actions.
+
+`plan_updated` is the requested **Save-click metric**, not evidence that a plan
+was successfully saved. It fires once when the enabled plan-board Save action
+starts, including attempts whose persistence later fails. An explicit retry
+counts another click; disabled/busy clicks and Cancel do not. Other Save buttons
+(for example transcript import) retain their separate events. Both new events
+use the same anonymous identity and `auth_status` segmentation as existing events.
 The UI remains usable if analytics fails; telemetry is best-effort and can be
 blocked or lost. Link clicks use immediate beacon transport across full navigations.
 
@@ -152,7 +169,8 @@ Repeat build and browser checks with `BASE_PATH=''` for root hosting.
 The browser suite intercepts every request to the test host, decodes actual SDK
 payloads, and blocks unrelated external requests. It does not send events to a
 real project. It exercises the landing funnel, persistent random ID, navigation,
-course operations, session stability within SPA navigation and rotation on reload,
+course operations, saved cross-semester moves, Save clicks including failed writes
+and retries, session stability within SPA navigation and rotation on reload,
 authentication status, share/copy confirmation, file failure/cancel/save, and private
 URL/referrer stripping including storage. The analytics workflow tests both base
 paths and never deploys. Unit tests cover disabled configuration, failed writes,

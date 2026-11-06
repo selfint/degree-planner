@@ -1,4 +1,7 @@
 <script lang="ts">
+	import { keyedItems } from '$lib/keyedItems';
+	import { resolve } from '$app/paths';
+	import type { Pathname } from '$app/types';
 	import type { Snippet } from 'svelte';
 
 	import type Sortable from 'sortablejs';
@@ -18,7 +21,7 @@
 		children: Snippet<
 			[{ code: string; course: Promise<Course>; index: number }]
 		>;
-		href?: string;
+		href?: Pathname;
 		sortable?: Sortable.Options;
 		board?: boolean;
 	};
@@ -119,7 +122,9 @@
 >
 	<div class="semester-title mb-1.5">
 		{#if href !== undefined}
-			<a {href} class="semester-link block rounded-[var(--radius-card)]"
+			<a
+				href={resolve(href)}
+				class="semester-link block rounded-[var(--radius-card)]"
 				>{@render title()}</a
 			>
 		{:else}
@@ -142,7 +147,7 @@
 		use:makePlanSortable={sortable}
 		data-semester={index}
 	>
-		{#each semester as course, index}
+		{#each keyedItems(semester, (code) => code) as { key, value: course }, index (key)}
 			{@render children({ code: course, course: getCourseData(course), index })}
 		{/each}
 	</div>

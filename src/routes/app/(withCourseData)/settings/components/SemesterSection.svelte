@@ -109,7 +109,7 @@
 			<label class="settings-field">
 				<span>{content.lang.settings.current}</span>
 				<Select disabled={!$planOnline} bind:value={semesterChoice}>
-					{#each Array.from({ length: user.d.semesters.length }) as _, i}
+					{#each Array.from({ length: user.d.semesters.length }, (_, index) => index) as i (i)}
 						<option value={i}>
 							{content.lang.common.seasons[i % 3]}
 							{Math.floor(i / 3) + 1}
@@ -142,7 +142,7 @@
 			<label class="settings-field">
 				<span>{content.lang.settings.total}</span>
 				<Select disabled={!$planOnline} bind:value={totalSemestersChoice}>
-					{#each validTotalValues as i}
+					{#each validTotalValues as i (i)}
 						<option value={i}>
 							{i}
 							({content.lang.common.seasons[(i - 1) % 3]}

@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { withBase } from '$lib/deploymentPaths';
+	import { resolve } from '$app/paths';
+	import { withBase, withoutBase } from '$lib/deploymentPaths';
 	import {
 		afterNavigate,
 		beforeNavigate,
@@ -25,9 +26,17 @@
 	const searchNavigation = createSearchNavigation(
 		() => page.url,
 		(url) =>
-			navigateFromBrowserShare(url, (destination) =>
-				goto(destination, { noScroll: true, keepFocus: true })
-			)
+			navigateFromBrowserShare(url, (destination) => {
+				const target = new URL(destination, page.url);
+				// The URL already includes the deployment base. Resolve its pathname
+				// exactly once, then preserve the query and fragment without parsing
+				// them as route parameters.
+				let route: string = resolve(
+					`/${withoutBase(target.pathname).slice(1)}`
+				);
+				route += target.search + target.hash;
+				return goto(route, { noScroll: true, keepFocus: true });
+			})
 	);
 	setContext(searchNavigationContext, searchNavigation);
 	beforeNavigate(({ to, type }) =>

@@ -16,4 +16,4 @@ function getLangPreference() {
 	return defaultLang;
 }
 
-export let content = $state({ lang: getLangPreference() });
+export const content = $state({ lang: getLangPreference() });

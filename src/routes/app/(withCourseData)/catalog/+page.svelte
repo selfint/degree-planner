@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { withBase } from '$lib/deploymentPaths';
+	import { keyedItems } from '$lib/keyedItems';
+	import { resolve } from '$app/paths';
 	import { user, content, requirement, degreeName } from '$lib/stores.svelte';
 	import { getDegreeRequirementCourses } from '$lib/requirements';
 	import CourseRow from '$lib/components/CourseRow.svelte';
@@ -149,7 +150,7 @@
 		</section>
 	{:else}
 		<div class="catalog-empty catalog-empty-degree catalog-inset">
-			<a class="ui-button ui-button--secondary" href={withBase('/app/settings')}
+			<a class="ui-button ui-button--secondary" href={resolve('/app/settings')}
 				>{content.lang.settings.selectDegree}</a
 			>
 		</div>
@@ -162,7 +163,7 @@
 			</h2>
 			<CourseRow {getCourseData} courses={user.d.wishlist} indent={1}>
 				{#snippet children({ code, course, index })}
-					<a href={withBase(`/app/course/${code}`)}>
+					<a href={resolve(`/app/course/${code}`)}>
 						<CourseElement
 							{code}
 							{course}
@@ -188,7 +189,7 @@
 				{content.lang.common.catalog}
 			</div>
 		{:then lists}
-			{#each lists as list}
+			{#each keyedItems( lists, (list) => JSON.stringify(list.path.map((title) => title.name)) ) as { key, value: list } (key)}
 				{#if list.courses.length > 0}
 					{@const listPlanned = list.courses.filter((c) => planned.includes(c))}
 					{@const listCurrent = list.courses.filter((c) => current.includes(c))}
@@ -204,7 +205,7 @@
 
 					<section class="catalog-section">
 						<h2 class="catalog-section-title catalog-path catalog-inset">
-							{#each list.path as title, index}
+							{#each keyedItems(list.path, (title) => title.name) as { key, value: title }, index (key)}
 								{#if index > 0}<span
 										class="catalog-path-separator"
 										aria-hidden="true">/</span
@@ -238,7 +239,7 @@
 						</div>
 						<CourseRow {getCourseData} courses={list.courses} indent={1}>
 							{#snippet children({ code, course, index })}
-								<a href={withBase(`/app/course/${code}`)}>
+								<a href={resolve(`/app/course/${code}`)}>
 									<CourseElement {code} {course} {index}>
 										{#snippet note(course)}
 											{@render courseNote(course)}

@@ -33,10 +33,10 @@ export async function parseTranscript(
 
 	const exemption = ['זיכויים', 'exemptions'] as const;
 
-	let basicSemesters = [];
+	const basicSemesters = [];
 
 	let exemptions: string[] = [];
-	let semesters: string[][] = [];
+	const semesters: string[][] = [];
 	let currentBasicSemester: string[] = [];
 	type Current = {
 		semester: string[];
@@ -52,7 +52,7 @@ export async function parseTranscript(
 
 		for (const item of textContent.items) {
 			//@ts-expect-error we don't have TextMarkedContent
-			let str: string = item.str.toLowerCase().trim();
+			const str: string = item.str.toLowerCase().trim();
 
 			if (yearRegex.test(str) || legacyYearRegex.test(str)) {
 				// extract year
@@ -88,13 +88,10 @@ export async function parseTranscript(
 				currentBasicSemester = [];
 				current = { semester: [], year: yearStart, season };
 			} else if (courseRegex.test(str)) {
-				let code = str.match(courseRegex)!.toString().trim();
+				const code = str.match(courseRegex)!.toString().trim();
 
-				const newCode = code.padStart(8, '0') as CourseCode;
-				const legacyCode = ('0' +
-					code.slice(0, 3) +
-					'0' +
-					code.slice(3)) as CourseCode;
+				const newCode = code.padStart(8, '0');
+				const legacyCode = '0' + code.slice(0, 3) + '0' + code.slice(3);
 
 				// try to validate code as new
 				if ((await getCourseData(newCode)).name !== undefined) {

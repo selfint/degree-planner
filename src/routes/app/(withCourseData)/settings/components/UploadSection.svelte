@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { trackEvent } from '$lib/analytics';
-	import { withBase } from '$lib/deploymentPaths';
+	import { resolve } from '$app/paths';
 	import { onMount } from 'svelte';
 	import { updateSafety } from '$lib/pwa/update-safety';
 	import { isPlanWritable, planOnline } from '$lib/planAccess';
@@ -47,14 +47,14 @@
 		setUser(
 			await writeStorage({
 				...user.d,
-				semesters: semesters as CourseCode[][],
+				semesters,
 				currentSemester: currentSemester,
-				exemptions: transcript.exemptions as CourseCode[]
+				exemptions: transcript.exemptions
 			})
 		);
 
 		trackEvent('grade_import_saved');
-		await goto(withBase('/app/plan'));
+		await goto(resolve('/app/plan'));
 	}
 
 	async function onCancel() {
@@ -161,7 +161,8 @@
 				{/snippet}
 			</CourseRow>
 		</div>
-		<!-- svelte-ignore a11y_no_noninteractive_tabindex (Keyboard users need to focus this horizontal transcript preview to scroll it.) -->
+		<!-- Keyboard users need to focus this horizontal transcript preview to scroll it. -->
+		<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 		<div
 			style="transform: rotateX(180deg)"
 			class="preview-scroll overflow-x-auto"
@@ -170,7 +171,7 @@
 			tabindex="0"
 		>
 			<div style="transform: rotateX(180deg)" class="flex flex-row gap-3">
-				{#each transcript.semesters as semester, semesterIndex}
+				{#each transcript.semesters as semester, semesterIndex (semesterIndex)}
 					<div>
 						<Semester
 							{getCourseData}

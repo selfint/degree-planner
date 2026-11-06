@@ -61,7 +61,8 @@ function reportSubscriberError(error: unknown) {
 }
 
 function publish(next: OfflinePublicDataState) {
-	const { refreshError: _previousRefreshError, ...availability } = next;
+	const availability = { ...next };
+	delete availability.refreshError;
 	const refreshError = readPublicDataRefreshError();
 	state = {
 		...availability,

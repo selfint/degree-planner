@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { withBase } from '$lib/deploymentPaths';
+	import { keyedItems } from '$lib/keyedItems';
+	import { resolve } from '$app/paths';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 
@@ -71,30 +72,6 @@
 			: 0;
 	}
 
-	function compareCourses(courses: Course[], a: Course, b: Course): number {
-		const medianDiff = (b.median ?? 0) - (a.median ?? 0);
-		const studyDaysDiff0 =
-			getCourseStudyDays(courses, 0, b) - getCourseStudyDays(courses, 0, a);
-		const studyDaysDiff1 =
-			getCourseStudyDays(courses, 1, b) - getCourseStudyDays(courses, 1, a);
-
-		return 1 * medianDiff + 0.2 * studyDaysDiff0 + 0.01 * studyDaysDiff1;
-	}
-
-	function sortCourses(courses: Course[]): Course[] {
-		return courses
-			.filter(
-				(c) =>
-					true ||
-					Math.min(
-						...(getStudyDays(courses.concat(c), 0)?.next ?? []).map(
-							([_, d]) => d
-						)
-					) > 2
-			)
-			.sort((a, b) => compareCourses(courses, a, b));
-	}
-
 	// list of lists of courses
 	const loLoCo = $derived.by(async () => {
 		let lists: [Requirement[], CourseCode[], boolean][] = [];
@@ -124,92 +101,8 @@
 			}
 		}
 
-		return lists.filter(([_, courses]) => courses.length > 0);
+		return lists.filter(([, courses]) => courses.length > 0);
 	});
-
-	function getCourseStudyDays(
-		courses: Course[],
-		test: 0 | 1,
-		course: Course
-	): number {
-		const studyDays = getStudyDays(courses, test);
-
-		const courseDays = studyDays?.next.find(([c]) => c.code === course.code);
-
-		// course has no tests
-		if (courseDays === undefined) {
-			return -1;
-		}
-
-		return courseDays?.[1];
-	}
-
-	function getStudyDays(
-		courses: Course[],
-		test: 0 | 1
-	):
-		| undefined
-		| {
-				first: [Course, Date];
-				next: [Course, number][];
-		  } {
-		function testToDate(test: Test): Date {
-			return new Date(Date.UTC(test.year, test.monthIndex, test.day));
-		}
-
-		const courseTests = courses
-			.map<[Course, Date | undefined]>((c) => {
-				const t0 = c.tests?.[0] ?? undefined;
-				const t1 = c.tests?.[1] ?? undefined;
-
-				if (t0 === undefined || t1 === undefined) {
-					if (test === 0 && t0 !== undefined) {
-						return [c, testToDate(t0)];
-					} else {
-						return [c, undefined];
-					}
-				}
-
-				const d0 = testToDate(t0);
-				const d1 = testToDate(t1);
-
-				if (test === 0) {
-					return [c, d0 < d1 ? d0 : d1];
-				} else {
-					return [c, d0 < d1 ? d1 : d0];
-				}
-			})
-
-			.filter<[Course, Date]>(
-				// @ts-expect-error
-				([_, t]) => t !== undefined
-			)
-			.toSorted((a, b) => a[1].getTime() - b[1].getTime());
-
-		const first = courseTests[0];
-		let prevDate = courseTests.shift()?.[1];
-		if (prevDate === undefined) {
-			return undefined;
-		}
-
-		let courseStudyDays: [Course, number][] = [];
-
-		// get total count of days between tests
-		// taking into account days, weeks, years
-		for (const [course, test] of courseTests) {
-			const diff = test.getTime() - prevDate.getTime();
-			const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-
-			courseStudyDays.push([course, days]);
-
-			prevDate = test;
-		}
-
-		return {
-			first,
-			next: courseStudyDays
-		};
-	}
 
 	async function styleOnCourse(course: Course): Promise<string> {
 		const styleOnCannotTake = 'opacity: 0.6';
@@ -310,7 +203,7 @@
 			{semester}
 			{disabled}
 			isCurrent={currentSemester === user.d.currentSemester}
-			href={withBase('/app/plan')}
+			href="/app/plan"
 		>
 			{#snippet children({ code, course })}
 				<button
@@ -400,7 +293,7 @@
 				</div>
 			</h2>
 		{:then loLoCo}
-			{#each loLoCo as [titles, courses, colorize]}
+			{#each keyedItems( loLoCo, ([titles]) => JSON.stringify(titles.map((title) => title.name)) ) as { key, value: [titles, courses] } (key)}
 				<div class="mb-8">
 					<h2
 						class="mb-3 ms-3 text-sm font-semibold text-content-primary sm:ms-0 sm:pe-4"
@@ -408,7 +301,7 @@
 						<div
 							class="me-2 flex flex-row flex-wrap items-start gap-x-1.5 gap-y-1"
 						>
-							{#each titles as title, titleIndex}
+							{#each keyedItems(titles, (title) => title.name) as { key, value: title }, titleIndex (key)}
 								{#if titleIndex > 0}<span
 										class="text-content-secondary"
 										aria-hidden="true">/</span
@@ -439,7 +332,7 @@
 								<button
 									type="button"
 									class="rounded-[var(--radius-card)] text-start"
-									onclick={() => goto(withBase(`/app/course/${code}`))}
+									onclick={() => goto(resolve(`/app/course/${code}`))}
 								>
 									<CourseElement
 										{code}
@@ -476,7 +369,7 @@
 								<button
 									type="button"
 									class="rounded-[var(--radius-card)] text-start"
-									onclick={() => goto(withBase(`/app/course/${code}`))}
+									onclick={() => goto(resolve(`/app/course/${code}`))}
 								>
 									<CourseElement
 										{code}

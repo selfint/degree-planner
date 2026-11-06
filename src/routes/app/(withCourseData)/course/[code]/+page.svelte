@@ -1,6 +1,7 @@
 <script lang="ts">
+	import { keyedItems } from '$lib/keyedItems';
 	import { trackCourseAdditions } from '$lib/analytics';
-	import { withBase } from '$lib/deploymentPaths';
+	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import { getContext } from 'svelte';
 	import { PERSONAL_PLAN_READY } from '$lib/pwa/plan-visibility';
@@ -372,7 +373,8 @@
 					<h2 class="course-section-title course-inset">
 						{content.lang.common.dependencies}
 					</h2>
-					<!-- svelte-ignore a11y_no_noninteractive_tabindex (Keyboard users need to focus this region to scroll through the course dependencies.) -->
+					<!-- Keyboard users need to focus this region to scroll through the course dependencies. -->
+					<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 					<div
 						bind:this={depRow}
 						dir={content.lang.dir}
@@ -384,7 +386,7 @@
 						aria-label={content.lang.common.dependencies}
 						tabindex="0"
 					>
-						{#each dependencies(course) as group, i}
+						{#each keyedItems( dependencies(course), (group) => JSON.stringify(group) ) as { key, value: group }, i (key)}
 							{#if i !== 0}
 								<p
 									class="course-dependency-or flex flex-col justify-center text-sm text-content-secondary"
@@ -393,8 +395,8 @@
 								</p>
 							{/if}
 							<div class="course-dependency-group">
-								{#each group as code}
-									<a href={withBase(`/app/course/${code}`)}>
+								{#each keyedItems(group, (code) => code) as { key, value: code } (key)}
+									<a href={resolve(`/app/course/${code}`)}>
 										<CourseElement {code} course={getCourseData(code)}>
 											{#snippet note()}
 												{@const index = getCourseSemester(code)}
@@ -439,7 +441,7 @@
 							courses={course.connections?.adjacent ?? []}
 						>
 							{#snippet children({ code, course })}
-								<a href={withBase(`/app/course/${code}`)}>
+								<a href={resolve(`/app/course/${code}`)}>
 									<CourseElement {code} {course}>
 										{#snippet note()}
 											{@const index = getCourseSemester(code)}
@@ -482,7 +484,7 @@
 						courses={course.connections?.exclusive ?? []}
 					>
 						{#snippet children({ code, course })}
-							<a href={withBase(`/app/course/${code}`)}>
+							<a href={resolve(`/app/course/${code}`)}>
 								<CourseElement {code} {course}>
 									{#snippet note()}
 										{@const index = getCourseSemester(code)}
@@ -520,8 +522,8 @@
 							{content.lang.common.dependants}
 						</h2>
 						<div class="course-dependants course-inset flex flex-wrap gap-2">
-							{#each dependants as course}
-								<a href={withBase(`/app/course/${course.code}`)}>
+							{#each keyedItems(dependants, (course) => course.code) as { key, value: course } (key)}
+								<a href={resolve(`/app/course/${course.code}`)}>
 									<CourseElement code={course.code} {course}>
 										{#snippet note()}
 											{@const index = getCourseSemester(course.code)}

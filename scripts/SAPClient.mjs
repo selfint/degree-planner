@@ -1,6 +1,12 @@
-/// <reference path="./types.d.ts"/>
+/** @import { CourseHeader, Degree, Faculty, I18N, SemesterNumber, SemesterYear, Track, TreeHead } from './types' */
 import { requestBatch, validateCollection } from './SAPTransport.mjs';
 export { getUsage, formatBytes } from './SAPTransport.mjs';
+
+function withoutMetadata(row) {
+	const copy = { ...row };
+	delete copy.__metadata;
+	return copy;
+}
 
 function requireStrings(row, fields) {
 	for (const field of fields) {
@@ -159,7 +165,7 @@ export async function getSemesterYears() {
 		}
 	);
 	return semesters
-		.map(({ __metadata, ...semester }) => semester)
+		.map(withoutMetadata)
 		.filter((semester) => ['200', '201', '202'].includes(semester.PiqSession));
 }
 
@@ -225,8 +231,8 @@ export async function getFaculties(
 		const names = new Map(
 			hebrew[index].map((row) => [row.ZzOrgId, row.ZzOrgName])
 		);
-		return rows.map(({ __metadata, ...faculty }) => ({
-			...faculty,
+		return rows.map((faculty) => ({
+			...withoutMetadata(faculty),
 			Name: { en: faculty.ZzOrgName, he: names.get(faculty.ZzOrgId) }
 		}));
 	});
@@ -288,10 +294,10 @@ export async function getDegrees(faculties, previouslyPopulated = new Set()) {
 	);
 	let index = 0;
 	return degrees.map((rows) =>
-		rows.map(({ __metadata, ...track }) => {
+		rows.map((track) => {
 			const translation = hebrew[index++][0];
 			return {
-				...track,
+				...withoutMetadata(track),
 				Name: { en: track.Name, he: translation.Name },
 				OrgText: { en: track.OrgText, he: translation.OrgText },
 				ZzQualifications: {
@@ -350,9 +356,7 @@ export async function getCourses(semesterYears, top = 10000) {
 				validateRows(rows, ['Otjid'], { Peryr: PiqYear, Perid: PiqSession });
 			}
 		}
-	).then((results) =>
-		results.map((rows) => rows.map(({ __metadata, ...row }) => row))
-	);
+	).then((results) => results.map((rows) => rows.map(withoutMetadata)));
 }
 
 /** Fetch exactly the course/version identified by each header. */
@@ -399,7 +403,12 @@ export async function getCourseData(courses) {
 		}
 	).then((results) =>
 		results.map((rows) =>
-			rows.map(({ __metadata, Peryr, Perid, ...row }) => row)
+			rows.map((row) => {
+				const course = withoutMetadata(row);
+				delete course.Peryr;
+				delete course.Perid;
+				return course;
+			})
 		)
 	);
 }

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { trackFirstDegreeSelection } from '$lib/analytics';
-	import { withBase } from '$lib/deploymentPaths';
+	import { resolve } from '$app/paths';
 	import { user, content, writeStorage, setUser } from '$lib/stores.svelte';
 
 	import DegreeSection from './components/DegreeSection.svelte';
@@ -162,7 +162,7 @@
 			<h2 class="section-title">{content.lang.settings.exemptions}</h2>
 			<CourseRow {getCourseData} courses={user.d.exemptions}>
 				{#snippet children({ code, course })}
-					<a class="block" href={withBase(`/app/course/${code}`)}>
+					<a class="block" href={resolve(`/app/course/${code}`)}>
 						<CourseElement {code} {course} />
 					</a>
 				{/snippet}

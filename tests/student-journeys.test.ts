@@ -471,7 +471,7 @@ for (const language of ['en', 'he'] as const) {
 		});
 		// Playwright Test automatically traces every context created through its
 		// browser fixture. Starting another trace here would throw before import.
-		let journeyFailed = false;
+		let cleanupFailure: PromiseRejectedResult | undefined;
 		try {
 			await recording.install(recipient);
 			await isolateGuest(recipient, language);
@@ -558,9 +558,6 @@ for (const language of ['en', 'he'] as const) {
 			).toBeVisible();
 			expect(await readPlan(page)).toEqual(owner);
 			await recording.end(page);
-		} catch (error) {
-			journeyFailed = true;
-			throw error;
 		} finally {
 			// Keep the original journey error if timeout teardown already closed a
 			// context. Cleanup errors still fail an otherwise successful journey.
@@ -568,11 +565,9 @@ for (const language of ['en', 'he'] as const) {
 				recipient.close(),
 				preview.close()
 			]);
-			if (!journeyFailed) {
-				const failure = cleanup.find((result) => result.status === 'rejected');
-				if (failure?.status === 'rejected') throw failure.reason;
-			}
+			cleanupFailure = cleanup.find((result) => result.status === 'rejected');
 		}
+		if (cleanupFailure) throw cleanupFailure.reason;
 	});
 
 	test(`${language}: a returning student must choose an in-range Current before importing a shorter plan`, async ({

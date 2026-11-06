@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { keyedItems } from '$lib/keyedItems';
 	import type { Snippet } from 'svelte';
 
 	import Sortable from 'sortablejs';
@@ -97,7 +98,7 @@
 >
 	<div class="margin" style={margin}></div>
 	{#if sortedCourses === undefined}
-		{#each loadingCourses as { code, course }, index}
+		{#each keyedItems(loadingCourses, (item) => item.code) as { key, value: { code, course } }, index (key)}
 			{@const scheduleError =
 				checkScheduleError === undefined
 					? undefined
@@ -113,7 +114,7 @@
 		{/each}
 	{:else}
 		{#await sortedCourses}
-			{#each loadingCourses as { code, course }, index}
+			{#each keyedItems(loadingCourses, (item) => item.code) as { key, value: { code, course } }, index (key)}
 				{@const scheduleError =
 					checkScheduleError === undefined
 						? undefined
@@ -128,7 +129,7 @@
 				</div>
 			{/each}
 		{:then sortedCourses}
-			{#each sortedCourses as { code, course }, index}
+			{#each keyedItems(sortedCourses, (item) => item.code) as { key, value: { code, course } }, index (key)}
 				{@const scheduleError =
 					checkScheduleError === undefined
 						? undefined

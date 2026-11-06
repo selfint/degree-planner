@@ -1,4 +1,5 @@
-/// <reference path="../src/app.d.ts"/>
+/** @import { CourseHeader, SemesterYear } from './types' */
+/** @import {} from '../src/app' */
 
 import * as sap from './SAPClient.mjs';
 import { resolve } from 'node:path';

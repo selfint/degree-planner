@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { trackEvent } from '$lib/analytics';
-	import { withBase } from '$lib/deploymentPaths';
+	import { resolve } from '$app/paths';
 	import { goto } from '$app/navigation';
 
 	import CourseElement from '$lib/components/CourseElement.svelte';
@@ -55,7 +55,7 @@
 		trackEvent('plan_copied');
 
 		// Persist above before entering /app/ with a controlled document.
-		await navigateFromBrowserShare(withBase('/app/plan'), goto);
+		await navigateFromBrowserShare(resolve('/app/plan'), goto);
 	}
 
 	function getDegreeName(degree: Degree, userPath?: string): Promise<string> {
@@ -100,7 +100,7 @@
 				{content.lang.lang === 'he'
 					? 'בחרו ושמרו סמסטר נוכחי תקין ב'
 					: 'Choose and save a valid current semester in'}
-				<a href={withBase('/app/settings')} class="underline"
+				<a href={resolve('/app/settings')} class="underline"
 					>{content.lang.landing.settings.header}</a
 				>.
 				{content.lang.lang === 'he'
@@ -114,14 +114,15 @@
 			{content.lang.lang === 'he' ? 'אין סמסטרים' : 'No semesters'}
 		</p>
 	{:else}
-		<!-- svelte-ignore a11y_no_noninteractive_tabindex (Keyboard users need to focus this region to scroll through the semesters.) -->
+		<!-- Keyboard users need to focus this region to scroll through the semesters. -->
+		<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 		<div
 			class="preview-semesters"
 			role="region"
 			aria-label={content.lang.common.semester}
 			tabindex="0"
 		>
-			{#each data.semesters as semester, semesterIndex}
+			{#each data.semesters as semester, semesterIndex (semesterIndex)}
 				<div class="preview-semester">
 					<Semester
 						{getCourseData}
@@ -130,7 +131,7 @@
 						isCurrent={false}
 					>
 						{#snippet children({ code, course })}
-							<a class="preview-course" href={withBase(`/app/course/${code}`)}>
+							<a class="preview-course" href={resolve(`/app/course/${code}`)}>
 								<CourseElement {code} {course} squeeze={true} />
 							</a>
 						{/snippet}

@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { withBase } from '$lib/deploymentPaths';
+	import { keyedItems } from '$lib/keyedItems';
+	import { resolve } from '$app/paths';
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import LoadingCourseElement from '$lib/components/LoadingCourseElement.svelte';
 	import CourseRow from '$lib/components/CourseRow.svelte';
@@ -13,13 +14,7 @@
 		codes: string[];
 		requirements?: Requirement;
 	};
-	let {
-		getCourseData,
-		titles,
-		colorize = true,
-		codes,
-		requirements
-	}: Props = $props();
+	let { getCourseData, titles, codes }: Props = $props();
 
 	const groups = $derived.by(async () => {
 		const courses = (
@@ -81,11 +76,11 @@
 			<LoadingCourseElement />
 		</div>
 	{:then groups}
-		{#each groups as [scores, group], index}
+		{#each groups as [scores, group], index (index)}
 			<section class="course-group-section">
 				<header class="course-group-header">
 					<h2 class="course-group-title">
-						{#each titles as title, titleIndex}
+						{#each keyedItems(titles, (title) => title.name) as { key, value: title }, titleIndex (key)}
 							{#if titleIndex > 0}<span
 									class="course-group-divider"
 									aria-hidden="true">/</span
@@ -110,7 +105,7 @@
 				{:else}
 					<CourseRow {getCourseData} courses={group} indent={0}>
 						{#snippet children({ code, course })}
-							<a href={withBase(`/app/course/${code}`)}>
+							<a href={resolve(`/app/course/${code}`)}>
 								<CourseElement {code} {course}>
 									{#snippet note(course)}
 										{@const index = getCourseSemester(course)}

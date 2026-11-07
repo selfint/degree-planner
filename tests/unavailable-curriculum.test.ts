@@ -5,17 +5,31 @@ import { initializeGuestStorage } from './helpers/student-guest-storage';
 const origin = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:4173';
 const original = JSON.parse(readFileSync('static/catalogs.json', 'utf8'));
 const semester = '2024_201';
-const faculty = Object.keys(original[semester]).find((key) =>
-	Object.keys(original[semester][key]).some((program) =>
-		program.startsWith('SC00001355_')
-	)
-)!;
-const program = Object.keys(original[semester][faculty]).find((key) =>
-	key.startsWith('SC00001355_')
-)!;
+const faculty = '00002330';
+const program = 'SC00001355_CG00007976';
 const degree = [semester, faculty, program];
 const manifest = structuredClone(original);
+// Keep this fixture valid after the next Data PR removes the real option.
+for (const year of ['2024_200', semester]) {
+	manifest[year] ??= { en: year, he: year };
+	manifest[year][faculty] ??= {
+		en: 'Biomedical Engineering',
+		he: 'הנדסה ביו-רפואית'
+	};
+}
+manifest['2024_200'][faculty][program] = {
+	en: 'Biomedical Engineering and Physics',
+	he: 'הנדסה ביו-רפואית ופיזיקה'
+};
 delete manifest[semester][faculty][program];
+const replacementRequirement = {
+	name: 'requirement',
+	en: 'Available curriculum',
+	he: 'תוכנית זמינה',
+	nested: [
+		{ name: 'CG00007978', en: 'Mandatory', he: 'חובה', courses: ['02340124'] }
+	]
+};
 
 for (const language of ['en', 'he']) {
 	test(`saved unavailable curriculum preserves the plan and allows replacement (${language})`, async ({
@@ -42,6 +56,11 @@ for (const language of ['en', 'he']) {
 			if (url.origin !== origin) return route.abort();
 			if (url.pathname === '/catalogs.json')
 				return route.fulfill({ json: manifest });
+			if (
+				url.pathname ===
+				`/_catalogs/2024_200/${faculty}/${program}/requirementsData.json`
+			)
+				return route.fulfill({ json: replacementRequirement });
 			if (url.pathname.includes(`/_catalogs/${degree.join('/')}/`)) {
 				removedRequests.push(url.pathname);
 				return route.fulfill({ status: 404, body: 'Unavailable' });

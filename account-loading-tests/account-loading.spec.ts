@@ -24,6 +24,41 @@ export async function signIn() {}
 async function command(page: Page, script: string) {
 	await page.evaluate(script);
 }
+async function waitForAccountRead(page: Page, phase: string) {
+	// A document's load event does not await SvelteKit's client load/hydration.
+	// Start UI assertions only once this document has issued the held account read.
+	// Keep the normal 5s assertion budget for the actual loading/privacy behavior.
+	const started = Date.now();
+	const state = () =>
+		page.evaluate(() => {
+			const fixture = (
+				window as unknown as {
+					accountFixture?: { reads: unknown[] };
+				}
+			).accountFixture;
+			return {
+				readCount: fixture?.reads.length ?? 0,
+				bootVisible: !!document.getElementById('console-boot'),
+				loadingPresent: !!document.querySelector(
+					'[data-testid="account-loading"]'
+				),
+				readyState: document.readyState
+			};
+		});
+	try {
+		await expect
+			.poll(async () => (await state()).readCount, {
+				message: `${phase}: the new document starts its controlled account read`,
+				timeout: 20_000
+			})
+			.toBe(1);
+	} finally {
+		console.info('Account bootstrap', phase, {
+			elapsedMs: Date.now() - started,
+			...(await state())
+		});
+	}
+}
 async function prepare(page: Page, lang = 'en') {
 	await page.route('**/src/lib/firebase.svelte.ts*', (route) =>
 		route.fulfill({ contentType: 'text/javascript', body: adapter })
@@ -48,6 +83,7 @@ async function prepare(page: Page, lang = 'en') {
 		);
 	}, lang);
 	await page.goto('/app/plan');
+	await waitForAccountRead(page, `${lang} initial document`);
 	await expect(page.getByTestId('account-loading')).toBeVisible();
 }
 async function pending(page: Page) {
@@ -65,7 +101,10 @@ for (const lang of ['en', 'he']) {
 		await prepare(page, lang);
 		const guest = await page.evaluate(() => localStorage.getItem('userData'));
 		for (let attempt = 0; attempt < 2; attempt++) {
-			if (attempt) await page.reload();
+			if (attempt) {
+				await page.reload();
+				await waitForAccountRead(page, `${lang} explicit reload`);
+			}
 			await pending(page);
 			await page.waitForTimeout(2500);
 			await pending(page);

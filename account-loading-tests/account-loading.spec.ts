@@ -96,7 +96,12 @@ test('actual failure, retry, interrupted auth, stale success and stale failure',
 	await prepare(page);
 	await command(page, 'window.accountFixture.finish(0, true)');
 	await expect(page.getByTestId('pwa-account-unavailable')).toBeVisible();
-	await page.getByRole('button', { name: 'Try again', exact: true }).click();
+	// The development server also exposes the PWA setup retry in the footer.
+	// Exercise the account retry, not an unrelated button with the same label.
+	await page
+		.getByTestId('pwa-account-unavailable')
+		.getByRole('button', { name: 'Try again', exact: true })
+		.click();
 	await pending(page);
 	await command(page, "window.accountFixture.auth('second-account')");
 	await command(page, 'window.accountFixture.finish(1)');

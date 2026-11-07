@@ -26,7 +26,11 @@
 	</p>
 {/if}
 {#if authPending}
-	<p role="status" class="ui-notice text-content-primary">
+	<p
+		role="status"
+		class="px-4 py-6 text-center text-sm text-content-secondary"
+		data-testid="account-loading"
+	>
 		{content.lang.common.loading}…
 	</p>
 {:else if cloudPlanBlocked}

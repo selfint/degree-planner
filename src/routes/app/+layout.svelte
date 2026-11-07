@@ -105,7 +105,8 @@
 	let authReady = $state(false);
 	let offline = $state(false);
 	let signedIn = $state(false);
-	let cloudPlanUnavailable = $state(false);
+	let accountState = $state<'loading' | 'ready' | 'failed'>('loading');
+	const cloudPlanUnavailable = $derived(accountState !== 'ready');
 	let retryAccount = () => {};
 	const plannerRoute = $derived(
 		/^\/app\/(plan|settings|catalog|semester|preview)(\/|$)/.test(
@@ -113,9 +114,12 @@
 		)
 	);
 	const cloudPlanBlocked = $derived(
-		plannerRoute && signedIn && (offline || cloudPlanUnavailable)
+		plannerRoute && signedIn && (offline || accountState === 'failed')
 	);
-	const authPending = $derived(plannerRoute && !authReady);
+	const authPending = $derived(
+		plannerRoute &&
+			(!authReady || (signedIn && !offline && accountState === 'loading'))
+	);
 	const planBlocked = $derived(authPending || cloudPlanBlocked);
 	setContext(PERSONAL_PLAN_READY, () =>
 		canShowPersonalPlan({ authReady, signedIn, offline, cloudPlanUnavailable })
@@ -130,17 +134,20 @@
 			const current = ++generation;
 			const storage = buildFirebaseStorage(firebase);
 			setStorage(storage);
-			cloudPlanUnavailable = true;
+			accountState = 'loading';
+			stopSnapshot?.();
+			stopSnapshot = undefined;
 			try {
 				const data = await storage.read();
 				if (current !== generation) return;
 				setUser(data);
-				cloudPlanUnavailable = false;
-				stopSnapshot?.();
+				accountState = 'ready';
 				stopSnapshot = subscribeFirebase(firebase, (data) => {
 					if (current === generation) setUser(data);
 				});
 			} catch {
+				if (current !== generation) return;
+				accountState = 'failed';
 				// Never expose the initially loaded guest plan as the account plan.
 				// Keep existing components mounted so a connection change cannot
 				// discard an in-memory draft. Retry account loading on reconnect.
@@ -152,7 +159,7 @@
 		};
 		const connectionChanged = () => {
 			offline = !navigator.onLine;
-			if (!offline && firebase.auth.currentUser && cloudPlanUnavailable)
+			if (!offline && firebase.auth.currentUser && accountState !== 'ready')
 				void loadAccount();
 		};
 		offline = !navigator.onLine;
@@ -168,7 +175,7 @@
 				authReady = true;
 				await loadAccount();
 			} else {
-				cloudPlanUnavailable = false;
+				accountState = 'ready';
 				setStorage(localStorageMethod);
 				const current = generation;
 				const data = await localStorageMethod.read();
@@ -202,8 +209,10 @@
 			: 'Could not check for updates. You can keep using this version.'}
 	</p>
 {/if}
+
 {#if inPwaScope && entryPending}
-	<p class="entry-update-status" role="status" data-testid="pwa-entry-update">
+	<!-- The visible shell remains inert while an entry update may activate. -->
+	<p class="sr-only" role="status">
 		{content.lang.lang === 'he' ? 'בודקים עדכונים…' : 'Checking for updates…'}
 	</p>
 {/if}
@@ -228,6 +237,20 @@
 		/>
 	</div>
 
+	{#if inPwaScope && entryPending}
+		<div class="entry-update-slot">
+			<p
+				class="entry-update-status"
+				aria-hidden="true"
+				data-testid="pwa-entry-update"
+			>
+				{content.lang.lang === 'he'
+					? 'בודקים עדכונים…'
+					: 'Checking for updates…'}
+			</p>
+		</div>
+	{/if}
+
 	{#if inPwaScope}
 		<PwaUpdateBanner
 			visible={$offlineShellStatus.updateReady}
@@ -240,14 +263,16 @@
 		/>
 	{/if}
 
-	<ConsoleAccountStatus
-		readOnly={!$planOnline}
-		{offline}
-		{authPending}
-		{cloudPlanBlocked}
-		onRetry={() => retryAccount()}
-		onSignOut={() => firebase.auth.signOut()}
-	/>
+	<div class:flex-grow={planBlocked}>
+		<ConsoleAccountStatus
+			readOnly={!$planOnline}
+			{offline}
+			{authPending}
+			{cloudPlanBlocked}
+			onRetry={() => retryAccount()}
+			onSignOut={() => firebase.auth.signOut()}
+		/>
+	</div>
 
 	<main class="flex-grow" class:hidden={planBlocked} inert={planBlocked}>
 		{@render children()}
@@ -272,14 +297,17 @@
 
 <style lang="postcss">
 	@reference "tailwindcss";
+	.entry-update-slot {
+		min-block-size: 1.5rem;
+		flex: none;
+	}
 	.entry-update-status {
-		position: fixed;
-		z-index: 100;
-		inset-block-start: 0.5rem;
-		inset-inline: 1rem;
+		margin: 0;
+		padding: 0.125rem 1rem;
+		font-size: 0.75rem;
+		line-height: 1.25rem;
+		color: rgb(var(--color-content-secondary));
 		text-align: center;
-		padding: 0.5rem;
-		background: rgb(var(--color-background));
 	}
 
 	.pwa-footer-controls {

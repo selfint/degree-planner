@@ -37,7 +37,11 @@ async function waitForAccountRead(page: Page, phase: string) {
 				}
 			).accountFixture;
 			return {
+				fixturePresent: !!fixture,
 				readCount: fixture?.reads.length ?? 0,
+				bootStatus: document.querySelector(
+					'#console-boot .console-loading__status'
+				)?.textContent,
 				bootVisible: !!document.getElementById('console-boot'),
 				loadingPresent: !!document.querySelector(
 					'[data-testid="account-loading"]'
@@ -60,6 +64,44 @@ async function waitForAccountRead(page: Page, phase: string) {
 	}
 }
 async function prepare(page: Page, lang = 'en') {
+	// Console-only diagnostics survive later suites clearing test-results.
+	// Log same-origin paths, never response bodies or account contents.
+	const pendingRequests = new Set<string>();
+	const localPath = (url: string) => {
+		const parsed = new URL(url);
+		return parsed.origin === 'http://localhost:5173'
+			? parsed.pathname
+			: undefined;
+	};
+	page.on('request', (request) => {
+		const path = localPath(request.url());
+		if (path) pendingRequests.add(path);
+	});
+	page.on('requestfinished', (request) => {
+		const path = localPath(request.url());
+		if (path) pendingRequests.delete(path);
+	});
+	page.on('requestfailed', (request) => {
+		const path = localPath(request.url());
+		if (path) {
+			pendingRequests.delete(path);
+			console.info(
+				'Account request failed',
+				path,
+				request.failure()?.errorText
+			);
+		}
+	});
+	page.on('pageerror', (error) =>
+		console.info('Account page error', error.message)
+	);
+	page.on('console', (message) => {
+		if (message.type() === 'error')
+			console.info('Account console error', message.text());
+	});
+	page.on('close', () =>
+		console.info('Account outstanding requests', [...pendingRequests])
+	);
 	await page.route('**/src/lib/firebase.svelte.ts*', (route) =>
 		route.fulfill({ contentType: 'text/javascript', body: adapter })
 	);

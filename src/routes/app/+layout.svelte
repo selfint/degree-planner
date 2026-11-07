@@ -237,19 +237,17 @@
 		/>
 	</div>
 
-	{#if inPwaScope}
+	{#if inPwaScope && entryPending}
 		<div class="entry-update-slot">
-			{#if entryPending}
-				<p
-					class="entry-update-status"
-					aria-hidden="true"
-					data-testid="pwa-entry-update"
-				>
-					{content.lang.lang === 'he'
-						? 'בודקים עדכונים…'
-						: 'Checking for updates…'}
-				</p>
-			{/if}
+			<p
+				class="entry-update-status"
+				aria-hidden="true"
+				data-testid="pwa-entry-update"
+			>
+				{content.lang.lang === 'he'
+					? 'בודקים עדכונים…'
+					: 'Checking for updates…'}
+			</p>
 		</div>
 	{/if}
 

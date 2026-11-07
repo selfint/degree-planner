@@ -51,6 +51,8 @@ jobs:
         run: npm ci
       - name: Install Playwright browsers
         run: npx playwright install --with-deps ${{ matrix.browser }}
+      - name: Verify account loading and interrupted auth
+        run: npx playwright test --config playwright.account-loading.config.ts --project=${{ matrix.browser }}
       - name: Verify narrow mobile controls, board and course rails before the full suite
         run: npx playwright test tests/course-actions-loading.test.ts tests/plan-dependencies.test.ts tests/search-focus.test.ts tests/pwa-browser-links.test.ts tests/console-button-layout.test.ts tests/footer-controls.test.ts tests/console-navigation-styles.test.ts tests/search-three-columns.test.ts tests/plan-board-alignment.test.ts tests/course-catalog-rails.test.ts tests/remaining-course-rails.test.ts tests/search-faculty-width.test.ts tests/student-journeys.test.ts --project="${{ matrix.project }}"
       - name: Upload focused board alignment screenshots

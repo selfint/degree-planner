@@ -123,6 +123,10 @@
 	}
 	.footer-author,
 	.footer-report {
+		color: rgb(var(--color-footer-link));
+		font-weight: 500;
+		text-decoration: underline;
+		text-decoration-color: rgb(var(--color-footer-link) / 0.45);
 		text-underline-offset: 0.125rem;
 	}
 	.footer-author:hover,

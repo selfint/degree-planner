@@ -1,6 +1,29 @@
 import { loadPublicJson } from './publicData';
+import { isDegreeSelection } from './catalogSelection';
+
+export class UnavailableCurriculumError extends Error {
+	constructor(degree: Degree) {
+		super(`Curriculum unavailable for ${degree.join('/')}`);
+		this.name = 'UnavailableCurriculumError';
+	}
+}
+
+function requireAvailableDegree(catalogs: Catalogs, degree: Degree) {
+	if (!isDegreeSelection(catalogs, degree))
+		throw new UnavailableCurriculumError(degree);
+}
 
 export async function loadRequirement(
+	degree: Degree,
+	path?: string,
+	_fetch: typeof fetch = fetch
+): Promise<Requirement> {
+	const catalogs = await loadPublicJson<Catalogs>('/catalogs.json', _fetch);
+	requireAvailableDegree(catalogs, degree);
+	return fetchRequirement(degree, path, _fetch);
+}
+
+async function fetchRequirement(
 	userDegree: Degree,
 	path: string | undefined = undefined,
 	_fetch: (
@@ -34,10 +57,9 @@ export async function loadCatalog(
 ): Promise<Catalog> {
 	const [year, faculty, degree] = userDegree;
 
-	const [_catalogs, requirement] = await Promise.all([
-		catalogs,
-		loadRequirement(userDegree, path, _fetch)
-	]);
+	const _catalogs = await catalogs;
+	requireAvailableDegree(_catalogs, userDegree);
+	const requirement = await fetchRequirement(userDegree, path, _fetch);
 	const yearCatalog: I18N = _catalogs[year];
 	// Each faculty contains only a subset of the catalog's program codes. Model
 	// that membership explicitly instead of losing the Degree tuple correlation.
@@ -156,20 +178,17 @@ export async function loadDegreeName(
 	_fetch: typeof fetch = fetch
 ): Promise<string> {
 	const [year, faculty, program] = degree;
-	type Manifest = Record<
-		string,
-		I18N & Record<string, I18N & Record<string, I18N>>
-	>;
-	const [catalogs, requirement]: [Manifest, Requirement | undefined] =
-		await Promise.all([
-			loadPublicJson<Manifest>('/catalogs.json', _fetch),
-			path === undefined
-				? Promise.resolve(undefined)
-				: loadRequirement(degree, undefined, _fetch)
-		]);
+	const catalogs = await loadPublicJson<Catalogs>('/catalogs.json', _fetch);
+	requireAvailableDegree(catalogs, degree);
+	const requirement =
+		path === undefined
+			? undefined
+			: await fetchRequirement(degree, undefined, _fetch);
 	const yearName = catalogs[year][lang];
 	const facultyName = catalogs[year][faculty][lang];
-	const degreeName = catalogs[year][faculty][program][lang];
+	const facultyCatalog: I18N & Partial<Record<Degree[2], I18N>> =
+		catalogs[year][faculty];
+	const degreeName = facultyCatalog[program]![lang];
 	const title = `${facultyName} (${catalogName} ${yearName}) - ${degreeName}`;
 	if (path === undefined) return title;
 	const selectedPath = requirement?.nested?.find((node) => node.name === path);

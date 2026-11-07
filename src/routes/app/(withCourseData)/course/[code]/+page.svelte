@@ -1,4 +1,5 @@
 <script lang="ts">
+	import UnavailableCurriculum from '$lib/components/UnavailableCurriculum.svelte';
 	import { keyedItems } from '$lib/keyedItems';
 	import { trackCourseAdditions } from '$lib/analytics';
 	import { resolve } from '$app/paths';
@@ -364,6 +365,8 @@
 						</div>
 					</section>
 				{/if}
+			{:catch}
+				<UnavailableCurriculum />
 			{/await}
 		{/if}
 

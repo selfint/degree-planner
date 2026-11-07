@@ -316,6 +316,12 @@ at promotion; it is not a power-loss durability guarantee or a live-server
 multi-request snapshot protocol. Run refreshes in a checkout, not a serving tree.
 The PR and deployment remain the publication boundary for site visitors.
 
+Saved plans keep their selected degree identity, planned courses, exemptions, and
+wishlist when a curriculum becomes unavailable. Requirement/name loading checks
+manifest membership before requesting old requirement files; catalog, semester,
+and course pages show an unavailable notice with a Settings link. Selecting a
+replacement is explicit and preserves the plan's courses.
+
 The client already retried transport/SAP failures. It now also validates the
 response envelope, inner HTTP status, query identity, required course expansions,
 and matching English/Hebrew records inside that retry path. A translation is

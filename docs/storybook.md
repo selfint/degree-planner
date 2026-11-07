@@ -19,6 +19,7 @@ NativeVideo and FeatureVideo render through the real Pages/Landing stories. The 
 | Source                                                                       | Story group                       | Variants                                                                                                                                                                                                                                                             |
 | ---------------------------------------------------------------------------- | --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | src/lib/components/AppFooter.svelte                                          | Components/AppFooter              | Default, Compact                                                                                                                                                                                                                                                     |
+| src/lib/components/UnavailableCurriculum.svelte                              | Components/UnavailableCurriculum  | Default                                                                                                                                                                                                                                                              |
 | src/lib/components/ConsoleAccountStatus.svelte                               | Components/ConsoleAccountStatus   | Ready, Offline, AuthPending, AccountUnavailable, OfflineAccountUnavailable                                                                                                                                                                                           |
 | src/lib/components/ConsoleLoading.svelte                                     | Components/ConsoleLoading         | Courses, Opening, CheckingSavedData, Catalogs, Finishing, Failed                                                                                                                                                                                                     |
 | src/lib/components/CourseElement.svelte                                      | Components/CourseElement          | Default, Compact, Loading, MissingDetails, NoExams, WithNote, StudyDays, CheckingRequirements, UnmetRequirements, Unavailable, Interactive, InteractiveWarning, ExpandedRequirements                                                                                 |
@@ -81,7 +82,7 @@ NativeVideo and FeatureVideo render through the real Pages/Landing stories. The 
 - src/routes/[...legacy]/+page.svelte: Empty legacy redirect placeholder.
 - src/routes/en/+page.svelte: Language-setting redirect without visible UI; importing it would write actual browser preferences.
 
-Inventory: 56 source files, 51 covered, 5 nonvisual exclusions; 45 story groups, 206 stories.
+Inventory: 60 source files, 55 covered, 5 nonvisual exclusions; 47 story groups, 207 stories.
 
 ## Asserted student journey recordings
 

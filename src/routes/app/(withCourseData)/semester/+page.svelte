@@ -1,4 +1,5 @@
 <script lang="ts">
+	import UnavailableCurriculum from '$lib/components/UnavailableCurriculum.svelte';
 	import { keyedItems } from '$lib/keyedItems';
 	import { resolve } from '$app/paths';
 	import { goto } from '$app/navigation';
@@ -54,12 +55,14 @@
 			return undefined;
 		}
 
-		return r.then((r) =>
-			getDegreeRequirementCourses(r).map(({ path, courses }) => ({
-				path,
-				courses: courses
-			}))
-		);
+		return r
+			.then((r) =>
+				getDegreeRequirementCourses(r).map(({ path, courses }) => ({
+					path,
+					courses
+				}))
+			)
+			.catch(() => undefined);
 	});
 
 	function getAvgMedian(courses: Course[]): number {
@@ -96,7 +99,7 @@
 		}
 
 		if (requirementCourses !== undefined) {
-			for (const { path, courses } of await requirementCourses) {
+			for (const { path, courses } of (await requirementCourses) ?? []) {
 				lists.push([path, courses, true]);
 			}
 		}
@@ -285,6 +288,11 @@
 	</div>
 
 	<div class="semester-discovery relative z-0 min-w-0 flex-1 overflow-x-auto">
+		{#if requirementCourses !== undefined}
+			{#await requirementCourses then groups}
+				{#if groups === undefined}<UnavailableCurriculum />{/if}
+			{/await}
+		{/if}
 		{#await loLoCo}
 			<h2 class="flex flex-row text-content-primary sm:pe-4">
 				{content.lang.common.loading}
@@ -389,6 +397,8 @@
 					</div>
 				</div>
 			{/each}
+		{:catch}
+			<UnavailableCurriculum />
 		{/await}
 	</div>
 </div>

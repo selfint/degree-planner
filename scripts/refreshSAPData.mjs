@@ -1,17 +1,26 @@
-import { existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
+import { existsSync, readdirSync, writeFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { buildCatalogData } from './catalogData.mjs';
+import { programKeys } from './catalogData.mjs';
+import { writeCatalogData, readCatalogData } from './generateCatalogData.mjs';
+import { assertRootAvailability } from './SAPClient.mjs';
+import { readCatalogBaseline } from './catalogBaseline.mjs';
 import { generateCatalogs } from './generateCatalogsRaw.mjs';
 import { generateCourseData } from './generateCourseData.mjs';
-import { assertNotEmptyReplacement, readJsonIfPresent } from './dataOutput.mjs';
+import {
+	assertNotEmptyReplacement,
+	readJsonIfPresent,
+	replaceDirectory
+} from './dataOutput.mjs';
 
-// Fail the refresh on fetch, validation, or write errors. The PR workflow gates
-// publication; existing outputs are only validation baselines, never a fallback.
+// Fetch everything first, then generate and validate a private replacement.
+// One atomic directory exchange publishes courses and all derived catalog files.
 export async function refreshSAPData({
 	root = process.cwd(),
 	fetchCourses = generateCourseData,
-	fetchCatalogs = generateCatalogs
+	fetchCatalogs = generateCatalogs,
+	generate = writeCatalogData,
+	publication = {}
 } = {}) {
 	const coursesPath = resolve(root, 'static/courseData.json');
 	const catalogsPath = resolve(root, 'scripts/.cache/catalogs.raw.json');
@@ -28,11 +37,28 @@ export async function refreshSAPData({
 	const catalogs = await fetchCatalogs({ root });
 	assertNotEmptyReplacement(previousCourses, courses, 'course data');
 	assertNotEmptyReplacement(previousCatalogs, catalogs, 'catalogs');
-	// Conversion must also accept the full incoming snapshot before any output changes.
-	buildCatalogData(catalogs);
-	mkdirSync(dirname(catalogsPath), { recursive: true });
-	writeFileSync(coursesPath, JSON.stringify(courses, null, '\t'));
-	writeFileSync(catalogsPath, JSON.stringify(catalogs, null, '\t'));
+	assertRootAvailability(
+		catalogs.map(({ track }) => track),
+		catalogs.map(({ tree }) => tree),
+		readCatalogBaseline(root).tracks
+	);
+	return replaceDirectory(
+		resolve(root, 'static'),
+		(stage) => {
+			generate(catalogs, stage);
+			const replacement = readCatalogData(stage);
+			assertNotEmptyReplacement(
+				previousCatalogs,
+				programKeys(replacement.catalogs),
+				'usable catalogs'
+			);
+			writeFileSync(
+				resolve(stage, 'courseData.json'),
+				JSON.stringify(courses, null, '\t')
+			);
+		},
+		publication
+	);
 }
 
 if (

@@ -1,3 +1,4 @@
+import { isDegreeSelection } from '../src/lib/catalogSelection.ts';
 import { afterEach, describe, expect, it } from 'vitest';
 import {
 	mkdtempSync,
@@ -62,7 +63,7 @@ describe('direct JSON catalog generation', () => {
 				]
 			}
 		];
-		raw.push({ track: raw[0].track, tree: {} });
+		raw.push({ track: { ...raw[0].track, Otjid: 'SC_UNUSED' }, tree: {} });
 		const expected = legacyCatalogData(raw, temporaryDirectory());
 		expect(buildCatalogData(raw)).toEqual(expected);
 	});
@@ -150,4 +151,66 @@ describe('direct JSON catalog generation', () => {
 			readCatalogData(resolve('static')).requirements.size
 		).toBeGreaterThan(0);
 	});
+});
+
+it('prunes only confirmed unavailable semesters and preserves historical scopes and metadata', () => {
+	const directory = temporaryDirectory();
+	const raw = structuredClone(fixture.slice(0, 1));
+	const otherSemester = structuredClone(raw[0]);
+	otherSemester.track.Perid = '201';
+	const another = structuredClone(raw[0]);
+	another.track.Otjid = 'SC99999999';
+	const peers = Array.from({ length: 19 }, (_, index) => {
+		const peer = structuredClone(another);
+		peer.track.Otjid = `SC${String(90000000 + index)}`;
+		return peer;
+	});
+	generateCatalogData([...raw, otherSemester, ...peers], directory);
+	const before = readCatalogData(directory);
+	const retained = [...before.requirements.keys()].find((key) =>
+		key.startsWith('2024_201/')
+	);
+	const removed = [...before.requirements.keys()].find(
+		(key) => key.includes(raw[0].track.Otjid) && key.startsWith('2024_200/')
+	);
+	writeFileSync(
+		join(directory, '_catalogs', retained, 'requirementsData.json'),
+		JSON.stringify({ ...before.requirements.get(retained), points: 123 })
+	);
+	raw[0].tree = {};
+	generateCatalogData([...raw, ...peers], directory);
+	const after = readCatalogData(directory);
+	expect(after.requirements.has(removed)).toBe(false);
+	expect(isDegreeSelection(after.catalogs, removed.split('/'))).toBe(false);
+	expect(isDegreeSelection(after.catalogs, retained.split('/'))).toBe(true);
+	expect(after.requirements.get(retained).points).toBe(123);
+	expect(after.requirements.size).toBe(before.requirements.size - 1);
+	expect(() =>
+		readFileSync(join(directory, '_catalogs', removed, 'requirementsData.json'))
+	).toThrow();
+	generateCatalogData([...raw, ...peers], directory);
+	expect(readCatalogData(directory)).toEqual(after);
+});
+
+it.each([
+	undefined,
+	null,
+	{ children: 'invalid' },
+	{ courses: ['SM00123456'] }
+])('rejects malformed root %j instead of pruning', (tree) => {
+	const raw = structuredClone(fixture);
+	raw[0].tree = tree;
+	expect(() => buildCatalogData(raw)).toThrow();
+});
+
+it('standalone catalog generation also rejects broad root disappearance', () => {
+	const directory = temporaryDirectory();
+	generateCatalogData(fixture, directory);
+	const before = readCatalogData(directory);
+	const raw = structuredClone(fixture);
+	raw[0].tree = {};
+	expect(() => generateCatalogData(raw, directory)).toThrow(
+		'Broad SAP root disappearance'
+	);
+	expect(readCatalogData(directory)).toEqual(before);
 });

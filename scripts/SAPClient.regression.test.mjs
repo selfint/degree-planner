@@ -276,7 +276,7 @@ describe('query-scoped bilingual and required data (offline)', () => {
 		expect((await failure(sap.getTrackTrees([degrees[0]]))).message).toContain(
 			'Incomplete bilingual tree'
 		);
-		batches([part([])], [part([])]);
+		batches([part([])], [part([])], [part([])], [part([])]);
 		expect(await sap.getTrackTrees([degrees[0]])).toEqual([
 			{ courses: undefined, children: undefined }
 		]);
@@ -417,7 +417,7 @@ test('never blesses empty English after Hebrew has proved that collection incomp
 	);
 });
 
-test.each(['faculties', 'degrees', 'trees'])(
+test.each(['faculties', 'degrees'])(
 	'retries a disappeared previously populated %s scope',
 	async (kind) => {
 		batches([part([])], [part([])], [part([])]);
@@ -519,4 +519,83 @@ test('never blesses an empty nested English tree after Hebrew proves children ex
 			)
 		).message
 	).toContain('Incomplete English tree collection');
+});
+
+function rootPopulation(count = 20) {
+	const tracks = Array.from({ length: count }, (_, index) => ({
+		...degrees[0],
+		Otjid: `SC${index}`
+	}));
+	const baseline = new Set(tracks.map((track) => `2024/200/${track.Otjid}`));
+	return { tracks, baseline };
+}
+
+test('confirms a genuinely absent root twice in both languages, preserving other roots', async () => {
+	const { tracks, baseline } = rootPopulation();
+	const rootRows = tracks.map((track, index) =>
+		part(
+			index
+				? [
+						{
+							Otjid: `CG${index}`,
+							ParentOtjid: track.Otjid,
+							Peryr: track.Peryr,
+							Perid: track.Perid,
+							Stext: 'Curriculum'
+						}
+					]
+				: []
+		)
+	);
+	const leaves = tracks.slice(1).map(() => part([]));
+	batches(rootRows, rootRows, leaves, leaves, [part([])], [part([])]);
+	const trees = await sap.getTrackTrees(tracks, baseline);
+	expect(trees.filter(sap.isAbsentRoot)).toHaveLength(1);
+	expect(trees[1].children[0].Otjid).toBe('CG1');
+	expect(fetchMock).toHaveBeenCalledTimes(6);
+});
+
+test('holds broad disappearance and small populations for review', async () => {
+	batches([part([])], [part([])], [part([])], [part([])]);
+	await expect(
+		sap.getTrackTrees([degrees[0]], new Set(['2024/200/SC000001']))
+	).rejects.toThrow('Broad SAP root disappearance');
+	const { tracks, baseline } = rootPopulation();
+	const trees = tracks.map((_, index) => (index < 2 ? {} : { children: [{}] }));
+	expect(() => sap.assertRootAvailability(tracks, trees, baseline)).toThrow(
+		'5% review threshold'
+	);
+});
+
+test('a large unaffected semester cannot conceal a small semester wipe', () => {
+	const { tracks, baseline } = rootPopulation(100);
+	tracks.push({ ...degrees[0], Peryr: '2025' });
+	baseline.add('2025/200/SC000001');
+	const trees = tracks.map((_, index) =>
+		index === 100 ? {} : { children: [{}] }
+	);
+	expect(() => sap.assertRootAvailability(tracks, trees, baseline)).toThrow(
+		'2025/200'
+	);
+});
+
+test('absence cannot be inferred from English when Hebrew has a curriculum', async () => {
+	const row = {
+		Otjid: 'CG1',
+		ParentOtjid: degrees[0].Otjid,
+		Peryr: '2024',
+		Perid: '200',
+		Stext: 'Curriculum'
+	};
+	batches([part([])], [part([row])], [part([])], [part([])]);
+	expect((await failure(sap.getTrackTrees([degrees[0]]))).message).toContain(
+		'Incomplete English tree'
+	);
+});
+
+test('a confirmation request failure does not establish absence', async () => {
+	batches([part([])], [part([])], [sapError()], [sapError()], [sapError()]);
+	expect((await failure(sap.getTrackTrees([degrees[0]]))).message).toContain(
+		'TreeOnDemandSet'
+	);
 });

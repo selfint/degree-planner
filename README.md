@@ -295,16 +295,32 @@ by Git and are removed on production builds, including reused workspaces.
 
 ## Refreshing SAP data
 
-Run `node scripts/refreshSAPData.mjs`, then
-`node scripts/generateCatalogData.mjs` and
-`node scripts/validateCatalogData.mjs`. The scheduled Data workflow uses this
-path. Fetch, validation, or write failures exit nonzero and fail the workflow;
-later generation, push, and PR steps do not run. There is no old-data fallback.
-After SAP and direct-JSON input validation, `static/courseData.json` and the local
-`scripts/.cache/catalogs.raw.json` are written directly, without a cross-file
-rollback transaction. Catalog conversion uses that same validated response,
-without fetching SAP a second time or recreating the former text-file tree. The
-PR workflow gates publication of the complete generated JSON snapshot.
+Run `npm run update-catalogs` (or `node scripts/refreshSAPData.mjs`). The
+scheduled Data workflow uses this same entry point. Courses and catalogs are
+fetched once, then the complete replacement manifest and requirements are generated
+and validated in a private sibling copy of `static`. Only then is that entire
+directory atomically exchanged with `static`. Fetch, generation, copy, write, or
+promotion errors leave the old public snapshot intact. No raw response cache is
+written by this path; existing raw files are read-only historical baselines.
+Standalone `generateCatalogData.mjs` also stages and atomically publishes its
+catalog changes. `generateCatalogsRaw.mjs` remains a fetch/debugging utility.
+
+Publication requires Linux with `renameat2(RENAME_EXCHANGE)` and Python 3 (both
+available on the workflow's Ubuntu runner). Unsupported platforms/filesystems
+fail closed. Staging needs roughly one extra copy of `static`. A sibling lock
+prevents overlapping publication; a killed process may leave a lock/staging
+directory for manual cleanup once no refresh is running. Cleanup failure after
+successful publication only warns: the new snapshot is already committed.
+Atomic exchange prevents mixed on-disk generations even if the process is killed
+at promotion; it is not a power-loss durability guarantee or a live-server
+multi-request snapshot protocol. Run refreshes in a checkout, not a serving tree.
+The PR and deployment remain the publication boundary for site visitors.
+
+Saved plans keep their selected degree identity, planned courses, exemptions, and
+wishlist when a curriculum becomes unavailable. Requirement/name loading checks
+manifest membership before requesting old requirement files; catalog, semester,
+and course pages show an unavailable notice with a Settings link. Selecting a
+replacement is explicit and preserves the plan's courses.
 
 The client already retried transport/SAP failures. It now also validates the
 response envelope, inner HTTP status, query identity, required course expansions,
@@ -321,16 +337,24 @@ no English fallback or silent skip when a required counterpart is missing.
   fails closed; automatic continuation fetching is not implemented. Explicit
   `getCourses(semesters, top)` calls below 10,000 may intentionally request a subset.
 - Empty faculty/degree lists, tree leaves, and course expansion lists can be
-  valid. An empty response for a specific known course or translation is not.
-  Ordinary dataset shrinkage is allowed. During generation, a previously
-  populated semester/faculty/track that is still being queried cannot suddenly
-  return no faculties/degrees/tree children: its empty response is retried, then
-  held for manual verification of a possible upstream removal. Baselines come
-  from cached raw catalogs (including legacy root-level `catalogs.json`) and the
-  committed catalog manifest, or legacy static catalog directories and are used
-  only for completeness validation, never as replacement data. Completely
-  wiping an established output is also held for review, not declared proof of an
-  SAP outage. Individual removed IDs and newly empty scopes remain allowed.
+  valid. Previously populated semester/faculty collections still fail closed on
+  total disappearance. Degree roots are different: two independent, complete
+  English/Hebrew normal `TreeOnDemandSet` lookups must agree they are empty.
+  Such a degree is unavailable **only in that semester**. Its manifest choices
+  and requirement files are removed; other semesters and unfetched historical
+  scopes remain, including custom metadata on retained requirements. No alternate
+  curriculum lookup or stale curriculum fallback is used.
+- Newly unavailable roots may remove at most 5% of the requested previously
+  populated roots, both overall and within each semester. There is no minimum
+  one-removal allowance for small populations. Larger losses fail with counts
+  for manual investigation; there is no automatic override. This conservative
+  threshold is a review policy, not proof that small correlated SAP failures
+  are impossible. Both languages and repeat lookups can still share an upstream
+  fault. A snapshot with no usable programs always fails.
+- Baselines combine cached raw catalogs (including legacy `catalogs.json`) and
+  the committed manifest, or legacy static directories. They never substitute
+  old data for failed requests. Transport errors, malformed/incomplete responses,
+  language disagreements, and known-course lookup failures remain fatal.
 - Diagnostics identify the endpoint, language, query, and SAP error code without
   dumping response bodies or internal SAP traces. Persistent RFC/shared-memory
   failures still require the SAP operator to resolve the backend problem; client

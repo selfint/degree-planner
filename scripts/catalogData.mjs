@@ -1,4 +1,4 @@
-import { getSemesterName } from './SAPClient.mjs';
+import { getSemesterName, isAbsentRoot } from './SAPClient.mjs';
 
 function identifier(value, context) {
 	if (
@@ -69,8 +69,22 @@ export function buildCatalogData(rawCatalogs) {
 	const catalogs = {};
 	const requirements = new Map();
 	for (const { track, tree } of rawCatalogs) {
-		const root = tree?.children?.at(0);
-		if (root === undefined) continue; // SAP also returns tracks with no tree.
+		if (
+			!tree ||
+			typeof tree !== 'object' ||
+			Array.isArray(tree) ||
+			(tree.children !== undefined && !Array.isArray(tree.children)) ||
+			(tree.courses !== undefined && !Array.isArray(tree.courses))
+		)
+			throw new Error('Malformed SAP root');
+		identifier(track.Otjid, 'degree ID');
+		identifier(track.OrgId, 'faculty ID');
+		identifier(`${track.Peryr}_${track.Perid}`, 'catalog ID');
+		labels(track.OrgText, track.OrgId);
+		labels(track.ZzQualifications, track.Otjid);
+		if (isAbsentRoot(tree)) continue;
+		const root = tree.children?.at(0);
+		if (!root) throw new Error('SAP degree root has courses but no curriculum');
 		const catalogId = identifier(`${track.Peryr}_${track.Perid}`, 'catalog ID');
 		const facultyId = identifier(track.OrgId, 'faculty ID');
 		const programId = identifier(`${track.Otjid}_${root.Otjid}`, 'program ID');

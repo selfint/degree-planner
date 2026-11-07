@@ -6,6 +6,8 @@ import { describe, expect, it, vi } from 'vitest';
 import catalogs from '../../static/catalogs.json';
 import {
 	getDegreeRequirementCourses,
+	loadRequirement,
+	UnavailableCurriculumError,
 	loadCatalog,
 	loadDegreeName
 } from './requirements';
@@ -78,7 +80,7 @@ describe('Requirements', () => {
 				undefined,
 				localFetch
 			)
-		).rejects.toThrow('Unknown degree program SC00001314_CG00006245');
+		).rejects.toBeInstanceOf(UnavailableCurriculumError);
 	});
 
 	it.each(['en', 'he'] as const)(
@@ -198,4 +200,38 @@ describe('Requirements', () => {
 
 		ctx.expect(data.requirement).toMatchSnapshot();
 	});
+});
+
+describe('unavailable saved curricula', () => {
+	const degree: Degree = ['2024_201', '00002120', 'SC00001314_CG00006245'];
+	it.each(['program', 'faculty', 'semester'])(
+		'rejects a removed %s before loading cached or missing requirements',
+		async (level) => {
+			const manifest = structuredClone(catalogs) as unknown as Record<
+				string,
+				Record<string, Record<string, unknown>>
+			>;
+			if (level === 'program') delete manifest[degree[0]][degree[1]][degree[2]];
+			else if (level === 'faculty') delete manifest[degree[0]][degree[1]];
+			else delete manifest[degree[0]];
+			const request = vi.fn(async () => new Response(JSON.stringify(manifest)));
+			const before = structuredClone(degree);
+			await expect(
+				loadRequirement(degree, undefined, request)
+			).rejects.toBeInstanceOf(UnavailableCurriculumError);
+			await expect(
+				loadDegreeName('en', 'catalog', degree, undefined, request)
+			).rejects.toBeInstanceOf(UnavailableCurriculumError);
+			await expect(
+				loadCatalog(
+					Promise.resolve(manifest as unknown as Catalogs),
+					degree,
+					undefined,
+					request
+				)
+			).rejects.toBeInstanceOf(UnavailableCurriculumError);
+			expect(request.mock.calls).toHaveLength(2);
+			expect(degree).toEqual(before);
+		}
+	);
 });

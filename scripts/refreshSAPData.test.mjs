@@ -1,3 +1,4 @@
+import * as fs from 'node:fs';
 import { afterEach, describe, expect, test, vi } from 'vitest';
 import {
 	existsSync,
@@ -18,7 +19,11 @@ import {
 	generateCatalogData,
 	readCatalogData
 } from './generateCatalogData.mjs';
-import { assertNotEmptyReplacement } from './dataOutput.mjs';
+import {
+	assertNotEmptyReplacement,
+	exchangeDirectories,
+	replaceDirectory
+} from './dataOutput.mjs';
 
 const rawFixture = JSON.parse(
 	readFileSync(new URL('./fixtures/catalogs.raw.json', import.meta.url), 'utf8')
@@ -73,9 +78,10 @@ describe('SAP refresh failures and validation (offline)', () => {
 			fetchCatalogs: async () => catalogs
 		});
 		expect(JSON.parse(readFileSync(old.coursesPath, 'utf8'))).toEqual(courses);
-		expect(JSON.parse(readFileSync(old.catalogsPath, 'utf8'))).toEqual(
-			catalogs
-		);
+		expect(readFileSync(old.catalogsPath, 'utf8')).toBe(old.catalogs);
+		expect(
+			readCatalogData(join(old.root, 'static')).requirements.size
+		).toBeGreaterThan(0);
 	});
 	test('rejects an unexplained total wipe but allows normal removals', async () => {
 		const old = fixture();
@@ -110,24 +116,59 @@ describe('SAP refresh failures and validation (offline)', () => {
 	});
 });
 
-test('rejects write failures without a staging or rollback transaction', async () => {
-	const old = fixture();
-	const courses = { new: {} };
-	await expect(
-		refreshSAPData({
-			root: old.root,
-			fetchCourses: async () => courses,
-			fetchCatalogs: async () => {
-				// Make the second output unwritable after its baseline was read.
-				rmSync(old.catalogsPath);
-				mkdirSync(old.catalogsPath);
-				return structuredClone(rawFixture.slice(0, 1));
-			}
-		})
-	).rejects.toThrow();
-	// The failed job is the publication gate; the first direct write need not roll back.
-	expect(JSON.parse(readFileSync(old.coursesPath, 'utf8'))).toEqual(courses);
-});
+test.each(['generation', 'copy', 'write', 'promotion', 'syscall'])(
+	'leaves every live output unchanged on %s failure',
+	async (failure) => {
+		const old = fixture();
+		const staticDir = join(old.root, 'static');
+		generateCatalogData(rawFixture, staticDir);
+		const previous = readCatalogData(staticDir);
+		const fail = () => {
+			throw new Error('Injected file failure');
+		};
+		await expect(
+			refreshSAPData({
+				root: old.root,
+				fetchCourses: async () => ({ fresh: {} }),
+				fetchCatalogs: async () => structuredClone(rawFixture),
+				...(failure === 'generation'
+					? {
+							generate(raw, stage) {
+								writeFileSync(join(stage, 'catalogs.json'), '{}');
+								fail();
+							}
+						}
+					: {}),
+				...(failure === 'write'
+					? {
+							generate(raw, stage) {
+								generateCatalogData(raw, stage);
+								rmSync(join(stage, 'courseData.json'));
+								mkdirSync(join(stage, 'courseData.json'));
+							}
+						}
+					: {}),
+				publication:
+					failure === 'copy'
+						? { operations: { ...fs, cpSync: fail } }
+						: failure === 'promotion'
+							? { promote: fail }
+							: failure === 'syscall'
+								? {
+										promote: (stage, target) =>
+											exchangeDirectories(join(stage, 'missing'), target)
+									}
+								: {}
+			})
+		).rejects.toThrow();
+		expect(readFileSync(old.coursesPath, 'utf8')).toBe(old.courses);
+		expect(readFileSync(old.catalogsPath, 'utf8')).toBe(old.catalogs);
+		expect(readCatalogData(staticDir)).toEqual(previous);
+		expect(
+			readdirSync(old.root).filter((name) => name.startsWith('.static-refresh'))
+		).toEqual([]);
+	}
+);
 
 test('CLI reports a persistent SAP failure and exits with status 1', () => {
 	const old = fixture();
@@ -190,7 +231,7 @@ test('derives raw catalog scopes without treating already-empty roots as populat
 	expect([...baseline.tracks]).toEqual(['2024/200/SC1']);
 });
 
-test('refreshes once into the raw cache and feeds the direct JSON pipeline', async () => {
+test('fetches once and publishes public JSON without a separate raw-cache write', async () => {
 	const old = fixture();
 	const staticDir = join(old.root, 'static');
 	generateCatalogData(rawFixture, staticDir);
@@ -208,12 +249,10 @@ test('refreshes once into the raw cache and feeds the direct JSON pipeline', asy
 	const fetchCourses = vi.fn(async () => ({ fresh: { name: 'Fresh course' } }));
 	const fetchCatalogs = vi.fn(async () => catalogs);
 	await refreshSAPData({ root: old.root, fetchCourses, fetchCatalogs });
-	const cached = JSON.parse(readFileSync(old.catalogsPath, 'utf8'));
-	generateCatalogData(cached, staticDir);
+	expect(existsSync(old.catalogsPath)).toBe(false);
 	const updated = readCatalogData(staticDir);
 	expect(fetchCourses).toHaveBeenCalledTimes(1);
 	expect(fetchCatalogs).toHaveBeenCalledExactlyOnceWith({ root: old.root });
-	expect(cached).toEqual(catalogs);
 	expect(existsSync(join(old.root, 'catalogs.json'))).toBe(false);
 	expect(updated.requirements.size).toBe(previous.requirements.size);
 	expect(updated.requirements.get(key)).toMatchObject({
@@ -289,5 +328,43 @@ test('keeps the legacy raw response as a validation baseline without writing to 
 		fetchCatalogs: async () => structuredClone(rawFixture.slice(0, 1))
 	});
 	expect(readFileSync(legacyPath, 'utf8')).toBe(old.catalogs);
-	expect(JSON.parse(readFileSync(old.catalogsPath, 'utf8'))).toHaveLength(1);
+	expect(existsSync(old.catalogsPath)).toBe(false);
+});
+
+test('fails closed on an existing publication lock without deleting another writer lock', () => {
+	const old = fixture();
+	const lock = join(old.root, '.static-refresh-lock');
+	mkdirSync(lock);
+	expect(() => replaceDirectory(join(old.root, 'static'), () => {})).toThrow();
+	expect(existsSync(lock)).toBe(true);
+	expect(readFileSync(old.coursesPath, 'utf8')).toBe(old.courses);
+});
+
+test('cleanup failure after atomic promotion leaves the complete new snapshot', async () => {
+	const old = fixture();
+	const warning = vi.spyOn(console, 'error').mockImplementation(() => {});
+	try {
+		await refreshSAPData({
+			root: old.root,
+			fetchCourses: async () => ({ fresh: {} }),
+			fetchCatalogs: async () => structuredClone(rawFixture),
+			publication: {
+				operations: {
+					...fs,
+					rmSync() {
+						throw new Error('cleanup failure');
+					}
+				}
+			}
+		});
+		expect(JSON.parse(readFileSync(old.coursesPath, 'utf8'))).toEqual({
+			fresh: {}
+		});
+		expect(
+			readCatalogData(join(old.root, 'static')).requirements.size
+		).toBeGreaterThan(0);
+		expect(warning).toHaveBeenCalled();
+	} finally {
+		warning.mockRestore();
+	}
 });

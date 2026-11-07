@@ -143,7 +143,7 @@
 		}
 		const c = catalogs;
 
-		return Object.entries(c[year])
+		return Object.entries(c[year] ?? {})
 			.filter(([name]) => !['he', 'en'].includes(name))
 			.map(([name, faculty]) => ({
 				value: name,

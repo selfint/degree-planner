@@ -1,4 +1,5 @@
 <script lang="ts">
+	import UnavailableCurriculum from '$lib/components/UnavailableCurriculum.svelte';
 	import { keyedItems } from '$lib/keyedItems';
 	import { resolve } from '$app/paths';
 	import { user, content, requirement, degreeName } from '$lib/stores.svelte';
@@ -123,6 +124,8 @@
 					</span>
 				{:then name}
 					{name}
+				{:catch}
+					{content.lang.common.catalog}
 				{/await}
 			</h2>
 			<div class="catalog-progress">
@@ -255,6 +258,8 @@
 					{content.lang.lang === 'he' ? 'אין קורסים' : 'No courses'}
 				</p>
 			{/each}
+		{:catch}
+			<UnavailableCurriculum />
 		{/await}
 	{/if}
 </div>

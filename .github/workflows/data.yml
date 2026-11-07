@@ -30,11 +30,8 @@ jobs:
           git checkout -b generate-data
           git reset --hard origin/main
 
-      - name: Fetch and validate SAP data before replacing outputs
+      - name: Fetch, validate, and atomically publish the complete SAP snapshot
         run: node scripts/refreshSAPData.mjs
-
-      - name: Generate public catalog JSON from the validated SAP response
-        run: node scripts/generateCatalogData.mjs
 
       - name: Validate catalog snapshot
         run: node scripts/validateCatalogData.mjs

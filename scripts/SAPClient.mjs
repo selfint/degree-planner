@@ -54,11 +54,7 @@ function requireOne(rows) {
  * @param {{Otjid: string, Peryr: string, Perid: string}[]} batch
  * @returns {Promise<TreeHead[]>}
  */
-async function loadChildren(
-	batch,
-	ancestors = batch.map(() => new Set()),
-	previouslyPopulated = new Set()
-) {
+async function loadChildren(batch, ancestors = batch.map(() => new Set())) {
 	if (batch.length === 0) return [];
 	const queries = batch.map(({ Otjid, Peryr, Perid }) => ({
 		'sap-client': '700',
@@ -68,11 +64,6 @@ async function loadChildren(
 	}));
 	const validate = (rows, index) => {
 		const { Otjid, Peryr, Perid } = batch[index];
-		requirePreviouslyPopulated(
-			rows,
-			`${Peryr}/${Perid}/${Otjid}`,
-			previouslyPopulated
-		);
 		validateRows(rows, ['Stext', 'Otjid', 'Peryr', 'Perid', 'ParentOtjid'], {
 			ParentOtjid: Otjid,
 			Peryr,
@@ -314,7 +305,49 @@ export async function getDegrees(faculties, previouslyPopulated = new Set()) {
  * @returns {Promise<TreeHead[]>}
  */
 export async function getTrackTrees(tracks, previouslyPopulated = new Set()) {
-	return await loadChildren(tracks, undefined, previouslyPopulated);
+	const trees = await loadChildren(tracks);
+	const absent = tracks.filter((_, index) => isAbsentRoot(trees[index]));
+	// A second complete bilingual lookup must independently confirm absence.
+	// Neither an HTTP/SAP failure nor a missing language can become availability.
+	if (absent.length) {
+		const confirmation = await loadChildren(absent);
+		if (confirmation.some((tree) => !isAbsentRoot(tree)))
+			throw new Error(
+				'Unstable SAP root availability; retry the whole refresh'
+			);
+	}
+	assertRootAvailability(tracks, trees, previouslyPopulated);
+	return trees;
+}
+
+export function isAbsentRoot(tree) {
+	return !!tree && !tree.children?.length && !tree.courses?.length;
+}
+
+// Limit losses against requested, previously usable degree/semester roots, both
+// globally and per semester. No minimum allowance: small populations fail closed.
+// Five percent is a review threshold, not proof that SAP is healthy.
+export function assertRootAvailability(tracks, trees, previouslyPopulated) {
+	if (tracks.length !== trees.length)
+		throw new Error('Incomplete SAP tree results');
+	const populations = new Map([['all semesters', { total: 0, absent: 0 }]]);
+	tracks.forEach((track, index) => {
+		const semester = `${track.Peryr}/${track.Perid}`;
+		if (!previouslyPopulated.has(`${semester}/${track.Otjid}`)) return;
+		if (!populations.has(semester))
+			populations.set(semester, { total: 0, absent: 0 });
+		for (const key of ['all semesters', semester]) {
+			const population = populations.get(key);
+			population.total++;
+			if (isAbsentRoot(trees[index])) population.absent++;
+		}
+	});
+	for (const [scope, { total, absent }] of populations) {
+		if (absent > total * 0.05)
+			throw new Error(
+				`Broad SAP root disappearance in ${scope}: ${absent}/${total} previously populated roots unavailable (5% review threshold)`
+			);
+	}
 }
 
 /**

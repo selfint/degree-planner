@@ -1,5 +1,13 @@
-import { readFileSync, readdirSync } from 'node:fs';
-import { join } from 'node:path';
+import {
+	readFileSync,
+	readdirSync,
+	mkdtempSync,
+	mkdirSync,
+	writeFileSync,
+	rmSync
+} from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join, relative, sep } from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
 import { IDBFactory } from 'fake-indexeddb';
 import {
@@ -620,36 +628,106 @@ describe('public JSON repository', () => {
 	});
 });
 
-describe('public JSON wire compatibility', () => {
-	it('accepts all current bilingual catalogs, requirement trees and course maps without changing data', () => {
-		for (const key of [
-			'/catalogs.json',
-			'/courseData.json',
-			'/courseDataStripped.json'
-		]) {
-			const data = JSON.parse(readFileSync(join('static', key), 'utf8'));
-			expect(isPublicData(key, data), key).toBe(true);
-		}
-		let count = 0;
-		function visit(directory: string) {
-			for (const item of readdirSync(directory, { withFileTypes: true })) {
-				const path = join(directory, item.name);
-				if (item.isDirectory()) visit(path);
-				else if (item.name === 'requirementsData.json') {
-					expect(
-						isPublicData(
-							'/' + path.slice('static/'.length),
-							JSON.parse(readFileSync(path, 'utf8'))
-						),
-						path
-					).toBe(true);
-					count++;
-				}
+// Accept a supplied generated snapshot without replacing the checkout's static
+// files. The same contract is run against committed data by default in CI.
+function assertPublicSnapshot(staticDir: string) {
+	const catalogs: Record<
+		string,
+		Record<string, Record<string, unknown>>
+	> = JSON.parse(readFileSync(join(staticDir, 'catalogs.json'), 'utf8'));
+	for (const key of [
+		'/catalogs.json',
+		'/courseData.json',
+		'/courseDataStripped.json'
+	]) {
+		const data = JSON.parse(readFileSync(join(staticDir, key), 'utf8'));
+		expect(isPublicData(key, data), key).toBe(true);
+	}
+	const expected = new Set<string>();
+	for (const [semester, faculties] of Object.entries(catalogs)) {
+		for (const [faculty, programs] of Object.entries(faculties)) {
+			if (faculty === 'en' || faculty === 'he') continue;
+			for (const program of Object.keys(programs)) {
+				if (program === 'en' || program === 'he') continue;
+				expected.add(
+					`_catalogs/${semester}/${faculty}/${program}/requirementsData.json`
+				);
 			}
 		}
-		visit('static/_catalogs');
-		expect(count).toBe(1183);
+	}
+	expect(expected.size).toBeGreaterThan(0);
+	const actual = new Set<string>();
+	function visit(directory: string) {
+		for (const item of readdirSync(directory, { withFileTypes: true })) {
+			const path = join(directory, item.name);
+			if (item.isDirectory()) visit(path);
+			else if (item.name === 'requirementsData.json') {
+				const key = relative(staticDir, path).split(sep).join('/');
+				expect(
+					isPublicData('/' + key, JSON.parse(readFileSync(path, 'utf8'))),
+					path
+				).toBe(true);
+				actual.add(key);
+			}
+		}
+	}
+	visit(join(staticDir, '_catalogs'));
+	expect(
+		actual,
+		'requirement files must exactly match manifest programs'
+	).toEqual(expected);
+}
+
+describe('public JSON wire compatibility', () => {
+	it('accepts the complete committed or supplied public snapshot without freezing its program count', () => {
+		assertPublicSnapshot(process.env.CATALOG_SNAPSHOT_DIR ?? 'static');
 	});
+
+	it.each(['missing', 'orphan', 'invalid', 'empty manifest'])(
+		'rejects a snapshot with %s requirement output',
+		(failure) => {
+			const directory = mkdtempSync(join(tmpdir(), 'public-snapshot-'));
+			try {
+				for (const [key, value] of Object.entries({
+					'catalogs.json': manifest,
+					'courseData.json': courses,
+					'courseDataStripped.json': courses
+				})) {
+					writeFileSync(join(directory, key), JSON.stringify(value));
+				}
+				const program = join(
+					directory,
+					'_catalogs/2024_200/00002120/SC00001314_CG00006245'
+				);
+				mkdirSync(program, { recursive: true });
+				const file = join(program, 'requirementsData.json');
+				writeFileSync(file, JSON.stringify(requirement));
+				assertPublicSnapshot(directory);
+				if (failure === 'missing') rmSync(file);
+				else if (failure === 'invalid')
+					writeFileSync(
+						file,
+						JSON.stringify({ ...requirement, nested: 'invalid' })
+					);
+				else if (failure === 'empty manifest')
+					writeFileSync(join(directory, 'catalogs.json'), '{}');
+				else {
+					const orphan = join(
+						directory,
+						'_catalogs/2024_200/00002120/SC00009999_CG00009999'
+					);
+					mkdirSync(orphan, { recursive: true });
+					writeFileSync(
+						join(orphan, 'requirementsData.json'),
+						JSON.stringify(requirement)
+					);
+				}
+				expect(() => assertPublicSnapshot(directory)).toThrow();
+			} finally {
+				rmSync(directory, { recursive: true, force: true });
+			}
+		}
+	);
 
 	it('preserves optional connection lists used by historical data and dependency cards', () => {
 		const data = {

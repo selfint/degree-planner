@@ -21,6 +21,18 @@ export function subscribeFirebase() { return () => {}; }
 export async function startOptionalAnalytics() {}
 export async function signIn() {}
 `;
+const pageErrors = new WeakMap<Page, string[]>();
+test.beforeEach(({ page }) => {
+	const errors: string[] = [];
+	pageErrors.set(page, errors);
+	page.on('pageerror', (error) => errors.push(error.message));
+});
+test.afterEach(({ page }) => {
+	expect(
+		pageErrors.get(page),
+		'no uncaught errors during initial load or reload'
+	).toEqual([]);
+});
 async function command(page: Page, script: string) {
 	await page.evaluate(script);
 }

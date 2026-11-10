@@ -1,4 +1,4 @@
-import { storageKey } from '$lib/deploymentEnvironment';
+import { storageKey } from './deploymentEnvironment';
 export type CachedResource = {
 	key: string;
 	schemaVersion: number;

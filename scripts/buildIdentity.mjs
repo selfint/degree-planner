@@ -44,13 +44,14 @@ export function isBuildInputPath(path) {
 /** The version describes reproducible build inputs, never build time or a
  * deployment ID. A commit is provenance, not sufficient cache identity.
  * @param {{ files: Iterable<[string, string | Uint8Array]>, commit?: string | null,
- * mode?: string, basePath?: string, staticBuild?: boolean, nodeVersion?: string, platform?: string, arch?: string }} options
+ * mode?: string, basePath?: string, deploymentEnvironment?: string, staticBuild?: boolean, nodeVersion?: string, platform?: string, arch?: string }} options
  */
 export function computeBuildIdentity({
 	files,
 	commit = null,
 	mode = 'production',
 	basePath = '',
+	deploymentEnvironment = 'production',
 	staticBuild = false,
 	nodeVersion = process.version,
 	platform = process.platform,
@@ -69,7 +70,15 @@ export function computeBuildIdentity({
 	// Include explicit public build settings, never the full environment.
 	add(
 		'toolchain',
-		JSON.stringify({ mode, basePath, staticBuild, nodeVersion, platform, arch })
+		JSON.stringify({
+			mode,
+			basePath,
+			deploymentEnvironment,
+			staticBuild,
+			nodeVersion,
+			platform,
+			arch
+		})
 	);
 	for (const [path, bytes] of [...files]
 		.filter(([path]) => isBuildInputPath(path))
@@ -119,6 +128,7 @@ export function readBuildIdentity(directory = root, env = process.env) {
 		commit: readBuildCommit(env, directory),
 		mode: env.NODE_ENV ?? 'production',
 		basePath: env.BASE_PATH ?? '',
+		deploymentEnvironment: env.PUBLIC_DEPLOYMENT_ENV ?? 'production',
 		staticBuild: env.PAGES_BUILD === 'true'
 	});
 }

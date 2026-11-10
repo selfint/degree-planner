@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { analyticsEnabled } from '$lib/deploymentEnvironment';
 	import { resolve } from '$app/paths';
 	import { withBase, withoutBase } from '$lib/deploymentPaths';
 	import {
@@ -78,7 +79,7 @@
 	onMount(() => {
 		let cancelled = false;
 		const timer = setTimeout(() => {
-			if (cancelled || !navigator.onLine) return;
+			if (!analyticsEnabled || cancelled || !navigator.onLine) return;
 			void startOptionalAnalytics(firebase);
 			void import('@vercel/analytics')
 				.then(({ inject }) => {

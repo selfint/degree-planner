@@ -1,3 +1,4 @@
+import { storageKey } from '$lib/deploymentEnvironment';
 export type CourseDataMetadata = {
 	schemaVersion: 1;
 	count: number;
@@ -55,7 +56,8 @@ export function createCourseDataStore(
 		transactionTimeoutMs?: number;
 	} = {}
 ): CourseDataStore {
-	const databaseName = options.databaseName ?? 'degree-planner-courses';
+	const databaseName =
+		options.databaseName ?? storageKey('degree-planner-courses');
 	const timeoutMs = options.timeoutMs ?? 1500;
 	// Thousands of individual course writes need more time than opening the DB.
 	const transactionTimeoutMs =

@@ -1,5 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+const deployment = vi.hoisted(() => ({ PUBLIC_DEPLOYMENT_ENV: 'production' }));
+vi.mock('$env/static/public', () => deployment);
+
 vi.mock('$app/environment', () => ({ browser: true }));
 vi.mock('./requirements', () => ({
 	loadDegreeName: vi.fn(),
@@ -21,6 +24,7 @@ let storage: {
 let network: { onLine: boolean };
 beforeEach(() => {
 	vi.resetModules();
+	deployment.PUBLIC_DEPLOYMENT_ENV = 'production';
 	network = { onLine: true };
 	values = new Map([
 		['lang', 'en'],
@@ -286,4 +290,19 @@ describe('future-version read compatibility', () => {
 			expect(storage.removeItem).not.toHaveBeenCalled();
 		}
 	);
+});
+
+it('staging does not read, migrate or overwrite production guest plans', async () => {
+	deployment.PUBLIC_DEPLOYMENT_ENV = 'staging';
+	values.set('username', 'production legacy guest');
+	const production = new Map(values);
+	const { user, writeLocalStorage } = await import('./stores.svelte');
+	expect(user.d.wishlist).toEqual([]);
+	await writeLocalStorage(plan);
+	for (const [key, value] of production) expect(values.get(key)).toBe(value);
+	expect(values.get('planit.staging.userData')).toBe(JSON.stringify(plan));
+	expect(values.get('planit.staging.version')).toBe('4');
+	vi.resetModules();
+	const reloaded = await import('./stores.svelte');
+	expect(reloaded.user.d).toEqual(plan);
 });

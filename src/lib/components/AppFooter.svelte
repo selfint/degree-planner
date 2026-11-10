@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { storageKey } from '$lib/deploymentEnvironment';
 	import { onMount, type Snippet } from 'svelte';
 	import { content } from '$lib/preferences.svelte';
 	import { cms } from '$lib/content';
@@ -27,7 +28,7 @@
 	function changeLanguage(value: (typeof cms)[keyof typeof cms]) {
 		if (!persistPreferences) return;
 		try {
-			localStorage.setItem('lang', value.lang);
+			localStorage.setItem(storageKey('lang'), value.lang);
 		} catch {
 			// In-memory selection still works when preference storage is unavailable.
 		}

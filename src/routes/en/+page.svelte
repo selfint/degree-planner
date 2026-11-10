@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { storageKey } from '$lib/deploymentEnvironment';
 	import { resolve } from '$app/paths';
 	import { goto } from '$app/navigation';
 
@@ -9,7 +10,7 @@
 
 	if (browser) {
 		try {
-			localStorage.setItem('lang', 'en');
+			localStorage.setItem(storageKey('lang'), 'en');
 		} catch {
 			// Continue with the in-memory preference when storage is unavailable.
 		}

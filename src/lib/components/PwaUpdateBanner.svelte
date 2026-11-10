@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { storageKey } from '$lib/deploymentEnvironment';
 	import { onMount } from 'svelte';
 	import { content } from '$lib/preferences.svelte';
 	import { pwaMessages } from '$lib/pwa/messages';
@@ -23,7 +24,7 @@
 		onAccept?: () => void;
 	} = $props();
 	const blockedReasonId = $props.id();
-	const preferenceKey = 'planit-dismissed-update-version';
+	const preferenceKey = storageKey('planit-dismissed-update-version');
 	let preferenceReady = $state(false);
 	let dismissedVersion = $state<string | undefined>();
 	let preferenceError = $state<string | undefined>();

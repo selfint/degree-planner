@@ -3,7 +3,7 @@ import { createServer } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
 import { extname, resolve, sep } from 'node:path';
 
-const root = resolve('build');
+const root = resolve(process.env.PAGES_DIR ?? 'build');
 const base = process.env.BASE_PATH ?? '/degree-planner';
 const port = Number(process.env.PORT ?? 4178);
 const types = {

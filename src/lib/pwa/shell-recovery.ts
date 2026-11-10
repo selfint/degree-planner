@@ -1,3 +1,4 @@
+import { storageKey } from '../deploymentEnvironment';
 import { readWaitingWorkerVersion } from './service-worker-update';
 import {
 	requestUpdateActivation,
@@ -9,13 +10,14 @@ import {
 export function mountShellRecovery(
 	readVersion: typeof readWaitingWorkerVersion,
 	activate: typeof requestUpdateActivation,
-	waitForController: typeof waitForUpdateController
+	waitForController: typeof waitForUpdateController,
+	keys = { lang: 'lang', theme: 'theme' }
 ) {
 	let language: 'en' | 'he' = 'he';
 	let theme = 'dark';
 	try {
-		language = localStorage.getItem('lang') === 'en' ? 'en' : 'he';
-		const preference = localStorage.getItem('theme');
+		language = localStorage.getItem(keys.lang) === 'en' ? 'en' : 'he';
+		const preference = localStorage.getItem(keys.theme);
 		theme =
 			preference === 'system'
 				? matchMedia('(prefers-color-scheme: dark)').matches
@@ -154,5 +156,5 @@ export function mountShellRecovery(
 /** Embed self-contained protocol clients, never a newer app bundle. These
  * compiled functions must have no module-scoped runtime dependencies. */
 export function shellRecoveryScript() {
-	return `(${mountShellRecovery.toString()})(${readWaitingWorkerVersion.toString()},${requestUpdateActivation.toString()},${waitForUpdateController.toString()});`;
+	return `(${mountShellRecovery.toString()})(${readWaitingWorkerVersion.toString()},${requestUpdateActivation.toString()},${waitForUpdateController.toString()},${JSON.stringify({ lang: storageKey('lang'), theme: storageKey('theme') })});`;
 }

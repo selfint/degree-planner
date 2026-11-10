@@ -9,7 +9,10 @@ export default defineConfig({
 		baseURL: `http://127.0.0.1:4178${base}/`,
 		serviceWorkers: 'block',
 		trace: 'retain-on-failure',
-		screenshot: 'only-on-failure'
+		screenshot: 'only-on-failure',
+		launchOptions: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH
+			? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH }
+			: undefined
 	},
 	projects: [
 		{ name: 'desktop', use: { browserName: 'chromium' } },

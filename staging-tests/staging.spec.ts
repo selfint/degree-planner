@@ -58,6 +58,9 @@ test('staging stays analytics-free through landing, actions, reload and history 
 		.getByRole('link', { name: 'Get Started', exact: true })
 		.click();
 	await expect(page).toHaveURL(`${origin}${staging}/app/plan`);
+	await expect(
+		page.locator('meta[name="apple-mobile-web-app-title"]')
+	).toHaveAttribute('content', 'PlanIt Staging');
 	await expect(page.getByTestId('staging-banner')).toBeVisible();
 	await page.goto(`${staging}/app/course/02340124?private=test#details`);
 	await expect(page.locator('h1.course-name')).toBeVisible({ timeout: 30_000 });

@@ -5,6 +5,8 @@ import { defineConfig } from '@playwright/test';
 export default defineConfig({
 	testDir: './account-loading-tests',
 	workers: 1,
+	// Two document bootstraps plus the deliberately held account reads.
+	timeout: 60_000,
 	use: {
 		baseURL: 'http://localhost:5173',
 		video: 'on',

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { analyticsEnabled } from '$lib/deploymentEnvironment';
+	import { analyticsEnabled, isStaging } from '$lib/deploymentEnvironment';
 	import { resolve } from '$app/paths';
 	import { withBase, withoutBase } from '$lib/deploymentPaths';
 	import {
@@ -200,7 +200,10 @@
 <svelte:head>
 	<link rel="manifest" href={withBase('/manifest.webmanifest')} />
 	<meta name="apple-mobile-web-app-capable" content="yes" />
-	<meta name="apple-mobile-web-app-title" content="PlanIt" />
+	<meta
+		name="apple-mobile-web-app-title"
+		content={isStaging ? 'PlanIt Staging' : 'PlanIt'}
+	/>
 </svelte:head>
 
 {#if inPwaScope && entryError && !entryPending}

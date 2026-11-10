@@ -76,6 +76,7 @@ test('staging stays analytics-free through landing, actions, reload and history 
 	await page.reload();
 	await expect(page.locator('h1.course-name')).toBeVisible();
 	await page.locator(`header a[href="${staging}/app/settings"]`).click();
+	await expect(page).toHaveURL(`${origin}${staging}/app/settings`);
 	await page.goBack();
 	await expect(page.locator('h1.course-name')).toBeVisible();
 	// Optional instrumentation is delayed by 1500ms; cover its complete window.

@@ -31,6 +31,10 @@ jobs:
   browser:
     name: Browser tests (${{ matrix.browser }})
     runs-on: ubuntu-24.04
+    # Same pinned image as Pages: browsers and OS dependencies are preinstalled.
+    container:
+      image: mcr.microsoft.com/playwright:v1.57.0-noble@sha256:3bed4b1a12f2338642f3d8cba28e291deef3c66bd4a964bbeb3e57bbff511dbd
+      options: --shm-size=1g
     strategy:
       fail-fast: false
       matrix:
@@ -49,8 +53,6 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps ${{ matrix.browser }}
       - name: Verify account loading and interrupted auth
         run: npx playwright test --config playwright.account-loading.config.ts --project=${{ matrix.browser }}
       - name: Verify narrow mobile controls, board and course rails before the full suite
@@ -138,6 +140,10 @@ jobs:
   local-console-mobile:
     name: Local console, rails and Storybook
     runs-on: ubuntu-24.04
+    # Same pinned image as Pages: browsers and OS dependencies are preinstalled.
+    container:
+      image: mcr.microsoft.com/playwright:v1.57.0-noble@sha256:3bed4b1a12f2338642f3d8cba28e291deef3c66bd4a964bbeb3e57bbff511dbd
+      options: --shm-size=1g
     timeout-minutes: 30
     permissions:
       contents: read
@@ -157,7 +163,7 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - name: Install focused browser test dependencies
-        run: npm ci && npx playwright install --with-deps chromium
+        run: npm ci
       - name: Build the local production artifact including Storybook
         id: local-build
         run: npm run build

@@ -113,6 +113,11 @@ preinstalled Chromium and system dependencies avoid runtime Ubuntu mirror/DNS
 failures. The static server and browser stay local inside the container; only
 `CI` and `BASE_PATH` are forwarded, and failures retain their exit status.
 Update the image pin with `@playwright/test` upgrades; a unit test catches drift.
+The automatic Chromium/WebKit, local console/rails/Storybook and analytics jobs
+also use this pinned image as their runner container, preserving their existing
+commands and assertions while avoiding runtime Ubuntu package downloads. Update
+all image pins together. This CI packaging does not require Docker for native
+macOS test runs.
 Build and publication steps remain on the hosted runner with their existing
 Node version, credentials, destination guards and approvals.
 

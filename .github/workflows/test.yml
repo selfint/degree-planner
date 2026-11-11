@@ -135,19 +135,17 @@ jobs:
       - name: Run live SAP tests
         run: npm run test:sap
 
-  deployed-console-mobile:
-    # Each supported branch uses its own preview alias. Never test a fork or a
-    # newer branch build while labelling it as this event's exact head.
-    if: (github.event_name == 'pull_request' && github.head_ref == 'feat/console-migration' && github.event.pull_request.head.repo.full_name == github.repository) || (github.event_name == 'push' && github.ref == 'refs/heads/staging')
+  local-console-mobile:
+    name: Local console, rails and Storybook
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     permissions:
       contents: read
-      statuses: read
     env:
-      PREVIEW_URL: ${{ github.event_name == 'push' && 'https://tech-planit-preview.vercel.app/' || vars.DEGREE_PLANNER_PREVIEW_URL || 'https://degree-planner-git-feat-console-migration-selfints-projects.vercel.app/' }}
-      PREVIEW_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
-      PREVIEW_HEAD_REF: ${{ github.head_ref || github.ref_name }}
+      PLANIT_QA_PREBUILT: '1'
+      PLAYWRIGHT_BASE_URL: http://localhost:4173
+      STORYBOOK_TEST_BASE_URL: http://localhost:4175
+      QA_BUILD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
     steps:
       - name: Checkout the exact event head
         uses: actions/checkout@v4
@@ -160,37 +158,25 @@ jobs:
           cache: npm
       - name: Install focused browser test dependencies
         run: npm ci && npx playwright install --with-deps chromium
-      - name: Wait for the current head's Vercel deployment
-        id: preview-ready
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        run: node scripts/waitForPreview.mjs
-      - name: Test the published console on mobile
+      - name: Build the local production artifact including Storybook
+        id: local-build
+        run: npm run build
+      - name: Test the local console on mobile
         run: npx playwright test --config=playwright.preview.config.ts
-      - name: Verify published course rails and footer controls on mobile
-        if: (success() || failure()) && steps.preview-ready.outcome == 'success'
-        env:
-          PLAYWRIGHT_BASE_URL: ${{ env.PREVIEW_URL }}
+      - name: Verify local course rails and footer controls on mobile
+        if: (success() || failure()) && steps.local-build.outcome == 'success'
         run: npx playwright test --config=playwright.rails-preview.config.ts
-      - name: Test the published Storybook route
-        if: (success() || failure()) && steps.preview-ready.outcome == 'success'
-        env:
-          STORYBOOK_TEST_BASE_URL: ${{ env.PREVIEW_URL }}
+      - name: Test every local Storybook story and interaction
+        if: (success() || failure()) && steps.local-build.outcome == 'success'
         run: npm run test:storybook
-      - name: Verify the preview branch was not superseded during QA
-        if: (success() || failure()) && steps.preview-ready.outcome == 'success'
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        run: node scripts/waitForPreview.mjs --verify-only
-      - name: Upload sanitized deployed-preview QA and screenshots
+      - name: Upload sanitized local QA and screenshots
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: deployed-console-mobile-${{ github.event.pull_request.head.sha || github.sha }}
+          name: local-console-mobile-${{ github.event.pull_request.head.sha || github.sha }}
           path: |
-            test-results/deployed-preview/
-            test-results/deployed-preview-gate/
-            test-results/deployed-rails/
+            test-results/local-preview/
+            test-results/local-rails/
             test-results/storybook/
           if-no-files-found: ignore
           retention-days: 7

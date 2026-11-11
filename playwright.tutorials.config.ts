@@ -1,4 +1,5 @@
 import { defineConfig } from '@playwright/test';
+import './scripts/localQa.mjs';
 
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:4173';
 

@@ -1,5 +1,6 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
+import { previewBuildCommit } from '../scripts/previewBuildCommit.mjs';
 import {
 	expect,
 	test as base,
@@ -79,7 +80,7 @@ const test = base.extend<{ evidence: Evidence }>({
 							test: testInfo.title,
 							status: testInfo.status,
 							previewOrigin: origin,
-							expectedCommit: process.env.PREVIEW_HEAD_SHA ?? null,
+							expectedCommit: process.env.QA_BUILD_SHA ?? null,
 							viewport: { width: 390, height: 844 },
 							browser: 'Playwright Chromium mobile emulation',
 							checkpoints: evidence.checkpoints,
@@ -90,7 +91,7 @@ const test = base.extend<{ evidence: Evidence }>({
 								publicPaths: [...new Set(evidence.publicPaths)].sort()
 							},
 							limitations: [
-								'Branch-alias preview; CI separately checks exact-commit Vercel status and current branch head before and after this run. Browser responses do not independently attest their commit.',
+								'Local production build from the checked-out event head. CI checks its rendered build marker; this does not attest a hosted deployment.',
 								'Fresh anonymous browser contexts and synthetic local guest plans only; no Google sign-in or account plan coverage.',
 								'Mobile and iPhone user-agent emulation is not a physical iOS or installed-app test.',
 								'No app, service-worker or public-data responses are replaced. Optional provider requests are aborted.',
@@ -109,6 +110,16 @@ const test = base.extend<{ evidence: Evidence }>({
 		},
 		{ auto: true }
 	]
+});
+
+test.beforeEach(async ({ request }) => {
+	if (process.env.QA_BUILD_SHA) {
+		const response = await request.get('/');
+		expect(response.ok()).toBe(true);
+		expect(previewBuildCommit(await response.text())).toBe(
+			process.env.QA_BUILD_SHA
+		);
+	}
 });
 
 async function screenshot(page: Page, testInfo: TestInfo, name: string) {

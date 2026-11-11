@@ -1,4 +1,5 @@
 import { defineConfig } from '@playwright/test';
+import './scripts/localQa.mjs';
 
 const mobile = {
 	viewport: { width: 390, height: 844 },

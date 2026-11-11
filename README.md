@@ -277,8 +277,8 @@ access-controlled area; only fictional, local demo data belongs in stories.
 - `npm run storybook`: live component development at `http://localhost:6006`.
 - `npm run build-storybook`: standalone static build in `storybook-static/`.
 - `npm run build && npm run preview`: local deployed-route check at `/storybook`.
-- `npm run test:storybook`: build and browser-test the deployed route. Set
-  `STORYBOOK_TEST_BASE_URL` to test an already-running local or Vercel preview.
+- `npm run test:storybook`: build and browser-test the local production route.
+  `STORYBOOK_TEST_BASE_URL` may select a loopback origin only.
 
 Stories use the actual application controls and course cards. The toolbar
 switches dark/light themes, English/Hebrew reading direction, and mobile/desktop
@@ -292,6 +292,35 @@ therefore absent from the application bundle and service-worker precache. The
 `/storybook` entry redirects to the static `index.html`, preserving story query
 parameters and working on direct reloads. Generated Storybook files are ignored
 by Git and are removed on production builds, including reused workspaces.
+
+## Local QA and Vercel previews
+
+All automated browser QA runs against local builds, including the console,
+mobile rails, full Storybook suite, and tutorial/journey recordings. No job waits
+for or tests a Vercel deployment. The console/rails configurations retain their
+historical `preview` filenames but start local production servers. URL overrides
+must be HTTP origins on `localhost`, `127.0.0.1` or `[::1]`; hosted targets,
+credentials, paths, queries and fragments fail before browser work starts.
+
+```sh
+npx playwright test --config playwright.preview.config.ts
+npx playwright test --config playwright.rails-preview.config.ts
+npm run test:storybook
+```
+
+Each command builds first. CI builds once, then sets `PLANIT_QA_PREBUILT=1`
+for those three commands. The complete Storybook suite still runs, including
+the loop over every story. Local QA does not prove live-host authentication,
+CDN behavior, or a deployed app's state.
+
+`vercel.json` disables automatic Git deployments for every branch except
+`main`, including slash-named feature branches. A preview is deployed manually
+only when the owner requests/approves it. This is an opt-in deployment policy,
+not a pending-deployment approval queue. It does not change the Vercel project's
+Production Branch setting: verify that setting is `main` before relying on
+the exception to preserve automatic production deployments. Branches with an
+older configuration retain their existing policy until updated; the config
+does not cancel an already-created deployment.
 
 ## Refreshing SAP data
 

@@ -1,26 +1,16 @@
 import { defineConfig } from '@playwright/test';
+import { localQaOrigin, localQaServer } from './scripts/localQa.mjs';
 
-// Intentionally independent of the localhost production-build/proxy suites.
-// PREVIEW_URL=https://... npx playwright test --config=playwright.preview.config.ts
-const preview = new URL(process.env.PREVIEW_URL ?? 'https://missing.invalid');
-if (
-	!process.env.PREVIEW_URL ||
-	preview.protocol !== 'https:' ||
-	preview.hostname === 'localhost' ||
-	preview.username ||
-	preview.password ||
-	preview.pathname !== '/' ||
-	preview.search ||
-	preview.hash
-)
-	throw new Error(
-		'PREVIEW_URL must be the HTTPS origin of a published preview.'
-	);
+// Build the checked-out source and exercise its real local production server.
+const baseURL = localQaOrigin(
+	process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:4173',
+	'PLAYWRIGHT_BASE_URL'
+);
 
 export default defineConfig({
 	testDir: './preview-tests',
 	testMatch: 'console-mobile.spec.ts',
-	outputDir: 'test-results/deployed-preview',
+	outputDir: 'test-results/local-preview',
 	fullyParallel: false,
 	workers: 1,
 	retries: 0,
@@ -28,8 +18,9 @@ export default defineConfig({
 	timeout: 90_000,
 	expect: { timeout: 15_000 },
 	reporter: [['list']],
+	webServer: localQaServer(baseURL),
 	use: {
-		baseURL: preview.origin,
+		baseURL,
 		browserName: 'chromium',
 		viewport: { width: 390, height: 844 },
 		isMobile: true,

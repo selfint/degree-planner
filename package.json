@@ -29,7 +29,8 @@
 		"test:sap": "vitest run --config vitest.sap.config.ts",
 		"build:pages": "PAGES_BUILD=true npm run build",
 		"lint:format": "prettier --check .",
-		"lint:eslint": "eslint ."
+		"lint:eslint": "eslint .",
+		"build:pages:pair": "node scripts/buildPagesPair.mjs"
 	},
 	"devDependencies": {
 		"@eslint/js": "^9.39.2",

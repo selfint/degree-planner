@@ -1,3 +1,4 @@
+import { analyticsEnabled } from './deploymentEnvironment';
 import { analyticsAuthStatus, onAnalyticsAuthChange } from './analyticsAuth';
 import { browser, dev } from '$app/environment';
 import * as publicEnv from '$env/static/public';
@@ -68,7 +69,7 @@ function browserId(): string {
 }
 
 function initialize() {
-	if (!browser || initialized) return;
+	if (!analyticsEnabled || !browser || initialized) return;
 	// Component stories and unrelated host routes must never pollute product metrics.
 	if (!analyticsPage(window.location.pathname)) return;
 	initialized = true;

@@ -50,6 +50,7 @@ describe('canonical installed app build identity', () => {
 	it.each([
 		{ mode: 'development' },
 		{ basePath: '/degree-planner' },
+		{ deploymentEnvironment: 'staging' },
 		{ staticBuild: true },
 		{ nodeVersion: 'v24.2.0' },
 		{ platform: 'darwin' },

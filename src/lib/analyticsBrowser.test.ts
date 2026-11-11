@@ -2,6 +2,7 @@
 import { expect, it, vi } from 'vitest';
 vi.mock('$app/environment', () => ({ browser: true, dev: false }));
 vi.mock('$env/static/public', () => ({
+	PUBLIC_DEPLOYMENT_ENV: 'production',
 	PUBLIC_POSTHOG_KEY: 'phc_test_only',
 	PUBLIC_POSTHOG_HOST: 'https://posthog.example.test'
 }));

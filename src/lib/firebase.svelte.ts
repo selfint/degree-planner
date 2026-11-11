@@ -1,3 +1,4 @@
+import { analyticsEnabled } from './deploymentEnvironment';
 import { observeAnalyticsAuth } from './analyticsAuth';
 import { initializeApp, type FirebaseApp } from 'firebase/app';
 import { browser } from '$app/environment';
@@ -96,7 +97,7 @@ export async function initFirebase(): Promise<FirebaseServices> {
 export async function startOptionalAnalytics(
 	services: FirebaseServices
 ): Promise<void> {
-	if (!browser || !navigator.onLine) return;
+	if (!analyticsEnabled || !browser || !navigator.onLine) return;
 	try {
 		const { isSupported, getAnalytics } = await import('firebase/analytics');
 		if (await isSupported()) services.analytics = getAnalytics(services.app);

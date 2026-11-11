@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { analyticsEnabled, isStaging } from '$lib/deploymentEnvironment';
 	import { resolve } from '$app/paths';
 	import { withBase, withoutBase } from '$lib/deploymentPaths';
 	import {
@@ -78,7 +79,7 @@
 	onMount(() => {
 		let cancelled = false;
 		const timer = setTimeout(() => {
-			if (cancelled || !navigator.onLine) return;
+			if (!analyticsEnabled || cancelled || !navigator.onLine) return;
 			void startOptionalAnalytics(firebase);
 			void import('@vercel/analytics')
 				.then(({ inject }) => {
@@ -199,7 +200,10 @@
 <svelte:head>
 	<link rel="manifest" href={withBase('/manifest.webmanifest')} />
 	<meta name="apple-mobile-web-app-capable" content="yes" />
-	<meta name="apple-mobile-web-app-title" content="PlanIt" />
+	<meta
+		name="apple-mobile-web-app-title"
+		content={isStaging ? 'PlanIt Staging' : 'PlanIt'}
+	/>
 </svelte:head>
 
 {#if inPwaScope && entryError && !entryPending}

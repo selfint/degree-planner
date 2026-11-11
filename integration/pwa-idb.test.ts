@@ -21,6 +21,8 @@ import { runInNewContext } from 'node:vm';
 import { IDBFactory } from 'fake-indexeddb';
 import { describe, expect, it, vi } from 'vitest';
 vi.mock('$app/paths', () => ({ base: '' }));
+// This framework-independent gate executes the root production worker.
+vi.mock('$env/static/public', () => ({ PUBLIC_DEPLOYMENT_ENV: 'production' }));
 import {
 	createPublicDataRepository,
 	PUBLIC_DATA_SCHEMA_VERSION

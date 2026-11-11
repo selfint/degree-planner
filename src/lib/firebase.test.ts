@@ -12,6 +12,9 @@ const mocks = vi.hoisted(() => ({
 		vi.fn<(converter: { toFirestore(data: UserData): unknown }) => object>()
 }));
 
+const policy = vi.hoisted(() => ({ analyticsEnabled: true }));
+vi.mock('./deploymentEnvironment', () => policy);
+
 vi.mock('./analyticsAuth', () => ({ observeAnalyticsAuth: vi.fn() }));
 
 vi.mock('$app/environment', () => ({ browser: true }));
@@ -45,6 +48,7 @@ import {
 
 beforeEach(() => {
 	vi.resetAllMocks();
+	policy.analyticsEnabled = true;
 	mocks.auth.setPersistence.mockResolvedValue(undefined);
 	mocks.isSupported.mockResolvedValue(false);
 	mocks.getAnalytics.mockReturnValue(mocks.analytics);
@@ -137,4 +141,17 @@ describe('Firebase startup', () => {
 		mocks.auth.setPersistence.mockRejectedValue(new Error('Auth unavailable'));
 		await expect(initFirebase()).rejects.toThrow('Auth unavailable');
 	});
+});
+
+it('staging preserves Firebase auth and Firestore without probing or initializing GA', async () => {
+	policy.analyticsEnabled = false;
+	mocks.isSupported.mockResolvedValue(true);
+	const services = await initFirebase();
+	await startOptionalAnalytics(services);
+	expect(services.auth).toBe(mocks.auth);
+	expect(services.firestore).toBe(mocks.firestore);
+	expect(mocks.auth.setPersistence).toHaveBeenCalledOnce();
+	expect(observeAnalyticsAuth).toHaveBeenCalledWith(mocks.auth);
+	expect(mocks.isSupported).not.toHaveBeenCalled();
+	expect(mocks.getAnalytics).not.toHaveBeenCalled();
 });

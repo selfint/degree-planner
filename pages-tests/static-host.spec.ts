@@ -33,7 +33,13 @@ if (
 	);
 }
 
-test.beforeEach(async ({ page }) => {
+test.beforeEach(async ({ page, context }) => {
+	// Built production artifacts retain live GA configuration; QA never sends telemetry.
+	await context.route('**/*', (route) =>
+		new URL(route.request().url()).origin === origin
+			? route.continue()
+			: route.abort('blockedbyclient')
+	);
 	await page.addInitScript((guest) => {
 		localStorage.setItem('lang', 'en');
 		localStorage.setItem('version', '4');

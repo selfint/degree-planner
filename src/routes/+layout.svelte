@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { isStaging } from '$lib/deploymentEnvironment';
+	import StagingBanner from '$lib/components/StagingBanner.svelte';
 	import '../app.css';
 	import { onMount } from 'svelte';
 	import { afterNavigate } from '$app/navigation';
@@ -32,6 +34,10 @@
 		<meta name="planit-build" content={buildCommit} />
 	{/if}
 </svelte:head>
+
+{#if isStaging}
+	<StagingBanner />
+{/if}
 
 {#if consoleRoute}
 	{@render children()}

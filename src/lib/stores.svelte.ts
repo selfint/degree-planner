@@ -1,3 +1,4 @@
+import { storageKey } from '$lib/deploymentEnvironment';
 import { compatiblePlan } from './planCompatibility';
 import { updateSafety } from './pwa/update-safety';
 import { browser } from '$app/environment';
@@ -12,11 +13,11 @@ const defaultSemesters = Array(12).fill([]);
 
 const loaders = [
 	function load_0(): UserDataV1 {
-		const username = localStorage.getItem('username');
-		const degree = localStorage.getItem('degree');
-		const semesters = localStorage.getItem('semesters');
-		const currentSemester = localStorage.getItem('currentSemester');
-		const wishlist = localStorage.getItem('wishlist');
+		const username = localStorage.getItem(storageKey('username'));
+		const degree = localStorage.getItem(storageKey('degree'));
+		const semesters = localStorage.getItem(storageKey('semesters'));
+		const currentSemester = localStorage.getItem(storageKey('currentSemester'));
+		const wishlist = localStorage.getItem(storageKey('wishlist'));
 
 		return {
 			semesters: semesters ? JSON.parse(semesters) : [],
@@ -28,7 +29,7 @@ const loaders = [
 	},
 
 	function load_1(): UserDataV1 {
-		const userData = localStorage.getItem('userData');
+		const userData = localStorage.getItem(storageKey('userData'));
 		if (userData !== null) {
 			try {
 				const data: UserData = JSON.parse(userData);
@@ -53,7 +54,7 @@ const loaders = [
 	},
 
 	function load_2(): UserDataV2 {
-		const userData = localStorage.getItem('userData');
+		const userData = localStorage.getItem(storageKey('userData'));
 		if (userData !== null) {
 			try {
 				const data: UserDataV2 = JSON.parse(userData);
@@ -79,7 +80,7 @@ const loaders = [
 	},
 
 	function load_3(): UserData {
-		const userData = localStorage.getItem('userData');
+		const userData = localStorage.getItem(storageKey('userData'));
 		if (userData !== null) {
 			try {
 				const data: UserData = JSON.parse(userData);
@@ -105,7 +106,7 @@ const loaders = [
 	},
 
 	function load_4(): UserData {
-		const userData = localStorage.getItem('userData');
+		const userData = localStorage.getItem(storageKey('userData'));
 
 		if (userData !== null) {
 			try {
@@ -263,7 +264,9 @@ function readLocalStorage(): UserData {
 		};
 	}
 
-	let localVersion = parseInt(localStorage.getItem('version') ?? '0');
+	let localVersion = parseInt(
+		localStorage.getItem(storageKey('version')) ?? '0'
+	);
 	const originalVersion = localVersion;
 
 	if (localVersion > version) {
@@ -284,8 +287,8 @@ function readLocalStorage(): UserData {
 	// Migrate in memory offline. Preserve the existing guest schema while
 	// keeping cached plans readable without rewriting stored data.
 	if (originalVersion < version && isPlanWritable()) {
-		localStorage.setItem('version', version.toString());
-		localStorage.setItem('userData', JSON.stringify(user));
+		localStorage.setItem(storageKey('version'), version.toString());
+		localStorage.setItem(storageKey('userData'), JSON.stringify(user));
 		if (originalVersion === 0) {
 			for (const key of [
 				'username',
@@ -294,7 +297,7 @@ function readLocalStorage(): UserData {
 				'currentSemester',
 				'wishlist'
 			]) {
-				localStorage.removeItem(key);
+				localStorage.removeItem(storageKey(key));
 			}
 		}
 	}
@@ -304,8 +307,8 @@ function readLocalStorage(): UserData {
 
 export async function writeLocalStorage(data: UserData): Promise<UserData> {
 	assertPlanWritable();
-	localStorage.setItem('version', version.toString());
-	localStorage.setItem('userData', JSON.stringify(data));
+	localStorage.setItem(storageKey('version'), version.toString());
+	localStorage.setItem(storageKey('userData'), JSON.stringify(data));
 
 	return data;
 }

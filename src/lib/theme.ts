@@ -1,7 +1,8 @@
+import { storageKey } from '$lib/deploymentEnvironment';
 export type Theme = 'dark' | 'light';
 export type ThemePreference = Theme | 'system';
 
-export const themeStorageKey = 'theme';
+export const themeStorageKey = storageKey('theme');
 export const systemThemeQuery = '(prefers-color-scheme: dark)';
 
 export function parseThemePreference(

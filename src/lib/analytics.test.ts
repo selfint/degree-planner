@@ -9,6 +9,7 @@ const mocks = vi.hoisted(() => ({
 	capture: vi.fn(),
 	init: vi.fn(),
 	env: {
+		PUBLIC_DEPLOYMENT_ENV: 'production',
 		PUBLIC_POSTHOG_KEY: 'phc_test_only',
 		PUBLIC_POSTHOG_HOST: 'https://analytics.example.test',
 		PUBLIC_POSTHOG_ENABLE_DEV: 'true'
@@ -28,6 +29,7 @@ beforeEach(() => {
 	vi.clearAllMocks();
 	mocks.runtime.browser = true;
 	mocks.runtime.dev = true;
+	mocks.env.PUBLIC_DEPLOYMENT_ENV = 'production';
 	mocks.env.PUBLIC_POSTHOG_KEY = 'phc_test_only';
 	mocks.env.PUBLIC_POSTHOG_HOST = 'https://analytics.example.test';
 	mocks.env.PUBLIC_POSTHOG_ENABLE_DEV = 'true';
@@ -527,4 +529,15 @@ describe('authentication segmentation', () => {
 			expect(JSON.stringify(result)).not.toContain('SECRET');
 		}
 	);
+});
+
+it('does not initialize PostHog or write identifiers in staging with live-looking keys', async () => {
+	mocks.env.PUBLIC_DEPLOYMENT_ENV = 'staging';
+	const analytics = await import('./analytics');
+	analytics.trackPageView('/degree-planner/app/plan');
+	analytics.trackEvent('start_clicked');
+	analytics.trackFirstDegreeSelection(false);
+	expect(mocks.init).not.toHaveBeenCalled();
+	expect(mocks.capture).not.toHaveBeenCalled();
+	expect(values.size).toBe(0);
 });

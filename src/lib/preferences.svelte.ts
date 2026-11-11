@@ -1,3 +1,4 @@
+import { storageKey } from '$lib/deploymentEnvironment';
 import { browser } from '$app/environment';
 import { cms } from './content';
 
@@ -6,10 +7,10 @@ function getLangPreference() {
 	if (!browser) return defaultLang;
 
 	try {
-		const localLang = localStorage.getItem('lang');
+		const localLang = localStorage.getItem(storageKey('lang'));
 		if (localLang === 'he') return cms.he;
 		if (localLang === 'en') return cms.en;
-		localStorage.setItem('lang', defaultLang.lang);
+		localStorage.setItem(storageKey('lang'), defaultLang.lang);
 	} catch {
 		// Language selection still works when browser storage is blocked.
 	}

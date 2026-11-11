@@ -1,3 +1,4 @@
+import { storageKey } from './deploymentEnvironment';
 export type CachedResource = {
 	key: string;
 	schemaVersion: number;
@@ -40,7 +41,8 @@ export function createIndexedDbStore(
 		maxEntries?: number;
 	} = {}
 ): PublicDataStore & { close(): void } {
-	const databaseName = options.databaseName ?? 'degree-planner-public-data';
+	const databaseName =
+		options.databaseName ?? storageKey('degree-planner-public-data');
 	const timeoutMs = options.timeoutMs ?? 1500;
 	const maxEntries = options.maxEntries ?? 128;
 	if (!Number.isFinite(timeoutMs) || timeoutMs <= 0) {

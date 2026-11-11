@@ -1,8 +1,8 @@
 import { defineConfig } from '@playwright/test';
 import preview from './playwright.preview.config';
 
-// Reuse the real page/rail/footer checks against the exact-head public deployment.
-// No local server or replacement public datasets are involved.
+// Reuse the real page/rail/footer checks against the local production build.
+// The checked-in public datasets and all existing assertions are preserved.
 export default defineConfig({
 	...preview,
 	testDir: './tests',
@@ -15,7 +15,7 @@ export default defineConfig({
 		'console-navigation-styles.test.ts',
 		'search-three-columns.test.ts'
 	],
-	outputDir: 'test-results/deployed-rails',
+	outputDir: 'test-results/local-rails',
 	timeout: 120_000,
 	use: {
 		...preview.use,

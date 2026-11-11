@@ -2,10 +2,18 @@
 <html lang="en" data-theme="dark">
 	<head>
 		<meta charset="utf-8" />
+		<meta
+			name="planit-deployment"
+			content="%sveltekit.env.PUBLIC_DEPLOYMENT_ENV%"
+		/>
 		<script>
 			// Restore the device preference before styles or content can paint.
 			try {
-				const saved = localStorage.getItem('theme');
+				const saved = localStorage.getItem(
+					'%sveltekit.env.PUBLIC_DEPLOYMENT_ENV%' === 'staging'
+						? 'planit.staging.theme'
+						: 'theme'
+				);
 				const preference =
 					saved === 'light' || saved === 'system' ? saved : 'dark';
 				document.documentElement.dataset.themePreference = preference;
@@ -210,7 +218,13 @@
 				document.getElementById('console-boot-wordmark').src =
 					'%sveltekit.assets%/brand/planit-wordmark.svg';
 				try {
-					if (localStorage.getItem('lang') !== 'en') {
+					if (
+						localStorage.getItem(
+							'%sveltekit.env.PUBLIC_DEPLOYMENT_ENV%' === 'staging'
+								? 'planit.staging.lang'
+								: 'lang'
+						) !== 'en'
+					) {
 						boot.dir = 'rtl';
 						boot.lang = 'he';
 						boot.setAttribute('aria-label', 'טעינת PlanIt');

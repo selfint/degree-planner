@@ -1,5 +1,5 @@
-// This marker is compiled from Vercel's public Git commit metadata. Reading it
-// from the target alias avoids confusing deployments of the same SHA/branches.
+// The marker identifies the checked-out commit used by the production build.
+// Local QA checks rendered metadata rather than trusting a server's port alone.
 export function previewBuildCommit(html) {
 	return (
 		html.match(

@@ -1,9 +1,7 @@
 name: In-app tutorial refresh
 
+# Recording and video acceptance run only when explicitly requested.
 on:
-  push:
-    branches: ['staging']
-    paths: ['.github/workflows/in-app-tutorial-refresh.yml']
   workflow_dispatch:
 
 permissions:

@@ -1,32 +1,8 @@
 name: Tutorial videos
 
+# Recording and video acceptance run only when explicitly requested.
 on:
-  push:
-    branches: ['staging']
-    paths:
-      - 'tutorials/**'
-      - 'tutorials/landing.test.ts'
-      - 'playwright.tutorials.config.ts'
-      - 'scripts/packageTutorialVideos.mjs'
-      - 'scripts/tutorialTimeline*'
-      - 'scripts/mergeLandingTutorialShards*'
-      - 'src/**'
-      - 'static/courseData.json'
-      - 'static/tutorials/**'
-      - '.github/workflows/tutorials.yml'
-  pull_request:
-    branches: ['main', 'staging']
-    paths:
-      - 'tutorials/**'
-      - 'tutorials/landing.test.ts'
-      - 'src/**'
-      - 'static/courseData.json'
-      - 'static/tutorials/**'
-      - 'playwright.tutorials.config.ts'
-      - 'scripts/packageTutorialVideos.mjs'
-      - 'scripts/tutorialTimeline*'
-      - 'scripts/mergeLandingTutorialShards*'
-      - '.github/workflows/tutorials.yml'
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -65,7 +41,6 @@ jobs:
           if-no-files-found: ignore
 
   record:
-    if: github.event_name == 'push'
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     strategy:
@@ -129,32 +104,31 @@ jobs:
         env:
           ACCEPTANCE: ${{ needs.acceptance.result }}
           RECORD: ${{ needs.record.result }}
-          EVENT: ${{ github.event_name }}
         run: |
           test "$ACCEPTANCE" = success
-          if [ "$EVENT" = push ]; then test "$RECORD" = success; else test "$RECORD" = skipped; fi
+          test "$RECORD" = success
       - uses: actions/checkout@v4
-        if: success() && github.event_name == 'push'
+        if: success()
       - uses: actions/setup-node@v4
-        if: success() && github.event_name == 'push'
+        if: success()
         with:
           node-version-file: .nvmrc
       - uses: actions/download-artifact@v4
-        if: success() && github.event_name == 'push'
+        if: success()
         with:
           pattern: landing-shard-${{ github.sha }}-*
           path: test-results/tutorials-shards
       - name: Normalize shard directories
-        if: success() && github.event_name == 'push'
+        if: success()
         run: |
           for dir in test-results/tutorials-shards/landing-shard-${{ github.sha }}-*; do
             mv "$dir" "test-results/tutorials-shards/${dir##*landing-shard-${{ github.sha }}-}"
           done
       - name: Fail closed unless all 28 current-source landing variants are present
-        if: success() && github.event_name == 'push'
+        if: success()
         run: node scripts/mergeLandingTutorialShards.mjs
       - name: Upload validated landing-only publication bundle
-        if: success() && github.event_name == 'push'
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: tutorials-${{ github.sha }}

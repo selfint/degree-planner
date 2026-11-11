@@ -17,6 +17,10 @@ permissions:
 jobs:
   analytics:
     runs-on: ubuntu-24.04
+    # Reuse the pinned browser image; no APT or browser downloads at runtime.
+    container:
+      image: mcr.microsoft.com/playwright:v1.57.0-noble@sha256:3bed4b1a12f2338642f3d8cba28e291deef3c66bd4a964bbeb3e57bbff511dbd
+      options: --user 1001:1001 --shm-size=1g
     strategy:
       fail-fast: false
       matrix:
@@ -35,7 +39,6 @@ jobs:
       # Existing unit fixtures are root-relative; prefix coverage uses built browser tests.
       - run: BASE_PATH='' npm run test:unit -- --run
       - run: npm run build:pages
-      - run: npx playwright install --with-deps chromium
       - run: npx playwright test --config playwright.analytics.config.ts
       - uses: actions/upload-artifact@v4
         if: failure()

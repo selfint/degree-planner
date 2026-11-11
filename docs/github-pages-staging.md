@@ -12,7 +12,7 @@ analytics keys are present. There is deliberately no browser toggle that can
 accidentally send staging traffic to production analytics.
 
 Staging is publicly accessible, just like production. It has an always-visible
-English/Hebrew warning and a separately named “PlanIt Staging” installable app.
+compact STAGING header label and a separately named “PlanIt Staging” installable app.
 It is not an isolated database or a private preview.
 
 ## Shared Firebase is intentional
@@ -113,6 +113,11 @@ preinstalled Chromium and system dependencies avoid runtime Ubuntu mirror/DNS
 failures. The static server and browser stay local inside the container; only
 `CI` and `BASE_PATH` are forwarded, and failures retain their exit status.
 Update the image pin with `@playwright/test` upgrades; a unit test catches drift.
+The automatic Chromium/WebKit, local console/rails/Storybook and analytics jobs
+also use this pinned image as their runner container, preserving their existing
+commands and assertions while avoiding runtime Ubuntu package downloads. Update
+all image pins together. This CI packaging does not require Docker for native
+macOS test runs.
 Build and publication steps remain on the hosted runner with their existing
 Node version, credentials, destination guards and approvals.
 
@@ -120,7 +125,7 @@ Repeat built tests with `BASE_PATH=''` for root-hosted compatibility. CI tests
 both deployment bases. Test network routes block real analytics/account requests;
 production analytics assertions intercept only a fake PostHog endpoint. Staging
 tests check no telemetry attempts, saves without production guest changes, cold
-share/course fallbacks, reload/history, mobile and desktop warnings, separate
+share/course fallbacks, reload/history, mobile and desktop header labels, separate
 manifests/workers/caches, and offline navigation. Unit tests also verify no
 Firebase Analytics support probe or initialization on staging.
 

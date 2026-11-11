@@ -31,6 +31,13 @@ jobs:
   browser:
     name: Browser tests (${{ matrix.browser }})
     runs-on: ubuntu-24.04
+    # Same pinned image as Pages: browsers and OS dependencies are preinstalled.
+    container:
+      image: mcr.microsoft.com/playwright:v1.57.0-noble@sha256:3bed4b1a12f2338642f3d8cba28e291deef3c66bd4a964bbeb3e57bbff511dbd
+      options: --user 1001:1001 --shm-size=1g
+    # Match the runner-owned checkout without weakening Git trust checks.
+    env:
+      NODE_OPTIONS: --dns-result-order=ipv4first
     strategy:
       fail-fast: false
       matrix:
@@ -49,8 +56,6 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps ${{ matrix.browser }}
       - name: Verify account loading and interrupted auth
         run: npx playwright test --config playwright.account-loading.config.ts --project=${{ matrix.browser }}
       - name: Verify narrow mobile controls, board and course rails before the full suite
@@ -138,10 +143,16 @@ jobs:
   local-console-mobile:
     name: Local console, rails and Storybook
     runs-on: ubuntu-24.04
+    # Same pinned image as Pages: browsers and OS dependencies are preinstalled.
+    container:
+      image: mcr.microsoft.com/playwright:v1.57.0-noble@sha256:3bed4b1a12f2338642f3d8cba28e291deef3c66bd4a964bbeb3e57bbff511dbd
+      options: --user 1001:1001 --shm-size=1g
     timeout-minutes: 30
     permissions:
       contents: read
     env:
+      # Bind localhost consistently for Node proxies and browser requests.
+      NODE_OPTIONS: --dns-result-order=ipv4first
       PLANIT_QA_PREBUILT: '1'
       PLAYWRIGHT_BASE_URL: http://localhost:4173
       STORYBOOK_TEST_BASE_URL: http://localhost:4175
@@ -157,7 +168,7 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - name: Install focused browser test dependencies
-        run: npm ci && npx playwright install --with-deps chromium
+        run: npm ci
       - name: Build the local production artifact including Storybook
         id: local-build
         run: npm run build

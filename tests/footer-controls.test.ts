@@ -59,7 +59,14 @@ const test = base.extend<{ refreshProxy: RefreshProxy }>({
 					upstreamResponse.pipe(response);
 				}
 			);
-			upstream.on('error', () => response.destroy());
+			upstream.on('error', (error) => {
+				console.error(
+					'Refresh proxy upstream failed',
+					upstreamUrl.origin,
+					error
+				);
+				response.destroy();
+			});
 			request.on('aborted', () => upstream.destroy());
 			response.on('close', () => upstream.destroy());
 			request.pipe(upstream);

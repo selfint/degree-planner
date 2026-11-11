@@ -94,7 +94,7 @@ light/dark variants use the existing pinned PlanIt cursor and timing helper.
     PW_DEMO=on npx playwright test --config=playwright.tutorials.config.ts tutorials/search-recordings.spec.ts
     node scripts/packageTutorialVideos.mjs --group=features
 
-Use `PLAYWRIGHT_BASE_URL` for an existing production preview. A local system
+Use `PLAYWRIGHT_BASE_URL` only for an existing loopback local server. A local system
 Chromium can be selected with `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH`; Playwright's
 video encoder must also be installed. A development server without a ready real
 service worker does not satisfy the recording precondition.
@@ -104,11 +104,17 @@ tutorials from feature recordings; inventory membership is not publication.
 Packaging without arguments still selects only the original two tutorials.
 `--group=features` selects all seven features, and `--group=all` selects all nine topics.
 The Tutorial videos CI workflow records and packages only the 28 landing-feature
-variants on staging pushes. Seven independent topic runners each record four
+variants only on manual dispatch. Seven independent topic runners each record four
 variants serially with one browser worker, then encode that topic on the same
-runner. There is no concurrent capture within a browser. Pull requests run all
-acceptance assertions without duplicate recording work. The separate acceptance
+runner. There is no concurrent capture within a browser. The separate acceptance
 job retains the in-app recording scenarios as assertions without video capture.
+
+All three video workflows are manual-only: **Tutorial videos**, **Student journey
+videos**, and **In-app tutorial refresh**. In GitHub Actions, select the workflow,
+choose **Run workflow**, and select the branch to record. Pushes and pull requests
+do not start video recording or video-specific acceptance jobs. Existing unit and
+application browser checks remain automatic. A manual Tutorial videos run includes
+acceptance, all seven recording shards, and validated bundle assembly.
 
 Only after acceptance and every recording runner succeed, the aggregate job
 validates the exact seven shards, 28 unique variants, current source commit and

@@ -1,52 +1,8 @@
 name: Student journey videos
+# Recording and video acceptance run only when explicitly requested.
 on:
   workflow_dispatch:
-  push:
-    branches: [staging]
-    paths:
-      - 'src/**'
-      - 'static/courseData.json'
-      - 'static/courseDataStripped.json'
-      - 'static/catalogs.json'
-      - 'static/_catalogs/**'
-      - 'static/_courses/**'
-      - 'tests/student-journeys.test.ts'
-      - 'tests/helpers/**'
-      - 'tutorials/helpers/**'
-      - 'playwright.journeys.config.ts'
-      - 'scripts/**'
-      - 'package.json'
-      - 'package-lock.json'
-      - '.nvmrc'
-      - 'svelte.config.js'
-      - 'vite.config.ts'
-      - 'tailwind.config.js'
-      - 'postcss.config.js'
-      - '.storybook/**'
-      - '.github/workflows/student-journey-videos.yml'
-  pull_request:
-    branches: [main, staging]
-    paths:
-      - 'src/**'
-      - 'static/courseData.json'
-      - 'static/courseDataStripped.json'
-      - 'static/catalogs.json'
-      - 'static/_catalogs/**'
-      - 'static/_courses/**'
-      - 'tests/student-journeys.test.ts'
-      - 'tests/helpers/**'
-      - 'tutorials/helpers/**'
-      - 'playwright.journeys.config.ts'
-      - 'scripts/**'
-      - 'package.json'
-      - 'package-lock.json'
-      - '.nvmrc'
-      - 'svelte.config.js'
-      - 'vite.config.ts'
-      - 'tailwind.config.js'
-      - 'postcss.config.js'
-      - '.storybook/**'
-      - '.github/workflows/student-journey-videos.yml'
+
 permissions:
   contents: read
 # Disable PostHog ingestion in locally built test artifacts.

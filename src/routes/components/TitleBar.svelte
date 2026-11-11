@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { isStaging } from '$lib/deploymentEnvironment';
+	import StagingBanner from '$lib/components/StagingBanner.svelte';
 	import { withBase } from '$lib/deploymentPaths';
 	import Logo from '$lib/assets/logo.webp?enhanced';
 	import BrandTitle from '$lib/components/BrandTitle.svelte';
@@ -43,18 +45,23 @@
 </script>
 
 <header dir="ltr" class="title-bar" class:console={started}>
-	<a
-		href={withBase('/')}
-		use:browserLink
-		data-sveltekit-reload
-		target="_blank"
-		rel="external noopener noreferrer"
-		class="brand"
-		aria-label="PlanIt"
-	>
-		<enhanced:img src={Logo} loading="eager" alt="" class="brand-logo" />
-		<span class="brand-title"><BrandTitle /></span>
-	</a>
+	<div class="brand-block">
+		<a
+			href={withBase('/')}
+			use:browserLink
+			data-sveltekit-reload
+			target="_blank"
+			rel="external noopener noreferrer"
+			class="brand"
+			aria-label="PlanIt"
+		>
+			<enhanced:img src={Logo} loading="eager" alt="" class="brand-logo" />
+			<span class="brand-title"><BrandTitle /></span>
+		</a>
+		{#if isStaging}
+			<StagingBanner />
+		{/if}
+	</div>
 	{#if !started}
 		<GetStartedLink />
 	{:else}
@@ -100,6 +107,12 @@
 		justify-content: space-between;
 		gap: 1rem;
 		padding: 0.75rem clamp(1rem, 3vw, 2rem);
+	}
+	.brand-block {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		flex-shrink: 0;
 	}
 	.brand {
 		display: inline-flex;

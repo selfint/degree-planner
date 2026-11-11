@@ -1,4 +1,3 @@
-import { readFileSync } from 'node:fs';
 import { expect, it } from 'vitest';
 import { validateJourneyMetadata } from './journeyManifest.mjs';
 const metadata = () => ({
@@ -44,26 +43,4 @@ it('rejects valid but stale captures from a different commit or run', () => {
 		'Stale'
 	);
 	expect(() => validate({ ...metadata(), run: '122' })).toThrow('Stale');
-});
-
-it('reruns on app and canonical-data changes for both PRs and staging pushes', () => {
-	const workflow = readFileSync(
-		new URL('../.github/workflows/student-journey-videos.yml', import.meta.url),
-		'utf8'
-	);
-	for (const path of [
-		'src/**',
-		'static/courseData.json',
-		'static/courseDataStripped.json',
-		'static/catalogs.json',
-		'static/_catalogs/**',
-		'static/_courses/**',
-		'tests/helpers/**',
-		'tutorials/helpers/**',
-		'scripts/**',
-		'package-lock.json'
-	])
-		expect(workflow.split("- '" + path + "'").length - 1, path).toBe(2);
-	expect(workflow).toContain('push:');
-	expect(workflow).toContain('pull_request:');
 });

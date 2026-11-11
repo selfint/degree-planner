@@ -11,5 +11,5 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** Language and direction follow the global toolbar; no services or storage are started. */
-export const SharedProductionPlans: Story = {};
+/** Compact header label; no services or storage are started. */
+export const HeaderLabel: Story = {};

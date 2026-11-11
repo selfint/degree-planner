@@ -47,12 +47,12 @@ test('staging stays analytics-free through landing, actions, reload and history 
 	});
 	page.on('pageerror', (error) => errors.push(error.message));
 	await page.goto(`${staging}/`);
-	await expect(page.getByTestId('staging-banner')).toContainText(
-		'Analytics off'
-	);
-	await expect(page.getByTestId('staging-banner')).toContainText(
-		'Saving here changes your real plan'
-	);
+	await expect(
+		page.locator('header.title-bar').getByTestId('staging-banner')
+	).toHaveText('STAGING');
+	await expect(
+		page.getByText('Saving here changes your real plan')
+	).toHaveCount(0);
 	await page
 		.locator('main')
 		.getByRole('link', { name: 'Get Started', exact: true })
@@ -61,7 +61,9 @@ test('staging stays analytics-free through landing, actions, reload and history 
 	await expect(
 		page.locator('meta[name="apple-mobile-web-app-title"]')
 	).toHaveAttribute('content', 'PlanIt Staging');
-	await expect(page.getByTestId('staging-banner')).toBeVisible();
+	await expect(
+		page.locator('header.title-bar').getByTestId('staging-banner')
+	).toBeVisible();
 	await page.goto(`${staging}/app/course/02340124?private=test#details`);
 	await expect(page.locator('h1.course-name')).toBeVisible({ timeout: 30_000 });
 	await page.getByRole('button', { name: 'Wish list', exact: true }).click();
@@ -107,7 +109,9 @@ test('site-wide 404 selects staging before boot and preserves shared-plan URL', 
 	await expect(page.locator('.preview-course')).toBeVisible({
 		timeout: 30_000
 	});
-	await expect(page.getByTestId('staging-banner')).toBeVisible();
+	await expect(
+		page.locator('header.title-bar').getByTestId('staging-banner')
+	).toBeVisible();
 	expect(page.url()).toBe(url);
 	await expect(page.locator('.preview-course')).toHaveAttribute(
 		'href',
@@ -126,7 +130,9 @@ test('production remains unmarked and both manifests keep disjoint installation 
 }) => {
 	await page.goto(`${base}/`);
 	await expect(page.locator('main')).toBeVisible();
-	await expect(page.getByTestId('staging-banner')).toHaveCount(0);
+	await expect(
+		page.locator('header.title-bar').getByTestId('staging-banner')
+	).toHaveCount(0);
 	for (const prefix of [base, staging]) {
 		const url = `${origin}${prefix}/manifest.webmanifest`;
 		const manifest = await (await request.get(url)).json();
@@ -178,7 +184,9 @@ test.describe('separate installed apps', () => {
 		await expect(page.locator('h1.course-name')).toBeVisible({
 			timeout: 30_000
 		});
-		await expect(page.getByTestId('staging-banner')).toBeVisible();
+		await expect(
+			page.locator('header.title-bar').getByTestId('staging-banner')
+		).toBeVisible();
 		await expect(page.getByTestId('plan-read-only')).toBeVisible();
 	});
 });

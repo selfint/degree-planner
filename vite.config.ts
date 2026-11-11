@@ -3,6 +3,7 @@ import { configDefaults, defineConfig } from 'vitest/config';
 import { enhancedImages } from '@sveltejs/enhanced-img';
 import { isStorybookEnabled } from './scripts/buildStorybook.mjs';
 import { readBuildCommit } from './scripts/buildIdentity.mjs';
+import { storybookPreviewPlugin } from './scripts/storybookPreview.mjs';
 
 export default defineConfig({
 	define: {
@@ -13,6 +14,10 @@ export default defineConfig({
 	plugins: [
 		enhancedImages(),
 		sveltekit(),
+		storybookPreviewPlugin({
+			enabled: isStorybookEnabled(),
+			base: process.env.BASE_PATH ?? ''
+		}),
 		{
 			name: 'sveltekit-dev-environment-order',
 			apply: 'serve',

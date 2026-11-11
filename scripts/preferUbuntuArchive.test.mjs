@@ -90,4 +90,31 @@ describe('Ubuntu runner mirror preference', () => {
 			expect(workflow.indexOf(installer)).toBeGreaterThan(preference);
 		expect(workflow).toContain('timeout-minutes: 30');
 	});
+
+	it.each(['verify', 'deploy'])(
+		'prefers official mirrors before installing Pages %s browser dependencies',
+		(jobName) => {
+			const workflow = readFileSync(
+				new URL('../.github/workflows/pages-staging.yml', import.meta.url),
+				'utf8'
+			);
+			const job = workflow
+				.split(/\n {2}(?=[a-z]+:\n)/)
+				.find((block) => block.startsWith(`${jobName}:\n`));
+			expect(job).toBeDefined();
+			const preference = 'run: sudo bash scripts/preferUbuntuArchive.sh';
+			const installer = 'run: npx playwright install --with-deps chromium';
+			expect(job.split(preference)).toHaveLength(2);
+			expect(job.split(installer)).toHaveLength(2);
+			expect(job.indexOf(preference)).toBeLessThan(job.indexOf(installer));
+			if (jobName === 'deploy') {
+				expect(job).toContain(
+					`${preference}\n        working-directory: production`
+				);
+				expect(job).toContain(
+					`${installer}\n        working-directory: production`
+				);
+			}
+		}
+	);
 });

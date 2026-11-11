@@ -92,21 +92,27 @@ for (const mobile of [false, true]) {
 						await expect(page.getByTestId('plan-wishlist')).toBeVisible();
 						// Simulate opening an old shared-course link through the real
 						// SvelteKit router, without altering application or cache code.
-						const timeOrigin = await page.evaluate((code) => {
+						// Document identity detects real reloads without depending on
+						// WebKit timing precision (timeOrigin can vary between reads).
+						const documentIdentity = await page.evaluateHandle(() => document);
+						await page.evaluate((code) => {
 							const link = document.createElement('a');
 							link.href = `/app/course/${code}`;
 							link.textContent = 'Open shared course fixture';
 							link.setAttribute('data-sveltekit-preload-data', 'off');
 							document.querySelector('main')!.prepend(link);
-							return performance.timeOrigin;
 						}, code);
 						await page
 							.getByRole('link', { name: 'Open shared course fixture' })
 							.click();
-						expect(await page.evaluate(() => performance.timeOrigin)).toBe(
-							timeOrigin
-						);
 						await expect(page).toHaveURL(`${origin}/app/course/${code}`);
+						expect(
+							await page.evaluate(
+								(previous) => previous === document,
+								documentIdentity
+							)
+						).toBe(true);
+						await documentIdentity.dispose();
 						await expect.poll(() => detailsRequested).toBe(true);
 						await expect(page.locator('h1.course-name')).toHaveText(code);
 						await expect(page.locator('.course-loading').first()).toBeVisible();

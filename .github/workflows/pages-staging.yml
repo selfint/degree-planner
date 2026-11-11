@@ -64,15 +64,12 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build:pages:pair
-      - name: Prefer the official Ubuntu archive before installing browser dependencies
-        run: sudo bash scripts/preferUbuntuArchive.sh
-      - run: npx playwright install --with-deps chromium
       - name: Test production routes in the combined static artifact
-        run: npx playwright test --config playwright.pages.config.ts
+        run: node scripts/runPagesBrowserTests.mjs playwright.pages.config.ts
       - name: Verify production still captures analytics
-        run: npx playwright test --config playwright.analytics.config.ts
+        run: node scripts/runPagesBrowserTests.mjs playwright.analytics.config.ts
       - name: Verify staging privacy, storage, fallback routes and separate PWA scopes
-        run: npx playwright test --config playwright.staging.config.ts
+        run: node scripts/runPagesBrowserTests.mjs playwright.staging.config.ts
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
@@ -144,13 +141,8 @@ jobs:
         env:
           BASE_PATH: ${{ steps.pages.outputs.base_path }}
           STAGING_SOURCE_DIR: ../staging
-      - name: Prefer the official Ubuntu archive before installing browser dependencies
-        run: sudo bash scripts/preferUbuntuArchive.sh
-        working-directory: production
-      - run: npx playwright install --with-deps chromium
-        working-directory: production
       - name: Validate the selected staging artifact without contacting real accounts
-        run: npx playwright test --config playwright.staging.config.ts
+        run: node scripts/runPagesBrowserTests.mjs playwright.staging.config.ts
         working-directory: production
         env:
           BASE_PATH: ${{ steps.pages.outputs.base_path }}

@@ -107,6 +107,15 @@ BASE_PATH=/degree-planner npx playwright test --config playwright.analytics.conf
 BASE_PATH=/degree-planner npx playwright test --config playwright.staging.config.ts
 ```
 
+Pages CI runs these same suites through `scripts/runPagesBrowserTests.mjs` in
+Microsoft's official Playwright container, pinned by version and digest. Its
+preinstalled Chromium and system dependencies avoid runtime Ubuntu mirror/DNS
+failures. The static server and browser stay local inside the container; only
+`CI` and `BASE_PATH` are forwarded, and failures retain their exit status.
+Update the image pin with `@playwright/test` upgrades; a unit test catches drift.
+Build and publication steps remain on the hosted runner with their existing
+Node version, credentials, destination guards and approvals.
+
 Repeat built tests with `BASE_PATH=''` for root-hosted compatibility. CI tests
 both deployment bases. Test network routes block real analytics/account requests;
 production analytics assertions intercept only a fake PostHog endpoint. Staging
@@ -126,3 +135,4 @@ Official references:
 
 - https://svelte.dev/docs/kit/adapter-static
 - https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages
+- https://playwright.dev/docs/docker

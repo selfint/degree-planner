@@ -34,7 +34,10 @@ jobs:
     # Same pinned image as Pages: browsers and OS dependencies are preinstalled.
     container:
       image: mcr.microsoft.com/playwright:v1.57.0-noble@sha256:3bed4b1a12f2338642f3d8cba28e291deef3c66bd4a964bbeb3e57bbff511dbd
-      options: --shm-size=1g
+      options: --user 1001:1001 --shm-size=1g
+    # Match the runner-owned checkout without weakening Git trust checks.
+    env:
+      NODE_OPTIONS: --dns-result-order=ipv4first
     strategy:
       fail-fast: false
       matrix:
@@ -143,11 +146,13 @@ jobs:
     # Same pinned image as Pages: browsers and OS dependencies are preinstalled.
     container:
       image: mcr.microsoft.com/playwright:v1.57.0-noble@sha256:3bed4b1a12f2338642f3d8cba28e291deef3c66bd4a964bbeb3e57bbff511dbd
-      options: --shm-size=1g
+      options: --user 1001:1001 --shm-size=1g
     timeout-minutes: 30
     permissions:
       contents: read
     env:
+      # Bind localhost consistently for Node proxies and browser requests.
+      NODE_OPTIONS: --dns-result-order=ipv4first
       PLANIT_QA_PREBUILT: '1'
       PLAYWRIGHT_BASE_URL: http://localhost:4173
       STORYBOOK_TEST_BASE_URL: http://localhost:4175

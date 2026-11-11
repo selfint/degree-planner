@@ -17,7 +17,7 @@ describe('APT-independent automatic browser CI', () => {
 		(file, name) => {
 			const source = job(read(`.github/workflows/${file}.yml`), name);
 			expect(source).toContain(`image: ${pagesBrowserImage}`);
-			expect(source).toContain('options: --shm-size=1g');
+			expect(source).toContain('options: --user 1001:1001 --shm-size=1g');
 			expect(source).not.toMatch(
 				/playwright install|apt-get|preferUbuntuArchive/
 			);

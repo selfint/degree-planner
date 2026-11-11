@@ -20,7 +20,7 @@ jobs:
     # Reuse the pinned browser image; no APT or browser downloads at runtime.
     container:
       image: mcr.microsoft.com/playwright:v1.57.0-noble@sha256:3bed4b1a12f2338642f3d8cba28e291deef3c66bd4a964bbeb3e57bbff511dbd
-      options: --shm-size=1g
+      options: --user 1001:1001 --shm-size=1g
     strategy:
       fail-fast: false
       matrix:

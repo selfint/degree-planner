@@ -61,6 +61,7 @@
 
 	import { planOnline } from '$lib/planAccess';
 	import ConsoleAccountStatus from '$lib/components/ConsoleAccountStatus.svelte';
+	import ConsoleLoading from '$lib/components/ConsoleLoading.svelte';
 
 	import TitleBar from '../components/TitleBar.svelte';
 	import AppFooter from '$lib/components/AppFooter.svelte';
@@ -122,6 +123,16 @@
 			(!authReady || (signedIn && !offline && accountState === 'loading'))
 	);
 	const planBlocked = $derived(authPending || cloudPlanBlocked);
+	// Keep the entry presentation through auth/account hydration and the entry
+	// update check. Once opened, retries and connection changes stay in the shell
+	// so existing components and unsaved drafts remain mounted.
+	let entering = $state(true);
+	const entryLoading = $derived(
+		entering && (authPending || (inPwaScope && entryPending))
+	);
+	$effect(() => {
+		if (!entryLoading) entering = false;
+	});
 	setContext(PERSONAL_PLAN_READY, () =>
 		canShowPersonalPlan({ authReady, signedIn, offline, cloudPlanUnavailable })
 	);
@@ -221,14 +232,23 @@
 	</p>
 {/if}
 
+{#if entryLoading}
+	<div class="fixed inset-0 z-50" data-testid="console-ready-loading">
+		<ConsoleLoading
+			language={content.lang.lang}
+			state={{ phase: 'finishing' }}
+		/>
+	</div>
+{/if}
+
 <div
 	dir={content.lang.dir}
 	data-sveltekit-reload={browserShareDestination(page.url.pathname)
 		? true
 		: undefined}
 	class="console-shell flex h-full min-h-screen flex-col"
-	inert={inPwaScope && entryPending}
-	aria-busy={inPwaScope && entryPending}
+	inert={entryLoading || (inPwaScope && entryPending)}
+	aria-busy={entryLoading || (inPwaScope && entryPending)}
 >
 	<div class="w-full border-b border-border bg-background">
 		<TitleBar
@@ -271,7 +291,7 @@
 		<ConsoleAccountStatus
 			readOnly={!$planOnline}
 			{offline}
-			{authPending}
+			authPending={authPending && !entryLoading}
 			{cloudPlanBlocked}
 			onRetry={() => retryAccount()}
 			onSignOut={() => firebase.auth.signOut()}

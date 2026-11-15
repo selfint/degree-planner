@@ -22,7 +22,13 @@ export async function startOptionalAnalytics() {}
 export async function signIn() {}
 `;
 const pageErrors = new WeakMap<Page, string[]>();
-test.beforeEach(({ page }) => {
+test.beforeEach(async ({ page }) => {
+	// Keep this reproduction entirely local, including optional analytics.
+	await page.route('**/*', (route) =>
+		new URL(route.request().url()).origin === 'http://localhost:5173'
+			? route.continue()
+			: route.abort()
+	);
 	const errors: string[] = [];
 	pageErrors.set(page, errors);
 	page.on('pageerror', (error) => errors.push(error.message));
@@ -75,7 +81,15 @@ async function waitForAccountRead(page: Page, phase: string) {
 		});
 	}
 }
-async function prepare(page: Page, lang = 'en') {
+async function prepare(
+	page: Page,
+	lang = 'en',
+	observeEntry: false | 'document' | 'landing' = false
+) {
+	let releaseAdapter = () => {};
+	const adapterGate = new Promise<void>((resolve) => {
+		releaseAdapter = resolve;
+	});
 	// Console-only diagnostics survive later suites clearing test-results.
 	// Log same-origin paths, never response bodies or account contents.
 	const pendingRequests = new Set<string>();
@@ -114,9 +128,10 @@ async function prepare(page: Page, lang = 'en') {
 	page.on('close', () =>
 		console.info('Account outstanding requests', [...pendingRequests])
 	);
-	await page.route('**/src/lib/firebase.svelte.ts*', (route) =>
-		route.fulfill({ contentType: 'text/javascript', body: adapter })
-	);
+	await page.route('**/src/lib/firebase.svelte.ts*', async (route) => {
+		if (observeEntry) await adapterGate;
+		await route.fulfill({ contentType: 'text/javascript', body: adapter });
+	});
 	await page.route(
 		/https:\/\/(?:[^/]*google[^/]*|[^/]*firebase[^/]*|[^/]*vercel[^/]*)\//,
 		(route) => route.abort()
@@ -136,12 +151,34 @@ async function prepare(page: Page, lang = 'en') {
 			})
 		);
 	}, lang);
-	await page.goto('/app/plan');
+	if (observeEntry === 'landing') {
+		await page.goto('/');
+		await page
+			.locator('main')
+			.getByRole('link', { name: 'Get Started', exact: true })
+			.click();
+		await expect(page.locator('#console-boot')).toBeVisible();
+		releaseAdapter();
+	} else {
+		await page.goto('/app/plan', { waitUntil: 'commit' });
+		if (observeEntry) {
+			await expect(page.locator('#console-boot')).toBeVisible();
+			releaseAdapter();
+		}
+	}
 	await waitForAccountRead(page, `${lang} initial document`);
-	await expect(page.getByTestId('account-loading')).toBeVisible();
+	await expect(
+		page
+			.getByTestId('account-loading')
+			.or(page.getByTestId('console-ready-loading'))
+	).toBeVisible();
 }
 async function pending(page: Page) {
-	await expect(page.getByTestId('account-loading')).toBeVisible();
+	await expect(
+		page
+			.getByTestId('account-loading')
+			.or(page.getByTestId('console-ready-loading'))
+	).toBeVisible();
 	await expect(page.getByTestId('pwa-account-unavailable')).toHaveCount(0);
 	await expect(page.locator('main')).toBeHidden();
 	const footer = await page.locator('footer').boundingBox();
@@ -211,4 +248,63 @@ test('actual failure, retry, interrupted auth, stale success and stale failure',
 	await command(page, 'window.accountFixture.finish(4, true)');
 	await expect(page.locator('main')).toBeVisible();
 	await expect(page.getByTestId('pwa-account-unavailable')).toHaveCount(0);
+});
+
+for (const entry of ['document', 'landing'] as const) {
+	test(`${entry}: entry loader stays visible until the account is ready`, async ({
+		page
+	}) => {
+		await prepare(page, 'en', entry);
+		await expect(page.getByTestId('account-loading')).toHaveCount(0);
+		await expect(page.getByTestId('console-ready-loading')).toBeVisible();
+		await expect(page.locator('.console-shell')).toHaveAttribute('inert', '');
+		await expect(page.locator('main')).toBeHidden();
+		const timeOrigin = await page.evaluate(() => performance.timeOrigin);
+		await command(page, 'window.accountFixture.finish(0)');
+		await expect(page.locator('.console-loading')).toHaveCount(0);
+		await expect(page.locator('main')).toBeVisible();
+		await expect(page.locator('.console-shell')).not.toHaveAttribute('inert');
+		expect(await page.evaluate(() => performance.timeOrigin)).toBe(timeOrigin);
+		for (const target of ['settings', 'plan']) {
+			await page.locator(`header a[href="/app/${target}"]`).click();
+			await expect(page).toHaveURL(`http://localhost:5173/app/${target}`);
+			await expect(page.locator('.console-loading')).toHaveCount(0);
+		}
+		expect(await page.evaluate(() => performance.timeOrigin)).toBe(timeOrigin);
+		// Reconnect/account retries must not bring back the entry screen or remount
+		// the page. A sentinel on main detects accidental replacement of its DOM.
+		await page
+			.locator('main')
+			.evaluate((el) => el.setAttribute('data-retained', 'yes'));
+		await command(page, "window.accountFixture.auth('next-account')");
+		await expect(page.getByTestId('account-loading')).toBeVisible();
+		await expect(page.locator('.console-loading')).toHaveCount(0);
+		await page.context().setOffline(true);
+		await expect(page.getByTestId('pwa-account-unavailable')).toBeVisible();
+		await expect(page.locator('.console-loading')).toHaveCount(0);
+		await page.context().setOffline(false);
+		await expect
+			.poll(() => page.evaluate('window.accountFixture.reads.length'))
+			.toBe(3);
+		await command(page, 'window.accountFixture.finish(2)');
+		await expect(page.locator('main')).toBeVisible();
+		await expect(page.locator('main')).toHaveAttribute('data-retained', 'yes');
+	});
+}
+
+test('going offline during entry releases the loader into account recovery', async ({
+	page
+}) => {
+	await prepare(page);
+	await page.context().setOffline(true);
+	await expect(page.getByTestId('console-ready-loading')).toHaveCount(0);
+	await expect(page.getByTestId('pwa-account-unavailable')).toBeVisible();
+	await expect(page.locator('main')).toBeHidden();
+	await expect(page.locator('.console-shell')).not.toHaveAttribute('inert');
+	await page
+		.getByTestId('pwa-account-unavailable')
+		.getByRole('button', { name: 'Sign out', exact: true })
+		.click();
+	await expect(page.locator('main')).toBeVisible();
+	await expect(page.locator('.console-loading')).toHaveCount(0);
 });

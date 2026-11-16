@@ -201,6 +201,7 @@ for (const language of ['en', 'he'] as const) {
 			// traffic to real third parties during this anonymous startup test.
 			await context.route('**/*', async (route) => {
 				if (
+					new URL(route.request().url()).origin !== new URL(origin).origin ||
 					firebaseEndpoint.test(route.request().url()) ||
 					analyticsEndpoint.test(route.request().url())
 				) {
@@ -285,10 +286,10 @@ for (const language of ['en', 'he'] as const) {
 					'color',
 					foreground
 				);
-				await expect(page.locator('#console-boot-detail')).toContainText(
-					language === 'he'
-						? 'קובצי נתונים שהושלמו: 1 מתוך 2'
-						: '1 of 2 data files complete'
+				// No snapshot metadata or response headers yet: show the honest
+				// unknown-total status, without inventing a startup percentage.
+				await expect(page.locator('#console-boot-detail')).toHaveText(
+					language === 'he' ? 'מורידים נתונים…' : 'Downloading data…'
 				);
 				await expect(page.locator('#console-boot-detail')).toBeVisible();
 				await expect(
@@ -443,6 +444,7 @@ test.describe('warm cached console bootstrap', () => {
 		await page.addInitScript(() => localStorage.setItem('lang', 'en'));
 		await context.route('**/*', async (route) => {
 			if (
+				new URL(route.request().url()).origin !== new URL(origin).origin ||
 				firebaseEndpoint.test(route.request().url()) ||
 				analyticsEndpoint.test(route.request().url())
 			) {

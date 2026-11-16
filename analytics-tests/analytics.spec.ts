@@ -1,9 +1,20 @@
-import { expect, test, type Page } from '@playwright/test';
+import {
+	expect,
+	test,
+	type Page,
+	type BrowserContext,
+	type Route
+} from '@playwright/test';
 import { gunzipSync } from 'node:zlib';
 import { readFileSync } from 'node:fs';
 import { parseEnv } from 'node:util';
 import { initializeGuestStorage } from '../tests/helpers/student-guest-storage';
 import { transcriptPdf } from '../tests/helpers/transcript-pdf';
+
+const finishRoutes = new WeakMap<BrowserContext, () => Promise<void>>();
+test.afterEach(async ({ context }) => {
+	await finishRoutes.get(context)?.();
+});
 
 const base = process.env.BASE_PATH ?? '/degree-planner';
 // Simulate a deployed production origin while serving every app response from
@@ -87,7 +98,9 @@ async function setup(page: Page, plan: unknown = seed) {
 		language: 'en',
 		seed: plan
 	});
-	await page.context().route('**/*', async (route) => {
+	const pending = new Set<Promise<void>>();
+	let closing = false;
+	const handle = async (route: Route) => {
 		const request = route.request();
 		const url = new URL(request.url());
 		if (url.pathname.includes('/_vercel/')) return route.abort();
@@ -102,9 +115,7 @@ async function setup(page: Page, plan: unknown = seed) {
 				if (
 					String(error).includes(
 						'Target page, context or browser has been closed'
-					) ||
-					(String(error).includes('Fetch response has been disposed') &&
-						request.frame().page().isClosed())
+					)
 				)
 					return;
 				throw error;
@@ -137,6 +148,18 @@ async function setup(page: Page, plan: unknown = seed) {
 			});
 		}
 		return route.abort('blockedbyclient');
+	};
+	await page.context().route('**/*', (route) => {
+		if (closing) return route.abort('blockedbyclient');
+		const work = handle(route);
+		pending.add(work);
+		return work.finally(() => pending.delete(work));
+	});
+	// Drain local proxy work before Playwright disposes its API responses. Keep
+	// the guard installed and reject new traffic throughout context teardown.
+	finishRoutes.set(page.context(), async () => {
+		closing = true;
+		await Promise.all([...pending]);
 	});
 	const count = (event: string) =>
 		events.filter((e) => e.event === event).length;

@@ -245,6 +245,22 @@
 				document.getElementById('console-boot-wordmark').src =
 					'%sveltekit.assets%/brand/planit-wordmark.svg';
 				try {
+					// A verified entry update continues the initial phase across its
+					// required reload. Never replay the sweep or carry a fake percentage.
+					const key = 'planit-entry-release-reload';
+					const continued = JSON.parse(sessionStorage.getItem(key) || 'null');
+					sessionStorage.removeItem(key);
+					if (
+						continued?.path === location.pathname &&
+						Date.now() - continued.at >= 0 &&
+						Date.now() - continued.at < 30000 &&
+						performance.getEntriesByType('navigation')[0]?.type === 'reload'
+					)
+						boot.querySelector(
+							'.console-loading__indicator'
+						).style.animationDelay = '-1.8s';
+				} catch {}
+				try {
 					if (
 						localStorage.getItem(
 							'%sveltekit.env.PUBLIC_DEPLOYMENT_ENV%' === 'staging'

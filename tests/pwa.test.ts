@@ -1728,6 +1728,45 @@ test('fresh entry checks for B even with a recent persisted hourly check', async
 			),
 		UPDATE_CHECK_STORAGE_KEY
 	);
+	// Observe the actual old-document -> activated-release navigation, including
+	// its pre-hydration loader. A late update must not reset an already filled bar.
+	await page.addInitScript(() => {
+		const sample = () => {
+			const track = document.querySelector(
+				'.console-loading [role=progressbar]'
+			);
+			const value = track?.getAttribute('aria-valuenow');
+			if (track) {
+				const samples = JSON.parse(
+					sessionStorage.getItem('entry-progress-probe') || '[]'
+				);
+				if (
+					!samples.some(
+						(sample: { document: number; value: number }) =>
+							sample.document === performance.timeOrigin &&
+							sample.value === Number(value)
+					)
+				) {
+					samples.push({
+						document: performance.timeOrigin,
+						value: Number(value),
+						delay: getComputedStyle(
+							track.querySelector('.console-loading__indicator')!
+						).animationDelay
+					});
+					sessionStorage.setItem(
+						'entry-progress-probe',
+						JSON.stringify(samples)
+					);
+				}
+			}
+		};
+		new MutationObserver(sample).observe(document, {
+			childList: true,
+			subtree: true,
+			attributes: true
+		});
+	});
 	revision = 2;
 	const b = deploymentVersion();
 	await page.reload();
@@ -1737,6 +1776,25 @@ test('fresh entry checks for B even with a recent persisted hourly check', async
 	);
 	await expect.poll(() => workerVersion(page, 'controller')).toBe(b);
 	await expect(page.getByTestId('pwa-update-banner')).toHaveCount(0);
+	const finalDocument = await page.evaluate(() => performance.timeOrigin);
+	const progress = await page.evaluate(
+		() =>
+			JSON.parse(sessionStorage.getItem('entry-progress-probe') || '[]') as {
+				document: number;
+				value: number;
+				delay: string;
+			}[]
+	);
+	expect(
+		progress.filter(
+			(sample) => sample.document !== finalDocument && sample.value > 0
+		)
+	).toEqual([]);
+	expect(
+		progress.some(
+			(sample) => sample.document === finalDocument && sample.delay === '-1.8s'
+		)
+	).toBe(true);
 });
 
 test('evicted A shell never loads B HTML and manual recovery protects another tab draft', async ({

@@ -1,3 +1,6 @@
+import { version } from '$app/environment';
+import { base } from '$app/paths';
+import { prepareEntryRelease } from '$lib/pwa/entry-preflight';
 import type { LayoutLoad } from './$types';
 import { initFirebase } from '$lib/firebase.svelte';
 import { bootstrapOfflinePublicData } from '$lib/offlineData';
@@ -13,6 +16,7 @@ export const load: LayoutLoad = async () => {
 	const current = () => active && generation === currentGeneration;
 	reportConsoleLoading({ phase: 'checking' });
 	try {
+		await prepareEntryRelease(version, base);
 		const [firebase, publicData] = await Promise.all([
 			initFirebase(),
 			bootstrapOfflinePublicData((progress) => {

@@ -348,6 +348,7 @@ for (const language of ['en', 'he'])
 		await page.addInitScript(() => {
 			const samples: {
 				percent: number;
+				width: number;
 				measured: boolean;
 				animation: string;
 				iterations: string;
@@ -366,6 +367,9 @@ for (const language of ['en', 'he'])
 					range.selectNodeContents(status);
 					samples.push({
 						percent: Number(track.getAttribute('aria-valuenow')),
+						width:
+							(100 * track.firstElementChild!.getBoundingClientRect().width) /
+							track.getBoundingClientRect().width,
 						measured: track.hasAttribute('aria-valuenow'),
 						animation: style.animationName,
 						iterations: style.animationIterationCount,
@@ -460,6 +464,7 @@ for (const language of ['en', 'he'])
 					window as unknown as {
 						loadingSamples: {
 							percent: number;
+							width: number;
 							measured: boolean;
 							animation: string;
 							iterations: string;
@@ -474,6 +479,16 @@ for (const language of ['en', 'he'])
 		const firstMeasured = samples.findIndex((s) => s.measured);
 		expect(firstMeasured).toBeGreaterThan(-1);
 		const measuredSamples = samples.slice(firstMeasured);
+		expect(
+			measuredSamples.every((s) => s.width <= s.percent + 1),
+			'measured progress never starts from the decorative segment width'
+		).toBe(true);
+		expect(
+			measuredSamples.every(
+				(s, i) => !i || s.width >= measuredSamples[i - 1].width - 1
+			),
+			'the rendered fill never shrinks after measured progress begins'
+		).toBe(true);
 		expect(
 			measuredSamples.every(
 				(sample, index) =>
@@ -501,6 +516,22 @@ for (const language of ['en', 'he'])
 		).toBe(true);
 		await page.reload();
 		await waitForAccountRead(page, 'cached streamed reload');
+		const cached = await page.evaluate(() =>
+			(
+				window as unknown as {
+					loadingSamples: {
+						measured: boolean;
+						percent: number;
+						width: number;
+					}[];
+				}
+			).loadingSamples.filter((s) => s.measured)
+		);
+		expect(cached.length).toBeGreaterThan(0);
+		expect(
+			cached[0].width,
+			'cached entry starts at its measured percentage, not the old sweep width'
+		).toBeGreaterThanOrEqual(89);
 		await command(page, 'window.accountFixture.finish(0)');
 		await expect(page.locator('main')).toBeVisible();
 		await expect(page.locator('.console-loading')).toHaveCount(0);

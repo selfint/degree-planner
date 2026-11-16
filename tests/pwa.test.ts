@@ -1731,6 +1731,24 @@ test('fresh entry checks for B even with a recent persisted hourly check', async
 	// Observe the actual old-document -> activated-release navigation, including
 	// its pre-hydration loader. A late update must not reset an already filled bar.
 	await page.addInitScript(() => {
+		const frames = () => {
+			const track = document.querySelector('.console-loading [aria-valuenow]');
+			if (track && track.getBoundingClientRect().width) {
+				const samples = JSON.parse(
+					sessionStorage.getItem('entry-width-probe') || '[]'
+				);
+				samples.push({
+					document: performance.timeOrigin,
+					percent: Number(track.getAttribute('aria-valuenow')),
+					width:
+						(100 * track.firstElementChild!.getBoundingClientRect().width) /
+						track.getBoundingClientRect().width
+				});
+				sessionStorage.setItem('entry-width-probe', JSON.stringify(samples));
+			}
+			requestAnimationFrame(frames);
+		};
+		requestAnimationFrame(frames);
 		const sample = () => {
 			const track = document.querySelector(
 				'.console-loading [role=progressbar]'
@@ -1793,6 +1811,25 @@ test('fresh entry checks for B even with a recent persisted hourly check', async
 	expect(
 		progress.some(
 			(sample) => sample.document === finalDocument && sample.delay === '-1.8s'
+		)
+	).toBe(true);
+	const widths = await page.evaluate(
+		() =>
+			JSON.parse(sessionStorage.getItem('entry-width-probe') || '[]') as {
+				document: number;
+				percent: number;
+				width: number;
+			}[]
+	);
+	const measured = widths.filter((sample) => sample.document === finalDocument);
+	expect(measured.length).toBeGreaterThan(0);
+	expect(
+		measured[0].width,
+		'the updated cached entry never replays the 34% sweep width'
+	).toBeGreaterThanOrEqual(89);
+	expect(
+		measured.every(
+			(sample, index) => !index || sample.width >= measured[index - 1].width - 1
 		)
 	).toBe(true);
 });

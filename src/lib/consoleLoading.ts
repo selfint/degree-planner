@@ -1,4 +1,5 @@
 import { get, writable } from 'svelte/store';
+import { setLoadingWidth } from './loadingWidth';
 
 export type DataLoadingProgress = {
 	completed: number;
@@ -168,6 +169,6 @@ export function reportConsoleLoading(state: ConsoleLoadingState) {
 		track.setAttribute('aria-valuemin', '0');
 		track.setAttribute('aria-valuemax', '100');
 		track.setAttribute('aria-valuenow', String(percent));
-		indicator.style.inlineSize = `${fraction * 100}%`;
-	} else indicator.style.removeProperty('inline-size');
+	}
+	setLoadingWidth(indicator, percent);
 }

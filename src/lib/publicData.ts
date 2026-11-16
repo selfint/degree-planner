@@ -213,6 +213,7 @@ export function createPublicDataRepository({
 			try {
 				const requestFetcher =
 					!previous &&
+					(key === '/courseData.json' || key === '/catalogs.json') &&
 					typeof window !== 'undefined' &&
 					import.meta.env.MODE !== 'test'
 						? await (startupProgressFetcher ??= progressFetcher(fetcher))

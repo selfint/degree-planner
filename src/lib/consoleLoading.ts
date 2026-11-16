@@ -64,7 +64,7 @@ export function loadingText(
 				? 'שומרים נתונים לשימוש ללא אינטרנט…'
 				: 'Saving data for offline use…';
 		const bytes = state.bytesRead
-			? ` ${(state.bytesRead / 1_000_000).toFixed(1)}${downloadFraction(state) !== undefined ? ` / ${(state.totalBytes! / 1_000_000).toFixed(1)}` : ''} MB ${hebrew ? 'נקראו.' : 'read.'}`
+			? ` ${hebrew ? '\u2066' : ''}${(state.bytesRead / 1_000_000).toFixed(1)}${downloadFraction(state) !== undefined ? ` / ${(state.totalBytes! / 1_000_000).toFixed(1)}` : ''} MB${hebrew ? '\u2069' : ''} ${hebrew ? 'נקראו.' : 'read.'}`
 			: '';
 		return `${stage}${bytes} ${hebrew ? `קובצי נתונים שהושלמו: ${state.completed} מתוך ${state.total}` : `${state.completed} of ${state.total} data files complete`}`;
 	}

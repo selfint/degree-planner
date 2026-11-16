@@ -24,3 +24,19 @@ it('measures only downloads with a known decoded total', () => {
 	).toBeUndefined();
 	expect(downloadFraction({ ...state, bytesRead: 101 })).toBeUndefined();
 });
+it('keeps read / total ordered left-to-right inside Hebrew status text', () => {
+	expect(
+		loadingText(
+			{
+				phase: 'data',
+				completed: 0,
+				total: 2,
+				pending: [],
+				activity: 'reading',
+				bytesRead: 1_000_000,
+				totalBytes: 4_000_000
+			},
+			true
+		)
+	).toContain('\u20661.0 / 4.0 MB\u2069');
+});

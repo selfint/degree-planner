@@ -253,6 +253,8 @@ for (const language of ['en', 'he'] as const) {
 			});
 			let courseRequested = false;
 			startupNetwork.dataDelay.armed = true;
+			// Exercise canonical fallback when snapshot metadata is unavailable.
+			await context.route('**/_data/manifest.json', (route) => route.abort());
 			await page.route('**/courseData.json', async (route) => {
 				courseRequested = true;
 				startupNetwork.dataDelay.requested = true;

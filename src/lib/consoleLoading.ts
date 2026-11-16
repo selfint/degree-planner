@@ -5,6 +5,7 @@ export type DataLoadingProgress = {
 	total: number;
 	pending: string[];
 	bytesRead?: number;
+	totalBytes?: number;
 	activity?: 'reading' | 'processing' | 'saving';
 };
 export type ConsoleLoadingState =
@@ -14,6 +15,20 @@ export type ConsoleLoadingState =
 export const consoleLoading = writable<ConsoleLoadingState>({
 	phase: 'opening'
 });
+
+export function downloadFraction(
+	state: ConsoleLoadingState
+): number | undefined {
+	if (
+		state.phase !== 'data' ||
+		state.activity !== 'reading' ||
+		!state.totalBytes ||
+		state.bytesRead === undefined ||
+		state.bytesRead > state.totalBytes
+	)
+		return undefined;
+	return state.bytesRead / state.totalBytes;
+}
 
 export function loadingText(
 	state: ConsoleLoadingState,
@@ -49,7 +64,7 @@ export function loadingText(
 				? 'שומרים נתונים לשימוש ללא אינטרנט…'
 				: 'Saving data for offline use…';
 		const bytes = state.bytesRead
-			? ` ${(state.bytesRead / 1_000_000).toFixed(1)} MB ${hebrew ? 'נקראו.' : 'read.'}`
+			? ` ${(state.bytesRead / 1_000_000).toFixed(1)}${downloadFraction(state) !== undefined ? ` / ${(state.totalBytes! / 1_000_000).toFixed(1)}` : ''} MB ${hebrew ? 'נקראו.' : 'read.'}`
 			: '';
 		return `${stage}${bytes} ${hebrew ? `קובצי נתונים שהושלמו: ${state.completed} מתוך ${state.total}` : `${state.completed} of ${state.total} data files complete`}`;
 	}
@@ -78,7 +93,11 @@ export function reportConsoleLoading(state: ConsoleLoadingState) {
 		'.console-loading__indicator'
 	);
 	if (!track || !indicator) return;
-	track.classList.remove('console-loading__track--measured');
+	const fraction = downloadFraction(state);
+	track.classList.toggle(
+		'console-loading__track--measured',
+		fraction !== undefined
+	);
 	track.classList.toggle(
 		'console-loading__track--error',
 		state.phase === 'error'
@@ -91,5 +110,10 @@ export function reportConsoleLoading(state: ConsoleLoadingState) {
 	track.setAttribute('aria-label', loadingText(state, boot.lang === 'he'));
 	for (const attribute of ['aria-valuenow', 'aria-valuemax', 'aria-valuemin'])
 		track.removeAttribute(attribute);
-	indicator.style.removeProperty('inline-size');
+	if (fraction !== undefined) {
+		track.setAttribute('aria-valuemin', '0');
+		track.setAttribute('aria-valuemax', '100');
+		track.setAttribute('aria-valuenow', String(Math.round(fraction * 100)));
+		indicator.style.inlineSize = `${fraction * 100}%`;
+	} else indicator.style.removeProperty('inline-size');
 }

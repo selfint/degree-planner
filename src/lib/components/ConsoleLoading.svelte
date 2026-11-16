@@ -1,7 +1,11 @@
 <script lang="ts">
 	import { withBase } from '$lib/deploymentPaths';
 	import './console-loading.css';
-	import { loadingText, type ConsoleLoadingState } from '$lib/consoleLoading';
+	import {
+		downloadFraction,
+		loadingText,
+		type ConsoleLoadingState
+	} from '$lib/consoleLoading';
 
 	type Props = {
 		language?: 'en' | 'he';
@@ -14,6 +18,7 @@
 		state = { phase: 'opening' }
 	}: Props = $props();
 	const hebrew = $derived(language === 'he');
+	const fraction = $derived(downloadFraction(state));
 	const status = $derived(loadingText(state, hebrew));
 </script>
 
@@ -42,12 +47,23 @@
 		</div>
 		<div
 			class="console-loading__track"
+			class:console-loading__track--measured={fraction !== undefined}
+			aria-valuemin={fraction !== undefined ? 0 : undefined}
+			aria-valuemax={fraction !== undefined ? 100 : undefined}
+			aria-valuenow={fraction !== undefined
+				? Math.round(fraction * 100)
+				: undefined}
 			class:console-loading__track--error={state.phase === 'error'}
 			role={state.phase === 'error' ? undefined : 'progressbar'}
 			aria-hidden={state.phase === 'error' ? true : undefined}
 			aria-label={status}
 		>
-			<span class="console-loading__indicator"></span>
+			<span
+				class="console-loading__indicator"
+				style:inline-size={fraction !== undefined
+					? `${fraction * 100}%`
+					: undefined}
+			></span>
 		</div>
 		<p class="console-loading__status" role="status">{status}</p>
 	</div>

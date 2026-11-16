@@ -340,11 +340,12 @@ test('development never initializes telemetry, even with the old PostHog opt-in'
 	).toBeNull();
 });
 
-test('streamed bytes keep one indeterminate entry screen and cached reload does not wait for refresh', async ({
+test('streamed bytes smoothly advance one entry screen and cached reload does not wait for refresh', async ({
 	page
 }) => {
 	await page.addInitScript(() => {
 		const original = window.fetch;
+		let snapshotPath = '';
 		window.fetch = async (...args) => {
 			const response = await original(...args);
 			const input = args[0];
@@ -352,7 +353,11 @@ test('streamed bytes keep one indeterminate entry screen and cached reload does 
 				input instanceof Request ? input.url : String(input),
 				location.href
 			).pathname;
-			if (path !== '/courseData.json') return response;
+			if (path === '/_data/manifest.json') {
+				snapshotPath = (await response.clone().json())['/courseData.json'].url;
+				return response;
+			}
+			if (path !== '/courseData.json' && path !== snapshotPath) return response;
 			if (response.status === 304)
 				return new Promise<Response>((resolve) => {
 					(
@@ -365,7 +370,11 @@ test('streamed bytes keep one indeterminate entry screen and cached reload does 
 			return new Response(
 				new ReadableStream({
 					start(controller) {
-						controller.enqueue(bytes.slice(0, halfway));
+						controller.enqueue(bytes.slice(0, Math.floor(halfway / 2)));
+						(
+							window as unknown as { advanceCourseBytes: () => void }
+						).advanceCourseBytes = () =>
+							controller.enqueue(bytes.slice(Math.floor(halfway / 2), halfway));
 						(
 							window as unknown as { finishCourseBytes: () => void }
 						).finishCourseBytes = () => {
@@ -384,7 +393,20 @@ test('streamed bytes keep one indeterminate entry screen and cached reload does 
 	});
 	await expect(
 		page.locator('#console-boot [role=progressbar]')
-	).not.toHaveAttribute('aria-valuenow');
+	).toHaveAttribute('aria-valuenow', /^(2[5-9])$/);
+	await command(page, 'window.advanceCourseBytes()');
+	await expect(
+		page.locator('#console-boot [role=progressbar]')
+	).toHaveAttribute('aria-valuenow', /^(5[0-9])$/);
+	await expect(
+		page.locator('#console-boot .console-loading__indicator')
+	).toHaveCSS('transition-duration', '0.24s');
+	await page.screenshot({ path: '/tmp/smooth-progress-local.png' });
+	await page.emulateMedia({ reducedMotion: 'reduce' });
+	await expect(
+		page.locator('#console-boot .console-loading__indicator')
+	).toHaveCSS('transition-duration', '0s');
+	await page.emulateMedia({ reducedMotion: 'no-preference' });
 	await command(page, 'window.finishCourseBytes()');
 	await opening;
 	await expect(page.getByTestId('console-ready-loading')).toBeVisible();

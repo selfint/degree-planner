@@ -14,6 +14,7 @@ export const BUILD_CONFIG_FILES = [
 	'postcss.config.js',
 	'tsconfig.json',
 	'scripts/buildIdentity.mjs',
+	'scripts/generateDownloadManifest.mjs',
 	'scripts/finalizePages.mjs'
 ];
 const SHELL_STATIC_FILES = [

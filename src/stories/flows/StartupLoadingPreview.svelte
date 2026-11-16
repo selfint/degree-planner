@@ -55,7 +55,20 @@
 							label: 'Account / update readiness (no download)',
 							state: { phase: 'finishing' } as ConsoleLoadingState
 						},
-						{ at: 2200, label: 'Ready', state: null }
+						{
+							at: 1500,
+							label: 'Checking updates',
+							state: {
+								phase: 'finishing',
+								accountReady: true
+							} as ConsoleLoadingState
+						},
+						{
+							at: 2200,
+							label: 'Ready',
+							state: { phase: 'ready' } as ConsoleLoadingState
+						},
+						{ at: 2500, label: 'Planner open', state: null }
 					]
 				: [
 						{
@@ -97,8 +110,21 @@
 							} as ConsoleLoadingState
 						},
 						{
+							at: 7300 + (scenario === 'paused' ? 2200 : 0),
+							label: 'Checking updates',
+							state: {
+								phase: 'finishing',
+								accountReady: true
+							} as ConsoleLoadingState
+						},
+						{
 							at: 8100 + (scenario === 'paused' ? 2200 : 0),
 							label: 'Ready',
+							state: { phase: 'ready' } as ConsoleLoadingState
+						},
+						{
+							at: 8500 + (scenario === 'paused' ? 2200 : 0),
+							label: 'Planner open',
 							state: null
 						}
 					]
@@ -125,6 +151,7 @@
 				(step) =>
 					step.at > elapsed &&
 					(step.state?.phase !== current.state?.phase ||
+						step.state?.accountReady !== current.state?.accountReady ||
 						(step.state?.phase === 'data' &&
 							current.state?.phase === 'data' &&
 							step.state.activity !== current.state.activity))

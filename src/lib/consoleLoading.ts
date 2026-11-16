@@ -10,9 +10,13 @@ export type DataLoadingProgress = {
 };
 type DownloadProgress = { bytesRead: number; totalBytes: number };
 export type ConsoleLoadingState = (
-	| { phase: 'opening' | 'checking' | 'finishing' | 'error' }
+	| { phase: 'opening' | 'checking' | 'finishing' | 'ready' | 'error' }
 	| ({ phase: 'data' } & DataLoadingProgress)
-) & { download?: DownloadProgress };
+) & {
+	download?: DownloadProgress;
+	accountReady?: boolean;
+	updateReady?: boolean;
+};
 
 export const consoleLoading = writable<ConsoleLoadingState>({
 	phase: 'opening'
@@ -36,13 +40,14 @@ export function downloadProgress(
 export function loadingSettled(state: ConsoleLoadingState) {
 	return (
 		state.phase === 'finishing' ||
+		state.phase === 'ready' ||
 		state.phase === 'error' ||
 		(state.phase === 'data' &&
 			(state.activity === 'processing' || state.activity === 'saving'))
 	);
 }
 export function downloadLabel(hebrew: boolean) {
-	return hebrew ? 'קריאת נתוני קורסים' : 'Course data download';
+	return hebrew ? 'התקדמות הטעינה' : 'Startup progress';
 }
 
 export function downloadFraction(
@@ -59,26 +64,58 @@ export function downloadFraction(
 	return state.bytesRead / state.totalBytes;
 }
 
+/** Weighted completed work, not a prediction of remaining time. */
+export function startupPercent(state: ConsoleLoadingState): number | undefined {
+	if (state.phase === 'ready') return 100;
+	if (state.phase === 'finishing')
+		return Math.min(
+			99,
+			90 + (state.accountReady ? 5 : 0) + (state.updateReady ? 5 : 0)
+		);
+	if (state.phase === 'data') {
+		if (state.total > 0 && state.completed === state.total) return 90;
+		// These aggregate stages start only after every pending stream/parser finishes.
+		if (state.activity === 'saving') return 85;
+		if (state.activity === 'processing') return 80;
+	}
+	const download = downloadProgress(state);
+	return download
+		? Math.floor((download.bytesRead * 80) / download.totalBytes)
+		: undefined;
+}
+
 export function loadingText(
 	state: ConsoleLoadingState,
 	hebrew: boolean
 ): string {
-	if (state.phase === 'data') {
-		if (state.activity === 'processing')
-			return hebrew ? 'מעבדים נתונים…' : 'Processing data…';
-		if (state.activity === 'saving')
-			return hebrew ? 'שומרים לשימוש לא מקוון…' : 'Saving offline…';
-		const fraction = downloadFraction(state);
-		const percent =
-			fraction === undefined
-				? ''
-				: ` ${hebrew ? '\u2066' : ''}${Math.floor((state.bytesRead! * 100) / state.totalBytes!)}%${hebrew ? '\u2069' : ''}`;
-		return `${hebrew ? 'מורידים נתונים…' : 'Downloading data…'}${percent}`;
+	const percent = startupPercent(state);
+	if (percent !== undefined && state.phase !== 'error') {
+		const stage =
+			state.phase === 'ready'
+				? ['Ready', 'מוכן']
+				: state.phase === 'finishing'
+					? state.accountReady && !state.updateReady
+						? ['Updates', 'עדכונים']
+						: ['Opening', 'פתיחה']
+					: state.phase === 'data' &&
+						  state.total > 0 &&
+						  state.completed === state.total
+						? ['Checking', 'בדיקה']
+						: state.phase === 'data' && state.activity === 'processing'
+							? ['Processing', 'עיבוד']
+							: state.phase === 'data' && state.activity === 'saving'
+								? ['Saving', 'שמירה']
+								: ['Downloading', 'הורדה'];
+		return hebrew
+			? `טעינה \u2066${percent}%\u2069 · ${stage[1]}`
+			: `Startup ${percent}% · ${stage[0]}`;
 	}
 	const text = {
 		opening: ['Loading application…', 'טוענים את היישום…'],
 		checking: ['Checking saved data…', 'בודקים נתונים שמורים…'],
+		data: ['Downloading data…', 'מורידים נתונים…'],
 		finishing: ['Opening planner…', 'פותחים את המתכנן…'],
+		ready: ['Ready', 'מוכן'],
 		error: ['Unable to load. Please reload.', 'לא ניתן לפתוח. טענו מחדש.']
 	};
 	return text[state.phase][hebrew ? 1 : 0];
@@ -105,10 +142,8 @@ export function reportConsoleLoading(state: ConsoleLoadingState) {
 		'.console-loading__indicator'
 	);
 	if (!track || !indicator) return;
-	const download = downloadProgress(state);
-	const fraction = download
-		? download.bytesRead / download.totalBytes
-		: undefined;
+	const percent = startupPercent(state);
+	const fraction = percent === undefined ? undefined : percent / 100;
 	track.classList.toggle(
 		'console-loading__track--measured',
 		fraction !== undefined
@@ -126,21 +161,13 @@ export function reportConsoleLoading(state: ConsoleLoadingState) {
 		track.removeAttribute('role');
 		track.setAttribute('aria-hidden', 'true');
 	} else track.setAttribute('role', 'progressbar');
-	track.setAttribute(
-		'aria-label',
-		download
-			? downloadLabel(boot.lang === 'he')
-			: loadingText(state, boot.lang === 'he')
-	);
+	track.setAttribute('aria-label', downloadLabel(boot.lang === 'he'));
 	for (const attribute of ['aria-valuenow', 'aria-valuemax', 'aria-valuemin'])
 		track.removeAttribute(attribute);
 	if (fraction !== undefined) {
 		track.setAttribute('aria-valuemin', '0');
 		track.setAttribute('aria-valuemax', '100');
-		track.setAttribute(
-			'aria-valuenow',
-			String(Math.floor((download!.bytesRead * 100) / download!.totalBytes))
-		);
+		track.setAttribute('aria-valuenow', String(percent));
 		indicator.style.inlineSize = `${fraction * 100}%`;
 	} else indicator.style.removeProperty('inline-size');
 }

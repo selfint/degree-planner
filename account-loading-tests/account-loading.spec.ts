@@ -347,6 +347,7 @@ for (const language of ['en', 'he'])
 		await page.setViewportSize({ width: 320, height: 740 });
 		await page.addInitScript(() => {
 			const samples: {
+				percent: number;
 				measured: boolean;
 				animation: string;
 				iterations: string;
@@ -364,6 +365,7 @@ for (const language of ['en', 'he'])
 					const range = document.createRange();
 					range.selectNodeContents(status);
 					samples.push({
+						percent: Number(track.getAttribute('aria-valuenow')),
 						measured: track.hasAttribute('aria-valuenow'),
 						animation: style.animationName,
 						iterations: style.animationIterationCount,
@@ -430,11 +432,11 @@ for (const language of ['en', 'he'])
 		});
 		await expect(
 			page.locator('#console-boot [role=progressbar]')
-		).toHaveAttribute('aria-valuenow', /^(2[5-9])$/);
+		).toHaveAttribute('aria-valuenow', /^(2[0-4])$/);
 		await command(page, 'window.advanceCourseBytes()');
 		await expect(
 			page.locator('#console-boot [role=progressbar]')
-		).toHaveAttribute('aria-valuenow', /^(5[0-9])$/);
+		).toHaveAttribute('aria-valuenow', /^(4[0-4])$/);
 		await expect(
 			page.locator('#console-boot .console-loading__indicator')
 		).toHaveCSS('transition-duration', '0.12s');
@@ -449,7 +451,7 @@ for (const language of ['en', 'he'])
 		await expect(page.getByTestId('console-ready-loading')).toBeVisible();
 		await expect(
 			page.getByTestId('console-ready-loading').getByRole('progressbar')
-		).toHaveAttribute('aria-valuenow', '100');
+		).toHaveAttribute('aria-valuenow', /^(90|95)$/);
 		await command(page, 'window.accountFixture.finish(0)');
 		await expect(page.locator('.console-loading')).toHaveCount(0);
 		const samples = await page.evaluate(
@@ -457,6 +459,7 @@ for (const language of ['en', 'he'])
 				(
 					window as unknown as {
 						loadingSamples: {
+							percent: number;
 							measured: boolean;
 							animation: string;
 							iterations: string;
@@ -470,6 +473,18 @@ for (const language of ['en', 'he'])
 		expect(samples.some((s) => !s.measured)).toBe(true);
 		const firstMeasured = samples.findIndex((s) => s.measured);
 		expect(firstMeasured).toBeGreaterThan(-1);
+		const measuredSamples = samples.slice(firstMeasured);
+		expect(
+			measuredSamples.every(
+				(sample, index) =>
+					index === 0 || sample.percent >= measuredSamples[index - 1].percent
+			)
+		).toBe(true);
+		expect(
+			await page.evaluate(
+				"import('/src/lib/consoleLoading.ts').then(({consoleLoading,startupPercent})=>{let value; const stop=consoleLoading.subscribe(state=>value=startupPercent(state)); stop(); return value;})"
+			)
+		).toBe(100);
 		expect(
 			samples
 				.slice(firstMeasured)

@@ -56,7 +56,7 @@ for (const width of [320, 375, 390])
 				'data-flow-phase',
 				'Processing data'
 			);
-			await expect(status).not.toContainText('%');
+			await expect(status).toContainText('80%');
 			await expect(status).not.toContainText('MB');
 			await expect(page.locator('.console-loading__status')).not.toBeEmpty();
 			expect(

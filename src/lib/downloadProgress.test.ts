@@ -16,7 +16,7 @@ it('measures only downloads with a known decoded total', () => {
 			{ ...state, bytesRead: 1_000_000, totalBytes: 4_000_000 },
 			false
 		)
-	).toContain('25%');
+	).toContain('20%');
 	expect(downloadFraction({ ...state, totalBytes: undefined })).toBeUndefined();
 	expect(downloadFraction({ ...state, activity: 'saving' })).toBeUndefined();
 	expect(
@@ -38,7 +38,7 @@ it('keeps the percentage ordered inside Hebrew status text', () => {
 			},
 			true
 		)
-	).toContain('\u206625%\u2069');
+	).toContain('\u206620%\u2069');
 });
 
 it('never presents processing or account work as a download percentage', () => {
@@ -51,14 +51,14 @@ it('never presents processing or account work as a download percentage', () => {
 		totalBytes: 1000
 	};
 	expect(loadingText({ ...state, activity: 'reading' }, false)).toContain(
-		'99%'
+		'79%'
 	);
 	expect(
 		loadingText({ ...state, bytesRead: 290, activity: 'reading' }, false)
-	).toContain('29%');
+	).toContain('23%');
 	for (const activity of ['processing', 'saving'] as const) {
 		const text = loadingText({ ...state, bytesRead: 1000, activity }, false);
-		expect(text).not.toContain('%');
+		expect(text).toContain(activity === 'processing' ? '80%' : '85%');
 		expect(text).not.toContain('MB');
 	}
 	expect(
@@ -69,5 +69,5 @@ it('never presents processing or account work as a download percentage', () => {
 			{ phase: 'finishing', download: { bytesRead: 1000, totalBytes: 1000 } },
 			false
 		)
-	).not.toMatch(/%|MB/);
+	).toContain('90%');
 });

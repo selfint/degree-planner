@@ -33,20 +33,22 @@ for (const theme of ['dark', 'light'])
 			await next.click();
 			await expect(page.getByRole('progressbar')).toHaveAttribute(
 				'aria-valuenow',
-				'100'
+				'80'
 			);
-			for (const stage of [
-				'Processing data',
-				'Saving data offline',
-				'Account / update readiness'
-			]) {
+			for (const [stage, percent] of [
+				['Processing data', 80],
+				['Saving data offline', 85],
+				['Account / update readiness', 90],
+				['Checking updates', 95],
+				['Ready', 100]
+			] as const) {
 				await expect(page.locator('.flow-demo')).toHaveAttribute(
 					'data-flow-phase',
 					stage
 				);
 				await expect(page.getByRole('progressbar')).toHaveAttribute(
 					'aria-valuenow',
-					'100'
+					String(percent)
 				);
 				await expect(page.locator('.console-loading__status')).not.toBeEmpty();
 				expect(
@@ -58,7 +60,8 @@ for (const theme of ['dark', 'light'])
 							.locator('.console-loading__track')
 							.evaluate((e) =>
 								Math.abs(
-									e.getBoundingClientRect().width -
+									e.getBoundingClientRect().width *
+										(Number(e.getAttribute('aria-valuenow')) / 100) -
 										e.firstElementChild!.getBoundingClientRect().width
 								)
 							)
@@ -95,9 +98,15 @@ test('a real network pause keeps the measured amount still; unknown/cache flows 
 		await page.goto(`${iframe}?id=user-flows-startup-loading--${scenario}`);
 		await page.getByRole('button', { name: 'Pause', exact: true }).click();
 		await page.getByRole('button', { name: 'Next phase', exact: true }).click();
-		await expect(page.getByRole('progressbar')).not.toHaveAttribute(
-			'aria-valuenow'
-		);
+		if (scenario === 'cached-entry')
+			await expect(page.getByRole('progressbar')).toHaveAttribute(
+				'aria-valuenow',
+				'90'
+			);
+		else
+			await expect(page.getByRole('progressbar')).not.toHaveAttribute(
+				'aria-valuenow'
+			);
 	}
 });
 

@@ -62,7 +62,7 @@
 	import { planOnline } from '$lib/planAccess';
 	import ConsoleAccountStatus from '$lib/components/ConsoleAccountStatus.svelte';
 	import ConsoleLoading from '$lib/components/ConsoleLoading.svelte';
-	import { consoleLoading } from '$lib/consoleLoading';
+	import { consoleLoading, reportConsoleLoading } from '$lib/consoleLoading';
 
 	import TitleBar from '../components/TitleBar.svelte';
 	import AppFooter from '$lib/components/AppFooter.svelte';
@@ -132,7 +132,14 @@
 		entering && (authPending || (inPwaScope && entryPending))
 	);
 	$effect(() => {
-		if (!entryLoading) entering = false;
+		if (entering) {
+			reportConsoleLoading({
+				phase: entryLoading ? 'finishing' : 'ready',
+				accountReady: !authPending,
+				updateReady: !inPwaScope || !entryPending
+			});
+			if (!entryLoading) entering = false;
+		}
 	});
 	setContext(PERSONAL_PLAN_READY, () =>
 		canShowPersonalPlan({ authReady, signedIn, offline, cloudPlanUnavailable })

@@ -2,7 +2,7 @@
 	import { withBase } from '$lib/deploymentPaths';
 	import './console-loading.css';
 	import {
-		downloadProgress,
+		startupPercent,
 		downloadLabel,
 		loadingText,
 		loadingSettled,
@@ -20,10 +20,8 @@
 		state = { phase: 'opening' }
 	}: Props = $props();
 	const hebrew = $derived(language === 'he');
-	const download = $derived(downloadProgress(state));
-	const fraction = $derived(
-		download ? download.bytesRead / download.totalBytes : undefined
-	);
+	const percent = $derived(startupPercent(state));
+	const fraction = $derived(percent === undefined ? undefined : percent / 100);
 	const status = $derived(loadingText(state, hebrew));
 </script>
 
@@ -55,14 +53,12 @@
 			class:console-loading__track--measured={fraction !== undefined}
 			aria-valuemin={fraction !== undefined ? 0 : undefined}
 			aria-valuemax={fraction !== undefined ? 100 : undefined}
-			aria-valuenow={fraction !== undefined
-				? Math.floor((download!.bytesRead * 100) / download!.totalBytes)
-				: undefined}
+			aria-valuenow={fraction !== undefined ? percent : undefined}
 			class:console-loading__track--settled={loadingSettled(state)}
 			class:console-loading__track--error={state.phase === 'error'}
 			role={state.phase === 'error' ? undefined : 'progressbar'}
 			aria-hidden={state.phase === 'error' ? true : undefined}
-			aria-label={download ? downloadLabel(hebrew) : status}
+			aria-label={downloadLabel(hebrew)}
 		>
 			<span
 				class="console-loading__indicator"

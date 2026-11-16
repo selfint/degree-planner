@@ -66,7 +66,8 @@ it('keeps unknown totals indeterminate, including processing and saving', () => 
 		);
 		expect(text).not.toContain('MB');
 		expect(text).not.toContain('files complete');
-		expect(text).not.toContain('%');
+		if (activity === 'reading') expect(text).not.toContain('%');
+		else expect(text).toContain(activity === 'processing' ? '80%' : '85%');
 		if (activity === 'processing') expect(text).toContain('Processing');
 		if (activity === 'saving') expect(text).toContain('Saving');
 	}

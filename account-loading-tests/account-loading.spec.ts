@@ -388,9 +388,12 @@ test('streamed bytes smoothly advance one entry screen and cached reload does no
 		};
 	});
 	const opening = prepare(page);
-	await expect(page.locator('#console-boot-detail')).toContainText('MB read.', {
-		timeout: 20000
-	});
+	await expect(page.locator('#console-boot-detail')).toContainText(
+		'downloaded.',
+		{
+			timeout: 20000
+		}
+	);
 	await expect(
 		page.locator('#console-boot [role=progressbar]')
 	).toHaveAttribute('aria-valuenow', /^(2[5-9])$/);

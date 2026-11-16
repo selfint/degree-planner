@@ -56,7 +56,7 @@
 			aria-valuemin={fraction !== undefined ? 0 : undefined}
 			aria-valuemax={fraction !== undefined ? 100 : undefined}
 			aria-valuenow={fraction !== undefined
-				? Math.round(fraction * 100)
+				? Math.floor((download!.bytesRead * 100) / download!.totalBytes)
 				: undefined}
 			class:console-loading__track--error={state.phase === 'error'}
 			role={state.phase === 'error' ? undefined : 'progressbar'}

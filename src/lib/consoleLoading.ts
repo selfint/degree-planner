@@ -94,10 +94,13 @@ export function loadingText(
 			stage = hebrew
 				? 'שומרים נתונים לשימוש ללא אינטרנט…'
 				: 'Saving data for offline use…';
-		const bytes = state.bytesRead
-			? ` ${hebrew ? '\u2066' : ''}${(state.bytesRead / 1_000_000).toFixed(1)}${downloadFraction(state) !== undefined ? ` / ${(state.totalBytes! / 1_000_000).toFixed(1)}` : ''} MB${hebrew ? '\u2069' : ''} ${hebrew ? 'נקראו.' : 'read.'}`
-			: '';
-		return `${stage}${bytes} ${hebrew ? `קובצי נתונים שהושלמו: ${state.completed} מתוך ${state.total}` : `${state.completed} of ${state.total} data files complete`}`;
+		const fraction = downloadFraction(state);
+		// Percentages describe received data only, never processing or account work.
+		const progress =
+			fraction !== undefined
+				? ` ${hebrew ? '\u2066' : ''}${Math.floor((state.bytesRead! * 100) / state.totalBytes!)}%${hebrew ? '\u2069' : ''}\u00a0${hebrew ? 'הורדו.' : 'downloaded.'}`
+				: '';
+		return `${stage}${progress} ${hebrew ? `קובצי נתונים שהושלמו: ${state.completed} מתוך ${state.total}` : `${state.completed} of ${state.total} data files complete`}`;
 	}
 	const text = {
 		opening: ['Loading application…', 'טוענים את היישום…'],
@@ -159,7 +162,10 @@ export function reportConsoleLoading(state: ConsoleLoadingState) {
 	if (fraction !== undefined) {
 		track.setAttribute('aria-valuemin', '0');
 		track.setAttribute('aria-valuemax', '100');
-		track.setAttribute('aria-valuenow', String(Math.round(fraction * 100)));
+		track.setAttribute(
+			'aria-valuenow',
+			String(Math.floor((download!.bytesRead * 100) / download!.totalBytes))
+		);
 		indicator.style.inlineSize = `${fraction * 100}%`;
 	} else indicator.style.removeProperty('inline-size');
 }

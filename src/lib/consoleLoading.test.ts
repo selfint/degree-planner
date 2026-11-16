@@ -53,7 +53,7 @@ describe('measured loading progress', () => {
 	});
 });
 
-it('shows decoded bytes without claiming a percentage, including processing and saving', () => {
+it('keeps unknown totals indeterminate, including processing and saving', () => {
 	for (const activity of ['reading', 'processing', 'saving'] as const) {
 		const text = loadingText(
 			{
@@ -66,7 +66,7 @@ it('shows decoded bytes without claiming a percentage, including processing and 
 			},
 			false
 		);
-		expect(text).toContain('3.9 MB read.');
+		expect(text).not.toContain('MB');
 		expect(text).toContain('1 of 2 data files complete');
 		expect(text).not.toContain('%');
 		if (activity === 'processing') expect(text).toContain('Processing');

@@ -16,7 +16,7 @@ it('measures only downloads with a known decoded total', () => {
 			{ ...state, bytesRead: 1_000_000, totalBytes: 4_000_000 },
 			false
 		)
-	).toContain('25%\u00a0downloaded.');
+	).toContain('25%');
 	expect(downloadFraction({ ...state, totalBytes: undefined })).toBeUndefined();
 	expect(downloadFraction({ ...state, activity: 'saving' })).toBeUndefined();
 	expect(
@@ -38,7 +38,7 @@ it('keeps the percentage ordered inside Hebrew status text', () => {
 			},
 			true
 		)
-	).toContain('\u206625%\u2069\u00a0הורדו.');
+	).toContain('\u206625%\u2069');
 });
 
 it('never presents processing or account work as a download percentage', () => {

@@ -4,8 +4,8 @@
 	import {
 		downloadProgress,
 		downloadLabel,
-		downloadCompleteText,
 		loadingText,
+		loadingSettled,
 		type ConsoleLoadingState
 	} from '$lib/consoleLoading';
 
@@ -58,6 +58,7 @@
 			aria-valuenow={fraction !== undefined
 				? Math.floor((download!.bytesRead * 100) / download!.totalBytes)
 				: undefined}
+			class:console-loading__track--settled={loadingSettled(state)}
 			class:console-loading__track--error={state.phase === 'error'}
 			role={state.phase === 'error' ? undefined : 'progressbar'}
 			aria-hidden={state.phase === 'error' ? true : undefined}
@@ -70,9 +71,6 @@
 					: undefined}
 			></span>
 		</div>
-		<p class="console-loading__download">
-			{downloadCompleteText(state, hebrew)}
-		</p>
 		<p class="console-loading__status" role="status">{status}</p>
 	</div>
 </section>

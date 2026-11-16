@@ -22,7 +22,7 @@ export const consoleLoading = writable<ConsoleLoadingState>({
 export function downloadProgress(
 	state: ConsoleLoadingState
 ): DownloadProgress | undefined {
-	const value = state.phase === 'data' ? state : state.download;
+	const value = state.download ?? (state.phase === 'data' ? state : undefined);
 	if (
 		!value ||
 		!value.totalBytes ||
@@ -32,16 +32,14 @@ export function downloadProgress(
 		return undefined;
 	return { bytesRead: value.bytesRead, totalBytes: value.totalBytes };
 }
-export function downloadCompleteText(
-	state: ConsoleLoadingState,
-	hebrew: boolean
-) {
-	const download = downloadProgress(state);
-	return download && download.bytesRead === download.totalBytes
-		? hebrew
-			? 'הורדת הנתונים הושלמה'
-			: 'Data download complete'
-		: '';
+/** Work after receiving data has no measurable byte progress of its own. */
+export function loadingSettled(state: ConsoleLoadingState) {
+	return (
+		state.phase === 'finishing' ||
+		state.phase === 'error' ||
+		(state.phase === 'data' &&
+			(state.activity === 'processing' || state.activity === 'saving'))
+	);
 }
 export function downloadLabel(hebrew: boolean) {
 	return hebrew ? 'קריאת נתוני קורסים' : 'Course data download';
@@ -66,57 +64,33 @@ export function loadingText(
 	hebrew: boolean
 ): string {
 	if (state.phase === 'data') {
-		const courses = state.pending.includes('/courseData.json');
-		const catalogs = state.pending.includes('/catalogs.json');
-		let stage =
-			courses && catalogs
-				? hebrew
-					? 'טוענים קורסים וקטלוגים…'
-					: 'Loading courses and catalogs…'
-				: courses
-					? hebrew
-						? 'טוענים קורסים…'
-						: 'Loading courses…'
-					: catalogs
-						? hebrew
-							? 'טוענים קטלוגים…'
-							: 'Loading catalogs…'
-						: state.pending.length
-							? hebrew
-								? 'טוענים דרישות תואר…'
-								: 'Loading degree requirements…'
-							: hebrew
-								? 'בודקים את הנתונים…'
-								: 'Checking loaded data…';
 		if (state.activity === 'processing')
-			stage = hebrew ? 'מעבדים את הנתונים…' : 'Processing data…';
+			return hebrew ? 'מעבדים נתונים…' : 'Processing data…';
 		if (state.activity === 'saving')
-			stage = hebrew
-				? 'שומרים נתונים לשימוש ללא אינטרנט…'
-				: 'Saving data for offline use…';
+			return hebrew ? 'שומרים לשימוש לא מקוון…' : 'Saving offline…';
 		const fraction = downloadFraction(state);
-		// Percentages describe received data only, never processing or account work.
-		const progress =
-			fraction !== undefined
-				? ` ${hebrew ? '\u2066' : ''}${Math.floor((state.bytesRead! * 100) / state.totalBytes!)}%${hebrew ? '\u2069' : ''}\u00a0${hebrew ? 'הורדו.' : 'downloaded.'}`
-				: '';
-		return `${stage}${progress} ${hebrew ? `קובצי נתונים שהושלמו: ${state.completed} מתוך ${state.total}` : `${state.completed} of ${state.total} data files complete`}`;
+		const percent =
+			fraction === undefined
+				? ''
+				: ` ${hebrew ? '\u2066' : ''}${Math.floor((state.bytesRead! * 100) / state.totalBytes!)}%${hebrew ? '\u2069' : ''}`;
+		return `${hebrew ? 'מורידים נתונים…' : 'Downloading data…'}${percent}`;
 	}
 	const text = {
 		opening: ['Loading application…', 'טוענים את היישום…'],
-		checking: ['Checking saved course data…', 'בודקים נתוני קורסים שמורים…'],
-		finishing: ['Opening your planner…', 'פותחים את מתכנן הלימודים…'],
-		error: [
-			'Unable to open PlanIt. Please reload to try again.',
-			'לא ניתן לפתוח את PlanIt. נסו לטעון את הדף מחדש.'
-		]
+		checking: ['Checking saved data…', 'בודקים נתונים שמורים…'],
+		finishing: ['Opening planner…', 'פותחים את המתכנן…'],
+		error: ['Unable to load. Please reload.', 'לא ניתן לפתוח. טענו מחדש.']
 	};
 	return text[state.phase][hebrew ? 1 : 0];
 }
 
 /** Also updates the pre-hydration shell: route loads run before Svelte mounts. */
 export function reportConsoleLoading(state: ConsoleLoadingState) {
-	if (state.phase === 'finishing') {
+	if (
+		state.phase !== 'opening' &&
+		state.phase !== 'checking' &&
+		!downloadProgress(state)
+	) {
 		const download = downloadProgress(get(consoleLoading));
 		if (download) state = { ...state, download };
 	}
@@ -124,9 +98,6 @@ export function reportConsoleLoading(state: ConsoleLoadingState) {
 	if (typeof document === 'undefined') return;
 	const boot = document.getElementById('console-boot');
 	if (!boot) return;
-	const caption = boot.querySelector('.console-loading__download');
-	if (caption)
-		caption.textContent = downloadCompleteText(state, boot.lang === 'he');
 	const status = boot.querySelector('.console-loading__status');
 	if (status) status.textContent = loadingText(state, boot.lang === 'he');
 	const track = boot.querySelector<HTMLElement>('.console-loading__track');
@@ -141,6 +112,10 @@ export function reportConsoleLoading(state: ConsoleLoadingState) {
 	track.classList.toggle(
 		'console-loading__track--measured',
 		fraction !== undefined
+	);
+	track.classList.toggle(
+		'console-loading__track--settled',
+		loadingSettled(state)
 	);
 	track.classList.toggle(
 		'console-loading__track--error',

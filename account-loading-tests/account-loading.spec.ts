@@ -340,94 +340,160 @@ test('development never initializes telemetry, even with the old PostHog opt-in'
 	).toBeNull();
 });
 
-test('streamed bytes smoothly advance one entry screen and cached reload does not wait for refresh', async ({
-	page
-}) => {
-	await page.addInitScript(() => {
-		const original = window.fetch;
-		let snapshotPath = '';
-		window.fetch = async (...args) => {
-			const response = await original(...args);
-			const input = args[0];
-			const path = new URL(
-				input instanceof Request ? input.url : String(input),
-				location.href
-			).pathname;
-			if (path === '/_data/manifest.json') {
-				snapshotPath = (await response.clone().json())['/courseData.json'].url;
-				return response;
-			}
-			if (path !== '/courseData.json' && path !== snapshotPath) return response;
-			if (response.status === 304)
-				return new Promise<Response>((resolve) => {
-					(
-						window as unknown as { finishCourseBytes: () => void }
-					).finishCourseBytes = () => resolve(response);
-				});
-			if (!response.ok) return response;
-			const bytes = new Uint8Array(await response.arrayBuffer());
-			const halfway = Math.floor(bytes.length / 2);
-			return new Response(
-				new ReadableStream({
-					start(controller) {
-						controller.enqueue(bytes.slice(0, Math.floor(halfway / 2)));
-						(
-							window as unknown as { advanceCourseBytes: () => void }
-						).advanceCourseBytes = () =>
-							controller.enqueue(bytes.slice(Math.floor(halfway / 2), halfway));
+for (const language of ['en', 'he'])
+	test(`streamed bytes smoothly advance one mobile ${language} entry screen and cached reload does not wait for refresh`, async ({
+		page
+	}) => {
+		await page.setViewportSize({ width: 320, height: 740 });
+		await page.addInitScript(() => {
+			const samples: {
+				measured: boolean;
+				animation: string;
+				iterations: string;
+				lines: number;
+				paragraphs: number;
+				overflow: boolean;
+			}[] = [];
+			Object.assign(window, { loadingSamples: samples });
+			const sample = () => {
+				const root = document.querySelector('.console-loading');
+				if (root && root.getBoundingClientRect().height) {
+					const track = root.querySelector('.console-loading__track')!;
+					const status = root.querySelector('.console-loading__status')!;
+					const style = getComputedStyle(track.firstElementChild!);
+					const range = document.createRange();
+					range.selectNodeContents(status);
+					samples.push({
+						measured: track.hasAttribute('aria-valuenow'),
+						animation: style.animationName,
+						iterations: style.animationIterationCount,
+						paragraphs: root.querySelectorAll('p').length,
+						overflow: status.scrollWidth > status.clientWidth,
+						lines: new Set(
+							[...range.getClientRects()].map((r) => Math.round(r.top))
+						).size
+					});
+				}
+				requestAnimationFrame(sample);
+			};
+			requestAnimationFrame(sample);
+			const original = window.fetch;
+			let snapshotPath = '';
+			window.fetch = async (...args) => {
+				const response = await original(...args);
+				const input = args[0];
+				const path = new URL(
+					input instanceof Request ? input.url : String(input),
+					location.href
+				).pathname;
+				if (path === '/_data/manifest.json') {
+					snapshotPath = (await response.clone().json())['/courseData.json']
+						.url;
+					return response;
+				}
+				if (path !== '/courseData.json' && path !== snapshotPath)
+					return response;
+				if (response.status === 304)
+					return new Promise<Response>((resolve) => {
 						(
 							window as unknown as { finishCourseBytes: () => void }
-						).finishCourseBytes = () => {
-							controller.enqueue(bytes.slice(halfway));
-							controller.close();
-						};
-					}
-				}),
-				{ status: response.status, headers: response.headers }
-			);
-		};
-	});
-	const opening = prepare(page);
-	await expect(page.locator('#console-boot-detail')).toContainText(
-		'downloaded.',
-		{
+						).finishCourseBytes = () => resolve(response);
+					});
+				if (!response.ok) return response;
+				const bytes = new Uint8Array(await response.arrayBuffer());
+				const halfway = Math.floor(bytes.length / 2);
+				return new Response(
+					new ReadableStream({
+						start(controller) {
+							controller.enqueue(bytes.slice(0, Math.floor(halfway / 2)));
+							(
+								window as unknown as { advanceCourseBytes: () => void }
+							).advanceCourseBytes = () =>
+								controller.enqueue(
+									bytes.slice(Math.floor(halfway / 2), halfway)
+								);
+							(
+								window as unknown as { finishCourseBytes: () => void }
+							).finishCourseBytes = () => {
+								controller.enqueue(bytes.slice(halfway));
+								controller.close();
+							};
+						}
+					}),
+					{ status: response.status, headers: response.headers }
+				);
+			};
+		});
+		const opening = prepare(page, language);
+		await expect(page.locator('#console-boot-detail')).toContainText('%', {
 			timeout: 20000
-		}
-	);
-	await expect(
-		page.locator('#console-boot [role=progressbar]')
-	).toHaveAttribute('aria-valuenow', /^(2[5-9])$/);
-	await command(page, 'window.advanceCourseBytes()');
-	await expect(
-		page.locator('#console-boot [role=progressbar]')
-	).toHaveAttribute('aria-valuenow', /^(5[0-9])$/);
-	await expect(
-		page.locator('#console-boot .console-loading__indicator')
-	).toHaveCSS('transition-duration', '0.12s');
-	await page.screenshot({ path: '/tmp/smooth-progress-local.png' });
-	await page.emulateMedia({ reducedMotion: 'reduce' });
-	await expect(
-		page.locator('#console-boot .console-loading__indicator')
-	).toHaveCSS('transition-duration', '0s');
-	await page.emulateMedia({ reducedMotion: 'no-preference' });
-	await command(page, 'window.finishCourseBytes()');
-	await opening;
-	await expect(page.getByTestId('console-ready-loading')).toBeVisible();
-	await expect(
-		page.getByTestId('console-ready-loading').getByRole('progressbar')
-	).toHaveAttribute('aria-valuenow', '100');
-	await command(page, 'window.accountFixture.finish(0)');
-	await expect(page.locator('.console-loading')).toHaveCount(0);
-	await page.reload();
-	await waitForAccountRead(page, 'cached streamed reload');
-	await command(page, 'window.accountFixture.finish(0)');
-	await expect(page.locator('main')).toBeVisible();
-	await expect(page.locator('.console-loading')).toHaveCount(0);
-	await page.waitForFunction(
-		() =>
-			typeof (window as unknown as { finishCourseBytes?: () => void })
-				.finishCourseBytes === 'function'
-	);
-	await command(page, 'window.finishCourseBytes()');
-	await expect(page.locator('.console-loading')).toHaveCount(0);
-});
+		});
+		await expect(
+			page.locator('#console-boot [role=progressbar]')
+		).toHaveAttribute('aria-valuenow', /^(2[5-9])$/);
+		await command(page, 'window.advanceCourseBytes()');
+		await expect(
+			page.locator('#console-boot [role=progressbar]')
+		).toHaveAttribute('aria-valuenow', /^(5[0-9])$/);
+		await expect(
+			page.locator('#console-boot .console-loading__indicator')
+		).toHaveCSS('transition-duration', '0.12s');
+		await page.screenshot({ path: '/tmp/smooth-progress-local.png' });
+		await page.emulateMedia({ reducedMotion: 'reduce' });
+		await expect(
+			page.locator('#console-boot .console-loading__indicator')
+		).toHaveCSS('transition-duration', '0s');
+		await page.emulateMedia({ reducedMotion: 'no-preference' });
+		await command(page, 'window.finishCourseBytes()');
+		await opening;
+		await expect(page.getByTestId('console-ready-loading')).toBeVisible();
+		await expect(
+			page.getByTestId('console-ready-loading').getByRole('progressbar')
+		).toHaveAttribute('aria-valuenow', '100');
+		await command(page, 'window.accountFixture.finish(0)');
+		await expect(page.locator('.console-loading')).toHaveCount(0);
+		const samples = await page.evaluate(
+			() =>
+				(
+					window as unknown as {
+						loadingSamples: {
+							measured: boolean;
+							animation: string;
+							iterations: string;
+							lines: number;
+							paragraphs: number;
+							overflow: boolean;
+						}[];
+					}
+				).loadingSamples
+		);
+		expect(samples.some((s) => !s.measured)).toBe(true);
+		const firstMeasured = samples.findIndex((s) => s.measured);
+		expect(firstMeasured).toBeGreaterThan(-1);
+		expect(
+			samples
+				.slice(firstMeasured)
+				.every((s) => s.measured && s.animation === 'none')
+		).toBe(true);
+		expect(
+			samples.every(
+				(s) =>
+					s.iterations !== 'infinite' &&
+					s.paragraphs === 1 &&
+					s.lines === 1 &&
+					!s.overflow
+			)
+		).toBe(true);
+		await page.reload();
+		await waitForAccountRead(page, 'cached streamed reload');
+		await command(page, 'window.accountFixture.finish(0)');
+		await expect(page.locator('main')).toBeVisible();
+		await expect(page.locator('.console-loading')).toHaveCount(0);
+		await page.waitForFunction(
+			() =>
+				typeof (window as unknown as { finishCourseBytes?: () => void })
+					.finishCourseBytes === 'function'
+		);
+		await command(page, 'window.finishCourseBytes()');
+		await expect(page.locator('.console-loading')).toHaveCount(0);
+	});

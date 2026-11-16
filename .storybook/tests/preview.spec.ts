@@ -825,9 +825,7 @@ test('theme, language and reading direction are global controls', async ({
 		page.getByRole('img', { name: 'PlanIt', exact: true })
 	).toBeVisible();
 	await expect(page.locator('.console-loading__track')).toBeVisible();
-	await expect(page.getByRole('status')).toHaveText(
-		'Loading courses… 1 of 2 data files complete'
-	);
+	await expect(page.getByRole('status')).toHaveText('Downloading data…');
 	await expect(page.getByRole('status')).toBeVisible();
 	await expect(page.getByRole('status')).toHaveCSS('clip-path', 'none');
 	await expect(

@@ -48,9 +48,7 @@ for (const theme of ['dark', 'light'])
 					'aria-valuenow',
 					'100'
 				);
-				await expect(
-					page.locator('.console-loading__download')
-				).not.toBeEmpty();
+				await expect(page.locator('.console-loading__status')).not.toBeEmpty();
 				expect(
 					(await page.locator('.console-loading__brand').boundingBox())!.y
 				).toBeCloseTo(brand!.y, 0);
@@ -101,4 +99,58 @@ test('a real network pause keeps the measured amount still; unknown/cache flows 
 			'aria-valuenow'
 		);
 	}
+});
+
+test('one initial bounce then only measured fill, with one status line throughout', async ({
+	page
+}) => {
+	await page.setViewportSize({ width: 320, height: 740 });
+	await page.goto(`${iframe}?id=user-flows-startup-loading--cold-entry`);
+	await page.getByRole('button', { name: 'Replay', exact: true }).click();
+	await expect(page.locator('.console-loading__indicator')).toHaveCSS(
+		'animation-iteration-count',
+		'1'
+	);
+	const samples = await page.evaluate(async () => {
+		const samples: {
+			measured: boolean;
+			animation: string;
+			paragraphs: number;
+			overflow: boolean;
+			lines: number;
+		}[] = [];
+		await new Promise<void>((resolve) => {
+			const sample = () => {
+				const root = document.querySelector('.console-loading');
+				if (!root) {
+					resolve();
+					return;
+				}
+				const track = root.querySelector('.console-loading__track')!;
+				const status = root.querySelector('.console-loading__status')!;
+				const range = document.createRange();
+				range.selectNodeContents(status);
+				const rects = [...range.getClientRects()];
+				samples.push({
+					measured: track.hasAttribute('aria-valuenow'),
+					animation: getComputedStyle(track.firstElementChild!).animationName,
+					paragraphs: root.querySelectorAll('p').length,
+					overflow: status.scrollWidth > status.clientWidth,
+					lines: new Set(rects.map((r) => Math.round(r.top))).size
+				});
+				requestAnimationFrame(sample);
+			};
+			sample();
+		});
+		return samples;
+	});
+	expect(samples.some((s) => !s.measured)).toBe(true);
+	const first = samples.findIndex((s) => s.measured);
+	expect(first).toBeGreaterThan(-1);
+	expect(
+		samples.slice(first).every((s) => s.measured && s.animation === 'none')
+	).toBe(true);
+	expect(
+		samples.every((s) => s.paragraphs === 1 && !s.overflow && s.lines === 1)
+	).toBe(true);
 });

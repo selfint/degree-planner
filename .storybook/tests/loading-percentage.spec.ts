@@ -30,22 +30,15 @@ for (const width of [320, 375, 390])
 			const status = page.locator('.console-loading__status');
 			await expect(status).toContainText('%');
 			await expect(status).not.toContainText('MB');
-			const lines = await status.evaluate((element, language) => {
-				const node = element.firstChild!;
-				const text = node.textContent!;
-				const start = text.search(/\d+%/);
-				const word = language === 'en' ? 'downloaded.' : 'הורדו.';
-				const end = text.indexOf(word, start) + word.length;
+			const lines = await status.evaluate((element) => {
 				const range = document.createRange();
-				range.setStart(node, start);
-				range.setEnd(node, end);
+				range.selectNodeContents(element);
 				return [...range.getClientRects()].map((r) => ({
 					top: r.top,
 					left: r.left,
 					right: r.right
 				}));
-			}, language);
-			expect(lines.length).toBeGreaterThan(0);
+			});
 			expect(
 				Math.max(...lines.map((r) => r.top)) -
 					Math.min(...lines.map((r) => r.top))
@@ -54,6 +47,7 @@ for (const width of [320, 375, 390])
 				expect(line.left).toBeGreaterThanOrEqual(0);
 				expect(line.right).toBeLessThanOrEqual(width);
 			}
+
 			await page.screenshot({ path: info.outputPath('percentage.png') });
 			await page
 				.getByRole('button', { name: 'Next phase', exact: true })
@@ -64,7 +58,7 @@ for (const width of [320, 375, 390])
 			);
 			await expect(status).not.toContainText('%');
 			await expect(status).not.toContainText('MB');
-			await expect(page.locator('.console-loading__download')).not.toBeEmpty();
+			await expect(page.locator('.console-loading__status')).not.toBeEmpty();
 			expect(
 				await page.evaluate(() => document.documentElement.scrollWidth)
 			).toBeLessThanOrEqual(width);

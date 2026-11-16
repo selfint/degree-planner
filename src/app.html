@@ -127,7 +127,7 @@
 				block-size: 100%;
 				border-radius: inherit;
 				background: rgb(var(--boot-accent));
-				animation: console-loading-travel 1.8s ease-in-out infinite alternate;
+				animation: console-loading-travel 1.8s ease-in-out 1 forwards;
 			}
 			.console-loading__track--measured {
 				direction: inherit;
@@ -137,23 +137,16 @@
 				margin-inline: 0;
 				transition: inline-size 120ms linear;
 			}
-			.console-loading__track--error .console-loading__indicator {
+			.console-loading__track--settled .console-loading__indicator {
 				animation: none;
 			}
-			.console-loading__download {
-				min-block-size: 1.4em;
-				margin: 0.5rem 0 0;
-				font-size: 0.75rem;
-				line-height: 1.4;
-				color: rgb(var(--boot-accent));
-			}
 			.console-loading__status {
-				min-block-size: 6.4em;
+				min-block-size: 1.6em;
 				margin: 0.875rem 0 0;
 				color: rgb(var(--boot-muted));
 				font-size: 0.8125rem;
 				line-height: 1.6;
-				text-wrap: balance;
+				white-space: nowrap;
 			}
 			.console-loading__status::before {
 				content: '';
@@ -223,7 +216,6 @@
 				<div class="console-loading__track" aria-hidden="true">
 					<span class="console-loading__indicator"></span>
 				</div>
-				<p class="console-loading__download"></p>
 				<p
 					id="console-boot-detail"
 					class="console-loading__status"

@@ -42,25 +42,12 @@
 		</div>
 		<div
 			class="console-loading__track"
-			class:console-loading__track--measured={state.phase === 'data'}
 			class:console-loading__track--error={state.phase === 'error'}
 			role={state.phase === 'error' ? undefined : 'progressbar'}
 			aria-hidden={state.phase === 'error' ? true : undefined}
-			aria-label={state.phase === 'data'
-				? hebrew
-					? 'טעינת קובצי נתונים'
-					: 'Loading data files'
-				: status}
-			aria-valuemin={state.phase === 'data' ? 0 : undefined}
-			aria-valuemax={state.phase === 'data' ? state.total : undefined}
-			aria-valuenow={state.phase === 'data' ? state.completed : undefined}
+			aria-label={status}
 		>
-			<span
-				class="console-loading__indicator"
-				style:inline-size={state.phase === 'data'
-					? `${(100 * state.completed) / state.total}%`
-					: undefined}
-			></span>
+			<span class="console-loading__indicator"></span>
 		</div>
 		<p class="console-loading__status" role="status">{status}</p>
 	</div>

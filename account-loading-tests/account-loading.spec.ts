@@ -339,3 +339,67 @@ test('development never initializes telemetry, even with the old PostHog opt-in'
 		)
 	).toBeNull();
 });
+
+test('streamed bytes keep one indeterminate entry screen and cached reload does not wait for refresh', async ({
+	page
+}) => {
+	await page.addInitScript(() => {
+		const original = window.fetch;
+		window.fetch = async (...args) => {
+			const response = await original(...args);
+			const input = args[0];
+			const path = new URL(
+				input instanceof Request ? input.url : String(input),
+				location.href
+			).pathname;
+			if (path !== '/courseData.json') return response;
+			if (response.status === 304)
+				return new Promise<Response>((resolve) => {
+					(
+						window as unknown as { finishCourseBytes: () => void }
+					).finishCourseBytes = () => resolve(response);
+				});
+			if (!response.ok) return response;
+			const bytes = new Uint8Array(await response.arrayBuffer());
+			const halfway = Math.floor(bytes.length / 2);
+			return new Response(
+				new ReadableStream({
+					start(controller) {
+						controller.enqueue(bytes.slice(0, halfway));
+						(
+							window as unknown as { finishCourseBytes: () => void }
+						).finishCourseBytes = () => {
+							controller.enqueue(bytes.slice(halfway));
+							controller.close();
+						};
+					}
+				}),
+				{ status: response.status, headers: response.headers }
+			);
+		};
+	});
+	const opening = prepare(page);
+	await expect(page.locator('#console-boot-detail')).toContainText('MB read.', {
+		timeout: 20000
+	});
+	await expect(
+		page.locator('#console-boot [role=progressbar]')
+	).not.toHaveAttribute('aria-valuenow');
+	await command(page, 'window.finishCourseBytes()');
+	await opening;
+	await expect(page.getByTestId('console-ready-loading')).toBeVisible();
+	await command(page, 'window.accountFixture.finish(0)');
+	await expect(page.locator('.console-loading')).toHaveCount(0);
+	await page.reload();
+	await waitForAccountRead(page, 'cached streamed reload');
+	await command(page, 'window.accountFixture.finish(0)');
+	await expect(page.locator('main')).toBeVisible();
+	await expect(page.locator('.console-loading')).toHaveCount(0);
+	await page.waitForFunction(
+		() =>
+			typeof (window as unknown as { finishCourseBytes?: () => void })
+				.finishCourseBytes === 'function'
+	);
+	await command(page, 'window.finishCourseBytes()');
+	await expect(page.locator('.console-loading')).toHaveCount(0);
+});

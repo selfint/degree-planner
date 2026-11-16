@@ -283,18 +283,18 @@ for (const language of ['en', 'he'] as const) {
 					'color',
 					foreground
 				);
-				await expect(page.locator('#console-boot-detail')).toHaveText(
+				await expect(page.locator('#console-boot-detail')).toContainText(
 					language === 'he'
-						? 'טוענים קורסים… קובצי נתונים שהושלמו: 1 מתוך 2'
-						: 'Loading courses… 1 of 2 data files complete'
+						? 'קובצי נתונים שהושלמו: 1 מתוך 2'
+						: '1 of 2 data files complete'
 				);
 				await expect(page.locator('#console-boot-detail')).toBeVisible();
 				await expect(
 					page.locator('#console-boot [role=progressbar]')
-				).toHaveAttribute('aria-valuenow', '1');
+				).not.toHaveAttribute('aria-valuenow');
 				await expect(
 					page.locator('#console-boot [role=progressbar]')
-				).toHaveAttribute('aria-valuemax', '2');
+				).not.toHaveAttribute('aria-valuemax');
 				await page.screenshot({
 					path: test.info().outputPath('measured-loading.png')
 				});

@@ -4,6 +4,8 @@ export type DataLoadingProgress = {
 	completed: number;
 	total: number;
 	pending: string[];
+	bytesRead?: number;
+	activity?: 'reading' | 'processing' | 'saving';
 };
 export type ConsoleLoadingState =
 	| { phase: 'opening' | 'checking' | 'finishing' | 'error' }
@@ -20,7 +22,7 @@ export function loadingText(
 	if (state.phase === 'data') {
 		const courses = state.pending.includes('/courseData.json');
 		const catalogs = state.pending.includes('/catalogs.json');
-		const stage =
+		let stage =
 			courses && catalogs
 				? hebrew
 					? 'טוענים קורסים וקטלוגים…'
@@ -40,7 +42,16 @@ export function loadingText(
 							: hebrew
 								? 'בודקים את הנתונים…'
 								: 'Checking loaded data…';
-		return `${stage} ${hebrew ? `קובצי נתונים שהושלמו: ${state.completed} מתוך ${state.total}` : `${state.completed} of ${state.total} data files complete`}`;
+		if (state.activity === 'processing')
+			stage = hebrew ? 'מעבדים את הנתונים…' : 'Processing data…';
+		if (state.activity === 'saving')
+			stage = hebrew
+				? 'שומרים נתונים לשימוש ללא אינטרנט…'
+				: 'Saving data for offline use…';
+		const bytes = state.bytesRead
+			? ` ${(state.bytesRead / 1_000_000).toFixed(1)} MB ${hebrew ? 'נקראו.' : 'read.'}`
+			: '';
+		return `${stage}${bytes} ${hebrew ? `קובצי נתונים שהושלמו: ${state.completed} מתוך ${state.total}` : `${state.completed} of ${state.total} data files complete`}`;
 	}
 	const text = {
 		opening: ['Loading application…', 'טוענים את היישום…'],
@@ -67,8 +78,7 @@ export function reportConsoleLoading(state: ConsoleLoadingState) {
 		'.console-loading__indicator'
 	);
 	if (!track || !indicator) return;
-	const measured = state.phase === 'data';
-	track.classList.toggle('console-loading__track--measured', measured);
+	track.classList.remove('console-loading__track--measured');
 	track.classList.toggle(
 		'console-loading__track--error',
 		state.phase === 'error'
@@ -78,20 +88,8 @@ export function reportConsoleLoading(state: ConsoleLoadingState) {
 		track.removeAttribute('role');
 		track.setAttribute('aria-hidden', 'true');
 	} else track.setAttribute('role', 'progressbar');
-	track.setAttribute(
-		'aria-label',
-		measured
-			? boot.lang === 'he'
-				? 'טעינת קובצי נתונים'
-				: 'Loading data files'
-			: loadingText(state, boot.lang === 'he')
-	);
+	track.setAttribute('aria-label', loadingText(state, boot.lang === 'he'));
 	for (const attribute of ['aria-valuenow', 'aria-valuemax', 'aria-valuemin'])
 		track.removeAttribute(attribute);
-	if (measured) {
-		track.setAttribute('aria-valuenow', String(state.completed));
-		track.setAttribute('aria-valuemin', '0');
-		track.setAttribute('aria-valuemax', String(state.total));
-		indicator.style.inlineSize = `${(100 * state.completed) / state.total}%`;
-	} else indicator.style.removeProperty('inline-size');
+	indicator.style.removeProperty('inline-size');
 }

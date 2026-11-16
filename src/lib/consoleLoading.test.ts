@@ -52,3 +52,24 @@ describe('measured loading progress', () => {
 		expect(loadingText({ phase: 'error' }, true)).toContain('לא ניתן לפתוח');
 	});
 });
+
+it('shows decoded bytes without claiming a percentage, including processing and saving', () => {
+	for (const activity of ['reading', 'processing', 'saving'] as const) {
+		const text = loadingText(
+			{
+				phase: 'data',
+				completed: 1,
+				total: 2,
+				pending: ['/courseData.json'],
+				bytesRead: 3924481,
+				activity
+			},
+			false
+		);
+		expect(text).toContain('3.9 MB read.');
+		expect(text).toContain('1 of 2 data files complete');
+		expect(text).not.toContain('%');
+		if (activity === 'processing') expect(text).toContain('Processing');
+		if (activity === 'saving') expect(text).toContain('Saving');
+	}
+});

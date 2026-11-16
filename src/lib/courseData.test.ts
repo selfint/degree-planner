@@ -306,14 +306,20 @@ it('counts only validated persisted datasets, never failures, as boot progress',
 		expect(result.refreshError).toContain(
 			'Invalid public data: /catalogs.json'
 		);
-		expect(progress.mock.calls.map(([value]) => value.completed)).toEqual([
-			0, 1
-		]);
-		expect(progress).toHaveBeenLastCalledWith({
-			completed: 1,
-			total: 2,
-			pending: ['/catalogs.json']
-		});
+		expect(
+			progress.mock.calls
+				.map(([value]) => value.completed)
+				.filter(
+					(count, index, counts) => index === 0 || count !== counts[index - 1]
+				)
+		).toEqual([0, 1]);
+		expect(progress).toHaveBeenLastCalledWith(
+			expect.objectContaining({
+				completed: 1,
+				total: 2,
+				pending: ['/catalogs.json']
+			})
+		);
 	} finally {
 		vi.unstubAllGlobals();
 	}

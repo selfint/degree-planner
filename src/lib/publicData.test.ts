@@ -933,3 +933,46 @@ describe('source-owned public refresh errors', () => {
 		}
 	});
 });
+
+it('counts decoded public bytes while keeping 304 and offline cache reads at zero', async () => {
+	vi.resetModules();
+	vi.stubGlobal('window', {});
+	vi.stubGlobal('navigator', { onLine: true });
+	vi.stubGlobal('indexedDB', new IDBFactory());
+	try {
+		const { preparePublicCourseData } = await import('./publicData');
+		const progress = vi.fn();
+		const fetcher = vi.fn<typeof fetch>(async (key) =>
+			response(key === '/catalogs.json' ? manifest : courses)
+		);
+		await preparePublicCourseData(fetcher, progress);
+		const expected =
+			new TextEncoder().encode(JSON.stringify(manifest)).length +
+			new TextEncoder().encode(JSON.stringify(courses)).length;
+		expect(progress.mock.calls.at(-1)?.[0]).toMatchObject({
+			completed: 2,
+			total: 2,
+			bytesRead: expected
+		});
+		expect(
+			progress.mock.calls.some(([value]) => value.activity === 'processing')
+		).toBe(true);
+		expect(
+			progress.mock.calls.some(([value]) => value.activity === 'saving')
+		).toBe(true);
+		progress.mockClear();
+		fetcher.mockImplementation(async () => new Response(null, { status: 304 }));
+		await preparePublicCourseData(fetcher, progress);
+		expect(progress.mock.calls.every(([value]) => value.bytesRead === 0)).toBe(
+			true
+		);
+		progress.mockClear();
+		fetcher.mockClear();
+		vi.stubGlobal('navigator', { onLine: false });
+		await preparePublicCourseData(fetcher, progress);
+		expect(fetcher).not.toHaveBeenCalled();
+		expect(progress).not.toHaveBeenCalled();
+	} finally {
+		vi.unstubAllGlobals();
+	}
+});

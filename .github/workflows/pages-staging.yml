@@ -45,31 +45,104 @@ jobs:
           jq '{html_url, cname, build_type, source}' pages.json
           test "$(jq -r '.html_url' pages.json | sed 's:/*$::')" = "${APPROVED_PAGES_URL%/}"
 
-  verify:
+  # Pin before any candidate code runs. PRs verify their merge revision;
+  # dispatch (including deploy=false) verifies the selected candidate pair.
+  source:
+    runs-on: ubuntu-24.04
+    outputs:
+      staging_sha: ${{ steps.source.outputs.sha }}
+    steps:
+      - name: Pin the staging source without modifying either branch
+        id: source
+        env:
+          GH_TOKEN: ${{ github.token }}
+          STAGING_REF: ${{ inputs.staging_ref || vars.PLANIT_STAGING_REF || 'main' }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = 'pull_request' ]; then
+            staging_sha="$GITHUB_SHA"
+          else
+            staging_sha=$(gh api "repos/$GITHUB_REPOSITORY/commits/$STAGING_REF" --jq '.sha')
+          fi
+          [[ "$staging_sha" =~ ^[a-f0-9]{40}$ ]]
+          echo "sha=$staging_sha" >> "$GITHUB_OUTPUT"
+
+  # Separate runners keep candidate install/build scripts away from production
+  # artifacts, trusted verification code and publishing credentials.
+  build-staging:
+    needs: source
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
         base: ['', '/degree-planner']
     env:
-      PAGES_BUILD: 'true'
-      PUBLIC_POSTHOG_KEY: phc_test_only
-      PUBLIC_POSTHOG_HOST: https://posthog.example.test
-      BASE_PATH: ${{ matrix.base }}
+      PUBLIC_DEPLOYMENT_ENV: staging
+      BASE_PATH: ${{ matrix.base }}/staging
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.source.outputs.staging_sha }}
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-      - run: npm run build:pages:pair
+      - run: npm run build:pages
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pages-staging-${{ strategy.job-index }}
+          path: build/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 1
+
+  verify:
+    # Required verify checks must fail, not become skipped, if an upstream build fails.
+    if: always()
+    needs: [source, build-staging]
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        base: ['', '/degree-planner']
+    env:
+      BASE_PATH: ${{ matrix.base }}
+      PUBLIC_DEPLOYMENT_ENV: production
+    steps:
+      - name: Require pinned source and complete staging build matrix
+        env:
+          SOURCE_RESULT: ${{ needs.source.result }}
+          STAGING_RESULT: ${{ needs.build-staging.result }}
+        run: test "$SOURCE_RESULT" = success && test "$STAGING_RESULT" = success
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      # Production stays on the trusted verifier runner; only staging crosses
+      # the artifact boundary. Never execute candidate files on this runner.
+      - run: npm run build:pages
+      - uses: actions/download-artifact@v4
+        with:
+          name: pages-staging-${{ strategy.job-index }}
+          path: staging-build
+      - name: Assemble with the production revision's safety contract
+        run: node scripts/combinePages.mjs build staging-build
       - name: Test production routes in the combined static artifact
         run: node scripts/runPagesBrowserTests.mjs playwright.pages.config.ts
       - name: Verify production still captures analytics
         run: node scripts/runPagesBrowserTests.mjs playwright.analytics.config.ts
       - name: Verify staging privacy, storage, fallback routes and separate PWA scopes
         run: node scripts/runPagesBrowserTests.mjs playwright.staging.config.ts
+      # Uploaded only after every suite succeeds; deploy also needs BOTH bases.
+      - uses: actions/upload-pages-artifact@v3
+        if: matrix.base == '/degree-planner'
+        with:
+          path: build
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
@@ -78,7 +151,7 @@ jobs:
 
   deploy:
     if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.deploy && inputs.expected_url == 'https://tom.selfin.io/degree-planner/'))
-    needs: [inspect, verify]
+    needs: [inspect, source, verify]
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -91,15 +164,6 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
-        with:
-          path: production
-          persist-credentials: false
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: production/.nvmrc
-          cache: npm
-          cache-dependency-path: production/package-lock.json
       - uses: actions/configure-pages@v5
         id: pages
       - name: Refuse publication to an unapproved existing site
@@ -107,6 +171,10 @@ jobs:
           ACTUAL_URL: ${{ steps.pages.outputs.base_url }}
           EXPECTED_URL: ${{ env.APPROVED_PAGES_URL }}
         run: test "${ACTUAL_URL%/}" = "${EXPECTED_URL%/}"
+      - name: Refuse an artifact for a different base path
+        env:
+          ACTUAL_BASE: ${{ steps.pages.outputs.base_path }}
+        run: test "$ACTUAL_BASE" = '/degree-planner'
       - name: Verify Pages uses the approved Actions publishing source
         env:
           GH_TOKEN: ${{ github.token }}
@@ -116,42 +184,12 @@ jobs:
             echo '::error::The repository owner must select GitHub Actions under Settings > Pages > Build and deployment.'
             exit 1
           fi
-      - name: Pin the staging source without modifying either branch
-        id: source
-        env:
-          GH_TOKEN: ${{ github.token }}
-          STAGING_REF: ${{ inputs.staging_ref || vars.PLANIT_STAGING_REF || 'main' }}
-        run: |
-          # Resolve refs through GitHub, never execute or interpolate their contents.
-          staging_sha=$(gh api "repos/$GITHUB_REPOSITORY/commits/$STAGING_REF" --jq '.sha')
-          [[ "$staging_sha" =~ ^[a-f0-9]{40}$ ]]
-          echo "sha=$staging_sha" >> "$GITHUB_OUTPUT"
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ steps.source.outputs.sha }}
-          path: staging
-          persist-credentials: false
-      - run: npm ci
-        working-directory: production
-      - run: npm ci
-        working-directory: staging
-      - name: Build main production and the selected analytics-free staging source
-        run: npm run build:pages:pair
-        working-directory: production
-        env:
-          BASE_PATH: ${{ steps.pages.outputs.base_path }}
-          STAGING_SOURCE_DIR: ../staging
-      - name: Validate the selected staging artifact without contacting real accounts
-        run: node scripts/runPagesBrowserTests.mjs playwright.staging.config.ts
-        working-directory: production
-        env:
-          BASE_PATH: ${{ steps.pages.outputs.base_path }}
       - name: Publish only current source revisions
         id: current
         env:
           GH_TOKEN: ${{ github.token }}
           STAGING_REF: ${{ inputs.staging_ref || vars.PLANIT_STAGING_REF || 'main' }}
-          STAGING_SHA: ${{ steps.source.outputs.sha }}
+          STAGING_SHA: ${{ needs.source.outputs.staging_sha }}
         run: |
           main_sha=$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq '.object.sha')
           staging_sha=$(gh api "repos/$GITHUB_REPOSITORY/commits/$STAGING_REF" --jq '.sha')
@@ -163,10 +201,6 @@ jobs:
           fi
           echo "Production source: $GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"
           echo "Staging source: $STAGING_SHA" >> "$GITHUB_STEP_SUMMARY"
-      - uses: actions/upload-pages-artifact@v3
-        if: steps.current.outputs.publish == 'true'
-        with:
-          path: production/build
       - uses: actions/deploy-pages@v4
         if: steps.current.outputs.publish == 'true'
         id: deployment

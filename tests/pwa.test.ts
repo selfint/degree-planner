@@ -1349,6 +1349,13 @@ test('signed-in offline users can read an unvisited course without exposing or e
 	page,
 	context
 }) => {
+	await context.route('**/*', (route) => {
+		const url = new URL(route.request().url());
+		return ['localhost', '127.0.0.1'].includes(url.hostname) &&
+			!url.pathname.includes('/_vercel/')
+			? route.continue()
+			: route.abort();
+	});
 	await ready(page);
 	const courses = JSON.parse(await readFile('static/courseData.json', 'utf8'));
 	const source = await readFile('src/lib/firebase.svelte.ts', 'utf8');

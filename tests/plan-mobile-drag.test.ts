@@ -6,6 +6,8 @@ import {
 	type CDPSession
 } from '@playwright/test';
 
+import { mockCourseData } from './helpers/course-data-fixture';
+
 const courses = {
 	'10400001': { code: '10400001', name: 'First course', points: 5 },
 	'10400002': { code: '10400002', name: 'Second course', points: 5 },
@@ -33,7 +35,14 @@ async function moveTouch(
 	}
 }
 
-test.beforeEach(async ({ page }) => {
+test.beforeEach(async ({ page, baseURL }) => {
+	await page
+		.context()
+		.route('**/*', (route) =>
+			new URL(route.request().url()).origin === new URL(baseURL!).origin
+				? route.continue()
+				: route.abort()
+		);
 	await page.addInitScript(() => {
 		if (localStorage.getItem('userData')) return;
 		localStorage.setItem('lang', 'en');
@@ -50,14 +59,19 @@ test.beforeEach(async ({ page }) => {
 			})
 		);
 	});
-	// Startup now syncs the canonical full dataset; both views use this fixture.
-	await page.route(/\/courseData(?:Stripped)?\.json(?:\?.*)?$/, (route) =>
-		route.fulfill({ json: courses })
-	);
+	const snapshotReads = await mockCourseData(page, courses);
 	// The console is client-rendered; the public fixture is never SSR-inlined.
 	// Landing deliberately no longer reads the user's plan or renders plan links.
 	await page.goto('/app/plan');
+	await expect
+		.poll(snapshotReads, {
+			message: 'startup reads the synthetic course snapshot'
+		})
+		.toBeGreaterThan(0);
 	await expect(page.getByText('First course')).toBeVisible();
+	// Rendered cards can be visible beneath the entry gate while updates finish.
+	// CDP touch input does not perform Playwright's actionability checks.
+	await expect(page.locator('.console-loading')).toHaveCount(0);
 });
 
 for (const device of ['Pixel 7', 'iPhone 13']) {
@@ -988,29 +1002,28 @@ for (const width of [320, 390]) {
 			page
 		}) => {
 			await page.setViewportSize({ width, height: 664 });
-			await page.route(/\/courseData(?:Stripped)?\.json(?:\?.*)?$/, (route) =>
-				route.fulfill({
-					json: Object.fromEntries(
-						Array.from({ length: 9 }, (_, index) => {
-							const code = String(10400001 + index);
-							return [
+			await mockCourseData(
+				page,
+				Object.fromEntries(
+					Array.from({ length: 9 }, (_, index) => {
+						const code = String(10400001 + index);
+						return [
+							code,
+							{
 								code,
-								{
-									code,
-									name:
-										index === 0
-											? 'First course'
-											: index === 1
-												? 'Second course'
-												: index === 2
-													? 'Wishlist course'
-													: `Course ${index + 1}`,
-									points: 5
-								}
-							];
-						})
-					)
-				})
+								name:
+									index === 0
+										? 'First course'
+										: index === 1
+											? 'Second course'
+											: index === 2
+												? 'Wishlist course'
+												: `Course ${index + 1}`,
+								points: 5
+							}
+						];
+					})
+				)
 			);
 			await page.evaluate((language) => {
 				localStorage.setItem('lang', language);

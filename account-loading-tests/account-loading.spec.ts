@@ -308,3 +308,34 @@ test('going offline during entry releases the loader into account recovery', asy
 	await expect(page.locator('main')).toBeVisible();
 	await expect(page.locator('.console-loading')).toHaveCount(0);
 });
+
+test('development never initializes telemetry, even with the old PostHog opt-in', async ({
+	page
+}) => {
+	const attempts: string[] = [];
+	page.on('request', (request) => {
+		const url = new URL(request.url());
+		if (
+			/vercel|posthog|google-analytics|googletagmanager|firebaseinstallations|^firebase\.googleapis/i.test(
+				url.hostname
+			) ||
+			url.pathname.startsWith('/_vercel/')
+		)
+			attempts.push(url.origin + url.pathname);
+	});
+	// Use the real Firebase adapter: its optional analytics must also stay off.
+	// The common route guard blocks every external endpoint before network access.
+	await page.goto('/app/plan');
+	await expect(page.locator('.console-shell')).toBeVisible({ timeout: 20000 });
+	await expect(page.locator('.console-loading')).toHaveCount(0);
+	await page.waitForTimeout(2200);
+	expect(attempts).toEqual([]);
+	await expect(
+		page.locator('script[src*="vercel"], script[src*="googletagmanager"]')
+	).toHaveCount(0);
+	expect(
+		await page.evaluate(() =>
+			localStorage.getItem('planit.analytics.browser-id.v1')
+		)
+	).toBeNull();
+});

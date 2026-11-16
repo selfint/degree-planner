@@ -17,8 +17,10 @@ To configure another project, set these **build-time** public variables:
   setup page. Do not use the dashboard URL or guess the project's region.
 
 Both are required. An absent/invalid configuration is a no-op. `.env.example`
-contains blank placeholders for local overrides. Local development is off unless
-`PUBLIC_POSTHOG_ENABLE_DEV=true`; production builds do not need that switch.
+contains blank placeholders. PostHog, Firebase/Google Analytics and Vercel
+telemetry are always disabled in development, test mode, staging and on loopback
+hosts used for local production-build QA. `PUBLIC_POSTHOG_ENABLE_DEV` no longer
+overrides this policy. Normal production deployments retain analytics.
 Static Pages builds embed these public values and need a new build after changes.
 The public project token is expected to be visible in the browser bundle.
 No personal API key is committed. Pages deployment settings remain unchanged.
@@ -166,7 +168,8 @@ BASE_PATH=/degree-planner npx playwright test --config playwright.analytics.conf
 ```
 
 Repeat build and browser checks with `BASE_PATH=''` for root hosting.
-The browser suite intercepts every request to the test host, decodes actual SDK
+The production browser fixture uses a synthetic deployed origin whose app responses
+are fetched only from localhost. It intercepts every request to the test host, decodes actual SDK
 payloads, and blocks unrelated external requests. It does not send events to a
 real project. It exercises the landing funnel, persistent random ID, navigation,
 course operations, saved cross-semester moves, Save clicks including failed writes

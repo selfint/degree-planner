@@ -24,6 +24,12 @@ export default defineConfig({
 	],
 	webServer: {
 		command: 'npm run dev -- --host 127.0.0.1',
+		// A configured project and the obsolete opt-in must not bypass the dev gate.
+		env: {
+			PUBLIC_POSTHOG_KEY: 'phc_test_only',
+			PUBLIC_POSTHOG_HOST: 'https://posthog.example.test',
+			PUBLIC_POSTHOG_ENABLE_DEV: 'true'
+		},
 		port: 5173,
 		timeout: 60000
 	}

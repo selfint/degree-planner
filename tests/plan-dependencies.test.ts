@@ -1,4 +1,5 @@
 import { expect, test as base } from '@playwright/test';
+import { createHash } from 'node:crypto';
 
 const test = base.extend<{
 	courseName: string;
@@ -31,6 +32,13 @@ const courses = {
 };
 
 test.beforeEach(async ({ page, courseName, language, theme }) => {
+	await page
+		.context()
+		.route('**/*', (route) =>
+			new URL(route.request().url()).origin === 'http://localhost:4173'
+				? route.continue()
+				: route.abort()
+		);
 	await page.addInitScript(
 		({ language, theme }) => {
 			localStorage.setItem('theme', theme);
@@ -48,14 +56,33 @@ test.beforeEach(async ({ page, courseName, language, theme }) => {
 		},
 		{ language, theme }
 	);
-	// Startup now syncs the canonical full dataset; both views use this fixture.
-	await page.route(/\/courseData(?:Stripped)?\.json(?:\?.*)?$/, (route) =>
-		route.fulfill({
+	const body = JSON.stringify({
+		...courses,
+		'10400001': { ...courses['10400001'], name: courseName }
+	});
+	const snapshotPath = `/_data/${createHash('sha256').update(body).digest('hex')}.json`;
+	let snapshotReads = 0;
+	// Startup uses immutable snapshots; give it the same fixture and its real
+	// decoded size. Keep canonical routes consistent for later refreshes.
+	await page.route('**/_data/manifest.json', async (route) => {
+		const response = await route.fetch();
+		const manifest = await response.json();
+		await route.fulfill({
 			json: {
-				...courses,
-				'10400001': { ...courses['10400001'], name: courseName }
+				...manifest,
+				'/courseData.json': {
+					url: snapshotPath,
+					bytes: Buffer.byteLength(body)
+				}
 			}
-		})
+		});
+	});
+	await page.route(`**${snapshotPath}`, (route) => {
+		snapshotReads++;
+		return route.fulfill({ contentType: 'application/json', body });
+	});
+	await page.route(/\/courseData(?:Stripped)?\.json(?:\?.*)?$/, (route) =>
+		route.fulfill({ contentType: 'application/json', body })
 	);
 	// Hydration otherwise reuses the real course data embedded by server rendering.
 	await page.route('**/app/plan', async (route) => {
@@ -67,6 +94,11 @@ test.beforeEach(async ({ page, courseName, language, theme }) => {
 		await route.fulfill({ response, body });
 	});
 	await page.goto('/app/plan');
+	await expect
+		.poll(() => snapshotReads, {
+			message: 'startup reads the synthetic course snapshot'
+		})
+		.toBeGreaterThan(0);
 });
 
 test('course dependencies start closed and can be opened and closed repeatedly', async ({

@@ -1,4 +1,5 @@
 import { expect, test as base } from '@playwright/test';
+import { mockCourseData } from './helpers/course-data-fixture';
 
 const test = base.extend<{
 	courseName: string;
@@ -31,6 +32,13 @@ const courses = {
 };
 
 test.beforeEach(async ({ page, courseName, language, theme }) => {
+	await page
+		.context()
+		.route('**/*', (route) =>
+			new URL(route.request().url()).origin === 'http://localhost:4173'
+				? route.continue()
+				: route.abort()
+		);
 	await page.addInitScript(
 		({ language, theme }) => {
 			localStorage.setItem('theme', theme);
@@ -48,15 +56,10 @@ test.beforeEach(async ({ page, courseName, language, theme }) => {
 		},
 		{ language, theme }
 	);
-	// Startup now syncs the canonical full dataset; both views use this fixture.
-	await page.route(/\/courseData(?:Stripped)?\.json(?:\?.*)?$/, (route) =>
-		route.fulfill({
-			json: {
-				...courses,
-				'10400001': { ...courses['10400001'], name: courseName }
-			}
-		})
-	);
+	const snapshotReads = await mockCourseData(page, {
+		...courses,
+		'10400001': { ...courses['10400001'], name: courseName }
+	});
 	// Hydration otherwise reuses the real course data embedded by server rendering.
 	await page.route('**/app/plan', async (route) => {
 		const response = await route.fetch();
@@ -67,6 +70,11 @@ test.beforeEach(async ({ page, courseName, language, theme }) => {
 		await route.fulfill({ response, body });
 	});
 	await page.goto('/app/plan');
+	await expect
+		.poll(snapshotReads, {
+			message: 'startup reads the synthetic course snapshot'
+		})
+		.toBeGreaterThan(0);
 });
 
 test('course dependencies start closed and can be opened and closed repeatedly', async ({

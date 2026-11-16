@@ -201,6 +201,7 @@ for (const language of ['en', 'he'] as const) {
 			// traffic to real third parties during this anonymous startup test.
 			await context.route('**/*', async (route) => {
 				if (
+					new URL(route.request().url()).origin !== new URL(origin).origin ||
 					firebaseEndpoint.test(route.request().url()) ||
 					analyticsEndpoint.test(route.request().url())
 				) {
@@ -253,6 +254,8 @@ for (const language of ['en', 'he'] as const) {
 			});
 			let courseRequested = false;
 			startupNetwork.dataDelay.armed = true;
+			// Exercise canonical fallback when snapshot metadata is unavailable.
+			await context.route('**/_data/manifest.json', (route) => route.abort());
 			await page.route('**/courseData.json', async (route) => {
 				courseRequested = true;
 				startupNetwork.dataDelay.requested = true;
@@ -283,18 +286,18 @@ for (const language of ['en', 'he'] as const) {
 					'color',
 					foreground
 				);
+				// No snapshot metadata or response headers yet: show the honest
+				// unknown-total status, without inventing a startup percentage.
 				await expect(page.locator('#console-boot-detail')).toHaveText(
-					language === 'he'
-						? 'טוענים קורסים… קובצי נתונים שהושלמו: 1 מתוך 2'
-						: 'Loading courses… 1 of 2 data files complete'
+					language === 'he' ? 'מורידים נתונים…' : 'Downloading data…'
 				);
 				await expect(page.locator('#console-boot-detail')).toBeVisible();
 				await expect(
 					page.locator('#console-boot [role=progressbar]')
-				).toHaveAttribute('aria-valuenow', '1');
+				).not.toHaveAttribute('aria-valuenow');
 				await expect(
 					page.locator('#console-boot [role=progressbar]')
-				).toHaveAttribute('aria-valuemax', '2');
+				).not.toHaveAttribute('aria-valuemax');
 				await page.screenshot({
 					path: test.info().outputPath('measured-loading.png')
 				});
@@ -441,6 +444,7 @@ test.describe('warm cached console bootstrap', () => {
 		await page.addInitScript(() => localStorage.setItem('lang', 'en'));
 		await context.route('**/*', async (route) => {
 			if (
+				new URL(route.request().url()).origin !== new URL(origin).origin ||
 				firebaseEndpoint.test(route.request().url()) ||
 				analyticsEndpoint.test(route.request().url())
 			) {

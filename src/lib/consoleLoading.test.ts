@@ -20,9 +20,7 @@ describe('measured loading progress', () => {
 			total: 2,
 			pending: ['/courseData.json']
 		});
-		expect(loadingText(get(consoleLoading), false)).toBe(
-			'Loading courses… 1 of 2 data files complete'
-		);
+		expect(loadingText(get(consoleLoading), false)).toBe('Downloading data…');
 		reportConsoleLoading({ phase: 'finishing' });
 		expect(get(consoleLoading)).toEqual({ phase: 'finishing' });
 		reportConsoleLoading({ phase: 'checking' });
@@ -39,16 +37,38 @@ describe('measured loading progress', () => {
 				},
 				false
 			)
-		).toContain('courses and catalogs');
+		).toContain('Downloading data');
 		expect(
 			loadingText(
 				{ phase: 'data', completed: 1, total: 2, pending: ['/catalogs.json'] },
 				false
 			)
-		).toContain('Loading catalogs');
+		).toContain('Downloading data');
 		expect(loadingText({ phase: 'checking' }, true)).toBe(
-			'בודקים נתוני קורסים שמורים…'
+			'בודקים נתונים שמורים…'
 		);
 		expect(loadingText({ phase: 'error' }, true)).toContain('לא ניתן לפתוח');
 	});
+});
+
+it('keeps unknown totals indeterminate, including processing and saving', () => {
+	for (const activity of ['reading', 'processing', 'saving'] as const) {
+		const text = loadingText(
+			{
+				phase: 'data',
+				completed: 1,
+				total: 2,
+				pending: ['/courseData.json'],
+				bytesRead: 3924481,
+				activity
+			},
+			false
+		);
+		expect(text).not.toContain('MB');
+		expect(text).not.toContain('files complete');
+		if (activity === 'reading') expect(text).not.toContain('%');
+		else expect(text).toContain(activity === 'processing' ? '80%' : '85%');
+		if (activity === 'processing') expect(text).toContain('Processing');
+		if (activity === 'saving') expect(text).toContain('Saving');
+	}
 });

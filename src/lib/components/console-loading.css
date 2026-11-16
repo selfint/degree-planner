@@ -64,7 +64,7 @@
 .console-loading__track {
 	direction: ltr;
 	overflow: hidden;
-	block-size: 0.1875rem;
+	block-size: 0.375rem;
 	margin-block-start: 2rem;
 	border-radius: 62.4375rem;
 	background: rgb(var(--boot-accent) / 0.14);
@@ -75,7 +75,7 @@
 	block-size: 100%;
 	border-radius: inherit;
 	background: rgb(var(--boot-accent));
-	animation: console-loading-travel 1.8s ease-in-out infinite alternate;
+	animation: console-loading-travel 1.8s ease-in-out 1 forwards;
 }
 .console-loading__track--measured {
 	direction: inherit;
@@ -83,16 +83,37 @@
 .console-loading__track--measured .console-loading__indicator {
 	animation: none;
 	margin-inline: 0;
+	transition: inline-size 120ms linear;
 }
-.console-loading__track--error .console-loading__indicator {
+.console-loading__track--settled .console-loading__indicator {
 	animation: none;
 }
 .console-loading__status {
+	min-block-size: 1.6em;
 	margin: 0.875rem 0 0;
 	color: rgb(var(--boot-muted));
 	font-size: 0.8125rem;
 	line-height: 1.6;
-	text-wrap: balance;
+	white-space: nowrap;
+}
+.console-loading__status::before {
+	content: '';
+	display: inline-block;
+	inline-size: 0.65em;
+	block-size: 0.65em;
+	margin-inline-end: 0.5em;
+	border: 0.125em solid rgb(var(--boot-accent) / 0.25);
+	border-inline-start-color: rgb(var(--boot-accent));
+	border-radius: 50%;
+	animation: console-loading-activity 0.8s linear infinite;
+}
+.console-loading__track--error ~ .console-loading__status::before {
+	display: none;
+}
+@keyframes console-loading-activity {
+	to {
+		transform: rotate(360deg);
+	}
 }
 @keyframes console-loading-travel {
 	from {
@@ -103,6 +124,12 @@
 	}
 }
 @media (prefers-reduced-motion: reduce) {
+	.console-loading__status::before {
+		animation: none;
+	}
+	.console-loading__indicator {
+		transition: none !important;
+	}
 	.console-loading__track:not(.console-loading__track--measured)
 		.console-loading__indicator {
 		animation: none;

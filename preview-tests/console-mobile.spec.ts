@@ -238,7 +238,10 @@ for (const language of ['en', 'he'] as const) {
 		let dataRequested = false;
 		const released = new Promise<void>((resolve) => (release = resolve));
 		evidence.artificialDelay =
-			'Real courseData.json request is paused until boot-screen assertions finish, then continued unchanged. This is a loading-state check, not a performance measurement.';
+			'With progress metadata unavailable, the real courseData.json fallback request is paused until boot-screen assertions finish, then continued unchanged. This is a loading-state check, not a performance measurement.';
+		await page.route('**/_data/manifest.json', (route) =>
+			route.fulfill({ status: 404, body: '' })
+		);
 		await page.route('**/courseData.json', async (route) => {
 			dataRequested = true;
 			await released;
@@ -253,40 +256,38 @@ for (const language of ['en', 'he'] as const) {
 				.first()
 				.click({ noWaitAfter: true });
 			await expect.poll(() => dataRequested).toBe(true);
-			await expect(page.locator('#console-boot')).toBeVisible();
-			await expect(page.locator('#console-boot-detail')).toHaveText(
-				language === 'he'
-					? 'טוענים קורסים… קובצי נתונים שהושלמו: 1 מתוך 2'
-					: 'Loading courses… 1 of 2 data files complete'
+			await expect(page.locator('.console-loading')).toBeVisible();
+			await expect(page.locator('.console-loading__status')).toHaveText(
+				language === 'he' ? 'מורידים נתונים…' : 'Downloading data…'
 			);
-			await expect(page.locator('#console-boot-detail')).toBeVisible();
-			await expect(page.locator('#console-boot-detail')).toHaveCSS(
+			await expect(page.locator('.console-loading__status')).toBeVisible();
+			await expect(page.locator('.console-loading__status')).toHaveCSS(
 				'clip-path',
 				'none'
 			);
 			await expect(
-				page.locator('#console-boot').getByRole('progressbar')
-			).toHaveAttribute('aria-valuenow', '1');
+				page.locator('.console-loading').getByRole('progressbar')
+			).not.toHaveAttribute('aria-valuenow');
 			await expect(
-				page.locator('#console-boot').getByRole('progressbar')
-			).toHaveAttribute('aria-valuemax', '2');
-			await expect(page.locator('#console-boot')).toHaveCSS(
+				page.locator('.console-loading').getByRole('progressbar')
+			).not.toHaveAttribute('aria-valuemax');
+			await expect(page.locator('.console-loading')).toHaveCSS(
 				'background-color',
 				theme === 'light' ? 'rgb(248, 250, 252)' : 'rgb(25, 25, 29)'
 			);
-			await expect(page.locator('#console-boot-logo')).toBeVisible();
+			await expect(page.locator('.console-loading__logo')).toBeVisible();
 			await expect
 				.poll(() =>
 					page
-						.locator('#console-boot-logo')
+						.locator('.console-loading__logo')
 						.evaluate((image) => (image as HTMLImageElement).naturalWidth)
 				)
 				.toBeGreaterThan(0);
 			await expect(
-				page.locator('#console-boot').getByRole('heading')
+				page.locator('.console-loading').getByRole('heading')
 			).toHaveCount(0);
 			await expect(
-				page.locator('#console-boot .console-loading__track')
+				page.locator('.console-loading .console-loading__track')
 			).toBeVisible();
 			evidence.checkpoints.push(
 				'visible-theme-correct-branded-console-bootstrap'

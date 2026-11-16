@@ -1,10 +1,35 @@
-import { expect, test, type Page } from '@playwright/test';
+import {
+	expect,
+	test,
+	type Page,
+	type BrowserContext,
+	type Route
+} from '@playwright/test';
 import { gunzipSync } from 'node:zlib';
+import { readFileSync } from 'node:fs';
+import { parseEnv } from 'node:util';
 import { initializeGuestStorage } from '../tests/helpers/student-guest-storage';
 import { transcriptPdf } from '../tests/helpers/transcript-pdf';
 
+const finishRoutes = new WeakMap<BrowserContext, () => Promise<void>>();
+test.afterEach(async ({ context }) => {
+	await finishRoutes.get(context)?.();
+});
+
 const base = process.env.BASE_PATH ?? '/degree-planner';
-const origin = 'http://127.0.0.1:4178';
+// Simulate a deployed production origin while serving every app response from
+// loopback. Ordinary localhost QA intentionally has all telemetry disabled.
+const origin = 'https://planit-production.example.test';
+const localOrigin = 'http://127.0.0.1:4178';
+// Exercise the exact production build as well as the dedicated fake-key suite.
+// All external requests are intercepted below, never sent to real accounts.
+const productionHost = new URL(
+	parseEnv(readFileSync('.env.production', 'utf8')).PUBLIC_POSTHOG_HOST
+).origin;
+const analyticsHosts = new Set([
+	'https://posthog.example.test',
+	productionHost
+]);
 const path = (route: string) => `${origin}${base}${route}`;
 type Event = { event: string; properties: Record<string, unknown> };
 const degree = ['2026_200', '00002330', 'SC00001356_CG00011002'];
@@ -73,11 +98,30 @@ async function setup(page: Page, plan: unknown = seed) {
 		language: 'en',
 		seed: plan
 	});
-	await page.context().route('**/*', async (route) => {
+	const pending = new Set<Promise<void>>();
+	let closing = false;
+	const handle = async (route: Route) => {
 		const request = route.request();
 		const url = new URL(request.url());
-		if (url.origin === origin) return route.continue();
-		if (url.hostname === 'posthog.example.test') {
+		if (url.pathname.includes('/_vercel/')) return route.abort();
+		if (url.origin === origin) {
+			try {
+				const response = await route.fetch({
+					url: `${localOrigin}${url.pathname}${url.search}`
+				});
+				return await route.fulfill({ response });
+			} catch (error) {
+				// Closing the copy/share popup can cancel an in-flight local fetch.
+				if (
+					String(error).includes(
+						'Target page, context or browser has been closed'
+					)
+				)
+					return;
+				throw error;
+			}
+		}
+		if (analyticsHosts.has(url.origin)) {
 			requests.push(request.url());
 			if (request.method() === 'POST') {
 				const raw = request.postDataBuffer()!;
@@ -104,6 +148,18 @@ async function setup(page: Page, plan: unknown = seed) {
 			});
 		}
 		return route.abort('blockedbyclient');
+	};
+	await page.context().route('**/*', (route) => {
+		if (closing) return route.abort('blockedbyclient');
+		const work = handle(route);
+		pending.add(work);
+		return work.finally(() => pending.delete(work));
+	});
+	// Drain local proxy work before Playwright disposes its API responses. Keep
+	// the guard installed and reject new traffic throughout context teardown.
+	finishRoutes.set(page.context(), async () => {
+		closing = true;
+		await Promise.all([...pending]);
 	});
 	const count = (event: string) =>
 		events.filter((e) => e.event === event).length;
@@ -386,4 +442,32 @@ test('valid transcript preview is distinct from saving; rejected files and cance
 	await expect.poll(() => count('grade_import_saved')).toBe(1);
 	expect(count('grade_file_uploaded')).toBe(2);
 	expect(JSON.stringify(events)).not.toMatch(/PRIVATE|02340124/);
+});
+
+test('normal local production-build QA initializes no analytics', async ({
+	page
+}) => {
+	const attempts: string[] = [];
+	await page.context().route('**/*', (route) => {
+		const url = new URL(route.request().url());
+		if (
+			/vercel|posthog|google-analytics|googletagmanager|firebaseinstallations|^firebase\.googleapis/i.test(
+				url.hostname
+			) ||
+			url.pathname.includes('/_vercel/')
+		)
+			attempts.push(url.origin + url.pathname);
+		return url.origin === localOrigin && !url.pathname.includes('/_vercel/')
+			? route.continue()
+			: route.abort();
+	});
+	await page.goto(`${localOrigin}${base}/app/plan`);
+	await ready(page);
+	await page.waitForTimeout(2200);
+	expect(attempts).toEqual([]);
+	expect(
+		await page.evaluate(() =>
+			localStorage.getItem('planit.analytics.browser-id.v1')
+		)
+	).toBeNull();
 });

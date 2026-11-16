@@ -9,6 +9,10 @@
 		onEntryError?: () => void;
 	} = $props();
 	import PwaStatusView from './PwaStatusView.svelte';
+	import {
+		entryUpdateChecked,
+		entryUpdateFailed
+	} from '$lib/pwa/entry-preflight';
 	import { updateSafety } from '$lib/pwa/update-safety';
 	import {
 		requestUpdateActivation,
@@ -382,6 +386,10 @@
 						registration.removeEventListener('updatefound', watchInstalling)
 					);
 					watchInstalling();
+				}
+				if (entryPending && entryUpdateChecked()) {
+					if (entryUpdateFailed()) onEntryError();
+					entryUpdate.finish();
 				}
 				if (entryPending) {
 					void entryUpdate.run(

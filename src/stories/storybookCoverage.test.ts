@@ -45,7 +45,12 @@ describe('exhaustive Storybook inventory', () => {
 		for (const entry of coverage) {
 			const row = documentation
 				.split('\n')
-				.find((line) => line.startsWith('|') && line.includes(entry.path!));
+				.find(
+					(line) =>
+						line.startsWith('|') &&
+						line.includes(entry.path!) &&
+						line.includes(entry.title!)
+				);
 			expect(
 				row?.split('|').map((cell) => cell.trim()),
 				entry.file

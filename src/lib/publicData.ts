@@ -1,3 +1,8 @@
+import { progressFetcher, decodedResponseLength } from './downloadManifest';
+import {
+	readJsonWithProgress,
+	type PublicDataReadProgress
+} from './publicDataProgress';
 import { withBase } from './deploymentPaths';
 import type { DataLoadingProgress } from './consoleLoading';
 import {
@@ -65,6 +70,15 @@ export function createPublicDataRefreshStatus() {
 		}
 	};
 }
+
+const readListeners = new Set<
+	(url: string, progress: PublicDataReadProgress) => void
+>();
+function reportRead(url: string, progress: PublicDataReadProgress) {
+	for (const listener of readListeners) listener(url, progress);
+}
+
+let startupProgressFetcher: Promise<typeof fetch> | undefined;
 
 const browserRefreshStatus = createPublicDataRefreshStatus();
 export const subscribePublicDataRefreshErrors = browserRefreshStatus.subscribe;
@@ -197,10 +211,17 @@ export function createPublicDataRepository({
 				}, requestTimeoutMs);
 			});
 			try {
+				const requestFetcher =
+					!previous &&
+					(key === '/courseData.json' || key === '/catalogs.json') &&
+					typeof window !== 'undefined' &&
+					import.meta.env.MODE !== 'test'
+						? await (startupProgressFetcher ??= progressFetcher(fetcher))
+						: fetcher;
 				const response = await Promise.race([
 					// Older installed workers ignore query URLs, avoiding their stale
 					// CacheStorage fallback while a shell-only update waits safely.
-					fetcher(
+					requestFetcher(
 						withBase(bypassServiceWorker() ? `${key}?__planit_idb=1` : key),
 						{
 							headers,
@@ -218,6 +239,7 @@ export function createPublicDataRepository({
 				)
 					throw new Error(`Unexpected public data response: ${key}`);
 				let data: unknown;
+				let bytesRead = 0;
 				if (response.status === 304 && previous && !validatorError)
 					data = previous.data;
 				else {
@@ -226,7 +248,13 @@ export function createPublicDataRepository({
 							key === '/catalogs.json' ? 'catalogs' : `public data ${key}`;
 						throw new Error(`Failed to load ${name} (${response.status})`);
 					}
-					data = await Promise.race([response.json(), timeout]);
+					data = await Promise.race([
+						readJsonWithProgress(response, (progress) => {
+							bytesRead = progress.bytesRead;
+							reportRead(key, progress);
+						}),
+						timeout
+					]);
 					if (!isPublicData(key, data))
 						throw new Error(`Invalid public data: ${key}`);
 				}
@@ -251,6 +279,11 @@ export function createPublicDataRepository({
 							`Public data response forbids offline storage: ${key}`
 						)
 					};
+				reportRead(key, {
+					bytesRead,
+					totalBytes: decodedResponseLength(response),
+					activity: 'saving'
+				});
 				let written: boolean | void;
 				try {
 					written = await store.put(
@@ -554,12 +587,34 @@ export async function preparePublicCourseData(
 			...failedResources
 		]);
 		const total = pending.size;
+		const reads = new Map<string, PublicDataReadProgress>(
+			[...pending].map((url) => [url, { bytesRead: 0, activity: 'reading' }])
+		);
 		const notify = () =>
 			onProgress?.({
 				completed: total - pending.size,
 				total,
-				pending: [...pending]
+				pending: [...pending],
+				bytesRead: [...reads.values()].reduce(
+					(sum, progress) => sum + progress.bytesRead,
+					0
+				),
+				totalBytes: [...reads.values()].every((p) => p.totalBytes !== undefined)
+					? [...reads.values()].reduce((sum, p) => sum + p.totalBytes!, 0)
+					: undefined,
+				activity: ['reading', 'processing', 'saving'].find((activity) =>
+					[...reads].some(
+						([url, progress]) =>
+							pending.has(url) && progress.activity === activity
+					)
+				) as PublicDataReadProgress['activity'] | undefined
 			});
+		const readChanged = (url: string, progress: PublicDataReadProgress) => {
+			if (!pending.has(url)) return;
+			reads.set(url, progress);
+			notify();
+		};
+		readListeners.add(readChanged);
 		notify();
 		const track = async (url: string, work: Promise<unknown>) => {
 			await work;
@@ -574,7 +629,7 @@ export async function preparePublicCourseData(
 			...failedResources.map((url) =>
 				track(url, resources.revalidate(url, fetcher))
 			)
-		]);
+		]).finally(() => readListeners.delete(readChanged));
 		refreshed = results.every((result) => result.status === 'fulfilled');
 	} else {
 		// Import a full legacy JSON cache if present; no network is needed when ready.

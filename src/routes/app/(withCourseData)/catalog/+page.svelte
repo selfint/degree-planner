@@ -111,7 +111,7 @@
 {/snippet}
 
 <div class="catalog-page">
-	<h1 class="sr-only">{content.lang.common.catalog}</h1>
+	<h1 class="catalog-title sr-only">{content.lang.common.catalog}</h1>
 
 	{#if user.d.degree !== undefined}
 		<section class="catalog-summary catalog-inset">
@@ -266,12 +266,19 @@
 
 <style>
 	.catalog-page {
+		position: relative;
 		display: grid;
 		grid-template-columns: minmax(0, 1fr);
 		gap: 0.875rem;
 		inline-size: 100%;
 		min-inline-size: 0;
 		padding-block: 0.625rem;
+	}
+	/* Anchor the clipped heading inside the grid. Its negative sr-only margin
+	   otherwise creates a one-pixel document scroll range in RTL WebKit. */
+	.catalog-title {
+		inset-inline-start: 0;
+		margin: 0;
 	}
 	.catalog-inset {
 		margin-inline: 0.75rem;

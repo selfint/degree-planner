@@ -1,11 +1,17 @@
-import { afterEach, expect, it, vi } from 'vitest';
+import { beforeEach, afterEach, expect, it, vi } from 'vitest';
 
 const env = vi.hoisted(() => ({ PUBLIC_DEPLOYMENT_ENV: 'production' }));
 vi.mock('$env/static/public', () => env);
+beforeEach(() => {
+	vi.stubEnv('MODE', 'production');
+	vi.stubEnv('DEV', false);
+});
 
 afterEach(() => {
 	vi.resetModules();
 	env.PUBLIC_DEPLOYMENT_ENV = 'production';
+	vi.unstubAllEnvs();
+	vi.unstubAllGlobals();
 });
 
 it('preserves all production keys and analytics behavior by default', async () => {
@@ -56,4 +62,33 @@ it('opens separate staging IndexedDB databases without changing production store
 		courses.close();
 		resources.close();
 	}
+});
+
+it.each(['development', 'test'])(
+	'disables all telemetry in %s',
+	async (mode) => {
+		vi.stubEnv('MODE', mode);
+		vi.stubEnv('DEV', mode === 'development');
+		const policy = await import('./deploymentEnvironment');
+		expect(policy.analyticsEnabled).toBe(false);
+	}
+);
+
+it.each([
+	'localhost',
+	'planit.localhost',
+	'127.0.0.1',
+	'127.0.0.2',
+	'::1',
+	'[::1]'
+])('disables all telemetry for production-build QA on %s', async (hostname) => {
+	vi.stubGlobal('window', { location: { hostname } });
+	const policy = await import('./deploymentEnvironment');
+	expect(policy.analyticsEnabled).toBe(false);
+});
+
+it('keeps normal production browser telemetry enabled', async () => {
+	vi.stubGlobal('window', { location: { hostname: 'planner.example.com' } });
+	const policy = await import('./deploymentEnvironment');
+	expect(policy.analyticsEnabled).toBe(true);
 });

@@ -1,7 +1,13 @@
 <script lang="ts">
 	import { withBase } from '$lib/deploymentPaths';
 	import './console-loading.css';
-	import { loadingText, type ConsoleLoadingState } from '$lib/consoleLoading';
+	import {
+		startupPercent,
+		downloadLabel,
+		loadingText,
+		loadingSettled,
+		type ConsoleLoadingState
+	} from '$lib/consoleLoading';
 
 	type Props = {
 		language?: 'en' | 'he';
@@ -14,6 +20,8 @@
 		state = { phase: 'opening' }
 	}: Props = $props();
 	const hebrew = $derived(language === 'he');
+	const percent = $derived(startupPercent(state));
+	const fraction = $derived(percent === undefined ? undefined : percent / 100);
 	const status = $derived(loadingText(state, hebrew));
 </script>
 
@@ -42,23 +50,20 @@
 		</div>
 		<div
 			class="console-loading__track"
-			class:console-loading__track--measured={state.phase === 'data'}
+			class:console-loading__track--measured={fraction !== undefined}
+			aria-valuemin={fraction !== undefined ? 0 : undefined}
+			aria-valuemax={fraction !== undefined ? 100 : undefined}
+			aria-valuenow={fraction !== undefined ? percent : undefined}
+			class:console-loading__track--settled={loadingSettled(state)}
 			class:console-loading__track--error={state.phase === 'error'}
 			role={state.phase === 'error' ? undefined : 'progressbar'}
 			aria-hidden={state.phase === 'error' ? true : undefined}
-			aria-label={state.phase === 'data'
-				? hebrew
-					? 'טעינת קובצי נתונים'
-					: 'Loading data files'
-				: status}
-			aria-valuemin={state.phase === 'data' ? 0 : undefined}
-			aria-valuemax={state.phase === 'data' ? state.total : undefined}
-			aria-valuenow={state.phase === 'data' ? state.completed : undefined}
+			aria-label={downloadLabel(hebrew)}
 		>
 			<span
 				class="console-loading__indicator"
-				style:inline-size={state.phase === 'data'
-					? `${(100 * state.completed) / state.total}%`
+				style:inline-size={fraction !== undefined
+					? `${fraction * 100}%`
 					: undefined}
 			></span>
 		</div>

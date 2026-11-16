@@ -1,8 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 const mocks = vi.hoisted(() => ({
 	firebase: vi.fn(),
+	preflight: vi.fn(),
 	bootstrap: vi.fn(),
 	report: vi.fn()
+}));
+vi.mock('$lib/pwa/entry-preflight', () => ({
+	prepareEntryRelease: mocks.preflight
 }));
 vi.mock('$lib/firebase.svelte', () => ({ initFirebase: mocks.firebase }));
 vi.mock('$lib/offlineData', () => ({
@@ -12,8 +16,26 @@ vi.mock('$lib/consoleLoading', () => ({ reportConsoleLoading: mocks.report }));
 beforeEach(() => {
 	vi.resetModules();
 	vi.clearAllMocks();
+	mocks.preflight.mockResolvedValue(undefined);
 });
 describe('console loading lifecycle', () => {
+	it('does not start data or auth bootstrap until the release check finishes', async () => {
+		let finish!: () => void;
+		mocks.preflight.mockReturnValue(
+			new Promise<void>((resolve) => {
+				finish = resolve;
+			})
+		);
+		mocks.bootstrap.mockResolvedValue({ phase: 'ready' });
+		mocks.firebase.mockResolvedValue({});
+		const { load } = await import('../routes/app/+layout');
+		const pending = load(undefined as never);
+		expect(mocks.bootstrap).not.toHaveBeenCalled();
+		expect(mocks.firebase).not.toHaveBeenCalled();
+		finish();
+		await pending;
+		expect(mocks.bootstrap).toHaveBeenCalledOnce();
+	});
 	it('does not let late data progress erase a startup error', async () => {
 		let progress!: (value: unknown) => void;
 		let resolveData!: (value: unknown) => void;
@@ -48,6 +70,7 @@ describe('console loading lifecycle', () => {
 		const { load } = await import('../routes/app/+layout');
 		const old = load(undefined as never);
 		const current = load(undefined as never);
+		await vi.waitFor(() => expect(callbacks).toHaveLength(2));
 		callbacks[0]({ completed: 1, total: 2, pending: [] });
 		resolvers[0]({ phase: 'ready' });
 		await old;

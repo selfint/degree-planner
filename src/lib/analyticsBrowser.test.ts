@@ -1,5 +1,7 @@
 // @vitest-environment jsdom
 import { expect, it, vi } from 'vitest';
+// Exercise the SDK with a production policy; network calls remain mocked below.
+vi.mock('./deploymentEnvironment', () => ({ analyticsEnabled: true }));
 vi.mock('$app/environment', () => ({ browser: true, dev: false }));
 vi.mock('$env/static/public', () => ({
 	PUBLIC_DEPLOYMENT_ENV: 'production',

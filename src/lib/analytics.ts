@@ -1,6 +1,6 @@
 import { analyticsEnabled } from './deploymentEnvironment';
 import { analyticsAuthStatus, onAnalyticsAuthChange } from './analyticsAuth';
-import { browser, dev } from '$app/environment';
+import { browser } from '$app/environment';
 import * as publicEnv from '$env/static/public';
 // No optional extensions or remotely loaded scripts, even if project settings change.
 import posthog, {
@@ -76,8 +76,7 @@ function initialize() {
 	const config = publicEnv as Record<string, string>;
 	const key = config.PUBLIC_POSTHOG_KEY?.trim();
 	const host = config.PUBLIC_POSTHOG_HOST?.trim();
-	if (!key || !host || (dev && config.PUBLIC_POSTHOG_ENABLE_DEV !== 'true'))
-		return;
+	if (!key || !host) return;
 	try {
 		const url = new URL(host);
 		if (

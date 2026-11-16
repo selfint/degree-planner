@@ -1,5 +1,7 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 
+import { mockCourseData } from './helpers/course-data-fixture';
+
 const origin = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:4173';
 const codes = ['10400001', '10400002', '10400003', '10400004'];
 const courses = Object.fromEntries(
@@ -24,6 +26,13 @@ const courses = Object.fromEntries(
 );
 
 async function openFixture(page: Page, language = 'en') {
+	await page
+		.context()
+		.route('**/*', (route) =>
+			new URL(route.request().url()).origin === new URL(origin).origin
+				? route.continue()
+				: route.abort()
+		);
 	await page.addInitScript((language) => {
 		localStorage.setItem('lang', language);
 		localStorage.setItem('version', '4');
@@ -37,14 +46,13 @@ async function openFixture(page: Page, language = 'en') {
 			})
 		);
 	}, language);
-	await page.route(/\/courseData(?:Stripped)?\.json(?:\?.*)?$/, (route) =>
-		route.fulfill({ json: courses })
-	);
+	const snapshotReads = await mockCourseData(page, courses);
 	await page.route(/\/_courses\/1040000[1-4](?:\?.*)?$/, (route) => {
 		const code = new URL(route.request().url()).pathname.split('/').at(-1)!;
 		return route.fulfill({ json: courses[code] });
 	});
 	await page.goto(`${origin}/app/course/${codes[0]}`);
+	await expect.poll(snapshotReads).toBeGreaterThan(0);
 	await expectCourse(page, 0);
 }
 

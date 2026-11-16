@@ -16,3 +16,5 @@ fire*.log
 *.pdf
 
 /storybook-static
+
+/static/_data/

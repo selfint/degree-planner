@@ -6,8 +6,8 @@
 		"node": "24.x"
 	},
 	"scripts": {
-		"dev": "vite dev",
-		"generate-catalogs": "node scripts/validateCatalogData.mjs && node scripts/generateCoursesStatic.mjs && node scripts/generateCourseDataStripped.mjs",
+		"dev": "node scripts/generateDownloadManifest.mjs && vite dev",
+		"generate-catalogs": "node scripts/validateCatalogData.mjs && node scripts/generateCoursesStatic.mjs && node scripts/generateCourseDataStripped.mjs && node scripts/generateDownloadManifest.mjs",
 		"build": "npm run generate-catalogs && vite build && node scripts/finalizePages.mjs && node scripts/buildStorybook.mjs",
 		"preview": "vite preview",
 		"start-firebase-emulators": "firebase emulators:start",

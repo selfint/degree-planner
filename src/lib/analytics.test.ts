@@ -28,7 +28,9 @@ beforeEach(() => {
 	vi.resetModules();
 	vi.clearAllMocks();
 	mocks.runtime.browser = true;
-	mocks.runtime.dev = true;
+	mocks.runtime.dev = false;
+	vi.stubEnv('MODE', 'production');
+	vi.stubEnv('DEV', false);
 	mocks.env.PUBLIC_DEPLOYMENT_ENV = 'production';
 	mocks.env.PUBLIC_POSTHOG_KEY = 'phc_test_only';
 	mocks.env.PUBLIC_POSTHOG_HOST = 'https://analytics.example.test';
@@ -37,7 +39,10 @@ beforeEach(() => {
 	values = new Map();
 	vi.stubGlobal('window', {
 		addEventListener: vi.fn(),
-		location: { pathname: '/degree-planner/app/plan' }
+		location: {
+			pathname: '/degree-planner/app/plan',
+			hostname: 'planner.example.test'
+		}
 	});
 	vi.stubGlobal('navigator', {});
 	vi.stubGlobal('localStorage', {
@@ -49,6 +54,7 @@ afterEach(() => {
 	vi.clearAllTimers();
 	vi.useRealTimers();
 	vi.unstubAllGlobals();
+	vi.unstubAllEnvs();
 });
 
 describe('analytics privacy boundary', () => {
@@ -268,25 +274,34 @@ describe('analytics lifecycle', () => {
 			'catalog'
 		]);
 	});
-	it.each(['key', 'host', 'invalidHost', 'dev', 'ssr', 'dnt', 'gpc'])(
-		'is a no-op for %s',
-		async (condition) => {
-			if (condition === 'key') mocks.env.PUBLIC_POSTHOG_KEY = '';
-			if (condition === 'host') mocks.env.PUBLIC_POSTHOG_HOST = '';
-			if (condition === 'invalidHost')
-				mocks.env.PUBLIC_POSTHOG_HOST = 'http://unsafe.test';
-			if (condition === 'dev') mocks.env.PUBLIC_POSTHOG_ENABLE_DEV = 'false';
-			if (condition === 'ssr') mocks.runtime.browser = false;
-			if (condition === 'dnt') vi.stubGlobal('navigator', { doNotTrack: '1' });
-			if (condition === 'gpc')
-				vi.stubGlobal('navigator', { globalPrivacyControl: true });
-			const { trackPageView, trackEvent } = await import('./analytics');
-			trackPageView('/');
-			trackEvent('start_clicked');
-			expect(mocks.init).not.toHaveBeenCalled();
-			expect(mocks.capture).not.toHaveBeenCalled();
-		}
-	);
+	it.each([
+		'key',
+		'host',
+		'invalidHost',
+		'dev',
+		'test',
+		'staging',
+		'ssr',
+		'dnt',
+		'gpc'
+	])('is a no-op for %s', async (condition) => {
+		if (condition === 'key') mocks.env.PUBLIC_POSTHOG_KEY = '';
+		if (condition === 'host') mocks.env.PUBLIC_POSTHOG_HOST = '';
+		if (condition === 'invalidHost')
+			mocks.env.PUBLIC_POSTHOG_HOST = 'http://unsafe.test';
+		if (condition === 'dev') vi.stubEnv('DEV', true);
+		if (condition === 'test') vi.stubEnv('MODE', 'test');
+		if (condition === 'staging') mocks.env.PUBLIC_DEPLOYMENT_ENV = 'staging';
+		if (condition === 'ssr') mocks.runtime.browser = false;
+		if (condition === 'dnt') vi.stubGlobal('navigator', { doNotTrack: '1' });
+		if (condition === 'gpc')
+			vi.stubGlobal('navigator', { globalPrivacyControl: true });
+		const { trackPageView, trackEvent } = await import('./analytics');
+		trackPageView('/');
+		trackEvent('start_clicked');
+		expect(mocks.init).not.toHaveBeenCalled();
+		expect(mocks.capture).not.toHaveBeenCalled();
+	});
 	it('does not break an action if init or capture throws', async () => {
 		mocks.init.mockImplementationOnce(() => {
 			throw Error('blocked');

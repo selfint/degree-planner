@@ -83,17 +83,44 @@
 .console-loading__track--measured .console-loading__indicator {
 	animation: none;
 	margin-inline: 0;
-	transition: inline-size 240ms ease-out;
+	transition: inline-size 120ms linear;
 }
 .console-loading__track--error .console-loading__indicator {
 	animation: none;
 }
+.console-loading__download {
+	min-block-size: 1.4em;
+	margin: 0.5rem 0 0;
+	font-size: 0.75rem;
+	line-height: 1.4;
+	color: rgb(var(--boot-accent));
+}
 .console-loading__status {
+	min-block-size: 6.4em;
 	margin: 0.875rem 0 0;
 	color: rgb(var(--boot-muted));
 	font-size: 0.8125rem;
 	line-height: 1.6;
 	text-wrap: balance;
+}
+.console-loading__status::before {
+	content: '';
+	display: inline-block;
+	inline-size: 0.65em;
+	block-size: 0.65em;
+	margin-inline-end: 0.5em;
+	border: 0.125em solid rgb(var(--boot-accent) / 0.25);
+	border-inline-start-color: rgb(var(--boot-accent));
+	border-radius: 50%;
+	animation: console-loading-activity 0.8s linear infinite;
+}
+.console-loading__track--error ~ .console-loading__status::before {
+	display: none;
+}
+@keyframes console-loading-activity {
+	to {
+		transform: rotate(360deg);
+	}
 }
 @keyframes console-loading-travel {
 	from {
@@ -104,6 +131,9 @@
 	}
 }
 @media (prefers-reduced-motion: reduce) {
+	.console-loading__status::before {
+		animation: none;
+	}
 	.console-loading__indicator {
 		transition: none !important;
 	}

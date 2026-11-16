@@ -1,4 +1,4 @@
-import { writable } from 'svelte/store';
+import { get, writable } from 'svelte/store';
 
 export type DataLoadingProgress = {
 	completed: number;
@@ -8,13 +8,44 @@ export type DataLoadingProgress = {
 	totalBytes?: number;
 	activity?: 'reading' | 'processing' | 'saving';
 };
-export type ConsoleLoadingState =
+type DownloadProgress = { bytesRead: number; totalBytes: number };
+export type ConsoleLoadingState = (
 	| { phase: 'opening' | 'checking' | 'finishing' | 'error' }
-	| ({ phase: 'data' } & DataLoadingProgress);
+	| ({ phase: 'data' } & DataLoadingProgress)
+) & { download?: DownloadProgress };
 
 export const consoleLoading = writable<ConsoleLoadingState>({
 	phase: 'opening'
 });
+
+/** This measures only the data read, including its completed state, not later work. */
+export function downloadProgress(
+	state: ConsoleLoadingState
+): DownloadProgress | undefined {
+	const value = state.phase === 'data' ? state : state.download;
+	if (
+		!value ||
+		!value.totalBytes ||
+		value.bytesRead === undefined ||
+		value.bytesRead > value.totalBytes
+	)
+		return undefined;
+	return { bytesRead: value.bytesRead, totalBytes: value.totalBytes };
+}
+export function downloadCompleteText(
+	state: ConsoleLoadingState,
+	hebrew: boolean
+) {
+	const download = downloadProgress(state);
+	return download && download.bytesRead === download.totalBytes
+		? hebrew
+			? 'הורדת הנתונים הושלמה'
+			: 'Data download complete'
+		: '';
+}
+export function downloadLabel(hebrew: boolean) {
+	return hebrew ? 'קריאת נתוני קורסים' : 'Course data download';
+}
 
 export function downloadFraction(
 	state: ConsoleLoadingState
@@ -82,10 +113,17 @@ export function loadingText(
 
 /** Also updates the pre-hydration shell: route loads run before Svelte mounts. */
 export function reportConsoleLoading(state: ConsoleLoadingState) {
+	if (state.phase === 'finishing') {
+		const download = downloadProgress(get(consoleLoading));
+		if (download) state = { ...state, download };
+	}
 	consoleLoading.set(state);
 	if (typeof document === 'undefined') return;
 	const boot = document.getElementById('console-boot');
 	if (!boot) return;
+	const caption = boot.querySelector('.console-loading__download');
+	if (caption)
+		caption.textContent = downloadCompleteText(state, boot.lang === 'he');
 	const status = boot.querySelector('.console-loading__status');
 	if (status) status.textContent = loadingText(state, boot.lang === 'he');
 	const track = boot.querySelector<HTMLElement>('.console-loading__track');
@@ -93,7 +131,10 @@ export function reportConsoleLoading(state: ConsoleLoadingState) {
 		'.console-loading__indicator'
 	);
 	if (!track || !indicator) return;
-	const fraction = downloadFraction(state);
+	const download = downloadProgress(state);
+	const fraction = download
+		? download.bytesRead / download.totalBytes
+		: undefined;
 	track.classList.toggle(
 		'console-loading__track--measured',
 		fraction !== undefined
@@ -107,7 +148,12 @@ export function reportConsoleLoading(state: ConsoleLoadingState) {
 		track.removeAttribute('role');
 		track.setAttribute('aria-hidden', 'true');
 	} else track.setAttribute('role', 'progressbar');
-	track.setAttribute('aria-label', loadingText(state, boot.lang === 'he'));
+	track.setAttribute(
+		'aria-label',
+		download
+			? downloadLabel(boot.lang === 'he')
+			: loadingText(state, boot.lang === 'he')
+	);
 	for (const attribute of ['aria-valuenow', 'aria-valuemax', 'aria-valuemin'])
 		track.removeAttribute(attribute);
 	if (fraction !== undefined) {

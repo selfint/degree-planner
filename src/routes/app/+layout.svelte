@@ -62,6 +62,7 @@
 	import { planOnline } from '$lib/planAccess';
 	import ConsoleAccountStatus from '$lib/components/ConsoleAccountStatus.svelte';
 	import ConsoleLoading from '$lib/components/ConsoleLoading.svelte';
+	import { consoleLoading } from '$lib/consoleLoading';
 
 	import TitleBar from '../components/TitleBar.svelte';
 	import AppFooter from '$lib/components/AppFooter.svelte';
@@ -234,10 +235,7 @@
 
 {#if entryLoading}
 	<div class="fixed inset-0 z-50" data-testid="console-ready-loading">
-		<ConsoleLoading
-			language={content.lang.lang}
-			state={{ phase: 'finishing' }}
-		/>
+		<ConsoleLoading language={content.lang.lang} state={$consoleLoading} />
 	</div>
 {/if}
 

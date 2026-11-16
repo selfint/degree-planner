@@ -23,6 +23,7 @@ NativeVideo and FeatureVideo render through the real Pages/Landing stories. The 
 | src/lib/components/ConsoleAccountStatus.svelte                               | Components/ConsoleAccountStatus   | Ready, Offline, AuthPending, AccountUnavailable, OfflineAccountUnavailable                                                                                                                                                                                           |
 | src/lib/components/StagingBanner.svelte                                      | Components/StagingBanner          | HeaderLabel                                                                                                                                                                                                                                                          |
 | src/lib/components/ConsoleLoading.svelte                                     | Components/ConsoleLoading         | Courses, Opening, CheckingSavedData, Catalogs, Finishing, Failed                                                                                                                                                                                                     |
+| src/lib/components/ConsoleLoading.svelte                                     | User flows/Startup loading        | ColdEntry, NetworkPause, CachedEntry, UnknownSize, FailedDownload                                                                                                                                                                                                    |
 | src/lib/components/CourseElement.svelte                                      | Components/CourseElement          | Default, Compact, Loading, MissingDetails, NoExams, WithNote, StudyDays, CheckingRequirements, UnmetRequirements, Unavailable, Interactive, InteractiveWarning, ExpandedRequirements                                                                                 |
 | src/routes/app/(withCourseData)/catalog/components/CourseGroup.svelte        | Components/CourseGroup            | Default, Empty, Loading, Error, MultipleGroups                                                                                                                                                                                                                       |
 | src/lib/components/CourseRow.svelte                                          | Components/CourseRow              | Default, Empty, Loading, Sortable, Indented                                                                                                                                                                                                                          |
@@ -83,7 +84,7 @@ NativeVideo and FeatureVideo render through the real Pages/Landing stories. The 
 - src/routes/[...legacy]/+page.svelte: Empty legacy redirect placeholder.
 - src/routes/en/+page.svelte: Language-setting redirect without visible UI; importing it would write actual browser preferences.
 
-Inventory: 61 source files, 56 covered, 5 nonvisual exclusions; 48 story groups, 208 stories.
+Inventory: 61 source files, 56 covered, 5 nonvisual exclusions; 48 story groups, 213 stories.
 
 ## Asserted student journey recordings
 
@@ -96,3 +97,7 @@ These four real browser-asserted recordings each have English/Hebrew and initial
 The recordings retain the isolated tests’ blocked service workers and external traffic, including offline-setup notices and reload screens. Setup recovery intentionally changes theme, language and screen size to verify persistence. These are test evidence, not polished offline-install demonstrations.
 
 Media and capture provenance are independently scoped to `static/tutorials/journeys/` and `tutorials/journeys-provenance.json`; the existing root tutorial inventory remains separate. See `tutorials/student-journeys.md` for regeneration.
+
+## Replayable startup flow
+
+Open `?path=/story/user-flows-startup-loading--cold-entry` in Storybook. Replay, pause, or step through the real loading component with clearly simulated phase timings. The network-pause example holds the measured bytes still; cached and unknown-size examples never invent a percentage. Completed download progress stays visibly separate from processing, saving, and account/update readiness. Use the global theme and language controls for light/dark and English/Hebrew.

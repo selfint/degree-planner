@@ -400,7 +400,7 @@ test('streamed bytes smoothly advance one entry screen and cached reload does no
 	).toHaveAttribute('aria-valuenow', /^(5[0-9])$/);
 	await expect(
 		page.locator('#console-boot .console-loading__indicator')
-	).toHaveCSS('transition-duration', '0.24s');
+	).toHaveCSS('transition-duration', '0.12s');
 	await page.screenshot({ path: '/tmp/smooth-progress-local.png' });
 	await page.emulateMedia({ reducedMotion: 'reduce' });
 	await expect(
@@ -410,6 +410,9 @@ test('streamed bytes smoothly advance one entry screen and cached reload does no
 	await command(page, 'window.finishCourseBytes()');
 	await opening;
 	await expect(page.getByTestId('console-ready-loading')).toBeVisible();
+	await expect(
+		page.getByTestId('console-ready-loading').getByRole('progressbar')
+	).toHaveAttribute('aria-valuenow', '100');
 	await command(page, 'window.accountFixture.finish(0)');
 	await expect(page.locator('.console-loading')).toHaveCount(0);
 	await page.reload();

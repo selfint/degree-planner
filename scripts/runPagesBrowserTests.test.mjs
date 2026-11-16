@@ -100,7 +100,7 @@ describe('APT-independent Pages browser tests', () => {
 		}
 	);
 
-	it('keeps all verification suites and deployment validation without APT installs', () => {
+	it('keeps all verification suites before artifact-only deployment without APT installs', () => {
 		const workflow = read('.github/workflows/pages-staging.yml');
 		expect(workflow).not.toMatch(
 			/playwright install|apt-get|preferUbuntuArchive/
@@ -110,10 +110,9 @@ describe('APT-independent Pages browser tests', () => {
 			expect(verify).toContain(
 				`run: node scripts/runPagesBrowserTests.mjs playwright.${config}.config.ts`
 			);
-		expect(deploy).toContain(
-			'run: node scripts/runPagesBrowserTests.mjs playwright.staging.config.ts\n        working-directory: production'
-		);
+		expect(deploy).not.toContain('runPagesBrowserTests');
+		expect(verify).toContain('actions/upload-pages-artifact@v3');
 		expect(workflow).toContain("base: ['', '/degree-planner']");
-		expect(workflow).toContain('needs: [inspect, verify]');
+		expect(workflow).toContain('needs: [inspect, source, verify]');
 	});
 });

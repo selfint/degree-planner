@@ -1,10 +1,21 @@
 import { expect, test, type Page } from '@playwright/test';
 import { gunzipSync } from 'node:zlib';
+import { readFileSync } from 'node:fs';
+import { parseEnv } from 'node:util';
 import { initializeGuestStorage } from '../tests/helpers/student-guest-storage';
 import { transcriptPdf } from '../tests/helpers/transcript-pdf';
 
 const base = process.env.BASE_PATH ?? '/degree-planner';
 const origin = 'http://127.0.0.1:4178';
+// Exercise the exact production build as well as the dedicated fake-key suite.
+// All external requests are intercepted below, never sent to real accounts.
+const productionHost = new URL(
+	parseEnv(readFileSync('.env.production', 'utf8')).PUBLIC_POSTHOG_HOST
+).origin;
+const analyticsHosts = new Set([
+	'https://posthog.example.test',
+	productionHost
+]);
 const path = (route: string) => `${origin}${base}${route}`;
 type Event = { event: string; properties: Record<string, unknown> };
 const degree = ['2026_200', '00002330', 'SC00001356_CG00011002'];
@@ -77,7 +88,7 @@ async function setup(page: Page, plan: unknown = seed) {
 		const request = route.request();
 		const url = new URL(request.url());
 		if (url.origin === origin) return route.continue();
-		if (url.hostname === 'posthog.example.test') {
+		if (analyticsHosts.has(url.origin)) {
 			requests.push(request.url());
 			if (request.method() === 'POST') {
 				const raw = request.postDataBuffer()!;

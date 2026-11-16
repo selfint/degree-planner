@@ -65,8 +65,8 @@ candidate. If a persistent staging branch is wanted, the owner may set the
 repository Actions variable `PLANIT_STAGING_REF` to its name. An explicit dispatch
 input overrides that variable. Pushes to that branch alone do not publish: run
 this workflow from main to refresh it. No variable or repository setting is
-changed automatically. `deploy=false` validates the current workflow ref's pair
-without publication; candidate-ref validation happens in the publication job.
+changed automatically. `deploy=false` validates the selected candidate pair
+without publication. PRs validate their merge revision for both apps.
 
 ## One site, one safe publication
 
@@ -91,6 +91,40 @@ Firebase configuration or branch contents. Existing `github-pages` approvals and
 branch restrictions still apply. Only main can publish, and the final revision
 check skips a build if either main or the selected staging ref moved while it
 was building. The existing publication concurrency lock is retained.
+
+## Verified artifact handoff
+
+The source job resolves staging to one immutable SHA before building. Production
+and staging build once per base (`''` and `/degree-planner`) on separate read-only
+runners, including both Storybooks. Candidate install/build scripts cannot modify
+the production checkout or verification scripts. Checkouts do not retain Git
+credentials; build and verification jobs receive no deployment token or secrets.
+
+Each `verify` matrix job builds production locally and downloads its same-run
+staging artifact, then assembles them using the production revision's safety
+contract. Production never crosses the candidate artifact boundary. All three browser suites run
+against that combined output. Production uses the unchanged checked-in public
+analytics configuration; the analytics fixture intercepts its configured endpoint
+(and the dedicated test endpoint) and blocks every other external request.
+Staging must still make no telemetry attempts. No test-key build is published.
+
+Only the verified `/degree-planner` output becomes the immutable `github-pages`
+artifact. Deployment depends on successful verification of **both** bases plus
+the source and inspection jobs. It has no checkout, dependency installation,
+build, artifact extraction or browser execution. The Pages action publishes the
+same run's artifact after the existing URL, Actions-source, approval, concurrency
+and current-revision guards; it also rejects a different configured base path.
+Failure or cancellation of any required build or verification prevents deployment.
+The existing verify matrix check names and other workflows remain unchanged.
+
+This removes a second pair build, second browser-image pull and repeated staging
+suite from deployment. Extra isolated jobs and artifact transfers have overhead;
+end-to-end savings must be measured on hosted CI. The pre-change reference run
+`43866258246` spent 49 seconds rebuilding, about 13 seconds pulling the browser
+image and 29 seconds repeating staging checks in deploy (91 seconds combined),
+versus only 14 seconds uploading/publishing. Those 91 seconds are removed work,
+not a guaranteed 91-second wall-clock improvement. Publication timing still needs
+a post-merge main run; PR validation does not publish.
 
 ## Local and CI verification
 
@@ -123,7 +157,7 @@ Node version, credentials, destination guards and approvals.
 
 Repeat built tests with `BASE_PATH=''` for root-hosted compatibility. CI tests
 both deployment bases. Test network routes block real analytics/account requests;
-production analytics assertions intercept only a fake PostHog endpoint. Staging
+production analytics assertions intercept the configured PostHog endpoint locally. Staging
 tests check no telemetry attempts, saves without production guest changes, cold
 share/course fallbacks, reload/history, mobile and desktop header labels, separate
 manifests/workers/caches, and offline navigation. Unit tests also verify no

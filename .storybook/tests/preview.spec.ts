@@ -2,6 +2,14 @@ import { expect, test, type Locator, type Page } from '@playwright/test';
 import { pwaMessages } from '../../src/lib/pwa/messages';
 import { coverage } from '../coverage';
 
+test.beforeEach(async ({ context, baseURL }) => {
+	await context.route('**/*', (route) =>
+		new URL(route.request().url()).origin === new URL(baseURL!).origin
+			? route.continue()
+			: route.abort()
+	);
+});
+
 const controls = 'components-button--primary';
 const storyUrl = (id: string) =>
 	`/storybook/iframe.html?id=${id}&viewMode=story`;
@@ -829,19 +837,11 @@ test('theme, language and reading direction are global controls', async ({
 	await expect(page.getByRole('status')).toBeVisible();
 	await expect(page.getByRole('status')).toHaveCSS('clip-path', 'none');
 	await expect(
-		page.getByRole('progressbar', { name: 'Loading data files' })
-	).toHaveAttribute('aria-valuenow', '1');
-	await expect(page.getByRole('progressbar')).toHaveAttribute(
-		'aria-valuemin',
-		'0'
-	);
-	await expect(page.getByRole('progressbar')).toHaveAttribute(
-		'aria-valuemax',
-		'2'
-	);
+		page.getByRole('progressbar', { name: 'Startup progress' })
+	).not.toHaveAttribute('aria-valuenow');
 	await expect(page.locator('.console-loading__indicator')).toHaveCSS(
-		'animation-name',
-		'none'
+		'animation-iteration-count',
+		'1'
 	);
 	const track = await page.locator('.console-loading__track').boundingBox();
 	const status = await page.getByRole('status').boundingBox();
@@ -853,18 +853,12 @@ test('theme, language and reading direction are global controls', async ({
 	);
 	await expect(page.locator('.console-loading')).toHaveAttribute('lang', 'he');
 	await expect(page.locator('.console-loading')).toHaveAttribute('dir', 'rtl');
-	await expect(page.getByRole('status')).toHaveText(
-		'טוענים קורסים… קובצי נתונים שהושלמו: 1 מתוך 2'
-	);
+	await expect(page.getByRole('status')).toHaveText('מורידים נתונים…');
 	await expect(page.getByRole('status')).toBeVisible();
 	await expect(page.getByRole('status')).toHaveCSS('clip-path', 'none');
 	await expect(
-		page.getByRole('progressbar', { name: 'טעינת קובצי נתונים' })
-	).toHaveAttribute('aria-valuenow', '1');
-	await expect(page.getByRole('progressbar')).toHaveAttribute(
-		'aria-valuemax',
-		'2'
-	);
+		page.getByRole('progressbar', { name: 'התקדמות הטעינה' })
+	).not.toHaveAttribute('aria-valuenow');
 	await page.goto(
 		`${storyUrl('components-searchfilters--default')}&globals=theme:light;language:en;direction:ltr`
 	);

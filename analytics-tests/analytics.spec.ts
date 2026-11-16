@@ -102,7 +102,9 @@ async function setup(page: Page, plan: unknown = seed) {
 				if (
 					String(error).includes(
 						'Target page, context or browser has been closed'
-					)
+					) ||
+					(String(error).includes('Fetch response has been disposed') &&
+						request.frame().page().isClosed())
 				)
 					return;
 				throw error;

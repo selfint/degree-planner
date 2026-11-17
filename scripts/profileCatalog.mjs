@@ -12,7 +12,9 @@ const guest = {
 	exemptions: [],
 	wishlist: []
 };
-const browser = await chromium.launch();
+const browser = await chromium.launch({
+	args: ['--disable-background-networking']
+});
 const results = [];
 try {
 	for (const rate of [1, 4])
@@ -58,8 +60,32 @@ try {
 						function start(e) {
 							if (!e.target.closest('a[href$="/app/catalog"]')) return;
 							document.removeEventListener('click', start, true);
+							if (!e.isTrusted)
+								throw new Error('Measurement requires a trusted click');
 							const t = performance.now();
+							let navigationMs = null;
+							let skeletonMs = null;
+							let navPending = false;
+							let skeletonPending = false;
 							const check = () => {
+								const nav = document.querySelector(
+									'a[href$="/app/catalog"][aria-current="page"]'
+								);
+								if (nav && !navPending) {
+									navPending = true;
+									requestAnimationFrame(() => {
+										navigationMs = performance.now() - t;
+									});
+								}
+								const skeleton = document.querySelector(
+									'[data-catalog-skeleton]'
+								);
+								if (skeleton?.checkVisibility() && !skeletonPending) {
+									skeletonPending = true;
+									requestAnimationFrame(() => {
+										skeletonMs = performance.now() - t;
+									});
+								}
 								const root = document.querySelector('.catalog-page');
 								const name = root?.querySelector('.course-row .course-name');
 								const summary = root?.querySelector('.catalog-summary');
@@ -95,8 +121,26 @@ try {
 										requestAnimationFrame(() => {
 											window.__catalogResult = {
 												readyMs,
-												usefulMs: performance.now() - t
+												navigationMs,
+												skeletonMs,
+												usefulMs: performance.now() - t,
+												fullMs: null
 											};
+											const complete = () => {
+												if (
+													root.querySelectorAll('.course-card').length ===
+														827 &&
+													!root.querySelector(
+														'.catalog-loading, .course-loading'
+													)
+												) {
+													requestAnimationFrame(() => {
+														window.__catalogResult.fullMs =
+															performance.now() - t;
+													});
+												} else requestAnimationFrame(complete);
+											};
+											requestAnimationFrame(complete);
 										});
 										return;
 									}
@@ -118,9 +162,14 @@ try {
 					await cdp.send('Profiler.start');
 				}
 				await p.locator('a[href="/app/catalog"]:visible').first().click();
-				await p.waitForFunction(() => window.__catalogResult, null, {
-					timeout: 120000
-				});
+				await p.waitForFunction(
+					() =>
+						window.__catalogResult?.fullMs !== null && window.__catalogResult,
+					null,
+					{
+						timeout: 120000
+					}
+				);
 				if (profile) {
 					const { profile: cpu } = await cdp.send('Profiler.stop');
 					fs.writeFileSync(out + '.cpuprofile', JSON.stringify(cpu));

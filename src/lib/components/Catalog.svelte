@@ -306,6 +306,16 @@
 		   The route layout still retains and hides the entire inactive catalog. */
 		min-inline-size: 0;
 	}
+	.catalog-section :global(.course-row) {
+		/* A defined rail size, not an estimate: 6.5rem card bodies plus a 1rem
+		   gutter for padding and the native thin scrollbar. Wrapping headings
+		   remain outside containment and keep their intrinsic height. */
+		block-size: 7.5rem;
+		align-items: flex-start;
+		contain-intrinsic-block-size: 7.5rem;
+		content-visibility: auto;
+	}
+
 	.catalog-section-title {
 		margin-block-end: 0.5rem;
 		font-size: 0.9375rem;

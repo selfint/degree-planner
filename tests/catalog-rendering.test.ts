@@ -190,3 +190,122 @@ for (const language of ['en', 'he'])
 				)
 			);
 	});
+
+for (const language of ['en', 'he'])
+	test(`heavy ${language} catalog keeps geometry through resize, find and history`, async ({
+		page
+	}) => {
+		test.setTimeout(90_000);
+		await page.route('**/*', (route) =>
+			new URL(route.request().url()).origin === origin
+				? route.continue()
+				: route.abort()
+		);
+		await page.addInitScript(
+			({ guest, language }) => {
+				localStorage.setItem('lang', language);
+				localStorage.setItem('version', '4');
+				localStorage.setItem('userData', JSON.stringify(guest));
+			},
+			{ guest, language }
+		);
+		await page.goto(origin + '/app/plan');
+		await expect(page.locator('.console-shell')).not.toHaveAttribute('inert');
+		await page.locator('a[href="/app/catalog"]:visible').first().click();
+		await expect(page.locator('.catalog-page .course-card')).toHaveCount(827);
+		await expect(
+			page.locator(
+				'.catalog-page .catalog-loading, .catalog-page .course-loading'
+			)
+		).toHaveCount(0);
+		for (const width of [320, 390, 1280]) {
+			await page.setViewportSize({ width, height: 844 });
+			await page.evaluate(() => document.fonts.ready);
+			const heights = () =>
+				page
+					.locator('.catalog-section')
+					.evaluateAll((sections) =>
+						sections.map((section) => section.getBoundingClientRect().height)
+					);
+			const before = await heights();
+			const last = page.locator('.catalog-section .course-row a').last();
+			await last.focus();
+			await expect(last).toBeFocused();
+			await expect(last).toBeInViewport();
+			await page.evaluate(
+				() =>
+					new Promise((resolve) =>
+						requestAnimationFrame(() => requestAnimationFrame(resolve))
+					)
+			);
+			expect(await heights()).toEqual(before);
+			// A focused rail must expose its text without clipping names/codes vertically.
+			const geometry = await last.evaluate((link) => {
+				const row = link.closest('.course-row')!.getBoundingClientRect();
+				const code = link
+					.querySelector('.course-code')!
+					.getBoundingClientRect();
+				return { rowBottom: row.bottom, codeBottom: code.bottom };
+			});
+			expect(geometry.codeBottom).toBeLessThanOrEqual(geometry.rowBottom);
+		}
+		await page.locator('a[href="/app/plan"]:visible').first().click();
+		await expect(page).toHaveURL(origin + '/app/plan');
+		await page.goBack();
+		await expect(page).toHaveURL(origin + '/app/catalog');
+		await expect(page.locator('.catalog-page')).toBeVisible();
+		await page.goForward();
+		await expect(page).toHaveURL(origin + '/app/plan');
+		await expect(page.locator('[data-catalog-cache]')).toHaveAttribute('inert');
+		for (let repeat = 0; repeat < 3; repeat++) {
+			await page.locator('a[href="/app/catalog"]:visible').first().click();
+			await expect(page).toHaveURL(origin + '/app/catalog');
+			await page.locator('a[href="/app/plan"]:visible').first().click();
+			await expect(page).toHaveURL(origin + '/app/plan');
+			await expect(page.locator('[data-catalog-cache]')).toHaveAttribute(
+				'inert'
+			);
+		}
+		await page.locator('a[href="/app/catalog"]:visible').first().click();
+		await expect(page).toHaveURL(origin + '/app/catalog');
+		await expect(page.locator('[data-catalog-cache]')).not.toHaveAttribute(
+			'inert'
+		);
+		await page.evaluate(
+			() =>
+				new Promise((resolve) =>
+					requestAnimationFrame(() => requestAnimationFrame(resolve))
+				)
+		);
+		// Exercise native find-in-page traversal, including content skipped by CSS.
+		const name = await page
+			.locator('.catalog-section .course-name')
+			.last()
+			.textContent();
+		expect(
+			await page.evaluate((name) => {
+				const nativeWindow = window as unknown as {
+					find(
+						text: string,
+						caseSensitive: boolean,
+						backwards: boolean,
+						wrap: boolean
+					): boolean;
+				};
+				return nativeWindow.find(name!, false, true, true);
+			}, name)
+		).toBe(true);
+		await expect
+			.poll(() =>
+				page
+					.locator('.catalog-section .course-name')
+					.filter({ hasText: name! })
+					.evaluateAll((names) =>
+						names.some((name) => {
+							const box = name.getBoundingClientRect();
+							return box.top >= 0 && box.bottom <= innerHeight;
+						})
+					)
+			)
+			.toBe(true);
+	});

@@ -1,7 +1,9 @@
 # Catalog navigation measurements
 
-The tables record successive iterations. The section **Stable course targets
-in WebKit** contains the latest correctness fix and its measured performance cost.
+The tables record successive iterations. The section **CSS containment with
+defined rail geometry** contains the latest CSS-only follow-up. The earlier
+**Stable course targets in WebKit** section documents the section-sizing regression
+and its correction.
 
 Measured locally against production builds, using the largest checked-in degree
 catalog, regenerated with the normal production build pipeline: 827 course entries in 59 groups (15,915 DOM descendants). The guest plan
@@ -152,3 +154,176 @@ same checked-in data, host, browser build and CPU setting. The regression test
 sorted order, retained element identity, updates after a real plan edit, hidden
 focus/accessibility isolation, offscreen focus access, and no document-width overflow in English
 and Hebrew; existing rail tests cover horizontal scrolling and course navigation.
+
+## CSS containment with defined rail geometry
+
+The follow-up prioritizes CSS-only rendering. Only catalog rails use
+`content-visibility: auto`. Their `block-size: 7.5rem` is an enforced layout size,
+not an estimate that changes when a skipped subtree becomes visible. Catalog card
+bodies use 6.5rem (0.75rem padding, 1rem metadata, 0.25rem gap and 4.5rem copy), with
+1rem reserved for rail padding and the native thin scrollbar. Cards retain their
+natural height rather than stretching into that gutter. Wrapping section headings
+and progress summaries stay outside containment, using their real intrinsic heights.
+The matching intrinsic size hint does not replace the explicit rail size.
+
+All 827 cards and 59 groups remain in the DOM. Native course links, horizontal
+scrolling, find-in-page, offscreen focus, and the inactive root's `inert` and
+`aria-hidden` protections remain. No estimated section heights, pointer-down
+navigation, click retries, delayed clicks, skeleton, or application JavaScript
+scheduler were introduced. Account-bound retention/disposal is unchanged.
+
+A card-body-only experiment improved repeat visits less than rail containment:
+it still laid out each card wrapper. Rail containment skips descendants of entire offscreen rails.
+It cannot eliminate Svelte's construction of 827 components / 15,915 descendants,
+or the retained tree's style/accessibility work when toggling `inert`. A skeleton
+could provide feedback while that work runs, but would not itself make a course
+usable. Windowing visible rows plus a buffer would reduce construction work;
+unmounting offscreen links/text would also break native browser find and direct
+focus access. Stable explicit rail geometry solves only the sizing part of that
+approach. No JavaScript virtualization was shipped under the CSS-first preference.
+
+This run uses a fresh Linux host and Playwright Chromium 143.0.7499.4, a 390 × 844
+mobile viewport, and normal / 4× CDP CPU slowdown. There are two independent
+contexts per CPU setting, one first navigation and three repeats per context.
+Application startup/data loading finishes before measurement. Each comparison
+uses the same regenerated checked-in data and browser, without concurrent builds
+or test suites. Do not compare absolute timings with earlier hosts.
+
+The extended probe starts at a trusted native click and independently records:
+
+- `navigationMs`: active navigation observed, then a rendering opportunity.
+- `skeletonMs`: a visible skeleton followed by a rendering opportunity; null here
+  because no skeleton is present. It never counts as usable content.
+- `usefulMs`: resolved summary and a real named card in the viewport passing hit
+  testing, followed by another animation frame (the existing visible-content metric).
+- `fullMs`: all 827 cards present and no catalog/course loading placeholders,
+  followed by a rendering opportunity. The completeness scan runs after the useful
+  measurement to avoid adding whole-tree traversal to that interval. Consequently
+  this is an audited upper bound on full DOM readiness, not its earliest instant,
+  and does not mean offscreen pixels have been painted.
+
+These remain rendering-opportunity proxies, not physical iPhone presentation times.
+Raw preliminary samples are preserved: [baseline](./catalog-css-before.json),
+[card-body experiment](./catalog-css-body-experiment.json), and
+[rail experiment before the natural-height adjustment](./catalog-css-rail-experiment.json).
+
+Final baseline: `ce52dc58fff8a2e1a042caf7c81e47fb2f9aed87`. Application changes are
+limited to catalog CSS; no startup or account code is changed. All samples are
+retained, including the slower second 4× first-entry sample.
+
+Each cell below is **median / maximum in milliseconds**.
+
+| CPU    | Visit        | Metric       | Before          | CSS rails       |
+| ------ | ------------ | ------------ | --------------- | --------------- |
+| Normal | First (n=2)  | navigationMs | 230.9 / 422.3   | 214.5 / 215.8   |
+| Normal | First (n=2)  | usefulMs     | 524.8 / 596.3   | 279.8 / 293.4   |
+| Normal | First (n=2)  | fullMs       | 549.0 / 622.7   | 311.0 / 326.6   |
+| Normal | Repeat (n=6) | navigationMs | 122.4 / 155.0   | 48.1 / 50.5     |
+| Normal | Repeat (n=6) | usefulMs     | 122.4 / 155.1   | 48.1 / 50.6     |
+| Normal | Repeat (n=6) | fullMs       | 142.7 / 173.5   | 75.8 / 76.8     |
+| 4×     | First (n=2)  | navigationMs | 67.9 / 71.8     | 67.6 / 81.3     |
+| 4×     | First (n=2)  | usefulMs     | 2192.9 / 2340.6 | 1531.2 / 1910.9 |
+| 4×     | First (n=2)  | fullMs       | 2217.8 / 2365.9 | 1570.4 / 1941.6 |
+| 4×     | Repeat (n=6) | navigationMs | 591.7 / 833.2   | 256.5 / 288.6   |
+| 4×     | Repeat (n=6) | usefulMs     | 591.7 / 833.2   | 256.5 / 288.6   |
+| 4×     | Repeat (n=6) | fullMs       | 609.8 / 847.7   | 317.1 / 339.0   |
+
+Final raw samples: [before](./catalog-css-before.json), [after](./catalog-css-after.json).
+**The 50 ms maximum is not achieved**, including normal repeats (50.6 ms maximum).
+At 4× CPU, repeat usable-card median improves from 591.7 ms to 256.5 ms (about 57%),
+while first-entry median improves from 2192.9 ms to 1531.2 ms. First entry remains
+variable and far above the requested limit. No skeleton timing is reported as
+content readiness.
+
+Validation for the final CSS:
+
+- 32 focused catalog/rendering/rail browser cases passed in Chromium and WebKit,
+  including English/Hebrew, stable offscreen geometry, native activation, hidden
+  focus isolation, retained identity and reactive guest-plan edits.
+- New regressions cover 320/390/1280px geometry, Back/Forward, repeated native
+  navigation and native find-in-page revealing an offscreen course.
+- All 28 account-loading/catalog-scroll cases and 10 affected Storybook cases
+  passed. Local mobile English/light and Hebrew/dark visual checks passed in both
+  engines; observed rail/card heights were 120px/104px, with no document overflow.
+- Full browser suite: 616 passed, four failed (620 total). The four WebKit cold landing-video
+  cases cannot play the local MP4s on this host. A standalone page without
+  application code also rejects native `video.play()` with `NotSupportedError`
+  (media error 4), both with and without the deny proxy. Catalog assertions in
+  those tests are not involved.
+- Production app and Storybook build passed. Svelte/type checks reported zero
+  errors or warnings; formatting and ESLint passed.
+- The unit run passed 1,103 tests with four skipped. One existing external-network
+  test, `scripts/HistogramsClient.test.mjs` / `Get course median`, failed when its
+  GitHub Pages fetch returned ECONNREFUSED / ENETUNREACH. It was not retried.
+  The separate live SAP suite was not run. Physical-iPhone presentation was not tested.
+
+PR #245 (`28748923dafacc28daf836d3de120222e1fd188d`) changes startup redirects,
+loading state and progress. This CSS follow-up changes none of those files and
+GitHub reports PR #246 mergeable against main. No merge, default-branch push or
+new deployment was performed; the existing staging slot is untouched.
+
+### Wheel-driven reveal audit (separate from navigation timing)
+
+[WebKit report 321501](https://bugs.webkit.org/show_bug.cgi?id=321501) describes
+persistent blank content after wheel/trackpad scrolling and warns that geometry
+reads can conceal the problem. This is a separate risk; it is not evidence that
+it caused the earlier estimated-section-height click misses.
+
+`node scripts/auditCatalogWheel.mjs /tmp/catalog-wheel-audit` runs the local manual
+check. It copies the pinned Playwright 1.57.0 driver into a temporary directory,
+disables its WebKit screenshot stylesheet/layout flush, and dispatches wheel
+input without Playwright's preparatory scrolling-state update. It changes neither
+the installed driver nor the browser engine. Screenshots use viewport capture,
+normal animations and the existing caret. There are no element geometry reads,
+programmatic scroll-position writes, locator clicks, or trace DOM snapshots.
+External requests are blocked before navigation.
+
+Each fresh English/Hebrew context at 390/1180px receives eight trusted 640px wheel
+inputs. Images are captured during the gesture and after scroll events become
+quiet. Coordinates and an expected course code are selected from the settled
+image; exactly one native pointer-down/up/click is sent. Playwright does not support
+wheel input in its mobile-WebKit mode, so these are wheel-capable narrow/wide
+contexts, not physical iPhone or trackpad measurements. This qualitative audit ran
+alongside broader correctness checks; it makes no scroll-latency claim and does
+not alter the isolated navigation benchmarks above.
+
+All four final audited clicks reached their expected course, with matching trusted
+pointer-down/up/click anchor targets. All settled captures showed course cards
+without a forced geometry read. **Rapid wheel input can nevertheless expose
+transient empty rails**: see the exploratory [in-motion image](./catalog-wheel/en-in-motion.png)
+and its [settled image](./catalog-wheel/en-settled.png). Recovery happened without
+an explicit layout flush; its earliest paint time was not measured. Persistent
+blanking like the reported failure was not observed in these samples. This does
+not establish that every Safari version/device is unaffected.
+
+One earlier exploratory coordinate click did not navigate: its coordinates were
+chosen from an in-motion screenshot, and subsequent fresh captures demonstrated
+continued scrolling after that stage. No event-target log was captured for that
+initial miss, so its cause is not asserted. It is not counted as a passing trial.
+No application click delay, pointer-down navigation or retry was introduced.
+
+[Final raw wheel/pointer events](./catalog-wheel/results.json) and all 16 final
+captures are preserved in `catalog-wheel/` (use the capture basenames from the
+original local paths in the JSON). Separately, the standard offscreen native-click
+regression passed 24/24 additional WebKit trials, 12 per language.
+
+A separate retained-catalog return check used native coordinate clicks to open a
+course and return through the Catalog header, with the same no-flush driver.
+One exploratory capture after two animation frames showed [blank visible
+rails](./catalog-wheel/return-exploratory-blank.png). That context closed before a
+later capture, so its blank duration is unknown. This is not counted as a
+successful reveal. All six subsequent fresh contexts (three EN, three HE) showed cards in the
+capture after two frames; each image was byte-identical to its capture a second
+later, without descendant geometry reads. Their raw captures and
+[manifest](./catalog-wheel/return-results.json) are retained alongside the wheel
+results. These qualitative
+checks do not establish an earliest pixel-presentation time. In particular,
+`usefulMs` above includes geometry reads and hit testing: it measures an audited
+rendering opportunity, not uninstrumented painted-card readiness. No claim of
+50ms actual content presentation is supported.
+
+Publication uses `[skip ci]` because the existing PR workflow starts live SAP
+tests, which are outside this task's local-QA-only scope. No new CI pass is
+claimed. Required checks may remain pending under GitHub's
+[skip semantics](https://docs.github.com/actions/managing-workflow-runs/skipping-workflow-runs).
+No new staging or deployed Storybook review artifact was created.

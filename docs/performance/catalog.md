@@ -16,10 +16,10 @@ by the browser suite. External browser requests are aborted before networking.
 
 | CPU         | Navigation  | Before median (range), ms | After median (range), ms |
 | ----------- | ----------- | ------------------------- | ------------------------ |
-| Normal      | First, n=2  | 537.5 (434.7–640.3)       | 130.5 (123.3–137.7)      |
-| Normal      | Repeat, n=6 | 482.6 (419.3–743.0)       | 111.9 (82.7–276.0)       |
-| 4× slowdown | First, n=2  | 1130.9 (1068.7–1193.2)    | 448.1 (434.3–461.9)      |
-| 4× slowdown | Repeat, n=5 | 2130.4 (1908.0–2675.8)    | 472.6 (371.1–737.1)      |
+| Normal      | First, n=2  | 726.1 (410.5–1041.8)      | 134.6 (128.8–140.5)      |
+| Normal      | Repeat, n=6 | 463.9 (368.7–865.8)       | 84.6 (79.0–108.7)        |
+| 4× slowdown | First, n=2  | 1576.5 (1512.7–1640.2)    | 675.6 (455.7–895.6)      |
+| 4× slowdown | Repeat, n=6 | 2410.5 (2093.2–3218.1)    | 398.4 (344.3–609.4)      |
 
 Raw samples: [before](./catalog-before.json), [after](./catalog-after.json).
 Both builds use the same regenerated public data and production environment.

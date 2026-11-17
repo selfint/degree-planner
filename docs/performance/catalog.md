@@ -1,5 +1,8 @@
 # Catalog navigation measurements
 
+The tables record successive iterations. The section **Stable course targets
+in WebKit** contains the latest correctness fix and its measured performance cost.
+
 Measured locally against production builds, using the largest checked-in degree
 catalog, regenerated with the normal production build pipeline: 827 course entries in 59 groups (15,915 DOM descendants). The guest plan
 contains two courses. Chromium uses a 390 × 844 mobile viewport, with normal CPU
@@ -32,9 +35,10 @@ These are small samples on one shared four-core host, not a universal latency SL
 The original row used separate pending/resolved keyed blocks: a DOM observer
 counted 1,654 card constructions for 827 entries. One keyed block retains the cards
 while sorting pending data. The catalog passes already-resolved data so rows sort
-and cards render synchronously. CSS `content-visibility: auto` skips offscreen
-layout/paint while keeping all links in the DOM for native focus, scrolling and
-browser find. No course counts, groups or content are omitted.
+and cards render synchronously. This iteration used CSS `content-visibility: auto` to skip offscreen layout/paint.
+That section optimization was subsequently removed because its estimated heights
+could move a WebKit click target; see the final measurements below. No course
+counts, groups or content are omitted.
 
 ## Retaining the live catalog between visits
 
@@ -71,8 +75,8 @@ The baseline is the previous PR revision `081f5769eb32712a2623bc6f0af287b65a4c47
 
 Raw samples: [before retention](./catalog-visible-before-retention.json),
 [retained](./catalog-visible-retained.json). No samples are excluded.
-The cache primarily improves repeated visits: about 81% lower median at 4× CPU
-slowdown. First-entry samples remain variable and do not demonstrate a consistent
+At that revision, the cache improved repeated visits by about 81% at 4× CPU
+slowdown. The later correctness fix below supersedes those final timings. First-entry samples remain variable and do not demonstrate a consistent
 cold-entry improvement. **The 50 ms maximum remains unmet.** First construction
 still builds the complete catalog; safe retention still incurs browser style work.
 A prototype without `inert` approached 50 ms but failed focus isolation and was
@@ -80,6 +84,53 @@ rejected. Background construction was not shipped: doing the same large synchron
 render during idle time can stall unrelated plan interaction. Incremental preparation
 or virtualization would require separate work to preserve search, focus and immediate
 access to all course groups rather than merely improving this metric.
+
+## Stable course targets in WebKit
+
+Returning to the retained catalog and clicking an offscreen course reproduced a
+real missed navigation: pointer-down hit the course anchor, but pointer-up hit a
+section after the course moved approximately 90 px. Event capture recorded only
+one document request, ruling out a page reload. Offscreen `content-visibility: auto`
+sections initially reserved 240 px, then resolved to actual heights around 195 px.
+Several preceding sections could change the target's position during the press.
+
+Revision `61bca24` missed 3 of 12 instrumented English WebKit clicks; the
+pre-retention revision missed none of 12. Hiding the retained root with `display:none`
+was not sufficient. Removing skipped section layout eliminated the observed miss.
+The fix keeps real section heights, the retained component, native course links,
+account-bound disposal, and inactive focus/accessibility protection. It does not
+add a retry, delay navigation, or activate links on pointer-down.
+
+The English WebKit regression failed on the expected course URL before the fix.
+The final implementation passed all four English/Hebrew Chromium/WebKit catalog
+cases and 24 additional WebKit click trials (12 per language), with one document
+request per trial. The test also compares preceding section heights around scrolling
+and verifies the resulting course route before exercising the real wishlist action.
+
+Final local validation passed all 616 browser tests (23.7 minutes), 10 affected
+Storybook tests, and both retained-catalog account-isolation cases. The production
+app/Storybook build, type checks, formatting and ESLint passed. Mobile English/light
+and Hebrew/dark views were reviewed in Chromium and WebKit. In the two heavy
+catalog/navigation test files, DOM trace snapshots are disabled because capturing
+the hidden catalog caused WebKit trace overhead to exceed test deadlines; action
+traces, screenshots, source capture, and all behavioral assertions remain enabled.
+
+This correctness fix has a substantial performance cost. These matched samples use
+the same visible-render probe, production data and CPU settings on both sides:
+
+| CPU         | Navigation  | Before correction median (range), ms | Corrected median (range), ms |
+| ----------- | ----------- | ------------------------------------ | ---------------------------- |
+| Normal      | First, n=2  | 196.9 (179.5–214.2)                  | 415.9 (404.4–427.4)          |
+| Normal      | Repeat, n=6 | 46.0 (45.4–46.5)                     | 81.4 (78.0–92.7)             |
+| 4× slowdown | First, n=2  | 667.3 (662.2–672.3)                  | 1251.3 (1117.9–1384.8)       |
+| 4× slowdown | Repeat, n=6 | 95.8 (92.1–107.6)                    | 353.5 (295.9–565.6)          |
+
+Raw samples: [before correction](./catalog-stable-heights-before.json),
+[corrected](./catalog-stable-heights-after.json). The before source is
+`61bca24d5f1ceb29b4bd23d8cf9606c933bdab4d`. No samples are excluded.
+**The 50 ms maximum remains unmet.** The previous faster results did not provide
+reliable course activation. Further optimization must preserve real target geometry
+through scrolling and pointer interaction, as well as full content and account safety.
 
 ## Reproduce
 

@@ -1,5 +1,17 @@
 import { expect, test } from '@playwright/test';
 
+// Snapshotting every node of the retained catalog forces expensive hidden-tree
+// layout in WebKit. Keep action traces, screenshots and source capture; the
+// live assertions below still exercise all navigation, focus and layout states.
+test.use({
+	trace: {
+		mode: 'retain-on-failure',
+		snapshots: false,
+		screenshots: true,
+		sources: true
+	}
+});
+
 const origin = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:4173';
 const guest = {
 	degree: ['2021_200', '00002120', 'SC00001313_CG00004522'],
@@ -66,15 +78,13 @@ for (const language of ['en', 'he'])
 			.first()
 			.elementHandle();
 		await page.locator('a[href="/app/plan"]:visible').first().click();
-		// WebKit retains descendant rectangles under content-visibility:hidden;
-		// use native visibility and focus/accessibility checks, not rectangle heuristics.
-		await expect
-			.poll(() =>
-				page
-					.locator('.catalog-page')
-					.evaluate((element) => element.checkVisibility())
-			)
-			.toBe(false);
+		// WebKit retains descendant rectangles under content-visibility:hidden.
+		// Wait in the browser: tracing this large hidden tree can outlast an outer
+		// expect.poll deadline before its locator evaluation even starts.
+		await page.waitForFunction(() => {
+			const catalog = document.querySelector('.catalog-page');
+			return catalog !== null && !catalog.checkVisibility();
+		});
 		await expect(page.locator('[data-catalog-cache]')).toHaveCSS(
 			'height',
 			'0px'
@@ -101,12 +111,36 @@ for (const language of ['en', 'he'])
 				(card) => card === document.querySelector('.catalog-page .course-card')
 			)
 		).toBe(true);
+		// Estimated offscreen section heights used to shrink during a WebKit press,
+		// moving the course away between pointer-down and pointer-up.
+		const courseLink = page
+			.locator('.catalog-page a[href="/app/course/02340124"]')
+			.first();
+		const sectionHeights = () =>
+			courseLink.evaluate((link) => {
+				const sections = Array.from(
+					document.querySelectorAll('.catalog-section')
+				);
+				return sections
+					.slice(0, sections.indexOf(link.closest('section')!) + 1)
+					.map((section) => section.getBoundingClientRect().height);
+			});
+		const offscreenHeights = await sectionHeights();
+		await courseLink.scrollIntoViewIfNeeded();
+		await page.evaluate(
+			() =>
+				new Promise<void>((resolve) =>
+					requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+				)
+		);
+		expect(await sectionHeights()).toEqual(offscreenHeights);
 		// Mutating the real guest plan on another route must update the retained
 		// catalog, rather than preserving a stale screenshot or HTML snapshot.
 		await page
 			.locator('.catalog-page a[href="/app/course/02340124"]')
 			.first()
 			.click();
+		await expect(page).toHaveURL(origin + '/app/course/02340124');
 		await page
 			.getByTestId('course-plan-actions')
 			.getByRole('button', {
@@ -122,7 +156,7 @@ for (const language of ['en', 'he'])
 		await expect(
 			page.locator('.catalog-section').first().locator('.course-note')
 		).toContainText('🌟');
-		// Even skipped offscreen groups retain real links and native focus/scroll.
+		// Offscreen groups retain real links and native focus/scroll.
 		const lastLink = page.locator('.catalog-section .course-row a').last();
 		await lastLink.focus();
 		await expect(lastLink).toBeFocused();

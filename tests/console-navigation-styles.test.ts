@@ -1,6 +1,18 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
 
+// Snapshotting every node of the retained catalog forces expensive hidden-tree
+// layout in WebKit. Keep action traces, screenshots and source capture; the
+// live assertions below still exercise all navigation, focus and layout states.
+test.use({
+	trace: {
+		mode: 'retain-on-failure',
+		snapshots: false,
+		screenshots: true,
+		sources: true
+	}
+});
+
 const origin = new URL(
 	process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:4173'
 ).origin;

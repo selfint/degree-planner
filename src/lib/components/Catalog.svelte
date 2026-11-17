@@ -301,10 +301,9 @@
 		border-block-end: 1px solid rgb(var(--color-border));
 	}
 	.catalog-section {
-		/* Keep all courses searchable and focusable while the browser skips
-		   layout/paint for groups outside the viewport. */
-		content-visibility: auto;
-		contain-intrinsic-block-size: auto 15rem;
+		/* Keep real section heights even offscreen. WebKit can replace an estimated
+		   content-visibility size during a press, moving a course before pointer-up.
+		   The route layout still retains and hides the entire inactive catalog. */
 		min-inline-size: 0;
 	}
 	.catalog-section-title {

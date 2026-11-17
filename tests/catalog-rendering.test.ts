@@ -156,6 +156,15 @@ for (const language of ['en', 'he'])
 		await expect(
 			page.locator('.catalog-section').first().locator('.course-note')
 		).toContainText('🌟');
+		// The smaller degree row must react too, not just the separate wishlist.
+		const degreeLink = page
+			.locator('.catalog-course-row a[href="/app/course/02340124"]')
+			.first();
+		await expect(degreeLink.locator('.course-note')).toContainText('🌟');
+		await expect(degreeLink).toHaveAccessibleName(
+			new RegExp(language === 'en' ? 'Wish' : 'משאלות', 'i')
+		);
+
 		// Offscreen groups retain real links and native focus/scroll.
 		const lastLink = page.locator('.catalog-section .course-row a').last();
 		await lastLink.focus();
@@ -183,6 +192,7 @@ for (const language of ['en', 'he'])
 					)
 				)
 			);
+		expect(orders.reduce((total, row) => total + row.length, 0)).toBe(828);
 		for (const row of orders)
 			expect(row).toEqual(
 				[...row].sort(
@@ -309,3 +319,42 @@ for (const language of ['en', 'he'])
 			)
 			.toBe(true);
 	});
+
+// The resolved catalog uses the anchor itself as the card surface. Exercise it
+// with real touch input as well as the mouse and keyboard journeys above.
+test.describe('compact catalog touch', () => {
+	test.use({ hasTouch: true, isMobile: true });
+	for (const language of ['en', 'he'])
+		test(`${language} native course taps and keyboard activation survive returns`, async ({
+			page
+		}) => {
+			await page.route('**/*', (route) =>
+				new URL(route.request().url()).origin === origin
+					? route.continue()
+					: route.abort()
+			);
+			await page.addInitScript(
+				({ guest, language }) => {
+					localStorage.setItem('lang', language);
+					localStorage.setItem('version', '4');
+					localStorage.setItem('userData', JSON.stringify(guest));
+				},
+				{ guest, language }
+			);
+			await page.goto(origin + '/app/catalog');
+			const card = page.locator('.catalog-course-row a').first();
+			await expect(card).toBeVisible();
+			const href = await card.getAttribute('href');
+			for (let repeat = 0; repeat < 3; repeat++) {
+				await card.tap();
+				await expect(page).toHaveURL(origin + href);
+				await page.goBack();
+				await expect(page).toHaveURL(origin + '/app/catalog');
+				await expect(card).toBeInViewport();
+			}
+			await card.focus();
+			await expect(card).toBeFocused();
+			await page.keyboard.press('Enter');
+			await expect(page).toHaveURL(origin + href);
+		});
+});

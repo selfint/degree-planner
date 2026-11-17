@@ -293,16 +293,28 @@ async function expectNaturalRowHeight(row: Locator) {
 	const cards = await row.locator('.course-card').evaluateAll((elements) =>
 		elements.map((element) => {
 			const bounds = element.getBoundingClientRect();
-			// The card shell stretches; its real contents retain their natural height.
-			const contents = element.querySelector(':scope > .course-width')!;
-			const natural = contents.getBoundingClientRect();
+			// Measure intrinsic content independently of the stretched anchor shell.
+			const compact = element.matches('.course-width');
+			const natural = (
+				compact
+					? element.querySelector('.course-copy')!
+					: element.querySelector(':scope > .course-width')!
+			).getBoundingClientRect();
+			const style = getComputedStyle(element);
+			const contentTop = compact
+				? element.querySelector('.course-meta')!.getBoundingClientRect().top -
+					parseFloat(style.paddingTop)
+				: natural.top;
+			const contentBottom = compact
+				? natural.bottom + parseFloat(style.paddingBottom)
+				: natural.bottom;
 			return {
 				top: bounds.top,
 				bottom: bounds.bottom,
 				height: bounds.height,
-				naturalHeight: natural.height,
-				contentTop: natural.top,
-				contentBottom: natural.bottom
+				naturalHeight: contentBottom - contentTop,
+				contentTop,
+				contentBottom
 			};
 		})
 	);
@@ -527,7 +539,10 @@ async function expectInlineCatalogMetrics(
 }
 
 async function expectOriginalCardHierarchy(card: Locator) {
-	const body = card.locator('.course-body');
+	const compact = await card.evaluate((element) =>
+		element.classList.contains('course-body')
+	);
+	const body = compact ? card : card.locator('.course-body');
 	const name = body.locator('.course-copy > .course-name');
 	await expect(name).toBeVisible();
 	const title = await name.getAttribute('title');
@@ -591,9 +606,25 @@ async function expectOriginalCardHierarchy(card: Locator) {
 		cardBox!.x + cardBox!.width + 0.5
 	);
 	expect(codeBox!.height).toBeGreaterThan(0);
-	await expect(
-		body.locator('.course-meta .course-markers .course-marker')
-	).toBeVisible();
+	if (compact) {
+		const marker = await body.locator('.course-meta').evaluate((element) => {
+			const style = getComputedStyle(element, '::before');
+			return {
+				width: style.width,
+				height: style.height,
+				color: style.backgroundColor,
+				round: style.borderRadius,
+				exam: element.classList.contains('has-test')
+			};
+		});
+		expect(marker.width).toBe('12px');
+		expect(marker.height).toBe('12px');
+		expect(marker.color).not.toBe('rgba(0, 0, 0, 0)');
+		expect(marker.round).toBe(marker.exam ? '9999px' : '2px');
+	} else
+		await expect(
+			body.locator('.course-meta .course-markers .course-marker')
+		).toBeVisible();
 	await expect(
 		body.locator('.course-meta .course-stats > .course-median')
 	).toBeVisible();
@@ -2751,4 +2782,29 @@ test('course and catalog rails keep natural equal card heights and full canvas w
 		clampedLongNames,
 		'long fixture names exercise real three-line clipping'
 	).toBeGreaterThan(0);
+});
+
+test('resolved catalog row stories keep native accessible cards and empty state', async ({
+	page
+}) => {
+	for (const width of [390, 1180]) {
+		await page.setViewportSize({ width, height: 844 });
+		for (const variant of ['default', 'with-note']) {
+			await page.goto(storyUrl(`components-catalogcourserow--${variant}`));
+			const row = page.locator('.catalog-course-row');
+			const card = row.locator('a.course-card').first();
+			await expect(card).toBeVisible();
+			await expectOriginalCardHierarchy(card);
+			await expectNaturalRowHeight(row);
+			if (variant === 'with-note') {
+				await expect(card).toHaveAccessibleName(/Wish list/);
+				await expect(card.locator('.course-note')).toContainText('🌟');
+			}
+			await card.focus();
+			await expect(card).toBeFocused();
+		}
+	}
+	await page.goto(storyUrl('components-catalogcourserow--empty'));
+	await expect(page.locator('.catalog-course-row')).toBeAttached();
+	await expect(page.locator('.catalog-course-row a')).toHaveCount(0);
 });

@@ -1,0 +1,369 @@
+{
+	"version": "1.57.0",
+	"results": [
+		{
+			"language": "en",
+			"width": 390,
+			"captures": [
+				"en-390-wheel-1.png",
+				"en-390-wheel-4.png",
+				"en-390-wheel-8.png",
+				"en-390-settled.png",
+				"en-390-return-0-frames.png",
+				"en-390-return-0-idle.png",
+				"en-390-return-1-frames.png",
+				"en-390-return-1-idle.png",
+				"en-390-return-2-frames.png",
+				"en-390-return-2-idle.png"
+			],
+			"expectedCode": "02360814",
+			"passed": true,
+			"url": "http://localhost:4173/app/course/02360814",
+			"returnUrl": "http://localhost:4173/app/catalog",
+			"input": {
+				"lastScroll": 21581,
+				"wheels": [
+					{
+						"trusted": true,
+						"x": 0,
+						"y": 640
+					},
+					{
+						"trusted": true,
+						"x": 0,
+						"y": 640
+					},
+					{
+						"trusted": true,
+						"x": 0,
+						"y": 640
+					},
+					{
+						"trusted": true,
+						"x": 0,
+						"y": 640
+					},
+					{
+						"trusted": true,
+						"x": 0,
+						"y": 640
+					},
+					{
+						"trusted": true,
+						"x": 0,
+						"y": 640
+					},
+					{
+						"trusted": true,
+						"x": 0,
+						"y": 640
+					},
+					{
+						"trusted": true,
+						"x": 0,
+						"y": 640
+					}
+				],
+				"pointers": [
+					{
+						"type": "pointerdown",
+						"trusted": true,
+						"tag": "SPAN",
+						"href": "http://localhost:4173/app/course/02360814",
+						"x": 60,
+						"y": 160
+					},
+					{
+						"type": "pointerup",
+						"trusted": true,
+						"tag": "SPAN",
+						"href": "http://localhost:4173/app/course/02360814",
+						"x": 60,
+						"y": 160
+					},
+					{
+						"type": "click",
+						"trusted": true,
+						"tag": "SPAN",
+						"href": "http://localhost:4173/app/course/02360814",
+						"x": 60,
+						"y": 160
+					}
+				]
+			}
+		},
+		{
+			"language": "he",
+			"width": 390,
+			"captures": [
+				"he-390-wheel-1.png",
+				"he-390-wheel-4.png",
+				"he-390-wheel-8.png",
+				"he-390-settled.png",
+				"he-390-return-0-frames.png",
+				"he-390-return-0-idle.png",
+				"he-390-return-1-frames.png",
+				"he-390-return-1-idle.png",
+				"he-390-return-2-frames.png",
+				"he-390-return-2-idle.png"
+			],
+			"expectedCode": "02360754",
+			"passed": true,
+			"url": "http://localhost:4173/app/course/02360754",
+			"returnUrl": "http://localhost:4173/app/catalog",
+			"input": {
+				"lastScroll": 17771,
+				"wheels": [
+					{
+						"trusted": true,
+						"x": 0,
+						"y": 640
+					},
+					{
+						"trusted": true,
+						"x": 0,
+						"y": 640
+					},
+					{
+						"trusted": true,
+						"x": 0,
+						"y": 640
+					},
+					{
+						"trusted": true,
+						"x": 0,
+						"y": 640
+					},
+					{
+						"trusted": true,
+						"x": 0,
+						"y": 640
+					},
+					{
+						"trusted": true,
+						"x": 0,
+						"y": 640
+					},
+					{
+						"trusted": true,
+						"x": 0,
+						"y": 640
+					},
+					{
+						"trusted": true,
+						"x": 0,
+						"y": 640
+					}
+				],
+				"pointers": [
+					{
+						"type": "pointerdown",
+						"trusted": true,
+						"tag": "SPAN",
+						"href": "http://localhost:4173/app/course/02360754",
+						"x": 320,
+						"y": 270
+					},
+					{
+						"type": "pointerup",
+						"trusted": true,
+						"tag": "SPAN",
+						"href": "http://localhost:4173/app/course/02360754",
+						"x": 320,
+						"y": 270
+					},
+					{
+						"type": "click",
+						"trusted": true,
+						"tag": "SPAN",
+						"href": "http://localhost:4173/app/course/02360754",
+						"x": 320,
+						"y": 270
+					}
+				]
+			}
+		},
+		{
+			"language": "en",
+			"width": 1180,
+			"captures": [
+				"en-1180-wheel-1.png",
+				"en-1180-wheel-4.png",
+				"en-1180-wheel-8.png",
+				"en-1180-settled.png",
+				"en-1180-return-0-frames.png",
+				"en-1180-return-0-idle.png",
+				"en-1180-return-1-frames.png",
+				"en-1180-return-1-idle.png",
+				"en-1180-return-2-frames.png",
+				"en-1180-return-2-idle.png"
+			],
+			"expectedCode": "01240510",
+			"passed": true,
+			"url": "http://localhost:4173/app/course/01240510",
+			"returnUrl": "http://localhost:4173/app/catalog",
+			"input": {
+				"lastScroll": 59928.00000000001,
+				"wheels": [
+					{
+						"trusted": true,
+						"x": 0,
+						"y": 640
+					},
+					{
+						"trusted": true,
+						"x": 0,
+						"y": 640
+					},
+					{
+						"trusted": true,
+						"x": 0,
+						"y": 640
+					},
+					{
+						"trusted": true,
+						"x": 0,
+						"y": 640
+					},
+					{
+						"trusted": true,
+						"x": 0,
+						"y": 640
+					},
+					{
+						"trusted": true,
+						"x": 0,
+						"y": 640
+					},
+					{
+						"trusted": true,
+						"x": 0,
+						"y": 640
+					},
+					{
+						"trusted": true,
+						"x": 0,
+						"y": 640
+					}
+				],
+				"pointers": [
+					{
+						"type": "pointerdown",
+						"trusted": true,
+						"tag": "SPAN",
+						"href": "http://localhost:4173/app/course/01240510",
+						"x": 90,
+						"y": 195
+					},
+					{
+						"type": "pointerup",
+						"trusted": true,
+						"tag": "SPAN",
+						"href": "http://localhost:4173/app/course/01240510",
+						"x": 90,
+						"y": 195
+					},
+					{
+						"type": "click",
+						"trusted": true,
+						"tag": "SPAN",
+						"href": "http://localhost:4173/app/course/01240510",
+						"x": 90,
+						"y": 195
+					}
+				]
+			}
+		},
+		{
+			"language": "he",
+			"width": 1180,
+			"captures": [
+				"he-1180-wheel-1.png",
+				"he-1180-wheel-4.png",
+				"he-1180-wheel-8.png",
+				"he-1180-settled.png",
+				"he-1180-return-0-frames.png",
+				"he-1180-return-0-idle.png",
+				"he-1180-return-1-frames.png",
+				"he-1180-return-1-idle.png",
+				"he-1180-return-2-frames.png",
+				"he-1180-return-2-idle.png"
+			],
+			"expectedCode": "01240510",
+			"passed": true,
+			"url": "http://localhost:4173/app/course/01240510",
+			"returnUrl": "http://localhost:4173/app/catalog",
+			"input": {
+				"lastScroll": 36610,
+				"wheels": [
+					{
+						"trusted": true,
+						"x": 0,
+						"y": 640
+					},
+					{
+						"trusted": true,
+						"x": 0,
+						"y": 640
+					},
+					{
+						"trusted": true,
+						"x": 0,
+						"y": 640
+					},
+					{
+						"trusted": true,
+						"x": 0,
+						"y": 640
+					},
+					{
+						"trusted": true,
+						"x": 0,
+						"y": 640
+					},
+					{
+						"trusted": true,
+						"x": 0,
+						"y": 640
+					},
+					{
+						"trusted": true,
+						"x": 0,
+						"y": 640
+					},
+					{
+						"trusted": true,
+						"x": 0,
+						"y": 640
+					}
+				],
+				"pointers": [
+					{
+						"type": "pointerdown",
+						"trusted": true,
+						"tag": "SPAN",
+						"href": "http://localhost:4173/app/course/01240510",
+						"x": 1080,
+						"y": 195
+					},
+					{
+						"type": "pointerup",
+						"trusted": true,
+						"tag": "SPAN",
+						"href": "http://localhost:4173/app/course/01240510",
+						"x": 1080,
+						"y": 195
+					},
+					{
+						"type": "click",
+						"trusted": true,
+						"tag": "SPAN",
+						"href": "http://localhost:4173/app/course/01240510",
+						"x": 1080,
+						"y": 195
+					}
+				]
+			}
+		}
+	]
+}

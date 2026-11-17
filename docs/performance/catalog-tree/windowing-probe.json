@@ -1,0 +1,18 @@
+[
+	{
+		"engine": "chromium",
+		"version": "143.0.7499.4",
+		"beforematch": true,
+		"tabTarget": "end",
+		"directFocusTarget": "end",
+		"accessibleLinks": 2
+	},
+	{
+		"engine": "webkit",
+		"version": "26.0",
+		"beforematch": true,
+		"tabTarget": "end",
+		"directFocusTarget": "end",
+		"accessibleLinks": 3
+	}
+]

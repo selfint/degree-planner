@@ -273,7 +273,12 @@ async function measurePage(page: Page) {
 							...bounds,
 							rowIndex,
 							// Only the outer card stretches; its content remains intrinsic.
-							naturalHeight: box(card.querySelector('.course-width')!).height,
+							naturalHeight: card.matches('.course-width')
+								? box(card.querySelector('.course-copy')!).bottom -
+									box(card.querySelector('.course-meta')!).top +
+									parseFloat(getComputedStyle(card).paddingTop) +
+									parseFloat(getComputedStyle(card).paddingBottom)
+								: box(card.querySelector('.course-width')!).height,
 							linkBounds: box(link),
 							code: card.closest('a')!.getAttribute('href')!.split('/').at(-1)!,
 							name: name.textContent?.trim(),
@@ -328,7 +333,12 @@ async function measurePage(page: Page) {
 			].map((card) => ({
 				...box(card),
 				code: card.querySelector('.course-code')!.textContent!.trim(),
-				naturalHeight: box(card.querySelector('.course-width')!).height,
+				naturalHeight: card.matches('.course-width')
+					? box(card.querySelector('.course-copy')!).bottom -
+						box(card.querySelector('.course-meta')!).top +
+						parseFloat(getComputedStyle(card).paddingTop) +
+						parseFloat(getComputedStyle(card).paddingBottom)
+					: box(card.querySelector('.course-width')!).height,
 				linkHeight: box(card.closest('a')!).height
 			})),
 			rails

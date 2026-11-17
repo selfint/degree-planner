@@ -5,6 +5,7 @@
 	import { user, content, requirement, degreeName } from '$lib/stores.svelte';
 	import { getDegreeRequirementCourses } from '$lib/requirements';
 	import CourseRow from '$lib/components/CourseRow.svelte';
+	import CatalogCourseRow from '$lib/components/CatalogCourseRow.svelte';
 	import CourseElement from '$lib/components/CourseElement.svelte';
 	import ProgressBar from '$lib/components/ProgressBar.svelte';
 	import Spinner from '$lib/components/Spinner.svelte';
@@ -41,6 +42,18 @@
 	}
 
 	const seasonEmojis = ['❄️', '🌿', '☀️'];
+	function catalogNote(course: Course) {
+		const index = getCourseSemester(course);
+		if (index !== undefined)
+			return {
+				symbol: seasonEmojis[index % 3],
+				label: `${content.lang.common.seasons[index % 3]} ${Math.floor(index / 3) + 1}`
+			};
+		if (user.d.exemptions.includes(course.code))
+			return { symbol: '✓', label: content.lang.catalog.exempt };
+		if (user.d.wishlist.includes(course.code))
+			return { symbol: '🌟', label: content.lang.catalog.wishlist };
+	}
 
 	const planned = $derived([...user.d.semesters.flat(), ...user.d.exemptions]);
 	const current = $derived([
@@ -249,21 +262,10 @@
 								)}
 							{/await}
 						</div>
-						<CourseRow
-							{getCourseData}
+						<CatalogCourseRow
 							courses={list.resolvedCourses}
-							indent={1}
-						>
-							{#snippet children({ code, course, index })}
-								<a href={resolve(`/app/course/${code}`)}>
-									<CourseElement {code} {course} {index}>
-										{#snippet note(course)}
-											{@render courseNote(course)}
-										{/snippet}
-									</CourseElement>
-								</a>
-							{/snippet}
-						</CourseRow>
+							getNote={catalogNote}
+						/>
 					</section>
 				{/if}
 			{:else}

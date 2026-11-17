@@ -1,8 +1,10 @@
 # Catalog navigation measurements
 
-**Current result:** automatic rail skipping was removed after the blank-rail audit.
-See [the reveal-safety follow-up](./catalog-reveal.md) for the current behavior,
-new matched measurements and no-geometry CPU traces. The CSS-only rail results
+**Current result:** see [the smaller-tree follow-up](./catalog-tree.md) for the current implementation, corrected matched probe, measurements and limitations. The older timings below used a probe that could force work in the inactive tree.
+
+Automatic rail skipping was removed after the blank-rail audit.
+See [the reveal-safety follow-up](./catalog-reveal.md) for that intermediate behavior,
+its matched measurements and no-geometry CPU traces. The CSS-only rail results
 below describe the superseded experiment, not the current implementation.
 
 The tables record successive iterations. The section **CSS containment with

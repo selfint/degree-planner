@@ -26,6 +26,7 @@ NativeVideo and FeatureVideo render through the real Pages/Landing stories. The 
 | src/lib/components/ConsoleLoading.svelte                                     | User flows/Startup loading        | ColdEntry, NetworkPause, CachedEntry, UnknownSize, FailedDownload                                                                                                                                                                                                    |
 | src/lib/components/CourseElement.svelte                                      | Components/CourseElement          | Default, Compact, Loading, MissingDetails, NoExams, WithNote, StudyDays, CheckingRequirements, UnmetRequirements, Unavailable, Interactive, InteractiveWarning, ExpandedRequirements                                                                                 |
 | src/routes/app/(withCourseData)/catalog/components/CourseGroup.svelte        | Components/CourseGroup            | Default, Empty, Loading, Error, MultipleGroups                                                                                                                                                                                                                       |
+| src/lib/components/CatalogCourseRow.svelte                                   | Components/CatalogCourseRow       | Default, Empty, WithNote                                                                                                                                                                                                                                             |
 | src/lib/components/CourseRow.svelte                                          | Components/CourseRow              | Default, Empty, Loading, Sortable, Indented                                                                                                                                                                                                                          |
 | src/routes/app/(withCourseData)/settings/components/DegreeSection.svelte     | Components/DegreeSection          | Default, Offline, Unselected, Recommended, LoadingPaths, WithPaths, SelectedPath                                                                                                                                                                                     |
 | src/routes/components/ImgDemo.svelte                                         | Components/ImgDemo                | Default, LongText                                                                                                                                                                                                                                                    |
@@ -87,7 +88,7 @@ NativeVideo and FeatureVideo render through the real Pages/Landing stories. The 
 - src/routes/[...legacy]/+page.svelte: Empty legacy redirect placeholder.
 - src/routes/en/+page.svelte: Language-setting redirect without visible UI; importing it would write actual browser preferences.
 
-Inventory: 63 source files, 56 covered, 7 nonvisual exclusions; 48 story groups, 213 stories.
+Inventory: 64 source files, 57 covered, 7 nonvisual exclusions; 49 story groups, 216 stories.
 
 ## Asserted student journey recordings
 

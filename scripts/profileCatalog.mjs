@@ -90,10 +90,10 @@ try {
 								const name = root?.querySelector('.course-row .course-name');
 								const summary = root?.querySelector('.catalog-summary');
 								if (
+									// Do not force style/layout in the still-inactive cached tree.
+									nav &&
+									!root?.closest('[inert]') &&
 									root?.checkVisibility() &&
-									document.querySelector(
-										'a[href$="/app/catalog"][aria-current="page"]'
-									) &&
 									name?.textContent &&
 									summary &&
 									!summary.querySelector('.catalog-loading')
@@ -188,7 +188,14 @@ try {
 				});
 				console.log(JSON.stringify(results.at(-1)));
 				await p.locator('a[href="/app/plan"]:visible').first().click();
-				await p.locator('.catalog-page').waitFor({ state: 'hidden' });
+				// DOM-only route completion: visibility assertions on the hidden retained
+				// subtree can themselves force work and invalidate the cache being measured.
+				await p.waitForFunction(
+					() =>
+						document.querySelector(
+							'a[href$="/app/plan"][aria-current="page"]'
+						) && document.querySelector('[data-catalog-cache][inert]')
+				);
 			}
 			await context.close();
 		}

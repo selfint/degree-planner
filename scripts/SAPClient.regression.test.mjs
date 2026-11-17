@@ -599,3 +599,49 @@ test('a confirmation request failure does not establish absence', async () => {
 		'TreeOnDemandSet'
 	);
 });
+
+describe('exam-only offerings', () => {
+	test('fetches identity-scoped batches across semesters and retains empty exams', async () => {
+		const headers = Array.from({ length: 101 }, (_, i) => ({
+			Otjid: `SM${String(i).padStart(8, '0')}`,
+			Peryr: '2025',
+			Perid: '202'
+		}));
+		const rows = headers.map((header) => ({
+			...header,
+			Exams: { results: [] }
+		}));
+		batches(
+			rows.slice(0, 100).map((row) => part([row])),
+			rows.slice(100).map((row) => part([row]))
+		);
+		expect((await sap.getCourseExams(headers)).flat()).toEqual(rows);
+		expect(fetchMock).toHaveBeenCalledTimes(2);
+		const body = decodeURIComponent(fetchMock.mock.calls[0][1].body);
+		expect(body).toContain('SM00000000');
+		expect(body).toContain('Exams/ExamDate');
+	});
+
+	test('rejects missing expansions rather than publishing exam loss', async () => {
+		const header = { Otjid: 'SM01140078', Peryr: '2025', Perid: '202' };
+		fetchMock.mockImplementation(() =>
+			Promise.resolve(multipart([part([header])]))
+		);
+		expect((await failure(sap.getCourseExams([header]))).message).toContain(
+			'Missing d.results'
+		);
+	});
+	test('rejects wrong course identity on an otherwise complete page', async () => {
+		const header = { Otjid: 'SM01140078', Peryr: '2025', Perid: '202' };
+		fetchMock.mockImplementation(() =>
+			Promise.resolve(
+				multipart([
+					part([{ ...header, Otjid: 'SMWRONG', Exams: { results: [] } }])
+				])
+			)
+		);
+		expect((await failure(sap.getCourseExams([header]))).message).toContain(
+			'Expected Otjid'
+		);
+	});
+});

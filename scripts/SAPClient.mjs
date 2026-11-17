@@ -445,3 +445,28 @@ export async function getCourseData(courses) {
 		)
 	);
 }
+
+/** Fetch exams from every exact offering before latest-metadata deduplication.
+ * SAP does not reliably honor collection ordering/paging for expanded exams;
+ * use identity-scoped queries and bound each batch like getCourseData.
+ */
+export async function getCourseExams(headers) {
+	return requestBatch(
+		'SmObjectSet',
+		headers.map(({ Otjid, Peryr, Perid }) => ({
+			$filter: `Otjid eq '${Otjid}' and Peryr eq '${Peryr}' and Perid eq '${Perid}'`,
+			$expand: 'Exams',
+			$select: 'Otjid,Peryr,Perid,Exams/ExamDate,Exams/CategoryCode'
+		})),
+		'he',
+		{
+			maxBatchSize: 100,
+			validate(rows, index) {
+				requireOne(rows);
+				const { Otjid, Peryr, Perid } = headers[index];
+				requireIdentity(rows[0], { Otjid, Peryr, Perid });
+				validateCollection(rows[0].Exams);
+			}
+		}
+	).then((results) => results.map((rows) => rows.map(withoutMetadata)));
+}

@@ -4,6 +4,7 @@
 import * as sap from './SAPClient.mjs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { examDay, selectExamOfferings } from './courseExams.mjs';
 import { getMedian } from './HistogramsClient.mjs';
 
 /**
@@ -59,13 +60,12 @@ export function getTests(courseSAPInfo) {
 
 	const tests = exams
 		.map((exam) => {
-			const epoch = exam.ExamDate.slice(6, -2);
-			const date = new Date(parseInt(epoch));
+			const date = new Date(`${examDay(exam)}T00:00:00Z`);
 			return {
 				category: exam.CategoryCode,
-				year: date.getFullYear(),
-				monthIndex: date.getMonth(),
-				day: date.getDate()
+				year: date.getUTCFullYear(),
+				monthIndex: date.getUTCMonth(),
+				day: date.getUTCDate()
 			};
 		})
 		.sort((a, b) => {
@@ -275,7 +275,13 @@ export async function generateCourseData(top = 10000) {
 	let courseHeaders = (await sap.getCourses(semesterYears, top)).flat();
 	console.error(courseHeaders.length, `Total course IDs`);
 
-	// deduplicate course headers, keep latest (year, semester) for each Otjid
+	// Select exams before deduplication: a newer offering can have no dates yet
+	// while the previous offering still has an upcoming resit.
+	const examOfferings = selectExamOfferings(
+		(await sap.getCourseExams(courseHeaders)).flat()
+	);
+
+	// Keep the latest metadata separately from the selected exam offering.
 	/** @type {Map<string, CourseHeader>} */
 	const codesMap = new Map();
 	for (const header of courseHeaders) {
@@ -305,7 +311,10 @@ export async function generateCourseData(top = 10000) {
 
 	const courseData = [];
 	for (let index = 0; index < rawData.length; index++) {
-		const raw = rawData[index];
+		const raw = {
+			...rawData[index],
+			Exams: examOfferings.get(rawData[index].Otjid).Exams
+		};
 		const course = await parseCourse(raw, currentYear);
 		courseData.push(course);
 	}

@@ -31,6 +31,10 @@ export const coverage = storyFiles.map((file) => {
 // These files do not define independently renderable UI. All their visible children
 // have individual stories; importing their lifecycle would activate real services.
 export const exclusions: Record<string, string> = {
+	'src/routes/app/(withCourseData)/+layout.svelte':
+		'Route retention and personal-plan access lifecycle; the retained Catalog has its own stories.',
+	'src/routes/app/(withCourseData)/catalog/+page.svelte':
+		'Empty route marker; the shared layout renders the retained Catalog component.',
 	'src/routes/+layout.svelte':
 		'Root routing and lifecycle scaffold; TitleBar, AppFooter, ConsoleLoading and route pages are covered separately.',
 	'src/routes/app/+layout.svelte':

@@ -6,7 +6,7 @@ contains two courses. Chromium uses a 390 × 844 mobile viewport, with normal CP
 speed and CDP 4× CPU slowdown. Each setting has two independent browser contexts,
 with one initial catalog navigation and three plan/catalog return navigations.
 
-The clock starts at the trusted navigation click. First useful render is the first
+The original probe clock starts at the trusted navigation click. First useful render is the first
 animation frame with a course name and resolved degree summary. Settlement also
 requires all 827 cards and no loading placeholders. This is a DOM-ready-to-paint
 measurement, not a hardware screen-presentation timestamp. “First” means cold route
@@ -36,6 +36,51 @@ and cards render synchronously. CSS `content-visibility: auto` skips offscreen
 layout/paint while keeping all links in the DOM for native focus, scrolling and
 browser find. No course counts, groups or content are omitted.
 
+## Retaining the live catalog between visits
+
+The shared course-data layout now retains one catalog after its first visit.
+Returning from the plan, a course, semester, preview or settings page reuses its
+DOM and reactive state instead of constructing 827 cards again. It is released
+when leaving this route group (including search), when account access closes,
+or on document navigation. Account changes and signed-in offline restrictions
+remove it before another account can see it. Guest plan edits update the retained
+component normally.
+
+The inactive cache has zero height, `content-visibility: hidden`, `inert` and
+`aria-hidden`. Explicit `inert` is necessary: an English/Hebrew mobile WebKit
+regression caught intermittent native focus entering skipped contents without it.
+It costs style recalculation on return, but preventing hidden keyboard targets
+is required. All 827 cards remain real elements; the active catalog still supports
+native focus, course navigation, browser find and horizontal course rails.
+
+The revised probe requires the active catalog navigation item, native visibility,
+a resolved summary and an actual course name intersecting the viewport and passing
+hit testing. It then crosses another animation frame before stopping the clock.
+Whole-catalog correctness scans run afterward, outside the measured interval.
+This is a rendering-opportunity proxy, not a physical screen-presentation timestamp.
+**Do not compare these timings directly with the earlier DOM-ready table.**
+Both sides below use this same revised probe, production data and browser settings.
+The baseline is the previous PR revision `081f5769eb32712a2623bc6f0af287b65a4c47a2`.
+
+| CPU         | Navigation  | Before retention median (range), ms | Retained median (range), ms |
+| ----------- | ----------- | ----------------------------------- | --------------------------- |
+| Normal      | First, n=2  | 172.6 (169.1–176.0)                 | 264.2 (179.6–348.8)         |
+| Normal      | Repeat, n=6 | 115.0 (113.7–139.7)                 | 46.1 (45.3–46.7)            |
+| 4× slowdown | First, n=2  | 828.8 (765.5–892.1)                 | 607.4 (531.1–683.7)         |
+| 4× slowdown | Repeat, n=6 | 525.5 (473.5–601.6)                 | 99.0 (91.2–120.5)           |
+
+Raw samples: [before retention](./catalog-visible-before-retention.json),
+[retained](./catalog-visible-retained.json). No samples are excluded.
+The cache primarily improves repeated visits: about 81% lower median at 4× CPU
+slowdown. First-entry samples remain variable and do not demonstrate a consistent
+cold-entry improvement. **The 50 ms maximum remains unmet.** First construction
+still builds the complete catalog; safe retention still incurs browser style work.
+A prototype without `inert` approached 50 ms but failed focus isolation and was
+rejected. Background construction was not shipped: doing the same large synchronous
+render during idle time can stall unrelated plan interaction. Incremental preparation
+or virtualization would require separate work to preserve search, focus and immediate
+access to all course groups rather than merely improving this metric.
+
 ## Reproduce
 
 Build once with `npm run build`, then start a fresh `npm run preview` process.
@@ -53,5 +98,6 @@ always aborts nonlocal requests. Never point this probe at a hosted deployment.
 Run the benchmark without other builds or suites competing for CPU. Compare the
 same checked-in data, host, browser build and CPU setting. The regression test
 `tests/catalog-rendering.test.ts` checks one construction per course, all groups,
-sorted order, offscreen focus access, and no document-width overflow in English
+sorted order, retained element identity, updates after a real plan edit, hidden
+focus/accessibility isolation, offscreen focus access, and no document-width overflow in English
 and Hebrew; existing rail tests cover horizontal scrolling and course navigation.

@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/sveltekit';
-import CatalogPage from '../../routes/app/(withCourseData)/catalog/+page.svelte';
+import CatalogPage from '../../lib/components/Catalog.svelte';
 import { getCourseData, pending } from '../../../.storybook/fixtures';
 import { baseRouteData, routeState } from './fixtures';
 import { railCourses, railCourseData, getRailCourseData } from './railFixtures';
@@ -9,7 +9,7 @@ const meta = {
 	component: CatalogPage,
 	args: { data: { ...baseRouteData, getCourseData } },
 	parameters: {
-		componentPath: 'src/routes/app/(withCourseData)/catalog/+page.svelte',
+		componentPath: 'src/lib/components/Catalog.svelte',
 		planner: { plan: 'populated' },
 		sveltekit_experimental: routeState('/app/catalog')
 	}

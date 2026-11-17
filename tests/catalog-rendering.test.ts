@@ -13,6 +13,9 @@ for (const language of ['en', 'he'])
 	test(`heavy ${language} catalog constructs each card once and keeps all courses available`, async ({
 		page
 	}) => {
+		// This multi-route journey snapshots all 827 cards when tracing is enabled.
+		// Allow that diagnostic overhead; timings are measured separately by the probe.
+		test.setTimeout(60_000);
 		await page.route('**/*', (route) =>
 			new URL(route.request().url()).origin === origin
 				? route.continue()
@@ -58,6 +61,67 @@ for (const language of ['en', 'he'])
 			)
 		).toBe(827);
 		await expect(page.locator('.catalog-section .course-row')).toHaveCount(59);
+		const firstCard = await page
+			.locator('.catalog-page .course-card')
+			.first()
+			.elementHandle();
+		await page.locator('a[href="/app/plan"]:visible').first().click();
+		// WebKit retains descendant rectangles under content-visibility:hidden;
+		// use native visibility and focus/accessibility checks, not rectangle heuristics.
+		await expect
+			.poll(() =>
+				page
+					.locator('.catalog-page')
+					.evaluate((element) => element.checkVisibility())
+			)
+			.toBe(false);
+		await expect(page.locator('[data-catalog-cache]')).toHaveCSS(
+			'height',
+			'0px'
+		);
+		await expect(page.locator('.catalog-page').getByRole('link')).toHaveCount(
+			0
+		);
+		expect(await firstCard!.evaluate((card) => card.isConnected)).toBe(true);
+		await firstCard!.evaluate((card) => card.closest('a')!.focus());
+		expect(
+			await firstCard!.evaluate(
+				(card) => card.closest('a') === document.activeElement
+			)
+		).toBe(false);
+		await page.locator('a[href="/app/catalog"]:visible').first().click();
+		await expect(page.locator('.catalog-page')).toBeVisible();
+		// Retained DOM alone is insufficient: the returned page must expose a real
+		// course in the visible viewport after the browser resumes skipped layout.
+		await expect(
+			page.locator('.catalog-page .course-name').first()
+		).toBeInViewport();
+		expect(
+			await firstCard!.evaluate(
+				(card) => card === document.querySelector('.catalog-page .course-card')
+			)
+		).toBe(true);
+		// Mutating the real guest plan on another route must update the retained
+		// catalog, rather than preserving a stale screenshot or HTML snapshot.
+		await page
+			.locator('.catalog-page a[href="/app/course/02340124"]')
+			.first()
+			.click();
+		await page
+			.getByTestId('course-plan-actions')
+			.getByRole('button', {
+				name: language === 'en' ? 'Wish list' : 'רשימת משאלות',
+				exact: true
+			})
+			.click();
+		await page.locator('a[href="/app/catalog"]:visible').first().click();
+		await expect(page.locator('.catalog-page .course-card')).toHaveCount(828);
+		await expect(
+			page.locator('.catalog-section').first().locator('.course-code')
+		).toHaveText('02340124');
+		await expect(
+			page.locator('.catalog-section').first().locator('.course-note')
+		).toContainText('🌟');
 		// Even skipped offscreen groups retain real links and native focus/scroll.
 		const lastLink = page.locator('.catalog-section .course-row a').last();
 		await lastLink.focus();

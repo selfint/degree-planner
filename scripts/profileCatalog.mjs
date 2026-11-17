@@ -59,32 +59,49 @@ try {
 							if (!e.target.closest('a[href$="/app/catalog"]')) return;
 							document.removeEventListener('click', start, true);
 							const t = performance.now();
-							let useful;
 							const check = () => {
 								const root = document.querySelector('.catalog-page');
-								const first = root?.querySelector('.course-row');
+								const name = root?.querySelector('.course-row .course-name');
 								const summary = root?.querySelector('.catalog-summary');
 								if (
-									useful === undefined &&
-									first?.querySelector('.course-name')?.textContent &&
+									root?.checkVisibility() &&
+									document.querySelector(
+										'a[href$="/app/catalog"][aria-current="page"]'
+									) &&
+									name?.textContent &&
 									summary &&
 									!summary.querySelector('.catalog-loading')
-								)
-									useful = performance.now() - t;
-								if (
-									root &&
-									root.querySelectorAll('.course-card').length === 827 &&
-									!root.querySelector('.catalog-loading,.course-loading')
 								) {
-									requestAnimationFrame(() => {
-										window.__catalogResult = {
-											usefulMs: useful,
-											settledMs: performance.now() - t,
-											cards: root.querySelectorAll('.course-card').length,
-											nodes: root.querySelectorAll('*').length
-										};
-									});
-								} else requestAnimationFrame(check);
+									const box = name.getBoundingClientRect();
+									const x = Math.max(
+										0,
+										Math.min(innerWidth - 1, box.x + box.width / 2)
+									);
+									const y = Math.max(
+										0,
+										Math.min(innerHeight - 1, box.y + box.height / 2)
+									);
+									const hit = document.elementFromPoint(x, y);
+									if (
+										box.width > 0 &&
+										box.height > 0 &&
+										box.bottom > 0 &&
+										box.top < innerHeight &&
+										name.closest('.course-card')?.contains(hit)
+									) {
+										const readyMs = performance.now() - t;
+										// Cross a rendering opportunity after visible content and hit testing
+										// agree. Whole-catalog correctness scans run outside this interval.
+										requestAnimationFrame(() => {
+											window.__catalogResult = {
+												readyMs,
+												usefulMs: performance.now() - t
+											};
+										});
+										return;
+									}
+								}
+								requestAnimationFrame(check);
 							};
 							requestAnimationFrame(check);
 						},
@@ -108,7 +125,11 @@ try {
 					const { profile: cpu } = await cdp.send('Profiler.stop');
 					fs.writeFileSync(out + '.cpuprofile', JSON.stringify(cpu));
 				}
-				const value = await p.evaluate(() => window.__catalogResult);
+				const value = await p.evaluate(() => ({
+					...window.__catalogResult,
+					cards: document.querySelectorAll('.catalog-page .course-card').length,
+					nodes: document.querySelectorAll('.catalog-page *').length
+				}));
 				results.push({
 					rate,
 					run,
@@ -118,7 +139,7 @@ try {
 				});
 				console.log(JSON.stringify(results.at(-1)));
 				await p.locator('a[href="/app/plan"]:visible').first().click();
-				await p.locator('.catalog-page').waitFor({ state: 'detached' });
+				await p.locator('.catalog-page').waitFor({ state: 'hidden' });
 			}
 			await context.close();
 		}

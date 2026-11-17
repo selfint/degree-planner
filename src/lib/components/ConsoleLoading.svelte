@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { loadingWidth } from '$lib/loadingWidth';
 	import { withBase } from '$lib/deploymentPaths';
 	import './console-loading.css';
 	import {
@@ -60,11 +61,7 @@
 			aria-hidden={state.phase === 'error' ? true : undefined}
 			aria-label={downloadLabel(hebrew)}
 		>
-			<span
-				class="console-loading__indicator"
-				style:inline-size={fraction !== undefined
-					? `${fraction * 100}%`
-					: undefined}
+			<span class="console-loading__indicator" use:loadingWidth={percent}
 			></span>
 		</div>
 		<p class="console-loading__status" role="status">{status}</p>

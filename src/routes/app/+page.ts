@@ -1,6 +1,4 @@
-import { withBase } from '$lib/deploymentPaths';
-import { redirect } from '@sveltejs/kit';
-import { user } from '$lib/stores.svelte';
+import { redirectConsoleEntry } from '$lib/consoleEntry';
 export const trailingSlash = 'always';
-export const load = () =>
-	redirect(307, withBase(user.d.degree ? '/app/plan' : '/app/settings'));
+// The parent handles cold entry; this handles /app/ in an already-mounted shell.
+export const load = redirectConsoleEntry;

@@ -1731,6 +1731,24 @@ test('fresh entry checks for B even with a recent persisted hourly check', async
 	// Observe the actual old-document -> activated-release navigation, including
 	// its pre-hydration loader. A late update must not reset an already filled bar.
 	await page.addInitScript(() => {
+		const frames = () => {
+			const track = document.querySelector('.console-loading [aria-valuenow]');
+			if (track && track.getBoundingClientRect().width) {
+				const samples = JSON.parse(
+					sessionStorage.getItem('entry-width-probe') || '[]'
+				);
+				samples.push({
+					document: performance.timeOrigin,
+					percent: Number(track.getAttribute('aria-valuenow')),
+					width:
+						(100 * track.firstElementChild!.getBoundingClientRect().width) /
+						track.getBoundingClientRect().width
+				});
+				sessionStorage.setItem('entry-width-probe', JSON.stringify(samples));
+			}
+			requestAnimationFrame(frames);
+		};
+		requestAnimationFrame(frames);
 		const sample = () => {
 			const track = document.querySelector(
 				'.console-loading [role=progressbar]'
@@ -1769,7 +1787,7 @@ test('fresh entry checks for B even with a recent persisted hourly check', async
 	});
 	revision = 2;
 	const b = deploymentVersion();
-	await page.reload();
+	await page.goto(`${origin}/app/`);
 	await expect(page.getByTestId('footer-build-version')).toHaveAttribute(
 		'title',
 		b
@@ -1793,6 +1811,25 @@ test('fresh entry checks for B even with a recent persisted hourly check', async
 	expect(
 		progress.some(
 			(sample) => sample.document === finalDocument && sample.delay === '-1.8s'
+		)
+	).toBe(true);
+	const widths = await page.evaluate(
+		() =>
+			JSON.parse(sessionStorage.getItem('entry-width-probe') || '[]') as {
+				document: number;
+				percent: number;
+				width: number;
+			}[]
+	);
+	const measured = widths.filter((sample) => sample.document === finalDocument);
+	expect(measured.length).toBeGreaterThan(0);
+	expect(
+		measured[0].width,
+		'the updated cached entry never replays the 34% sweep width'
+	).toBeGreaterThanOrEqual(89);
+	expect(
+		measured.every(
+			(sample, index) => !index || sample.width >= measured[index - 1].width - 1
 		)
 	).toBe(true);
 });
@@ -1877,3 +1914,93 @@ test('evicted A shell never loads B HTML and manual recovery protects another ta
 	);
 	expect(await storedCourses(page)).toEqual(courses);
 });
+
+for (const language of ['en', 'he'])
+	for (const savedPlan of [true, false]) {
+		test(`fresh entry from the installed manifest keeps one startup through the ${savedPlan ? 'plan' : 'settings'} redirect [${language}]`, async ({
+			page
+		}) => {
+			test.setTimeout(90_000);
+			revision = 2;
+			await ready(page);
+			if (!savedPlan)
+				await page.evaluate(() => {
+					const data = JSON.parse(localStorage.getItem('userData')!);
+					data.degree = null;
+					localStorage.setItem('userData', JSON.stringify(data));
+				});
+			const installedVersion = await workerVersion(page, 'controller');
+			const samples: {
+				document: number;
+				percent: number | null;
+				text: string;
+			}[] = [];
+			await page.exposeFunction(
+				'recordManifestStartup',
+				(sample: (typeof samples)[number]) => samples.push(sample)
+			);
+			await page.addInitScript(() => {
+				Object.defineProperty(navigator, 'standalone', { value: true });
+				let last = '';
+				const sample = () => {
+					const root = [...document.querySelectorAll('.console-loading')].find(
+						(element) => element.getBoundingClientRect().width
+					);
+					if (!root) return;
+					const raw = root
+						.querySelector('.console-loading__track')
+						?.getAttribute('aria-valuenow');
+					const value = {
+						document: performance.timeOrigin,
+						percent: raw == null ? null : Number(raw),
+						text:
+							root.querySelector('.console-loading__status')?.textContent ?? ''
+					};
+					const key = JSON.stringify(value);
+					if (key !== last) {
+						last = key;
+						void (
+							window as unknown as {
+								recordManifestStartup: (sample: typeof value) => Promise<void>;
+							}
+						).recordManifestStartup(value);
+					}
+				};
+				new MutationObserver(sample).observe(document, {
+					childList: true,
+					subtree: true,
+					attributes: true,
+					characterData: true
+				});
+			});
+			// The real manifest starts at /app/, not the already-resolved /app/plan route.
+			for (let entry = 0; entry < 2; entry++) {
+				samples.length = 0;
+				await page.goto(`${origin}/app/`);
+				await expect(page).toHaveURL(
+					`${origin}/app/${savedPlan ? 'plan' : 'settings'}`
+				);
+				await expect(page.locator('.console-shell:not([inert])')).toBeVisible();
+				await expect(page.locator('.console-loading')).toHaveCount(0);
+				await expect
+					.poll(() => workerVersion(page, 'controller'))
+					.toBe(installedVersion);
+				const firstMeasured = samples.findIndex(
+					(sample) => sample.percent !== null
+				);
+				expect(firstMeasured).toBeGreaterThanOrEqual(0);
+				const measured = samples.slice(firstMeasured);
+				expect(new Set(samples.map((sample) => sample.document)).size).toBe(1);
+				expect(
+					measured,
+					'the manifest redirect must not restart checking after measured progress'
+				).not.toContainEqual(expect.objectContaining({ percent: null }));
+				expect(
+					measured.every(
+						(sample, index) =>
+							!index || sample.percent! >= measured[index - 1].percent!
+					)
+				).toBe(true);
+			}
+		});
+	}

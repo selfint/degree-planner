@@ -1,3 +1,4 @@
+import { redirectConsoleEntry } from '$lib/consoleEntry';
 import { version } from '$app/environment';
 import { base } from '$app/paths';
 import { prepareEntryRelease } from '$lib/pwa/entry-preflight';
@@ -10,7 +11,12 @@ export const ssr = false;
 // remain available through the static host's fallback.
 export const prerender = 'auto';
 let generation = 0;
-export const load: LayoutLoad = async () => {
+export const load: LayoutLoad = async ({ route, untrack }) => {
+	// Kit awaits parent data before handling a child redirect, then reruns this
+	// unmounted layout for its destination. Resolve the manifest entry first so
+	// it cannot finish bootstrap at 90% and start it again. Do not subscribe the
+	// shared layout to route changes: internal navigation must retain its state.
+	if (untrack(() => route.id) === '/app') redirectConsoleEntry();
 	let active = true;
 	const currentGeneration = ++generation;
 	const current = () => active && generation === currentGeneration;

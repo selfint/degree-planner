@@ -303,17 +303,10 @@
 	.catalog-section {
 		/* Keep real section heights even offscreen. WebKit can replace an estimated
 		   content-visibility size during a press, moving a course before pointer-up.
+		   Auto-skipping even fixed-size rails can also expose blank cards during
+		   native wheel scrolling or cache returns. Keep active rails fully rendered.
 		   The route layout still retains and hides the entire inactive catalog. */
 		min-inline-size: 0;
-	}
-	.catalog-section :global(.course-row) {
-		/* A defined rail size, not an estimate: 6.5rem card bodies plus a 1rem
-		   gutter for padding and the native thin scrollbar. Wrapping headings
-		   remain outside containment and keep their intrinsic height. */
-		block-size: 7.5rem;
-		align-items: flex-start;
-		contain-intrinsic-block-size: 7.5rem;
-		content-visibility: auto;
 	}
 
 	.catalog-section-title {

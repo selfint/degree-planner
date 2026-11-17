@@ -68,12 +68,16 @@ async function waitForAccountRead(page: Page, phase: string) {
 			};
 		});
 	try {
-		await expect
-			.poll(async () => (await state()).readCount, {
-				message: `${phase}: the new document starts its controlled account read`,
-				timeout: 20_000
-			})
-			.toBe(1);
+		// Startup may replace the document after its load event. Unlike a raw
+		// evaluate inside expect.poll, waitForFunction survives that navigation.
+		// Keep the same held-read condition and budget; privacy assertions follow.
+		await page.waitForFunction(
+			() =>
+				(window as unknown as { accountFixture?: { reads: unknown[] } })
+					.accountFixture?.reads.length === 1,
+			null,
+			{ timeout: 20_000 }
+		);
 	} finally {
 		console.info('Account bootstrap', phase, {
 			elapsedMs: Date.now() - started,

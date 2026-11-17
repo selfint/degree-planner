@@ -1,5 +1,10 @@
 # Catalog navigation measurements
 
+**Current result:** automatic rail skipping was removed after the blank-rail audit.
+See [the reveal-safety follow-up](./catalog-reveal.md) for the current behavior,
+new matched measurements and no-geometry CPU traces. The CSS-only rail results
+below describe the superseded experiment, not the current implementation.
+
 The tables record successive iterations. The section **CSS containment with
 defined rail geometry** contains the latest CSS-only follow-up. The earlier
 **Stable course targets in WebKit** section documents the section-sizing regression

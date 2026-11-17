@@ -1,0 +1,116 @@
+{
+	"first": {
+		"windowMs": 3283.6,
+		"RunTask": {
+			"count": 448,
+			"totalMs": 3205.329,
+			"maxMs": 1944.471
+		},
+		"FunctionCall": {
+			"count": 114,
+			"totalMs": 134.36,
+			"maxMs": 50.701
+		},
+		"Layout": {
+			"count": 3,
+			"totalMs": 1304.478,
+			"maxMs": 1281.439
+		},
+		"UpdateLayoutTree": {
+			"count": 10,
+			"totalMs": 294.111,
+			"maxMs": 285.381
+		},
+		"PrePaint": {
+			"count": 23,
+			"totalMs": 210.336,
+			"maxMs": 206.461
+		},
+		"Paint": {
+			"count": 6,
+			"totalMs": 51.594,
+			"maxMs": 49.145
+		},
+		"HitTest": {
+			"count": 8,
+			"totalMs": 58.199,
+			"maxMs": 22.874
+		}
+	},
+	"repeat-immediate": {
+		"windowMs": 425.854,
+		"RunTask": {
+			"count": 194,
+			"totalMs": 310.741,
+			"maxMs": 170.741
+		},
+		"FunctionCall": {
+			"count": 25,
+			"totalMs": 24.422,
+			"maxMs": 12.263
+		},
+		"Layout": {
+			"count": 1,
+			"totalMs": 7.783,
+			"maxMs": 7.783
+		},
+		"UpdateLayoutTree": {
+			"count": 4,
+			"totalMs": 3.055,
+			"maxMs": 1.625
+		},
+		"PrePaint": {
+			"count": 13,
+			"totalMs": 75.813,
+			"maxMs": 75.732
+		},
+		"Paint": {
+			"count": 1,
+			"totalMs": 36.321,
+			"maxMs": 36.321
+		},
+		"HitTest": {
+			"count": 4,
+			"totalMs": 21.739,
+			"maxMs": 21.55
+		}
+	},
+	"repeat-settled": {
+		"windowMs": 384.191,
+		"RunTask": {
+			"count": 188,
+			"totalMs": 267.469,
+			"maxMs": 158.854
+		},
+		"FunctionCall": {
+			"count": 25,
+			"totalMs": 24.317,
+			"maxMs": 11.513
+		},
+		"Layout": {
+			"count": 1,
+			"totalMs": 3.839,
+			"maxMs": 3.839
+		},
+		"UpdateLayoutTree": {
+			"count": 4,
+			"totalMs": 0.863,
+			"maxMs": 0.759
+		},
+		"PrePaint": {
+			"count": 14,
+			"totalMs": 68.404,
+			"maxMs": 68.334
+		},
+		"Paint": {
+			"count": 1,
+			"totalMs": 36.735,
+			"maxMs": 36.735
+		},
+		"HitTest": {
+			"count": 3,
+			"totalMs": 17.959,
+			"maxMs": 17.27
+		}
+	}
+}

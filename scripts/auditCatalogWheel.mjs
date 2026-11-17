@@ -167,13 +167,35 @@ try {
 			passed = false;
 			process.exitCode = 1;
 		}
+		const activationUrl = page.url();
+		// Observe retained-catalog history returns without geometry reads. The later
+		// capture measures persistence qualitatively; no click is delayed or retried.
+		if (passed)
+			for (let repeat = 0; repeat < 3; repeat++) {
+				await page.goBack();
+				await page.waitForURL(origin + '/app/catalog');
+				await page.evaluate(
+					() =>
+						new Promise((resolve) =>
+							requestAnimationFrame(() => requestAnimationFrame(resolve))
+						)
+				);
+				await capture(`return-${repeat}-frames`);
+				await new Promise((resolve) => setTimeout(resolve, 250));
+				await capture(`return-${repeat}-idle`);
+				if (repeat < 2) {
+					await page.goForward();
+					await page.waitForURL(activationUrl);
+				}
+			}
 		const result = {
 			language,
 			width,
 			captures,
 			expectedCode: code,
 			passed,
-			url: page.url(),
+			url: activationUrl,
+			returnUrl: page.url(),
 			input: await page.evaluate(() => window.wheelAudit)
 		};
 		results.push(result);

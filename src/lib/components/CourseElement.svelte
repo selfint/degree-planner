@@ -33,12 +33,12 @@
 		onOpen
 	}: Props = $props();
 
-	const course = $derived.by(() => Promise.resolve(_course));
+	const course = $derived(_course);
 
 	let loaded = $state(false);
 	let style = $state('');
 	$effect(() => {
-		course.then((course) => {
+		Promise.resolve(course).then((course) => {
 			loaded = true;
 			if (styleOnCourse !== undefined) {
 				styleOnCourse(course).then((s) => (style = s));
@@ -49,7 +49,9 @@
 	const color = $derived.by(() => generateColor(code));
 
 	const hasTest = $derived.by(() =>
-		course.then((c) => c.tests !== undefined && c.tests.length > 0)
+		course instanceof Promise
+			? course.then((c) => c.tests !== undefined && c.tests.length > 0)
+			: course.tests !== undefined && course.tests.length > 0
 	);
 
 	const warningId = $props.id();

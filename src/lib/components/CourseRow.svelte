@@ -12,7 +12,7 @@
 			[
 				{
 					code: CourseCode;
-					course: Promise<Course>;
+					course: Promise<Course> | Course;
 					index: number;
 					scheduleError?: Promise<ScheduleError>;
 				}
@@ -35,44 +35,53 @@
 
 	const margin = $derived(`margin-inline-end: ${indent * 0.75}rem`);
 
-	let loadingCourses: { code: CourseCode; course: Promise<Course> }[] =
+	let loadingCourses: { code: CourseCode; course: Promise<Course> | Course }[] =
 		$derived(
 			courses.map((c) => {
 				if (typeof c === 'string') {
 					return { code: c, course: getCourseData(c) };
 				}
 
-				return { code: c.code, course: Promise.resolve(c) };
+				return { code: c.code, course: c };
 			})
 		);
 
-	let sortedCourses:
-		| undefined
-		| Promise<{ code: CourseCode; course: Promise<Course> }[]> = $derived.by(
-		() => {
-			if (sortable !== undefined) {
-				return undefined;
-			}
-
-			return Promise.all(loadingCourses.map((c) => c.course)).then(
-				(courseRow) => {
-					courseRow.sort((a, b) => {
-						const medians = (b.median ?? 0) - (a.median ?? 0);
-
-						if (medians !== 0) {
-							return medians;
-						}
-
-						return (a.code ?? '').localeCompare(b.code ?? '');
-					});
-
-					return courseRow.map((c) => ({
-						code: c.code,
-						course: Promise.resolve(c)
-					}));
-				}
+	const readyCourses = $derived.by(() => {
+		if (courses.some((course) => typeof course === 'string')) return undefined;
+		const ready = [...(courses as Course[])];
+		if (sortable === undefined)
+			ready.sort(
+				(a, b) =>
+					(b.median ?? 0) - (a.median ?? 0) || a.code.localeCompare(b.code)
 			);
-		}
+		return ready.map((course) => ({ code: course.code, course }));
+	});
+
+	// Keep one keyed list while asynchronous course data changes its order.
+	// Separate pending/resolved await blocks used to destroy every card twice.
+	let sortedCourses = $state<typeof loadingCourses>();
+	$effect(() => {
+		const pending = loadingCourses;
+		sortedCourses = undefined;
+		if (sortable !== undefined || readyCourses !== undefined) return;
+		let active = true;
+		void Promise.all(pending.map((item) => item.course)).then((resolved) => {
+			if (!active) return;
+			sortedCourses = pending
+				.map((item, index) => ({ item, data: resolved[index] }))
+				.sort(
+					(a, b) =>
+						(b.data.median ?? 0) - (a.data.median ?? 0) ||
+						a.item.code.localeCompare(b.item.code)
+				)
+				.map(({ item }) => item);
+		});
+		return () => {
+			active = false;
+		};
+	});
+	const displayedCourses = $derived(
+		readyCourses ?? sortedCourses ?? loadingCourses
 	);
 
 	let row: HTMLDivElement;
@@ -97,54 +106,12 @@
 	class="course-row flex flex-row items-stretch overflow-x-auto pb-1"
 >
 	<div class="margin" style={margin}></div>
-	{#if sortedCourses === undefined}
-		{#each keyedItems(loadingCourses, (item) => item.code) as { key, value: { code, course } }, index (key)}
-			{@const scheduleError =
-				checkScheduleError === undefined
-					? undefined
-					: checkScheduleError(course)}
-			<div data-code={code} class="course-row-item shrink-0 pe-2">
-				{@render children({
-					code,
-					course,
-					index,
-					scheduleError
-				})}
-			</div>
-		{/each}
-	{:else}
-		{#await sortedCourses}
-			{#each keyedItems(loadingCourses, (item) => item.code) as { key, value: { code, course } }, index (key)}
-				{@const scheduleError =
-					checkScheduleError === undefined
-						? undefined
-						: checkScheduleError(course)}
-				<div data-code={code} class="course-row-item shrink-0 pe-2">
-					{@render children({
-						code,
-						course,
-						index,
-						scheduleError
-					})}
-				</div>
-			{/each}
-		{:then sortedCourses}
-			{#each keyedItems(sortedCourses, (item) => item.code) as { key, value: { code, course } }, index (key)}
-				{@const scheduleError =
-					checkScheduleError === undefined
-						? undefined
-						: checkScheduleError(course)}
-				<div data-code={code} class="course-row-item shrink-0 pe-2">
-					{@render children({
-						code,
-						course,
-						index,
-						scheduleError
-					})}
-				</div>
-			{/each}
-		{/await}
-	{/if}
+	{#each keyedItems(displayedCourses, (item) => item.code) as { key, value: { code, course } }, index (key)}
+		{@const scheduleError = checkScheduleError?.(Promise.resolve(course))}
+		<div data-code={code} class="course-row-item shrink-0 pe-2">
+			{@render children({ code, course, index, scheduleError })}
+		</div>
+	{/each}
 </div>
 
 <style>

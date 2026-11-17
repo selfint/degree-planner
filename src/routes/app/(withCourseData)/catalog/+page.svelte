@@ -18,7 +18,11 @@
 			return [];
 		}
 
-		return getDegreeRequirementCourses(await r);
+		const [requirements, courses] = await Promise.all([r, pageData.courseData]);
+		return getDegreeRequirementCourses(requirements).map((list) => ({
+			...list,
+			resolvedCourses: list.courses.map((code) => courses[code] ?? { code })
+		}));
 	});
 
 	function getCourseSemester(course: Course): number | undefined {
@@ -240,7 +244,11 @@
 								)}
 							{/await}
 						</div>
-						<CourseRow {getCourseData} courses={list.courses} indent={1}>
+						<CourseRow
+							{getCourseData}
+							courses={list.resolvedCourses}
+							indent={1}
+						>
 							{#snippet children({ code, course, index })}
 								<a href={resolve(`/app/course/${code}`)}>
 									<CourseElement {code} {course} {index}>
@@ -288,6 +296,10 @@
 		border-block-end: 1px solid rgb(var(--color-border));
 	}
 	.catalog-section {
+		/* Keep all courses searchable and focusable while the browser skips
+		   layout/paint for groups outside the viewport. */
+		content-visibility: auto;
+		contain-intrinsic-block-size: auto 15rem;
 		min-inline-size: 0;
 	}
 	.catalog-section-title {

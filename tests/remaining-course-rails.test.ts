@@ -753,6 +753,13 @@ for (const width of [320, 390, 1180, 1440]) {
 			}, info) => {
 				await prepare(page, language);
 				await page.goto(`${origin}/app/semester`);
+				// The real worker's entry check can outlast the default five-second
+				// geometry assertion under load; the populated shell is hidden until
+				// that gate opens. Assert readiness before selecting :visible rails.
+				await expect(page.locator('.console-shell')).not.toHaveAttribute(
+					'inert',
+					{ timeout: 45_000 }
+				);
 				const rail = page
 					.locator('.semester-discovery .course-row:visible')
 					.first();

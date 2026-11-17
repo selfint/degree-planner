@@ -1,0 +1,162 @@
+[
+	{
+		"rate": 1,
+		"run": 0,
+		"sample": 0,
+		"kind": "first-switch",
+		"usefulMs": 1041.7999999970198,
+		"settledMs": 1065.8999999985099,
+		"cards": 827,
+		"nodes": 15915
+	},
+	{
+		"rate": 1,
+		"run": 0,
+		"sample": 1,
+		"kind": "repeat",
+		"usefulMs": 504.80000000447035,
+		"settledMs": 524.2000000029802,
+		"cards": 827,
+		"nodes": 15915
+	},
+	{
+		"rate": 1,
+		"run": 0,
+		"sample": 2,
+		"kind": "repeat",
+		"usefulMs": 368.70000000298023,
+		"settledMs": 382.90000000596046,
+		"cards": 827,
+		"nodes": 15915
+	},
+	{
+		"rate": 1,
+		"run": 0,
+		"sample": 3,
+		"kind": "repeat",
+		"usefulMs": 865.8000000044703,
+		"settledMs": 882.9000000059605,
+		"cards": 827,
+		"nodes": 15915
+	},
+	{
+		"rate": 1,
+		"run": 1,
+		"sample": 0,
+		"kind": "first-switch",
+		"usefulMs": 410.5,
+		"settledMs": 423.6000000014901,
+		"cards": 827,
+		"nodes": 15915
+	},
+	{
+		"rate": 1,
+		"run": 1,
+		"sample": 1,
+		"kind": "repeat",
+		"usefulMs": 423,
+		"settledMs": 437,
+		"cards": 827,
+		"nodes": 15915
+	},
+	{
+		"rate": 1,
+		"run": 1,
+		"sample": 2,
+		"kind": "repeat",
+		"usefulMs": 788.1000000014901,
+		"settledMs": 813.5,
+		"cards": 827,
+		"nodes": 15915
+	},
+	{
+		"rate": 1,
+		"run": 1,
+		"sample": 3,
+		"kind": "repeat",
+		"usefulMs": 392.70000000298023,
+		"settledMs": 405.3999999985099,
+		"cards": 827,
+		"nodes": 15915
+	},
+	{
+		"rate": 4,
+		"run": 0,
+		"sample": 0,
+		"kind": "first-switch",
+		"usefulMs": 1512.7000000029802,
+		"settledMs": 2118.10000000149,
+		"cards": 827,
+		"nodes": 15915
+	},
+	{
+		"rate": 4,
+		"run": 0,
+		"sample": 1,
+		"kind": "repeat",
+		"usefulMs": 2592.1999999955297,
+		"settledMs": 2710.2999999970198,
+		"cards": 827,
+		"nodes": 15915
+	},
+	{
+		"rate": 4,
+		"run": 0,
+		"sample": 2,
+		"kind": "repeat",
+		"usefulMs": 2335.3000000044703,
+		"settledMs": 2446.9000000059605,
+		"cards": 827,
+		"nodes": 15915
+	},
+	{
+		"rate": 4,
+		"run": 0,
+		"sample": 3,
+		"kind": "repeat",
+		"usefulMs": 2471.10000000149,
+		"settledMs": 2572.2000000029802,
+		"cards": 827,
+		"nodes": 15915
+	},
+	{
+		"rate": 4,
+		"run": 1,
+		"sample": 0,
+		"kind": "first-switch",
+		"usefulMs": 1640.2000000029802,
+		"settledMs": 1740.5,
+		"cards": 827,
+		"nodes": 15915
+	},
+	{
+		"rate": 4,
+		"run": 1,
+		"sample": 1,
+		"kind": "repeat",
+		"usefulMs": 2349.89999999851,
+		"settledMs": 2459.2999999970198,
+		"cards": 827,
+		"nodes": 15915
+	},
+	{
+		"rate": 4,
+		"run": 1,
+		"sample": 2,
+		"kind": "repeat",
+		"usefulMs": 2093.1999999955297,
+		"settledMs": 2191.7999999970198,
+		"cards": 827,
+		"nodes": 15915
+	},
+	{
+		"rate": 4,
+		"run": 1,
+		"sample": 3,
+		"kind": "repeat",
+		"usefulMs": 3218.10000000149,
+		"settledMs": 3332.2000000029802,
+		"cards": 827,
+		"nodes": 15915
+	}
+]

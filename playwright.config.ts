@@ -53,6 +53,7 @@ export default defineConfig({
 				'course-card-navigation.test.ts',
 				'course-actions-loading.test.ts',
 				'course-catalog-rails.test.ts',
+				'catalog-rendering.test.ts',
 				'remaining-course-rails.test.ts',
 				'console-button-layout.test.ts',
 				'console-navigation-styles.test.ts',

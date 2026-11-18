@@ -68,12 +68,16 @@ async function waitForAccountRead(page: Page, phase: string) {
 			};
 		});
 	try {
-		await expect
-			.poll(async () => (await state()).readCount, {
-				message: `${phase}: the new document starts its controlled account read`,
-				timeout: 20_000
-			})
-			.toBe(1);
+		// Startup may replace the document after its load event. Unlike a raw
+		// evaluate inside expect.poll, waitForFunction survives that navigation.
+		// Keep the same held-read condition and budget; privacy assertions follow.
+		await page.waitForFunction(
+			() =>
+				(window as unknown as { accountFixture?: { reads: unknown[] } })
+					.accountFixture?.reads.length === 1,
+			null,
+			{ timeout: 20_000 }
+		);
 	} finally {
 		console.info('Account bootstrap', phase, {
 			elapsedMs: Date.now() - started,
@@ -543,3 +547,28 @@ for (const language of ['en', 'he'])
 		await command(page, 'window.finishCourseBytes()');
 		await expect(page.locator('.console-loading')).toHaveCount(0);
 	});
+
+test('retained catalog is discarded when account access closes and cannot expose the previous account', async ({
+	page
+}) => {
+	await prepare(page);
+	await command(
+		page,
+		`window.accountFixture.reads[0].resolve({version:4, semesters:[[]], wishlist:['02340124'], exemptions:[], currentSemester:0})`
+	);
+	await expect(page.locator('main')).toBeVisible();
+	await page.locator('a[href="/app/catalog"]:visible').first().click();
+	await expect(page.locator('.catalog-page .course-card')).toHaveCount(1);
+	await page.locator('a[href="/app/plan"]:visible').first().click();
+	await expect(page.locator('[data-catalog-cache]')).toHaveCount(1);
+	await command(page, "window.accountFixture.auth('second-account')");
+	await pending(page);
+	await expect(page.locator('[data-catalog-cache]')).toHaveCount(0);
+	await command(page, 'window.accountFixture.finish(1)');
+	await expect(page.locator('main')).toBeVisible();
+	await page.locator('a[href="/app/catalog"]:visible').first().click();
+	await expect(page.locator('.catalog-page')).toBeVisible();
+	await expect(page.locator('.catalog-page .course-card')).toHaveCount(0);
+	await page.context().setOffline(true);
+	await expect(page.locator('[data-catalog-cache]')).toHaveCount(0);
+});

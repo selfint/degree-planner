@@ -4,7 +4,7 @@ The preview deploy serves real Svelte Storybook at /storybook. Run `npm run stor
 
 ## Coverage contract
 
-Every reusable component and visible route screen has independently browsable stories. Only the five nonvisual route/lifecycle files below are excluded. PwaStatus uses its extracted PwaStatusView, rendering the actual presentation without starting service workers or touching caches/storage. The inventory test scans every application Svelte file and fails on uncovered additions or stale entries.
+Every reusable component and visible route screen has independently browsable stories. Only the seven nonvisual route/lifecycle files below are excluded. PwaStatus uses its extracted PwaStatusView, rendering the actual presentation without starting service workers or touching caches/storage. The inventory test scans every application Svelte file and fails on uncovered additions or stale entries.
 
 Theme, language and direction are global toolbar controls. Direction follows the selected language by default and can be overridden independently. The canvas uses the default available size; no viewport is forced and no light/dark/RTL/mobile stories are duplicated. Normal component sizing is preserved.
 
@@ -26,6 +26,7 @@ NativeVideo and FeatureVideo render through the real Pages/Landing stories. The 
 | src/lib/components/ConsoleLoading.svelte                                     | User flows/Startup loading        | ColdEntry, NetworkPause, CachedEntry, UnknownSize, FailedDownload                                                                                                                                                                                                    |
 | src/lib/components/CourseElement.svelte                                      | Components/CourseElement          | Default, Compact, Loading, MissingDetails, NoExams, WithNote, StudyDays, CheckingRequirements, UnmetRequirements, Unavailable, Interactive, InteractiveWarning, ExpandedRequirements                                                                                 |
 | src/routes/app/(withCourseData)/catalog/components/CourseGroup.svelte        | Components/CourseGroup            | Default, Empty, Loading, Error, MultipleGroups                                                                                                                                                                                                                       |
+| src/lib/components/CatalogCourseRow.svelte                                   | Components/CatalogCourseRow       | Default, Empty, WithNote                                                                                                                                                                                                                                             |
 | src/lib/components/CourseRow.svelte                                          | Components/CourseRow              | Default, Empty, Loading, Sortable, Indented                                                                                                                                                                                                                          |
 | src/routes/app/(withCourseData)/settings/components/DegreeSection.svelte     | Components/DegreeSection          | Default, Offline, Unselected, Recommended, LoadingPaths, WithPaths, SelectedPath                                                                                                                                                                                     |
 | src/routes/components/ImgDemo.svelte                                         | Components/ImgDemo                | Default, LongText                                                                                                                                                                                                                                                    |
@@ -60,7 +61,7 @@ NativeVideo and FeatureVideo render through the real Pages/Landing stories. The 
 | src/lib/components/Select.svelte                                             | Components/Select                 | Unselected, Selected, Disabled, EmptyOptions                                                                                                                                                                                                                         |
 | src/lib/components/Settings.svelte                                           | Components/Settings               | Default                                                                                                                                                                                                                                                              |
 | src/lib/components/Spinner.svelte                                            | Components/Spinner                | Compact, Large                                                                                                                                                                                                                                                       |
-| src/routes/app/(withCourseData)/catalog/+page.svelte                         | Pages/Catalog                     | Default, EmptyPlan, Loading, NoDegree, LongWishlist                                                                                                                                                                                                                  |
+| src/lib/components/Catalog.svelte                                            | Pages/Catalog                     | Default, EmptyPlan, Loading, NoDegree, LongWishlist                                                                                                                                                                                                                  |
 | src/routes/app/(withCourseData)/course/[code]/+page.svelte                   | Pages/Course                      | Default, Planned, Wishlisted, Exempt, ReadOnly, Loading, MissingDetails, UnavailableCourse, RelatedCourses                                                                                                                                                           |
 | src/routes/+error.svelte                                                     | Pages/Error                       | NotFound, LoadFailed, ServiceUnavailable                                                                                                                                                                                                                             |
 | src/routes/+page.svelte                                                      | Pages/Landing                     | Default, OpeningPlanner                                                                                                                                                                                                                                              |
@@ -78,13 +79,16 @@ NativeVideo and FeatureVideo render through the real Pages/Landing stories. The 
 
 ## Nonvisual exclusions
 
+- src/routes/app/(withCourseData)/+layout.svelte: bounded catalog retention and account-access lifecycle; its Catalog component has stories.
+- src/routes/app/(withCourseData)/catalog/+page.svelte: empty route marker; the shared layout renders Catalog.
+
 - src/routes/+layout.svelte: Root routing and lifecycle scaffold; TitleBar, AppFooter, ConsoleLoading and route pages are covered separately.
 - src/routes/app/+layout.svelte: Console bootstrap, authentication, service worker and context lifecycle; account/offline/auth notices and exceptional PWA details are covered by ConsoleAccountStatus and PwaStatusDetails without starting services.
 - src/routes/app/+page.svelte: Empty route entry; server/client loader redirects to a plan or settings.
 - src/routes/[...legacy]/+page.svelte: Empty legacy redirect placeholder.
 - src/routes/en/+page.svelte: Language-setting redirect without visible UI; importing it would write actual browser preferences.
 
-Inventory: 61 source files, 56 covered, 5 nonvisual exclusions; 48 story groups, 213 stories.
+Inventory: 64 source files, 57 covered, 7 nonvisual exclusions; 49 story groups, 216 stories.
 
 ## Asserted student journey recordings
 

@@ -325,7 +325,7 @@
 		flex: 1;
 		grid-auto-flow: column;
 		grid-auto-columns: max-content;
-		grid-template-rows: auto auto minmax(8rem, 1fr);
+		grid-template-rows: auto minmax(8rem, 1fr);
 		column-gap: 0.5rem;
 		padding-inline: 0.75rem;
 	}

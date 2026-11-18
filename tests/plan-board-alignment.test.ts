@@ -41,6 +41,16 @@ async function measureBoard(page: Page) {
 			(element) => ({
 				index: Number(element.getAttribute('data-semester')),
 				list: box(element),
+				title: box(
+					element
+						.closest('.semester-column--board')!
+						.querySelector('.semester-title')!
+				),
+				exams: box(
+					element
+						.closest('.semester-column--board')!
+						.querySelector('.semester-exams-row')!
+				),
 				cards: [...element.querySelectorAll('.course-card')].map(box)
 			})
 		);
@@ -111,7 +121,11 @@ async function measureBoard(page: Page) {
 				bounds.height <= 3 * parseFloat(style.lineHeight) + 1 &&
 				bounds.left >= copy.left - 1 &&
 				bounds.right <= copy.right + 1 &&
-				code.top >= bounds.bottom - 1 &&
+				(code.top >= bounds.bottom - 1 ||
+					(innerWidth >= 640 &&
+						Math.abs(code.bottom - bounds.bottom) <= 1 &&
+						(code.right <= bounds.left + 1 ||
+							code.left >= bounds.right - 1))) &&
 				code.bottom <= copy.bottom + 1 &&
 				code.left >= copy.left - 1 &&
 				code.right <= copy.right + 1
@@ -137,7 +151,11 @@ async function measureBoard(page: Page) {
 
 type Board = Awaited<ReturnType<typeof measureBoard>>;
 
-function expectAligned(board: Board, label: string) {
+function expectAligned(
+	board: Board,
+	label: string,
+	examSemester: number | null = 0
+) {
 	const wishlistHeight = Math.max(
 		...board.wishlist.map((card) => card.naturalHeight)
 	);
@@ -157,14 +175,47 @@ function expectAligned(board: Board, label: string) {
 	}
 
 	const listTops = board.semesters.map((semester) => semester.list.top);
-	const cardTops = board.semesters.flatMap((semester) =>
-		semester.cards.length ? [semester.cards[0].top] : []
-	);
 	const top = Math.min(...listTops);
-	for (const value of [...listTops, ...cardTops])
+	const titleBottom = board.semesters[0].title.bottom;
+	for (const semester of board.semesters) {
 		expect
-			.soft(Math.abs(value - top), `${label}: shared first-course row`)
+			.soft(
+				Math.abs(semester.title.bottom - titleBottom),
+				`${label}: aligned titles`
+			)
 			.toBeLessThanOrEqual(1);
+		expect
+			.soft(
+				Math.abs(semester.exams.top - titleBottom - 6),
+				`${label}: body follows title`
+			)
+			.toBeLessThanOrEqual(1);
+		expect
+			.soft(
+				Math.abs(semester.list.top - semester.exams.bottom),
+				`${label}: courses follow only their own exams`
+			)
+			.toBeLessThanOrEqual(1);
+		if (semester.cards.length)
+			expect
+				.soft(
+					Math.abs(semester.cards[0].top - semester.list.top),
+					`${label}: first card starts at list top`
+				)
+				.toBeLessThanOrEqual(1);
+		if (semester.index === examSemester) {
+			expect(semester.exams.height).toBeGreaterThan(0);
+			expect(semester.list.top).toBeGreaterThan(top);
+		} else {
+			expect(semester.exams.height).toBe(0);
+			expect
+				.soft(
+					Math.abs(semester.list.top - top),
+					`${label}: no exam gap in other semesters`
+				)
+				.toBeLessThanOrEqual(1);
+		}
+	}
 	const empty = board.semesters.at(-1)!;
 	expect(empty.cards).toHaveLength(0);
 	const bottoms = board.semesters.map((semester) => semester.list.bottom);
@@ -301,17 +352,18 @@ async function captureCatalogEdges(page: Page, info: TestInfo) {
 
 for (const viewport of [
 	{ width: 320, height: 568 },
-	{ width: 390, height: 664 }
+	{ width: 390, height: 664 },
+	{ width: 1440, height: 900 }
 ]) {
 	for (const language of ['en', 'he'] as const) {
 		test.describe(`${viewport.width}x${viewport.height} ${language} plan board`, () => {
 			test.use({
 				viewport,
-				isMobile: true,
-				hasTouch: true,
+				isMobile: viewport.width < 640,
+				hasTouch: viewport.width < 640,
 				serviceWorkers: 'allow'
 			});
-			test('aligns visible study days and empty targets after language and viewport changes', async ({
+			test('keeps exams local and titles aligned after language and viewport changes', async ({
 				page
 			}, info) => {
 				test.setTimeout(60_000);
@@ -320,7 +372,8 @@ for (const viewport of [
 						localStorage.setItem('lang', language);
 						localStorage.setItem('theme', 'light');
 						localStorage.setItem('version', '4');
-						localStorage.setItem('userData', JSON.stringify(guest));
+						if (!localStorage.getItem('userData'))
+							localStorage.setItem('userData', JSON.stringify(guest));
 					},
 					{ language, guest }
 				);
@@ -371,6 +424,7 @@ for (const viewport of [
 				const initial = await capture(page, info, 'board-initial');
 				expectAligned(initial, 'initial resolved board');
 				for (const rail of initial.rails) {
+					if (viewport.width >= 640) continue;
 					expect
 						.soft(
 							Math.abs(
@@ -418,6 +472,31 @@ for (const viewport of [
 				expect(saved.semesters).toEqual(guest.semesters);
 				expect(saved.wishlist).toEqual(guest.wishlist);
 				await expect(page).toHaveURL(`${origin}/app/plan`);
+				// Moving the current semester moves only its exam gap; an empty current
+				// semester leaves every course list directly beneath its title.
+				for (const currentSemester of [1, guest.semesters.length - 1]) {
+					await page.evaluate((currentSemester) => {
+						const saved = JSON.parse(localStorage.getItem('userData')!);
+						saved.currentSemester = currentSemester;
+						localStorage.setItem('userData', JSON.stringify(saved));
+					}, currentSemester);
+					await page.reload();
+					await expect(
+						page.locator('[data-semester] .course-card')
+					).toHaveCount(guest.semesters.flat().length);
+					const hasExams = currentSemester === 1;
+					await expect(exams).toHaveCount(hasExams ? 1 : 0);
+					const changed = await capture(
+						page,
+						info,
+						`board-current-${currentSemester}`
+					);
+					expectAligned(
+						changed,
+						`current semester ${currentSemester}`,
+						hasExams ? currentSemester : null
+					);
+				}
 				// Restore the named case's viewport/language before its catalog evidence.
 				await page.setViewportSize(viewport);
 				await page
@@ -429,7 +508,7 @@ for (const viewport of [
 					'dir',
 					language === 'he' ? 'rtl' : 'ltr'
 				);
-				await captureCatalogEdges(page, info);
+				if (viewport.width < 640) await captureCatalogEdges(page, info);
 			});
 		});
 	}

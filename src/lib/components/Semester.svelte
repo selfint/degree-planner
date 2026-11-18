@@ -132,24 +132,30 @@
 		{/if}
 	</div>
 
-	<div class="semester-exams-row">
-		{#await effectiveSemester then _effectiveSemester}
-			{#if isCurrent && _effectiveSemester.filter((c) => c.tests?.length ?? 0 > 0).length > 0}
-				<div class="semester-exams mb-1.5">
-					<StudyDaysComponent semester={effectiveSemester} />
-				</div>
-			{/if}
-		{/await}
-	</div>
+	<div class="semester-body">
+		<div class="semester-exams-row">
+			{#await effectiveSemester then _effectiveSemester}
+				{#if isCurrent && _effectiveSemester.filter((c) => c.tests?.length ?? 0 > 0).length > 0}
+					<div class="semester-exams mb-1.5">
+						<StudyDaysComponent semester={effectiveSemester} />
+					</div>
+				{/if}
+			{/await}
+		</div>
 
-	<div
-		class="semester-courses flex min-h-32 flex-1 flex-col gap-1.5"
-		use:makePlanSortable={sortable}
-		data-semester={index}
-	>
-		{#each keyedItems(semester, (code) => code) as { key, value: course }, index (key)}
-			{@render children({ code: course, course: getCourseData(course), index })}
-		{/each}
+		<div
+			class="semester-courses flex min-h-32 flex-1 flex-col gap-1.5"
+			use:makePlanSortable={sortable}
+			data-semester={index}
+		>
+			{#each keyedItems(semester, (code) => code) as { key, value: course }, index (key)}
+				{@render children({
+					code: course,
+					course: getCourseData(course),
+					index
+				})}
+			{/each}
+		</div>
 	</div>
 </CourseWidth>
 
@@ -164,8 +170,15 @@
 		inset-inline-start: 0;
 		margin: 0;
 	}
-	/* The board owns these three tracks. Header wrapping and study-day content
-	   therefore move every course list together, including empty drop targets. */
+	/* Share only the title track. Exams and courses flow within each semester,
+	   while course lists (including empty drop targets) fill the board height. */
+	.semester-body {
+		display: contents;
+	}
+	:global(.semester-column--board) .semester-body {
+		display: grid;
+		grid-template-rows: auto minmax(8rem, 1fr);
+	}
 	:global(.semester-column--board) {
 		display: grid;
 		grid-row: 1 / -1;

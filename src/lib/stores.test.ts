@@ -337,3 +337,43 @@ describe('saved-plan provenance', () => {
 		expect(user.d.wishlist).toEqual([]);
 	});
 });
+
+describe('normalized saved-plan provenance', () => {
+	it.each(['saved', 'unsaved', 'changed-after-read'] as const)(
+		'preserves only valid provenance through readStorage → setUser: %s',
+		async (state) => {
+			const { setStorage, readStorage, setUser, user } =
+				await import('./stores.svelte');
+			const { markPersistedPlan, isPersistedPlan } =
+				await import('./ownSavedPlanView');
+			const historical: UserData = {
+				...plan,
+				semesters: [['02340124']],
+				degree: ['2024_200', '00002120', 'SC00001320_CG00006382'],
+				path: 'CG00006246'
+			};
+			if (state !== 'unsaved') markPersistedPlan(historical);
+			if (state === 'changed-after-read')
+				historical.semesters[0].push('02340141');
+			setStorage({ read: async () => historical, write: async (data) => data });
+			const normalized = await readStorage();
+			expect(normalized).not.toBe(historical);
+			expect(normalized.degree).toEqual([
+				'2024_200',
+				'00002120',
+				'SC00001314_CG00006245'
+			]);
+			expect(isPersistedPlan(normalized)).toBe(state === 'saved');
+			setUser(normalized);
+			expect(user.persisted).toBe(state === 'saved');
+		}
+	);
+	it('does not retain a saved flag after an in-place unsaved mutation', async () => {
+		const { setUser, user } = await import('./stores.svelte');
+		const { markPersistedPlan } = await import('./ownSavedPlanView');
+		setUser(markPersistedPlan({ ...plan, semesters: [['02340124']] }));
+		expect(user.persisted).toBe(true);
+		user.d.semesters[0].push('02340141');
+		expect(user.persisted).toBe(false);
+	});
+});

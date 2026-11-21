@@ -205,13 +205,23 @@ const migrations = [
 ] as const;
 
 const initialPlan = readLocalStorage();
-export const user: { d: UserData; persisted: boolean } = $state({
+let persistedSnapshot = $state<string | undefined>(
+	isPersistedPlan(initialPlan) ? JSON.stringify(initialPlan) : undefined
+);
+export const user: { d: UserData; readonly persisted: boolean } = $state({
 	d: initialPlan,
-	persisted: isPersistedPlan(initialPlan)
+	// Recheck contents so even an in-place draft cannot inherit saved provenance.
+	get persisted() {
+		return (
+			persistedSnapshot !== undefined &&
+			JSON.stringify(this.d) === persistedSnapshot
+		);
+	}
 });
 export function setUser(data: UserData) {
-	user.persisted = isPersistedPlan(data);
+	const saved = isPersistedPlan(data);
 	user.d = compatiblePlan(data);
+	persistedSnapshot = saved ? JSON.stringify(user.d) : undefined;
 }
 
 // decouple the user degree/path from the rest of the user object
@@ -330,7 +340,12 @@ export const localStorageMethod: StorageMethod = {
 };
 
 let _storage: StorageMethod = $state(localStorageMethod);
-export const readStorage = async () => compatiblePlan(await _storage.read());
+export const readStorage = async () => {
+	const data = await _storage.read();
+	const normalized = compatiblePlan(data);
+	// Compatibility repair may allocate a new object; transfer only valid provenance.
+	return isPersistedPlan(data) ? markPersistedPlan(normalized) : normalized;
+};
 export const writeStorage = async (d: UserData) => {
 	assertPlanWritable();
 	return markPersistedPlan(await updateSafety.write(() => _storage.write(d)));

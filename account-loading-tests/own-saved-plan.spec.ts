@@ -194,4 +194,18 @@ test('unsaved in-memory data and a first save do not retroactively qualify the v
 	await page.goBack();
 	await expect(page).toHaveURL(/\/app\/plan$/);
 	await expect.poll(() => count(page)).toBe(1);
+	// Even unsupported direct mutation must not inherit saved provenance on return.
+	await page.locator('a[href="/app/catalog"]').first().click();
+	await expect(page).toHaveURL(/\/app\/catalog$/);
+	await page.evaluate(async () => {
+		const modulePath = '/src/lib/stores.svelte.ts';
+		const { user } = await import(modulePath);
+		user.d.semesters[0].push('02340124');
+	});
+	await page.goBack();
+	await expect(page).toHaveURL(/\/app\/plan$/);
+	await expect(page.locator('[data-semester="0"] .course-card')).toHaveCount(2);
+	await page.locator('a[href="/app/catalog"]').first().click();
+	await expect(page).toHaveURL(/\/app\/catalog$/);
+	expect(await count(page)).toBe(1);
 });

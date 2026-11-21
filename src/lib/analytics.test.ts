@@ -556,3 +556,35 @@ it('does not initialize PostHog or write identifiers in staging with live-lookin
 	expect(mocks.capture).not.toHaveBeenCalled();
 	expect(values.size).toBe(0);
 });
+
+it('allows only a canonical own saved plan event with no plan properties', () => {
+	const event = {
+		uuid: 'test',
+		event: 'own_saved_plan_viewed',
+		properties: {
+			distinct_id: '019ab123-0000-7000-8000-000000000001',
+			page: 'plan',
+			auth_status: 'signed_out',
+			semesters: ['SECRET'],
+			course: 'SECRET',
+			uid: 'SECRET',
+			source: 'plan_board'
+		}
+	};
+	expect(sanitizeAnalyticsEvent(event)?.properties).toMatchObject({
+		page: 'plan',
+		auth_status: 'signed_out',
+		$pathname: '/degree-planner/app/plan'
+	});
+	expect(JSON.stringify(sanitizeAnalyticsEvent(event))).not.toContain('SECRET');
+	expect(sanitizeAnalyticsEvent(event)?.properties).not.toHaveProperty(
+		'source'
+	);
+	for (const page of ['share', 'catalog', undefined])
+		expect(
+			sanitizeAnalyticsEvent({
+				...event,
+				properties: { ...event.properties, page }
+			})
+		).toBeNull();
+});

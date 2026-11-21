@@ -1,3 +1,4 @@
+import { isPersistedPlan, markPersistedPlan } from './ownSavedPlanView';
 import { storageKey } from '$lib/deploymentEnvironment';
 import { compatiblePlan } from './planCompatibility';
 import { updateSafety } from './pwa/update-safety';
@@ -203,8 +204,13 @@ const migrations = [
 	}
 ] as const;
 
-export const user: { d: UserData } = $state({ d: readLocalStorage() });
+const initialPlan = readLocalStorage();
+export const user: { d: UserData; persisted: boolean } = $state({
+	d: initialPlan,
+	persisted: isPersistedPlan(initialPlan)
+});
 export function setUser(data: UserData) {
+	user.persisted = isPersistedPlan(data);
 	user.d = compatiblePlan(data);
 }
 
@@ -271,7 +277,7 @@ function readLocalStorage(): UserData {
 
 	if (localVersion > version) {
 		// try to load the user data with the latest loader
-		return compatiblePlan(loaders[version]());
+		return markPersistedPlan(compatiblePlan(loaders[version]()));
 	}
 
 	let user = loaders[localVersion]();
@@ -302,7 +308,7 @@ function readLocalStorage(): UserData {
 		}
 	}
 
-	return user as UserData;
+	return markPersistedPlan(user as UserData);
 }
 
 export async function writeLocalStorage(data: UserData): Promise<UserData> {
@@ -310,7 +316,7 @@ export async function writeLocalStorage(data: UserData): Promise<UserData> {
 	localStorage.setItem(storageKey('version'), version.toString());
 	localStorage.setItem(storageKey('userData'), JSON.stringify(data));
 
-	return data;
+	return markPersistedPlan(data);
 }
 
 export interface StorageMethod {
@@ -327,6 +333,6 @@ let _storage: StorageMethod = $state(localStorageMethod);
 export const readStorage = async () => compatiblePlan(await _storage.read());
 export const writeStorage = async (d: UserData) => {
 	assertPlanWritable();
-	return await updateSafety.write(() => _storage.write(d));
+	return markPersistedPlan(await updateSafety.write(() => _storage.write(d)));
 };
 export const setStorage = (s: StorageMethod) => (_storage = s);

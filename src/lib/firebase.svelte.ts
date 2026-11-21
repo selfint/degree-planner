@@ -1,3 +1,4 @@
+import { markPersistedPlan } from './ownSavedPlanView';
 import { analyticsEnabled } from './deploymentEnvironment';
 import { observeAnalyticsAuth } from './analyticsAuth';
 import { initializeApp, type FirebaseApp } from 'firebase/app';
@@ -211,7 +212,11 @@ async function readFirebase(
 		return;
 	}
 
-	return (await getDoc(userDoc)).data();
+	const snapshot = await getDoc(userDoc);
+	const data = snapshot.data();
+	return data && snapshot.metadata.hasPendingWrites === false
+		? markPersistedPlan(data)
+		: data;
 }
 
 export function buildFirebaseStorage(
@@ -249,7 +254,10 @@ export function subscribeFirebase(
 
 	return onSnapshot(userDoc, (doc) => {
 		if (doc.exists()) {
-			onchange(doc.data());
+			const data = doc.data();
+			onchange(
+				doc.metadata.hasPendingWrites === false ? markPersistedPlan(data) : data
+			);
 		}
 	});
 }

@@ -14,6 +14,7 @@
 		canShowPersonalPlan
 	} from '$lib/pwa/plan-visibility';
 	import { page } from '$app/state';
+	import { OWN_PLAN_DISPLAY_READY } from '$lib/ownSavedPlanView';
 	import {
 		browserShareDestination,
 		consolePathname,
@@ -143,6 +144,11 @@
 	});
 	setContext(PERSONAL_PLAN_READY, () =>
 		canShowPersonalPlan({ authReady, signedIn, offline, cloudPlanUnavailable })
+	);
+
+	setContext(
+		OWN_PLAN_DISPLAY_READY,
+		() => !planBlocked && !entryLoading && !(inPwaScope && entryPending)
 	);
 
 	$effect(() => {

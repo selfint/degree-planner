@@ -306,3 +306,34 @@ it('staging does not read, migrate or overwrite production guest plans', async (
 	const reloaded = await import('./stores.svelte');
 	expect(reloaded.user.d).toEqual(plan);
 });
+
+describe('saved-plan provenance', () => {
+	it('marks local reads but not arbitrary in-memory setUser calls', async () => {
+		const { user, setUser } = await import('./stores.svelte');
+		expect(user.persisted).toBe(true);
+		setUser({ ...plan });
+		expect(user.persisted).toBe(false);
+	});
+	it('marks successful saves, not failed writes', async () => {
+		const { user, setUser, writeStorage, setStorage } =
+			await import('./stores.svelte');
+		setUser({ ...plan });
+		setStorage({
+			read: async () => plan,
+			write: async () => {
+				throw new Error('failed');
+			}
+		});
+		await expect(writeStorage(plan)).rejects.toThrow('failed');
+		expect(user.persisted).toBe(false);
+		setStorage({ read: async () => plan, write: async (data) => data });
+		setUser(await writeStorage({ ...plan }));
+		expect(user.persisted).toBe(true);
+	});
+	it('does not qualify default/migrated empty storage as a nonempty plan', async () => {
+		values.clear();
+		const { user } = await import('./stores.svelte');
+		expect(user.d.semesters.flat()).toEqual([]);
+		expect(user.d.wishlist).toEqual([]);
+	});
+});

@@ -9,7 +9,12 @@
 	import { resolve } from '$app/paths';
 	import { withBase } from '$lib/deploymentPaths';
 	import { goto } from '$app/navigation';
-	import { onMount } from 'svelte';
+	import { getContext, onMount, tick } from 'svelte';
+	import { navigating } from '$app/state';
+	import {
+		createOwnSavedPlanVisit,
+		OWN_PLAN_DISPLAY_READY
+	} from '$lib/ownSavedPlanView';
 	import { updateSafety } from '$lib/pwa/update-safety';
 	import { browser } from '$app/environment';
 
@@ -36,6 +41,35 @@
 	const hasChanges = $derived(
 		wishlist !== user.d.wishlist || semesters !== user.d.semesters
 	);
+
+	const displayReady = getContext<() => boolean>(OWN_PLAN_DISPLAY_READY);
+	const observeSavedPlan = createOwnSavedPlanVisit(() =>
+		trackEvent('own_saved_plan_viewed')
+	);
+	$effect(() => {
+		const ready = (displayReady?.() ?? false) && !navigating.to;
+		const persisted = user.persisted;
+		const hasCourses = user.d.semesters.some((s) => s.length > 0);
+		const draft = hasChanges;
+		let cancelled = false;
+		if (ready) {
+			void Promise.resolve(pageData.courseData)
+				.then(async () => {
+					await tick();
+					if (!cancelled)
+						observeSavedPlan({
+							ready,
+							persisted,
+							hasCourses,
+							hasChanges: draft
+						});
+				})
+				.catch(() => {});
+		}
+		return () => {
+			cancelled = true;
+		};
+	});
 
 	onMount(() => updateSafety.register(() => hasChanges));
 	$effect(() => {

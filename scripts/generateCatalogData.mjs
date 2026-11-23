@@ -8,6 +8,7 @@ import {
 } from 'node:fs';
 import { isAbsentRoot, assertRootAvailability } from './SAPClient.mjs';
 import { replaceDirectory } from './dataOutput.mjs';
+import { reconcileCatalogCourses } from './catalogSourceCourses.mjs';
 import { dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import {
@@ -49,6 +50,8 @@ export function writeCatalogData(rawCatalogs, staticDir) {
 	// Validate the entire incoming snapshot before changing any output. The existing
 	// canonical JSON remains usable when SAP fails or returns malformed data.
 	const incoming = buildCatalogData(rawCatalogs);
+	for (const [key, requirement] of incoming.requirements)
+		reconcileCatalogCourses(key, requirement);
 	const previous = existsSync(join(staticDir, 'catalogs.json'))
 		? readCatalogData(staticDir)
 		: { catalogs: {}, requirements: new Map() };

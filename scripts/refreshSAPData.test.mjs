@@ -83,6 +83,122 @@ describe('SAP refresh failures and validation (offline)', () => {
 			readCatalogData(join(old.root, 'static')).requirements.size
 		).toBeGreaterThan(0);
 	});
+	test('publishes official cohort options omitted by SAP, without inheriting old courses', async () => {
+		const { root } = fixture();
+		const staticDir = join(root, 'static');
+		const labels = { en: 'Synthetic group', he: 'קבוצה' };
+		const track = (
+			year,
+			term,
+			faculty,
+			degree,
+			program,
+			parent,
+			group,
+			courses
+		) => ({
+			track: {
+				Otjid: degree,
+				OrgId: faculty,
+				OrgText: labels,
+				ZzQualifications: labels,
+				Peryr: year,
+				Perid: term
+			},
+			tree: {
+				children: [
+					{
+						Otjid: program,
+						children: [
+							{
+								Otjid: parent,
+								Name: labels,
+								children: [
+									{
+										Otjid: group,
+										Name: labels,
+										courses: courses.map((code) => 'SM' + code)
+									}
+								]
+							}
+						]
+					}
+				]
+			}
+		});
+		const ee = (year, term, courses, program = 'CG00010465') =>
+			track(
+				year,
+				term,
+				'00002050',
+				'SC00001397',
+				program,
+				'CG00006318',
+				'CG00003701',
+				courses
+			);
+		const bme = (term, courses) =>
+			track(
+				'2025',
+				term,
+				'00002330',
+				'SC00001356',
+				'CG00010646',
+				'CG00007948',
+				'CG00007949',
+				courses
+			);
+		const catalogs = [
+			ee('2024', '201', ['01140252'], 'CG00006316'),
+			ee('2025', '200', ['01140252']),
+			ee('2025', '201', ['01140252']),
+			ee('2026', '200', ['01140252']),
+			bme('201', ['03360504', '03360545']),
+			bme('200', ['03360504', '03360545'])
+		];
+		const unchangedInput = structuredClone(catalogs);
+		const generated = () => {
+			const { requirements } = readCatalogData(staticDir);
+			return [...requirements].map(([key, value]) => [
+				key,
+				value.nested[0].nested[0].courses
+			]);
+		};
+		const refresh = () =>
+			refreshSAPData({
+				root,
+				fetchCourses: async () => ({ fresh: {} }),
+				fetchCatalogs: async () => catalogs
+			});
+		await refresh();
+		const expected = [
+			['2024_201/00002050/SC00001397_CG00006316', ['01140250', '01140252']],
+			['2025_200/00002050/SC00001397_CG00010465', ['01140250', '01140252']],
+			[
+				'2025_200/00002330/SC00001356_CG00010646',
+				['03360504', '03360533', '03360545', '03360546']
+			],
+			['2025_201/00002050/SC00001397_CG00010465', ['01140250', '01140252']],
+			[
+				'2025_201/00002330/SC00001356_CG00010646',
+				['03360504', '03360533', '03360545', '03360546']
+			],
+			['2026_200/00002050/SC00001397_CG00010465', ['01140252']]
+		];
+		expect(generated()).toEqual(expected);
+		expect(catalogs).toEqual(unchangedInput);
+
+		// A later valid source change still publishes, and reappearing options
+		// do not duplicate the entries already certified by the catalog.
+		catalogs[4].tree.children[0].children[0].children[0].courses = [
+			'SM03360533',
+			'SM03360545'
+		];
+		await refresh();
+		expected[4][1] = ['03360533', '03360545', '03360546'];
+		expect(generated()).toEqual(expected);
+	});
+
 	test('rejects an unexplained total wipe but allows normal removals', async () => {
 		const old = fixture();
 		await expect(

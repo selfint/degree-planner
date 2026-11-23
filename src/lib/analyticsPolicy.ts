@@ -26,6 +26,7 @@ export const analyticsEvents = [
 	'course_added_to_semester',
 	'courses_shuffled',
 	'plan_updated',
+	'own_saved_plan_viewed',
 	'share_plan_clicked',
 	'copy_plan_clicked',
 	'plan_copied'
@@ -66,6 +67,8 @@ export function sanitizeAnalyticsEvent(
 	)
 		return null;
 	if (event.event === '$pageview' && !isPage(input.page)) return null;
+	if (event.event === 'own_saved_plan_viewed' && input.page !== 'plan')
+		return null;
 	const properties: Record<string, unknown> = {
 		auth_status: ['signed_in', 'signed_out', 'unknown'].includes(
 			input.auth_status

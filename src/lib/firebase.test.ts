@@ -155,3 +155,49 @@ it('staging preserves Firebase auth and Firestore without probing or initializin
 	expect(mocks.isSupported).not.toHaveBeenCalled();
 	expect(mocks.getAnalytics).not.toHaveBeenCalled();
 });
+
+describe('persisted account snapshot provenance', () => {
+	beforeEach(async () => {
+		const { doc } = await import('firebase/firestore');
+		vi.mocked(doc).mockReturnValue({} as never);
+	});
+	it.each([true, false])('read pending writes=%s', async (pending) => {
+		const { getDoc } = await import('firebase/firestore');
+		const { isPersistedPlan } = await import('./ownSavedPlanView');
+		const data = {
+			semesters: [['private-course']],
+			wishlist: [],
+			exemptions: [],
+			currentSemester: 0
+		} as UserData;
+		vi.mocked(getDoc).mockResolvedValue({
+			data: () => data,
+			metadata: { hasPendingWrites: pending }
+		} as never);
+		const result = await buildFirebaseStorage(await initFirebase()).read();
+		expect(isPersistedPlan(result)).toBe(!pending);
+	});
+	it('waits for server acknowledgement metadata before treating a snapshot as saved', async () => {
+		const { onSnapshot } = await import('firebase/firestore');
+		const { subscribeFirebase } = await import('./firebase.svelte');
+		const { isPersistedPlan } = await import('./ownSavedPlanView');
+		const change = vi.fn();
+		subscribeFirebase(await initFirebase(), change);
+		const callback = vi.mocked(onSnapshot).mock.calls[0][1] as unknown as (
+			snapshot: unknown
+		) => void;
+		for (const pending of [true, false]) {
+			callback({
+				exists: () => true,
+				data: () => ({
+					semesters: [['private-course']],
+					wishlist: [],
+					exemptions: [],
+					currentSemester: 0
+				}),
+				metadata: { hasPendingWrites: pending }
+			});
+			expect(isPersistedPlan(change.mock.lastCall![0])).toBe(!pending);
+		}
+	});
+});

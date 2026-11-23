@@ -471,3 +471,95 @@ test('normal local production-build QA initializes no analytics', async ({
 		)
 	).toBeNull();
 });
+
+test('saved guest plan display counts once per visit, not query/language changes or shared views', async ({
+	page
+}) => {
+	const { events, count } = await setup(page);
+	await page.goto(path('/app/plan'));
+	await ready(page);
+	await expect(
+		page.locator('[data-semester="0"] [data-code="02340141"]')
+	).toBeVisible();
+	await expect.poll(() => count('own_saved_plan_viewed')).toBe(1);
+	expect(
+		events.find((e) => e.event === 'own_saved_plan_viewed')!.properties
+	).toMatchObject({
+		page: 'plan',
+		auth_status: 'signed_out',
+		$pathname: `${base}/app/plan`
+	});
+	await page
+		.locator('footer .language-control select')
+		.selectOption({ label: 'עב' });
+	await page.evaluate((href) => {
+		const a = document.createElement('a');
+		a.href = href;
+		document.body.append(a);
+		a.click();
+		a.remove();
+	}, path('/app/plan?view=changed'));
+	await expect(page).toHaveURL(path('/app/plan?view=changed'));
+	expect(count('own_saved_plan_viewed')).toBe(1);
+	await page.locator(`a[href="${base}/app/catalog"]`).first().click();
+	await expect(page).toHaveURL(path('/app/catalog'));
+	await page.goBack();
+	await expect(page).toHaveURL(/\/app\/plan/);
+	await ready(page);
+	await expect.poll(() => count('own_saved_plan_viewed')).toBe(2);
+	await page.reload();
+	await ready(page);
+	await expect.poll(() => count('own_saved_plan_viewed')).toBe(3);
+	await page.goto(path(`/share/${degree.join('/')}?semesters=02340141`));
+	await ready(page);
+	expect(count('own_saved_plan_viewed')).toBe(3);
+	expect(
+		JSON.stringify(events.filter((e) => e.event === 'own_saved_plan_viewed'))
+	).not.toMatch(/02340141|2026_200|SC00001356|semesters|wishlist/);
+});
+
+for (const [name, plan] of [
+	['new storage', null],
+	['empty saved plan', { ...seed, semesters: [[]] }],
+	[
+		'wishlist-only saved plan',
+		{ ...seed, semesters: [[]], wishlist: ['02340141'] }
+	]
+] as const) {
+	test(`own saved view eligibility: ${name}`, async ({ page }) => {
+		const { count } = await setup(page, plan);
+		await page.goto(path('/app/plan'));
+		await ready(page);
+		await expect.poll(() => count('$pageview')).toBe(1);
+		await page.locator(`a[href="${base}/app/catalog"]`).first().click();
+		await expect.poll(() => count('$pageview')).toBe(2);
+		expect(count('own_saved_plan_viewed')).toBe(0);
+	});
+}
+
+test('does not count a saved plan hidden behind unresolved course data', async ({
+	page
+}) => {
+	const { count } = await setup(page);
+	let release!: () => void;
+	const gate = new Promise<void>((resolve) => (release = resolve));
+	let requested = false;
+	const manifest = JSON.parse(
+		readFileSync('build/_data/manifest.json', 'utf8')
+	);
+	await page.route(`**${manifest['/courseData.json'].url}`, async (route) => {
+		requested = true;
+		await gate;
+		await route.fallback();
+	});
+	await page.goto(path('/app/plan'));
+	await expect.poll(() => requested).toBe(true);
+	expect(count('own_saved_plan_viewed')).toBe(0);
+	await expect(page.locator('.plan-page')).not.toBeVisible();
+	release();
+	await ready(page);
+	await expect(
+		page.locator('[data-semester="0"] [data-code="02340141"]')
+	).toBeVisible();
+	await expect.poll(() => count('own_saved_plan_viewed')).toBe(1);
+});

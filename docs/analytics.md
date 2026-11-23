@@ -27,20 +27,21 @@ No personal API key is committed. Pages deployment settings remain unchanged.
 
 ## Events and definitions
 
-| Event                        | Trigger                                                                  | Extra properties |
-| ---------------------------- | ------------------------------------------------------------------------ | ---------------- |
-| `$pageview`                  | Completed navigation to a recognized page, once per consecutive page     | `page`           |
-| `start_clicked`              | Either landing Get Started button                                        | `page`           |
-| `degree_selected_first_time` | First successful manual degree save with no prior degree in this browser | `page`           |
-| `grade_file_uploaded`        | A valid transcript finishes parsing and shows its preview                | `page`           |
-| `grade_import_saved`         | The user saves the transcript and persistence succeeds                   | `page`           |
-| `course_added_to_wishlist`   | New wishlist membership successfully saved                               | `page`, `source` |
-| `course_added_to_semester`   | New course placement in a destination semester successfully saved        | `page`, `source` |
-| `courses_shuffled`           | A course is successfully saved in a different semester                   | `page`, `source` |
-| `plan_updated`               | Enabled plan-board Save button activated, before persistence             | `page`           |
-| `share_plan_clicked`         | Share my plan link activated                                             | `page`           |
-| `copy_plan_clicked`          | Copy plan button activated, before confirmation                          | `page`           |
-| `plan_copied`                | Shared plan successfully saved to the recipient's plan                   | `page`           |
+| Event                        | Trigger                                                                             | Extra properties |
+| ---------------------------- | ----------------------------------------------------------------------------------- | ---------------- |
+| `$pageview`                  | Completed navigation to a recognized page, once per consecutive page                | `page`           |
+| `start_clicked`              | Either landing Get Started button                                                   | `page`           |
+| `degree_selected_first_time` | First successful manual degree save with no prior degree in this browser            | `page`           |
+| `grade_file_uploaded`        | A valid transcript finishes parsing and shows its preview                           | `page`           |
+| `grade_import_saved`         | The user saves the transcript and persistence succeeds                              | `page`           |
+| `course_added_to_wishlist`   | New wishlist membership successfully saved                                          | `page`, `source` |
+| `course_added_to_semester`   | New course placement in a destination semester successfully saved                   | `page`, `source` |
+| `courses_shuffled`           | A course is successfully saved in a different semester                              | `page`, `source` |
+| `own_saved_plan_viewed`      | A nonempty persisted own plan finishes its first ready display on a plan-page visit | `page`           |
+| `plan_updated`               | Enabled plan-board Save button activated, before persistence                        | `page`           |
+| `share_plan_clicked`         | Share my plan link activated                                                        | `page`           |
+| `copy_plan_clicked`          | Copy plan button activated, before confirmation                                     | `page`           |
+| `plan_copied`                | Shared plan successfully saved to the recipient's plan                              | `page`           |
 
 `page` is one of `landing`, `catalog`, `plan`, `settings`, `semester`, `share`,
 `search`, `course`, or `offline`. Search/course/offline ensure app-wide active
@@ -63,6 +64,32 @@ the net saved move, not every intermediate drag. Initial placements, wishlist
 transfers, duplicate copies, same-semester reorders, canceled edits and failed
 saves do not count. A cross-semester move also retains the existing
 `course_added_to_semester` event; do not sum those two series as distinct actions.
+
+`own_saved_plan_viewed` measures rendered saved-plan use, separately from a
+`$pageview` of the plan route. Its contract is `page=plan` plus the existing
+`auth_status` enum and anonymous SDK/session fields; it adds no custom IDs or
+plan properties. The fail-closed sanitizer rejects this event on any other page.
+
+A visit qualifies only when the displayed own data came from persisted local
+storage, an account snapshot without pending writes, or a completed save from an
+earlier route. At least one persisted semester course is required; wishlist-only, default,
+migrated-empty, degree-only and exemption-only records do not count. Shared-plan
+and preview routes never qualify, even when this browser also owns a saved plan.
+A signed-out local saved plan is eligible without a cloud account.
+
+The first ready display decides eligibility for the mounted plan-page visit,
+after navigation, authentication/account hydration, entry/update overlays and
+course-data loading finish. Failed/hidden account loads and unsaved or pending-write
+data cannot count as a saved display. Creating/saving a new plan later during an
+initially ineligible visit does not retroactively qualify it. Repeated renders,
+query-only navigation, language changes, edits, snapshot updates and auth changes
+within the same mounted visit do not add events. Leaving and returning, including
+Back/Forward, or reloading creates another visit. No particular semester needs to
+be in the viewport; this measures a ready rendered plan, not proof that the user
+read a course or exam. Offline guest rendering can qualify, but telemetry remains
+best-effort with no new delivery queue; signed-in offline plans remain behind the
+existing account gate. Initial pending-write snapshots are conservatively excluded
+for that visit. Persistence provenance remains in memory and is never telemetry.
 
 `plan_updated` is the requested **Save-click metric**, not evidence that a plan
 was successfully saved. It fires once when the enabled plan-board Save action

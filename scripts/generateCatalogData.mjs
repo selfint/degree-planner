@@ -50,8 +50,6 @@ export function writeCatalogData(rawCatalogs, staticDir) {
 	// Validate the entire incoming snapshot before changing any output. The existing
 	// canonical JSON remains usable when SAP fails or returns malformed data.
 	const incoming = buildCatalogData(rawCatalogs);
-	for (const [key, requirement] of incoming.requirements)
-		reconcileCatalogCourses(key, requirement);
 	const previous = existsSync(join(staticDir, 'catalogs.json'))
 		? readCatalogData(staticDir)
 		: { catalogs: {}, requirements: new Map() };
@@ -92,6 +90,8 @@ export function writeCatalogData(rawCatalogs, staticDir) {
 			delete previous.catalogs[year];
 		rmSync(join(staticDir, '_catalogs', key), { recursive: true, force: true });
 	}
+	for (const [key, requirement] of incoming.requirements)
+		reconcileCatalogCourses(key, requirement, previous.requirements.get(key));
 	const catalogs = mergeCatalogs(previous.catalogs, incoming.catalogs);
 	const requirements = new Map(previous.requirements);
 	for (const [key, requirement] of incoming.requirements) {

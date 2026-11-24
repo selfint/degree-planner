@@ -295,6 +295,126 @@ describe('SAP refresh failures and validation (offline)', () => {
 		}
 	});
 
+	test.each([
+		['without a prior catalog', false, ['03360205']],
+		['with a prior parent entry', true, ['03360205']],
+		['with no fresh parent course list', true, undefined],
+		[
+			'when SAP returns the course at both levels',
+			true,
+			['03360205', '03360546']
+		]
+	])(
+		'publishes current winter Biomedical ML only as Core %s',
+		async (_, seeded, parentCourses) => {
+			const { root } = fixture();
+			const staticDir = join(root, 'static');
+			const labels = { en: 'Synthetic group', he: 'קבוצה' };
+			const node = (Otjid, courses, children = []) => ({
+				Otjid,
+				Name: labels,
+				children,
+				...(courses === undefined
+					? {}
+					: { courses: courses.map((code) => 'SM' + code) })
+			});
+			const wrap = (faculty, degree, program, groups) => ({
+				track: {
+					OrgId: faculty,
+					Otjid: degree,
+					Peryr: '2026',
+					Perid: '200',
+					OrgText: labels,
+					ZzQualifications: labels
+				},
+				tree: { children: [{ Otjid: program, children: groups }] }
+			});
+			const key = '2026_200/00002330/SC00001356_CG00011002';
+			const standalone = (
+				courses,
+				coreCourses = ['03360023', '03360502', '03360522']
+			) =>
+				wrap('00002330', 'SC00001356', 'CG00011002', [
+					node('CG00007948', undefined, [
+						node('CG00007949', courses, [node('CG00007950', coreCourses)])
+					])
+				]);
+			const physics = wrap('00002330', 'SC00001355', 'CG00011001', [
+				node(
+					'CG00007979',
+					['03360205'],
+					[node('CG00007980', ['03360023', '03360546'])]
+				)
+			]);
+			const medicine = wrap('00002270', 'SC00001366', 'CG00011055', [
+				node('CG00006846', undefined, [
+					node(
+						'CG00006847',
+						['03360205'],
+						[node('CG00006848', ['03360023', '03360546'])]
+					)
+				])
+			]);
+
+			if (seeded) {
+				generateCatalogData([standalone(['03360540'])], staticDir);
+				const output = join(
+					staticDir,
+					'_catalogs',
+					key,
+					'requirementsData.json'
+				);
+				const legacy = JSON.parse(readFileSync(output, 'utf8'));
+				const group = legacy.nested[0].nested[0];
+				group.courses = ['03360540', '03360546'];
+				group.nested[0].courses = ['03360023', '03360502', '03360522'];
+				writeFileSync(output, JSON.stringify(legacy));
+			}
+			await refreshSAPData({
+				root,
+				fetchCourses: async () => ({ fresh: {} }),
+				fetchCatalogs: async () => [
+					standalone(
+						parentCourses,
+						parentCourses?.includes('03360546')
+							? ['03360023', '03360502', '03360522', '03360546']
+							: undefined
+					),
+					physics,
+					medicine
+				]
+			});
+			const { requirements } = readCatalogData(staticDir);
+			const group = requirements.get(key).nested[0].nested[0];
+			expect(group.name).toBe('CG00007949');
+			expect(group.courses).toEqual(
+				parentCourses ? ['03360205'] : ['03360540']
+			);
+			expect(group.nested[0].name).toBe('CG00007950');
+			expect(group.nested[0].courses).toEqual([
+				'03360023',
+				'03360502',
+				'03360522',
+				'03360546'
+			]);
+
+			const physicsGroup = requirements.get(
+				'2026_200/00002330/SC00001355_CG00011001'
+			).nested[0];
+			const medicineGroup = requirements.get(
+				'2026_200/00002270/SC00001366_CG00011055'
+			).nested[0].nested[0];
+			for (const [joint, child] of [
+				[physicsGroup, 'CG00007980'],
+				[medicineGroup, 'CG00006848']
+			]) {
+				expect(joint.courses).toEqual(['03360205']);
+				expect(joint.nested[0].name).toBe(child);
+				expect(joint.nested[0].courses).toEqual(['03360023', '03360546']);
+			}
+		}
+	);
+
 	test('rejects an unexplained total wipe but allows normal removals', async () => {
 		const old = fixture();
 		await expect(

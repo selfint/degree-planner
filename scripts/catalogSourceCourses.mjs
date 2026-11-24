@@ -51,6 +51,15 @@ const bmePhysicsImaging = {
 	source: `${bmeChapter2025}#page=4`
 };
 
+// The 2026–27 catalog places this course in Core, not the parent electives.
+const bmeImagingCore2026 = {
+	path: ['CG00007948', 'CG00007949', 'CG00007950'],
+	courses: ['03360546'],
+	removeFromParent: true,
+	source:
+		'https://ugportal.technion.ac.il/wp-content/uploads/2026/10/%D7%A7%D7%98%D7%9C%D7%95%D7%92-%D7%9C%D7%99%D7%9E%D7%95%D7%93%D7%99%D7%9D-%D7%AA%D7%A9%D7%A4%D7%96-2026.2027.pdf#page=312'
+};
+
 const catalogCourses = new Map([
 	['2022_201/00002050/SC00001397_CG00003697', eePhysicsOptions2022],
 	['2023_200/00002050/SC00001397_CG00006316', eePhysicsOptions2023],
@@ -64,21 +73,36 @@ const catalogCourses = new Map([
 	['2025_200/00002270/SC00001366_CG00010430', bmeMedicineImaging],
 	['2025_201/00002270/SC00001366_CG00010430', bmeMedicineImaging],
 	['2025_200/00002330/SC00001355_CG00010998', bmePhysicsImaging],
-	['2025_201/00002330/SC00001355_CG00010998', bmePhysicsImaging]
+	['2025_201/00002330/SC00001355_CG00010998', bmePhysicsImaging],
+	['2026_200/00002330/SC00001356_CG00011002', bmeImagingCore2026]
 ]);
 
 /** Materialize published options on the freshly fetched snapshot, even without a baseline. */
-export function reconcileCatalogCourses(key, requirement) {
+export function reconcileCatalogCourses(key, requirement, previousRequirement) {
 	const evidence = catalogCourses.get(key);
 	if (!evidence) return;
 	let group = requirement;
+	let previous = previousRequirement;
+	let parent;
+	let previousParent;
 	for (const name of evidence.path) {
-		group = group.nested?.find((child) => child.name === name);
+		parent = group;
+		previousParent = previous;
+		group = parent.nested?.find((child) => child.name === name);
+		previous = previousParent?.nested?.find((child) => child.name === name);
 		if (!group) {
 			throw new Error(
 				`Cannot apply catalog courses to ${key}/${evidence.path.join('/')}: missing ${name}. See ${evidence.source}`
 			);
 		}
+	}
+	if (evidence.removeFromParent) {
+		// With no incoming list, the additive merge would reuse the old placement.
+		const parentCourses = parent.courses ?? previousParent?.courses;
+		if (parentCourses?.some((code) => evidence.courses.includes(code)))
+			parent.courses = parentCourses.filter(
+				(code) => !evidence.courses.includes(code)
+			);
 	}
 	const supplied = group.courses ?? [];
 	if (evidence.courses.every((code) => supplied.includes(code))) return;

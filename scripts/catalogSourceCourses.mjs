@@ -60,12 +60,39 @@ const bmeImagingCore2026 = {
 		'https://ugportal.technion.ac.il/wp-content/uploads/2026/10/%D7%A7%D7%98%D7%9C%D7%95%D7%92-%D7%9C%D7%99%D7%9E%D7%95%D7%93%D7%99%D7%9D-%D7%AA%D7%A9%D7%A4%D7%96-2026.2027.pdf#page=312'
 };
 
+const bmeMedicineCore2022 = {
+	path: ['CG00001121', 'CG00001138', 'CG00001142'],
+	courses: ['03360533'],
+	removeFromParent: true,
+	source:
+		'https://ugportal.technion.ac.il/wp-content/uploads/2023/03/33-%D7%91%D7%99%D7%95%D7%A8%D7%A4%D7%95%D7%90%D7%99%D7%AA-%D7%AA%D7%A9%D7%A4%D7%92.pdf#page=4'
+};
+
+const bmeMedicineImaging2023 = {
+	...bmeMedicineImaging,
+	source:
+		'https://ugportal.technion.ac.il/wp-content/uploads/2024/02/33-%D7%94%D7%A0%D7%93%D7%A1%D7%94-%D7%91%D7%99%D7%95-%D7%A8%D7%A4%D7%95%D7%90%D7%99%D7%AA-%D7%AA%D7%A9%D7%A4%D7%B4%D7%93.pdf#page=4'
+};
+
+const bmeImagingSource2024 =
+	'https://ugportal.technion.ac.il/wp-content/uploads/2024/12/33-%D7%94%D7%A4%D7%A7%D7%95%D7%9C%D7%98%D7%94-%D7%9C%D7%94%D7%A0%D7%93%D7%A1%D7%94-%D7%91%D7%99%D7%95-%D7%A8%D7%A4%D7%95%D7%90%D7%99%D7%AA-%D7%AA%D7%A9%D7%A4%D7%B4%D7%94.pdf#page=7';
+
 const catalogCourses = new Map([
 	['2022_201/00002050/SC00001397_CG00003697', eePhysicsOptions2022],
 	['2023_200/00002050/SC00001397_CG00006316', eePhysicsOptions2023],
 	['2023_201/00002050/SC00001397_CG00006316', eePhysicsOptions2023],
 	['2024_200/00002050/SC00001397_CG00006316', eePhysicsOptions2024],
 	['2024_201/00002050/SC00001397_CG00006316', eePhysicsOptions2024],
+	['2022_201/00002270/SC00001366_CG00001115', bmeMedicineCore2022],
+	['2023_200/00002270/SC00001366_CG00006842', bmeMedicineImaging2023],
+	[
+		'2024_200/00002270/SC00001366_CG00006842',
+		{ ...bmeMedicineImaging, source: bmeImagingSource2024 }
+	],
+	[
+		'2024_200/00002330/SC00001355_CG00007976',
+		{ ...bmePhysicsImaging, source: bmeImagingSource2024 }
+	],
 	['2025_200/00002050/SC00001397_CG00010465', eePhysicsOptions],
 	['2025_201/00002050/SC00001397_CG00010465', eePhysicsOptions],
 	['2025_200/00002330/SC00001356_CG00010646', bmeImagingOptions],

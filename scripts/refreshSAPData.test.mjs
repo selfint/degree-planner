@@ -415,6 +415,125 @@ describe('SAP refresh failures and validation (offline)', () => {
 		}
 	);
 
+	const medicineImaging = [
+		'00002270',
+		'SC00001366',
+		['CG00006846', 'CG00006847'],
+		'CG00006848',
+		'03360546'
+	];
+	const physicsImaging = [
+		'00002330',
+		'SC00001355',
+		['CG00007979'],
+		'CG00007980',
+		'03360546'
+	];
+	test.each([
+		[
+			'2022_201',
+			'CG00001115',
+			'core',
+			[
+				'00002270',
+				'SC00001366',
+				['CG00001121', 'CG00001138'],
+				'CG00001142',
+				'03360533'
+			]
+		],
+		['2023_200', 'CG00006842', 'parent', medicineImaging],
+		['2024_200', 'CG00006842', 'parent', medicineImaging],
+		['2024_200', 'CG00007976', 'parent', physicsImaging],
+		['2024_201', 'CG00006842', 'absent', medicineImaging],
+		['2024_201', 'CG00007976', 'absent', physicsImaging],
+		['2025_202', 'CG00010430', 'absent', medicineImaging],
+		['2025_202', 'CG00010998', 'absent', physicsImaging],
+		[
+			'2025_202',
+			'CG00010646',
+			'absent',
+			[
+				'00002330',
+				'SC00001356',
+				['CG00007948', 'CG00007949'],
+				'CG00007950',
+				'03360546'
+			]
+		]
+	])(
+		'publishes the historical imaging placement for %s %s as %s',
+		async (term, program, placement, [OrgId, Otjid, path, core, course]) => {
+			const [Peryr, Perid] = term.split('_');
+			const { root } = fixture();
+			const staticDir = join(root, 'static');
+			const key = `${Peryr}_${Perid}/${OrgId}/${Otjid}_${program}`;
+			const labels = { en: 'Synthetic group', he: 'קבוצה' };
+			const parentCourse = '03360540';
+			const coreCourse = '03360502';
+			const treeFor = (parentCourses) => {
+				const branch = ([name, ...rest]) => ({
+					Otjid: name,
+					Name: labels,
+					...(!rest.length && parentCourses
+						? { courses: parentCourses.map((code) => 'SM' + code) }
+						: {}),
+					children: rest.length
+						? [branch(rest)]
+						: [{ Otjid: core, Name: labels, courses: ['SM' + coreCourse] }]
+				});
+				return {
+					track: {
+						OrgId,
+						Otjid,
+						Peryr,
+						Perid,
+						OrgText: labels,
+						ZzQualifications: labels
+					},
+					tree: { children: [{ Otjid: program, children: [branch(path)] }] }
+				};
+			};
+			const findGroup = (requirement) =>
+				path.reduce(
+					(node, name) => node.nested.find((child) => child.name === name),
+					requirement
+				);
+
+			if (placement === 'core') {
+				// Production had the course in the parent, not the nested Core list.
+				generateCatalogData([treeFor([parentCourse])], staticDir);
+				const output = join(
+					staticDir,
+					'_catalogs',
+					key,
+					'requirementsData.json'
+				);
+				const legacy = JSON.parse(readFileSync(output, 'utf8'));
+				const group = findGroup(legacy);
+				group.courses = [course, parentCourse];
+				group.nested[0].courses = [coreCourse];
+				writeFileSync(output, JSON.stringify(legacy));
+			}
+			await refreshSAPData({
+				root,
+				fetchCourses: async () => ({ fresh: {} }),
+				fetchCatalogs: async () => [
+					treeFor(placement === 'core' ? undefined : [parentCourse])
+				]
+			});
+			const { requirements } = readCatalogData(staticDir);
+			const group = findGroup(requirements.get(key));
+			expect(group.courses).toEqual(
+				placement === 'parent' ? [parentCourse, course] : [parentCourse]
+			);
+			expect(group.nested[0].name).toBe(core);
+			expect(group.nested[0].courses).toEqual(
+				placement === 'core' ? [coreCourse, course] : [coreCourse]
+			);
+		}
+	);
+
 	test('rejects an unexplained total wipe but allows normal removals', async () => {
 		const old = fixture();
 		await expect(

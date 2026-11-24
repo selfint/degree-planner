@@ -199,6 +199,84 @@ describe('SAP refresh failures and validation (offline)', () => {
 		expect(generated()).toEqual(expected);
 	});
 
+	test('publishes the missing joint Biomedical course only in the verified terms and groups', async () => {
+		const { root } = fixture();
+		const staticDir = join(root, 'static');
+		const labels = { en: 'Synthetic group', he: 'קבוצה' };
+		const physics = ['00002330', 'SC00001355', 'CG00010998', ['CG00007979']];
+		const medicine = [
+			'00002270',
+			'SC00001366',
+			'CG00010430',
+			['CG00006846', 'CG00006847']
+		];
+		const scopes = [
+			['2025', '200', physics, true],
+			['2025', '201', physics, true],
+			['2025', '200', medicine, true],
+			['2025', '201', medicine, true],
+			['2024', '201', physics, false],
+			['2024', '201', medicine, false]
+		];
+		const buildTree = ([Otjid, ...children]) => ({
+			Otjid,
+			Name: labels,
+			...(children.length
+				? { children: [buildTree(children)] }
+				: { courses: ['SM03360504'] })
+		});
+		const catalogs = scopes.map(
+			([Peryr, Perid, [OrgId, Otjid, program, path]]) => {
+				return {
+					track: {
+						Peryr,
+						Perid,
+						OrgId,
+						Otjid,
+						OrgText: labels,
+						ZzQualifications: labels
+					},
+					tree: {
+						children: [
+							{
+								Otjid: program,
+								children: [
+									buildTree(path),
+									{ Otjid: 'CG00000002', Name: labels, courses: ['SM03360533'] }
+								]
+							}
+						]
+					}
+				};
+			}
+		);
+		await refreshSAPData({
+			root,
+			fetchCourses: async () => ({ fresh: {} }),
+			fetchCatalogs: async () => catalogs
+		});
+		const { requirements } = readCatalogData(staticDir);
+		for (const [
+			year,
+			term,
+			[faculty, degree, program, path],
+			applies
+		] of scopes) {
+			const key = `${year}_${term}/${faculty}/${degree}_${program}`;
+			const requirement = requirements.get(key);
+			const group = path.reduce(
+				(node, name) => node.nested.find((child) => child.name === name),
+				requirement
+			);
+			expect(group.courses, key).toEqual(
+				applies ? ['03360504', '03360546'] : ['03360504']
+			);
+			expect(
+				requirement.nested.find((child) => child.name === 'CG00000002').courses
+			).toEqual(['03360533']);
+		}
+	});
+
 	test('rejects an unexplained total wipe but allows normal removals', async () => {
 		const old = fixture();
 		await expect(

@@ -44,26 +44,37 @@ export async function getScheduleError(
 	}
 
 	const dependencies = Promise.all(
-		(course.connections?.dependencies ?? [])
-			.map((group) => Promise.all(group.map(getCourseData)))
+		(course.connections?.dependencies ?? []).map((group) =>
+			Promise.all(group.map(getCourseData))
+		)
+	).then((groups) => {
+		// A code can satisfy an entire prerequisite alternative even when the
+		// catalog has no name for it (for example, an exemption or placement test).
+		if (
+			groups.some((group) => group.length > 0 && group.every(dependencyTaken))
+		) {
+			return [];
+		}
+
+		// Preserve the Semester suggestions' existing advisory behavior for
+		// unresolved unnamed requirements. Do not mistake a filtered-out group
+		// for a satisfied group.
+		const reportable = groups
 			.map((group) =>
-				group.then((g) => {
-					if (ignoreUndefined) {
-						return g.filter((c) => c.name !== undefined);
-					} else {
-						return g;
-					}
-				})
+				ignoreUndefined
+					? group.filter((course) => course.name !== undefined)
+					: group
 			)
-	).then((g) => g.filter((g) => g.length > 0));
+			.filter((group) => group.length > 0);
+
+		return reportable.some((group) => group.every(dependencyTaken))
+			? []
+			: reportable.map((group) =>
+					group.map((course) => ({ course, taken: dependencyTaken(course) }))
+				);
+	});
 	const adjacencies = Promise.all(
 		(course.connections?.adjacent ?? []).map(getCourseData)
-	);
-
-	const dependenciesSatisfied = dependencies.then(
-		(dependencies) =>
-			dependencies.length === 0 ||
-			dependencies.some((group) => group.every((c) => dependencyTaken(c)))
 	);
 
 	const adjacenciesSatisfied = adjacencies.then(
@@ -84,11 +95,7 @@ export async function getScheduleError(
 	);
 
 	return {
-		dependencies: (await dependenciesSatisfied)
-			? []
-			: (await dependencies).map((g) =>
-					g.map((c) => ({ course: c, taken: dependencyTaken(c) }))
-				),
+		dependencies: await dependencies,
 		adjacencies: (await adjacenciesSatisfied)
 			? []
 			: (await adjacencies).map((c) => ({

@@ -101,36 +101,92 @@ export function getTests(courseSAPInfo) {
 }
 
 /**
- * Get the course connections (prerequisites).
+ * SAP emits prefix opening brackets and postfix operators. An operator may
+ * follow a course, a closing bracket, or appear on its own zero-ID row.
+ * PlanIt stores the expression as a list of alternative complete routes.
+ */
+function getPrerequisiteAlternatives(rows) {
+	if (rows.length === 0) return [];
+
+	const tokens = [];
+	// SAP marks LineNumber as non-sortable; line 000 can be the final close.
+	for (const row of rows) {
+		const bracket = row.Bracket.trim();
+		const id = row.ModuleId.trim();
+		const operator = row.Operator.trim();
+		if (bracket && bracket !== '(' && bracket !== ')')
+			throw new Error(`Unknown prerequisite bracket ${bracket}`);
+		if (id && !/^\d{8}$/.test(id))
+			throw new Error(`Invalid prerequisite module ${id}`);
+		if (operator && operator !== 'AND' && operator !== 'OR')
+			throw new Error(`Unknown prerequisite operator ${operator}`);
+
+		if (bracket === '(') tokens.push(bracket);
+		if (id && id !== '00000000') tokens.push(id);
+		if (bracket === ')') tokens.push(bracket);
+		if (operator) tokens.push(operator);
+		if (!bracket && (!id || id === '00000000') && !operator)
+			throw new Error(`Empty prerequisite line ${row.LineNumber}`);
+	}
+
+	let cursor = 0;
+	const maxRoutes = 4096;
+	function readOperand() {
+		const token = tokens[cursor++];
+		if (token === '(') {
+			const alternatives = readOr();
+			if (tokens[cursor++] !== ')')
+				throw new Error('Missing closing prerequisite bracket');
+			return alternatives;
+		}
+		if (token === undefined || !/^\d{8}$/.test(token))
+			throw new Error(
+				`Expected prerequisite module, got ${token ?? 'end of input'}`
+			);
+		return [[token]];
+	}
+
+	function readAnd() {
+		let routes = readOperand();
+		while (tokens[cursor] === 'AND') {
+			cursor++;
+			const right = readOperand();
+			if (routes.length * right.length > maxRoutes)
+				throw new Error('Too many prerequisite alternatives');
+			routes = routes.flatMap((left) =>
+				right.map((group) => [...left, ...group])
+			);
+		}
+		return routes;
+	}
+
+	function readOr() {
+		const routes = readAnd();
+		while (tokens[cursor] === 'OR') {
+			cursor++;
+			const right = readAnd();
+			if (routes.length + right.length > maxRoutes)
+				throw new Error('Too many prerequisite alternatives');
+			routes.push(...right);
+		}
+		return routes;
+	}
+
+	const routes = readOr();
+	if (cursor !== tokens.length)
+		throw new Error(`Unexpected prerequisite token ${tokens[cursor]}`);
+	return routes;
+}
+
+/**
+ * Get the course connections including prerequisites and exclusive courses.
  * @param {Object} courseSAPInfo - The course SAP information object.
- * @param {Array<Object>} courseSAPInfo.SmPrereq.results - The array of prerequisite objects.
- * @param {string} courseSAPInfo.SmPrereq.results[].ModuleId - The module ID of the prerequisite.
- * @param {string} courseSAPInfo.SmPrereq.results[].Bracket - The bracket indicating groupings.
- * @returns {CourseConnections} The course connections including dependencies, adjacent, and exclusive groups.
+ * @returns {CourseConnections}
  */
 export function getConnections(courseSAPInfo) {
-	const dependencies = [];
-	let dependencyGroup = [];
-
-	for (const prereq of courseSAPInfo.SmPrereq.results) {
-		if (prereq.Bracket === '(') {
-			if (dependencyGroup.length > 0) {
-				dependencies.push(dependencyGroup);
-			}
-
-			dependencyGroup = [];
-		}
-
-		if (prereq.ModuleId.trim().replace(/0/g, '') === '') {
-			continue;
-		}
-
-		dependencyGroup.push(prereq.ModuleId);
-	}
-
-	if (dependencyGroup.length > 0) {
-		dependencies.push(dependencyGroup);
-	}
+	const dependencies = getPrerequisiteAlternatives(
+		courseSAPInfo.SmPrereq.results
+	);
 
 	const exclusive = [];
 	for (const relation of courseSAPInfo.SmRelations.results) {

@@ -126,14 +126,20 @@ describe('SAP refresh failures and validation (offline)', () => {
 				]
 			}
 		});
-		const ee = (year, term, courses, program = 'CG00010465') =>
+		const ee = (
+			year,
+			term,
+			courses,
+			program = 'CG00010465',
+			parent = 'CG00006318'
+		) =>
 			track(
 				year,
 				term,
 				'00002050',
 				'SC00001397',
 				program,
-				'CG00006318',
+				parent,
 				'CG00003701',
 				courses
 			);
@@ -148,12 +154,18 @@ describe('SAP refresh failures and validation (offline)', () => {
 				'CG00007949',
 				courses
 			);
+		const springBme = bme('201', ['03360504', '03360545']);
 		const catalogs = [
+			ee('2022', '200', ['01140252'], 'CG00003697', 'CG00003699'),
+			ee('2022', '201', ['01140252'], 'CG00003697', 'CG00003699'),
+			ee('2023', '200', ['01140252'], 'CG00006316'),
+			ee('2023', '201', ['01140252'], 'CG00006316'),
+			ee('2024', '200', ['01140252'], 'CG00006316'),
 			ee('2024', '201', ['01140252'], 'CG00006316'),
 			ee('2025', '200', ['01140252']),
 			ee('2025', '201', ['01140252']),
 			ee('2026', '200', ['01140252']),
-			bme('201', ['03360504', '03360545']),
+			springBme,
 			bme('200', ['03360504', '03360545'])
 		];
 		const unchangedInput = structuredClone(catalogs);
@@ -171,7 +183,16 @@ describe('SAP refresh failures and validation (offline)', () => {
 				fetchCatalogs: async () => catalogs
 			});
 		await refresh();
+		const springBmeExpected = [
+			'2025_201/00002330/SC00001356_CG00010646',
+			['03360504', '03360533', '03360545', '03360546']
+		];
 		const expected = [
+			['2022_200/00002050/SC00001397_CG00003697', ['01140252']],
+			['2022_201/00002050/SC00001397_CG00003697', ['01140250', '01140252']],
+			['2023_200/00002050/SC00001397_CG00006316', ['01140250', '01140252']],
+			['2023_201/00002050/SC00001397_CG00006316', ['01140250', '01140252']],
+			['2024_200/00002050/SC00001397_CG00006316', ['01140250', '01140252']],
 			['2024_201/00002050/SC00001397_CG00006316', ['01140250', '01140252']],
 			['2025_200/00002050/SC00001397_CG00010465', ['01140250', '01140252']],
 			[
@@ -179,10 +200,7 @@ describe('SAP refresh failures and validation (offline)', () => {
 				['03360504', '03360533', '03360545', '03360546']
 			],
 			['2025_201/00002050/SC00001397_CG00010465', ['01140250', '01140252']],
-			[
-				'2025_201/00002330/SC00001356_CG00010646',
-				['03360504', '03360533', '03360545', '03360546']
-			],
+			springBmeExpected,
 			['2026_200/00002050/SC00001397_CG00010465', ['01140252']]
 		];
 		expect(generated()).toEqual(expected);
@@ -190,12 +208,12 @@ describe('SAP refresh failures and validation (offline)', () => {
 
 		// A later valid source change still publishes, and reappearing options
 		// do not duplicate the entries already certified by the catalog.
-		catalogs[4].tree.children[0].children[0].children[0].courses = [
+		springBme.tree.children[0].children[0].children[0].courses = [
 			'SM03360533',
 			'SM03360545'
 		];
 		await refresh();
-		expected[4][1] = ['03360533', '03360545', '03360546'];
+		springBmeExpected[1] = ['03360533', '03360545', '03360546'];
 		expect(generated()).toEqual(expected);
 	});
 

@@ -9,6 +9,25 @@ const eePhysicsOptions = {
 	source: `${catalog2025}#page=185`
 };
 
+const eePhysicsOptions2022 = {
+	...eePhysicsOptions,
+	path: ['CG00003699', 'CG00003701'],
+	source:
+		'https://ugportal.technion.ac.il/wp-content/uploads/2023/03/11-%D7%A4%D7%99%D7%96%D7%99%D7%A7%D7%94-%D7%AA%D7%A9%D7%A4%D7%B4%D7%92.pdf#page=7'
+};
+
+const eePhysicsOptions2023 = {
+	...eePhysicsOptions,
+	source:
+		'https://ugportal.technion.ac.il/wp-content/uploads/2024/02/04-%D7%94%D7%A0%D7%93%D7%A1%D7%AA-%D7%97%D7%A9%D7%9E%D7%9C-%D7%95%D7%9E%D7%97%D7%A9%D7%91%D7%99%D7%9D-%D7%AA%D7%A9%D7%A4%D7%B4%D7%93.pdf'
+};
+
+const eePhysicsOptions2024 = {
+	...eePhysicsOptions,
+	source:
+		'https://ugportal.technion.ac.il/wp-content/uploads/2024/12/%D7%A7%D7%98%D7%9C%D7%95%D7%92-%D7%9C%D7%99%D7%9E%D7%95%D7%93%D7%99%D7%9D-%D7%AA%D7%A9%D7%A4%D7%94-2024.2025.pdf#page=177'
+};
+
 const bmeImagingOptions = {
 	path: ['CG00007948', 'CG00007949'],
 	courses: ['03360533', '03360546'],
@@ -33,14 +52,11 @@ const bmePhysicsImaging = {
 };
 
 const catalogCourses = new Map([
-	[
-		'2024_201/00002050/SC00001397_CG00006316',
-		{
-			...eePhysicsOptions,
-			source:
-				'https://ugportal.technion.ac.il/wp-content/uploads/2024/12/%D7%A7%D7%98%D7%9C%D7%95%D7%92-%D7%9C%D7%99%D7%9E%D7%95%D7%93%D7%99%D7%9D-%D7%AA%D7%A9%D7%A4%D7%94-2024.2025.pdf#page=177'
-		}
-	],
+	['2022_201/00002050/SC00001397_CG00003697', eePhysicsOptions2022],
+	['2023_200/00002050/SC00001397_CG00006316', eePhysicsOptions2023],
+	['2023_201/00002050/SC00001397_CG00006316', eePhysicsOptions2023],
+	['2024_200/00002050/SC00001397_CG00006316', eePhysicsOptions2024],
+	['2024_201/00002050/SC00001397_CG00006316', eePhysicsOptions2024],
 	['2025_200/00002050/SC00001397_CG00010465', eePhysicsOptions],
 	['2025_201/00002050/SC00001397_CG00010465', eePhysicsOptions],
 	['2025_200/00002330/SC00001356_CG00010646', bmeImagingOptions],

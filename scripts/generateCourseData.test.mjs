@@ -127,3 +127,151 @@ describe('SAP prerequisite alternatives', () => {
 		});
 	});
 });
+
+describe('empty and malformed SAP prerequisite rows', () => {
+	const emptyMarker = {
+		LineNumber: '000',
+		ModuleId: '00000000',
+		Bracket: '',
+		Operator: '',
+		Peryr: '0000',
+		Perid: '000',
+		ModuleShort: '',
+		ModuleName: ''
+	};
+
+	it('recognizes the exact zero-numbered no-prerequisite record', () => {
+		const raw = sapPrerequisites([]);
+		raw.SmPrereq.results.push(emptyMarker);
+		expect(getConnections(raw).dependencies).toEqual([]);
+	});
+
+	it('ignores an empty terminal marker after a complete expression', () => {
+		const raw = sapPrerequisites([['00460733', '', 'OR'], ['04600734']]);
+		raw.SmPrereq.results.push({ ...emptyMarker, LineNumber: '002' });
+		expect(getConnections(raw).dependencies).toEqual([
+			['00460733'],
+			['04600734']
+		]);
+	});
+
+	it('does not turn an incomplete or labeled row into no requirements', () => {
+		const raw = sapPrerequisites([['00460733', '', 'OR']]);
+		raw.SmPrereq.results.push(emptyMarker);
+		expect(() => getConnections(raw)).toThrow('Expected prerequisite module');
+		raw.SmPrereq.results = [{ ...emptyMarker, ModuleName: 'Unknown' }];
+		expect(() => getConnections(raw)).toThrow('Empty prerequisite line');
+		raw.SmPrereq.results = [
+			emptyMarker,
+			...sapPrerequisites([['00460733']]).SmPrereq.results
+		];
+		expect(() => getConnections(raw)).toThrow('Empty prerequisite line');
+	});
+
+	const past = { Peryr: '2024', Perid: '201' };
+	const current = { PiqYear: '2026', PiqSession: '200' };
+
+	function historicalCourse(id, rows) {
+		return {
+			Otjid: id,
+			...sapPrerequisites(rows),
+			SmOfferedPeriodSet: { results: [past] }
+		};
+	}
+
+	function motionAnalysis() {
+		return historicalCourse('SM03360036', [
+			['03350010', '('],
+			['00000000', ')', 'AND'],
+			['03360506', '('],
+			['00000000', '', 'AND'],
+			['00840506', '('],
+			['00000000', '', 'AND'],
+			['00360101'],
+			['00000000', ')'],
+			['00000000', '', 'AND'],
+			['00000000', '('],
+			['03350010'],
+			['00000000', '', 'AND'],
+			['03360520'],
+			['00000000', ')']
+		]);
+	}
+
+	it('keeps the published Motion Analysis behavior for the exact historical record', () => {
+		expect(
+			getConnections(motionAnalysis(), past, current).dependencies
+		).toEqual([
+			['03350010'],
+			['03360506'],
+			['00840506', '00360101'],
+			['03350010', '03360520']
+		]);
+	});
+
+	it('keeps the published Algorithms behavior for the exact historical record', () => {
+		const [first, second, third] = [
+			['02340247', '00940412'],
+			['00460002', '01040034'],
+			['01040291', '01040034']
+		];
+		const raw = historicalCourse('SM02360021', [
+			['00000000', '('],
+			[first[0]],
+			['00000000', '', 'AND'],
+			[first[1]],
+			['00000000', ')'],
+			['00000000', '', 'OR'],
+			['00000000', '('],
+			[second[0]],
+			['00000000', '', 'AND'],
+			[second[1]],
+			['00000000', ')'],
+			['00000000', ')'],
+			['00000000', '', 'OR'],
+			['00000000', '('],
+			[third[0]],
+			['00000000', '', 'AND'],
+			[third[1]],
+			['00000000', ')']
+		]);
+		expect(getConnections(raw, past, current).dependencies).toEqual([
+			first,
+			second,
+			third
+		]);
+	});
+
+	it('rejects current, changed, and unrecognized malformed input', () => {
+		const raw = motionAnalysis();
+		expect(() => getConnections(raw, past)).toThrow(
+			'Missing closing prerequisite bracket'
+		);
+		expect(() =>
+			getConnections(raw, { ...past, Perid: '200' }, current)
+		).toThrow('Missing closing prerequisite bracket');
+		raw.SmOfferedPeriodSet.results.push({ Peryr: '2026', Perid: '200' });
+		expect(() => getConnections(raw, past, current)).toThrow(
+			'Missing closing prerequisite bracket'
+		);
+		raw.SmOfferedPeriodSet.results.pop();
+		raw.SmPrereq.results[1].Operator = 'OR';
+		expect(() => getConnections(raw, past, current)).toThrow(
+			'Missing closing prerequisite bracket'
+		);
+	});
+
+	it('uses fixed SAP input instead of the retained rule when a bracket is corrected', () => {
+		const raw = motionAnalysis();
+		raw.SmPrereq.results.push({ ...raw.SmPrereq.results.at(-1) });
+		const [route] = getConnections(raw, past, current).dependencies;
+		expect([...new Set(route)]).toEqual([
+			'03350010',
+			'03360506',
+			'00840506',
+			'00360101',
+			'03360520'
+		]);
+		expect(getConnections(raw, past, current).dependencies).toHaveLength(1);
+	});
+});

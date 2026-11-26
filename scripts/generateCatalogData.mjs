@@ -8,6 +8,7 @@ import {
 } from 'node:fs';
 import { isAbsentRoot, assertRootAvailability } from './SAPClient.mjs';
 import { replaceDirectory } from './dataOutput.mjs';
+import { reconcileCatalogCourses } from './catalogSourceCourses.mjs';
 import { dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import {
@@ -89,6 +90,8 @@ export function writeCatalogData(rawCatalogs, staticDir) {
 			delete previous.catalogs[year];
 		rmSync(join(staticDir, '_catalogs', key), { recursive: true, force: true });
 	}
+	for (const [key, requirement] of incoming.requirements)
+		reconcileCatalogCourses(key, requirement, previous.requirements.get(key));
 	const catalogs = mergeCatalogs(previous.catalogs, incoming.catalogs);
 	const requirements = new Map(previous.requirements);
 	for (const [key, requirement] of incoming.requirements) {

@@ -334,6 +334,12 @@ written by this path; existing raw files are read-only historical baselines.
 Standalone `generateCatalogData.mjs` also stages and atomically publishes its
 catalog changes. `generateCatalogsRaw.mjs` remains a fetch/debugging utility.
 
+SAP supplies the default curriculum. For the exact cohorts and groups in
+`scripts/catalogSourceCourses.mjs`, the published Technion catalog supplies
+verified options missing from live SAP. Reconciliation runs on the fresh data
+without requiring a previous snapshot; it does not preserve unrelated courses
+that SAP removes. Each entry links to the published catalog page for that cohort.
+
 Publication requires Linux with `renameat2(RENAME_EXCHANGE)` and Python 3 (both
 available on the workflow's Ubuntu runner). Unsupported platforms/filesystems
 fail closed. Staging needs roughly one extra copy of `static`. A sibling lock

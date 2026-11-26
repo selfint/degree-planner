@@ -100,37 +100,190 @@ export function getTests(courseSAPInfo) {
 	return [buildTest(first), buildTest(second)];
 }
 
+function isEmptyPrerequisiteMarker(row) {
+	return (
+		row.ModuleId === '00000000' &&
+		row.Peryr === '0000' &&
+		row.Perid === '000' &&
+		!row.Bracket.trim() &&
+		!row.Operator.trim() &&
+		typeof row.ModuleShort === 'string' &&
+		!row.ModuleShort.trim() &&
+		typeof row.ModuleName === 'string' &&
+		!row.ModuleName.trim()
+	);
+}
+
+class PrerequisiteBracketError extends Error {}
+
 /**
- * Get the course connections (prerequisites).
- * @param {Object} courseSAPInfo - The course SAP information object.
- * @param {Array<Object>} courseSAPInfo.SmPrereq.results - The array of prerequisite objects.
- * @param {string} courseSAPInfo.SmPrereq.results[].ModuleId - The module ID of the prerequisite.
- * @param {string} courseSAPInfo.SmPrereq.results[].Bracket - The bracket indicating groupings.
- * @returns {CourseConnections} The course connections including dependencies, adjacent, and exclusive groups.
+ * SAP emits prefix opening brackets and postfix operators. An operator may
+ * follow a course, a closing bracket, or appear on its own zero-ID row.
+ * PlanIt stores the expression as a list of alternative complete routes.
  */
-export function getConnections(courseSAPInfo) {
-	const dependencies = [];
-	let dependencyGroup = [];
+function getPrerequisiteAlternatives(rows) {
+	if (
+		rows.length === 0 ||
+		(rows.length === 1 &&
+			rows[0].LineNumber === '000' &&
+			isEmptyPrerequisiteMarker(rows[0]))
+	)
+		return [];
 
-	for (const prereq of courseSAPInfo.SmPrereq.results) {
-		if (prereq.Bracket === '(') {
-			if (dependencyGroup.length > 0) {
-				dependencies.push(dependencyGroup);
-			}
+	const tokens = [];
+	// SAP marks LineNumber as non-sortable; line 000 can be the final close.
+	for (const [index, row] of rows.entries()) {
+		if (index === rows.length - 1 && isEmptyPrerequisiteMarker(row)) continue;
+		const bracket = row.Bracket.trim();
+		const id = row.ModuleId.trim();
+		const operator = row.Operator.trim();
+		if (bracket && bracket !== '(' && bracket !== ')')
+			throw new Error(`Unknown prerequisite bracket ${bracket}`);
+		if (id && !/^\d{8}$/.test(id))
+			throw new Error(`Invalid prerequisite module ${id}`);
+		if (operator && operator !== 'AND' && operator !== 'OR')
+			throw new Error(`Unknown prerequisite operator ${operator}`);
 
-			dependencyGroup = [];
-		}
-
-		if (prereq.ModuleId.trim().replace(/0/g, '') === '') {
-			continue;
-		}
-
-		dependencyGroup.push(prereq.ModuleId);
+		if (bracket === '(') tokens.push(bracket);
+		if (id && id !== '00000000') tokens.push(id);
+		if (bracket === ')') tokens.push(bracket);
+		if (operator) tokens.push(operator);
+		if (!bracket && (!id || id === '00000000') && !operator)
+			throw new Error(`Empty prerequisite line ${row.LineNumber}`);
 	}
 
-	if (dependencyGroup.length > 0) {
-		dependencies.push(dependencyGroup);
+	let cursor = 0;
+	const maxRoutes = 4096;
+	function readOperand() {
+		const token = tokens[cursor++];
+		if (token === '(') {
+			const alternatives = readOr();
+			if (tokens[cursor++] !== ')')
+				throw new PrerequisiteBracketError(
+					'Missing closing prerequisite bracket'
+				);
+			return alternatives;
+		}
+		if (token === undefined || !/^\d{8}$/.test(token))
+			throw new Error(
+				`Expected prerequisite module, got ${token ?? 'end of input'}`
+			);
+		return [[token]];
 	}
+
+	function readAnd() {
+		let routes = readOperand();
+		while (tokens[cursor] === 'AND') {
+			cursor++;
+			const right = readOperand();
+			if (routes.length * right.length > maxRoutes)
+				throw new Error('Too many prerequisite alternatives');
+			routes = routes.flatMap((left) =>
+				right.map((group) => [...left, ...group])
+			);
+		}
+		return routes;
+	}
+
+	function readOr() {
+		const routes = readAnd();
+		while (tokens[cursor] === 'OR') {
+			cursor++;
+			const right = readAnd();
+			if (routes.length + right.length > maxRoutes)
+				throw new Error('Too many prerequisite alternatives');
+			routes.push(...right);
+		}
+		return routes;
+	}
+
+	const routes = readOr();
+	if (cursor !== tokens.length) {
+		const token = tokens[cursor];
+		if (token === ')')
+			throw new PrerequisiteBracketError(
+				'Unexpected closing prerequisite bracket'
+			);
+		throw new Error(`Unexpected prerequisite token ${token}`);
+	}
+	return routes;
+}
+
+// These two Spring 2024–25 records contain malformed source brackets.
+// Preserve only the previously published rules (ea22a7e), not an inferred
+// interpretation. Match the exact course, term and ordered logical input so
+// that a changed or corrected SAP rule is never silently treated as stale.
+const retainedHistoricalPrerequisites = new Map([
+	[
+		'SM03360036/2024/201',
+		{
+			rows: '(03350010 )AND (03360506 AND (00840506 AND 00360101 ) AND ( 03350010 AND 03360520 )',
+			dependencies: [
+				['03350010'],
+				['03360506'],
+				['00840506', '00360101'],
+				['03350010', '03360520']
+			]
+		}
+	],
+	[
+		'SM02360021/2024/201',
+		{
+			rows: '( 02340247 AND 00940412 ) OR ( 00460002 AND 01040034 ) ) OR ( 01040291 AND 01040034 )',
+			dependencies: [
+				['02340247', '00940412'],
+				['00460002', '01040034'],
+				['01040291', '01040034']
+			]
+		}
+	]
+]);
+
+function getSourcePrerequisites(course, header, current) {
+	const rows = course.SmPrereq.results;
+	try {
+		return getPrerequisiteAlternatives(rows);
+	} catch (error) {
+		const scope = `${course.Otjid}/${header?.Peryr}/${header?.Perid}`;
+		const retained = retainedHistoricalPrerequisites.get(scope);
+		if (
+			error instanceof PrerequisiteBracketError &&
+			retained &&
+			current &&
+			(header.Peryr < current.PiqYear ||
+				(header.Peryr === current.PiqYear &&
+					header.Perid < current.PiqSession)) &&
+			getCurrent(course, current) === false &&
+			retained.rows ===
+				rows
+					.map(
+						({ Bracket, ModuleId, Operator }) =>
+							Bracket.trim() +
+							(ModuleId.trim() === '00000000' ? '' : ModuleId.trim()) +
+							Operator.trim()
+					)
+					.join(' ')
+		) {
+			console.warn(
+				`SAP ${scope}: retaining previously published prerequisites for an unchanged malformed historical rule`
+			);
+			return structuredClone(retained.dependencies);
+		}
+		throw new Error(`SAP prerequisites for ${scope}: ${error.message}`, {
+			cause: error
+		});
+	}
+}
+
+/**
+ * Get the course connections including prerequisites and exclusive courses.
+ * @param {Object} courseSAPInfo - The course SAP information object.
+ * @param {CourseHeader | undefined} [header] - The exact requested SAP offering.
+ * @param {SemesterYear | undefined} [current] - The current SAP term.
+ * @returns {CourseConnections}
+ */
+export function getConnections(courseSAPInfo, header, current) {
+	const dependencies = getSourcePrerequisites(courseSAPInfo, header, current);
 
 	const exclusive = [];
 	for (const relation of courseSAPInfo.SmRelations.results) {
@@ -195,9 +348,10 @@ function getCurrent(course, current) {
  *
  * @param {Object} course raw course object
  * @param {SemesterYear | undefined} current is the course in the current semester
+ * @param {CourseConnections} connections
  * @returns {Promise<Course>}
  */
-async function parseCourse(course, current) {
+async function parseCourse(course, current, connections) {
 	const code = course.Otjid;
 
 	const retries = 5;
@@ -221,9 +375,7 @@ async function parseCourse(course, current) {
 			points: await handleField('points', () => getPoints(course)),
 			name: await handleField('name', () => getName(course)),
 			tests: await handleField('tests', () => getTests(course)),
-			connections: await handleField('connections', () =>
-				getConnections(course)
-			),
+			connections,
 			seasons: await handleField('seasons', () => getSeasons(course)),
 			faculty: course.OrgText,
 			current: await handleField('current', () => getCurrent(course, current))
@@ -303,10 +455,21 @@ export async function generateCourseData(top = 10000) {
 
 	const rawData = (await sap.getCourseData(courseHeaders)).flat();
 
+	// Prerequisites are deterministic. Interpret the whole feed before
+	// requesting medians; retrying a malformed expression cannot fix it.
+	const connections = rawData.map((raw, index) => {
+		const header = courseHeaders[index];
+		if (raw.Otjid !== header.Otjid)
+			throw new Error(
+				`Unexpected SAP course ${raw.Otjid}, expected ${header.Otjid}`
+			);
+		return getConnections(raw, header, currentYear);
+	});
+
 	const courseData = [];
 	for (let index = 0; index < rawData.length; index++) {
 		const raw = rawData[index];
-		const course = await parseCourse(raw, currentYear);
+		const course = await parseCourse(raw, currentYear, connections[index]);
 		courseData.push(course);
 	}
 
